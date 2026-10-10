@@ -507,7 +507,7 @@ export default function TermLibraryPage() {
     },
     {
       title: t9('termLibrary.thUsageCount'), dataIndex: 'count', key: 'count', width: 100,
-      render: (v: number) => <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><TrendingUp size={11} style={{ color: '#10b981' }} /><span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{v}</span></div>,
+      render: (v: number) => <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><TrendingUp size={11} style={{ color: '#10b981' }} /><span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{v}</span></div>,
     },
     { title: t9('termLibrary.thLastUsed'), dataIndex: 'lastUsed', key: 'lastUsed', render: (v?: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v || '-'}</span> },
     {
@@ -517,7 +517,7 @@ export default function TermLibraryPage() {
     {
       title: t9('termLibrary.thActions'), key: 'actions', width: 160,
       render: (_v: unknown, term: TermEntry) => (
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
           <ActionButton action="edit" size="compact" onClick={() => openEditModal(term)} />
           <button onClick={() => handleToggleActive(term.id)} title={term.isActive === false ? t9('termLibrary.enable') : t9('termLibrary.disable')} style={{ padding: '4px 8px', background: term.isActive === false ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: term.isActive === false ? 'var(--color-success-600)' : 'var(--color-warning-600)', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}</button>
           <ActionButton action="delete" size="compact" onClick={() => handleDeleteTerm(term.id)} />
@@ -558,7 +558,7 @@ export default function TermLibraryPage() {
 
   const renderFeatureBar = () => (
     <div style={{
-      display: mainTab === 'dict' ? 'flex' : 'none', gap: 4, marginBottom: 0,
+      display: mainTab === 'dict' ? 'flex' : 'none', gap: 'var(--space-1, 4px)', marginBottom: 0,
       background: 'var(--bg-card)', padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
       flexWrap: 'wrap',
     }}>
@@ -587,13 +587,13 @@ export default function TermLibraryPage() {
   )
 
   const renderSuggestionTab = () => (
-    <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'suggestion' ? undefined : 'none' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+    <div style={{ padding: 'var(--space-4, 16px)', display: mainTab === 'dict' && featureTab === 'suggestion' ? undefined : 'none' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <Lightbulb size={15} color="var(--color-warning-500)" />
           <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.realtimeSuggestion')}</span>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
             <Search size={12} color="var(--text-secondary)" />
             <input value={suggestionSearch} onChange={e => setSuggestionSearch(e.target.value)} placeholder={t9('termLibrary.suggestionPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: 'var(--color-primary-800)' }} />
@@ -603,10 +603,10 @@ export default function TermLibraryPage() {
             {MODALITY_LIST.map(m => <option key={m} value={m}>{m}</option>)}
           </select>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)' }}>
           {filteredSuggestions.map(s => (
             <div key={s.term} style={{ padding: 10, background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 4 }}>{s.term}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-1, 4px)' }}>{s.term}</div>
               <div style={{ display: 'flex', gap: 6, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                 <span>{t9('termLibrary.frequencyPrefix')}{s.frequency}</span>
                 <span>·</span>
@@ -620,7 +620,7 @@ export default function TermLibraryPage() {
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.suggestionFooterPrefix')}{suggestions.reduce((s, x) => s + x.frequency, 0)}{t9('termLibrary.suggestionFooterSuffix')}</div>
+        <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.suggestionFooterPrefix')}{suggestions.reduce((s, x) => s + x.frequency, 0)}{t9('termLibrary.suggestionFooterSuffix')}</div>
       </div>
     </div>
   )
@@ -639,10 +639,10 @@ export default function TermLibraryPage() {
       : synonymRelations.slice(0, 8)
 
     return (
-      <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'synonym' ? undefined : 'none' }}>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{ padding: 'var(--space-4, 16px)', display: mainTab === 'dict' && featureTab === 'synonym' ? undefined : 'none' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <Network size={15} color="#7c3aed" />
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.synonymNetwork')}</span>
               <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
@@ -683,9 +683,9 @@ export default function TermLibraryPage() {
                 })}
               </svg>
             </div>
-            <div style={{ display: 'flex', gap: 12, marginTop: 8, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)', justifyContent: 'center' }}>
               {Object.entries(relationshipColors).map(([type, color]) => (
-                <span key={type} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+                <span key={type} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: 'var(--text-secondary)' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
                   {type === 'synonym' ? t9('termLibrary.relSynonym') : type === 'broader' ? t9('termLibrary.relBroader') : type === 'narrower' ? t9('termLibrary.relNarrower') : t9('termLibrary.relRelated')}
                 </span>
@@ -693,9 +693,9 @@ export default function TermLibraryPage() {
             </div>
           </div>
           {selectedNode && (
-            <div style={{ width: 280, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', height: 'fit-content' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12 }}>{selectedNode}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{t9('termLibrary.relatedRelationsPrefix')}{selectedRelations.length}{t9('termLibrary.relatedRelationsSuffix')}</div>
+            <div style={{ width: 280, background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', height: 'fit-content' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{selectedNode}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>{t9('termLibrary.relatedRelationsPrefix')}{selectedRelations.length}{t9('termLibrary.relatedRelationsSuffix')}</div>
               {selectedRelations.map(r => {
                 const other = r.from === selectedNode ? r.to : r.from
                 return (
@@ -716,9 +716,9 @@ export default function TermLibraryPage() {
   }
 
   const renderExtractionTab = () => (
-    <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'extraction' ? undefined : 'none' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+    <div style={{ padding: 'var(--space-4, 16px)', display: mainTab === 'dict' && featureTab === 'extraction' ? undefined : 'none' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <FileSearch size={15} color="#059669" />
           <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.reportTermExtraction')}</span>
           <button
@@ -730,7 +730,7 @@ export default function TermLibraryPage() {
             {extractionRunning ? t9('termLibrary.analyzing') : t9('termLibrary.analyzeAndExtract')}
           </button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 12px' }}>
             <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)' }}>{extractedTerms.length}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.extractedTotal')}</div>
@@ -792,7 +792,7 @@ export default function TermLibraryPage() {
               key: 'action',
               width: 120,
               render: (_: unknown, et) => (
-                <div style={{ display: 'flex', gap: 4 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                   {et.status === 'pending' && (
                     <>
                       <button onClick={() => handleApproveExtraction(et.id)} style={{ padding: '3px 8px', background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{t9('termLibrary.adopt')}</button>
@@ -814,9 +814,9 @@ export default function TermLibraryPage() {
   )
 
   const renderLanguageTab = () => (
-    <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'language' ? undefined : 'none' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+    <div style={{ padding: 'var(--space-4, 16px)', display: mainTab === 'dict' && featureTab === 'language' ? undefined : 'none' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <Languages size={15} color="#7c3aed" />
           <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.multilingualSupport')}</span>
           <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-secondary)', cursor: 'pointer' }}>
@@ -824,7 +824,7 @@ export default function TermLibraryPage() {
             {t9('termLibrary.bilingualMode')}
           </label>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
             <Search size={12} color="var(--text-secondary)" />
             <input value={languageSearch} onChange={e => setLanguageSearch(e.target.value)} placeholder={t9('termLibrary.searchTermsShort')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: 'var(--color-primary-800)' }} />
@@ -857,7 +857,7 @@ export default function TermLibraryPage() {
             {
               title: t9('termLibrary.accuracy'), dataIndex: 'accuracy',
               render: (v: number) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   <div style={{ width: 50, height: 5, background: 'var(--border-color)', borderRadius: 3 }}>
                     <div style={{ width: `${v * 100}%`, height: 5, background: v > 0.95 ? 'var(--color-success-600)' : v > 0.9 ? 'var(--color-warning-500)' : 'var(--color-error-600)', borderRadius: 3 }} />
                   </div>
@@ -868,7 +868,7 @@ export default function TermLibraryPage() {
           ]}
         />
         </div>
-        <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.languageFooter')}</div>
+        <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.languageFooter')}</div>
       </div>
     </div>
   )
@@ -952,25 +952,25 @@ export default function TermLibraryPage() {
     ))
 
     return (
-      <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'category' ? undefined : 'none' }}>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{ padding: 'var(--space-4, 16px)', display: mainTab === 'dict' && featureTab === 'category' ? undefined : 'none' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <Move size={15} color="var(--color-info-600)" />
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.categoryBrowser')}</span>
               <button onClick={openAddCategory} style={{ marginLeft: 'auto', padding: '4px 10px', background: 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 <Plus size={11} /> {t9('termLibrary.newCategory')}
               </button>
             </div>
-            <div style={{ maxHeight: 400, overflowY: 'auto', padding: 4 }}>
+            <div style={{ maxHeight: 400, overflowY: 'auto', padding: 'var(--space-1, 4px)' }}>
               {renderTree(categoryTree)}
             </div>
-            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.dragHint')}</div>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.dragHint')}</div>
           </div>
           {selectedCategory && (
-            <div style={{ width: 300, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', height: 'fit-content' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t9('termLibrary.categoryStats')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ width: 300, background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', height: 'fit-content' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t9('termLibrary.categoryStats')}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                 <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)' }}>32</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.termCount')}</div>
@@ -980,7 +980,7 @@ export default function TermLibraryPage() {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.usageCount')}</div>
                 </div>
               </div>
-              <button onClick={openEditCategory} style={{ marginTop: 12, width: '100%', padding: '6px 12px', background: 'var(--content-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+              <button onClick={openEditCategory} style={{ marginTop: 'var(--space-3, 12px)', width: '100%', padding: '6px 12px', background: 'var(--content-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
                 {t9('termLibrary.editCategory')}
               </button>
             </div>
@@ -990,10 +990,10 @@ export default function TermLibraryPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCategoryModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Move size={16} color="var(--color-info-600)" /> {categoryForm.id ? t9('termLibrary.editCategory') : t9('termLibrary.newCategory')}</div>
-              <button onClick={() => setShowCategoryModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 4 }}>×</button>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Move size={16} color="var(--color-info-600)" /> {categoryForm.id ? t9('termLibrary.editCategory') : t9('termLibrary.newCategory')}</div>
+              <button onClick={() => setShowCategoryModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 'var(--space-1, 4px)' }}>×</button>
             </div>
-            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t9('termLibrary.labelCategoryName')}</label>
                 <input value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} placeholder={t9('termLibrary.categoryNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
@@ -1010,14 +1010,14 @@ export default function TermLibraryPage() {
               {!categoryForm.id && (
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t9('termLibrary.labelColor')}</label>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                     {CATEGORY_COLORS.map(c => (
                       <button key={c} onClick={() => setCategoryForm({ ...categoryForm, color: c })} style={{ width: 26, height: 26, borderRadius: '50%', background: c, border: categoryForm.color === c ? '3px solid #1e293b' : 'none', cursor: 'pointer' }} />
                     ))}
                   </div>
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
                 <ActionButton action="cancel" onClick={() => setShowCategoryModal(false)}>{t9('termLibrary.cancel')}</ActionButton>
                 <ActionButton action="save" disabled={!categoryForm.name.trim()} onClick={handleSaveCategory}>{t9('termLibrary.save')}</ActionButton>
               </div>
@@ -1040,21 +1040,21 @@ export default function TermLibraryPage() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <div style={{ width: 260, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border-color)', background: 'var(--color-primary-800)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
             <BookOpen size={18} style={{ color: '#93c5fd' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{t9('termLibrary.title')}</span>
           </div>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{t9('termLibrary.subtitle')}</p>
         </div>
         <div style={{ padding: '12px 12px 8px', borderBottom: '1px solid var(--border-light)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
             <Search size={13} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             <input value={leftSearch} onChange={e => setLeftSearch(e.target.value)} placeholder={t9('termLibrary.searchTermsPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: 'var(--color-primary-800)' }} />
             {leftSearch && <button onClick={() => setLeftSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
           </div>
         </div>
         <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-light)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
             <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
               <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)' }}>{stats.totalTerms}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.totalTerms')}</div>
@@ -1067,7 +1067,7 @@ export default function TermLibraryPage() {
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
           <button onClick={() => { setActiveCategoryId('ALL'); setMainTab('dict') }} style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: 'none', cursor: 'pointer',
+            width: '100%', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 16px', border: 'none', cursor: 'pointer',
             background: activeCategoryId === 'ALL' && mainTab === 'dict' ? 'var(--color-info-bg)' : 'transparent',
             borderLeft: activeCategoryId === 'ALL' && mainTab === 'dict' ? '3px solid var(--color-primary-800)' : '3px solid transparent', textAlign: 'left',
           }}>
@@ -1076,7 +1076,7 @@ export default function TermLibraryPage() {
             <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, background: activeCategoryId === 'ALL' && mainTab === 'dict' ? 'var(--color-primary-800)' : 'var(--border-color)', color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#fff' : 'var(--text-muted)', borderRadius: 10, padding: '1px 6px' }}>{getCategoryCount('ALL')}</span>
           </button>
           <button onClick={() => { setMainTab('standard'); setActiveCategoryId('ALL') }} style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: 'none', cursor: 'pointer',
+            width: '100%', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 16px', border: 'none', cursor: 'pointer',
             background: mainTab === 'standard' ? 'var(--color-info-bg)' : 'transparent',
             borderLeft: mainTab === 'standard' ? '3px solid var(--color-primary-800)' : '3px solid transparent', textAlign: 'left',
           }}>
@@ -1087,7 +1087,7 @@ export default function TermLibraryPage() {
           <div style={{ padding: '6px 16px 4px', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: 1 }}>{t9('termLibrary.byModality')}</div>
           {categories.map(cat => (
             <button key={cat.id} onClick={() => { setActiveCategoryId(cat.id); setMainTab('dict') }} style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '7px 16px', border: 'none', cursor: 'pointer',
+              width: '100%', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '7px 16px', border: 'none', cursor: 'pointer',
               background: activeCategoryId === cat.id && mainTab === 'dict' ? 'var(--color-info-bg)' : 'transparent',
               borderLeft: activeCategoryId === cat.id && mainTab === 'dict' ? `3px solid ${cat.color}` : '3px solid transparent', textAlign: 'left',
             }}>
@@ -1097,7 +1097,7 @@ export default function TermLibraryPage() {
             </button>
           ))}
         </div>
-        <div style={{ padding: 12, borderTop: '1px solid var(--border-color)' }}>
+        <div style={{ padding: 'var(--space-3, 12px)', borderTop: '1px solid var(--border-color)' }}>
           <button onClick={openAddModal} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 16px', background: 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 6px rgba(30,64,175,0.3)' }}>
             <Plus size={13} /> {t9('termLibrary.newTerm')}
           </button>
@@ -1105,15 +1105,15 @@ export default function TermLibraryPage() {
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div style={{ background: 'var(--bg-card)', padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <LayoutGrid size={16} style={{ color: 'var(--color-primary-800)' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>
               {mainTab === 'dict' ? t9('termLibrary.dictMgmt') : t9('termLibrary.nationalStandardFull')}
             </span>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>({mainTab === 'dict' ? filteredTerms.length : filteredWsStandards.length} {t9('termLibrary.itemsSuffix')})</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'var(--space-1, 4px)' }}>({mainTab === 'dict' ? filteredTerms.length : filteredWsStandards.length} {t9('termLibrary.itemsSuffix')})</span>
           </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
             {mainTab === 'dict' && (
               <>
                 <button onClick={() => setShowQuickPanel(!showQuickPanel)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: showQuickPanel ? 'var(--color-info-bg)' : 'var(--bg-card)', border: `1px solid ${showQuickPanel ? 'var(--color-primary-800)' : 'var(--border-color)'}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: showQuickPanel ? 'var(--color-primary-800)' : 'var(--text-muted)' }}>
@@ -1136,20 +1136,20 @@ export default function TermLibraryPage() {
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {mainTab === 'standard' && (
-            <div style={{ padding: 16 }}>
+            <div style={{ padding: 'var(--space-4, 16px)' }}>
               {importedCount !== null && (
-                <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-600)', borderRadius: 8, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-600)', borderRadius: 8, padding: '10px 16px', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <CheckCircle2 size={15} style={{ color: 'var(--color-success-600)' }} />
                   <span style={{ fontSize: 12, color: '#166534', fontWeight: 600 }}>{t9('termLibrary.importedPrefix')}{importedCount}{t9('termLibrary.importedSuffix')}</span>
                 </div>
               )}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                   <FileCheck size={15} style={{ color: 'var(--color-primary-800)' }} />
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.wsTableTitle')}</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>{t9('termLibrary.wsTableSubtitle')}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'var(--space-1, 4px)' }}>{t9('termLibrary.wsTableSubtitle')}</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
                   {[
                     { label: t9('termLibrary.wsTotal'), value: WS_STANDARDS.length, color: 'var(--color-primary-800)', bg: '#3b82f622' },
                     { label: t9('termLibrary.wsCT'), value: WS_STANDARDS.filter(w => w.department === 'CT').length, color: 'var(--color-primary-500)', bg: '#3b82f622' },
@@ -1163,7 +1163,7 @@ export default function TermLibraryPage() {
                     </div>
                   ))}
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 200 }}>
                     <Search size={12} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
                     <input value={wsSearch} onChange={e => setWsSearch(e.target.value)} placeholder={t9('termLibrary.searchStandardPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: 'var(--color-primary-800)' }} />
@@ -1187,7 +1187,7 @@ export default function TermLibraryPage() {
                       { title: t9('termLibrary.thStandardName'), dataIndex: 'standardName', render: (v: string) => <span style={{ fontWeight: 600, color: 'var(--color-primary-800)' }}>{v}</span> },
                       {
                         title: t9('termLibrary.thAliases'), dataIndex: 'aliases',
-                        render: (v: string[]) => <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{v.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)' }}>{a}</span>)}</div>,
+                        render: (v: string[]) => <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>{v.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)' }}>{a}</span>)}</div>,
                       },
                       {
                         title: t9('termLibrary.thDepartment'), dataIndex: 'department',
@@ -1218,12 +1218,12 @@ export default function TermLibraryPage() {
           {mainTab === 'dict' && featureTab === 'main' && (
             <>
               {showStats && (
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', margin: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
                     <BarChart2 size={15} style={{ color: '#7c3aed' }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.libraryStats')}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                     {[
                       { label: t9('termLibrary.totalTerms'), value: stats.totalTerms, sub: t9('termLibrary.unitItems'), color: 'var(--color-primary-800)', bg: '#3b82f622' },
                       { label: t9('termLibrary.thisMonthUsage'), value: stats.thisMonthUsage, sub: t9('termLibrary.unitTimes'), color: '#7c3aed', bg: '#8b5cf622' },
@@ -1241,9 +1241,9 @@ export default function TermLibraryPage() {
                       <TrendingUp size={13} style={{ color: 'var(--color-warning-500)' }} />
                       <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.rankingTop20')}</span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)' }}>
                       {top20Terms.map((t, i) => (
-                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: i < 3 ? (i === 0 ? 'var(--color-warning-bg)' : i === 1 ? 'var(--bg-card)' : 'var(--color-warning-bg)') : 'var(--bg-card)', borderRadius: 8, padding: '7px 10px', border: `1px solid ${i < 3 ? '#f59e0b30' : 'var(--border-light)'}` }}>
+                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', background: i < 3 ? (i === 0 ? 'var(--color-warning-bg)' : i === 1 ? 'var(--bg-card)' : 'var(--color-warning-bg)') : 'var(--bg-card)', borderRadius: 8, padding: '7px 10px', border: `1px solid ${i < 3 ? '#f59e0b30' : 'var(--border-light)'}` }}>
                           <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? 'var(--color-warning-600)' : 'var(--text-muted)', minWidth: 16 }}>#{i + 1}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.term}</div>
@@ -1258,18 +1258,18 @@ export default function TermLibraryPage() {
               )}
 
               {showQuickPanel && (
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, margin: 16, marginBottom: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', margin: 'var(--space-4, 16px)', marginBottom: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                     <Zap size={15} style={{ color: 'var(--color-warning-500)' }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t9('termLibrary.quickLibrary')}</span>
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>{t9('termLibrary.clickToCopy')}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'var(--space-1, 4px)' }}>{t9('termLibrary.clickToCopy')}</span>
                   </div>
-                  <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
                     {MODALITY_LIST.map(m => (
                       <button key={m} onClick={() => setActiveQuickModality(m)} style={{ padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${activeQuickModality === m ? MODALITY_COLORS[m] : 'var(--border-color)'}`, background: activeQuickModality === m ? MODALITY_BG[m] : 'var(--bg-card)', color: activeQuickModality === m ? MODALITY_COLORS[m] : 'var(--text-muted)' }}>{m}</button>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
                     {quickTerms.length === 0 ? (
                       <div
                         role="status"
@@ -1296,16 +1296,16 @@ export default function TermLibraryPage() {
                 </div>
               )}
 
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, margin: 'var(--space-4, 16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                     {([{ key: 'all', label: t9('termLibrary.tabAll'), count: terms.length }, { key: 'active', label: t9('termLibrary.tabActive'), count: terms.filter(t => t.isActive !== false).length }, { key: 'inactive', label: t9('termLibrary.tabInactive'), count: terms.filter(t => t.isActive === false).length }] as const).map(tab => (
                       <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTab === tab.key ? 'var(--color-primary-800)' : 'var(--bg-card)', color: activeTab === tab.key ? '#fff' : 'var(--text-muted)' }}>
                         {tab.label} ({tab.count})
                       </button>
                     ))}
                   </div>
-                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '5px 10px' }}>
                       <Search size={12} style={{ color: 'var(--text-secondary)' }} />
                       <input value={rightSearch} onChange={e => setRightSearch(e.target.value)} placeholder={t9('termLibrary.searchTermContent')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: 150, color: 'var(--color-primary-800)' }} />
@@ -1330,12 +1330,12 @@ export default function TermLibraryPage() {
                         ...allCategoryNames.map(c => ({ value: c, label: c })),
                       ]}
                     />
-                    <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> {t9('termLibrary.importTemplate')}</button>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? 'var(--content-bg)' : 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
+                    <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '5px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> {t9('termLibrary.importTemplate')}</button>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '5px 10px', background: importLoading ? 'var(--content-bg)' : 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
                       <Upload size={11} />{importLoading ? t9('termLibrary.importing') : t9('termLibrary.batchImport')}
                       <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={e => setImportFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
                     </label>
-                    {importFile && <button onClick={handleImportFile} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#7c3aed', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer' }}><FileSpreadsheet size={11} /> {t9('termLibrary.confirmImport')}</button>}
+                    {importFile && <button onClick={handleImportFile} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '5px 10px', background: '#7c3aed', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer' }}><FileSpreadsheet size={11} /> {t9('termLibrary.confirmImport')}</button>}
                   </div>
                 </div>
                 <DataTable<TermEntry>
@@ -1366,18 +1366,18 @@ export default function TermLibraryPage() {
         <div onClick={() => setShowModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: 16, width: 580, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-primary-800)', borderRadius: '16px 16px 0 0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Tag size={15} style={{ color: '#93c5fd' }} />
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{modalMode === 'add' ? t9('termLibrary.modalAdd') : t9('termLibrary.modalEdit')}</span>
               </div>
               <ActionButton action="cancel" variant="text" style={{ color: '#fff' }} onClick={() => setShowModal(false)} />
             </div>
-            <div style={{ padding: 20 }}>
-              <div style={{ marginBottom: 16 }}>
+            <div style={{ padding: 'var(--space-5, 20px)' }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6 }}> {t9('termLibrary.labelTermContent')} <span style={{ color: 'var(--color-error-600)' }}>*</span></label>
                 <textarea value={formData.term} onChange={e => setFormData(prev => ({ ...prev, term: e.target.value }))} rows={3} placeholder={t9('termLibrary.termContentPlaceholder')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--color-primary-800)', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = 'var(--color-primary-800)'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6 }}>{t9('termLibrary.labelCategory')}</label>
                   <select value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--color-primary-800)', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
                     {allCategoryNames.length > 0 ? allCategoryNames.map(c => <option key={c} value={c}>{c}</option>) : ['CT描述', 'MR描述', '结论术语', '急诊模板', '肿瘤评估'].map(c => <option key={c} value={c}>{c}</option>)}
@@ -1389,9 +1389,9 @@ export default function TermLibraryPage() {
                   </select>
                 </div>
               </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t9('termLibrary.labelApplicableModality')} <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>{t9('termLibrary.multiSelect')}</span></label>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t9('termLibrary.labelApplicableModality')} <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>{t9('termLibrary.multiSelect')}</span></label>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                   {MODALITY_LIST.map(m => (
                     <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, border: `1px solid ${formData.modality.includes(m) ? MODALITY_COLORS[m] : 'var(--border-color)'}`, background: formData.modality.includes(m) ? MODALITY_BG[m] : 'var(--bg-card)', color: formData.modality.includes(m) ? MODALITY_COLORS[m] : 'var(--text-muted)', userSelect: 'none' }}>
                       <input type="checkbox" checked={formData.modality.includes(m)} onChange={() => handleModalityToggle(m)} style={{ display: 'none' }} />
@@ -1403,18 +1403,18 @@ export default function TermLibraryPage() {
                   ))}
                 </div>
               </div>
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6 }}>{t9('termLibrary.labelWsStandard')}</label>
                 <select value={formData.wsStandardCode} onChange={e => setFormData(prev => ({ ...prev, wsStandardCode: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--color-primary-800)', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
                   <option value="">{t9('termLibrary.noStandardLink')}</option>
                   {WS_STANDARDS.map(ws => <option key={ws.code} value={ws.code}>{ws.code} - {ws.standardName}</option>)}
                 </select>
               </div>
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6 }}>{t9('termLibrary.labelStandardReport')}</label>
                 <textarea value={formData.standardReport} onChange={e => setFormData(prev => ({ ...prev, standardReport: e.target.value }))} rows={4} placeholder={t9('termLibrary.standardReportPlaceholder')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--color-primary-800)', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = 'var(--color-primary-800)'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
-              <div style={{ marginBottom: 20 }}>
+              <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6 }}>{t9('termLibrary.labelUsageNotes')}</label>
                 <textarea value={formData.usageNotes} onChange={e => setFormData(prev => ({ ...prev, usageNotes: e.target.value }))} rows={2} placeholder={t9('termLibrary.optional')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--color-primary-800)', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = 'var(--color-primary-800)'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>

@@ -49,7 +49,7 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
         gap: 6,
         border: '1px solid var(--border-color)',
         borderRadius: 8,
-        padding: 8,
+        padding: 'var(--space-2, 8px)',
         background: 'var(--bg-card)',
         minWidth: 260,
       }}
@@ -244,8 +244,8 @@ const HangingProtocolPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }} align="center">
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} align="center">
         <LayoutGrid size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('hangProto.title')}</Title>
         <Tag color="geekblue">{t('w9d.hanging.benchmark')}</Tag>
@@ -253,7 +253,7 @@ const HangingProtocolPage: React.FC = () => {
 
       {/* [G005 Wave 4B] 应用到阅片入口说明 */}
       <Alert
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         type="info"
         showIcon
         icon={<MonitorPlay size={14} />}
@@ -278,7 +278,7 @@ const HangingProtocolPage: React.FC = () => {
 
       <Card
         size="small"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         title={<Space><RefreshCw size={14} />{t('w9d.hanging.protocolList', { count: protocols.length })}</Space>}
         extra={
           <Space>
@@ -321,7 +321,7 @@ const HangingProtocolPage: React.FC = () => {
             </Form.Item>
           </Space>
           <Form.Item label={t('hangProto.form.layoutTemplate')} required>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
               {LAYOUT_PRESETS.map((preset) => (
                 <Radio
                   key={layoutKey(preset.layout)}
@@ -383,7 +383,7 @@ const HangingProtocolPage: React.FC = () => {
         </Form>
 
         {matchResult && (
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 'var(--space-5, 20px)' }}>
             <Alert
               type="success"
               showIcon
@@ -398,16 +398,16 @@ const HangingProtocolPage: React.FC = () => {
                   {matchResult.reasons.map((r, i) => <Tag key={i} color="blue">{r}</Tag>)}
                 </Space>
               }
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 'var(--space-4, 16px)' }}
             />
-            <Text strong style={{ display: 'block', marginBottom: 8 }}>
+            <Text strong style={{ display: 'block', marginBottom: 'var(--space-2, 8px)' }}>
               {t('hangProto.match.layoutPreview', { rows: matchResult.layout.rows, cols: matchResult.layout.cols })}
             </Text>
             <GridPreview rows={matchResult.layout.rows} cols={matchResult.layout.cols} cells={previewCells} />
             {matchResult.candidates.length > 1 && (
-              <div style={{ marginTop: 12 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                 <Text type="secondary">{t('hangProto.match.candidates')}</Text>
-                {matchResult.candidates.map((c) => <Tag key={c.id} style={{ marginRight: 8 }}>{c.name} ({c.score}{t('hangProto.match.points')})</Tag>)}
+                {matchResult.candidates.map((c) => <Tag key={c.id} style={{ marginRight: 'var(--space-2, 8px)' }}>{c.name} ({c.score}{t('hangProto.match.points')})</Tag>)}
               </div>
             )}
           </div>

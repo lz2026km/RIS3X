@@ -210,7 +210,7 @@ const CaTab: React.FC = () => {
             </Space>
           </Card>
 
-          <Card size="small" style={{ marginTop: 16 }} title={<span><KeyRound size={14} /> {t('w13Sec.ca.hsm')}</span>} extra={<Button size="small" icon={<RotateCw size={12} />} loading={rotating} onClick={() => void handleRotate()}>{t('w13Sec.ca.hsm.rotate')}</Button>}>
+          <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }} title={<span><KeyRound size={14} /> {t('w13Sec.ca.hsm')}</span>} extra={<Button size="small" icon={<RotateCw size={12} />} loading={rotating} onClick={() => void handleRotate()}>{t('w13Sec.ca.hsm.rotate')}</Button>}>
             <Descriptions size="small" column={1}>
               <Descriptions.Item label={t('w13Sec.ca.hsm.providers')}>
                 {providers.map((p) => <Tag key={p.name} color={p.kind === 'mock' ? 'gold' : 'blue'}>{p.name} ({p.keyCount})</Tag>)}
@@ -221,14 +221,14 @@ const CaTab: React.FC = () => {
             </Descriptions>
           </Card>
 
-          <Card size="small" style={{ marginTop: 16 }} title={<span><BadgeCheck size={14} /> {t('w13Sec.ca.ocsp')}</span>}>
+          <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }} title={<span><BadgeCheck size={14} /> {t('w13Sec.ca.ocsp')}</span>}>
             <Space.Compact style={{ width: '100%' }}>
               <Input value={ocspSerial} onChange={(e) => setOcspSerial(e.target.value)} placeholder={t('w13Sec.ca.ocspPlaceholder')} onPressEnter={() => void handleOcsp()} />
               <Button type="primary" loading={ocspLoading} icon={<Search size={12} />} onClick={() => void handleOcsp()}>{t('w13Sec.ca.ocspQuery')}</Button>
             </Space.Compact>
             {ocspResult && (
               <Alert
-                style={{ marginTop: 12 }}
+                style={{ marginTop: 'var(--space-3, 12px)' }}
                 type={ocspResult.status === 'good' ? 'success' : ocspResult.status === 'revoked' ? 'error' : 'warning'}
                 showIcon
                 message={<Space><Tag color={OCSP_COLOR[ocspResult.status]}>{t(`w13Sec.ca.ocsp.${ocspResult.status}`)}</Tag><Text code style={{ fontSize: 12 }}>{ocspResult.serial}</Text></Space>}
@@ -249,10 +249,10 @@ const CaTab: React.FC = () => {
           <Card size="small" title={<span><ShieldCheck size={14} /> {t('w13Sec.ca.requests')}</span>}>
             {loading ? <LoadingBanner /> : <DataTable<RaCertificateRequestDto> rowKey="id" dataSource={requests} columns={reqColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
           </Card>
-          <Card size="small" style={{ marginTop: 16 }} title={<span><BadgeCheck size={14} /> {t('w13Sec.ca.certList')}</span>}>
+          <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }} title={<span><BadgeCheck size={14} /> {t('w13Sec.ca.certList')}</span>}>
             {loading ? <LoadingBanner /> : <DataTable<ReportCertificateDto> rowKey="serial" dataSource={certs} columns={certColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
           </Card>
-          <Card size="small" style={{ marginTop: 16 }} title={<span><KeyRound size={14} /> {t('w13Sec.ca.hsm.keys')}</span>}>
+          <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }} title={<span><KeyRound size={14} /> {t('w13Sec.ca.hsm.keys')}</span>}>
             {loading ? <LoadingBanner /> : <DataTable<ManagedKeyDto> rowKey="keyId" dataSource={keys} columns={keyColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
           </Card>
         </Col>
@@ -348,7 +348,7 @@ const FieldEncryptionTab: React.FC = () => {
           >
             {demo ? <DataTable rowKey="field" pagination={false} dataSource={demo.samples} columns={demoColumns} /> : <LoadingBanner />}
             {selfTestResult && (
-              <div style={{ marginTop: 12 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
                   {t('w4b.fe.selftestResult')} · <Tag color="purple">{selfTestResult.algorithm}</Tag>
                 </div>
@@ -430,14 +430,14 @@ const ComplianceTab: React.FC = () => {
           <Col span={5}><Statistic title={t('w13Sec.cp.controls')} value={assessment.totals.controls} /></Col>
           <Col span={5}><Statistic title={t('w13Sec.cp.gaps')} value={assessment.totals.gaps} valueStyle={{ color: assessment.totals.gaps > 0 ? 'var(--color-warning-600)' : 'var(--color-success-600)' }} prefix={<AlertTriangle size={16} />} /></Col>
         </Row>
-        <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0, fontSize: 12 }}>{t('w13Sec.cp.standard')}: {assessment.standard} · v{assessment.version}</Paragraph>
+        <Paragraph type="secondary" style={{ marginTop: 'var(--space-2, 8px)', marginBottom: 0, fontSize: 12 }}>{t('w13Sec.cp.standard')}: {assessment.standard} · v{assessment.version}</Paragraph>
       </Card>
 
       <Card size="small" title={t('w13Sec.cp.domainScores')}>
         <Row gutter={[16, 16]}>
           {assessment.domains.map((d) => (
             <Col span={8} key={d.domain}>
-              <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', display: 'flex', justifyContent: 'space-between' }}>
                 <Text strong>{d.domainName}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{d.implementedCount}/{d.controlCount} · {d.averageScore}</Text>
               </div>
@@ -616,11 +616,11 @@ const DrTab: React.FC = () => {
             </Descriptions>
           </Col>
           <Col span={16}>
-            <Card size="small" title={t('w13Sec.dr.steps')} style={{ marginBottom: 12 }}>
+            <Card size="small" title={t('w13Sec.dr.steps')} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               {lastDrill ? (
                 <Space direction="vertical" style={{ width: '100%' }}>
                   {lastDrill.steps.map((s) => (
-                    <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                    <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                       <StepIcon status={s.status} />
                       <span style={{ width: 150 }}>{s.name}</span>
                       <Text type="secondary" style={{ flex: 1 }}>{s.detail}</Text>
@@ -659,10 +659,10 @@ const DrTab: React.FC = () => {
         width={640}
       >
         {drillDetailLoading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
         ) : drillDetail ? (
           <>
-            <Descriptions size="small" column={2} bordered style={{ marginBottom: 16 }}>
+            <Descriptions size="small" column={2} bordered style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Descriptions.Item label={t('w13Sec.cp.col.id')}><Text code>{drillDetail.id}</Text></Descriptions.Item>
               <Descriptions.Item label={t('w4b.dr.scenario')}>{drillDetail.scenario}</Descriptions.Item>
               <Descriptions.Item label={t('w13Sec.dr.col.result')}><Tag color={DRILL_COLOR[drillDetail.result]}>{t(`w13Sec.dr.drillResult.${drillDetail.result}`)}</Tag></Descriptions.Item>
@@ -745,7 +745,7 @@ const AuditChainTab: React.FC = () => {
             message={verification.verified ? t('w13Sec.ac.verified') : t('w13Sec.ac.broken', { index: verification.brokenAt ?? 0 })}
             description={verification.reason ?? undefined}
           />
-          <Row gutter={16} style={{ marginTop: 12 }}>
+          <Row gutter={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Col span={6}><Statistic title={t('w13Sec.ac.blocks')} value={verification.totalBlocks} /></Col>
             <Col span={6}><Statistic title={t('w13Sec.ac.checked')} value={verification.checkedBlocks} /></Col>
             <Col span={6}><Statistic title={t('w13Sec.ac.source')} value={t(`w13Sec.ac.source.${verification.source}`)} /></Col>
@@ -781,13 +781,13 @@ const AuditChainTab: React.FC = () => {
 export const SecurityComplianceCenterPage: React.FC = () => {
   const [tab, setTab] = useState('ca')
   return (
-    <div data-testid="security-compliance-center-page" style={{ padding: 20, maxWidth: 1500, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+    <div data-testid="security-compliance-center-page" style={{ padding: 'var(--space-5, 20px)', maxWidth: 1500, margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
         <ShieldCheck size={22} color="var(--color-info-600)" />
         <Typography.Title level={4} style={{ margin: 0 }}>{t('w13Sec.title')}</Typography.Title>
         <Tag color="cyan">{t('w13Sec.badge')}</Tag>
       </div>
-      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 0, marginBottom: 16 }}>{t('w13Sec.subtitle')}</p>
+      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 0, marginBottom: 'var(--space-4, 16px)' }}>{t('w13Sec.subtitle')}</p>
       <Tabs activeKey={tab} onChange={setTab} items={[
         { key: 'ca', label: <span><KeyRound size={14} /> {t('w13Sec.tab.ca')}</span>, children: <CaTab /> },
         { key: 'field', label: <span><Lock size={14} /> {t('w13Sec.tab.fieldEncryption')}</span>, children: <FieldEncryptionTab /> },

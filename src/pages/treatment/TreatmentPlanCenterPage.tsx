@@ -239,14 +239,14 @@ export const TreatmentPlanCenterPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <ClipboardList size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('treatmentPlan.pageTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('treatmentPlan.retry')}</Button>} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('treatmentPlan.retry')}</Button>} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('treatmentPlan.statTotal')} value={stats.total} />
         <StatCard title={t('treatmentPlan.statPlanned')} value={stats.planned} color="warning" />
         <StatCard title={t('treatmentPlan.statActive')} value={stats.active} color="primary" />
@@ -324,7 +324,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       } width={640}>
         {detail && (
           <>
-            <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
+            <Descriptions bordered column={2} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Descriptions.Item label={t('treatmentPlan.patientLabel')}>{detail.patient}</Descriptions.Item>
               <Descriptions.Item label={t('treatmentPlan.colType')}><Tag color="blue">{detail.type}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('treatmentPlan.colDept')} span={2}><Tag color="orange">{detail.department}</Tag></Descriptions.Item>

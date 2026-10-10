@@ -124,7 +124,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Brain size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiFusion.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
@@ -135,10 +135,10 @@ export const AiFusionWorkspacePage: React.FC = () => {
         {loading && <Spin size="small" />}
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> {t('aiFusion.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> {t('aiFusion.retry')}</Button>} />}
 
       <Spin spinning={initialLoading}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('aiFusion.statStudies')} value={studies.length} icon={<Layers size={18} />} color="primary" />
           <StatCard title={t('aiFusion.statInsights')} value={aiInsights.length} icon={<Sparkles size={18} />} color="primary" />
           <StatCard title={t('aiFusion.statActionable')} value={actionableInsights} color="error" />
@@ -154,17 +154,17 @@ export const AiFusionWorkspacePage: React.FC = () => {
           { value: 'cbct', label: ' CBCT' }, { value: 'oct', label: ' OCT' }, { value: 'fundus', label: ' Fundus' },
           { value: 'fusion', label: t('aiFusion.fusionOverlay') },
         ]}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={16}>
           <Card
             size="small"
             title={<Space><Crosshair size={14} />{t('aiFusion.fusionCanvas')}</Space>}
             extra={<Space><Button size="small" icon={<Image size={12} />} onClick={toggleLayer}>{t('aiFusion.toggleLayer')}</Button><Tag color={layerVisible ? 'green' : 'default'}>{layerMode}{layerVisible ? ` · ${t('aiFusion.visible')}` : ` · ${t('aiFusion.hidden')}`}</Tag></Space>}
-            style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', color: '#fff', flexDirection: 'column', gap: 8 }}
-            styles={{ body: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 } }}
+            style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', color: '#fff', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}
+            styles={{ body: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 'var(--space-2, 8px)' } }}
           >
             <Activity size={36} color="var(--color-primary-600)" />
             <span style={{ opacity: 0.8, fontSize: 12 }}>[ {t('aiFusion.canvasArea')} {modality.toUpperCase()} ]</span>
@@ -258,8 +258,8 @@ export const AiFusionWorkspacePage: React.FC = () => {
               <Descriptions.Item label={t('aiFusion.findingsCount')}>{detail.findings}</Descriptions.Item>
               <Descriptions.Item label={t('aiFusion.colDate')}>{detail.date}</Descriptions.Item>
             </Descriptions>
-            <div style={{ marginTop: 16 }}>
-              <h4 style={{ marginBottom: 8 }}>{t('aiFusion.timeline')}</h4>
+            <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+              <h4 style={{ marginBottom: 'var(--space-2, 8px)' }}>{t('aiFusion.timeline')}</h4>
               <Timeline
                 items={[
                   { children: <><CheckCircle2 size={12} color="#52c41a" /> {t('aiFusion.tlPreprocess')}</>, color: 'green' },

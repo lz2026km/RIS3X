@@ -24,17 +24,17 @@ import {
 const s: Record<string, React.CSSProperties> = {
   pageHeader: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 'var(--space-5, 20px)',
   },
   title: { fontSize: 18, fontWeight: 700, color: 'var(--color-primary-800)' },
   subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   toolbar: {
-    display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
+    display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', flexWrap: 'wrap',
     background: 'var(--bg-card)', padding: '12px 16px', borderRadius: 10,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: 16,
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: 'var(--space-4, 16px)',
   },
   searchBox: {
-    display: 'flex', alignItems: 'center', gap: 8,
+    display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
     background: 'var(--content-bg)', border: '1px solid var(--border-color)',
     borderRadius: 8, padding: '8px 14px', flex: 1, minWidth: 220,
   },
@@ -53,12 +53,12 @@ const s: Record<string, React.CSSProperties> = {
     boxShadow: '0 2px 6px rgba(30,58,95,0.25)',
   },
   btnDanger: {
-    display: 'flex', alignItems: 'center', gap: 4,
+    display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
     background: 'var(--color-error-bg)', color: 'var(--color-error-600)', border: 'none', borderRadius: 8,
     padding: '8px 12px', fontSize: 12, cursor: 'pointer', minHeight: 44,
   },
   btnIcon: {
-    display: 'flex', alignItems: 'center', gap: 4,
+    display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
     background: 'var(--content-bg)', color: 'var(--text-secondary)', border: 'none', borderRadius: 8,
     padding: '8px 12px', fontSize: 12, cursor: 'pointer', minHeight: 44,
   },
@@ -82,11 +82,11 @@ const s: Record<string, React.CSSProperties> = {
   actions: { display: 'flex', gap: 6 },
   pagination: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    marginTop: 16, padding: '12px 16px', background: 'var(--bg-card)',
+    marginTop: 'var(--space-4, 16px)', padding: '12px 16px', background: 'var(--bg-card)',
     borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   pageInfo: { fontSize: 12, color: 'var(--text-secondary)' },
-  pageBtns: { display: 'flex', gap: 4 },
+  pageBtns: { display: 'flex', gap: 'var(--space-1, 4px)' },
   pageBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     width: 34, height: 34, borderRadius: 8, border: '1px solid var(--border-color)',
@@ -118,7 +118,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: 5,
   },
   modalBody: {
-    padding: 20, overflowY: 'auto', flex: 1,
+    padding: 'var(--space-5, 20px)', overflowY: 'auto', flex: 1,
   },
   modalFooter: {
     padding: '12px 20px', borderTop: '1px solid var(--border-color)',
@@ -162,19 +162,19 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     margin: '0 auto 16px',
   },
-  emptyTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 },
-  emptyDesc: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 20 },
+  emptyTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' },
+  emptyDesc: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-5, 20px)' },
   infoTip: {
-    fontSize: 12, color: 'var(--text-secondary)', marginTop: 4,
+    fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)',
   },
   deleteModalText: {
-    fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 8,
+    fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 'var(--space-2, 8px)',
   },
   stats: {
-    display: 'flex', gap: 20, marginLeft: 'auto',
+    display: 'flex', gap: 'var(--space-5, 20px)', marginLeft: 'auto',
   },
   statCard: {
-    display: 'flex', alignItems: 'center', gap: 8,
+    display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
     background: 'var(--bg-card)', padding: '8px 14px', borderRadius: 8,
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid var(--border-light)',
   },
@@ -188,12 +188,12 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 12, fontWeight: 700,
   },
   modalityBadge: {
-    display: 'inline-flex', alignItems: 'center', gap: 4,
+    display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
     padding: '2px 8px', borderRadius: 6,
     fontSize: 12, fontWeight: 600,
   },
   tabBar: {
-    display: 'flex', gap: 4, marginBottom: 16, background: 'var(--bg-card)',
+    display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)', background: 'var(--bg-card)',
     padding: '8px 12px', borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   tab: {
@@ -203,12 +203,12 @@ const s: Record<string, React.CSSProperties> = {
   tabActive: { background: 'var(--color-primary-800)', color: '#fff' },
   tabInactive: { background: 'transparent', color: 'var(--text-secondary)' },
   chartCard: {
-    background: 'var(--bg-card)', borderRadius: 10, padding: 16, marginBottom: 16,
+    background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)',
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   chartTitle: {
-    fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12,
-    display: 'flex', alignItems: 'center', gap: 8,
+    fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)',
+    display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
   },
 }
 
@@ -756,12 +756,12 @@ export default function DictionaryPage() {
       </div>
 
       {dictLoading && (
-        <div style={{ background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: 'var(--color-primary-800)' }}>
+        <div style={{ background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--color-primary-800)' }}>
           {t('dictionary.loading')}
         </div>
       )}
       {dictLoadError && !dictLoading && (
-        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#b91c1c' }}>
+        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 'var(--space-3, 12px)', fontSize: 12, color: '#b91c1c' }}>
           {t('dictionary.loadFailed')}: {dictLoadError} ({t('dictionary.loadFailedHint')})
         </div>
       )}
@@ -845,7 +845,7 @@ export default function DictionaryPage() {
       {
         title: t('dictionary.accuracy'), dataIndex: 'accuracy', key: 'accuracy',
         render: (v: number) => (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3 }}>
               <div style={{ width: `${v * 100}%`, height: 6, background: v > 0.9 ? 'var(--color-success-600)' : v > 0.8 ? 'var(--color-warning-500)' : 'var(--color-error-600)', borderRadius: 3 }} />
             </div>
@@ -871,8 +871,8 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex {t('dictionary.termMapping')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataMapping')}</span></div>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex {t('dictionary.termMapping')} <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataMapping')}</span></div>
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={s.searchBox}>
               <Search size={15} color="var(--text-secondary)" />
               <input style={s.searchInput} placeholder={t('dictionary.mappingSearchPlaceholder')} value={mappingSearch} onChange={e => setMappingSearch(e.target.value)} />
@@ -880,13 +880,13 @@ export default function DictionaryPage() {
             <button style={s.btnPrimary} onClick={handleImportMappings}><Upload size={13} /> {t('dictionary.importMappingsCsv')}</button>
           </div>
           {showImportMapping && (
-            <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-600)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-600)', borderRadius: 8, padding: '10px 14px', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <CheckCircle2 size={15} color="var(--color-success-600)" />
               <span style={{ fontSize: 12, color: '#166534' }}>{t('dictionary.imported3Mappings')}</span>
             </div>
           )}
           {unmapped.length > 0 && (
-            <div style={{ background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-500)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-500)', borderRadius: 8, padding: '10px 14px', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <AlertTriangle size={15} color="var(--color-warning-600)" />
               <span style={{ fontSize: 12, color: '#92400e' }}>{t('dictionary.unmappedFound', { count: unmapped.length })} <button style={{ background: 'none', border: 'none', color: 'var(--color-primary-600)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMappingSearch('UNMAPPED')}>{t('dictionary.viewReport')}</button></span>
             </div>
@@ -896,7 +896,7 @@ export default function DictionaryPage() {
             dataSource={filteredMappings}
             rowKey="id"
           />
-          <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.mappingsTotal', { count: filteredMappings.length })}</div>
+          <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.mappingsTotal', { count: filteredMappings.length })}</div>
         </div>
       </div>
     )
@@ -904,11 +904,11 @@ export default function DictionaryPage() {
 
   const renderFhirTab = () => {
     return (
-      <div style={{ display: 'flex', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
         <div style={{ flex: 1 }}>
           <div style={s.chartCard}>
-            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataTerm')}</span></div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataTerm')}</span></div>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <div style={s.searchBox}>
                 <Search size={15} color="var(--text-secondary)" />
                 <input style={s.searchInput} placeholder={t('dictionary.fhirSearchPlaceholder')} value={fhirSearch} onChange={e => setFhirSearch(e.target.value)} />
@@ -918,7 +918,7 @@ export default function DictionaryPage() {
                 {mockFhirSystems.map(fs => <option key={fs.system} value={fs.system}>{fs.name} ({fs.version})</option>)}
               </select>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
               {mockFhirSystems.map(fs => (
                 <div key={fs.system} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px 14px', border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{fs.name}</div>
@@ -927,8 +927,8 @@ export default function DictionaryPage() {
                 </div>
               ))}
             </div>
-            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('dictionary.conceptTree')}</div>
+            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('dictionary.conceptTree')}</div>
               {mockConcepts.map(concept => (
                 <div key={concept.code} style={{ paddingLeft: 0 }}>
                   <div
@@ -943,7 +943,7 @@ export default function DictionaryPage() {
                     <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({concept.code})</code>
                   </div>
                   {concept.children?.map(child => (
-                    <div key={child.code} style={{ paddingLeft: 24 }}>
+                    <div key={child.code} style={{ paddingLeft: 'var(--space-6, 24px)' }}>
                       <div
                         role="button"
                         tabIndex={0}
@@ -956,7 +956,7 @@ export default function DictionaryPage() {
                         <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({child.code})</code>
                       </div>
                       {child.children?.map(grandchild => (
-                        <div key={grandchild.code} style={{ paddingLeft: 48 }}>
+                        <div key={grandchild.code} style={{ paddingLeft: 'var(--space-12, 48px)' }}>
                           <div style={{ padding: '6px 10px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Layers size={14} color="var(--text-secondary)" />
                             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{grandchild.display}</span>
@@ -975,15 +975,15 @@ export default function DictionaryPage() {
           <div style={{ width: 320 }}>
             <div style={s.chartCard}>
               <div style={s.chartTitle}><Globe size={16} /> {t('dictionary.conceptDetail')}</div>
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dictionary.code')}</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{selectedConcept.code}</div>
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dictionary.displayName')}</div>
                 <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{selectedConcept.display}</div>
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dictionary.system')}</div>
                 <div style={{ fontSize: 12, color: 'var(--color-primary-600)', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
               </div>
@@ -1051,7 +1051,7 @@ export default function DictionaryPage() {
       {
         title: t('dictionary.actions'), key: 'actions',
         render: (_v: unknown, v: VersionEntry) => (
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
             <button style={s.btnIcon} onClick={() => setDiffView(diffView === v.id ? null : v.id)}>
               <Eye size={14} /> {diffView === v.id ? t('dictionary.collapse') : t('dictionary.view')}
             </button>
@@ -1122,8 +1122,8 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><History size={16} /> {t('dictionary.versionManagement')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataVersion')}</span></div>
-          <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
+          <div style={s.chartTitle}><History size={16} /> {t('dictionary.versionManagement')} <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataVersion')}</span></div>
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)', alignItems: 'center' }}>
             <select style={{ ...s.select, minWidth: 200 }} value={selectedDict} onChange={e => setSelectedDict(e.target.value)}>
               {dictOptions.map(d => <option key={d} value={d}>{d} - {dictionaries.find(di => di.id === d)?.name || d}</option>)}
             </select>
@@ -1135,9 +1135,9 @@ export default function DictionaryPage() {
             rowKey="id"
           />
           {diffView && (
-            <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('dictionary.diffViewTitle')}</div>
-              <div style={{ fontSize: 12, color: '#059669', background: 'var(--color-success-bg)', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>{t('dictionary.diffAdded')}</div>
+            <div style={{ marginTop: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('dictionary.diffViewTitle')}</div>
+              <div style={{ fontSize: 12, color: '#059669', background: 'var(--color-success-bg)', padding: '6px 10px', borderRadius: 4, marginBottom: 'var(--space-1, 4px)' }}>{t('dictionary.diffAdded')}</div>
               <div style={{ fontSize: 12, color: 'var(--color-error-600)', background: 'var(--color-error-bg)', padding: '6px 10px', borderRadius: 4 }}>{t('dictionary.diffRemoved')}</div>
             </div>
           )}
@@ -1214,33 +1214,33 @@ export default function DictionaryPage() {
 
     return (
       <div>
-        <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
           <div style={{ flex: 1 }}>
             <div style={s.chartCard}>
               <div style={s.chartTitle}><Upload size={16} /> {t('dictionary.batchImport')}</div>
               {importStep === 'upload' && (
                 <>
-                  <div style={{ border: '2px dashed var(--border-color)', borderRadius: 8, padding: 40, textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}
+                  <div style={{ border: '2px dashed var(--border-color)', borderRadius: 8, padding: 'var(--space-10, 40px)', textAlign: 'center', marginBottom: 'var(--space-3, 12px)', cursor: 'pointer' }}
                     role="button"
                     tabIndex={0}
                     onClick={() => document.getElementById('importFileInput')?.click()}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('importFileInput')?.click() } }}
                   >
-                    <FileSpreadsheet size={32} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
+                    <FileSpreadsheet size={32} color="var(--text-secondary)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.clickSelectFile')}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('dictionary.supportedFormats')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('dictionary.supportedFormats')}</div>
                     <input id="importFileInput" type="file" accept=".csv,.xlsx,.json" style={{ display: 'none' }} onChange={e => { setImportFile(e.target.files?.[0] || null) }} />
                   </div>
                   {importFile && (
-                    <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 14px', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                       <FileSpreadsheet size={15} color="var(--color-primary-600)" />
                       <span style={{ fontSize: 12, color: 'var(--color-primary-800)' }}>{importFile.name}</span>
                       <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
                     </div>
                   )}
-                  <div style={{ marginBottom: 12 }}>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('dictionary.fieldMapping')}</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                       {[{ file: t('dictionary.code'), dict: 'code' }, { file: t('dictionary.name'), dict: 'name' }, { file: t('dictionary.category'), dict: 'category' }, { file: t('dictionary.pinyin'), dict: 'pinyin' }, { file: t('dictionary.bodyPart'), dict: 'bodyPart' }].map(fm => (
                         <div key={fm.file} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontSize: 12, color: 'var(--text-secondary)', minWidth: 60 }}>{fm.file} →</span>
@@ -1249,7 +1249,7 @@ export default function DictionaryPage() {
                       ))}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                     <button style={s.btnPrimary} onClick={handleImport} disabled={!importFile}><Upload size={13} /> {t('dictionary.startImport')}</button>
                     <button
                     style={s.btnIcon}
@@ -1270,15 +1270,15 @@ export default function DictionaryPage() {
               )}
               {importStep === 'validate' && importResult && (
                 <div>
-                  <div style={{ background: importResult.errors > 0 ? '#fef3c7' : '#dcfce7', borderRadius: 8, padding: '12px 14px', marginBottom: 12 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <div style={{ background: importResult.errors > 0 ? '#fef3c7' : '#dcfce7', borderRadius: 8, padding: '12px 14px', marginBottom: 'var(--space-3, 12px)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                       {importResult.errors > 0 ? <AlertTriangle size={15} color="var(--color-warning-600)" /> : <CheckCircle2 size={15} color="var(--color-success-600)" />}
                       <span style={{ fontSize: 12, fontWeight: 600, color: importResult.errors > 0 ? '#92400e' : '#166534' }}>
                         {t('dictionary.importDone', { success: importResult.success, errors: importResult.errors })}
                       </span>
                     </div>
                     {importResult.warnings.map((w, i) => (
-                      <div key={i} style={{ fontSize: 12, color: 'var(--color-warning-600)', marginLeft: 24 }}>• {w}</div>
+                      <div key={i} style={{ fontSize: 12, color: 'var(--color-warning-600)', marginLeft: 'var(--space-6, 24px)' }}>• {w}</div>
                     ))}
                   </div>
                   <button style={s.btnPrimary} onClick={() => { setImportStep('upload'); setImportResult(null); setImportFile(null) }}><RefreshCw size={13} /> {t('dictionary.continueImport')}</button>
@@ -1289,12 +1289,12 @@ export default function DictionaryPage() {
           <div style={{ width: 350 }}>
             <div style={s.chartCard}>
               <div style={s.chartTitle}><Download size={16} /> {t('dictionary.exportFilter')}</div>
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('dictionary.filterConditions')}</div>
-                <select style={{ ...s.select, marginBottom: 8, width: '100%' }}><option value="">{t('dictionary.allCategories')}</option>{categories.map(c => <option key={c} value={c}>{c}</option>)}</select>
-                <select style={{ ...s.select, marginBottom: 8, width: '100%' }}><option value="all">{t('dictionary.statusAll')}</option><option value="active">{t('dictionary.statusActive')}</option><option value="inactive">{t('dictionary.statusInactive')}</option></select>
+                <select style={{ ...s.select, marginBottom: 'var(--space-2, 8px)', width: '100%' }}><option value="">{t('dictionary.allCategories')}</option>{categories.map(c => <option key={c} value={c}>{c}</option>)}</select>
+                <select style={{ ...s.select, marginBottom: 'var(--space-2, 8px)', width: '100%' }}><option value="all">{t('dictionary.statusAll')}</option><option value="active">{t('dictionary.statusActive')}</option><option value="inactive">{t('dictionary.statusInactive')}</option></select>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <button style={s.btnPrimary} onClick={() => handleExport('csv')}><FileSpreadsheet size={13} /> {t('dictionary.exportCsv')}</button>
                 <button style={s.btnPrimary} onClick={() => handleExport('json')}><Code size={13} /> {t('dictionary.exportJson')}</button>
               </div>
@@ -1312,25 +1312,25 @@ export default function DictionaryPage() {
 
     return (
       <div>
-        <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
           <div style={{ flex: 1 }}>
             <div style={s.chartCard}>
-              <div style={s.chartTitle}><TrendingUp size={16} /> {t('dictionary.usageTrend')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataUsage')}</span></div>
-              <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 8, padding: '0 10px' }}>
+              <div style={s.chartTitle}><TrendingUp size={16} /> {t('dictionary.usageTrend')} <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataUsage')}</span></div>
+              <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)', padding: '0 10px' }}>
                 {(mockUsageStats[0]?.trend ?? []).map((v, i) => (
-                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <div style={{ width: '100%', height: `${(v / 370) * 180}px`, background: 'var(--color-primary-500)', borderRadius: '4px 4px 0 0', minHeight: 4, opacity: 0.7 + i * 0.05 }} />
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{[t('dictionary.month1'), t('dictionary.month2'), t('dictionary.month3'), t('dictionary.month4'), t('dictionary.month5'), t('dictionary.month6')][i]}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, textAlign: 'center' }}>{t('dictionary.basedOnUsage', { count: mockUsageStats.reduce((s, u) => s + u.usageCount, 0) })}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-2, 8px)', textAlign: 'center' }}>{t('dictionary.basedOnUsage', { count: mockUsageStats.reduce((s, u) => s + u.usageCount, 0) })}</div>
             </div>
 
             <div style={s.chartCard}>
               <div style={s.chartTitle}><BarChart2 size={16} /> {t('dictionary.topTerms')}</div>
               {mostUsed.slice(0, 5).map((u, i) => (
-                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
+                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
                   <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? 'var(--color-warning-600)' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }}>{u.termName}</div>
@@ -1349,9 +1349,9 @@ export default function DictionaryPage() {
                 const total = deptStats.reduce((s, u) => s + u.usageCount, 0)
                 return (
                   <div key={dept} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 4 }}>{dept}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-1, 4px)' }}>{dept}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.deptUsageCount', { total, count: deptStats.length })}</div>
-                    <div style={{ width: '100%', height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 4 }}>
+                    <div style={{ width: '100%', height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 'var(--space-1, 4px)' }}>
                       <div style={{ width: `${(total / 3450) * 100}%`, height: 4, background: 'var(--color-primary-500)', borderRadius: 2 }} />
                     </div>
                   </div>
@@ -1362,7 +1362,7 @@ export default function DictionaryPage() {
             <div style={s.chartCard}>
               <div style={s.chartTitle}><AlertTriangle size={16} /> {t('dictionary.cleanupSuggestions')}</div>
               {leastUsed.map(u => (
-                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
+                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
                   <PieChart size={14} color="var(--color-warning-500)" />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{u.termName}</div>
@@ -1388,7 +1388,7 @@ export default function DictionaryPage() {
                   </button>
                 </div>
               ))}
-              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.cleanupHint')}</div>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.cleanupHint')}</div>
             </div>
           </div>
         </div>
@@ -1397,7 +1397,7 @@ export default function DictionaryPage() {
   }
 
   return (
-    <div style={{ background: 'var(--bg-card)', padding: 20, fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <div style={{ background: 'var(--bg-card)', padding: 'var(--space-5, 20px)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       <div style={s.pageHeader}>
         <PageHeader
           variant="flex"
@@ -1467,7 +1467,7 @@ export default function DictionaryPage() {
             ) : (
               <>
                 <div style={s.modalHeader}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <BookOpen size={16} color="#60a5fa" />
                     <span style={s.modalTitle}>{modalMode === 'add' ? t('dictionary.addItemTitle') : t('dictionary.editItemTitle')}</span>
                   </div>
@@ -1509,7 +1509,7 @@ export default function DictionaryPage() {
                     </div>
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
                       <label style={s.label}>{t('dictionary.modalityLabel')}</label>
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                         {['CT', 'MR', 'DR', 'DSA', '乳腺', '胃肠'].map(m => {
                           const isSelected = (editingDictionary.modality ?? []).includes(m)
                           return (
@@ -1530,7 +1530,7 @@ export default function DictionaryPage() {
                       </div>
                     </div>
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
                         <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? 'var(--color-success-600)' : '#cbd5e1'}`, background: editingDictionary.isActive ? 'var(--color-success-600)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                         </div>

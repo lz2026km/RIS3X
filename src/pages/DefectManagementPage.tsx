@@ -480,7 +480,7 @@ const DefectManagementPage: React.FC = () => {
         okText={t('defectMgmt.submitReport')}
         cancelText={t('defectMgmt.cancel')}
       >
-        <Form form={reportForm} layout="vertical" style={{ marginTop: 12 }}>
+        <Form form={reportForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="reportId" label={t('defectMgmt.reportId')} rules={[{ required: true, message: t('defectMgmt.reportIdRequired') }]}>
             <Input placeholder="rpt-013" />
           </Form.Item>

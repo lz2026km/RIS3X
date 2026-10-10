@@ -115,10 +115,10 @@ export default function EnterpriseSearchPage() {
   const legacyCount = apiResults.length;
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
-      <div style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Title level={4} style={{ margin: 0 }}>
-          <Search style={{ marginRight: 8, color: 'var(--color-primary-800)' }} />
+          <Search style={{ marginRight: 'var(--space-2, 8px)', color: 'var(--color-primary-800)' }} />
           {'\u4F01\u4E1A\u7EA7\u5168\u5C40\u641C\u7D22'}
         </Title>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 0' }}>
@@ -126,7 +126,7 @@ export default function EnterpriseSearchPage() {
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12, position: 'relative' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', position: 'relative' }}>
         <Input.Search
           size="large"
           value={inputValue}
@@ -138,7 +138,7 @@ export default function EnterpriseSearchPage() {
           loading={loading}
         />
         {suggestions.length > 0 && !loading && (
-          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: 'var(--bg-card)', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.12)', border: '1px solid var(--border-color)', zIndex: 20 }}>
+          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.12)', border: '1px solid var(--border-color)', zIndex: 20 }}>
             {suggestions.map(s => (
               <div
                 key={s}
@@ -147,7 +147,7 @@ export default function EnterpriseSearchPage() {
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}
               >
-                <Search style={{ marginRight: 8, color: 'var(--text-secondary)', fontSize: 12 }} />
+                <Search style={{ marginRight: 'var(--space-2, 8px)', color: 'var(--text-secondary)', fontSize: 12 }} />
                 {s}
               </div>
             ))}
@@ -155,7 +155,7 @@ export default function EnterpriseSearchPage() {
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-5, 20px)', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: '26px' }}>{'recommand'}:</span>
         {['chest-ct', 'lung-nodule', 'cerebral-infarction', 'aortic-dissection', 'wang-jianguo'].map(q => (
           <Tag
@@ -169,7 +169,7 @@ export default function EnterpriseSearchPage() {
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <ActionButton action="refresh" loading={loading} disabled={!searched} onClick={() => void handleSearch(query || inputValue)}>{t('w45.actions.refresh')}</ActionButton>
         <ExportButton
           data={() => [...results, ...apiResults]}
@@ -181,12 +181,12 @@ export default function EnterpriseSearchPage() {
       </div>
 
       {error && (
-        <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />
+        <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />
       )}
 
       {!searched && !loading && (
-        <div style={{ padding: 32, background: 'var(--bg-card)', borderRadius: 8, border: '1px dashed var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{'enter-keyword'}</div>
+        <div style={{ padding: 'var(--space-8, 32px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px dashed var(--border-color)', textAlign: 'center' }}>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{'enter-keyword'}</div>
         </div>
       )}
 
@@ -200,7 +200,7 @@ export default function EnterpriseSearchPage() {
 
       {searched && !loading && (
         <>
-          <div style={{ padding: '8px 12px', background: 'var(--color-info-bg)', borderRadius: 6, marginBottom: 4, fontSize: 12, color: 'var(--color-primary-800)' }}>
+          <div style={{ padding: '8px 12px', background: 'var(--color-info-bg)', borderRadius: 6, marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: 'var(--color-primary-800)' }}>
             找到 <strong>{total}</strong> 条结果{legacyCount > 0 ? ` (${apiResults.length})` : ''} · {tookMs}ms
           </div>
 
@@ -215,17 +215,17 @@ export default function EnterpriseSearchPage() {
                   .filter(g => (grouped[g] || []).length > 0)
                   .map(g => ({ key: g, label: `${TYPE_META[g]?.label ?? g} ${grouped[g]?.length ?? 0}` })),
               ]}
-              style={{ marginBottom: 12 }}
+              style={{ marginBottom: 'var(--space-3, 12px)' }}
             />
           )}
 
           {total === 0 && legacyCount === 0 ? (
-            <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="无结果" style={{ padding: 40 }} />
+            <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="无结果" style={{ padding: 'var(--space-10, 40px)' }} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {visibleGroups.map(group => (
                 <div key={group}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
                     {group === 'patient'
                       ? <User size={14} color="var(--color-primary-800)" />
                       : group === 'exam'
@@ -236,22 +236,22 @@ export default function EnterpriseSearchPage() {
                     <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
                       {TYPE_META[group]?.label ?? group}
                     </span>
-                    <Tag color={TYPE_META[group]?.color ?? 'default'} style={{ marginLeft: 4 }}>
+                    <Tag color={TYPE_META[group]?.color ?? 'default'} style={{ marginLeft: 'var(--space-1, 4px)' }}>
                       {grouped[group]?.length ?? 0}
                     </Tag>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                     {(grouped[group] ?? []).map(r => (
-                      <div key={r.id} style={{ padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div key={r.id} style={{ padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                           <strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>{highlightText(r.title, query)}</strong>
                           <Tag color={TYPE_META[r.type]?.color || 'default'} style={{ fontSize: 11, lineHeight: '18px' }}>
                             {TYPE_META[r.type]?.label || r.type}
                           </Tag>
                         </div>
-                        {r.subtitle && <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>{r.subtitle}</div>}
+                        {r.subtitle && <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{r.subtitle}</div>}
                         {r.description && (
-                          <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4, lineHeight: 1.6 }}>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 'var(--space-1, 4px)', lineHeight: 1.6 }}>
                             {highlightText(r.description, query)}
                           </div>
                         )}
@@ -267,19 +267,19 @@ export default function EnterpriseSearchPage() {
 
               {legacyCount > 0 && (
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
                     <FileSearch size={14} color="var(--color-info-600)" />
                     <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{'data-report-index'}</span>
                     <Tag color="cyan">{apiResults.length}</Tag>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                     {apiResults.map(r => (
-                      <div key={r.id} style={{ padding: 12, background: '#f0fdfa', border: '1px solid #ccfbf1', borderRadius: 6 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div key={r.id} style={{ padding: 'var(--space-3, 12px)', background: '#f0fdfa', border: '1px solid #ccfbf1', borderRadius: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                           <strong style={{ color: '#134e4a', fontSize: 14 }}>{r.title}</strong>
                           <Tag color="green">{r.type}</Tag>
                         </div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>{r.description}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{r.description}</div>
                         <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 6 }}>Score: {r.score?.toFixed(1)}</div>
                       </div>
                     ))}

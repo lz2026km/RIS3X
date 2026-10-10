@@ -48,13 +48,13 @@ export default function DeviceDAPComparisonChart() {
         <div
           style={{
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-2, 8px)' }}>
             {data.device}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -82,7 +82,7 @@ export default function DeviceDAPComparisonChart() {
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         border: "1px solid #e2e8f0",
       }}
     >
@@ -91,7 +91,7 @@ export default function DeviceDAPComparisonChart() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <div>
@@ -110,7 +110,7 @@ export default function DeviceDAPComparisonChart() {
         >
           演示数据 · 未接入接口
         </span>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
           <Legend color="var(--color-primary-500)" label="今日占阈值%" />
           <Legend color="#94a3b8" label="平均占阈值%" />
         </div>
@@ -140,13 +140,13 @@ export default function DeviceDAPComparisonChart() {
       </ChartContainer>
       <div
         style={{
-          marginTop: 12,
+          marginTop: 'var(--space-3, 12px)',
           padding: "10px 12px",
           background: "var(--bg-primary)",
           borderRadius: 6,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <ShieldAlert size={14} color="var(--color-warning-600)" />
@@ -160,7 +160,7 @@ export default function DeviceDAPComparisonChart() {
 }
 
 const Legend = ({ color, label }: { color: string; label: string }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
     <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
     <span style={{ fontSize: 12, color: "#64748b" }}>{label}</span>
   </div>

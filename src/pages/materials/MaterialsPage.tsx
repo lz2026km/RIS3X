@@ -211,7 +211,7 @@ export const MaterialsPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Box size={20} color="var(--color-primary-600)" />
         <Eye size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('materialsPage.title')}</span>
@@ -220,7 +220,7 @@ export const MaterialsPage: React.FC = () => {
         <Tag color="green">{t('materialsPage.clientsEndpoints')}</Tag>
       </Space>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('materialsPage.iolTotal')} value={iols.length} color="primary" />
         <StatCard title={t('materialsPage.lowStock')} value={lowStock.length} icon={<AlertTriangle size={14} />} color="warning" />
         <StatCard title={t('materialsPage.expiringSoon')} value={expiring.length} icon={<Calendar size={14} />} color="error" />
@@ -286,7 +286,7 @@ export const MaterialsPage: React.FC = () => {
             <Alert
               type="warning"
               showIcon
-              style={{ marginTop: 16 }}
+              style={{ marginTop: 'var(--space-4, 16px)' }}
               title={`低库存告警: ${lowStock.length} 项需要补货`}
               description={lowStock.map(i => `${i.model} (${i.power}D) @ ${i.stockLocation}`).join('; ')}
             />
@@ -295,7 +295,7 @@ export const MaterialsPage: React.FC = () => {
             <Alert
               type="error"
               showIcon
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
               title={`即将过期告警: ${expiring.length} 项 90 天内到期`}
               description={expiring.map(i => `${i.model} (${i.batchNumber}) 到期: ${i.expiryDate?.slice(0, 10)}`).join('; ')}
             />
@@ -377,19 +377,19 @@ export const MaterialsPage: React.FC = () => {
           </Form>
         ) : iolModal.type === 'transfer' ? (
           <div>
-            <Alert title={`调拨: ${iolModal.data.model} (${iolModal.data.power}D)`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`调拨: ${iolModal.data.model} (${iolModal.data.power}D)`} type="info" showIcon style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <Form.Item label={t('materialsPage.currentLocation')}><Input value={iolModal.data.stockLocation} disabled /></Form.Item>
             <Form.Item label={t('materialsPage.targetLocation')}><Input value={iolModal.data.toLocation} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, toLocation: e.target.value } })} placeholder={t('materialsPage.targetLocationPlaceholder')} /></Form.Item>
           </div>
         ) : iolModal.type === 'adjust' ? (
           <div>
-            <Alert title={`库存调整: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`库存调整: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <Form.Item label={t('materialsPage.adjustQty')}><InputNumber value={iolModal.data.deltaQty} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, deltaQty: v } })} style={{ width: '100%' }} /></Form.Item>
             <Form.Item label={t('materialsPage.adjustReason')}><Input value={iolModal.data.adjustReason} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, adjustReason: e.target.value } })} placeholder={t('materialsPage.adjustReasonPlaceholder')} /></Form.Item>
           </div>
         ) : (
           <div>
-            <Alert title={`出库: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`出库: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <Form.Item label={t('materialsPage.outReason')}><Input value={iolModal.data.reason} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, reason: e.target.value } })} placeholder={t('materialsPage.outReasonPlaceholder')} /></Form.Item>
             <Form.Item label={t('materialsPage.patientIdOptional')}><Input value={iolModal.data.patientId} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, patientId: e.target.value } })} placeholder="P000001" /></Form.Item>
             <Form.Item label={t('materialsPage.surgeonOptional')}><Input value={iolModal.data.surgeon} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, surgeon: e.target.value } })} placeholder="D001" /></Form.Item>
@@ -406,7 +406,7 @@ export const MaterialsPage: React.FC = () => {
         width={480}
       >
         {iolDetail.loading ? (
-          <div style={{ textAlign: 'center', padding: 24 }}>{t('materialsPage.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}>{t('materialsPage.loading')}</div>
         ) : iolDetail.data ? (
           <Row gutter={[8, 8]}>
             {[
@@ -443,7 +443,7 @@ export const MaterialsPage: React.FC = () => {
       >
         {lensModal.type === 'fitting' ? (
           <div>
-            <Alert title={t('materialsPage.fittingLens')} type="info" showIcon style={{ marginBottom: 8 }} description={`${lensModal.data.id} (${lensModal.data.brand} ${lensModal.data.series})`} />
+            <Alert title={t('materialsPage.fittingLens')} type="info" showIcon style={{ marginBottom: 'var(--space-2, 8px)' }} description={`${lensModal.data.id} (${lensModal.data.brand} ${lensModal.data.series})`} />
             <Form.Item label={t('materialsPage.patient')} required>
               {patientOptions.length > 0 ? (
                 <Select

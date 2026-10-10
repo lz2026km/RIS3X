@@ -298,8 +298,8 @@ export const ReportQcV2Panel: React.FC = () => {
   };
 
   return (
-    <div data-testid="report-qc-v2-panel" role="region" aria-label={t('reportQcV2.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <Card size="small" style={{ background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 12 } }}>
+    <div data-testid="report-qc-v2-panel" role="region" aria-label={t('reportQcV2.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+      <Card size="small" style={{ background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <FileCheck2 size={18} color="#fff" />
@@ -321,44 +321,44 @@ export const ReportQcV2Panel: React.FC = () => {
         <Col xs={24} xl={10}>
           <Card size="small" title={<Space><Gauge size={14} /> {t('reportQcV2.multiDimScore')}</Space>} extra={<Tag color="blue">{t('reportQcV2.scoreInput')}</Tag>}>
             {loadingDims ? (
-              <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin /></div>
             ) : (
               <Space direction="vertical" style={{ width: '100%' }} size={8}>
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.reportId')}</div>
+                    <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.reportId')}</div>
                     <Input size="small" value={form.reportId} onChange={(e) => setForm({ ...form, reportId: e.target.value })} placeholder="RPT-xxx" />
                   </Col>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.modality')}</div>
+                    <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.modality')}</div>
                     <Select size="small" style={{ width: '100%' }} value={form.modality} onChange={(v) => setForm({ ...form, modality: v })} options={['CT', 'MR', 'DR', 'MG', 'US'].map((m) => ({ value: m, label: m }))} />
                   </Col>
                 </Row>
-                <div style={{ marginBottom: 4 }}>{t('reportQcV2.findings')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.findings')}</div>
                 <Input.TextArea size="small" rows={3} value={form.findings} onChange={(e) => setForm({ ...form, findings: e.target.value })} />
-                <div style={{ marginBottom: 4 }}>{t('reportQcV2.diagnosis')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.diagnosis')}</div>
                 <Input size="small" value={form.diagnosis} onChange={(e) => setForm({ ...form, diagnosis: e.target.value })} />
-                <div style={{ marginBottom: 4 }}>{t('reportQcV2.conclusion')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.conclusion')}</div>
                 <Input size="small" value={form.conclusion} onChange={(e) => setForm({ ...form, conclusion: e.target.value })} />
-                <div style={{ marginBottom: 4 }}>{t('reportQcV2.recommendations')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.recommendations')}</div>
                 <Input size="small" value={form.recommendations} onChange={(e) => setForm({ ...form, recommendations: e.target.value })} />
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.techParams')}</div>
+                    <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.techParams')}</div>
                     <Input size="small" value={form.techParams} onChange={(e) => setForm({ ...form, techParams: e.target.value })} />
                   </Col>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.radsCategory')}</div>
+                    <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.radsCategory')}</div>
                     <Select size="small" allowClear style={{ width: '100%' }} value={form.radsCategory} onChange={(v) => setForm({ ...form, radsCategory: v ?? '' })} options={['RADS 不适用', 'BI-RADS 5', 'PI-RADS 5', 'LI-RADS 4', 'TI-RADS 4'].map((v) => ({ value: v, label: v }))} />
                   </Col>
                 </Row>
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.reportTimeMinutes')}</div>
+                    <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.reportTimeMinutes')}</div>
                     <InputNumber size="small" min={0} max={1440} style={{ width: '100%' }} value={form.reportTimeMinutes} onChange={(v) => setForm({ ...form, reportTimeMinutes: Number(v ?? 0) })} />
                   </Col>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.structuredCompletion')}</div>
+                    <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.structuredCompletion')}</div>
                     <Slider min={0} max={100} value={form.structuredCompletion} onChange={(v) => setForm({ ...form, structuredCompletion: v })} tooltip={{ formatter: (v) => `${v}%` }} />
                   </Col>
                 </Row>
@@ -442,7 +442,7 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
         </Col>
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('reportQcV2.grade')}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.grade')}</div>
             <div style={{ fontSize: 30, fontWeight: 700, color: GRADE_COLOR[result.grade] }}>{result.grade}</div>
           </Card>
         </Col>
@@ -590,9 +590,9 @@ const TaskFlowTable: React.FC<{
                 <Descriptions.Item label={t('reportQcV2.dualReview')}>{t('reportQcV2.dualReviewHint')}</Descriptions.Item>
               )}
             </Descriptions>
-            <div style={{ marginBottom: 4 }}>{t('reportQcV2.reviewer')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.reviewer')}</div>
             <Select size="small" style={{ width: '100%' }} value={reviewer} onChange={setReviewer} options={['张质控', '李质控', '王主任'].map((v) => ({ value: v, label: v }))} />
-            <div style={{ marginBottom: 4 }}>{t('reportQcV2.reviewOpinion')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQcV2.reviewOpinion')}</div>
             <Input.TextArea size="small" rows={2} value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder={t('reportQcV2.reviewCommentPlaceholder')} />
             <Space>
               <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => submitReview('pass')}>

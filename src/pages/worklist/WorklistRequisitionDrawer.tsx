@@ -143,7 +143,7 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
       <div style={{ border: "1px solid var(--border-color)", borderRadius: 10, overflow: "hidden" }}>
         <div style={{ textAlign: "center", padding: "14px 16px", background: "var(--bg-card)", borderBottom: "1px solid var(--border-color)" }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)", letterSpacing: 4 }}>放射科检查申请单</div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
             申请单号: {exam.accessionNumber || exam.id}
           </div>
         </div>

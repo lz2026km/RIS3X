@@ -327,12 +327,12 @@ export default function ReportPhraseBankPage() {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <MessageSquare size={20} color="var(--color-primary-500)" /> {t('rpb.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R7</StatusTag>
             <span style={{
@@ -347,7 +347,7 @@ export default function ReportPhraseBankPage() {
           </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('rpb.subtitle', { count: phrases.length })}
-            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-2, 8px)' }}>{apiError}</span>}
           </p>
         </div>
         <button
@@ -355,7 +355,7 @@ export default function ReportPhraseBankPage() {
           style={{
             padding: '6px 12px', border: 'none', borderRadius: 6,
             background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 4,
+            display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
           }}
         >
           <Plus size={12} /> {t('rpb.newPhrase')}
@@ -363,7 +363,7 @@ export default function ReportPhraseBankPage() {
       </div>
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         {PHRASE_CATEGORIES.map(c => {
           const Icon = c.key === 'critical' ? AlertOctagon : c.key === 'normal' ? CheckCircle2 : c.key === 'abnormal' ? AlertOctagon : c.key === 'recommendation' ? Lightbulb : c.key === 'followup' ? Hash : BookOpen;
           return (
@@ -376,7 +376,7 @@ export default function ReportPhraseBankPage() {
                 cursor: 'pointer', textAlign: 'center',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
                 <Icon size={12} color={c.color} />
                 <span style={{ fontSize: 12, color: c.color, fontWeight: 700 }}>{c.label}</span>
               </div>
@@ -386,7 +386,7 @@ export default function ReportPhraseBankPage() {
         })}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：短语列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
@@ -417,17 +417,17 @@ export default function ReportPhraseBankPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{p.title}</span>
                     <span style={{
                       fontSize: 12, padding: '1px 4px', borderRadius: 2,
                       background: cConf.bg, color: cConf.color, fontWeight: 600,
                     }}>{cConf.label}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4, lineHeight: 1.4, maxHeight: 32, overflow: 'hidden' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', lineHeight: 1.4, maxHeight: 32, overflow: 'hidden' }}>
                     {p.content.slice(0, 60)}...
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: 'var(--text-secondary)' }}>
                     <span>{''.repeat(p.rating)}</span>
                     <span>· ×{p.usageCount}</span>
                     {p.placeholders.length > 0 && <span style={{ padding: '0 4px', background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 2 }}>{t('rpb.placeholderCount', { count: p.placeholders.length })}</span>}
@@ -440,15 +440,15 @@ export default function ReportPhraseBankPage() {
 
         {/* 右：短语详情 + 编辑 */}
         {selected && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             {/* 头部 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{selected.scene}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{selected.scene}</div>
                 </div>
-                <div style={{ display: 'flex', gap: 4 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: PHRASE_CATEGORIES.find(c => c.key === selected.category)!.bg, color: PHRASE_CATEGORIES.find(c => c.key === selected.category)!.color, fontWeight: 600 }}>
                     {PHRASE_CATEGORIES.find(c => c.key === selected.category)!.label}
                   </span>
@@ -460,11 +460,11 @@ export default function ReportPhraseBankPage() {
 
               {/* 占位符提示 */}
               {placeholders.length > 0 && (
-                <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6 }}>
+                <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6 }}>
                   <div style={{ fontSize: 12, color: '#92400e', fontWeight: 700, marginBottom: 6 }}>
                     {t('rpb.placeholdersHint', { count: placeholders.length })}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                     {placeholders.map(p => (
                       <span key={p} style={{ fontSize: 12, padding: '2px 8px', background: 'var(--bg-card)', color: '#92400e', borderRadius: 10, fontFamily: 'monospace', fontWeight: 600 }}>
                         {`{{${p}}}`}
@@ -475,8 +475,8 @@ export default function ReportPhraseBankPage() {
               )}
 
               {/* 编辑区 */}
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('rpb.rawWithPlaceholders')}</span>
                 </div>
                 <textarea
@@ -484,12 +484,12 @@ export default function ReportPhraseBankPage() {
                   value={editedContent}
                   onChange={e => setEditedContent(e.target.value)}
                   rows={5}
-                  style={{ width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, resize: 'vertical', fontFamily: 'inherit' }}
+                  style={{ width: '100%', padding: 'var(--space-2, 8px)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, resize: 'vertical', fontFamily: 'inherit' }}
                 />
               </div>
 
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>{t('rpb.renderPreview')}{varContext ? t('rpb.realContext') : t('rpb.sample')}</span>
                   <button
                     onClick={() => handleCopy(copyContent)}
@@ -509,7 +509,7 @@ export default function ReportPhraseBankPage() {
               </div>
 
               {/* 操作按钮 */}
-              <div style={{ display: 'flex', gap: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', paddingTop: 'var(--space-2, 8px)', borderTop: '1px solid var(--border-color)' }}>
                 <button onClick={handleEditFocus} style={{ padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Edit2 size={11} /> {t('rpb.edit')}
                 </button>
@@ -526,17 +526,17 @@ export default function ReportPhraseBankPage() {
             </div>
 
             {/* 元信息 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('rpb.metaTitle')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t('rpb.metaTitle')}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)' }}>
                 <InfoCell label={t('rpb.author')} value={selected.author} />
                 <InfoCell label={t('rpb.created')} value={selected.createdAt} />
                 <InfoCell label={t('rpb.usageCount')} value={selected.usageCount.toLocaleString()} color="#10b981" />
                 <InfoCell label={t('rpb.tagCount')} value={String(selected.tags.length)} color="#7c3aed" />
               </div>
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('rpb.tags')}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('rpb.tags')}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                   {selected.tags.map(t => (
                     <span key={t} style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', borderRadius: 10 }}>#{t}</span>
                   ))}
@@ -557,7 +557,7 @@ export default function ReportPhraseBankPage() {
         cancelText={t('rpb.cancel')}
         width={520}
       >
-        <Form layout="vertical" size="small" style={{ marginTop: 12 }}>
+        <Form layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item label={t('rpb.phraseTitle')} required>
             <Input
               value={newPhrase.title}

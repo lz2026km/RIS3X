@@ -403,7 +403,7 @@ export default function PatientServiceCenterPage() {
   const wechatTab = useMemo(() => (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={12}>
-        <Card size="small" title={t('w12Patient.wechat.oauthTitle')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.wechat.oauthTitle')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Space.Compact style={{ width: '100%' }}>
               <Input value={wxCode} onChange={(e) => setWxCode(e.target.value)} placeholder={t('w12Patient.wechat.oauthCode')} />
@@ -421,7 +421,7 @@ export default function PatientServiceCenterPage() {
           </Space>
         </Card>
 
-        <Card size="small" title={t('w12Patient.wechat.bindTitle')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.wechat.bindTitle')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Space wrap>
             <Select value={wxBindMethod} style={{ width: 130 }} onChange={(v) => setWxBindMethod(v)}
               options={[
@@ -446,7 +446,7 @@ export default function PatientServiceCenterPage() {
       </Col>
 
       <Col xs={24} lg={12}>
-        <Card size="small" title={t('w12Patient.wechat.subscribe')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.wechat.subscribe')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <DataTable rowKey="templateId" pagination={false} dataSource={wxConfig?.subscribeTemplates ?? []}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
@@ -457,7 +457,7 @@ export default function PatientServiceCenterPage() {
             ]} />
         </Card>
 
-        <Card size="small" title={`${t('w12Patient.wechat.logs')} (${wxLogs.length})`} style={{ marginBottom: 16 }}>
+        <Card size="small" title={`${t('w12Patient.wechat.logs')} (${wxLogs.length})`} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <DataTable rowKey="id" pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxLogs}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
@@ -474,7 +474,7 @@ export default function PatientServiceCenterPage() {
           title={`${t('w4b.wx.usersTitle', { count: wxUsers.length })}`}
           extra={<Button size="small" icon={<RefreshCw size={12} />} loading={wxUsersLoading} onClick={() => void loadWechatUsers()}>{t('w4b.wx.refresh')}</Button>}
         >
-          {wxUsersError && <Alert type="warning" showIcon message={wxUsersError} style={{ marginBottom: 8 }} />}
+          {wxUsersError && <Alert type="warning" showIcon message={wxUsersError} style={{ marginBottom: 'var(--space-2, 8px)' }} />}
           <DataTable rowKey="openid" loading={wxUsersLoading} pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxUsers}
             locale={{ emptyText: <Empty description={t('w4b.wx.empty')} /> }}
             columns={[
@@ -492,14 +492,14 @@ export default function PatientServiceCenterPage() {
 
   const paymentTab = useMemo(() => (
     <div>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w12Patient.payment.totalOrders')} value={payStats?.totalOrders ?? 0} />
         <StatCard title={t('w12Patient.payment.paidAmount')} value={payStats?.paidAmount ?? 0} prefix="¥" />
         <StatCard title={t('w12Patient.payment.netAmount')} value={payStats?.netAmount ?? 0} prefix="¥" />
         <StatCard title={t('w12Patient.payment.refundRate')} value={payStats?.refundRate ?? 0} suffix="%" />
       </StatCardGrid>
 
-      <Card size="small" title={t('w12Patient.payment.createTitle')} style={{ marginBottom: 16 }}>
+      <Card size="small" title={t('w12Patient.payment.createTitle')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space wrap>
           <Select value={payPatientId} style={{ width: 130 }} onChange={setPayPatientId}
             options={['P100001', 'P100002', 'P100003', 'P100004'].map((id) => ({ value: id, label: id }))} />
@@ -512,7 +512,7 @@ export default function PatientServiceCenterPage() {
         </Space>
       </Card>
 
-      <Card size="small" title={t('w12Patient.payment.orders')} style={{ marginBottom: 16 }}>
+      <Card size="small" title={t('w12Patient.payment.orders')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DataTable rowKey="id" pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={orders}
           locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
           columns={[
@@ -563,7 +563,7 @@ export default function PatientServiceCenterPage() {
   const notificationTab = useMemo(() => (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={10}>
-        <Card size="small" title={t('w12Patient.nc.sendTitle')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.nc.sendTitle')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Select value={ncTemplateCode} style={{ width: '100%' }} onChange={setNcTemplateCode}
               options={ncTemplates.filter((x) => x.status === 'active').map((x) => ({ value: x.code, label: `${x.name} (${t(`w12Patient.nc.channel.${x.channel}`)})` }))} />
@@ -589,7 +589,7 @@ export default function PatientServiceCenterPage() {
         </Card>
       </Col>
       <Col xs={24} lg={14}>
-        <Card size="small" title={t('w12Patient.nc.templates')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.nc.templates')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <DataTable rowKey="id" pagination={false} dataSource={ncTemplates}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
@@ -620,14 +620,14 @@ export default function PatientServiceCenterPage() {
 
   const satisfactionTab = useMemo(() => (
     <div>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w12Patient.sat.nps')} value={satAnalytics?.overall.nps ?? 0} color={satNpsLevel(satAnalytics?.overall.nps ?? 0)} />
         <StatCard title={t('w12Patient.sat.avgRating')} value={satAnalytics?.overall.avgRating ?? 0} suffix="/5" />
         <StatCard title={t('w12Patient.sat.totalResponses')} value={satAnalytics?.overall.totalResponses ?? 0} />
         <StatCard title={t('w12Patient.sat.responseRate')} value={satAnalytics?.overall.responseRate ?? 0} suffix="%" />
       </StatCardGrid>
 
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col xs={24} lg={8}><Card size="small" title={t('w12Patient.sat.byDepartment')}>
           <DataTable rowKey="department" pagination={false} dataSource={satAnalytics?.byDepartment ?? []}
             columns={[
@@ -694,7 +694,7 @@ export default function PatientServiceCenterPage() {
   const selfRegTab = useMemo(() => (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={10}>
-        <Card size="small" title={t('w12Patient.sr.identify')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.sr.identify')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Input value={srIdCard} onChange={(e) => setSrIdCard(e.target.value)} addonBefore={t('w12Patient.sr.idCard')} />
             <Input value={srPhone} onChange={(e) => setSrPhone(e.target.value)} addonBefore={t('w12Patient.sr.phone')} />
@@ -705,7 +705,7 @@ export default function PatientServiceCenterPage() {
         </Card>
 
         {srResult && !srResult.matched && (
-          <Card size="small" title={t('w12Patient.sr.candidates')} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('w12Patient.sr.candidates')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <List size="small" dataSource={srResult.candidates.slice(0, 6)}
               renderItem={(p) => (
                 <List.Item actions={[<Button key="s" size="small" type="link" onClick={() => { setSrSelected(p); void refreshSrStatus(p.patientId) }}>{t('w12Patient.sr.select')}</Button>]}>
@@ -716,7 +716,7 @@ export default function PatientServiceCenterPage() {
         )}
 
         {srSelected && (
-          <Card size="small" title={t('w12Patient.sr.matched')} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('w12Patient.sr.matched')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Descriptions size="small" column={1} bordered>
               <Descriptions.Item label={t('w12Patient.sr.name')}>{srSelected.name}</Descriptions.Item>
               <Descriptions.Item label={t('w12Patient.patientId')}>{srSelected.patientId}</Descriptions.Item>
@@ -727,7 +727,7 @@ export default function PatientServiceCenterPage() {
         )}
 
         {srStatus && (
-          <Card size="small" title={t('w12Patient.sr.status')} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('w12Patient.sr.status')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Space wrap>
               <Tag color={srStatus.checkedIn ? 'green' : 'default'}>{srStatus.checkedIn ? t('w12Patient.sr.checkedIn') : t('w12Patient.sr.notCheckedIn')}</Tag>
               <Tag color={srStatus.questionnaireDone ? 'green' : 'default'}>{t('w12Patient.sr.questionnaireStatus')}: {srStatus.questionnaireDone ? t('w12Patient.sr.done') : t('w12Patient.sr.pending')}</Tag>
@@ -750,7 +750,7 @@ export default function PatientServiceCenterPage() {
       </Col>
 
       <Col xs={24} lg={14}>
-        <Card size="small" title={t('w12Patient.sr.questionnaire')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.sr.questionnaire')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Input value={srAllergies} onChange={(e) => setSrAllergies(e.target.value)} addonBefore={t('w12Patient.sr.allergies')} />
             <Input value={srImplants} onChange={(e) => setSrImplants(e.target.value)} addonBefore={t('w12Patient.sr.implants')} />
@@ -771,7 +771,7 @@ export default function PatientServiceCenterPage() {
           </Space>
         </Card>
 
-        <Card size="small" title={t('w12Patient.sr.consent')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={t('w12Patient.sr.consent')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Space wrap>
             <Input value={srSignature} style={{ width: 180 }} onChange={(e) => setSrSignature(e.target.value)} addonBefore={t('w12Patient.sr.signature')} />
             <Button loading={srBusy} disabled={!srSelected} onClick={() => void doConsent()}>{t('w12Patient.sr.sign')}</Button>
@@ -779,7 +779,7 @@ export default function PatientServiceCenterPage() {
         </Card>
 
         <Card size="small" title={t('w12Patient.sr.queueNumber')}>
-          <Space wrap style={{ marginBottom: 12 }}>
+          <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Select value={srModality} style={{ width: 110 }} onChange={setSrModality} options={['CT', 'MR', 'DR', 'US', 'MG'].map((v) => ({ value: v, label: v }))} />
             <Select value={srPriority} style={{ width: 130 }} onChange={setSrPriority}
               options={(['NORMAL', 'URGENT', 'EMERGENCY'] as const).map((v) => ({ value: v, label: t(`w12Patient.sr.priority.${v}`) }))} />
@@ -800,13 +800,13 @@ export default function PatientServiceCenterPage() {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w12Patient.title')}</span>
         <Tag color="cyan">W12</Tag>
         <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('w12Patient.sourceApi') : t('w12Patient.sourceDemo')}</Tag>
         <Button icon={<RefreshCw size={14} />} loading={loading} onClick={() => void loadAll()}>{t('w12Patient.refresh')}</Button>
       </Space>
-      <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 12 }}>{t('w12Patient.subtitle')}</div>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', color: 'var(--text-secondary)', fontSize: 12 }}>{t('w12Patient.subtitle')}</div>
 
       <Tabs activeKey={tab} onChange={setTab} items={[
         { key: 'wechat', label: t('w12Patient.tab.wechat'), children: wechatTab },

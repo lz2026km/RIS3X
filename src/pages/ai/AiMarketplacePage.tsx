@@ -145,8 +145,8 @@ const AiMarketplacePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }} align="center">
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} align="center">
         <Cpu size={22} color="var(--color-primary-600)" />
         <div>
           <div style={{ fontSize: 18, fontWeight: 600 }}>{t('w8.aiMarketplace.title')}</div>
@@ -155,7 +155,7 @@ const AiMarketplacePage: React.FC = () => {
         <Tag color={dataSource === 'api' ? 'green' : 'orange'}>{dataSource === 'api' ? 'API' : 'Seed'}</Tag>
       </Space>
 
-      <StatCardGrid style={{ marginBottom: 16 }} minWidth={220}>
+      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }} minWidth={220}>
         <StatCard title={t('w8.aiMarketplace.kpiTotal')} value={models.length} icon={<Cpu size={18} />} color="primary" />
         <StatCard title={t('w8.aiMarketplace.kpiRunning')} value={running} icon={<Rocket size={18} />} color="success" sub={dataSource === 'seed' ? t('w8.aiMarketplace.seedFallback') : undefined} />
         <StatCard title={t('w8.aiMarketplace.kpiAvgAccuracy')} value={avgAcc.toFixed(1)} suffix="%" icon={<StopCircle size={18} />} color="warning" />
@@ -171,7 +171,7 @@ const AiMarketplacePage: React.FC = () => {
         }
         loading={loading}
       >
-        <Space style={{ marginBottom: 12 }} wrap>
+        <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
           <Input.Search
             allowClear
             placeholder={t('w8.aiMarketplace.searchPlaceholder')}

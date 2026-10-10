@@ -108,7 +108,7 @@ export default function WadoRsViewer({ studyUID }: Props) {
             const node = info.node as unknown as TreeNode
             if (node.data) handlePreview(node.data)
           }}
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 'var(--space-3, 12px)' }}
         />
         {seriesList.length === 0 && !loading && (
           <Text type="secondary">{t('series')}</Text>
@@ -118,7 +118,7 @@ export default function WadoRsViewer({ studyUID }: Props) {
         {previewUrl ? (
           <div style={{ background: '#000', minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <PictureOutlined style={{ fontSize: 64, color: '#666' }} />
-            <Text style={{ color: '#999', marginLeft: 12 }}>{t('instance')}</Text>
+            <Text style={{ color: '#999', marginLeft: 'var(--space-3, 12px)' }}>{t('instance')}</Text>
           </div>
         ) : (
           <Text type="secondary">{t('series')}</Text>

@@ -189,7 +189,7 @@ export default function RetakeRateAnalyticsPage() {
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
       <PageHeader
         icon={<BarChart3 size={20} color="#7c3aed" />}
         title={t('retakeAnalytics.title')}
@@ -203,7 +203,7 @@ export default function RetakeRateAnalyticsPage() {
         }
       />
 
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Radio.Group
           optionType="button"
           buttonStyle="solid"
@@ -222,11 +222,11 @@ export default function RetakeRateAnalyticsPage() {
       </Space>
 
       {error && (
-        <Alert type="warning" showIcon message={t('retakeAnalytics.statsLoadFailed')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="warning" showIcon message={t('retakeAnalytics.statsLoadFailed')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void load(dimension, rangeDays)}><RefreshCw size={14} /> {t('retakeAnalytics.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('retakeAnalytics.totalCompleted')} value={stats?.summary.totalCompleted ?? 0} icon={<Camera size={16} />} color="primary" loading={loading} />
         <StatCard title={t('retakeAnalytics.totalRetakes')} value={stats?.summary.totalRetakes ?? 0} icon={<Camera size={16} />} color="error" loading={loading} />
         <StatCard title={t('retakeAnalytics.retakeRate')} value={stats?.summary.retakeRate ?? 0} suffix="%" color={rateColor(stats?.summary.retakeRate ?? 0)} loading={loading} />
@@ -235,9 +235,9 @@ export default function RetakeRateAnalyticsPage() {
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={14}>
-          <Card size="small" title={<Space><TrendingUp size={14} />{t('retakeAnalytics.trendTitle')}</Space>} extra={<Tag>{trendChart.length} {t('retakeAnalytics.daysUnit')}</Tag>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><TrendingUp size={14} />{t('retakeAnalytics.trendTitle')}</Space>} extra={<Tag>{trendChart.length} {t('retakeAnalytics.daysUnit')}</Tag>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>{t('retakeAnalytics.loading')}</div>
             ) : trendChart.length === 0 ? (
               <EmptyState description={t('retakeAnalytics.noTrend')} />
             ) : (
@@ -258,9 +258,9 @@ export default function RetakeRateAnalyticsPage() {
         </Col>
 
         <Col xs={24} lg={10}>
-          <Card size="small" title={<Space><PieIcon size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonDistribution') : `${dimension === 'tech' ? t('retakeAnalytics.tech') : t('retakeAnalytics.modality')}${t('retakeAnalytics.retakeRatioSuffix')}`}</Space>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><PieIcon size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonDistribution') : `${dimension === 'tech' ? t('retakeAnalytics.tech') : t('retakeAnalytics.modality')}${t('retakeAnalytics.retakeRatioSuffix')}`}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>{t('retakeAnalytics.loading')}</div>
             ) : pieData.length === 0 ? (
               <EmptyState description={t('retakeAnalytics.noRetakeRecords')} />
             ) : (
@@ -273,9 +273,9 @@ export default function RetakeRateAnalyticsPage() {
                     <ReTooltip {...chartDefaults.tooltip} />
                   </PieChart>
                 </ChartContainer>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2, 8px)', justifyContent: 'center' }}>
                   {pieData.map((p) => (
-                    <span key={p.name} style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4, color: THEME_TOKENS.textSecondary }}>
+                    <span key={p.name} style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: THEME_TOKENS.textSecondary }}>
                       <span style={{ width: 10, height: 10, borderRadius: 2, background: p.color, display: 'inline-block' }} />
                       {p.name} {p.value}
                     </span>
@@ -289,9 +289,9 @@ export default function RetakeRateAnalyticsPage() {
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={14}>
-          <Card size="small" title={<Space><BarChart3 size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonDetail') : dimension === 'tech' ? t('retakeAnalytics.techDetail') : t('retakeAnalytics.modalityDetail')}</Space>} extra={<Tag>{heatRows.length} {t('retakeAnalytics.itemsUnit')}</Tag>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><BarChart3 size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonDetail') : dimension === 'tech' ? t('retakeAnalytics.techDetail') : t('retakeAnalytics.modalityDetail')}</Space>} extra={<Tag>{heatRows.length} {t('retakeAnalytics.itemsUnit')}</Tag>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>{t('retakeAnalytics.loading')}</div>
             ) : heatRows.length === 0 ? (
               <EmptyState description={t('retakeAnalytics.noDetail')} />
             ) : (
@@ -313,13 +313,13 @@ export default function RetakeRateAnalyticsPage() {
         </Col>
 
         <Col xs={24} lg={10}>
-          <Card size="small" title={<Space><Wrench size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonHeatmap') : dimension === 'tech' ? t('retakeAnalytics.techHeatmap') : t('retakeAnalytics.modalityHeatmap')} {t('retakeAnalytics.heatmapSuffix')}</Space>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><Wrench size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonHeatmap') : dimension === 'tech' ? t('retakeAnalytics.techHeatmap') : t('retakeAnalytics.modalityHeatmap')} {t('retakeAnalytics.heatmapSuffix')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>{t('retakeAnalytics.loading')}</div>
             ) : heatRows.length === 0 ? (
               <EmptyState description={t('retakeAnalytics.noHeatData')} />
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {heatRows.map((b) => (
                   <div key={b.key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ width: 90, fontSize: 12, color: THEME_TOKENS.textSecondary, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.label}</span>
@@ -347,7 +347,7 @@ export default function RetakeRateAnalyticsPage() {
                     </span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 11, color: '#94a3b8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
                   {t('retakeAnalytics.low')}
                   {[0, 20, 40, 60, 80, 100].map((v) => (
                     <span key={v} style={{ width: 14, height: 12, borderRadius: 2, background: heatBg(v), border: '1px solid var(--border-color)' }} />
@@ -363,12 +363,12 @@ export default function RetakeRateAnalyticsPage() {
       {/* [v3.0.6.11-104 Wave 3D] 重拍审批队列 (QC_REJECT 待审批) + 审批列 */}
       <Card
         size="small"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         title={<Space><ClipboardCheck size={14} />{t('w3d.retake.queue')}<Tag color="gold">{queue.length}</Tag></Space>}
         extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadQueue()}>{t('w2d.refresh')}</Button>}
       >
         {stats?.approvalSummary && (
-          <Space style={{ marginBottom: 12 }} wrap>
+          <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
             <span style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>{t('w3d.retake.approvalSummary')}:</span>
             <Tag color="gold">{t('w3d.retake.pending')} {stats.approvalSummary.pending}</Tag>
             <Tag color="green">{t('w3d.retake.approvedStatus')} {stats.approvalSummary.approved}</Tag>
@@ -431,16 +431,16 @@ export default function RetakeRateAnalyticsPage() {
         cancelText={t('w2d.cancel')}
       >
         {review && (
-          <div style={{ display: 'grid', gap: 12, paddingTop: 4 }}>
+          <div style={{ display: 'grid', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-1, 4px)' }}>
             <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>
               {review.item.patientName ?? '--'} · {review.item.modality} · {RETAKE_REASON_OPTIONS.find(o => o.value === review.item.retakeReason)?.label ?? '--'}
             </div>
             <div>
-              <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary, marginBottom: 4 }}>{t('w3d.retake.approver')}</div>
+              <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('w3d.retake.approver')}</div>
               <Input value={approver} onChange={e => setApprover(e.target.value)} placeholder={t('w3d.retake.approver')} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary, marginBottom: 4 }}>{t('w3d.retake.opinion')}</div>
+              <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('w3d.retake.opinion')}</div>
               <Input.TextArea rows={3} value={opinion} onChange={e => setOpinion(e.target.value)} placeholder={t('w3d.retake.opinion')} />
             </div>
           </div>

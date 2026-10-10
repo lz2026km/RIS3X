@@ -289,38 +289,38 @@ export default function DRLManagement() {
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loadError && !rowsLoading && <ErrorBanner message={loadError} onRetry={() => { void loadDrls(); void loadAlerts(); }} retryLabel={t('w9.states.retry')} />}
       {dataSource === "demo" && !rowsLoading && (
-        <div style={{ padding: "8px 12px", background: "#fef3c7", color: "var(--color-warning-600)", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ padding: "8px 12px", background: "#fef3c7", color: "var(--color-warning-600)", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={14} /> {t('w8Dose.demoBadge')} · {t('w8Dose.sourceDemo')}
         </div>
       )}
       <style>{`.drl-row-critical td { background: #fef2f2 !important; } .drl-row-warning td { background: #fffbeb !important; }`}</style>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 'var(--space-3, 12px)' }}>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiThresholds')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 4 }}>{rows.length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 'var(--space-1, 4px)' }}>{rows.length}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiOverLimitAlerts')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: alerts.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)", marginTop: 4 }}>{alerts.length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: alerts.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)", marginTop: 'var(--space-1, 4px)' }}>{alerts.length}</div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t('drl.records')}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiCriticalAlerts')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-error-600)", marginTop: 4 }}>{alerts.filter((a) => a.level === "critical" && !a.acknowledged).length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>{alerts.filter((a) => a.level === "critical" && !a.acknowledged).length}</div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t('drl.notClosed')}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiChildThreshold')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-warning-600)", marginTop: 4 }}>{rows.filter((r) => r.ageGroup === "child").length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-warning-600)", marginTop: 'var(--space-1, 4px)' }}>{rows.filter((r) => r.ageGroup === "child").length}</div>
         </div>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Zap size={16} color="var(--color-primary-600)" />
             {t('drl.thresholdConfigTitle')}
           </div>
@@ -336,13 +336,13 @@ export default function DRLManagement() {
         />
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={16} color="var(--color-error-600)" />
           {t('drl.loopCheckTitle')}
         </div>
         {checkDrafts.map((d) => (
-          <div key={d.key} style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <div key={d.key} style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', flexWrap: "wrap", alignItems: "center" }}>
             <Input placeholder={t('drl.patientNamePlaceholder')} value={d.patientName} onChange={(e) => patchDraft(d.key, { patientName: e.target.value })} style={{ width: 120 }} />
             <Select value={d.modality} onChange={(v) => patchDraft(d.key, { modality: v })} options={[{ value: "CT", label: "CT" }, { value: "MR", label: "MR" }]} style={{ width: 80 }} />
             <Select value={d.bodyPart} onChange={(v) => patchDraft(d.key, { bodyPart: v })} options={BODY_PARTS.map((b) => ({ value: b, label: BODY_PART_KEYS[b] ? t(BODY_PART_KEYS[b]) : b }))} style={{ width: 90 }} />
@@ -354,7 +354,7 @@ export default function DRLManagement() {
             )}
           </div>
         ))}
-        <Space style={{ marginTop: 8 }}>
+        <Space style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Button size="small" onClick={() => setCheckDrafts((prev) => [...prev, { key: `d${Date.now()}`, modality: "CT", bodyPart: "胸部" }])}>{t('drl.addInstance')}</Button>
           <Button type="primary" icon={<Zap size={13} />} loading={checking} onClick={runCheck}>{t('drl.startCheck')}</Button>
         </Space>
@@ -363,15 +363,15 @@ export default function DRLManagement() {
             rowKey="id"
             columns={checkColumns}
             dataSource={checkResult}
-            style={{ marginTop: 16 }}
+            style={{ marginTop: 'var(--space-4, 16px)' }}
             pagination={false}
             locale={{ emptyText: t('drl.noOverLimit') }}
           />
         )}
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <ShieldAlert size={16} color="var(--color-success-600)" />
           {t('drl.alertHistoryTitle')}
         </div>

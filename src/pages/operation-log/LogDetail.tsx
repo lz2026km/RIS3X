@@ -15,14 +15,14 @@ function renderDiff(log: OperationLog) {
   }
 
   return (
-    <div style={{ marginTop: 12 }}>
-      <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 12 }}>{t('logDetail.dataCompare')}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+      <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', fontSize: 12 }}>{t('logDetail.dataCompare')}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ background: 'var(--color-error-bg)', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: DANGER, borderBottom: '1px solid #fecaca' }}>
             {t('logDetail.beforeEdit')}
           </div>
-          <pre style={{ margin: 0, padding: 12, fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: 'var(--color-error-bg)', color: '#991b1b', lineHeight: 1.6 }}>
+          <pre style={{ margin: 0, padding: 'var(--space-3, 12px)', fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: 'var(--color-error-bg)', color: '#991b1b', lineHeight: 1.6 }}>
             {log.beforeData || t('logDetail.emptyCell')}
           </pre>
         </div>
@@ -30,7 +30,7 @@ function renderDiff(log: OperationLog) {
           <div style={{ background: '#ecfdf5', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: SUCCESS, borderBottom: '1px solid #a7f3d0' }}>
             {t('logDetail.afterEdit')}
           </div>
-          <pre style={{ margin: 0, padding: 12, fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: '#ecfdf5', color: '#065f46', lineHeight: 1.6 }}>
+          <pre style={{ margin: 0, padding: 'var(--space-3, 12px)', fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: '#ecfdf5', color: '#065f46', lineHeight: 1.6 }}>
             {log.afterData || t('logDetail.emptyCell')}
           </pre>
         </div>
@@ -68,18 +68,18 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
           </button>
         </div>
 
-        <div style={{ padding: 20 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
-            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.logId')}</div>
+        <div style={{ padding: 'var(--space-5, 20px)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.logId')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.id}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opTime')}</div>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opTime')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(log.timestamp)}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opType')}</div>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opType')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
                   background: `${ACTION_COLORS[log.action] || ACCENT}20`,
@@ -90,23 +90,23 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
                 </span>
               </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opUser')}</div>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opUser')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.userName}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.userId')}</div>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.userId')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.userId}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opModule')}</div>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opModule')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.module}</div>
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', padding: 'var(--space-4, 16px)', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12 }}>{t('logDetail.opTarget')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-3, 12px)' }}>
               <div>
                 <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.targetId')}</div>
                 <div style={{ color: PRIMARY, fontSize: 12 }}>{log.targetId}</div>
@@ -117,24 +117,24 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
               </div>
             </div>
             {log.patientId && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.patientId')}</div>
                 <div style={{ color: PRIMARY, fontSize: 12 }}>{log.patientId}</div>
               </div>
             )}
           </div>
 
-          <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', padding: 'var(--space-4, 16px)', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12 }}>{t('logDetail.envInfo')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Globe size={14} color={GRAY} />
                 <div>
                   <div style={{ color: GRAY, fontSize: 12 }}>{t('logDetail.ipAddress')}</div>
                   <div style={{ color: PRIMARY, fontSize: 12 }}>{log.ipAddress}</div>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <MonitorSmartphone size={14} color={GRAY} />
                 <div>
                   <div style={{ color: GRAY, fontSize: 12 }}>{t('logDetail.device')}</div>
@@ -147,9 +147,9 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
           {log.complianceLevel && (
             <div style={{
               background: log.complianceLevel === 'critical' ? 'var(--color-error-bg)' : log.complianceLevel === 'warning' ? '#fffbeb' : '#ecfdf5',
-              padding: 16, borderRadius: 8,
+              padding: 'var(--space-4, 16px)', borderRadius: 8,
               border: `1px solid ${log.complianceLevel === 'critical' ? '#fecaca' : log.complianceLevel === 'warning' ? '#fde68a' : '#a7f3d0'}`,
-              marginBottom: 16
+              marginBottom: 'var(--space-4, 16px)'
             }}>
               <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Shield size={16} />
@@ -166,7 +166,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {log.complianceAlerts.map((alert, idx) => (
                     <div key={idx} style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
+                      display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
                       color: alert.level === 'critical' ? DANGER : WARNING,
                       fontSize: 12
                     }}>

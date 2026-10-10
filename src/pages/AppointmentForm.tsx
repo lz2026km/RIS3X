@@ -136,7 +136,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
       </div>
 
       {/* 步骤指示器 */}
-      <div style={{ display: 'flex', padding: '10px 12px', gap: 4, borderBottom: `1px solid ${borderGray}`, overflowX: 'auto' }}>
+      <div style={{ display: 'flex', padding: '10px 12px', gap: 'var(--space-1, 4px)', borderBottom: `1px solid ${borderGray}`, overflowX: 'auto' }}>
         {STEP_KEYS.map((k, i) => (
           <button
             key={k}
@@ -152,7 +152,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         ))}
       </div>
 
-      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
         {validationError && <div style={{ color: 'var(--color-error-600)', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{validationError}</div>}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: textGray }}>
@@ -162,8 +162,8 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         {/* ===== Step 1: 患者与身份 ===== */}
         {step === 0 && (
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}><User size={12} />{t('w8.appointmentForm.patientInfo')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><User size={12} />{t('w8.appointmentForm.patientInfo')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
               {fieldMeta.map((field) => (
                 <FormField key={field.key} label={field.label.replace(/\*$/, '')} required={field.label.endsWith('*')} error={fieldError(field.key)}>
                   {field.type === 'select' ? (
@@ -176,7 +176,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
                 </FormField>
               ))}
             </div>
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)' }}>
               <FormField label={t('w5Appt.clinicalIndication')}>
                 <input value={formData.clinicalIndication || ''} onChange={(e) => set({ clinicalIndication: e.target.value })} style={inputStyle(borderGray)} />
               </FormField>
@@ -188,8 +188,8 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         {step === 1 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}><Scan size={12} />{t('w8.appointmentForm.examInfo')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Scan size={12} />{t('w8.appointmentForm.examInfo')}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                 <FormField label={t('w8.appointmentForm.examType')} required={false}>
                   <select value={formData.examType} onChange={(e) => set({ examType: e.target.value, examItemId: '', examItemName: '', bodyPart: '', deviceId: '', deviceName: '' })} style={inputStyle(borderGray)}>
                     {['CT', 'MR', 'DR', 'US', 'DX', 'XA'].map((m) => <option key={m} value={m}>{m}</option>)}
@@ -204,8 +204,8 @@ export default function AppointmentForm(props: AppointmentFormProps) {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}><Monitor size={12} />{t('w8.appointmentForm.timeDevice')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Monitor size={12} />{t('w8.appointmentForm.timeDevice')}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                 <FormField label={`${t('w8.appointmentForm.examDate')}*`} required error={fieldError('examDate')}>
                   <input type="date" value={formData.examDate || ''} onChange={(e) => set({ examDate: e.target.value })} style={inputStyle(bc('examDate'))} />
                 </FormField>
@@ -240,7 +240,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
                 </FormField>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
               <div>
                 <div style={{ fontSize: 12, color: textGray, marginBottom: 2 }}>{t('w8.appointmentForm.referringDoctor')}</div>
                 <select value={formData.referringDoctorId} onChange={(e) => { const u = initialUsers.find((u: any) => u.id === e.target.value); set({ referringDoctorId: e.target.value, referringDoctorName: u?.name || '' }) }} style={inputStyle(borderGray)}>
@@ -259,8 +259,8 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         {/* ===== Step 3: 安全与准备 ===== */}
         {step === 2 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, display: 'flex', alignItems: 'center', gap: 4 }}><ShieldCheck size={12} />{t('w5Appt.step3')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><ShieldCheck size={12} />{t('w5Appt.step3')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
               <FormField label={t('w5Appt.allergy')}>
                 <input placeholder={t('w5Appt.allergyPlaceholder')} value={formData.allergyHistory || ''} onChange={(e) => set({ allergyHistory: e.target.value })} style={inputStyle(borderGray)} />
               </FormField>
@@ -276,7 +276,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
                 <input type="number" value={formData.heightCm ?? ''} onChange={(e) => set({ heightCm: e.target.value === '' ? undefined : Number(e.target.value) })} style={inputStyle(borderGray)} />
               </FormField>
             </div>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 12, color: primaryBlue }}>
+            <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', fontSize: 12, color: primaryBlue }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <Checkbox checked={!!formData.pregnant} onChange={(e) => set({ pregnant: e.target.checked })} /> {t('w5Appt.pregnant')}
               </label>
@@ -297,8 +297,8 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         {/* ===== Step 4: 医保与费用 ===== */}
         {step === 3 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, display: 'flex', alignItems: 'center', gap: 4 }}><CreditCard size={12} />{t('w5Appt.step4')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><CreditCard size={12} />{t('w5Appt.step4')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
               <FormField label={t('w5Appt.insuranceType')}>
                 <select value={formData.insuranceType || t('w5Appt.insuranceBasic')} onChange={(e) => set({ insuranceType: e.target.value })} style={inputStyle(borderGray)}>
                   {[t('w5Appt.insuranceSelfPay'), t('w5Appt.insuranceBasic'), t('w5Appt.insuranceResident'), t('w5Appt.insuranceCommercial')].map((o) => <option key={o} value={o}>{o}</option>)}
@@ -321,7 +321,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         {/* ===== Step 5: 确认 ===== */}
         {step === 4 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, display: 'flex', alignItems: 'center', gap: 4 }}><ClipboardCheck size={12} />{t('w5Appt.reviewSection')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><ClipboardCheck size={12} />{t('w5Appt.reviewSection')}</div>
             <div style={{ fontSize: 11, color: textGray }}>{t('w5Appt.confirmHint')}</div>
             <div data-testid="wizard-summary" style={{ border: `1px solid ${borderGray}`, borderRadius: 8, overflow: 'hidden' }}>
               {[
@@ -350,7 +350,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
               {conflicts.length === 0 ? (
                 <span style={{ marginLeft: 10, fontSize: 12, color: '#059669' }}>{t('w5Appt.conflictNone')}</span>
               ) : (
-                <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                   {conflicts.map((c, i) => (
                     <div key={`${c.type}-${i}`} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: c.severity === 'ERROR' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: c.severity === 'ERROR' ? 'var(--color-error-600)' : '#92400e', border: `1px solid ${c.severity === 'ERROR' ? '#fca5a5' : 'var(--color-warning-border)'}` }}>
                       [{t(`w5Appt.conflictType.${c.type}`)}] {c.message}
@@ -363,12 +363,12 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         )}
 
         {/* 底部操作 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, borderTop: `1px solid ${borderGray}`, paddingTop: 10 }}>
-          <button onClick={step === 0 ? close : prev} style={{ padding: '6px 14px', borderRadius: 6, border: `1px solid ${borderGray}`, background: whiteBg, color: textGray, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-2, 8px)', borderTop: `1px solid ${borderGray}`, paddingTop: 10 }}>
+          <button onClick={step === 0 ? close : prev} style={{ padding: '6px 14px', borderRadius: 6, border: `1px solid ${borderGray}`, background: whiteBg, color: textGray, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             {step === 0 ? t('w5Appt.cancel') : (<><ChevronLeft size={13} />{t('w5Appt.prev')}</>)}
           </button>
           {step < STEP_KEYS.length - 1 ? (
-            <button onClick={next} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button onClick={next} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               {t('w5Appt.next')} <ChevronRight size={13} />
             </button>
           ) : (

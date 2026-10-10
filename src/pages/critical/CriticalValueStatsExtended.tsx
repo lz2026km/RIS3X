@@ -86,7 +86,7 @@ export function CriticalValueStatsExtended() {
   }
 
   return (
-    <Space direction="vertical" size={16} style={{ width: '100%', marginTop: 16 }}>
+    <Space direction="vertical" size={16} style={{ width: '100%', marginTop: 'var(--space-4, 16px)' }}>
       <StatCardGrid>
         <StatCard title={t('critExt.total')} value={overview.total} icon={<AlertOctagon size={18} />} color="error" gradient />
         <StatCard title={t('critExt.today')} value={overview.todayCount} color="warning" />
@@ -96,7 +96,7 @@ export function CriticalValueStatsExtended() {
         <StatCard title={t('critExt.avgClose')} value={overview.avgCloseMin} suffix="min" color="success" />
       </StatCardGrid>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
         <DashboardCard title={t('critExt.dailyTrend')} icon={<TrendingUp size={15} />}>
           <TrendChart
             data={(trend?.items ?? []) as unknown as Array<Record<string, string | number>>}

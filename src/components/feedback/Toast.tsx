@@ -208,7 +208,7 @@ export function AppModal({
       aria-describedby={description ? 'app-modal-desc' : undefined}
     >
       {description && (
-        <div id="app-modal-desc" style={{ marginBottom: 12 }}>
+        <div id="app-modal-desc" style={{ marginBottom: 'var(--space-3, 12px)' }}>
           {description}
         </div>
       )}
@@ -228,15 +228,15 @@ export interface AppSkeletonProps {
 export function AppSkeleton({ rows = 5, columns = 4, active = true, rounded = true }: AppSkeletonProps) {
   const { t } = useTranslation();
   return (
-    <div role="status" aria-live="polite" style={{ padding: 16 }}>
+    <div role="status" aria-live="polite" style={{ padding: 'var(--space-4, 16px)' }}>
       {Array.from({ length: rows }).map((_, rowIdx) => (
         <div
           key={rowIdx}
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${columns}, 1fr)`,
-            gap: 16,
-            marginBottom: 12,
+            gap: 'var(--space-4, 16px)',
+            marginBottom: 'var(--space-3, 12px)',
           }}
         >
           {Array.from({ length: columns }).map((_, colIdx) => (

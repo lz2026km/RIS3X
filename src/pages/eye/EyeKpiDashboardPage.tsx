@@ -116,7 +116,7 @@ const EyeKpiDashboardPage: React.FC = () => {
       />
 
       {error && (
-        <Alert type="error" showIcon message={t('eyeKpi.loadError')} description={error} style={{ marginBottom: 12 }}
+        <Alert type="error" showIcon message={t('eyeKpi.loadError')} description={error} style={{ marginBottom: 'var(--space-3, 12px)' }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('eyeKpi.retry')}</Button>} />
       )}
 
@@ -124,7 +124,7 @@ const EyeKpiDashboardPage: React.FC = () => {
         <div style={{ textAlign: 'center', padding: 60 }}><Spin size="large" /></div>
       ) : (
         <>
-          <StatCardGrid minWidth={200} gap={12} testId="eye-kpi-grid" style={{ marginBottom: 12 }}>
+          <StatCardGrid minWidth={200} gap={12} testId="eye-kpi-grid" style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <StatCard title={t('eyeKpi.dailyExams')} value={kpiData.dailyExams} suffix={t('eyeKpi.unitVisits')} icon={<Activity size={16} />} />
             <StatCard title={t('eyeKpi.aiAdoption')} value={kpiData.aiAdoption} suffix="%" icon={<BarChart3 size={16} />} color="var(--color-success-500)" />
             <StatCard title={t('eyeKpi.monthlySurgery')} value={kpiData.surgeryCount ?? 0} suffix={t('eyeKpi.unitCases')} icon={<Users size={16} color="var(--color-warning-500)" />} />
@@ -160,7 +160,7 @@ const EyeKpiDashboardPage: React.FC = () => {
             )}
           </Card>
 
-          <Card size="small" title={t('eyeKpi.satisfactionTrend')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('eyeKpi.satisfactionTrend')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             {patientSatisfaction.length === 0 ? <Empty description={t('eyeKpi.noSatisfaction')} image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
               <Row gutter={12}>{['eyeKpi.sat.communication', 'eyeKpi.sat.wait', 'eyeKpi.sat.environment', 'eyeKpi.sat.recommend'].map((s, i) => {
                 const scores = patientSatisfaction.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i] ?? 0)

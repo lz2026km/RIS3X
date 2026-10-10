@@ -21,13 +21,13 @@ const svc = getOpsAnalyticsService()
 const s: Record<string, React.CSSProperties> = {
   root: { background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' },
   header: { background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-900))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  headerTitle: { display: 'flex', alignItems: 'center', gap: 12 },
+  headerTitle: { display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' },
   headerText: { fontSize: 20, fontWeight: 600 },
   content: { padding: '20px 24px' },
-  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 16, marginBottom: 24 },
-  grid3: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 },
-  panel: { background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md, 8px)', padding: 16 },
-  panelTitle: { fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 },
+  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' },
+  grid3: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' },
+  panel: { background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md, 8px)', padding: 'var(--space-4, 16px)' },
+  panelTitle: { fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' },
   kpiCard: { background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md, 8px)', padding: '16px 20px', flex: 1, minWidth: 180 },
 }
 
@@ -132,7 +132,7 @@ export default function OpsDashboardPage() {
             {dataMode === 'real' ? t('opsDashboard.realData') : t('opsDashboard.demoData')}
           </StatusTag>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <span title={t('opsDashboard.refreshTitle')} style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => void load()}>
             <RefreshCw size={16} style={{ color: 'var(--text-secondary)' }} />
           </span>
@@ -142,12 +142,12 @@ export default function OpsDashboardPage() {
 
       <div style={s.content}>
         {loadError && (
-          <div style={{ padding: '8px 12px', marginBottom: 12, borderRadius: 6, background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning-500)', fontSize: 12 }}>
+          <div style={{ padding: '8px 12px', marginBottom: 'var(--space-3, 12px)', borderRadius: 6, background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning-500)', fontSize: 12 }}>
             {t('w2d.loadFailed')}: {loadError}
           </div>
         )}
         <StateView loading={loading} skeletonRows={6}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           <KpiCard title={t('opsDashboard.kpiTotalExams')} value={totalExams} icon={TrendingUp} trend="up" color="var(--color-primary-500)" />
           <KpiCard title={t('opsDashboard.kpiAvgUtil')} value={avgUtil} unit="%" icon={Monitor} trend="up" color="var(--color-success-500)" />
           <KpiCard title={t('opsDashboard.kpiTurnaround')} value={p50} unit="min" icon={Clock} color="var(--color-warning-500)" />
@@ -157,7 +157,7 @@ export default function OpsDashboardPage() {
         <div style={s.grid2}>
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
             <div style={s.panelTitle}><TrendingUp size={16} color="var(--color-primary-500)" />{t('opsDashboard.workloadTrend')}</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               {[7, 14, 30].map(d => (
                 <button key={d} onClick={() => setDays(d)}
                   style={{ padding: '4px 12px', borderRadius: 4, border: '1px solid var(--border-default)', background: days === d ? 'var(--color-primary-800)' : 'transparent', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 12 }}>

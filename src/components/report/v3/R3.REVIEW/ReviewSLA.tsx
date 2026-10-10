@@ -64,7 +64,7 @@ export const ReviewSLA: React.FC = () => {
         role="status"
         aria-label={t('reportReview.sla.loading')}
         data-testid="sla-loading"
-        style={{ padding: 40, textAlign: 'center' }}
+        style={{ padding: 'var(--space-10, 40px)', textAlign: 'center' }}
       >
         {t('reportReview.sla.loading')}
       </div>
@@ -92,7 +92,7 @@ export const ReviewSLA: React.FC = () => {
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -105,7 +105,7 @@ export const ReviewSLA: React.FC = () => {
             {t('reportReview.sla.threshold', { initial: sla.initialReviewSLA, final: sla.finalReviewSLA, sign: sla.signSLA, cosign: sla.cosignSLA })}
           </Tag>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={6}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportReview.sla.onTimeRate')}</span>}
@@ -164,17 +164,17 @@ export const ReviewSLA: React.FC = () => {
               {t('reportReview.sla.p95Initial')} <strong>{sla.p95InitialMinutes}{t('reportReview.sla.minutes')}</strong>,{t('reportReview.sla.p95Final')}{' '}
               <strong>{sla.p95FinalMinutes}{t('reportReview.sla.minutes')}</strong>
             </div>
-            <div style={{ marginTop: 4 }}>
+            <div style={{ marginTop: 'var(--space-1, 4px)' }}>
               {t('reportReview.sla.overdueCount')}<strong>{sla.overdueCount}</strong>,{t('reportReview.sla.overdueRate')}{' '}
               <strong>{(100 - sla.onTimeRate).toFixed(1)}%</strong>
             </div>
           </div>
         }
         showIcon
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={12}>
           <Card title={t('reportReview.sla.byStage')} size="small">
             <ChartContainer height={200} state={breachData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
@@ -240,7 +240,7 @@ export const ReviewSLA: React.FC = () => {
             size="small"
           >
             <Progress percent={sla.onTimeRate} strokeColor="#10b981" />
-            <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b' }}>
               {t('reportReview.sla.achievedDesc')}
             </div>
           </Card>
@@ -285,7 +285,7 @@ export const ReviewSLA: React.FC = () => {
               <div>
                 <Tag color="purple">{t('reportReview.sla.p95FinalTag')}</Tag> <strong>{sla.p95FinalMinutes}</strong> {t('reportReview.sla.minutes')}
               </div>
-              <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
                 {t('reportReview.sla.p95Desc')}
               </div>
             </div>

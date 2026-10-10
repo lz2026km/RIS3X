@@ -94,7 +94,7 @@ export function NotificationPreferencesSection() {
     >
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('notifExt.types')}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('notifExt.types')}</div>
           <Checkbox.Group
             value={types}
             onChange={(v) => setTypes(v as NotificationSubscriptionType[])}
@@ -103,7 +103,7 @@ export function NotificationPreferencesSection() {
         </div>
 
         <div>
-          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('notifExt.channels')}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('notifExt.channels')}</div>
           <Space wrap size={16}>
             {CHANNEL_OPTIONS.map((c) => (
               <Space key={c} size={6}>
@@ -119,7 +119,7 @@ export function NotificationPreferencesSection() {
         </div>
 
         <div>
-          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('notifExt.quietHours')}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('notifExt.quietHours')}</div>
           <Space wrap>
             <Switch checked={quietEnabled} onChange={setQuietEnabled} />
             <span style={{ fontSize: 12 }}>{t('notifExt.enabled')}</span>

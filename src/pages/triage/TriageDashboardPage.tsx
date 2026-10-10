@@ -324,8 +324,8 @@ const TriageDashboardPage: React.FC = () => {
 
   return (
     <PageContainer padding={24} data-testid="triage-dashboard-page">
-      <Card style={{ marginBottom: 16 }}>
-        <Space style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Siren size={24} color="var(--color-error-500)" />
           <Title level={4} style={{ margin: 0 }}>{t('triage.title')}</Title>
           <Tag color="red">P0</Tag>
@@ -333,7 +333,7 @@ const TriageDashboardPage: React.FC = () => {
         <Text type="secondary">{t('triage.subtitle')}</Text>
       </Card>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('triage.statPending')} value={pendingCount} icon={<Clock size={18} />} color="primary" />
         <StatCard title={t('triage.levelCritical')} value={criticalCount} icon={<AlertTriangle size={18} />} color="error" />
         <StatCard title={t('triage.levelUrgent')} value={urgentCount} icon={<Siren size={18} />} color="warning" />
@@ -387,14 +387,14 @@ const TriageDashboardPage: React.FC = () => {
       </Card>
 
       {scoreResult && (
-        <Card title={t('triage.scoreResultTitle')} style={{ marginTop: 16 }}>
-          <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 12 }}>
+        <Card title={t('triage.scoreResultTitle')} style={{ marginTop: 'var(--space-4, 16px)' }}>
+          <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <StatCard title={t('triage.totalScore')} value={scoreResult.score} color={statColor(scoreColor(scoreResult.score))} />
             <StatCard title={t('triage.grade')} value={t(levelLabel[scoreResult.level] ?? scoreResult.level)} color={statColor(levelColor[scoreResult.level] ?? 'green')} />
           </StatCardGrid>
           <Text strong>{t('triage.scoreFactors')}</Text>
           {scoreResult.factors.map((f: TriageFactor) => (
-            <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)' }}>
               <Text style={{ width: 100, fontSize: 12 }}>{f.name}</Text>
               <Progress percent={Math.min((f.contribution / 10) * 100, 100)} size="small" style={{ flex: 1, margin: 0 }} />
               <Tag color={scoreColor(f.contribution)}>{f.contribution}</Tag>
@@ -412,7 +412,7 @@ const TriageDashboardPage: React.FC = () => {
       >
         {selectedItem && (
           <>
-            <Descriptions column={2} size="small" style={{ marginBottom: 16 }}>
+            <Descriptions column={2} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Descriptions.Item label={t('triage.colPatientName')}>{selectedItem.patientName}</Descriptions.Item>
               <Descriptions.Item label={t('triage.colExamType')}>{selectedItem.examType}</Descriptions.Item>
               <Descriptions.Item label={t('triage.colScore')}>
@@ -422,8 +422,8 @@ const TriageDashboardPage: React.FC = () => {
                 <Tag color={levelColor[selectedItem.level]}>{t(levelLabel[selectedItem.level] ?? selectedItem.level)}</Tag>
               </Descriptions.Item>
             </Descriptions>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontWeight: 600 }}>{t('triage.colAssignedDoctor')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 600 }}>{t('triage.colAssignedDoctor')}</div>
               <Select
                 style={{ width: '100%' }}
                 value={newDoctor}
@@ -442,7 +442,7 @@ const TriageDashboardPage: React.FC = () => {
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 600 }}>{t('triage.colStatus')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 600 }}>{t('triage.colStatus')}</div>
               <Select
                 style={{ width: '100%' }}
                 value={newStatus}
@@ -479,7 +479,7 @@ const TriageDashboardPage: React.FC = () => {
             ['respiratoryRate', t('w6Reg.safety.rr')],
           ] as Array<[keyof VitalSigns, string]>).map(([key, label]) => (
             <Col span={8} key={key}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{label}</div>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
               <InputNumber
                 style={{ width: '100%' }}
                 value={vitals[key]}
@@ -489,7 +489,7 @@ const TriageDashboardPage: React.FC = () => {
           ))}
         </Row>
         {reTriageResult && (
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Space>
               <span>{t('w6Reg.triage.esi')}:</span>
               <Tag color={esiColor(reTriageResult.esiLevel)}>{esiLabel(reTriageResult.esiLevel)}</Tag>
@@ -497,7 +497,7 @@ const TriageDashboardPage: React.FC = () => {
               <Tag color="volcano">{reTriageResult.queuePriority ?? '-'}</Tag>
             </Space>
             {reTriageResult.vitalsBreaches && reTriageResult.vitalsBreaches.length > 0 && (
-              <Alert style={{ marginTop: 8 }} type="warning" showIcon message={t('w6Reg.triage.breach')} description={reTriageResult.vitalsBreaches.join('；')} />
+              <Alert style={{ marginTop: 'var(--space-2, 8px)' }} type="warning" showIcon message={t('w6Reg.triage.breach')} description={reTriageResult.vitalsBreaches.join('；')} />
             )}
           </div>
         )}

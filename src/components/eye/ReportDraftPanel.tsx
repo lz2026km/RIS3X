@@ -58,7 +58,7 @@ const ReportDraftPanel: React.FC<{ reportId: string }> = ({ reportId }) => {
               <Tag icon={actionIcon[e.action]} color={actionColor[e.action]}>
                 v{e.version} {e.action}
               </Tag>
-              <span style={{ marginLeft: 4 }}>{e.userName}</span>
+              <span style={{ marginLeft: 'var(--space-1, 4px)' }}>{e.userName}</span>
               <div style={{ color: "#64748b" }}>
                 {new Date(e.timestamp).toLocaleString()}
               </div>

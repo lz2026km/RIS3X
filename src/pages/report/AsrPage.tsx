@@ -174,23 +174,23 @@ export default function AsrPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Volume2 size={20} color="var(--color-primary-500)" />} title={rt("title")} subtitle={rt("subtitle")} />
       {loadError && <ErrorBanner message={loadError} onRetry={() => { void loadLexicon(); void refreshStatsAndSessions(); }} retryLabel={t('w9.states.retry')} />}
-      <div style={{ padding: 24 }}>
-        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
-          <div style={{ marginBottom: 16 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-6, 24px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ width: 80, height: 80, borderRadius: "50%", background: recording ? "#fee2e2" : "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", transition: "all 0.3s" }}>
               {recording ? <Square size={32} color="var(--color-error-600)" /> : <Mic size={32} color="var(--color-primary-500)" />}
             </div>
           </div>
-          <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16 }}>
+          <div style={{ fontSize: 14, color: "#64748b", marginBottom: 'var(--space-4, 16px)' }}>
             {recording ? rt("recordingHint") : loading ? rt("processing") : rt("clickToRecord")}
           </div>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <div style={{ display: "flex", gap: 'var(--space-3, 12px)', justifyContent: "center" }}>
             {!recording ? (
-              <button onClick={startRecording} disabled={loading} style={{ padding: "10px 24px", background: "var(--color-primary-500)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={startRecording} disabled={loading} style={{ padding: "10px 24px", background: "var(--color-primary-500)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 <Mic size={16} />{rt("startRecording")}
               </button>
             ) : (
-              <button onClick={stopRecording} style={{ padding: "10px 24px", background: "var(--color-error-600)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={stopRecording} style={{ padding: "10px 24px", background: "var(--color-error-600)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 <Square size={16} />{rt("stopRecording")}
               </button>
             )}
@@ -198,19 +198,19 @@ export default function AsrPage() {
         </div>
 
         {loading && (
-          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-6, 24px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
             <RefreshCw size={24} color="var(--color-primary-500)" style={{ animation: "spin 1s linear infinite" }} />
-            <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{rt("transcribing")}</div>
+            <div style={{ marginTop: 'var(--space-2, 8px)', color: "#64748b", fontSize: 12 }}>{rt("transcribing")}</div>
           </div>
         )}
 
         {transcribed && !loading && (
-          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 'var(--space-3, 12px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
                 <FileText size={16} color="var(--color-primary-500)" />{rt("transcriptionResult")}
               </h3>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 {engineInfo && (
                   <>
                     <span style={{ fontSize: 12, fontWeight: 600, color: (ENGINE_BADGES[engineInfo.engine] ?? ENGINE_BADGES.mock)?.color, background: (ENGINE_BADGES[engineInfo.engine] ?? ENGINE_BADGES.mock)?.bg, padding: "2px 8px", borderRadius: 4 }}>
@@ -232,15 +232,15 @@ export default function AsrPage() {
               value={editing}
               onChange={e => setEditing(e.target.value)}
               rows={6}
-              style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
+              style={{ width: "100%", padding: 'var(--space-3, 12px)', border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
             />
-            <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)', display: "flex", gap: 'var(--space-2, 8px)' }}>
               {!submitted ? (
                 <button onClick={handleSubmit} style={{ padding: "8px 20px", background: "#10b981", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                   <Send size={14} />{rt("submitToReport")}
                 </button>
               ) : (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#10b981", fontWeight: 600, fontSize: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', color: "#10b981", fontWeight: 600, fontSize: 12 }}>
                   <CheckCircle size={16} />{rt("submitted")}
                 </div>
               )}
@@ -253,7 +253,7 @@ export default function AsrPage() {
 
         {/* 语音工作站统计卡 */}
         {stats && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginTop: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 'var(--space-3, 12px)', marginTop: 'var(--space-4, 16px)' }}>
             {[
               { label: t("asrPage.statSessions"), value: stats.sessions.total, color: "var(--color-primary-500)", bg: "#dbeafe" },
               { label: t("asrPage.statTodaySessions"), value: stats.sessions.today, color: "#10b981", bg: "#d1fae5" },
@@ -262,7 +262,7 @@ export default function AsrPage() {
               { label: t("asrPage.statCorrections"), value: stats.corrections.total, color: "#f43f5e", bg: "#ffe4e6" },
             ].map((card) => (
               <div key={card.label} style={{ background: "var(--bg-card)", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-                <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>{card.label}</div>
+                <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>{card.label}</div>
                 <div style={{ fontSize: 24, fontWeight: 700, color: card.color }}>{card.value}</div>
               </div>
             ))}
@@ -270,12 +270,12 @@ export default function AsrPage() {
         )}
 
         {/* 词库管理 (CRUD + 检索) */}
-        <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 'var(--space-3, 12px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
               <BookOpen size={16} color="#8b5cf6" />{t("asrPage.lexiconManagement")}
             </h3>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
               <div style={{ position: "relative" }}>
                 <Search size={14} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
                 <input
@@ -290,7 +290,7 @@ export default function AsrPage() {
           </div>
 
           {/* 新增/编辑表单 */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 12, padding: 12, background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', flexWrap: "wrap", alignItems: "center", marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
             <input
               value={lexForm.term}
               onChange={(e) => setLexForm((f) => ({ ...f, term: e.target.value }))}
@@ -347,13 +347,13 @@ export default function AsrPage() {
                     <td style={{ padding: "8px 10px", color: "#64748b" }}>{entry.priority}</td>
                     <td style={{ padding: "8px 10px", color: "#64748b", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.aliases.length > 0 ? entry.aliases.join(" / ") : "-"}</td>
                     <td style={{ padding: "8px 10px", whiteSpace: "nowrap" }}>
-                      <button onClick={() => startEdit(entry)} title={t("asrPage.edit")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-primary-500)", marginRight: 8 }}><Pencil size={14} /></button>
+                      <button onClick={() => startEdit(entry)} title={t("asrPage.edit")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-primary-500)", marginRight: 'var(--space-2, 8px)' }}><Pencil size={14} /></button>
                       <button onClick={() => handleLexiconDelete(entry.id)} title={t("asrPage.delete")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-error-500)" }}><Trash2 size={14} /></button>
                     </td>
                   </tr>
                 ))}
                 {lexicon.length === 0 && (
-                  <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>{t("asrPage.emptyLexicon")}</td></tr>
+                  <tr><td colSpan={5} style={{ padding: 'var(--space-6, 24px)', textAlign: "center", color: "#94a3b8" }}>{t("asrPage.emptyLexicon")}</td></tr>
                 )}
               </tbody>
             </table>
@@ -361,14 +361,14 @@ export default function AsrPage() {
         </div>
 
         {/* 听写历史 + 数据源 */}
-        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <History size={16} color="var(--color-primary-500)" />{t("asrPage.dictationHistory", { count: sessions.length })}
             </h3>
             <div style={{ maxHeight: 320, overflowY: "auto" }}>
               {sessions.map((s) => (
-                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 4px", borderBottom: "1px solid #f1f5f9" }}>
+                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', padding: "8px 4px", borderBottom: "1px solid #f1f5f9" }}>
                   <ChevronRight size={14} color="#cbd5e1" />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -384,11 +384,11 @@ export default function AsrPage() {
                   )}
                 </div>
               ))}
-              {sessions.length === 0 && <div style={{ textAlign: "center", color: "#94a3b8", padding: 24 }}>{t("asrPage.noHistory")}</div>}
+              {sessions.length === 0 && <div style={{ textAlign: "center", color: "#94a3b8", padding: 'var(--space-6, 24px)' }}>{t("asrPage.noHistory")}</div>}
             </div>
           </div>
 
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <Database size={16} color="#10b981" />{t("asrPage.lexiconDistribution")}
             </h3>
@@ -398,7 +398,7 @@ export default function AsrPage() {
                   const pct = stats.lexiconSize > 0 ? Math.round((c.count / stats.lexiconSize) * 100) : 0
                   return (
                     <div key={c.category}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                         <span style={{ fontWeight: 500 }}>{c.category}</span>
                         <span style={{ color: "#94a3b8" }}>{c.count} {t("asrPage.entriesUnit")} ({pct}%)</span>
                       </div>
@@ -410,7 +410,7 @@ export default function AsrPage() {
                 })}
               </div>
             )}
-            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid #f1f5f9", fontSize: 12, color: "#64748b", lineHeight: 1.8 }}>
+            <div style={{ marginTop: 14, paddingTop: 'var(--space-3, 12px)', borderTop: "1px solid #f1f5f9", fontSize: 12, color: "#64748b", lineHeight: 1.8 }}>
               {t("asrPage.dataSource")}
             </div>
           </div>

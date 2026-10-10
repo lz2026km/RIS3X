@@ -1216,7 +1216,7 @@ const borderGray = "var(--border-color)";
             subtitle={t("apptPage.subtitle")}
             style={{ marginBottom: 0 }}
           />
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
             <button
               onClick={() => {
                 setShowBatchImport(true);
@@ -1351,8 +1351,8 @@ const borderGray = "var(--border-color)";
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(6, 1fr)",
-            gap: 12,
-            marginBottom: 16,
+            gap: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <StatCard
@@ -1396,7 +1396,7 @@ const borderGray = "var(--border-color)";
 
         {/* [W5] 资源排班甘特 (设备/机房/技师) */}
         {showGantt && (
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <ResourceGantt
               appointments={appointments as unknown as Array<Record<string, unknown>>}
               onCreate={({ rowId, dimension, startMin, date }) => {
@@ -1419,12 +1419,12 @@ const borderGray = "var(--border-color)";
 
         {/* [W5] 预约运营面板 (等候队列/提醒计划/失约清单) */}
         {showOps && (
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <AppointmentOpsPanels />
           </div>
         )}
 
-        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+        <div style={{ display: "flex", gap: 'var(--space-4, 16px)', alignItems: "flex-start" }}>
           {/* ====== 左侧面板 (60%) ====== */}
           <div style={{ flex: "0 0 60%" }}>
             <AppointmentCalendar
@@ -1485,13 +1485,13 @@ const borderGray = "var(--border-color)";
                   boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
                   border: `1px solid ${borderGray}`,
                   overflow: "hidden",
-                  marginTop: 12,
+                  marginTop: 'var(--space-3, 12px)',
                 }}
               >
                 <div
                   style={{
                     display: "flex",
-                    gap: 4,
+                    gap: 'var(--space-1, 4px)',
                     padding: "10px 12px",
                     borderBottom: `1px solid ${borderGray}`,
                     background: "var(--bg-card)",
@@ -1560,7 +1560,7 @@ const borderGray = "var(--border-color)";
               flex: "0 0 40%",
               display: "flex",
               flexDirection: "column",
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
             }}
           >
             <AppointmentForm
@@ -1622,7 +1622,7 @@ const borderGray = "var(--border-color)";
                 </div>
                 <div
                   style={{
-                    padding: 12,
+                    padding: 'var(--space-3, 12px)',
                     display: "flex",
                     flexDirection: "column",
                     gap: 10,
@@ -1643,12 +1643,12 @@ const borderGray = "var(--border-color)";
                   >
                     <AlertTriangle
                       size={12}
-                      style={{ display: "inline", marginRight: 4 }}
+                      style={{ display: "inline", marginRight: 'var(--space-1, 4px)' }}
                     />
                     {t("apptPage.rulesNote")}
                   </div>
                   {/* 搜索 */}
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                     <input
                       placeholder={t("apptPage.searchDevice")}
                       onChange={() => {}}
@@ -1680,7 +1680,7 @@ const borderGray = "var(--border-color)";
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            marginBottom: 8,
+                            marginBottom: 'var(--space-2, 8px)',
                           }}
                         >
                           <div
@@ -1708,7 +1708,7 @@ const borderGray = "var(--border-color)";
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 4,
+                              gap: 'var(--space-1, 4px)',
                               cursor: "pointer",
                             }}
                           >
@@ -2013,13 +2013,13 @@ const borderGray = "var(--border-color)";
                     <X size={16} />
                   </button>
                 </div>
-                <div style={{ padding: 20, textAlign: "center" }}>
+                <div style={{ padding: 'var(--space-5, 20px)', textAlign: "center" }}>
                   <div
                     style={{
                       border: `2px dashed ${borderGray}`,
                       borderRadius: 10,
                       padding: "30px 20px",
-                      marginBottom: 16,
+                      marginBottom: 'var(--space-4, 16px)',
                       cursor: "pointer",
                       transition: "border-color 0.2s",
                     }}
@@ -2045,7 +2045,7 @@ const borderGray = "var(--border-color)";
                         fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
-                        marginBottom: 4,
+                        marginBottom: 'var(--space-1, 4px)',
                       }}
                     >
                       {t("apptPage.clickUpload")}
@@ -2055,7 +2055,7 @@ const borderGray = "var(--border-color)";
                     </AppText>
                     <button
                       style={{
-                        marginTop: 12,
+                        marginTop: 'var(--space-3, 12px)',
                         padding: "6px 16px",
                         background: lightBlue,
                         color: primaryBlue,
@@ -2166,9 +2166,9 @@ const borderGray = "var(--border-color)";
                   </div>
                   <div
                     style={{
-                      marginTop: 12,
+                      marginTop: 'var(--space-3, 12px)',
                       display: "flex",
-                      gap: 8,
+                      gap: 'var(--space-2, 8px)',
                       justifyContent: "center",
                     }}
                   >
@@ -2184,7 +2184,7 @@ const borderGray = "var(--border-color)";
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
-                        gap: 4,
+                        gap: 'var(--space-1, 4px)',
                       }}
                       onClick={async (evt) => {
                         const btn = (evt?.target ||
@@ -2226,7 +2226,7 @@ const borderGray = "var(--border-color)";
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
-                        gap: 4,
+                        gap: 'var(--space-1, 4px)',
                       }}
                     >
                       <Check size={12} /> {t("apptPage.startImport")}
@@ -2280,7 +2280,7 @@ const borderGray = "var(--border-color)";
                     <X size={16} />
                   </button>
                 </div>
-                <div style={{ padding: 12, maxHeight: 400, overflowY: "auto" }}>
+                <div style={{ padding: 'var(--space-3, 12px)', maxHeight: 400, overflowY: "auto" }}>
                   {waitlist.map((w) => (
                     <div
                       key={w.id}
@@ -2297,7 +2297,7 @@ const borderGray = "var(--border-color)";
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          marginBottom: 4,
+                          marginBottom: 'var(--space-1, 4px)',
                         }}
                       >
                         <span
@@ -2339,10 +2339,10 @@ const borderGray = "var(--border-color)";
                       <AppText size="xs" color="secondary" as="div">
                         {w.examItemName} · {w.modality}
                       </AppText>
-                      <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 4 }}>
+                      <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 'var(--space-1, 4px)' }}>
                         {t("apptPage.expect")} {w.preferredDate} {w.preferredTime}
                       </AppText>
-                      <div style={{ display: "flex", gap: 4 }}>
+                      <div style={{ display: "flex", gap: 'var(--space-1, 4px)' }}>
                         <button
                           onClick={() => void handleWaitlistNotify(w)}
                           style={{
@@ -2434,14 +2434,14 @@ const borderGray = "var(--border-color)";
                     <CalendarClock size={15} /> {t("apptPage.overview")}
                   </div>
                 </div>
-                <div style={{ padding: 12 }}>
+                <div style={{ padding: 'var(--space-3, 12px)' }}>
                   {/* 设备占用 */}
                   <div
                     style={{
                       fontSize: 12,
                       fontWeight: 700,
                       color: primaryBlue,
-                      marginBottom: 8,
+                      marginBottom: 'var(--space-2, 8px)',
                     }}
                   >
                     {t("apptPage.deviceToday")}
@@ -2450,7 +2450,7 @@ const borderGray = "var(--border-color)";
                     const stats = getDeviceDayStats(new Date(), device.id);
                     const rule = rules.find((r) => r.deviceId === device.id);
                     return (
-                      <div key={device.id} style={{ marginBottom: 8 }}>
+                      <div key={device.id} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                         <div
                           style={{
                             display: "flex",
@@ -2500,8 +2500,8 @@ const borderGray = "var(--border-color)";
                     );
                   })}
                   {/* 快捷操作 */}
-                  <div style={{ marginTop: 16 }}>
-                    <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 8 }}>
+                  <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+                    <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 'var(--space-2, 8px)' }}>
                       {t("apptPage.quickActions")}
                     </AppText>
                     <div
@@ -2674,7 +2674,7 @@ const borderGray = "var(--border-color)";
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginBottom: 8,
+                    marginBottom: 'var(--space-2, 8px)',
                   }}
                 >
                   <div
@@ -2724,7 +2724,7 @@ const borderGray = "var(--border-color)";
                     color: textGray,
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr 1fr",
-                    gap: 4,
+                    gap: 'var(--space-1, 4px)',
                   }}
                 >
                   <span>
@@ -2745,7 +2745,7 @@ const borderGray = "var(--border-color)";
                     marginBottom: 6,
                     display: "flex",
                     alignItems: "center",
-                    gap: 4,
+                    gap: 'var(--space-1, 4px)',
                   }}
                 >
                   <Scan size={13} /> {t("apptPage.examInfo")}
@@ -2800,7 +2800,7 @@ const borderGray = "var(--border-color)";
               {/* 临床诊断 */}
               {selectedAppointment.clinicalDiagnosis && (
                 <div style={{ marginBottom: 14 }}>
-                  <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
+                  <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 6, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
                     <AlertCircle size={13} /> {t("apptPage.clinicalDiagnosis")}
                   </AppText>
                   <div
@@ -2829,7 +2829,7 @@ const borderGray = "var(--border-color)";
                       marginBottom: 6,
                       display: "flex",
                       alignItems: "center",
-                      gap: 4,
+                      gap: 'var(--space-1, 4px)',
                     }}
                   >
                     <Bell size={13} /> {t("apptPage.notes")}
@@ -2861,7 +2861,7 @@ const borderGray = "var(--border-color)";
                         marginBottom: 6,
                         display: "flex",
                         alignItems: "center",
-                        gap: 4,
+                        gap: 'var(--space-1, 4px)',
                       }}
                     >
                       <XCircle size={13} /> {t("apptPage.cancelReasonLabel")}
@@ -2893,7 +2893,7 @@ const borderGray = "var(--border-color)";
                     marginBottom: 6,
                     display: "flex",
                     alignItems: "center",
-                    gap: 4,
+                    gap: 'var(--space-1, 4px)',
                   }}
                 >
                   <Clock size={13} /> {t("apptPage.recordTime")}
@@ -2910,7 +2910,7 @@ const borderGray = "var(--border-color)";
                   <div
                     style={{
                       display: "flex",
-                      gap: 8,
+                      gap: 'var(--space-2, 8px)',
                       borderTop: `1px solid ${borderGray}`,
                       paddingTop: 14,
                     }}
@@ -2933,7 +2933,7 @@ const borderGray = "var(--border-color)";
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: 4,
+                        gap: 'var(--space-1, 4px)',
                       }}
                     >
                       <XCircle size={13} /> {t("apptPage.cancelAppointment")}
@@ -2975,7 +2975,7 @@ const borderGray = "var(--border-color)";
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: 4,
+                        gap: 'var(--space-1, 4px)',
                       }}
                     >
                       <Edit2 size={13} /> {t("apptPage.editAppointment")}
@@ -3034,7 +3034,7 @@ const borderGray = "var(--border-color)";
             </div>
             <div style={{ padding: 18 }}>
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 12, color: textGray, marginBottom: 4 }}>
+                <div style={{ fontSize: 12, color: textGray, marginBottom: 'var(--space-1, 4px)' }}>
                   {t("apptPage.apptInfo")}
                 </div>
                 <div
@@ -3062,11 +3062,11 @@ const borderGray = "var(--border-color)";
                 </div>
               </div>
               <div style={{ marginBottom: 14 }}>
-                <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 8 }}>
+                <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 'var(--space-2, 8px)' }}>
                   {t("apptPage.cancelReasonRequired")}
                 </AppText>
                 {cancelReasonError && (
-                  <AppText size="xs" color="error" as="div" style={{ marginBottom: 8 }}>
+                  <AppText size="xs" color="error" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
                     {cancelReasonError}
                   </AppText>
                 )}
@@ -3079,7 +3079,7 @@ const borderGray = "var(--border-color)";
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 8,
+                        gap: 'var(--space-2, 8px)',
                         padding: "6px 10px",
                         background:
                           cancelReason === reason.value ? "var(--color-warning-bg)" : "var(--bg-primary)",
@@ -3103,7 +3103,7 @@ const borderGray = "var(--border-color)";
                   ))}
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                 <button
                   onClick={() => {
                     setShowCancelModal(false);
@@ -3189,7 +3189,7 @@ const borderGray = "var(--border-color)";
             </div>
             <div style={{ padding: 18 }}>
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 12, color: textGray, marginBottom: 8 }}>
+                <div style={{ fontSize: 12, color: textGray, marginBottom: 'var(--space-2, 8px)' }}>
                   {conflictModal.result.message}
                 </div>
                 <div style={{ maxHeight: 200, overflowY: "auto" }}>
@@ -3227,7 +3227,7 @@ const borderGray = "var(--border-color)";
               <AppText size="xs" color="warning" as="div" style={{ padding: "10px 12px", background: "var(--color-warning-bg)", borderRadius: 6, border: "1px solid var(--color-warning-border)", marginBottom: 14 }}>
                 {t("apptPage.conflictHint")}
               </AppText>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                 <button
                   onClick={() => {
                     setConflictModal({ show: false, result: null });

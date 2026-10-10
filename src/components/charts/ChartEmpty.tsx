@@ -31,7 +31,7 @@ export default function ChartEmpty({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         color: 'var(--color-text-muted, #94a3b8)',
         background: 'var(--color-bg-subtle, #f8fafc)',
         borderRadius: 8,

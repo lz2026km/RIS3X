@@ -86,16 +86,16 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
       style={{
         maxWidth: 480,
         margin: '0 auto',
-        padding: 12,
+        padding: 'var(--space-3, 12px)',
         background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif',
       }}
     >
       {offline && (
-        <div style={{ textAlign: 'center', marginBottom: 8 }} data-testid="mob-cv-offline-badge">
+        <div style={{ textAlign: 'center', marginBottom: 'var(--space-2, 8px)' }} data-testid="mob-cv-offline-badge">
           <Tag icon={<WifiOff size={12} />} color="warning">{t('w9e.mobileCritical.offline')}</Tag>
         </div>
       )}
-      <Row gutter={8} style={{ marginBottom: 12 }}>
+      <Row gutter={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={8}>
           <Card>
             <Statistic title={t('w9e.mobileCritical.pendingStat')} value={stats.pending} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} prefix={<Bell size={14} />} />
@@ -120,11 +120,11 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
             background: '#fee2e2',
             border: '1px solid var(--color-error-600)',
             borderRadius: 6,
-            padding: 8,
-            marginBottom: 12,
+            padding: 'var(--space-2, 8px)',
+            marginBottom: 'var(--space-3, 12px)',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             animation: 'pulse 1.5s infinite',
           }}
         >
@@ -147,7 +147,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               onClick={() => setSelected(i)}
               data-testid={`mob-cv-${i.id}`}
               style={{
-                marginBottom: 8,
+                marginBottom: 'var(--space-2, 8px)',
                 borderLeft: `4px solid`,
                 borderLeftColor: c.color === 'red' ? 'var(--color-error-600)' : c.color === 'orange' ? '#ca8a04' : '#ca8a04',
                 background: c.color === 'red' ? '#fef2f2' : undefined,
@@ -161,7 +161,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
                   {i.state === 'PENDING' ? t('w9e.mobileCritical.statePending') : i.state === 'NOTIFIED' ? t('w9e.mobileCritical.stateNotified') : i.state === 'ACKED' ? t('w9e.mobileCritical.stateAcked') : t('w9e.mobileCritical.stateCompleted')}
                 </Tag>
               </Space>
-              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>
                 {i.patientName} <Tag>{i.patientId}</Tag>
               </div>
               <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{i.finding}</div>
@@ -189,7 +189,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               <div style={{ fontSize: 12, color: '#475569' }}>
                 {selected.gender === 'M' ? t('w9e.mobileCritical.male') : t('w9e.mobileCritical.female')} · {t('w9e.mobileCritical.ageSuffix', { age: selected.age })} · {selected.modality} {selected.bodyPart ?? ''}
               </div>
-              <div style={{ fontSize: 12, marginTop: 4 }}>
+              <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>
                 <MapPin size={10} /> {selected.wardLocation ?? t('w9e.mobileCritical.outpatient')} {selected.bedNumber ? t('w9e.mobileCritical.bedSuffix', { bed: selected.bedNumber }) : ''}
               </div>
             </Card>

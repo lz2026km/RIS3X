@@ -690,9 +690,9 @@ export default function ReportRulesPage() {
                   <Space direction="vertical" size={8} style={{ width: '100%' }}>
                     {FIELD_KEYS.map((key) => (
                       <div key={key}>
-                        <div style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>
+                        <div style={{ fontSize: 12, color: '#888', marginBottom: 'var(--space-1, 4px)' }}>
                           {fieldLabel(key)}
-                          {fields[key].trim() === '' && <Tag color="red" style={{ marginLeft: 8 }}>{t('reportRules.missing')}</Tag>}
+                          {fields[key].trim() === '' && <Tag color="red" style={{ marginLeft: 'var(--space-2, 8px)' }}>{t('reportRules.missing')}</Tag>}
                         </div>
                         <Input.TextArea
                           rows={key === 'findings' ? 4 : 2}
@@ -736,7 +736,7 @@ export default function ReportRulesPage() {
                 </Card>
 
                 <Card size="small" title={t('w4a.tiers.resolveTitle')}>
-                  <Space wrap style={{ marginBottom: 12 }}>
+                  <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
                     <Select
                       style={{ width: 110 }}
                       value={resolveInput.modality}
@@ -947,7 +947,7 @@ export default function ReportRulesPage() {
             label: `${r.code} · ${r.name} (${RULE_SEVERITY_LABELS[r.severity]})`,
           }))}
         />
-        <div style={{ marginTop: 12, fontSize: 12, color: '#999' }}>{t('reportRules.selectedCount', { count: boundIds.length, total: rules.length })}</div>
+        <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: '#999' }}>{t('reportRules.selectedCount', { count: boundIds.length, total: rules.length })}</div>
       </Drawer>
 
       {/* 一键修正建议抽屉 */}
@@ -956,7 +956,7 @@ export default function ReportRulesPage() {
           <Space direction="vertical" size={10} style={{ width: '100%' }}>
             {FIELD_KEYS.map((key) => (
               <div key={key}>
-                <div style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 'var(--space-1, 4px)' }}>
                   {fieldLabel(key)}
                   {fixedFields[key] !== fields[key] && <Tag color="green" style={{ marginLeft: 6 }}>{t('reportRules.fixed')}</Tag>}
                 </div>
@@ -972,7 +972,7 @@ export default function ReportRulesPage() {
 
       {/* 违规统计小标 */}
       {result && result.violations.length > 0 && (
-        <div style={{ marginTop: 8, fontSize: 12, color: '#666', display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#666', display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center' }}>
           <ScrollText size={14} /> {t('reportRules.evalThisRun')}: <AlertOctagon size={12} color="var(--color-error-500)" /> {severityCount('error')} {t('reportRules.errorUnit')} ·
           <AlertTriangle size={12} color="var(--color-warning-500)" /> {severityCount('warning')} {t('reportRules.warningUnit')} ·
           <Info size={12} color="var(--color-primary-500)" /> {severityCount('info')} {t('reportRules.infoUnit')}

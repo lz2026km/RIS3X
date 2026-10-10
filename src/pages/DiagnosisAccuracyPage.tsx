@@ -83,11 +83,11 @@ export default function DiagnosisAccuracyPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Target size={20} color="#10b981" /> 诊断符合率
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </Title>
@@ -95,8 +95,8 @@ export default function DiagnosisAccuracyPage() {
             病理 / 临床 / 影像随访 三种金标准 · 灵敏度 / 特异度 / PPV / NPV
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
             <Calendar size={12} color="var(--text-secondary)" /> 期间：<strong>{data.period}</strong>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: source === 'demo' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', border: `1px solid ${source === 'demo' ? 'var(--color-warning-500)' : '#10b981'}`, borderRadius: 6, fontSize: 12, color: source === 'demo' ? '#b45309' : '#047857' }}>
@@ -110,14 +110,14 @@ export default function DiagnosisAccuracyPage() {
 
       {loading && <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>数据加载中...</div>}
       {error && (
-        <div style={{ marginBottom: 12, padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>加载失败：{error}</span>
           <button onClick={fetchAccuracy} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #fca5a5', background: 'var(--bg-card)', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>重试</button>
         </div>
       )}
 
       {/* 核心 KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 'var(--space-4, 16px)' }}>
         <BigKpi icon={Target} label="总符合率" value={data.accuracyRate} suffix="%" color="#10b981" />
         <BigKpi icon={CheckCircle2} label="灵敏度" value={data.sensitivity} suffix="%" color="var(--color-primary-500)" />
         <BigKpi icon={CheckCircle2} label="特异度" value={data.specificity} suffix="%" color="#7c3aed" />
@@ -126,9 +126,9 @@ export default function DiagnosisAccuracyPage() {
       </div>
 
       {/* 确认来源统计 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Microscope size={13} /> 确认来源分布
           </div>
           {[
@@ -155,14 +155,14 @@ export default function DiagnosisAccuracyPage() {
           })}
         </div>
 
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Database size={13} /> 按设备符合率
           </div>
           {data.byModality.map(m => {
             const colors: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#7c3aed', DR: 'var(--color-info-600)', US: '#10b981', MG: '#ec4899' };
             return (
-              <div key={m.modality} style={{ marginBottom: 8 }}>
+              <div key={m.modality} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{m.modality}</span>
                   <span><strong style={{ color: colors[m.modality] || 'var(--color-primary-500)' }}>{m.accuracy}%</strong> <span style={{ color: 'var(--text-secondary)' }}>· {m.count} 例</span></span>
@@ -177,11 +177,11 @@ export default function DiagnosisAccuracyPage() {
       </div>
 
       {/* 按病种符合率 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Sparkles size={13} /> 按疾病符合率
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)' }}>
           {data.byDisease.map(d => {
             const colors: Record<string, string> = { high: '#10b981', mid: 'var(--color-warning-500)', low: 'var(--color-error-600)' };
             const level = d.accuracy >= 98 ? 'high' : d.accuracy >= 95 ? 'mid' : 'low';
@@ -202,8 +202,8 @@ export default function DiagnosisAccuracyPage() {
       </div>
 
       {/* 病种符合率明细表 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginTop: 'var(--space-3, 12px)' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Sparkles size={13} /> {t('w1tables.dx.title')}
         </div>
         <DataTable dataSource={data.byDisease} rowKey="disease" columns={dxColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
@@ -220,7 +220,7 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number; suffix: string
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' }}>
       <Icon size={18} />
     </div>
-    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
     <div>
       <span style={{ fontSize: 30, fontWeight: 700, color }}>{value}</span>
       <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{suffix}</span>

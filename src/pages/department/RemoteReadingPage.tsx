@@ -227,7 +227,7 @@ const RemoteReadingPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('remoteReading.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
@@ -236,11 +236,11 @@ const RemoteReadingPage: React.FC = () => {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon message={t('remoteReading.loadFailed')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('remoteReading.loadFailed')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('remoteReading.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('remoteReading.statTotal')} value={stats?.totalSessions ?? sessions.length} icon={<Globe size={16} />} loading={loading} />
         <StatCard title={t('remoteReading.statusPending')} value={stats?.pendingCount ?? 0} icon={<Clock size={16} />} loading={loading} />
         <StatCard title={t('remoteReading.statusCompleted')} value={stats?.completedCount ?? 0} icon={<CheckCircle size={16} />} color="success" loading={loading} />
@@ -265,7 +265,7 @@ const RemoteReadingPage: React.FC = () => {
         extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('remoteReading.refresh')}</Button>}
       >
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin size="large" /></div>
         ) : sessions.length === 0 ? (
           <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? t('remoteReading.loadFailed') : t('remoteReading.empty')} />
         ) : (
@@ -275,7 +275,7 @@ const RemoteReadingPage: React.FC = () => {
 
       <Modal title={t('remoteReading.assignTitle')} open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={handleAssign}
         okText={t('remoteReading.assign')} confirmLoading={assignLoading} width={480}>
-        <Form form={assignForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
+        <Form form={assignForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="studyId" label={t('remoteReading.examPending')} rules={[{ required: true, message: t('remoteReading.selectExam') }]}>
             <Select
               showSearch
@@ -304,7 +304,7 @@ const RemoteReadingPage: React.FC = () => {
       <Modal title={`${t('remoteReading.completeTitle')} - ${completeTarget?.studyId ?? ''}`} open={!!completeTarget}
         onCancel={() => { setCompleteTarget(null); setReportText('') }}
         onOk={handleComplete} okText={t('remoteReading.submitReport')} width={560}>
-        <div style={{ marginBottom: 8 }}>
+        <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
           <Text type="secondary">{t('remoteReading.colPatient')}: {completeTarget?.patientName} · {t('remoteReading.colModality')}: {completeTarget?.modality}</Text>
         </div>
         <Input.TextArea rows={6} placeholder={t('remoteReading.reportPlaceholder')} value={reportText} onChange={(e) => setReportText(e.target.value)} />

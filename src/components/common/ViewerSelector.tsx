@@ -4,7 +4,7 @@ const bannerStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 12,
+  gap: 'var(--space-3, 12px)',
   padding: '8px 16px',
   background: 'linear-gradient(90deg, var(--color-primary-800), var(--color-primary-600))',
   color: '#fff',

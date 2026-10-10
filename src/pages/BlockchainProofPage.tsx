@@ -155,11 +155,11 @@ export default function BlockchainProofPage() {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Link2 size={20} color="#7c3aed" /> {t('blockchain.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{
@@ -174,10 +174,10 @@ export default function BlockchainProofPage() {
           </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('blockchain.subtitle')}
-            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-2, 8px)' }}>{apiError}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={() => navigate('/ca-signature')}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
@@ -188,14 +188,14 @@ export default function BlockchainProofPage() {
       </div>
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard icon={Database} label={t('blockchain.statTotal')} value={records.length} color="#7c3aed" />
         <KpiCard icon={CheckCircle2} label={t('blockchain.statConfirmed')} value={records.filter(r => r.status === 'confirmed').length} color="#10b981" />
         <KpiCard icon={Clock} label={t('blockchain.statPending')} value={records.filter(r => r.status === 'pending').length} color="var(--color-warning-500)" />
         <KpiCard icon={Shield} label={t('blockchain.statLatestBlock')} value={records[0]?.blockNumber.toLocaleString() || '182360'} color="var(--color-primary-500)" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：存证列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
@@ -232,14 +232,14 @@ export default function BlockchainProofPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
                     <Box size={11} color="#7c3aed" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t('blockchain.blockPrefix')}{r.blockNumber}</span>
                     <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 600, marginLeft: 'auto' }}>{blockchainStatusLabel(r.status)}</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('blockchain.reportPrefix')}{r.reportId}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace', marginTop: 2 }}>{r.txHash.slice(0, 24)}...</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <Clock size={9} /> {r.timestamp} · {t('blockchain.confirmations', { count: r.confirmations })}
                   </div>
                 </div>
@@ -250,10 +250,10 @@ export default function BlockchainProofPage() {
 
         {/* 右：详情 + 验证 */}
         {selected && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             {/* 头部 */}
-            <div style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)6fe' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)6fe' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{
                   width: 56, height: 56, borderRadius: 12,
                   background: 'linear-gradient(135deg, #7c3aed, #5b21b6)', color: '#fff',
@@ -274,22 +274,22 @@ export default function BlockchainProofPage() {
             </div>
 
             {/* 哈希详情 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Hash size={13} /> {t('blockchain.hashAndSignature')}
               </div>
               <HashRow label={t('blockchain.reportHash')} value={selected.reportHash} />
               <HashRow label={t('blockchain.txHash')} value={selected.txHash} />
               <HashRow label={t('blockchain.blockHash')} value={selected.blockHash} />
               <HashRow label={t('blockchain.merkleRoot')} value={selected.merkleRoot} />
-              <div style={{ marginTop: 8, padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12, color: 'var(--color-primary-800)' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12, color: 'var(--color-primary-800)' }}>
                 <strong>{t('blockchain.signers')}</strong> {selected.signers.join('、')}
               </div>
             </div>
 
             {/* 验证操作 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <button
                   onClick={handleVerify}
                   disabled={verifying}
@@ -306,14 +306,14 @@ export default function BlockchainProofPage() {
                 </button>
                 <button
                   onClick={() => selected.explorerUrl && window.open(selected.explorerUrl, '_blank')}
-                  style={{ padding: '10px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                  style={{ padding: '10px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
                 >
                   <ExternalLink size={12} /> {t('blockchain.blockExplorer')}
                 </button>
               </div>
 
               {verifyResult === 'success' && (
-                <div style={{ marginTop: 12, padding: 12, background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
                     <CheckCircle2 size={14} /> {t('blockchain.verifyPassed')}
                   </div>
@@ -327,7 +327,7 @@ export default function BlockchainProofPage() {
                 </div>
               )}
               {verifyResult === 'failed' && (
-                <div style={{ marginTop: 12, padding: 12, background: 'var(--color-error-bg)', border: '1px solid #fca5a5', borderRadius: 6 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-error-bg)', border: '1px solid #fca5a5', borderRadius: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#b91c1c' }}>
                     <XCircle size={14} /> {t('blockchain.verifyFailed')}
                   </div>
@@ -340,8 +340,8 @@ export default function BlockchainProofPage() {
             </div>
 
             {/* 区块可视化 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GitBranch size={13} /> {t('blockchain.blockStructure')}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, fontSize: 12 }}>
@@ -360,7 +360,7 @@ export default function BlockchainProofPage() {
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
                 {t('blockchain.blockSummary', { count: selected.signers.length })}
               </div>
             </div>
@@ -375,7 +375,7 @@ export default function BlockchainProofPage() {
 // 哈希行
 // ============================================================
 const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div style={{ marginBottom: 8 }}>
+  <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
       <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{label}</span>
       <button

@@ -253,7 +253,7 @@ export const DentalAlignerPage: React.FC = () => {
   if (mode === "list") {
     return (
       <PageContainer padding={24}>
-        <Space style={{ marginBottom: 16 }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Activity size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             {t('dentalAligner.title')}
@@ -267,7 +267,7 @@ export const DentalAlignerPage: React.FC = () => {
           <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setCreateModal(true)}>{t("w3b.alignerCreate")}</Button>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('dentalAligner.totalPlans')} value={plans.length} icon={<Layers size={16} />} />
           <StatCard title={t('dentalAligner.inTreatment')} value={plans.filter((p: any) => p.status === "in-progress").length} icon={<Activity size={16} />} color="primary" />
           <StatCard title={t('dentalAligner.completed')} value={plans.filter((p: any) => p.status === "completed").length} icon={<CheckCircle2 size={16} />} color="success" />
@@ -300,7 +300,7 @@ export const DentalAlignerPage: React.FC = () => {
                     text={p.status}
                   />
                 </Space>
-                <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
+                <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: "var(--text-secondary)" }}>
                   {p.diagnosis?.slice(0, 40)}...
                   <br />
                    {t('dentalAligner.stageProgress', { current: p.currentStage, total: p.totalStages })} | {t('dentalAligner.perStage')}{" "}
@@ -310,7 +310,7 @@ export const DentalAlignerPage: React.FC = () => {
                   <Progress
                     percent={Math.round((p.currentStage / p.totalStages) * 100)}
                     size="small"
-                    style={{ marginTop: 4 }}
+                    style={{ marginTop: 'var(--space-1, 4px)' }}
                   />
                 )}
               </Card>
@@ -354,7 +354,7 @@ export const DentalAlignerPage: React.FC = () => {
 
   return (
     <PageContainer padding={16}>
-      <Space style={{ marginBottom: 12 }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
            {t('dentalAligner.back')}
         </Button>
@@ -431,7 +431,7 @@ export const DentalAlignerPage: React.FC = () => {
                 {t('dentalAligner.stageDetail')}
               </Space>
             }
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             <Row gutter={8}>
               <Col span={6}>
@@ -455,7 +455,7 @@ export const DentalAlignerPage: React.FC = () => {
               </Col>
             </Row>
             {movements.length > 0 && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                 {movements.slice(0, 8).map((m: any) => (
                   <Tag key={m.toothNo} color="blue" style={{ marginBottom: 2 }}>
                     #{m.toothNo}: dx={m.dx.toFixed(1)} dy={m.dy.toFixed(1)} rot=
@@ -478,7 +478,7 @@ export const DentalAlignerPage: React.FC = () => {
           >
             {progress && (
               <>
-                <div style={{ marginBottom: 8 }}>
+                <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t('dentalAligner.compliance')} </span>
                   <Progress
                     percent={Math.round(progress.patientCompliance * 100)}
@@ -503,12 +503,12 @@ export const DentalAlignerPage: React.FC = () => {
                       ? t('dentalAligner.trackingFair')
                       : t('dentalAligner.trackingWarning')}
                 </Tag>
-                <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: "var(--text-secondary)" }}>
                   {t('dentalAligner.currentStageWorn')}: {t('dentalAligner.days', { count: progress.lastStageWornDays })}<br />
                   {t('dentalAligner.nextStage')}{progress.nextStageDate}
                 </div>
                 {progress.refinementSuggested && (
-                  <Tag color="red" style={{ marginTop: 4 }}>
+                  <Tag color="red" style={{ marginTop: 'var(--space-1, 4px)' }}>
                      {t('dentalAligner.suggestRefinement', { count: progress.refinementCount })}
                   </Tag>
                 )}
@@ -523,7 +523,7 @@ export const DentalAlignerPage: React.FC = () => {
                 {t('dentalAligner.attachmentsIpr')}
               </Space>
             }
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             <div style={{ fontSize: 12 }}>
               <b>{t('dentalAligner.attachments', { count: current?.attachments?.length || 0 })}</b>
@@ -542,7 +542,7 @@ export const DentalAlignerPage: React.FC = () => {
               ))}
             </div>
           </Card>
-          <Card size="small" title={t('dentalAligner.actions')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('dentalAligner.actions')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Space orientation="vertical" style={{ width: "100%" }}>
               <Button
                 block
@@ -597,7 +597,7 @@ export const DentalAlignerPage: React.FC = () => {
                 title: t('dentalAligner.stageTitle', { num: i + 1 }),
                 description: i <= currentStage ? t('dentalAligner.worn') : t('dentalAligner.notWorn'),
               }))}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           />
         </Col>
       </Row>

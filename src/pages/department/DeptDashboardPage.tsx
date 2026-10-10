@@ -275,7 +275,7 @@ export default function DeptDashboardPage() {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)', justifyContent: 'space-between', width: '100%' }}>
         <Space>
           <BarChart3 size={20} color="var(--color-primary-600)" />
           <Title level={4} style={{ margin: 0 }}>
@@ -305,11 +305,11 @@ export default function DeptDashboardPage() {
       </Space>
 
       {error && (
-        <Alert type="warning" showIcon message={error} style={{ marginBottom: 16 }} />
+        <Alert type="warning" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />
       )}
 
       <Spin spinning={loading} description={t('deptDash.loading')}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('deptDash.todayExam')} value={state.kpi?.examCount ?? 0} icon={<Activity size={16} />} />
           <StatCard title={t('deptDash.todayReport')} value={state.kpi?.reportCount ?? 0} icon={<FileText size={16} />} />
           <StatCard title={t('deptDash.completionRate')} value={state.kpi?.completionRate ?? 0} suffix="%" precision={1} icon={<TrendingUp size={16} />} />
@@ -377,7 +377,7 @@ export default function DeptDashboardPage() {
                 columns={rvuColumns}
                 dataSource={state.rvu}
                 pagination={false}
-                style={{ marginTop: 12 }}
+                style={{ marginTop: 'var(--space-3, 12px)' }}
               />
             </Card>
           </Col>
@@ -406,7 +406,7 @@ export default function DeptDashboardPage() {
                 pagination={false}
              
               />
-              <div style={{ marginTop: 12 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   {t('deptDash.hospitalOeeTrend')}
                 </Text>
@@ -451,7 +451,7 @@ export default function DeptDashboardPage() {
                   />
                 </Col>
               </Row>
-              <div style={{ marginTop: 12, height: 150 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', height: 150 }}>
                 <ChartContainer height={150} state={(state.sla?.distribution ?? []).length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptDash.noSlaDist')}>
                   <BarChart data={state.sla?.distribution ?? []}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -463,8 +463,8 @@ export default function DeptDashboardPage() {
                 </ChartContainer>
               </div>
               {state.sla && state.sla.overdue.length > 0 && (
-                <div style={{ marginTop: 12 }}>
-                  <Space style={{ marginBottom: 8 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+                  <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
                     <AlertTriangle size={14} color="#cf1322" />
                     <Text strong type="danger">
                       {t('deptDash.overdueList', { count: state.sla.overdue.length })}
@@ -509,7 +509,7 @@ export default function DeptDashboardPage() {
                   <Line type="monotone" dataKey={t('deptDash.reportVolume')} stroke="#52c41a" dot={false} />
                 </LineChart>
               </ChartContainer>
-              <div style={{ marginTop: 8, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
                 <Tooltip title={t('deptDash.onTimeRatio')}>
                   <Tag color="blue" style={{ cursor: 'pointer' }}>
                     {t('deptDash.recentCompletion')} {(state.trend[state.trend.length - 1]?.completionRate ?? 0).toFixed(1)}%

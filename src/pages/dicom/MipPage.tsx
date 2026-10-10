@@ -132,9 +132,9 @@ const MipPage: React.FC = () => {
   }
 
   return (
-    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
       {loadError && <ErrorBanner message={loadError} />}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('w9d.mip.title')}</span>
         <Tag color="cyan">{t('w9d.mip.tag')}</Tag>
@@ -142,7 +142,7 @@ const MipPage: React.FC = () => {
         {mode === 'synthetic' && <Tag>{t('w9d.syntheticData')}</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9d.mip.thicknessLabel')}</span>
         <Slider min={1} max={mode === 'real' ? (dims?.z ?? 20) : 128} value={thickness} onChange={setThickness} style={{ width: 200 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{thickness}</span>

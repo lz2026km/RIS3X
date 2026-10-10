@@ -124,7 +124,7 @@ const EyeEmrPage: React.FC = () => {
       {loading ? (
         <div style={{ textAlign: 'center', padding: 60 }}><Spin tip={t('eyeEmr.loading')} /></div>
       ) : !selected ? (
-        <Alert type="info" title={t('eyeEmr.noData')} style={{ marginTop: 16 }} />
+        <Alert type="info" title={t('eyeEmr.noData')} style={{ marginTop: 'var(--space-4, 16px)' }} />
       ) : (
       <Row gutter={12}>
         <Col span={6}>
@@ -247,7 +247,7 @@ const EyeEmrPage: React.FC = () => {
                         <Card
                           size="small"
                           title={t('eyeEmr.iop')}
-                          style={{ marginTop: 4 }}
+                          style={{ marginTop: 'var(--space-1, 4px)' }}
                         >
                           <div style={{ fontSize: 12 }}>
                             NCT: OD {selected.iopOd[0]?.od} / OS{" "}
@@ -257,7 +257,7 @@ const EyeEmrPage: React.FC = () => {
                         <Card
                           size="small"
                           title={t('eyeEmr.refraction')}
-                          style={{ marginTop: 4 }}
+                          style={{ marginTop: 'var(--space-1, 4px)' }}
                         >
                           <div style={{ fontSize: 12 }}>
                             OD: {selected.refraction.od.sph}DS/
@@ -328,7 +328,7 @@ const EyeEmrPage: React.FC = () => {
                         <Card
                           size="small"
                           title={t('eyeEmr.gonioscopy')}
-                          style={{ marginTop: 4 }}
+                          style={{ marginTop: 'var(--space-1, 4px)' }}
                         >
                           <div style={{ fontSize: 12 }}>
                             {selected.gonioscopy || "-"}
@@ -343,7 +343,7 @@ const EyeEmrPage: React.FC = () => {
                   label: t('eyeEmr.tabDiagnosisPlan'),
                   children: (
                     <div>
-                      <div style={{ marginBottom: 8 }}>
+                      <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                         <Tag color="red">{t('eyeEmr.icdCode')}</Tag>{" "}
                         {selected.icdCodes.join(", ")}
                       </div>
@@ -441,7 +441,7 @@ const EyeEmrPage: React.FC = () => {
         onCancel={() => setCreateOpen(false)}
         destroyOnHidden
       >
-        <Form layout="vertical" style={{ marginTop: 8 }}>
+        <Form layout="vertical" style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Form.Item label={t('w1Controls.emr.patientName')} required>
             <Input value={createForm.patientName} onChange={(e) => setCreateForm((f) => ({ ...f, patientName: e.target.value }))} placeholder={t('w1Controls.emr.patientNamePlaceholder')} />
           </Form.Item>

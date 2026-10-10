@@ -78,7 +78,7 @@ export default function AAPMEUReferenceComparison() {
         <div
           style={{
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
@@ -89,7 +89,7 @@ export default function AAPMEUReferenceComparison() {
               fontSize: 12,
               fontWeight: 700,
               color: "var(--color-primary-800)",
-              marginBottom: 8,
+              marginBottom: 'var(--space-2, 8px)',
             }}
           >
             {label}
@@ -134,7 +134,7 @@ export default function AAPMEUReferenceComparison() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div
         style={{
@@ -145,7 +145,7 @@ export default function AAPMEUReferenceComparison() {
           fontSize: 12,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <AlertTriangle size={14} /> 静态参考数据：AAPM / 欧盟 CTDIvol 参考值来自公开规范文档（非接口数据）；院内平均值部分为演示
@@ -154,7 +154,7 @@ export default function AAPMEUReferenceComparison() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
       }}
     >
@@ -163,7 +163,7 @@ export default function AAPMEUReferenceComparison() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <div>
@@ -174,8 +174,8 @@ export default function AAPMEUReferenceComparison() {
             本院CT剂量 vs 国际参考值（单位: CTDIvol mGy）
           </div>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
             <div
               style={{
                 width: 10,
@@ -186,7 +186,7 @@ export default function AAPMEUReferenceComparison() {
             />
             <span style={{ fontSize: 12, color: "#64748b" }}>AAPM参考值</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
             <div
               style={{
                 width: 10,
@@ -197,7 +197,7 @@ export default function AAPMEUReferenceComparison() {
             />
             <span style={{ fontSize: 12, color: "#64748b" }}>欧盟参考值</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
             <div
               style={{
                 width: 10,
@@ -246,13 +246,13 @@ export default function AAPMEUReferenceComparison() {
       </ChartContainer>
 
       {/* 超标告警表格 */}
-      <div style={{ marginTop: 20 }}>
+      <div style={{ marginTop: 'var(--space-5, 20px)' }}>
         <div
           style={{
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 12,
+            marginBottom: 'var(--space-3, 12px)',
           }}
         >
           CT剂量参考值对比表
@@ -301,7 +301,7 @@ export default function AAPMEUReferenceComparison() {
       {refs.some((r) => r.exceedRate > 0.5) && (
         <div
           style={{
-            marginTop: 16,
+            marginTop: 'var(--space-4, 16px)',
             padding: "12px 16px",
             background: "#fef2f2",
             border: "1px solid #fecaca",

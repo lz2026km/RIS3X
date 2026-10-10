@@ -106,9 +106,9 @@ export default function TechnicianAssignmentEditor({
       width={440}
     >
       {mode === 'assign' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 'var(--space-2, 8px)' }}>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <UserCog size={12} /> 主技师
             </div>
             <Select
@@ -122,7 +122,7 @@ export default function TechnicianAssignmentEditor({
             />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <UserCog size={12} /> 备技师
             </div>
             <Select
@@ -137,9 +137,9 @@ export default function TechnicianAssignmentEditor({
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 'var(--space-2, 8px)' }}>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <ArrowRightLeft size={12} /> 交接人 (当前)
             </div>
             <Select
@@ -152,7 +152,7 @@ export default function TechnicianAssignmentEditor({
             />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <ArrowRightLeft size={12} /> 接收人
             </div>
             <Select

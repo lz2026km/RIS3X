@@ -282,7 +282,7 @@ export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport,
     {
       title: t('regionalReport.colQualityScore'), dataIndex: 'qualityScore', key: 'qualityScore',
       render: (v: number) => v > 0 ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <div style={{ ...styles.progressBar, width: 60 }}><div style={{ ...styles.progressFill, width: `${v}%`, backgroundColor: v >= 90 ? COLORS.success : v >= 70 ? COLORS.warning : COLORS.danger }} /></div>
           <span style={{ fontSize: 12, fontWeight: 600 }}>{v}</span>
         </div>
@@ -405,7 +405,7 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
     { title: t('regionalReport.colExamType'), dataIndex: 'examType', key: 'examType' },
     {
       title: t('regionalReport.colParticipatingInstitutions'), dataIndex: 'participatingInstitutions', key: 'participatingInstitutions',
-      render: (v: string[]) => <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>{v.map((inst, idx) => <span key={idx} style={{ ...styles.badge, backgroundColor: '#e0e7ff', color: COLORS.primary, fontSize: 10 }}>{inst}</span>)}</div>,
+      render: (v: string[]) => <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>{v.map((inst, idx) => <span key={idx} style={{ ...styles.badge, backgroundColor: '#e0e7ff', color: COLORS.primary, fontSize: 10 }}>{inst}</span>)}</div>,
     },
     { title: t('regionalReport.colSignStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}><Circle size={6} fill={getStatusColor(v)} /> {v}</span> },
     {
@@ -590,7 +590,7 @@ export const ReportSharingSection: React.FC = () => {
             <div style={styles.modalBody}>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.reportIdLabel')}</label><input style={{ ...styles.input, width: '100%' }} value={shareForm.reportId} onChange={e => setShareForm({ ...shareForm, reportId: e.target.value })} placeholder={t('regionalReport.inputReportId')} /></div>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.targetInstitution')}</label><Select style={{ width: '100%' }} value={shareForm.targetInstitution || undefined} placeholder={t('regionalReportList.pleaseSelect')} onChange={v => setShareForm({ ...shareForm, targetInstitution: v })} options={institutions.map(i => ({ value: i.name, label: i.name }))} /></div>
-              <div style={styles.formGroup}><label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={shareForm.consent} onChange={e => setShareForm({ ...shareForm, consent: e.target.checked })} /> <span style={{ fontSize: 12 }}>{t('regionalReport.consentObtainedLabel')}</span></label></div>
+              <div style={styles.formGroup}><label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', cursor: 'pointer' }}><input type="checkbox" checked={shareForm.consent} onChange={e => setShareForm({ ...shareForm, consent: e.target.checked })} /> <span style={{ fontSize: 12 }}>{t('regionalReport.consentObtainedLabel')}</span></label></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowShareModal(false)}>{t('regionalReportList.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleShare}><Share2 size={14} /> {t('regionalReport.share')}</button></div>
           </div>
@@ -625,7 +625,7 @@ export const SLAAndTATSection: React.FC = () => {
     {
       title: t('regionalReport.colSlaCompliance'), dataIndex: 'slaCompliance', key: 'slaCompliance',
       render: (v: number) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <div style={{ ...styles.progressBar, width: 60 }}><div style={{ ...styles.progressFill, width: `${v}%`, backgroundColor: v >= 90 ? COLORS.success : v >= 80 ? COLORS.warning : COLORS.danger }} /></div>
           <span style={{ fontSize: 12, fontWeight: 600 }}>{v}%</span>
         </div>

@@ -94,16 +94,16 @@ function PatientTimeline({ events }: PatientTimelineProps) {
   const sorted = useMemo(() => [...events].sort((a, b) => b.date.localeCompare(a.date)), [events])
 
   return (
-    <div style={{ position: 'relative', paddingLeft: 32 }}>
+    <div style={{ position: 'relative', paddingLeft: 'var(--space-8, 32px)' }}>
       <div style={{ position: 'absolute', left: 15, top: 0, bottom: 0, width: 2, background: 'var(--border-color)' }} />
       {sorted.map((evt, idx) => {
         const color = TIMELINE_COLORS[evt.type] || '#64748b'
         return (
-          <div key={evt.key ?? idx} style={{ position: 'relative', paddingBottom: 24, display: 'flex', gap: 16 }}>
+          <div key={evt.key ?? idx} style={{ position: 'relative', paddingBottom: 'var(--space-6, 24px)', display: 'flex', gap: 'var(--space-4, 16px)' }}>
             <div style={{ position: 'absolute', left: -24, width: 32, height: 32, borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 1, fontSize: 12 }}>
               {evt.icon || TIMELINE_ICONS[evt.type] || <Clock size={14} />}
             </div>
-            <div style={{ flex: 1, marginLeft: 8 }}>
+            <div style={{ flex: 1, marginLeft: 'var(--space-2, 8px)' }}>
               <div
                 style={{
                   background: 'var(--content-bg)', borderRadius: 8, padding: '12px 16px',
@@ -114,7 +114,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
                 onMouseEnter={(e) => { if (evt.link) (e.currentTarget as HTMLDivElement).style.background = 'var(--color-info-bg)' }}
                 onMouseLeave={(e) => { if (evt.link) (e.currentTarget as HTMLDivElement).style.background = 'var(--content-bg)' }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ fontWeight: 600, color: 'var(--color-primary-800)', fontSize: 12 }}>
                     {evt.type === 'exam' && ''}
                     {evt.type === 'report' && ''}
@@ -140,7 +140,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
         )
       })}
       {sorted.length === 0 && (
-        <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('patientDetailPanel.noTimelineEvents')}</div>
+        <div style={{ padding: 'var(--space-8, 32px)', textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('patientDetailPanel.noTimelineEvents')}</div>
       )}
     </div>
   )
@@ -401,9 +401,9 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
   if (!selectedPatient) {
     return (
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 60, textAlign: 'center' }}>
-        <User size={48} color="#cbd5e1" style={{ marginBottom: 16 }} />
+        <User size={48} color="#cbd5e1" style={{ marginBottom: 'var(--space-4, 16px)' }} />
         <div style={{ fontSize: 14, color: '#64748b' }}>{t('patientDetailPanel.selectPatientHint')}</div>
-        <button onClick={onBack} style={{ marginTop: 16, padding: '8px 20px', background: 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ marginTop: 'var(--space-4, 16px)', padding: '8px 20px', background: 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
           {t('patientDetailPanel.backToPatientList')}
         </button>
       </div>
@@ -448,7 +448,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       title: t('patientDetailPanel.colReportResult'), key: 'result',
       render: (_v, ex) => (
         ex.hasCriticalValue ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--color-error-600)', fontWeight: 600 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: 'var(--color-error-600)', fontWeight: 600 }}>
             <AlertCircle size={14} />{t('patientDetailPanel.positive')}
           </span>
         ) : (
@@ -475,7 +475,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       title: t('patientDetailPanel.colClosedState'), key: 'closed',
       render: (_v, cv) => (
         criticalClosed(cv) ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--color-success-600)', fontWeight: 600 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: 'var(--color-success-600)', fontWeight: 600 }}>
             <CheckCircle size={14} />{t('patientDetailPanel.closedLoop')}
           </span>
         ) : (
@@ -498,14 +498,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <div style={{ display: 'flex', gap: 6 }}>
           <button
             onClick={() => navigate(`/reports?reportId=${encodeURIComponent(r.reportId || r.id)}`)}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '3px 10px', background: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
           >
             <Eye size={14} />{t('patientDetailPanel.view')}
           </button>
           <button
             onClick={() => handleExportReport(r)}
             disabled={exportingId === (r.reportId || r.id)}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '3px 10px', background: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
           >
             <Download size={14} />{exportingId === (r.reportId || r.id) ? t('patientDetailPanel.exporting') : t('patientDetailPanel.download')}
           </button>
@@ -572,7 +572,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
           <ArrowLeft size={14} />{t('patientDetailPanel.backToList')}
         </button>
@@ -597,7 +597,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       </div>
 
       {dataError && !dataLoading && (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{dataError}</div>
+        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{dataError}</div>
       )}
 
       {toast.show && (
@@ -606,17 +606,17 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         </div>
       )}
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 24, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-6, 24px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
           <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 30, fontWeight: 700, color: '#fff' }}>{selectedPatient.name.slice(0, 1)}</span>
           </div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)' }}>{selectedPatient.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{selectedPatient.gender} · {selectedPatient.age}{t('patientDetailPanel.ageSuffix')} · {selectedPatient.patientType}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{selectedPatient.gender} · {selectedPatient.age}{t('patientDetailPanel.ageSuffix')} · {selectedPatient.patientType}</div>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>ID: {selectedPatient.id}</div>
           </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <button
               onClick={() => navigate(`/appointments?patientId=${encodeURIComponent(selectedPatient.id)}`)}
               title={t('patientDetailPanel.newAppointmentTitle')}
@@ -647,7 +647,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
           {[
             { label: t('patientDetailPanel.birthDate'), value: getBirthDateFromIdCard(selectedPatient.idCard), icon: <Calendar size={14} /> },
             { label: t('patientDetailPanel.idCardNo'), value: selectedPatient.idCard, icon: <CreditCard size={14} /> },
@@ -662,8 +662,8 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
             { label: t('patientDetailPanel.attendingDoctor'), value: selectedPatient.attendingDoctor || '-', icon: <Stethoscope size={14} /> },
             { label: t('patientDetailPanel.registrationDate'), value: selectedPatient.registrationDate, icon: <Calendar size={14} /> },
           ].map(item => (
-            <div key={item.label} style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <div key={item.label} style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                 <span style={{ color: '#94a3b8' }}>{item.icon}</span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{item.label}</span>
               </div>
@@ -672,16 +672,16 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
-          <div style={{ padding: 16, background: selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? 'var(--color-error-bg)' : 'var(--bg-card)', border: `1px solid ${selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? 'var(--color-error-border)' : 'var(--border-color)'}`, borderRadius: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ padding: 'var(--space-4, 16px)', background: selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? 'var(--color-error-bg)' : 'var(--bg-card)', border: `1px solid ${selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? 'var(--color-error-border)' : 'var(--border-color)'}`, borderRadius: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
               <AlertTriangle size={14} color={selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? 'var(--color-error-600)' : '#94a3b8'} />
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientDetailPanel.allergyHistory')}</span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{selectedPatient.allergyHistory || t('patientDetailPanel.none')}</div>
           </div>
-          <div style={{ padding: 16, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+          <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
               <Clock size={14} color="#94a3b8" />
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientDetailPanel.medicalHistory')}</span>
             </div>
@@ -691,18 +691,18 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       </div>
 
       {/* [v3.0.6.11-104 Wave 2B] 患者综合摘要 (GET /patients/:id/summary) */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientPage.summaryCard')}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             {summaryLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('common.loading')}</span>}
             {summaryError && <span style={{ fontSize: 12, color: 'var(--color-warning-600)' }}>{summaryError}</span>}
           </div>
         </div>
         {!summary ? (
-          <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>{t('patientPage.summaryEmpty')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)', color: '#94a3b8', fontSize: 12 }}>{t('patientPage.summaryEmpty')}</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {[
               { label: t('patientPage.summaryExams'), value: summary.counts.exams, color: 'var(--color-primary-800)', bg: 'var(--color-info-bg)' },
               { label: t('patientPage.summaryReports'), value: summary.counts.reports, color: 'var(--color-success-600)', bg: 'var(--color-success-bg)' },
@@ -720,39 +720,39 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>{t('patientDetailPanel.examStatsTitle')}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-          <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-info-bg)', borderRadius: 8 }}>
-            <Activity size={24} color="var(--color-primary-500)" style={{ marginBottom: 8 }} />
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)' }}>{t('patientDetailPanel.examStatsTitle')}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'var(--color-info-bg)', borderRadius: 8 }}>
+            <Activity size={24} color="var(--color-primary-500)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-primary-800)' }}>{stats.totalExams}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.totalExamCount')}</div>
           </div>
-          <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-error-bg)', borderRadius: 8 }}>
-            <AlertTriangle size={24} color="var(--color-error-600)" style={{ marginBottom: 8 }} />
+          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'var(--color-error-bg)', borderRadius: 8 }}>
+            <AlertTriangle size={24} color="var(--color-error-600)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-error-600)' }}>{stats.positiveCount}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.positiveCritical')}</div>
           </div>
-          <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-success-bg)', borderRadius: 8 }}>
-            <CheckCircle size={24} color="var(--color-success-600)" style={{ marginBottom: 8 }} />
+          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'var(--color-success-bg)', borderRadius: 8 }}>
+            <CheckCircle size={24} color="var(--color-success-600)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-success-600)' }}>{stats.negativeCount}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.negativeNormal')}</div>
           </div>
-          <div style={{ textAlign: 'center', padding: 16, background: 'var(--content-bg)', borderRadius: 8 }}>
-            <Clock size={24} color="#64748b" style={{ marginBottom: 8 }} />
+          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'var(--content-bg)', borderRadius: 8 }}>
+            <Clock size={24} color="#64748b" style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{stats.firstExamDate}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.firstExamDate')}</div>
           </div>
         </div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientDetailPanel.examHistoryTitle')}</div>
           <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.recordsCount', { count: patientExams.length })}</span>
         </div>
         {patientExams.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('patientDetailPanel.noExamRecords')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('patientDetailPanel.noExamRecords')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <DataTable<PatientExamRow>
@@ -769,16 +769,16 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <BellRing size={16} color="var(--color-error-600)" />
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientDetailPanel.criticalHistoryTitle')}</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.recordsCount', { count: criticalValues.length })}</span>
         </div>
         {criticalValues.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noCriticalRecords')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)', color: '#94a3b8' }}>{t('patientDetailPanel.noCriticalRecords')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <DataTable<CriticalValueDto>
@@ -795,16 +795,16 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <FileText size={16} color="#059669" />
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientDetailPanel.reportSectionTitle')}</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.reportsCount', { count: reports.length })}</span>
         </div>
         {reports.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noReports')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)', color: '#94a3b8' }}>{t('patientDetailPanel.noReports')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <DataTable<ReportDto>
@@ -816,16 +816,16 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Receipt size={16} color="var(--color-warning-600)" />
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientDetailPanel.invoiceSectionTitle')}</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.invoicesCount', { count: invoices.length })}</span>
         </div>
         {invoices.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noInvoices')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)', color: '#94a3b8' }}>{t('patientDetailPanel.noInvoices')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <DataTable<InvoiceDto>
@@ -837,8 +837,8 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Layers size={16} color="var(--color-primary-800)" />
           {t('patientDetailPanel.timelineTitle')}
           <span style={{ fontSize: 12, fontWeight: 400, color: '#94a3b8' }}>{t('patientDetailPanel.timelineSubtitle')}</span>
@@ -846,28 +846,28 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <PatientTimeline events={timelineEvents} />
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Image size={16} color="var(--color-primary-800)" />
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('patientDetailPanel.imageHistoryTitle')}</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.imageCount', { count: patientExams.length })}</span>
         </div>
         {patientExams.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('patientDetailPanel.noImages')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('patientDetailPanel.noImages')}</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {patientExams.map((ex, idx) => {
               const itemName = ex.examItemName || ex.examItem || `${ex.modality} ${ex.bodyPart}`
               const imageCount = ex.imagesAcquired || 0
               return (
-                <div key={ex.id ?? idx} style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer' }}
+                <div key={ex.id ?? idx} style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer' }}
                   onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(ex.id ?? '')}`)}
                   title={t('patientDetailPanel.openImageTitle', { name: itemName })}
                   onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-primary-800)'}
                   onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-color)'}>
-                  <div style={{ width: '100%', height: 80, background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                  <div style={{ width: '100%', height: 80, background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                     <Image size={24} color="rgba(255,255,255,0.6)" />
                   </div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 2 }}>{itemName}</div>
@@ -885,12 +885,12 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
 
       {showMergeModal && (
         <div
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-6, 24px)' }}
           onClick={(e) => { if (e.target === e.currentTarget && !mergeLoading) setShowMergeModal(false) }}
         >
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, width: '100%', maxWidth: 520, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg, #7f1d1d, var(--color-error-600))' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <GitMerge size={22} color="#fff" />
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('patientDetailPanel.mergeModalTitle')}</div>
@@ -901,8 +901,8 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                 <X size={16} color="#fff" />
               </button>
             </div>
-            <div style={{ padding: 24 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('patientDetailPanel.mergeTargetLabel')}</label>
+            <div style={{ padding: 'var(--space-6, 24px)' }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('patientDetailPanel.mergeTargetLabel')}</label>
               <input
                 value={mergeTargetId}
                 onChange={(e) => setMergeTargetId(e.target.value)}
@@ -921,7 +921,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                 </div>
               )}
             </div>
-            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
               <button onClick={() => setShowMergeModal(false)} disabled={mergeLoading} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: '#64748b', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('patientDetailPanel.cancel')}
               </button>

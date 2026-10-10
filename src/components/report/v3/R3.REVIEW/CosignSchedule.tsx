@@ -389,7 +389,7 @@ export const CosignSchedule: React.FC = () => {
 
   return (
     <div data-testid="cosign-schedule" role="region" aria-label={t('reportReview.cosign.title')}>
-      <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #be185d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #be185d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 'var(--space-3, 12px)' }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space wrap>
             <Award size={18} />
@@ -404,7 +404,7 @@ export const CosignSchedule: React.FC = () => {
           </Space>
         </Space>
         {kpi && (
-          <Row gutter={12} style={{ marginTop: 12 }}>
+          <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>{t('reportReview.cosign.kpiTriggered')}</span>} value={kpi.totalTriggered} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<Zap size={14} />} /></Col>
             <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>{t('reportReview.cosign.status.signed')}</span>} value={kpi.totalSigned} styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }} prefix={<CheckCircle2 size={14} />} /></Col>
             <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>{t('reportReview.sla.onTimeRate')}</span>} value={kpi.onTimeRate} suffix="%" styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }} prefix={<TrendingUp size={14} />} /></Col>
@@ -426,13 +426,13 @@ export const CosignSchedule: React.FC = () => {
               <Row gutter={12}>
                 <Col span={14}>
                   <Card title={<Space><CalIcon size={14} />{t('reportReview.cosign.sevenDaySchedule')}</Space>} size="small">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 'var(--space-2, 8px)' }}>
                       {calendarDays.map(({ date, entries }) => (
                         <div
                           key={date}
                           onClick={() => setSelectedDate(date)}
                           style={{
-                            padding: 8, borderRadius: 6, cursor: 'pointer',
+                            padding: 'var(--space-2, 8px)', borderRadius: 6, cursor: 'pointer',
                             background: date === selectedDate ? '#ede9fe' : '#f8fafc',
                             border: date === selectedDate ? '2px solid #7c3aed' : '1px solid #e2e8f0',
                           }}
@@ -440,7 +440,7 @@ export const CosignSchedule: React.FC = () => {
                         >
                           <div style={{ fontSize: 12, color: '#64748b' }}>{date.slice(5)}</div>
                           <div style={{ fontSize: 14, fontWeight: 600 }}>{entries.length} {t('reportReview.cosign.shiftUnit')}</div>
-                          <div style={{ marginTop: 4 }}>
+                          <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                             {entries.slice(0, 3).map((e) => {
                               const eSm: { color: string; label: string; bg: string } = SHIFT_META[e.shiftType] ?? { color: '#64748b', label: 'reportReview.cosign.unknown', bg: '#f1f5f9' };
                               const eLabel = t(eSm.label).split(' ')[0]?.slice(0, 2) ?? '';
@@ -454,10 +454,10 @@ export const CosignSchedule: React.FC = () => {
                         </div>
                       ))}
                     </div>
-                    <div style={{ marginTop: 12 }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                       <strong style={{ fontSize: 12 }}>{selectedDate} {t('reportReview.cosign.scheduleDetail')}</strong>
                       <List
-                        style={{ marginTop: 8, maxHeight: 320, overflowY: 'auto' }}
+                        style={{ marginTop: 'var(--space-2, 8px)', maxHeight: 320, overflowY: 'auto' }}
                         size="small"
                         dataSource={daySchedules}
                         locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportReview.cosign.noScheduleToday')} /> }}
@@ -492,7 +492,7 @@ export const CosignSchedule: React.FC = () => {
                       )}
                     />
                   </Card>
-                  <Card title={<Space><History size={14} />{t('reportReview.cosign.recentRecords')}</Space>} size="small" style={{ marginTop: 12 }}>
+                  <Card title={<Space><History size={14} />{t('reportReview.cosign.recentRecords')}</Space>} size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
                     <List
                       size="small"
                       dataSource={records.slice(0, 4)}
@@ -524,7 +524,7 @@ export const CosignSchedule: React.FC = () => {
               <Card size="small" title={<Space><Clock size={14} />{t('reportReview.cosign.slaMonitor')}</Space>} extra={<Button size="small" icon={<RefreshCw size={14} />} onClick={handleRefreshSLA}>{t('reportReview.cosign.refreshSla')}</Button>}>
                 {slaConfig && (
                   <Alert
-                    style={{ marginBottom: 12 }}
+                    style={{ marginBottom: 'var(--space-3, 12px)' }}
                     type="info"
                     showIcon
                     title={t('reportReview.cosign.slaDefault', { default: slaConfig.defaultMinutes, warn: slaConfig.warnMinutes, escalate: slaConfig.escalateToRole ?? 'director' })}
@@ -616,7 +616,7 @@ export const CosignSchedule: React.FC = () => {
             children: (
               <Card size="small" title={<Space><Users size={14} />{t('reportReview.cosign.multiSignConfig')}</Space>}>
                 {multiSigns.map((m) => (
-                  <Card key={m.id} size="small" type="inner" style={{ marginBottom: 8 }} title={<Space>{t('reportReview.cosign.reportLabel')} {m.reportId} · {t('reportReview.cosign.signedCount')} {m.currentSignedCount}/{m.requiredSignerCount}<Tag color={m.status === 'completed' ? 'green' : m.status === 'partial' ? 'orange' : 'blue'}>{m.status}</Tag></Space>}>
+                  <Card key={m.id} size="small" type="inner" style={{ marginBottom: 'var(--space-2, 8px)' }} title={<Space>{t('reportReview.cosign.reportLabel')} {m.reportId} · {t('reportReview.cosign.signedCount')} {m.currentSignedCount}/{m.requiredSignerCount}<Tag color={m.status === 'completed' ? 'green' : m.status === 'partial' ? 'orange' : 'blue'}>{m.status}</Tag></Space>}>
                     <Timeline
                       items={m.signers.map((s) => ({
                         color: s.signed ? 'green' : 'gray',
@@ -681,7 +681,7 @@ export const CosignSchedule: React.FC = () => {
             children: skipConfig && (
               <Card size="small" title={<Space><ShieldCheck size={14} />{t('reportReview.cosign.skipConfig')}</Space>}>
                 <Alert
-                  style={{ marginBottom: 12 }}
+                  style={{ marginBottom: 'var(--space-3, 12px)' }}
                   type={skipConfig.enabled ? 'success' : 'warning'}
                   showIcon
                   title={t('reportReview.cosign.skipConfigTitle', { status: skipConfig.enabled ? t('reportReview.common.enabled') : t('reportReview.common.disabled'), roles: skipConfig.authorizedRoles.join('/'), level: skipConfig.auditLevel })}
@@ -710,7 +710,7 @@ export const CosignSchedule: React.FC = () => {
                     { title: t('reportReview.cosign.colRequiresComment'), dataIndex: 'requiresComment', width: 90, render: (v: boolean) => v ? <Tag color="orange">{t('reportReview.common.yes')}</Tag> : <Tag>{t('reportReview.common.no')}</Tag> },
                   ]}
                 />
-                <div style={{ marginTop: 12 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                   <strong style={{ fontSize: 12 }}>{t('reportReview.cosign.skipForPending')}</strong>
                   <Space wrap style={{ marginTop: 6 }}>
                     {records.filter((r) => r.status === 'pending' || r.status === 'in-progress').map((record) => (
@@ -959,7 +959,7 @@ export const CosignSchedule: React.FC = () => {
             <div>
               <strong>{t('reportReview.cosign.resolution')}</strong>
               <Select
-                style={{ width: '100%', marginTop: 4 }}
+                style={{ width: '100%', marginTop: 'var(--space-1, 4px)' }}
                 value={conflictResolution}
                 onChange={setConflictResolution}
                 options={[

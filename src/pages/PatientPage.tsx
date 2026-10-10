@@ -80,7 +80,7 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         padding: "10px 20px",
         border: "none",
         borderBottom: isActive ? "3px solid var(--color-primary-800)" : "3px solid transparent",
@@ -124,7 +124,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid var(--border-color)",
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
      styles={{ body: { padding: 0 } }}>
@@ -133,12 +133,12 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
           fontSize: 14,
           fontWeight: 700,
           color: "var(--color-primary-800)",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         {title}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-5, 20px)' }}>
         <div style={{ position: "relative", width: 120, height: 120 }}>
           <svg viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
             {data
@@ -191,8 +191,8 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
-                marginBottom: 8,
+                gap: 'var(--space-2, 8px)',
+                marginBottom: 'var(--space-2, 8px)',
               }}
             >
               <div
@@ -242,7 +242,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid var(--border-color)",
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
      styles={{ body: { padding: 0 } }}>
@@ -251,13 +251,13 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
           fontSize: 14,
           fontWeight: 700,
           color: "var(--color-primary-800)",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         {title}
       </div>
       <div
-        style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 140 }}
+        style={{ display: "flex", alignItems: "flex-end", gap: 'var(--space-2, 8px)', height: 140 }}
       >
         {data.map((d, i) => (
           <div
@@ -267,7 +267,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <AppText size="xs" weight={700} as="div" style={{ color: "var(--color-primary-800)" }}>
@@ -294,7 +294,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
             textAlign: "center",
             fontSize: 12,
             color: "var(--text-secondary)",
-            marginTop: 8,
+            marginTop: 'var(--space-2, 8px)',
           }}
         >
           {xLabel}
@@ -1031,7 +1031,7 @@ export default function PatientPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 24,
+        padding: 'var(--space-6, 24px)',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClosePMIPanel();
@@ -1060,7 +1060,7 @@ export default function PatientPage() {
             background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
             <Target size={24} color="#fff" />
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>
@@ -1096,7 +1096,7 @@ export default function PatientPage() {
         </div>
         <div
           style={{
-            padding: 20,
+            padding: 'var(--space-5, 20px)',
             borderBottom: "1px solid var(--border-color)",
             background: "var(--content-bg)",
           }}
@@ -1104,7 +1104,7 @@ export default function PatientPage() {
           <div
             style={{
               display: "flex",
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
               background: "var(--bg-card)",
               borderRadius: 10,
               border: "2px solid var(--color-primary-800)",
@@ -1153,9 +1153,9 @@ export default function PatientPage() {
             style={{
               fontSize: 12,
               color: "var(--text-secondary)",
-              marginTop: 8,
+              marginTop: 'var(--space-2, 8px)',
               display: "flex",
-              gap: 16,
+              gap: 'var(--space-4, 16px)',
             }}
           >
             <span>{t('patientPage.pmiSupportFuzzy')}</span>
@@ -1165,19 +1165,19 @@ export default function PatientPage() {
             <span>{t('patientPage.pmiShowConfidence')}</span>
           </div>
         </div>
-        <div style={{ flex: 1, overflow: "auto", padding: 16 }}>
+        <div style={{ flex: 1, overflow: "auto", padding: 'var(--space-4, 16px)' }}>
           {pmiSearchResults.length === 0 && pmiSearchQuery && (
-            <div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>
-              <Search size={32} color="#cbd5e1" style={{ marginBottom: 8 }} />
+            <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: "var(--text-secondary)" }}>
+              <Search size={32} color="#cbd5e1" style={{ marginBottom: 'var(--space-2, 8px)' }} />
               <div>{t('patientPage.pmiNoResult')}</div>
             </div>
           )}
           {pmiSearchResults.length === 0 && !pmiSearchQuery && (
-            <div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>
+            <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: "var(--text-secondary)" }}>
               <FileSearch
                 size={32}
                 color="#cbd5e1"
-                style={{ marginBottom: 8 }}
+                style={{ marginBottom: 'var(--space-2, 8px)' }}
               />
               <div>{t('patientPage.pmiEmptyHint')}</div>
             </div>
@@ -1190,8 +1190,8 @@ export default function PatientPage() {
                 background: "var(--bg-card)",
                 border: "1px solid var(--border-color)",
                 borderRadius: 10,
-                padding: 16,
-                marginBottom: 12,
+                padding: 'var(--space-4, 16px)',
+                marginBottom: 'var(--space-3, 12px)',
                 cursor: "pointer",
                 transition: "all 0.2s",
               }}
@@ -1208,8 +1208,8 @@ export default function PatientPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
-                  marginBottom: 12,
+                  gap: 'var(--space-3, 12px)',
+                  marginBottom: 'var(--space-3, 12px)',
                 }}
               >
                 <div
@@ -1234,7 +1234,7 @@ export default function PatientPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}
                   >
                     <span
                       style={{
@@ -1271,7 +1271,7 @@ export default function PatientPage() {
                       {result.patientType}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
                     {result.idCard} · {result.phone}
                   </div>
                 </div>
@@ -1298,7 +1298,7 @@ export default function PatientPage() {
                   display: "grid",
                   gridTemplateColumns: "repeat(4, 1fr)",
                   gap: 10,
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                 }}
               >
                 <div
@@ -1378,7 +1378,7 @@ export default function PatientPage() {
                   </div>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
                 <div
                   style={{
                     display: "flex",
@@ -1420,8 +1420,8 @@ export default function PatientPage() {
               {result.hasMergeHistory && (
                 <div
                   style={{
-                    marginTop: 12,
-                    padding: 12,
+                    marginTop: 'var(--space-3, 12px)',
+                    padding: 'var(--space-3, 12px)',
                     background: "var(--color-warning-bg)",
                     borderRadius: 8,
                     border: "1px solid #fde68a",
@@ -1432,7 +1432,7 @@ export default function PatientPage() {
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
-                      marginBottom: 8,
+                      marginBottom: 'var(--space-2, 8px)',
                     }}
                   >
                     <History size={14} color="var(--color-warning-500)" />
@@ -1446,12 +1446,12 @@ export default function PatientPage() {
                       style={{
                         fontSize: 12,
                         color: "#92400e",
-                        marginBottom: 4,
+                        marginBottom: 'var(--space-1, 4px)',
                       }}
                     >
                       {m.mergedDate} · {m.reason}
                       {m.mergedFromId && (
-                        <span style={{ marginLeft: 8 }}>
+                        <span style={{ marginLeft: 'var(--space-2, 8px)' }}>
                           {t('patientPage.mergedFrom', { id: m.mergedFromId })}
                         </span>
                       )}
@@ -1473,7 +1473,7 @@ export default function PatientPage() {
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid var(--border-color)",
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
      styles={{ body: { padding: 0 } }}>
@@ -1482,10 +1482,10 @@ export default function PatientPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
           <div
             style={{
               width: 56,
@@ -1524,7 +1524,7 @@ export default function PatientPage() {
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <div style={{ textAlign: "center" }}>
             <div
               style={{
@@ -1564,17 +1564,17 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 12,
-          marginBottom: 16,
+          gap: 'var(--space-3, 12px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
-        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
+        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 4,
+              marginBottom: 'var(--space-1, 4px)',
             }}
           >
             <CreditCard size={14} color="var(--text-secondary)" />
@@ -1584,13 +1584,13 @@ export default function PatientPage() {
             {result.idCard}
           </AppText>
         </div>
-        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
+        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 4,
+              marginBottom: 'var(--space-1, 4px)',
             }}
           >
             <Phone size={14} color="var(--text-secondary)" />
@@ -1598,13 +1598,13 @@ export default function PatientPage() {
           </div>
           <AppText size="xs" color="secondary" as="div">{result.phone}</AppText>
         </div>
-        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
+        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 4,
+              marginBottom: 'var(--space-1, 4px)',
             }}
           >
             <Shield size={14} color="var(--text-secondary)" />
@@ -1614,13 +1614,13 @@ export default function PatientPage() {
             {result.insuranceType}
           </div>
         </div>
-        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
+        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 4,
+              marginBottom: 'var(--space-1, 4px)',
             }}
           >
             <User size={14} color="var(--text-secondary)" />
@@ -1635,18 +1635,18 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}
       >
         <div
           style={{
-            padding: 16,
+            padding: 'var(--space-4, 16px)',
             background: "var(--color-info-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
         >
-          <Gauge size={24} color="var(--color-primary-500)" style={{ marginBottom: 8 }} />
+          <Gauge size={24} color="var(--color-primary-500)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
           <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary-800)" }}>
             {result.examStats.totalExams}
           </div>
@@ -1654,13 +1654,13 @@ export default function PatientPage() {
         </div>
         <div
           style={{
-            padding: 16,
+            padding: 'var(--space-4, 16px)',
             background: "var(--color-success-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
         >
-          <Percent size={24} color="var(--color-success-600)" style={{ marginBottom: 8 }} />
+          <Percent size={24} color="var(--color-success-600)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
           <div
             style={{
               fontSize: 30,
@@ -1674,13 +1674,13 @@ export default function PatientPage() {
         </div>
         <div
           style={{
-            padding: 16,
+            padding: 'var(--space-4, 16px)',
             background: "var(--content-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
         >
-          <Clock size={24} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
+          <Clock size={24} color="var(--text-secondary)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
           <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary-800)" }}>
             {result.examStats.lastExamDate}
           </div>
@@ -1690,8 +1690,8 @@ export default function PatientPage() {
       {result.hasMergeHistory && (
         <div
           style={{
-            marginTop: 16,
-            padding: 16,
+            marginTop: 'var(--space-4, 16px)',
+            padding: 'var(--space-4, 16px)',
             background: "var(--color-warning-bg)",
             borderRadius: 10,
             border: "1px solid #fde68a",
@@ -1701,8 +1701,8 @@ export default function PatientPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
+              gap: 'var(--space-2, 8px)',
+              marginBottom: 'var(--space-3, 12px)',
             }}
           >
             <History size={16} color="var(--color-warning-500)" />
@@ -1729,7 +1729,7 @@ export default function PatientPage() {
                 padding: "10px 12px",
                 background: "var(--bg-card)",
                 borderRadius: 6,
-                marginBottom: 8,
+                marginBottom: 'var(--space-2, 8px)',
                 border: "1px solid #fde68a",
               }}
             >
@@ -1737,8 +1737,8 @@ export default function PatientPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
-                  marginBottom: 4,
+                  gap: 'var(--space-2, 8px)',
+                  marginBottom: 'var(--space-1, 4px)',
                 }}
               >
                 <span
@@ -1781,12 +1781,12 @@ export default function PatientPage() {
   const renderPatientAnalytics = () => (
     <>
       {/* [v3.0.6.11-104 Wave 2B] 患者总览 (GET /patients/overview) */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DashboardCard
           title={`${t("patientPage.overviewCard")} · ${statsSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}`}
           icon={<Users size={14} />}
           extra={
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               {statsLoading && <span style={{ fontSize: 12, color: 'var(--color-warning-600)' }}>{t("examPage.syncing")}</span>}
               <ActionButton
                 action="refresh"
@@ -1802,7 +1802,7 @@ export default function PatientPage() {
           skeletonRows={2}
           testId="patient-overview-card"
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3, 12px)' }}>
             <StatCard label={t("patientPage.overviewTotal")} value={patientOverview.total} icon={<Users size={22} />} color="var(--color-primary-800)" bgColor="#eff6ff" />
             <StatCard label={t("patientPage.overviewTodayNew")} value={patientOverview.todayNew} icon={<PlusCircle size={22} />} color="var(--color-success-600)" bgColor="#f0fdf4" />
             <StatCard label={t("patientPage.overviewMonthlyNew")} value={patientOverview.monthlyNew} icon={<TrendingUp size={22} />} color="#0ea5e9" bgColor="#f0f9ff" />
@@ -1813,7 +1813,7 @@ export default function PatientPage() {
       </div>
 
       {/* [v3.0.6.11-104 Wave 2B] 年龄分布 (GET /patients/age-distribution) */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DashboardCard title={t("patientPage.ageDistributionStat")} icon={<PieChart size={14} />} testId="patient-age-distribution-card">
           <TrendChart
             type="bar"
@@ -1834,8 +1834,8 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 16,
-          marginBottom: 16,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <StatCard
@@ -1871,8 +1871,8 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 16,
-          marginBottom: 16,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <StatCard
@@ -1908,8 +1908,8 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: 16,
-          marginBottom: 16,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <PieChartSimple
@@ -1922,8 +1922,8 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: 16,
-          marginBottom: 16,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <BarChartSimple
@@ -1942,7 +1942,7 @@ export default function PatientPage() {
           background: "var(--bg-card)",
           borderRadius: 12,
           border: "1px solid var(--border-color)",
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
        styles={{ body: { padding: 0 } }}>
@@ -1951,7 +1951,7 @@ export default function PatientPage() {
             fontSize: 14,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           {t('patientPage.patientDetail')} (
@@ -1973,7 +1973,7 @@ export default function PatientPage() {
           columns={[
             { title: t('patientPage.patientId'), dataIndex: 'id', key: 'id', width: 130, sorter: (a: Patient, b: Patient) => a.id.localeCompare(b.id), render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
             { title: t('patientPage.name'), dataIndex: 'name', key: 'name', sorter: (a: Patient, b: Patient) => a.name.localeCompare(b.name), render: (v: string, p: Patient) => (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <div style={{
                   width: 24, height: 24, borderRadius: '50%',
                   background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
@@ -1991,7 +1991,7 @@ export default function PatientPage() {
             { title: t('patientPage.cumulativeExam'), dataIndex: 'totalExamCount', key: 'totalExamCount', width: 100, align: 'center', sorter: (a: Patient, b: Patient) => (a.totalExamCount || 0) - (b.totalExamCount || 0), render: (v: number) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v || 0}</span> },
             { title: t('patientPage.lastExam'), dataIndex: 'lastExamDate', key: 'lastExamDate', width: 110, align: 'center', render: (v: string) => <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{v || "-"}</span> },
             { title: t('patientPage.actions'), key: 'actions', width: 150, render: (_: unknown, p: Patient) => (
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 <ActionButton
                   action="refresh"
                   size="compact"
@@ -2023,8 +2023,8 @@ export default function PatientPage() {
       {accessDenied && (
         <div
           style={{
-            padding: 24,
-            marginBottom: 16,
+            padding: 'var(--space-6, 24px)',
+            marginBottom: 'var(--space-4, 16px)',
             background: "var(--color-error-bg)",
             border: "1px solid #fca5a5",
             color: "#7f1d1d",
@@ -2042,7 +2042,7 @@ export default function PatientPage() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 20,
+          marginBottom: 'var(--space-5, 20px)',
         }}
       >
         <div>
@@ -2052,7 +2052,7 @@ export default function PatientPage() {
               margin: "0 0 4px",
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
             }}
           >
             <Stethoscope size={22} color="var(--color-primary-800)" />
@@ -2062,7 +2062,7 @@ export default function PatientPage() {
             {t('patientPage.patientSubtitle')}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
           <ActionButton
             action="refresh"
             size="compact"
@@ -2128,7 +2128,7 @@ export default function PatientPage() {
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             animation: "fadeIn 0.3s ease",
           }}
         >
@@ -2144,8 +2144,8 @@ export default function PatientPage() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 12,
-            marginBottom: 16,
+            gap: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <StatCard
@@ -2182,9 +2182,9 @@ export default function PatientPage() {
       <div
         style={{
           display: "flex",
-          gap: 4,
+          gap: 'var(--space-1, 4px)',
           borderBottom: "1px solid var(--border-color)",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
           background: "var(--bg-card)",
           borderRadius: "12px 12px 0 0",
           padding: "0 8px",
@@ -2335,7 +2335,7 @@ export default function PatientPage() {
 
       {showPMIPanel && renderPMISearchPanel()}
       {pmiSelectedResult && !showPMIPanel && (
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)' }}>
           {renderPMIPatientCard(pmiSelectedResult)}
         </div>
       )}
@@ -2354,7 +2354,7 @@ export default function PatientPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowImportModal(false);
@@ -2405,7 +2405,7 @@ export default function PatientPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
+            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
               <div
                 style={{
                   fontSize: 12,
@@ -2461,7 +2461,7 @@ export default function PatientPage() {
               {importResult && (
                 <div
                   style={{
-                    marginTop: 12,
+                    marginTop: 'var(--space-3, 12px)',
                     borderRadius: 8,
                     padding: "12px 14px",
                     border: "1px solid",

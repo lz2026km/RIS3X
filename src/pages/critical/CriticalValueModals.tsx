@@ -76,21 +76,21 @@ export const ProcessModal = ({ cv, onConfirm, onCancel }: {
             <X size={16} style={{ color: 'var(--text-muted)' }} />
           </button>
         </div>
-        <div style={{ padding: 24 }}>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.summary')}</div>
-            <div style={{ background: 'var(--color-error-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--color-error-border)', fontSize: 13, color: 'var(--text-primary)' }}>{cv.findingDetails.substring(0, 100)}...</div>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.summary')}</div>
+            <div style={{ background: 'var(--color-error-bg)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--color-error-border)', fontSize: 13, color: 'var(--text-primary)' }}>{cv.findingDetails.substring(0, 100)}...</div>
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <label htmlFor="cv-process-dept" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.processDept')}</label>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <label htmlFor="cv-process-dept" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.processDept')}</label>
             <input id="cv-process-dept" type="text" defaultValue={cv.receivingDepartment} placeholder={t('cvModals.inputProcessDept')} aria-label={t('cvModals.processDept')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <label htmlFor="cv-process-action" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.processAction')}</label>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <label htmlFor="cv-process-action" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.processAction')}</label>
             <textarea id="cv-process-action" placeholder={t('cvModals.inputProcessAction')} aria-label={t('cvModals.processAction')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <label htmlFor="cv-process-result" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.processResult')}</label>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <label htmlFor="cv-process-result" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.processResult')}</label>
             <textarea id="cv-process-result" placeholder={t('cvModals.inputProcessResult')} aria-label={t('cvModals.processResult')} rows={2} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
@@ -134,10 +134,10 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
           </div>
           <button onClick={onCancel} aria-label={t('cvModals.closeModal')} style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
         </div>
-        <div style={{ padding: 24 }}>
-          <div style={{ marginBottom: 16 }}>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <div id="cv-notify-method-label" style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.notifyMethod')}</div>
-            <div role="radiogroup" aria-labelledby="cv-notify-method-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            <div role="radiogroup" aria-labelledby="cv-notify-method-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)' }}>
               {options.map((opt) => {
                 const active = method === opt.value; const Icon = opt.icon
                 return (
@@ -150,11 +150,11 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
               })}
             </div>
           </div>
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <label htmlFor="cv-notify-phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.contactPhone')}</label>
             <input id="cv-notify-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder={t('cvModals.inputContactPhone')} aria-label={t('cvModals.contactPhone')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
             <label htmlFor="cv-notify-notes" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.notifyNotes')}</label>
             <textarea id="cv-notify-notes" value={notes} onChange={(e) => onSetNotes(e.target.value)} placeholder={t('cvModals.inputNotifyNotes')} aria-label={t('cvModals.notifyNotes')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
@@ -193,12 +193,12 @@ export const VoiceCallModal = ({ cv, phone, onSetPhone, onConfirm, onCancel }: {
           </div>
           <button onClick={onCancel} aria-label={t('cvModals.closeModal')} style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
         </div>
-        <div style={{ padding: 24 }}>
-          <div style={{ marginBottom: 20 }}>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
+          <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
             <label htmlFor="cv-voicecall-phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.contactPhone')}</label>
             <input id="cv-voicecall-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder={t('cvModals.inputClinicalPhone')} aria-label={t('cvModals.contactPhone')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
-          <div style={{ background: 'var(--color-warning-bg)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--color-warning-border)', marginBottom: 20 }}>
+          <div style={{ background: 'var(--color-warning-bg)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--color-warning-border)', marginBottom: 'var(--space-5, 20px)' }}>
             <div style={{ fontSize: 12, color: 'var(--color-warning)', lineHeight: 1.6 }}>{t('cvModals.phoneNotifyHint')}</div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
@@ -236,19 +236,19 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
           </div>
           <button onClick={onCancel} aria-label={t('cvModals.closeModal')} style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
         </div>
-        <div style={{ padding: 24 }}>
-          <div style={{ marginBottom: 16 }}>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <label htmlFor="cv-receipt-doctor" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.confirmDoctor')}</label>
             <input id="cv-receipt-doctor" type="text" value={doctor} onChange={(e) => onSetDoctor(e.target.value)} placeholder={t('cvModals.inputConfirmDoctor')} aria-label={t('cvModals.confirmDoctorAria')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <label htmlFor="cv-receipt-comment" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.clinicalComment')}</label>
             <textarea id="cv-receipt-comment" value={comment} onChange={(e) => onSetComment(e.target.value)} placeholder={t('cvModals.inputClinicalComment')} aria-label={t('cvModals.clinicalOpinion')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.signatureConfirm')}</div>
             <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '12px 16px', border: '2px dashed var(--color-success-border)', textAlign: 'center' }}>
-              <div style={{ fontSize: 28, marginBottom: 4 }}></div>
+              <div style={{ fontSize: 28, marginBottom: 'var(--space-1, 4px)' }}></div>
               <div style={{ fontSize: 12, color: 'var(--color-success-600)' }}>{t('cvModals.clickToSign')}</div>
             </div>
           </div>
@@ -288,20 +288,20 @@ export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetR
           </div>
           <button onClick={onCancel} aria-label={t('cvModals.closeModal')} style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
         </div>
-        <div style={{ padding: 24 }}>
-          <div style={{ marginBottom: 16 }}>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <label htmlFor="cv-escalate-to" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.escalateTarget')}</label>
             <input id="cv-escalate-to" type="text" value={to} onChange={(e) => onSetTo(e.target.value)} placeholder={t('cvModals.inputEscalateTarget')} aria-label={t('cvModals.escalateTargetAria')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <label htmlFor="cv-escalate-dept" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.escalateDept')}</label>
             <input id="cv-escalate-dept" type="text" value={dept} onChange={(e) => onSetDept(e.target.value)} placeholder={t('cvModals.inputEscalateDept')} aria-label={t('cvModals.escalateDept')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <label htmlFor="cv-escalate-reason" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.escalateReason')}</label>
             <textarea id="cv-escalate-reason" value={reason} onChange={(e) => onSetReason(e.target.value)} placeholder={t('cvModals.inputEscalateReason')} aria-label={t('cvModals.escalateReason')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
-          <div style={{ background: 'var(--color-error-bg)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--color-error-border)', marginBottom: 20 }}>
+          <div style={{ background: 'var(--color-error-bg)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--color-error-border)', marginBottom: 'var(--space-5, 20px)' }}>
             <div style={{ fontSize: 12, color: 'var(--color-error)', lineHeight: 1.6 }}>{t('cvModals.escalateHint')}</div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
@@ -326,14 +326,14 @@ export const ConfirmModal = ({ message, onConfirm, onCancel }: {
   return (
   <div onClick={onCancel} role="dialog" aria-modal="true" aria-label={t('cvModals.confirmOperation')} style={overlayStyle}>
     <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 400 }}>
-      <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'var(--color-warning-bg)', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'var(--color-warning-bg)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
         <AlertTriangle size={22} style={{ color: 'var(--color-warning-600)' }} />
         <div>
           <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-warning)' }}>{t('cvModals.confirmOperation')}</div>
           <div style={{ fontSize: 12, color: 'var(--color-warning)', marginTop: 2 }}>{message}</div>
         </div>
       </div>
-      <div style={{ padding: 20, display: 'flex', gap: 10 }}>
+      <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', gap: 10 }}>
         <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
         <button onClick={onConfirm} style={footerBtn(true)}>{t('cvModals.confirm')}</button>
       </div>
@@ -539,7 +539,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
     <div onClick={onClose} role="dialog" aria-modal="true" aria-label={t('cvModals.ruleSettings')} style={overlayStyle}>
       <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 800, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-primary-800)', borderRadius: '16px 16px 0 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <Settings size={20} style={{ color: '#fff' }} />
             <div>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>{t('cvModals.ruleSettings')}</div>
@@ -555,7 +555,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
             return (
               <button key={sec.key} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
                 onClick={() => setActiveSection(sec.key as typeof activeSection)}
-                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', background: active ? 'var(--bg-card)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid var(--color-primary-800)' : '2px solid transparent' }}>
+                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', background: active ? 'var(--bg-card)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)', border: 'none', borderBottom: active ? '2px solid var(--color-primary-800)' : '2px solid transparent' }}>
                 <Icon size={16} style={{ color: active ? PRIMARY_COLOR : 'var(--text-muted)' }} />
                 <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: active ? PRIMARY_COLOR : 'var(--text-muted)' }}>{sec.label}</span>
               </button>
@@ -563,11 +563,11 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
           })}
         </div>
 
-        <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: 'var(--space-5, 20px)' }}>
           {loadingRules && <LoadingBanner message={t('w9.states.loading')} />}
           {activeSection === 'range' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-3, 12px)' }}>
                 <button onClick={() => openRuleForm(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   <Plus size={14} />{t('cvModals.addRule')}
                 </button>
@@ -603,9 +603,9 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
           )}
 
           {activeSection === 'timeout' && (
-            <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-info-border)' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('cvModals.timeoutTitle')}</div>
-              <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-info-border)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t('cvModals.timeoutTitle')}</div>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
                 {[
                   { label: t('cvModals.urgentReminder'), minutes: 15, color: 'var(--color-error-600)' },
                   { label: t('cvModals.criticalReminder'), minutes: 30, color: 'var(--color-warning-600)' },
@@ -613,7 +613,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                 ].map((item) => (
                   <div key={item.label} style={{ flex: 1, padding: 14, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${item.color}` }}>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>{item.label}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                       <input type="number" defaultValue={item.minutes} aria-label={`${item.label}-${t('cvModals.minutes')}`} style={{ width: 60, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', textAlign: 'center' }} />
                       <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('cvModals.minutes')}</span>
                     </div>
@@ -624,8 +624,8 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
           )}
 
           {activeSection === 'notify' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>{t('cvModals.notifyConfig')}</div>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)' }}>{t('cvModals.notifyConfig')}</div>
               {[
                 { name: t('cvModals.notifySystemName'), desc: t('cvModals.notifySystemDesc'), icon: Bell, color: 'var(--color-primary-800)', key: 'SYSTEM' },
                 { name: t('cvModals.notifySmsName'), desc: t('cvModals.notifySmsDesc'), icon: MessageSquare, color: 'var(--color-primary-600)', key: 'SMS' },
@@ -655,35 +655,35 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
           {activeSection === 'escalation' && (
             <div>
-              <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-warning-border)', marginBottom: 'var(--space-4, 16px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                   <ArrowUp size={16} style={{ color: 'var(--color-warning-600)' }} />
                   <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('cvModals.escalationInfo')}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.7 }}>{t('cvModals.escalationInfoDesc')}</div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-3, 12px)' }}>
                 <button onClick={() => openEscForm(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid var(--color-warning-600)', background: 'var(--color-warning-600)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   <Plus size={14} />{t('cvModals.addRule')}
                 </button>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                 {escalationRules.map((rule) => {
                   const levelColors = ['var(--color-error-600)', 'var(--color-warning-600)', 'var(--color-primary-600)', '#64748b']
                   return (
-                    <div key={rule.id} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: `1px solid ${rule.enabled ? 'var(--color-success-border)' : 'var(--border-color)'}`, position: 'relative', overflow: 'hidden' }}>
+                    <div key={rule.id} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: `1px solid ${rule.enabled ? 'var(--color-success-border)' : 'var(--border-color)'}`, position: 'relative', overflow: 'hidden' }}>
                       <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: levelColors[rule.level - 1] }} />
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3, 12px)' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: levelColors[rule.level - 1], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{rule.level}</span>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('cvModals.escalateTo')}{rule.escalateTo}</span>
                             <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: rule.enabled ? 'var(--color-success-bg)' : 'var(--border-light)', color: rule.enabled ? '#059669' : 'var(--text-muted)' }}>{rule.enabled ? t('cvModals.enabled') : t('cvModals.disabled')}</span>
                           </div>
-                          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>{t('cvModals.triggerCondition')}<span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{rule.triggerCondition}</span></div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-2, 8px)' }}>{t('cvModals.triggerCondition')}<span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{rule.triggerCondition}</span></div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)' }}>
                             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                               {rule.escalateMethod.map((m) => (
                                 <span key={m} style={{ padding: '2px 8px', background: 'var(--border-color)', borderRadius: 4, fontSize: 12, color: 'var(--text-muted)' }}>{m}</span>
@@ -712,23 +712,23 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
       {showRuleForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowRuleForm(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary-800)', marginBottom: 16 }}>{editingRule ? t('cvModals.editCV') : t('cvModals.addCV')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', width: 520 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)' }}>{editingRule ? t('cvModals.editCV') : t('cvModals.addCV')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               {([['modality', 'cvModals.thDevice'], ['examItem', 'cvModals.thExamItem'], ['resultName', 'cvModals.thIndicator'], ['unit', 'cvModals.thUnit']] as const).map(([key, labelKey]) => (
                 <div key={key}>
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t(labelKey)}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t(labelKey)}</label>
                   <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={`${t('cvModals.inputPrefix')}${t(labelKey)}`} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
                 </div>
               ))}
               {([['normalMin', 'cvModals.normalMin'], ['normalMax', 'cvModals.normalMax'], ['criticalMin', 'cvModals.criticalMin'], ['criticalMax', 'cvModals.criticalMax']] as const).map(([key, labelKey]) => (
                 <div key={key}>
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t(labelKey)}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t(labelKey)}</label>
                   <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={t(labelKey)} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-5, 20px)' }}>
               <button onClick={() => setShowRuleForm(false)} style={footerBtn()}>{t('cvModals.cancel')}</button>
               <button onClick={() => void handleSaveRule()} style={footerBtn(true)}>{t('cvModals.save')}</button>
             </div>
@@ -738,33 +738,33 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
       {showEscForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowEscForm(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary-800)', marginBottom: 16 }}>{editingEsc ? t('cvModals.editEsc') : t('cvModals.addEsc')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', width: 520 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)' }}>{editingEsc ? t('cvModals.editEsc') : t('cvModals.addEsc')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.escalateLevel')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.escalateLevel')}</label>
                 <select value={escForm.level} onChange={e => setEscForm({ ...escForm, level: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }}>
                   {[1, 2, 3, 4].map(n => <option key={n} value={n}>{t('cvModals.levelN', { n })}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.timeoutTriggerMinutes')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.timeoutTriggerMinutes')}</label>
                 <input type="number" value={escForm.timeoutMinutes} onChange={e => setEscForm({ ...escForm, timeoutMinutes: Number(e.target.value) })} min={5} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('cvModals.escalateTarget')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.escalateTarget')}</label>
                 <input value={escForm.escalateTo} onChange={e => setEscForm({ ...escForm, escalateTo: e.target.value })} placeholder={t('cvModals.inputEscalateTargetPlain')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.notifyMethod')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.notifyMethod')}</label>
                 <input value={escForm.escalateMethod} onChange={e => setEscForm({ ...escForm, escalateMethod: e.target.value })} placeholder={t('cvModals.notifyMethodPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.triggerConditionLabel')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.triggerConditionLabel')}</label>
                 <input value={escForm.triggerCondition} onChange={e => setEscForm({ ...escForm, triggerCondition: e.target.value })} placeholder={t('cvModals.triggerPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-5, 20px)' }}>
               <button onClick={() => setShowEscForm(false)} style={footerBtn()}>{t('cvModals.cancel')}</button>
               <button onClick={() => void handleSaveEsc()} style={footerBtn(true)}>{t('cvModals.save')}</button>
             </div>

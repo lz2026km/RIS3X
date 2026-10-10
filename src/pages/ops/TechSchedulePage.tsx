@@ -296,7 +296,7 @@ export default function TechSchedulePage() {
     <div data-testid="tech-schedule-page" style={{ background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <CalendarDays size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('techSchedule.title')}</span>
           <span style={{
@@ -308,7 +308,7 @@ export default function TechSchedulePage() {
             {dataSource === 'api' ? t('techSchedule.apiLive') : t('techSchedule.demoData')}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('techSchedule.headerHint')}</span>
           <span title={t('techSchedule.refreshData')} style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => void load()}>
             <RefreshCw size={16} />
@@ -318,7 +318,7 @@ export default function TechSchedulePage() {
 
       {/* ================= 统计卡 ================= */}
       <div style={{ padding: '20px 24px 0' }}>
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
           {[
             { title: t('techSchedule.kpiMonthShifts'), value: stats.totalShifts, icon: <ClipboardList size={20} />, color: C.blue },
             { title: t('techSchedule.kpiTechnicians'), value: stats.technicianCount, icon: <Users size={20} />, color: C.teal },
@@ -326,7 +326,7 @@ export default function TechSchedulePage() {
             { title: t('techSchedule.kpiNight'), value: stats.nightShiftCount, icon: <Moon size={20} />, color: C.purple },
           ].map((kpi) => (
             <div key={kpi.title} style={{ flex: 1, minWidth: 180, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
                 <span style={{ color: kpi.color }}>{kpi.icon}</span>
               </div>
@@ -337,14 +337,14 @@ export default function TechSchedulePage() {
       </div>
 
       {/* ================= 工具栏 ================= */}
-      <div style={{ padding: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <Button size="small" icon={<ChevronLeft size={14} />} onClick={() => setMonth(shiftMonth(month, -1))} />
           <span style={{ fontSize: 14, fontWeight: 600, minWidth: 90, textAlign: 'center' }}>{monthLabel}</span>
           <Button size="small" icon={<ChevronRight size={14} />} onClick={() => setMonth(shiftMonth(month, 1))} />
           <Button size="small" onClick={() => setMonth(monthStr())}>{t('techSchedule.thisMonth')}</Button>
         </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)}
             style={inputStyle} data-testid="ts-filter-date"
@@ -429,18 +429,18 @@ export default function TechSchedulePage() {
                       </tr>
                     ))}
                     {visibleTechs.length === 0 && (
-                      <tr><td colSpan={calendar.days.length + 1} style={{ ...tdStyle, textAlign: 'center', color: C.textMid, padding: 24 }}>{t('techSchedule.noTechnicianData')}</td></tr>
+                      <tr><td colSpan={calendar.days.length + 1} style={{ ...tdStyle, textAlign: 'center', color: C.textMid, padding: 'var(--space-6, 24px)' }}>{t('techSchedule.noTechnicianData')}</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
             )}
-            {!calendar && !loading && <Empty description={t('techSchedule.noCalendarData')} style={{ padding: 40 }} />}
+            {!calendar && !loading && <Empty description={t('techSchedule.noCalendarData')} style={{ padding: 'var(--space-10, 40px)' }} />}
           </Spin>
         </div>
 
         {/* 图例 */}
-        <div style={{ marginTop: 12, padding: '10px 16px', background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)', padding: '10px 16px', background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{t('techSchedule.shiftLegend')}</span>
           {SHIFT_LIST.map((s) => (
             <span key={s} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: SHIFT_CONFIG[s].color }}>
@@ -459,8 +459,8 @@ export default function TechSchedulePage() {
 
       {/* ================= 技师班次分布 ================= */}
       <div style={{ padding: '0 24px 24px' }}>
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Users size={16} color={C.teal} /> {t('techSchedule.techShiftDistribution')} ({monthLabel})
           </div>
           {stats.byTechnician.length === 0 ? (
@@ -480,7 +480,7 @@ export default function TechSchedulePage() {
                   render: (_: unknown, row: TechStats['byTechnician'][number]) => {
                     const pct = stats.totalShifts > 0 ? Math.round((row.count / stats.totalShifts) * 100) : 0
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         <div style={{ flex: 1, maxWidth: 240, height: 6, borderRadius: 3, background: '#1c2129' }}>
                           <div style={{ width: `${pct}%`, height: 6, borderRadius: 3, background: C.blue }} />
                         </div>
@@ -506,7 +506,7 @@ export default function TechSchedulePage() {
       >
         {detail && (
           <div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
               {[
                 { label: t('techSchedule.technician'), value: detail.technicianName },
                 { label: t('techSchedule.examRoom'), value: detail.roomName ?? t('techSchedule.unassigned') },
@@ -521,7 +521,7 @@ export default function TechSchedulePage() {
               {detail.swapReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.swapReason')}</div><div style={{ fontSize: 12, color: C.orange }}>{detail.swapReason}</div></div>}
               {detail.leaveReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.leaveReason')}</div><div style={{ fontSize: 12, color: C.red }}>{detail.leaveReason}</div></div>}
             </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
               {detail.status !== 'CONFIRMED' && detail.status !== 'ON_LEAVE' && (
                 <Tooltip title={t('techSchedule.confirmThis')}>
                   <Button size="small" type="primary" icon={<CheckCircle2 size={14} />} onClick={() => void handleConfirm(detail.id)}>{t('techSchedule.confirm')}</Button>
@@ -548,7 +548,7 @@ export default function TechSchedulePage() {
 
       {/* ================= 新建排班弹窗 ================= */}
       <Modal title={t('techSchedule.createScheduleTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreate()} width={440} destroyOnClose>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.date')}</label>
           <input type="date" value={createForm.date} onChange={(e) => setCreateForm({ ...createForm, date: e.target.value })} style={inputStyle} data-testid="ts-create-date" />
           <label style={labelStyle}>{t('techSchedule.shift')}</label>
@@ -570,13 +570,13 @@ export default function TechSchedulePage() {
 
       {/* ================= 批量生成弹窗 ================= */}
       <Modal title={t('techSchedule.batchGenerateTitle')} open={batchOpen} onCancel={() => setBatchOpen(false)} onOk={() => void handleBatch()} width={440} destroyOnClose>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.startDate')}</label>
           <input type="date" value={batchForm.startDate} onChange={(e) => setBatchForm({ ...batchForm, startDate: e.target.value })} style={inputStyle} />
           <label style={labelStyle}>{t('techSchedule.endDate')}</label>
           <input type="date" value={batchForm.endDate} onChange={(e) => setBatchForm({ ...batchForm, endDate: e.target.value })} style={inputStyle} />
           <label style={labelStyle}>{t('techSchedule.shiftPattern')}</label>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
             {SHIFT_LIST.map((s) => {
               const on = batchForm.pattern.includes(s)
               return (
@@ -598,7 +598,7 @@ export default function TechSchedulePage() {
 
       {/* ================= 换班弹窗 ================= */}
       <Modal title={detail ? t('w9e.techSchedule.swapModalTitle', { name: detail.technicianName, shift: t(SHIFT_CONFIG[detail.shift]?.label ?? detail.shift) }) : t('techSchedule.swap')} open={swapOpen} onCancel={() => setSwapOpen(false)} onOk={() => void handleSwap()} width={420} destroyOnClose>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.targetTechLabel')}</label>
           <Select size="small" placeholder={t('techSchedule.selectTargetTech')} value={swapForm.targetTechId || undefined} onChange={(v) => setSwapForm({ ...swapForm, targetTechId: v })}
             style={{ width: '100%' }}
@@ -610,7 +610,7 @@ export default function TechSchedulePage() {
 
       {/* ================= 请假弹窗 ================= */}
       <Modal title={t('techSchedule.leaveRegister')} open={leaveOpen} onCancel={() => setLeaveOpen(false)} onOk={() => void handleLeave()} width={420} destroyOnClose>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.leaveReasonLabel')}</label>
           <input type="text" value={leaveReason} onChange={(e) => setLeaveReason(e.target.value)} placeholder={t('techSchedule.placeholderLeaveReason')} style={inputStyle} />
         </div>
@@ -618,7 +618,7 @@ export default function TechSchedulePage() {
 
       {/* ================= 编辑弹窗 ================= */}
       <Modal title={t('techSchedule.editScheduleTitle')} open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => void handleEdit()} width={440} destroyOnClose>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.date')}</label>
           <input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} style={inputStyle} />
           <label style={labelStyle}>{t('techSchedule.shift')}</label>

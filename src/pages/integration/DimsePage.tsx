@@ -173,7 +173,7 @@ export const DimsePage: React.FC = () => {
       label: <Space><SearchOutlined />MWL (C-FIND)</Space>,
       children: (
         <>
-          <Card size="small" style={{ marginBottom: 16 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Form form={mwlForm} layout="inline" onFinish={handleMwlQuery} initialValues={{ modality: undefined }}>
               <Form.Item name="patientName" label={t('dimse.labelName')}><Input placeholder={t('dimse.placeholderPatientName')} allowClear /></Form.Item>
               <Form.Item name="patientId" label={t('dimse.labelNumber')}><Input placeholder={t('dimse.placeholderPatientId')} allowClear /></Form.Item>
@@ -209,7 +209,7 @@ export const DimsePage: React.FC = () => {
           >
             <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>{t('dimse.selectDcm')}</Button>
           </Upload>
-          <Alert title={t('dimse.uploadHint')} type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
+          <Alert title={t('dimse.uploadHint')} type="info" showIcon style={{ marginTop: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }} />
           <DataTable scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
@@ -219,7 +219,7 @@ export const DimsePage: React.FC = () => {
       label: <Space><ForwardOutlined />C-MOVE</Space>,
       children: (
         <>
-          <Card size="small" style={{ marginBottom: 16 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Form form={moveForm} layout="inline" onFinish={handleMove}>
               <Form.Item name="studyUid" label={t('dimse.labelStudyUid')} rules={[{ required: true, message: t('dimse.enterStudyUid') }]}>
                 <Input placeholder="1.2.840.xxxxx" style={{ width: 320 }} />
@@ -245,14 +245,14 @@ export const DimsePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimse.title')}</span>
         <Tag color="blue">v3.0</Tag>
         <Tag color="gold">{t('dimse.demoData')}</Tag>
       </Space>
-      <Alert title={t('dimse.demoAlert')} type="warning" showIcon style={{ marginBottom: 16 }} />
-      <Alert title={t('dimse.introAlert')} type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title={t('dimse.demoAlert')} type="warning" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} />
+      <Alert title={t('dimse.introAlert')} type="info" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} />
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
     </div>
   );

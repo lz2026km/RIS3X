@@ -78,7 +78,7 @@ export function RqiIndicatorLink({
     <div
       data-testid={testId ?? `rqi-link-${code}`}
       style={{
-        marginBottom: 16,
+        marginBottom: 'var(--space-4, 16px)',
         padding: "12px 16px",
         borderRadius: 10,
         border,
@@ -132,7 +132,7 @@ export function RqiIndicatorLink({
         <span
           style={{
             display: "inline-block",
-            marginTop: 4,
+            marginTop: 'var(--space-1, 4px)',
             padding: "1px 8px",
             borderRadius: 10,
             fontSize: 11,
@@ -149,7 +149,7 @@ export function RqiIndicatorLink({
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 4,
+          gap: 'var(--space-1, 4px)',
           fontSize: 12,
           fontWeight: 600,
           color: accent,

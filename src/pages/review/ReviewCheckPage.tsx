@@ -133,7 +133,7 @@ export const ReviewCheckPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <ClipboardCheck size={20} color="var(--color-primary-600)" />
         <FileCheck size={20} color="#52c41a" />
         <Shield size={20} color="#722ed1" />
@@ -142,7 +142,7 @@ export const ReviewCheckPage: React.FC = () => {
         <Tag color="green">{t('reviewCheck.tagReportFlow')}</Tag>
       </Space>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('reviewCheck.statInitialPending')} value={filteredInitial.length} color="warning" icon={<FileSearch size={18} />} />
         <StatCard title={t('reviewCheck.statFinalPending')} value={finalItems.length} color="primary" icon={<FileCheck size={18} />} />
         <StatCard title={t('reviewCheck.statReviewPending')} value={reviews.length} color="#722ed1" icon={<Shield size={18} />} />
@@ -311,7 +311,7 @@ export const ReviewCheckPage: React.FC = () => {
 
 function AlertTitle({ text }: { text: string }) {
   return (
-    <div style={{ marginBottom: 12, padding: '8px 12px', background: '#e6f4ff', borderRadius: 6, fontSize: 12 }}>
+    <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: '#e6f4ff', borderRadius: 6, fontSize: 12 }}>
       <PenTool size={12} style={{ marginRight: 6, color: 'var(--color-primary-600)' }} />
       {text}
     </div>

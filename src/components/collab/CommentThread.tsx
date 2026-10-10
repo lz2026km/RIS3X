@@ -174,7 +174,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
           opacity: c.status === 'archived' ? 0.55 : 1,
         }}
       >
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <div
             style={{
               width: 28,
@@ -200,11 +200,11 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
               {c.editedAt && <Tag style={{ fontSize: 12, marginInline: 0 }}>已编辑</Tag>}
               {c.recalled && <Tag color="default" style={{ fontSize: 12, marginInline: 0 }}>已撤回</Tag>}
             </Space>
-            <div style={{ fontSize: 12, color: '#334155', marginTop: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            <div style={{ fontSize: 12, color: '#334155', marginTop: 'var(--space-1, 4px)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
               {c.content}
             </div>
             {c.mentions.length > 0 && (
-              <div style={{ marginTop: 4 }}>
+              <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                 {c.mentions.map((m) => (
                   <Tag key={m} color="blue" style={{ fontSize: 12 }}>
                     @{m}
@@ -213,7 +213,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
               </div>
             )}
             {c.reactions.length > 0 && (
-              <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                 {c.reactions.map((r) => {
                   const ReactionIco = REACTION_ICON_MAP[r.emoji];
                   return (
@@ -239,7 +239,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                 })}
               </div>
             )}
-            <Space size={4} style={{ marginTop: 4 }}>
+            <Space size={4} style={{ marginTop: 'var(--space-1, 4px)' }}>
               <Button
                 size="small"
                 type="text"
@@ -300,7 +300,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
               )}
             </Space>
             {activeEmojiFor === c.id && (
-              <div style={{ marginTop: 4, display: 'flex', gap: 4 }}>
+              <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 {REACTION_OPTIONS.map(({ key, Icon: ReactionIco, label }) => (
                   <button
                     key={key}
@@ -335,7 +335,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                   placeholder={`回复 ${c.authorName}…`}
                   data-testid={`${testIdPrefix}-reply-input-${c.id}`}
                 />
-                <Space style={{ marginTop: 4 }}>
+                <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
                   <Button size="small" type="primary" icon={<Send size={11} />} onClick={() => submitReply(c.id)}>
                     发送
                   </Button>
@@ -380,7 +380,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
           </Space>
         </div>
       </div>
-      <div style={{ padding: 8, background: 'var(--bg-card)', borderBottom: '1px solid #e2e8f0' }}>
+      <div style={{ padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderBottom: '1px solid #e2e8f0' }}>
         <Input.TextArea
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
@@ -407,7 +407,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
       </div>
       <div style={{ maxHeight, overflowY: 'auto' }} data-testid={`${testIdPrefix}-list`}>
         {filtered.length === 0 ? (
-          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
+          <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
             <Tooltip title="没有匹配的评论">
               <MessageSquare size={20} style={{ opacity: 0.4 }} />
             </Tooltip>

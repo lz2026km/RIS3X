@@ -65,7 +65,7 @@ export default function StaffDoseMonitoring() {
   }));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
       {dataSource === "demo" && (
@@ -78,7 +78,7 @@ export default function StaffDoseMonitoring() {
           fontSize: 12,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <AlertTriangle size={14} /> {t("w8Dose.staffDemo")}
@@ -88,7 +88,7 @@ export default function StaffDoseMonitoring() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}
       >
         <div style={kpiBox}>
@@ -143,7 +143,7 @@ export default function StaffDoseMonitoring() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -152,7 +152,7 @@ export default function StaffDoseMonitoring() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           月度人员剂量对比
@@ -191,7 +191,7 @@ export default function StaffDoseMonitoring() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -200,7 +200,7 @@ export default function StaffDoseMonitoring() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           个人剂量监测记录
@@ -229,7 +229,7 @@ export default function StaffDoseMonitoring() {
                   const badgeBg = isHighRisk ? "#fef2f2" : v < 80 ? "#fffbeb" : "#f0fdf4";
                   const badgeColor = isHighRisk ? "var(--color-error-600)" : v < 80 ? "var(--color-warning-600)" : "var(--color-success-600)";
                   return (
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", background: badgeBg, color: badgeColor, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)', padding: "2px 8px", background: badgeBg, color: badgeColor, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                       {v}%
                     </div>
                   );
@@ -266,5 +266,5 @@ const kpiVal = (color: string): React.CSSProperties => ({
   fontSize: 24,
   fontWeight: 800,
   color,
-  marginTop: 4,
+  marginTop: 'var(--space-1, 4px)',
 });

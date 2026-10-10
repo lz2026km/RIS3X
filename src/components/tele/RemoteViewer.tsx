@@ -390,8 +390,8 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: 12,
-        padding: 16,
+        gap: 'var(--space-3, 12px)',
+        padding: 'var(--space-4, 16px)',
         background: "#0f172a",
         color: "#e2e8f0",
         borderRadius: 8,
@@ -454,9 +454,9 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 12, flex: 1, minHeight: 0 }}>
+      <div style={{ display: "flex", gap: 'var(--space-3, 12px)', flex: 1, minHeight: 0 }}>
         <div
-          style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}
+          style={{ flex: 1, display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}
         >
           <div
             ref={cursorContainerRef}
@@ -520,7 +520,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
                 />
                 <span
                   style={{
-                    marginLeft: 4,
+                    marginLeft: 'var(--space-1, 4px)',
                     padding: "1px 4px",
                     background: c.color,
                     color: "white",
@@ -587,7 +587,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
             >
               <MessageSquare
                 size={12}
-                style={{ marginRight: 4, verticalAlign: "middle" }}
+                style={{ marginRight: 'var(--space-1, 4px)', verticalAlign: "middle" }}
               />
               Chat
             </div>
@@ -595,10 +595,10 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
               style={{
                 flex: 1,
                 overflowY: "auto",
-                padding: 8,
+                padding: 'var(--space-2, 8px)',
                 display: "flex",
                 flexDirection: "column",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               {messages.map((msg, i) => (

@@ -168,15 +168,15 @@ const SnomedEncoderPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Card style={{ marginBottom: 16 }}>
-        <Space style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Code size={24} color="var(--color-primary-500)" />
           <Title level={4} style={{ margin: 0 }}>{t('snomedEncoder.title')}</Title>
         </Space>
         <Text type="secondary">{t('snomedEncoder.subtitle')}</Text>
       </Card>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('snomedEncoder.statMatched')} value={codes.length} color="primary" />
         <StatCard title={t('snomedEncoder.statExact')} value={exactCount} color="success" />
         <StatCard title={t('snomedEncoder.statPartial')} value={partialCount} color="warning" />
@@ -213,7 +213,7 @@ const SnomedEncoderPage: React.FC = () => {
               placeholder={t('snomedEncoder.textPlaceholder')}
               style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6 }}
             />
-            <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', justifyContent: 'space-between' }}>
               <Text type="secondary" style={{ fontSize: 12 }}>
                 {t('snomedEncoder.charCount', { count: text.length })}
               </Text>
@@ -230,7 +230,7 @@ const SnomedEncoderPage: React.FC = () => {
           <Card
             title={<Space><Search size={14} color="#8b5cf6" />{t('snomedEncoder.searchTitle')}</Space>}
           >
-            <Space.Compact style={{ width: '100%', marginBottom: 12 }}>
+            <Space.Compact style={{ width: '100%', marginBottom: 'var(--space-3, 12px)' }}>
               <Input
                 value={searchQ}
                 onChange={e => setSearchQ(e.target.value)}
@@ -248,7 +248,7 @@ const SnomedEncoderPage: React.FC = () => {
                   <div
                     key={c.conceptId}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0',
+                      display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 0',
                       borderBottom: '1px solid #f1f5f9', cursor: 'pointer',
                     }}
                     onClick={() => {
@@ -272,7 +272,7 @@ const SnomedEncoderPage: React.FC = () => {
                 ))}
               </div>
             ) : searchQ && !searchLoading ? (
-              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('snomedEncoder.noTermMatch')} style={{ padding: 24 }} />
+              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('snomedEncoder.noTermMatch')} style={{ padding: 'var(--space-6, 24px)' }} />
             ) : null}
           </Card>
         </Col>
@@ -287,7 +287,7 @@ const SnomedEncoderPage: React.FC = () => {
               <Tag>{t('snomedEncoder.codeCount', { count: codes.length })}</Tag>
             </Space>
           }
-          style={{ marginTop: 16 }}
+          style={{ marginTop: 'var(--space-4, 16px)' }}
         >
           <DataTable
             dataSource={codes}
@@ -300,7 +300,7 @@ const SnomedEncoderPage: React.FC = () => {
       )}
 
       {codes.length === 0 && !loading && text && (
-        <Card style={{ marginTop: 16, textAlign: 'center', padding: 40 }}>
+        <Card style={{ marginTop: 'var(--space-4, 16px)', textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
           <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('snomedEncoder.noMatch')} />
         </Card>
       )}

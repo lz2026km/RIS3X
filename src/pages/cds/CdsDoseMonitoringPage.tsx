@@ -92,7 +92,7 @@ export default function CdsDoseMonitoringPage() {
       render: (_: unknown, r: any) => (
         <div>
           <span>{r.patientName || t('cdsDose.unknownPatient')}</span>
-          <span style={{ fontSize: 12, color: '#6e7681', marginLeft: 8 }}>{r.examType || '-'}</span>
+          <span style={{ fontSize: 12, color: '#6e7681', marginLeft: 'var(--space-2, 8px)' }}>{r.examType || '-'}</span>
         </div>
       ),
     },
@@ -121,7 +121,7 @@ export default function CdsDoseMonitoringPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <Gauge size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('cdsDose.title')}</span>
         </div>
@@ -131,35 +131,35 @@ export default function CdsDoseMonitoringPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)', flexWrap: 'wrap' }}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 8 }}>{t('cdsDose.stat.recordCount')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-2, 8px)' }}>{t('cdsDose.stat.recordCount')}</div>
             <div style={{ fontSize: 24, fontWeight: 700 }}>{data.records.length}</div>
           </div>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 8 }}>{t('cdsDose.stat.avgDlp')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-2, 8px)' }}>{t('cdsDose.stat.avgDlp')}</div>
             <div style={{ fontSize: 24, fontWeight: 700 }}>{avgDlp}</div>
           </div>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid #ef444455', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
-            <div style={{ fontSize: 12, color: 'var(--color-error-400, #f87171)', marginBottom: 8 }}>{t('cdsDose.stat.exceeded')}</div>
+            <div style={{ fontSize: 12, color: 'var(--color-error-400, #f87171)', marginBottom: 'var(--space-2, 8px)' }}>{t('cdsDose.stat.exceeded')}</div>
             <div style={{ fontSize: 24, fontWeight: 700, color: exceeded.length ? 'var(--color-error-500, var(--color-error-500))' : 'var(--text-primary, #f0f6fc)' }}>{exceeded.length}</div>
           </div>
         </div>
 
         {error && (
-          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 16 }}>
+          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>
             {t('cdsDose.loadFailed')}: {error}
           </div>
         )}
 
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={16} style={{ color: 'var(--color-warning-500, var(--color-warning-500))' }} /> {t('cdsDose.recordsTitle')}
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden', marginBottom: 'var(--space-6, 24px)' }}>
           <DataTable dataSource={data.records} rowKey={(r: any) => r.id || `${r.patientName}-${r.recordedAt}`} columns={recordColumns} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('cdsDose.emptyRecords')} />
         </div>
 
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <ShieldCheck size={16} style={{ color: 'var(--color-success-500, var(--color-success-500))' }} /> {t('cdsDose.thresholdTitle')}
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>

@@ -177,15 +177,15 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Send size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.referralTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Tag color="purple">{t('dentalRadFusion.dentalRad')}</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('dentalRadFusion.refresh')}</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalRadFusion.retry')}</Button>} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalRadFusion.retry')}</Button>} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalRadFusion.statTotalReferrals')} value={referrals.length} icon={<Send size={16} />} />
         <StatCard title={t('dentalRadFusion.statPending')} value={referrals.filter(r => r.status === 'pending').length} color="warning" />
         <StatCard title={t('dentalRadFusion.statAccepted')} value={referrals.filter(r => r.status === 'accepted').length} color="success" />
@@ -243,7 +243,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
               <Descriptions.Item label={t('dentalRadFusion.createdAt')}>{detailRow.createdAt ? detailRow.createdAt.replace('T', ' ').slice(0, 16) : '—'}</Descriptions.Item>
             </Descriptions>
             <Alert
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 'var(--space-3, 12px)' }}
               type="info"
               showIcon
               message={t('dentalRadFusion.fusionParamsTitle')}
@@ -291,15 +291,15 @@ export const CBCTUnifiedReportPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.cbctReportTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
       <Row gutter={16}>
         <Col span={6}>
-          <Card size="small" title={t('dentalRadFusion.studyList')} bodyStyle={{ padding: 8 }}>
+          <Card size="small" title={t('dentalRadFusion.studyList')} bodyStyle={{ padding: 'var(--space-2, 8px)' }}>
             <Spin spinning={loading}>
               {reports.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalRadFusion.noCbctStudies')} />}
               {reports.map(r => (
@@ -334,26 +334,26 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                         <Descriptions.Item label={t('dentalRadFusion.scanType')}>{selected.scanType ?? '-'}</Descriptions.Item>
                         <Descriptions.Item label={t('dentalRadFusion.indications')}>{selected.indications ?? '-'}</Descriptions.Item>
                       </Descriptions>
-                      <div style={{ marginTop: 12, color: 'var(--text-secondary)', fontSize: 12 }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', color: 'var(--text-secondary)', fontSize: 12 }}>
                         {t('dentalRadFusion.dentalFinding')}
                       </div>
-                      <Tag color="blue" style={{ marginTop: 8 }}>{t('dentalRadFusion.chronicApicalTag')}</Tag>
-                      {selected.quality && <Tag color="green" style={{ marginTop: 8 }}>{t('dentalRadFusion.qualityLabel')} {selected.quality}</Tag>}
+                      <Tag color="blue" style={{ marginTop: 'var(--space-2, 8px)' }}>{t('dentalRadFusion.chronicApicalTag')}</Tag>
+                      {selected.quality && <Tag color="green" style={{ marginTop: 'var(--space-2, 8px)' }}>{t('dentalRadFusion.qualityLabel')} {selected.quality}</Tag>}
                     </Card>
                   </Col>
                   <Col span={12}>
                     <Card size="small" title={t('dentalRadFusion.radiologyReport')}>
-                      <div style={{ marginBottom: 8, color: 'var(--text-secondary)', fontSize: 12 }}>{t('dentalRadFusion.radiologyFinding')}</div>
+                      <div style={{ marginBottom: 'var(--space-2, 8px)', color: 'var(--text-secondary)', fontSize: 12 }}>{t('dentalRadFusion.radiologyFinding')}</div>
                       {selected.aiAnalysis && (
-                        <div style={{ marginBottom: 8 }}>
+                        <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                           <Tag color="purple">{t('dentalRadFusion.cariesDetected')} {selected.aiAnalysis.cariesDetected ?? 0}</Tag>
                           <Tag color="orange">{t('dentalRadFusion.boneLoss')} {selected.aiAnalysis.boneLossLevel ?? '-'}</Tag>
                           <Tag color="gold">{t('dentalRadFusion.periapicalLesions')} {selected.aiAnalysis.periapicalLesions ?? 0}</Tag>
                         </div>
                       )}
                       <Tag color="purple">{t('dentalRadFusion.chronicApicalWithResorption')}</Tag>
-                      <Tag color="orange" style={{ marginLeft: 4 }}>{t('dentalRadFusion.rightMaxillarySinusitis')}</Tag>
-                      <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
+                      <Tag color="orange" style={{ marginLeft: 'var(--space-1, 4px)' }}>{t('dentalRadFusion.rightMaxillarySinusitis')}</Tag>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>
                         {t('dentalRadFusion.aiConfidence')} {selected.aiAnalysis?.confidence ? `${Math.round(selected.aiAnalysis.confidence * 100)}%` : '-'} · {t('dentalRadFusion.modelLabel')} {selected.aiAnalysis?.modelVersion ?? '-'}
                       </div>
                     </Card>
@@ -404,18 +404,18 @@ export const DentalRadFusionPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <ActivityIcon size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.fusionViewerTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setTab('compare')}>{t('dentalRadFusion.refresh')}</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
       <Tabs activeKey={tab} onChange={setTab} items={[
         { key: 'compare', label: t('dentalRadFusion.tabCompare'), children:
           <Row gutter={16}>
             <Col span={6}>
-              <Card size="small" title={t('dentalRadFusion.fusionStudiesScan')} bodyStyle={{ padding: 8 }}>
+              <Card size="small" title={t('dentalRadFusion.fusionStudiesScan')} bodyStyle={{ padding: 'var(--space-2, 8px)' }}>
                 <Spin spinning={loading}>
                   {fusionStudies.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalRadFusion.noScanStudies')} />}
                   {fusionStudies.map(s => (
@@ -439,7 +439,7 @@ export const DentalRadFusionPage: React.FC = () => {
               <Card size="small" title={t('dentalRadFusion.panoramicTitle')}>
                 <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
                   <ActivityIcon size={24} />
-                  <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} ${t('dentalRadFusion.panoramic')}` : t('dentalRadFusion.panoramicSim')}</div>
+                  <div style={{ marginTop: 'var(--space-2, 8px)' }}>{selected ? `${selected.patientName} ${t('dentalRadFusion.panoramic')}` : t('dentalRadFusion.panoramicSim')}</div>
                 </div>
               </Card>
             </Col>
@@ -447,7 +447,7 @@ export const DentalRadFusionPage: React.FC = () => {
               <Card size="small" title={t('dentalRadFusion.cephTitle')}>
                 <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
                   <FileText size={24} />
-                  <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} ${t('dentalRadFusion.ceph')}` : t('dentalRadFusion.cephSim')}</div>
+                  <div style={{ marginTop: 'var(--space-2, 8px)' }}>{selected ? `${selected.patientName} ${t('dentalRadFusion.ceph')}` : t('dentalRadFusion.cephSim')}</div>
                 </div>
               </Card>
             </Col>
@@ -457,8 +457,8 @@ export const DentalRadFusionPage: React.FC = () => {
           <Card size="small" title={selected ? `${t('w9d.referral.overlayTitle')} (${selected.patientName})` : t('dentalRadFusion.overlayTitleWebgl')}>
             <div style={{ height: 300, background: '#0a0a1a', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
               <ActivityIcon size={28} />
-              <div style={{ marginTop: 8 }}>{t('dentalRadFusion.overlayTitleWebgl')}</div>
-              {selected && <Tag color="cyan" style={{ marginTop: 8 }}>{selected.id}</Tag>}
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>{t('dentalRadFusion.overlayTitleWebgl')}</div>
+              {selected && <Tag color="cyan" style={{ marginTop: 'var(--space-2, 8px)' }}>{selected.id}</Tag>}
             </div>
           </Card>
         },

@@ -104,14 +104,14 @@ export default function ContrastQualityCompliancePage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#7c3aed,#4c1d95)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>对比剂质量与合规</span>
           {/* [G005 W7] 真实 service 层优先; 回退本地 mock 时展示演示数据徽标 */}
           {source === 'fallback' && (
             <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.12)', color: 'var(--color-warning-400)', border: '1px solid rgba(251,191,36,0.45)', fontWeight: 600 }}>{t('w7demo.contrastFallback')}</span>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
             <Download size={14} />导出报告
           </button>
@@ -121,11 +121,11 @@ export default function ContrastQualityCompliancePage() {
         </div>
       </div>
 
-      <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
         {loadError && (
           <ErrorBanner message={loadError} onRetry={() => void run()} retryLabel={t('w7demo.retry')} />
         )}
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button onClick={() => setActiveCategory(null)} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: !activeCategory ? '#7c3aed' : 'transparent', color: !activeCategory ? '#fff' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>全部</button>
           {categories.map(cat => (
             <button key={cat} onClick={() => setActiveCategory(activeCategory === cat ? null : cat)} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: activeCategory === cat ? CATEGORY_COLORS[cat] : 'transparent', color: activeCategory === cat ? '#fff' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
@@ -135,24 +135,24 @@ export default function ContrastQualityCompliancePage() {
         </div>
 
         {filtered.length === 0 && <AppEmpty variant="no-data" minHeight={160} />}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-3, 12px)' }}>
           {filtered.map(m => (
-            <div key={m.id} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+            <div key={m.id} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3, 12px)' }}>
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{CATEGORY_LABELS[m.category]}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{CATEGORY_LABELS[m.category]}</div>
                   <div style={{ fontSize: 14, fontWeight: 600 }}>{m.name}</div>
                 </div>
                 <span style={{ padding: '2px 6px', borderRadius: 3, fontSize: 12, color: m.trend === 'up' && m.category === 'usage' ? 'var(--color-error-500)' : m.trend === 'down' && m.category === 'safety' ? 'var(--color-success-500)' : m.trend === 'up' ? 'var(--color-success-500)' : m.trend === 'down' ? 'var(--color-error-500)' : 'var(--text-muted, #8b949e)', background: 'transparent' }}>
                   {m.trend === 'up' ? <TrendingUp size={14} /> : m.trend === 'down' ? <TrendingDown size={14} /> : null}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 30, fontWeight: 700 }}>{m.currentValue}</span>
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{m.unit}</span>
                 <span style={{ fontSize: 12, color: '#6e7681' }}>/ 目标 {m.targetValue}{m.unit}</span>
               </div>
-              <div style={{ height: 4, background: 'var(--bg-primary, #0d1117)', borderRadius: 2, marginBottom: 8, overflow: 'hidden' }}>
+              <div style={{ height: 4, background: 'var(--bg-primary, #0d1117)', borderRadius: 2, marginBottom: 'var(--space-2, 8px)', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${Math.min(100, (m.currentValue / m.targetValue) * 100)}%`, background: m.currentValue >= m.targetValue ? 'var(--color-success-500)' : 'var(--color-warning-500)', borderRadius: 2 }} />
               </div>
               <div style={{ fontSize: 12, color: '#6e7681' }}>{m.details}</div>
@@ -160,14 +160,14 @@ export default function ContrastQualityCompliancePage() {
           ))}
         </div>
 
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, marginBottom: 12 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)' }}>
             <Shield size={16} />合规检查项
           </div>
           {regulatoryChecks.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
             {regulatoryChecks.map(check => (
-              <div key={check.checkId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
+              <div key={check.checkId} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
                 {check.status === 'pass' ? <CheckCircle size={16} style={{ color: 'var(--color-success-500)' }} /> : check.status === 'fail' ? <XCircle size={16} style={{ color: 'var(--color-error-500)' }} /> : <AlertTriangle size={16} style={{ color: 'var(--color-warning-500)' }} />}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12 }}>{check.name}</div>

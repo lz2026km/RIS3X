@@ -48,7 +48,7 @@ function DualBarChart({ items }: { items: CompareItem[] }) {
   const maxVal = Math.max(...items.flatMap((i) => [i.current, i.previous]), 1)
   const barMaxH = 120
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: barMaxH + 40, padding: '0 4px', position: 'relative' }}>
+    <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'flex-end', height: barMaxH + 40, padding: '0 4px', position: 'relative' }}>
       {items.map((item, idx) => {
         const hCurr = (item.current / maxVal) * barMaxH
         const hPrev = (item.previous / maxVal) * barMaxH
@@ -149,7 +149,7 @@ export default function BenchmarkV2({
   const chartContent = useMemo(() => {
     if (!items.length) {
       return (
-        <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8', fontSize: 12 }}>
           请选择维度以查看对比图表
         </div>
       )
@@ -196,16 +196,16 @@ export default function BenchmarkV2({
             value={chartType}
             onChange={(v) => onChartTypeChange(v as ChartType)}
             options={[
-              { label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><BarChart3 size={14} />柱</span>, value: 'bar' },
-              { label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><LineChart size={14} />折线</span>, value: 'line' },
-              { label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Activity size={14} />雷达</span>, value: 'radar' },
+              { label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><BarChart3 size={14} />柱</span>, value: 'bar' },
+              { label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><LineChart size={14} />折线</span>, value: 'line' },
+              { label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Activity size={14} />雷达</span>, value: 'radar' },
             ]}
           />
         </Space>
       }
     >
       {data && (
-        <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Col span={6}>
             <Statistic title="当前值" value={data.current} suffix={metricCode === 'exam_count' ? '例' : '%'} styles={{ content: {  color: 'var(--color-primary-500)'  } }} />
           </Col>

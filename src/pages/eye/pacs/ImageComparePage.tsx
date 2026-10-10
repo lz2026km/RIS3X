@@ -48,7 +48,7 @@ const ImageComparePage: React.FC = () => {
     return (
       <div
         style={{
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           background: "var(--bg-card)",
           minHeight: "calc(100vh - 56px)",
           display: "flex",
@@ -79,13 +79,13 @@ const ImageComparePage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
       <Row gutter={12}>
-        <Col span={24} style={{ marginBottom: 12 }}>
+        <Col span={24} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Space>
             <ArrowLeftRight size={20} color="var(--color-primary-600)" />
             <span style={{ fontSize: 16, fontWeight: 600 }}>{t('w9d.imageCompare.title')}</span>
@@ -133,7 +133,7 @@ const ImageComparePage: React.FC = () => {
             >
               {t('w9d.imageCompare.priorImage')}
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
               {pair.priorModality}
             </div>
           </Card>
@@ -171,7 +171,7 @@ const ImageComparePage: React.FC = () => {
             >
               {t('w9d.imageCompare.currentImage')}
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
               {pair.currentModality}
             </div>
           </Card>
@@ -237,11 +237,11 @@ const ImageComparePage: React.FC = () => {
             scroll={{ x: 'max-content' }}
             />
           </Card>
-          <Card size="small" title={t('w9d.imageCompare.aiProgression')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.imageCompare.aiProgression')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, lineHeight: 1.8, color: "var(--text-secondary)" }}>
               {pair.aiProgression}
             </div>
-            <div style={{ fontSize: 12, fontWeight: 600, marginTop: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginTop: 'var(--space-2, 8px)' }}>
               {t('w9d.imageCompare.conclusion')}{" "}
               <Tag color={pair.conclusion.includes("进展") ? "red" : "green"}>
                 {pair.conclusion}

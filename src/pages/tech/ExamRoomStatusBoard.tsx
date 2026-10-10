@@ -113,7 +113,7 @@ export default function ExamRoomStatusBoard() {
   }, [rooms])
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
       <PageHeader
         icon={<Monitor size={20} color="var(--color-primary-500)" />}
         title={t('examRoom.title')}
@@ -128,11 +128,11 @@ export default function ExamRoomStatusBoard() {
       />
 
       {error && (
-        <Alert type="warning" showIcon message={t('examRoom.partialLoad')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="warning" showIcon message={t('examRoom.partialLoad')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('examRoom.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('examRoom.totalRooms')} value={stats.total} icon={<DoorOpen size={16} />} color="info" loading={loading} />
         <StatCard title={t('examRoom.inUse')} value={stats.inUse} icon={<Activity size={16} />} color="success" loading={loading} />
         <StatCard title={t('examRoom.overdue')} value={stats.overdue} icon={<AlertTriangle size={16} />} color="error" loading={loading} />
@@ -186,17 +186,17 @@ export default function ExamRoomStatusBoard() {
                     </div>
                   ) : (
                     <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: 12, border: '1px dashed var(--border-color)' }}>
-                      <Camera size={16} style={{ marginBottom: 4, opacity: 0.5 }} />
+                      <Camera size={16} style={{ marginBottom: 'var(--space-1, 4px)', opacity: 0.5 }} />
                       <div>{t('examRoom.noCurrentPatient')}</div>
                     </div>
                   )}
 
-                  <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#94a3b8' }}>
+                  <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
                     <Clock size={11} />
                     {t('examRoom.idleDuration', { duration: formatIdle(room.idleSince) })}
                     {room.status === 'overdue' && (
                       <Tooltip title={t('examRoom.overdueTip')}>
-                        <AlertTriangle size={11} color="var(--color-error-600)" style={{ marginLeft: 4 }} />
+                        <AlertTriangle size={11} color="var(--color-error-600)" style={{ marginLeft: 'var(--space-1, 4px)' }} />
                       </Tooltip>
                     )}
                   </div>
@@ -208,7 +208,7 @@ export default function ExamRoomStatusBoard() {
       )}
 
       {/* 数据源徽标 */}
-      <Card size="small" style={{ marginTop: 16 }}>
+      <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
         <Space>
           <CheckCircle2 size={14} color={source === 'api' ? '#10b981' : 'var(--color-warning-500)'} />
           <span style={{ fontSize: 12, color: '#64748b' }}>

@@ -232,11 +232,11 @@ export default function DeviceScheduleGanttPage() {
   }
 
   return (
-    <div style={{ padding: 16, maxWidth: 1500, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-4, 16px)', maxWidth: 1500, margin: '0 auto' }}>
       {/* 头部 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <CalendarDays size={20} color="#1677ff" />
             {t('title', '设备调度甘特图 V2')}
           </div>
@@ -250,7 +250,7 @@ export default function DeviceScheduleGanttPage() {
 
       {/* 统计条 */}
       {stats && (
-        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           {[
             { label: t('statBlocks', '排程块'), value: stats.totalBlocks, color: '#1677ff' },
             { label: t('statExams', '检查块'), value: stats.examBlocks, color: 'primary' },
@@ -264,7 +264,7 @@ export default function DeviceScheduleGanttPage() {
       )}
 
       {/* 周导航 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
         <Button size="small" icon={<ChevronLeft size={14} />} onClick={() => shiftWeek(-1)} />
         <Button size="small" onClick={goToday}>{t('thisWeek', '本周')}</Button>
         <Button size="small" icon={<ChevronRight size={14} />} onClick={() => shiftWeek(1)} />
@@ -272,7 +272,7 @@ export default function DeviceScheduleGanttPage() {
           {view ? `${view.weekStart} ~ ${dayjs(view.weekStart).add(6, 'day').format('YYYY-MM-DD')}` : weekStart}
         </span>
         <Tag color="blue" style={{ fontSize: 11 }}>{t('weekHint', '周一 ~ 周日')}</Tag>
-        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 8 }}>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'var(--space-2, 8px)' }}>
           <GripVertical size={11} style={{ verticalAlign: -1 }} /> {t('dragHint', '拖拽检查/维护块可调整时间 (15 分钟吸附)')}
         </span>
       </div>
@@ -280,7 +280,7 @@ export default function DeviceScheduleGanttPage() {
       {/* 冲突告警 */}
       {allConflicts.length > 0 && (
         <Alert
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 'var(--space-3, 12px)' }}
           type="warning"
           showIcon
           icon={<AlertTriangle size={14} />}
@@ -288,7 +288,7 @@ export default function DeviceScheduleGanttPage() {
           description={
             <div style={{ maxHeight: 120, overflowY: 'auto' }}>
               {allConflicts.slice(0, 6).map((c) => (
-                <div key={c.blockId} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '2px 0', fontSize: 12 }}>
+                <div key={c.blockId} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-2, 8px)', padding: '2px 0', fontSize: 12 }}>
                   <span>
                     <b>{c.title}</b> ({c.deviceName}) 与 [{c.overlapWith.join(', ')}] 重叠 · {c.suggestion.reason}
                   </span>
@@ -303,7 +303,7 @@ export default function DeviceScheduleGanttPage() {
       )}
 
       {/* 甘特图 */}
-      <Card size="small" styles={{ body: { padding: 8 } }}>
+      <Card size="small" styles={{ body: { padding: 'var(--space-2, 8px)' } }}>
         {!view ? (
           <Spin>
             <div style={{ height: 200 }} />
@@ -314,7 +314,7 @@ export default function DeviceScheduleGanttPage() {
           <div style={{ overflowX: 'auto' }}>
             <div style={{ minWidth: 160 + DAY_WIDTH * 7 }}>
               {/* 表头 */}
-              <div style={{ display: 'flex', marginBottom: 4 }}>
+              <div style={{ display: 'flex', marginBottom: 'var(--space-1, 4px)' }}>
                 <div style={{ width: 160, flexShrink: 0, fontSize: 12, color: 'var(--text-secondary, #475569)', fontWeight: 600, padding: '0 8px' }}>
                   {t('device', '设备')}
                 </div>
@@ -324,7 +324,7 @@ export default function DeviceScheduleGanttPage() {
                     <div key={d.date} style={{ width: DAY_WIDTH, flexShrink: 0, textAlign: 'center', fontSize: 12 }}>
                       <div style={{ fontWeight: 600, color: isToday ? '#1677ff' : '#334155' }}>
                         {d.label}
-                        {isToday && <Tag color="blue" style={{ marginLeft: 4, fontSize: 10 }}>今</Tag>}
+                        {isToday && <Tag color="blue" style={{ marginLeft: 'var(--space-1, 4px)', fontSize: 10 }}>今</Tag>}
                       </div>
                       <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11 }}>{d.date.slice(5)}</div>
                       {i > 0 && <div style={{ height: 1, background: 'var(--border-default, rgba(0,0,0,0.12))' }} />}
@@ -343,7 +343,7 @@ export default function DeviceScheduleGanttPage() {
                         <Tag style={{ fontSize: 10, marginInlineEnd: 4 }}>{dev.modality}</Tag>
                         {t('utilization', '利用率')} {utilization}%
                       </div>
-                      <div style={{ height: 3, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 2, marginTop: 4, overflow: 'hidden' }}>
+                      <div style={{ height: 3, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 2, marginTop: 'var(--space-1, 4px)', overflow: 'hidden' }}>
                         <div style={{ width: `${utilization}%`, height: '100%', background: utilization > 70 ? 'var(--color-success-600)' : utilization > 40 ? 'var(--color-warning-500)' : '#e11d48' }} />
                       </div>
                       {dev.conflicts.length > 0 && (
@@ -413,10 +413,10 @@ export default function DeviceScheduleGanttPage() {
       </Card>
 
       {/* 图例 */}
-      <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 12, color: 'var(--text-secondary, #475569)', flexWrap: 'wrap' }}>
-        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dbeafe', border: '1px solid var(--color-primary-500)', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendExam', '检查块 (可拖拽)')}</span>
-        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#fef3c7', border: '1px solid var(--color-warning-500)', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendMaint', '维护块')}</span>
-        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dcfce7', border: '1px dashed #86efac', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendIdle', '空闲时段')}</span>
+      <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 10, fontSize: 12, color: 'var(--text-secondary, #475569)', flexWrap: 'wrap' }}>
+        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dbeafe', border: '1px solid var(--color-primary-500)', borderRadius: 3, marginRight: 'var(--space-1, 4px)', verticalAlign: -1 }} />{t('legendExam', '检查块 (可拖拽)')}</span>
+        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#fef3c7', border: '1px solid var(--color-warning-500)', borderRadius: 3, marginRight: 'var(--space-1, 4px)', verticalAlign: -1 }} />{t('legendMaint', '维护块')}</span>
+        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dcfce7', border: '1px dashed #86efac', borderRadius: 3, marginRight: 'var(--space-1, 4px)', verticalAlign: -1 }} />{t('legendIdle', '空闲时段')}</span>
         <span><Clock size={12} style={{ verticalAlign: -1 }} /> {t('workHours', '工作时段 08:00-18:00')}</span>
       </div>
 

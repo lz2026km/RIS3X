@@ -338,7 +338,7 @@ export default function DicomViewerPro({
     }}>
       {/* 顶部工具栏 */}
       {showTools && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 8px', background: '#1a1a1a', borderBottom: '1px solid #333' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '6px 8px', background: '#1a1a1a', borderBottom: '1px solid #333' }}>
           {Object.entries(TOOLS).filter(([k]) => k !== 'stack-scroll').map(([key, tool]) => (
             <ToolButton
               key={key}
@@ -366,7 +366,7 @@ export default function DicomViewerPro({
       )}
 
       {/* WW/WL + 样本选择 + 切片控制 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 12, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '4px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 12, color: '#cbd5e1' }}>
         {showWindowPresets && (
           <select value={presetKey} onChange={e => setPresetKey(e.target.value)} style={selectStyle}>
             {applicablePresets.map(p => <option key={p.key} value={p.key}>{p.description} ({p.key})</option>)}
@@ -418,7 +418,7 @@ export default function DicomViewerPro({
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* 缩略图栏 */}
         {showThumbnails && (
-          <div style={{ width: 100, background: '#1a1a1a', borderRight: '1px solid #333', overflowY: 'auto', padding: 4 }}>
+          <div style={{ width: 100, background: '#1a1a1a', borderRight: '1px solid #333', overflowY: 'auto', padding: 'var(--space-1, 4px)' }}>
             <div style={{ fontSize: 12, color: '#64748b', padding: '4px 0', fontWeight: 700 }}>{t('w9d.viewerPro.samplesCount', { count: DICOM_SAMPLES.length })}</div>
             {DICOM_SAMPLES.slice(0, 20).map(s => (
               <div
@@ -427,10 +427,10 @@ export default function DicomViewerPro({
                 style={{
                   background: s.id === currentSample?.id ? 'var(--color-primary-800)' : '#0a0a0a',
                   border: s.id === currentSample?.id ? '1px solid var(--color-primary-500)' : '1px solid #333',
-                  borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 12, color: '#cbd5e1',
+                  borderRadius: 4, padding: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)', cursor: 'pointer', fontSize: 12, color: '#cbd5e1',
                 }}
               >
-                <div style={{ height: 50, background: '#0a0a0a', borderRadius: 2, marginBottom: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                <div style={{ height: 50, background: '#0a0a0a', borderRadius: 2, marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
                     {s.modality === 'CT' ? <Scan size={12} /> : s.modality === 'MR' ? <Magnet size={12} /> : s.modality === 'DR' ? <Camera size={12} /> : s.modality === 'MG' ? <Microscope size={12} /> : s.modality === 'US' ? <Radio size={12} /> : <Atom size={12} />}
                 </div>
                 <div style={{ fontWeight: 600 }}>{s.modality} {s.bodyPart}</div>
@@ -458,11 +458,11 @@ export default function DicomViewerPro({
           {(displayLoading || displayError) && (
             <div style={{
               position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(0,0,0,0.85)', color: '#94a3b8', flexDirection: 'column', gap: 8, zIndex: 10,
+              background: 'rgba(0,0,0,0.85)', color: '#94a3b8', flexDirection: 'column', gap: 'var(--space-2, 8px)', zIndex: 10,
             }}>
               {displayError ? (
                 <>
-                  <div style={{ color: 'var(--color-error-500)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={14} /> {displayError}</div>
+                  <div style={{ color: 'var(--color-error-500)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><AlertTriangle size={14} /> {displayError}</div>
                   <div style={{ fontSize: 12 }}>{t('w9d.viewerPro.usingPlaceholder')}</div>
                 </>
               ) : (
@@ -587,21 +587,21 @@ export default function DicomViewerPro({
             <div style={{ fontWeight: 600, color: '#fff' }}>{currentSample?.studyDescription || 'DICOM Viewer Pro'}</div>
             <div>{t('w9d.viewerPro.modalityLabel')}<span style={{ color: 'var(--color-warning-400)' }}>{currentSample?.modality}</span> | {t('w9d.viewerPro.bodyPartLabel')}{currentSample?.bodyPart}</div>
             <div>{t('w9d.viewerPro.acquisitionTimeLabel')}{currentSample?.acquisitionDate} | ID: {currentSample?.studyId}</div>
-            <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>{t('w9d.viewerPro.engineLabel')}Cornerstone3D {cornerstoneReady ? <CheckCircle2 size={11} color="var(--color-success-600)" /> : <XCircle size={11} color="var(--color-error-600)" />}</div>
+            <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>{t('w9d.viewerPro.engineLabel')}Cornerstone3D {cornerstoneReady ? <CheckCircle2 size={11} color="var(--color-success-600)" /> : <XCircle size={11} color="var(--color-error-600)" />}</div>
           </div>
         </div>
 
         {/* 测量面板 */}
         {showMeasurementPanel && measurements.length > 0 && (
-          <div style={{ width: 200, background: '#1a1a1a', borderLeft: '1px solid #333', padding: 8, overflowY: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ width: 200, background: '#1a1a1a', borderLeft: '1px solid #333', padding: 'var(--space-2, 8px)', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
               <div style={{ fontSize: 12, color: 'var(--color-warning-400)', fontWeight: 700 }}>{t('w9d.viewerPro.measurementsCount', { count: measurements.length })}</div>
               <button onClick={clearMeasurements} style={{ ...iconBtnStyle, padding: 2 }} title={t('w9d.viewerPro.clear')}>
                 <Trash2 size={11} color="var(--color-error-500)" />
               </button>
             </div>
             {measurements.map(m => (
-              <div key={m.id} style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: 6, marginBottom: 4, fontSize: 12, color: '#cbd5e1' }}>
+              <div key={m.id} style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: 6, marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#cbd5e1' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontWeight: 600 }}>{m.label}</span>
                   <button onClick={() => removeMeasurement(m.id)} style={{ ...iconBtnStyle, padding: 0 }}>×</button>
@@ -614,7 +614,7 @@ export default function DicomViewerPro({
                 </div>
               </div>
             ))}
-            <div style={{ marginTop: 12, fontSize: 12, color: '#64748b' }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: '#64748b' }}>
               {t('w9d.viewerPro.toolLabel')} <span style={{ color: 'var(--color-warning-400)' }}>{t('w9d.tool.' + activeTool)}</span><br />
               {t('w9d.viewerPro.shortcutLabel')} {TOOLS[activeTool].shortcut}
             </div>
@@ -635,7 +635,7 @@ function getCursor(tool: ToolType): string {
 const iconBtnStyle: React.CSSProperties = {
   background: 'transparent',
   border: 'none',
-  padding: 4,
+  padding: 'var(--space-1, 4px)',
   borderRadius: 4,
   cursor: 'pointer',
   display: 'flex',

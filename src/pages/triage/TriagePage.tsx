@@ -277,7 +277,7 @@ const TriagePage: React.FC = () => {
 
   return (
     <PageContainer padding={24} data-testid="triage-worklist-page">
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 24 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-6, 24px)' }}>
         <StatCard title={t("triage.totalPending")} value={items.length} icon={<Clock size={18} />} color="primary" />
         <StatCard title={t("triage.critical")} value={criticalCount} icon={<Siren size={18} />} color="error" />
         <StatCard title={t("triage.urgent")} value={urgentCount} icon={<AlertTriangle size={18} />} color="warning" />
@@ -300,7 +300,7 @@ const TriagePage: React.FC = () => {
         onCancel={() => setModalOpen(false)}
       >
         {selectedItem && (
-          <Descriptions column={1} size="small" style={{ marginBottom: 16 }}>
+          <Descriptions column={1} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Descriptions.Item label={t("triage.patientName")}>{selectedItem.patientName}</Descriptions.Item>
             <Descriptions.Item label={t("triage.examType")}>{selectedItem.examType}</Descriptions.Item>
             <Descriptions.Item label={t("triage.score")}>
@@ -311,8 +311,8 @@ const TriagePage: React.FC = () => {
             </Descriptions.Item>
           </Descriptions>
         )}
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ marginBottom: 4 }}>{t("triage.doctor")}</div>
+        <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+          <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t("triage.doctor")}</div>
           <Select
             style={{ width: "100%" }}
             value={newDoctor}
@@ -330,7 +330,7 @@ const TriagePage: React.FC = () => {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 4 }}>{t("triage.status")}</div>
+          <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t("triage.status")}</div>
           <Select
             style={{ width: "100%" }}
             value={newStatus}
@@ -365,7 +365,7 @@ const TriagePage: React.FC = () => {
             ["respiratoryRate", t("w6Reg.safety.rr")],
           ] as Array<[keyof VitalInput, string]>).map(([key, label]) => (
             <Col span={8} key={key}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{label}</div>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
               <InputNumber
                 style={{ width: "100%" }}
                 value={vitals[key]}
@@ -375,7 +375,7 @@ const TriagePage: React.FC = () => {
           ))}
         </Row>
         {reTriageInfo && (
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Space>
               <span>{t("w6Reg.triage.esi")}:</span>
               <Tag color={esiColor(reTriageInfo.esiLevel)}>{esiLabel(reTriageInfo.esiLevel)}</Tag>
@@ -383,7 +383,7 @@ const TriagePage: React.FC = () => {
               <Tag color="volcano">{reTriageInfo.queuePriority ?? "-"}</Tag>
             </Space>
             {reTriageInfo.breaches.length > 0 && (
-              <Alert style={{ marginTop: 8 }} type="warning" showIcon message={t("w6Reg.triage.breach")} description={reTriageInfo.breaches.join("；")} />
+              <Alert style={{ marginTop: 'var(--space-2, 8px)' }} type="warning" showIcon message={t("w6Reg.triage.breach")} description={reTriageInfo.breaches.join("；")} />
             )}
           </div>
         )}

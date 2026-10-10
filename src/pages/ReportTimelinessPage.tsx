@@ -135,11 +135,11 @@ export default function ReportTimelinessPage() {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Clock size={20} color="var(--color-primary-800)" /> {t('timeliness.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </Typography.Title>
@@ -147,8 +147,8 @@ export default function ReportTimelinessPage() {
             {t('timeliness.subtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
             {(['today', 'week', 'month'] as const).map(p => (
               <button
                 key={p}
@@ -171,7 +171,7 @@ export default function ReportTimelinessPage() {
               background: autoRefresh ? '#10b981' : 'var(--bg-card)',
               color: autoRefresh ? '#fff' : '#475569',
               border: '1px solid ' + (autoRefresh ? '#10b981' : '#cbd5e1'),
-              display: 'flex', alignItems: 'center', gap: 4,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
             }}
           >
             <Activity size={12} /> {autoRefresh ? t('timeliness.autoRefreshing') : t('timeliness.paused')}
@@ -190,7 +190,7 @@ export default function ReportTimelinessPage() {
             <button
               onClick={() => void loadData()}
               title={apiError}
-              style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--bg-card)', color: 'var(--color-error-600)', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 4 }}
+              style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--bg-card)', color: 'var(--color-error-600)', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
             >
               <AlertTriangle size={12} /> {t('timeliness.retry')}
             </button>
@@ -202,7 +202,7 @@ export default function ReportTimelinessPage() {
       <RqiIndicatorLink code="RQI-RRC-02" />
 
       {/* 大数字 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
         <BigStat icon={CheckCircle2} label={t('timeliness.overallOnTimeRate')} value={onTimeRate} suffix="%" color="#10b981" trend="up" trendValue="2.3%" />
         <BigStat icon={Timer} label={t('timeliness.avgSignTime')} value={avgSignTime} suffix={t('timeliness.unitMinutes')} color="#7c3aed" trend="down" trendValue="3.1m" />
         <BigStat icon={AlertTriangle} label={t('timeliness.overdueTickets')} value={overdueCount} suffix={t('timeliness.unitTickets')} color="var(--color-error-600)" alert />
@@ -210,20 +210,20 @@ export default function ReportTimelinessPage() {
       </div>
 
       {/* 优先级及时率 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('timeliness.byPriority')}</div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{dataSource === 'api' ? t('timeliness.apiBuckets') : t('timeliness.tatMonitor')}</span>
           </div>
           {priorityData.map(p => (
-            <div key={p.priority} style={{ marginBottom: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <div key={p.priority} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <PriorityBadge priority={p.priority} />
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.priorityTarget', { target: p.target, onTime: p.onTime })}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: p.rate >= 90 ? '#10b981' : p.rate >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }}>{p.rate}%</span>
                 </div>
               </div>
@@ -239,14 +239,14 @@ export default function ReportTimelinessPage() {
           ))}
         </div>
 
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('timeliness.byModality')}</div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.demoData')}</span>
           </div>
           {data.onTimeByModality.map(m => (
             <div key={m.modality} style={{ marginBottom: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 8, height: 8, borderRadius: 4, background: modalityColor(m.modality) }} />
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.modalityTarget', { modality: m.modality, onTime: m.onTime, target: m.target })}</span>
@@ -266,10 +266,10 @@ export default function ReportTimelinessPage() {
       </div>
 
       {/* 7日趋势 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginBottom: 'var(--space-3, 12px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('timeliness.trend7d')}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#10b981' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: '#10b981' }}>
             <TrendingUp size={12} /> {dataSource === 'api' ? `biApi 实时 (${period === 'month' ? '近30日' : '近7日'})` : t('timeliness.overallUp')}
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function ReportTimelinessPage() {
             const maxRate = 95;
             const h = Math.min(100, (p.onTimeRate / maxRate) * 100);
             return (
-              <div key={p.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div key={p.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>{p.onTimeRate}%</div>
                 <div style={{
                   width: '70%',
@@ -295,8 +295,8 @@ export default function ReportTimelinessPage() {
       </div>
 
       {/* 超时工单 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> {t('timeliness.overdueList')}
             <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 6 }}>{t('timeliness.overdueDemoNote')}</span>
@@ -319,7 +319,7 @@ export default function ReportTimelinessPage() {
               align: 'center',
               render: (_v, o) => (
                 <>
-                  <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--color-error-600)', color: 'var(--color-error-600)', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
+                  <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--color-error-600)', color: 'var(--color-error-600)', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 'var(--space-1, 4px)' }}>
                     {t('timeliness.urge')}
                   </button>
                   <button onClick={() => handleEscalate(o)} disabled={!!escalated[o.reportId]} style={{ padding: '2px 8px', background: escalated[o.reportId] ? '#fca5a5' : 'var(--color-error-600)', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: escalated[o.reportId] ? 'default' : 'pointer' }}>

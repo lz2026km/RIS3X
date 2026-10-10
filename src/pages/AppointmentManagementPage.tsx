@@ -848,7 +848,7 @@ export default function AppointmentManagementPage() {
         </div>
         <div style={styles.headerSubtitle}>
           {t('apptMgmt.subtitle')}
-          {listError && <span style={{ marginLeft: 12, opacity: 0.9 }}>({listError})</span>}
+          {listError && <span style={{ marginLeft: 'var(--space-3, 12px)', opacity: 0.9 }}>({listError})</span>}
         </div>
       </div>
 
@@ -982,7 +982,7 @@ export default function AppointmentManagementPage() {
 
         {/* [G005 W4B] 改期历史表 (GET /appointments/reschedule-history) */}
         {showRescheduleHistory && (
-          <div style={{ ...styles.table, marginBottom: 16 }}>
+          <div style={{ ...styles.table, marginBottom: 'var(--space-4, 16px)' }}>
             <div style={styles.tableHeader}>
               <div>{t('w4b.reschedule.thPatient')}</div>
               <div>{t('w4b.reschedule.thPhone')}</div>
@@ -1463,7 +1463,7 @@ export default function AppointmentManagementPage() {
             </div>
             <div style={{ padding: '16px' }}>
               <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', border: `1px solid ${COLORS.warning}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                   <AlertTriangle size={18} color={COLORS.warning} />
                   <span style={{ fontWeight: 600, color: COLORS.warning }}>{t('apptMgmt.conflictsFound', { count: conflictDetails.length })}</span>
                 </div>
@@ -1471,10 +1471,10 @@ export default function AppointmentManagementPage() {
                   {t('apptMgmt.conflictHint')}
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {conflictDetails.map((conflict, index) => (
                   <div key={index} style={{ padding: '10px 12px', backgroundColor: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 12 }}>
-                    <div style={{ fontWeight: 500, marginBottom: 4 }}>{conflict.message}</div>
+                    <div style={{ fontWeight: 500, marginBottom: 'var(--space-1, 4px)' }}>{conflict.message}</div>
                     {conflict.relatedAppointmentId && (
                       <div style={{ fontSize: 12, color: (COLORS as Record<string, string | undefined>).textMuted }}>{t('apptMgmt.relatedApptId', { id: conflict.relatedAppointmentId })}</div>
                     )}
@@ -1560,7 +1560,7 @@ export default function AppointmentManagementPage() {
                 <label style={styles.formLabel}>{t('apptMgmt.patientNameLabel')}</label>
                 <input style={styles.formInput} value={createForm.patientName} onChange={e => setCreateForm({ ...createForm, patientName: e.target.value })} placeholder={t('apptMgmt.patientNamePlaceholder')} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div style={styles.formGroup}>
                   <label style={styles.formLabel}>{t('apptMgmt.patientIdLabel')}</label>
                   <input style={styles.formInput} value={createForm.patientId} onChange={e => setCreateForm({ ...createForm, patientId: e.target.value })} placeholder={t('apptMgmt.patientIdPlaceholder')} />
@@ -1570,7 +1570,7 @@ export default function AppointmentManagementPage() {
                   <input style={styles.formInput} value={createForm.phone} onChange={e => setCreateForm({ ...createForm, phone: e.target.value })} placeholder={t('apptMgmt.optional')} />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div style={styles.formGroup}>
                   <label style={styles.formLabel}>{t('apptMgmt.examItemLabel')}</label>
                   <input style={styles.formInput} value={createForm.examItemName} onChange={e => setCreateForm({ ...createForm, examItemName: e.target.value })} placeholder={t('apptMgmt.examItemPlaceholder')} />
@@ -1586,7 +1586,7 @@ export default function AppointmentManagementPage() {
                 <label style={styles.formLabel}>{t('apptMgmt.colBodyPart')}</label>
                 <input style={styles.formInput} value={createForm.bodyPart} onChange={e => setCreateForm({ ...createForm, bodyPart: e.target.value })} placeholder={t('apptMgmt.optional')} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div style={styles.formGroup}>
                   <label style={styles.formLabel}>{t('apptMgmt.dateLabel')}</label>
                   <input type="date" style={styles.formInput} value={createForm.examDate} onChange={e => setCreateForm({ ...createForm, examDate: e.target.value })} />
@@ -1600,7 +1600,7 @@ export default function AppointmentManagementPage() {
               </div>
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>{t('apptMgmt.colPriority')}</label>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   {([['normal', t('apptMgmt.priority.normal')], ['urgent', t('apptMgmt.priority.urgent')], ['critical', t('apptMgmt.priority.critical')]] as const).map(([v, l]) => (
                     <button key={v} onClick={() => setCreateForm({ ...createForm, priority: v })}
                       style={{
@@ -1635,8 +1635,8 @@ export default function AppointmentManagementPage() {
               <div style={styles.modalTitle}>{t('w4b.accession.title')}</div>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowAccessionModal(false)} />
             </div>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <input
                   style={{ ...styles.formInput, flex: 1 }}
                   value={accessionInput}
@@ -1651,11 +1651,11 @@ export default function AppointmentManagementPage() {
               {accessionError && <div style={{ color: COLORS.danger, fontSize: 12 }}>{accessionError}</div>}
               {accessionResult && (
                 accessionResult.valid ? (
-                  <div style={{ padding: 12, borderRadius: 8, background: '#22c55e22', border: '1px solid #6ee7b7' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.success, fontWeight: 600, marginBottom: 8 }}>
+                  <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 8, background: '#22c55e22', border: '1px solid #6ee7b7' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.success, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>
                       <CheckCircle size={16} /> {t('w4b.accession.valid')}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                       <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.modality')}: </span><b>{accessionResult.modality}</b></div>
                       <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.year')}: </span><b>{accessionResult.year}</b></div>
                       <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.seq')}: </span><b>{accessionResult.seq}</b></div>
@@ -1663,7 +1663,7 @@ export default function AppointmentManagementPage() {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: COLORS.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 8, background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: COLORS.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <XCircle size={16} /> {t('w4b.accession.invalid')}
                   </div>
                 )

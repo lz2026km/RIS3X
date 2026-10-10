@@ -194,7 +194,7 @@ export const ReviewWorkloadStats: React.FC = () => {
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -215,7 +215,7 @@ export const ReviewWorkloadStats: React.FC = () => {
             ]}
           />
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={6}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportReview.workload.totalCompleted')}</span>}
@@ -253,7 +253,7 @@ export const ReviewWorkloadStats: React.FC = () => {
         </Row>
       </div>
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={8}>
           <Card title={t('reportReview.workload.byStage')} size="small">
             <ChartContainer height={200} state={byStageData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
@@ -329,7 +329,7 @@ export const ReviewWorkloadStats: React.FC = () => {
           </Space>
         }
         size="small"
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       >
         <ChartContainer height={220} state={trendData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
           <LineChart data={trendData}>

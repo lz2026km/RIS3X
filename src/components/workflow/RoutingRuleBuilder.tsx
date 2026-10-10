@@ -144,8 +144,8 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
 
   return (
     <div style={{ display: 'flex', height: '100%', background: 'var(--bg-card)' }}>
-      <aside style={{ width: 280, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <aside style={{ width: 280, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
           <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>规则列表 ({rules.length})</span>
           <button onClick={handleAdd} disabled={readonly} style={addBtnStyle}>
             <Plus size={12} /> 新建
@@ -161,7 +161,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
               style={{
                 background: selectedId === rule.id ? '#dbeafe' : 'var(--bg-card)',
                 border: `1px solid ${selectedId === rule.id ? 'var(--color-primary-500)' : '#e2e8f0'}`,
-                padding: 8,
+                padding: 'var(--space-2, 8px)',
                 borderRadius: 6,
                 marginBottom: 6,
                 cursor: 'pointer',
@@ -177,7 +177,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
                   <Trash2 size={12} color="var(--color-error-600)" />
                 </button>
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
                 优先级 {rule.priority} · 动作 {rule.event.type}
               </div>
             </div>
@@ -185,10 +185,10 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
           })}
         </div>
       </aside>
-      <main style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
+      <main style={{ flex: 1, padding: 'var(--space-4, 16px)', overflowY: 'auto' }}>
         {selected ? (
-          <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
               <div>
                 <label style={labelStyle}>规则名称</label>
                 <input
@@ -234,7 +234,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
                 </div>
               </div>
               {flatten(selected.conditions).map((c, idx) => (
-                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 8, alignItems: 'center', marginTop: 8 }}>
+                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 'var(--space-2, 8px)', alignItems: 'center', marginTop: 'var(--space-2, 8px)' }}>
                   <select value={c.fact} onChange={(e) => handleUpdateCondition(idx, { ...c, fact: e.target.value })} disabled={readonly} style={inputStyle}>
                     {FIELD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
@@ -265,7 +265,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
 
             <div style={sectionStyle}>
               <div style={sectionTitleStyle}>触发动作</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)' }}>
                 <select
                   value={selected.event.type}
                   onChange={(e) => handleUpdateRule({ ...selected, event: { ...selected.event, type: e.target.value } })}
@@ -302,7 +302,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
               />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, color: 'var(--color-primary-800)', fontSize: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 'var(--space-3, 12px)', color: 'var(--color-primary-800)', fontSize: 12 }}>
               <ArrowRight size={12} color="var(--color-primary-800)" />
               动作: {selected.event.type}
               {selected.target?.doctorId && <span> → 医生 {selected.target.doctorId}</span>}
@@ -310,7 +310,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
             </div>
           </div>
         ) : (
-          <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>请选择左侧规则进行编辑</div>
+          <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: '#94a3b8' }}>请选择左侧规则进行编辑</div>
         )}
       </main>
     </div>
@@ -324,11 +324,11 @@ function flatten(group: RuleConditionGroup): RuleCondition[] {
   return [];
 }
 
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 };
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' };
 const inputStyle: React.CSSProperties = { width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, color: 'var(--color-primary-800)', background: 'var(--bg-card)' };
-const sectionStyle: React.CSSProperties = { marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8 };
+const sectionStyle: React.CSSProperties = { marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8 };
 const sectionTitleStyle: React.CSSProperties = { fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 };
-const addBtnStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--color-primary-800)', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 };
+const addBtnStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--color-primary-800)', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' };
 
 const tabBtnStyle = (active: boolean): React.CSSProperties => ({
   background: active ? 'var(--color-primary-800)' : 'var(--bg-card)',

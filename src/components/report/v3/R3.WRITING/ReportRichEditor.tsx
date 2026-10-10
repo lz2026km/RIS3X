@@ -568,11 +568,11 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
                 <Popover
                   content={
                     <div style={{ minWidth: 180 }}>
-                      <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 12 }}>
+                      <div style={{ fontWeight: 600, marginBottom: 'var(--space-2, 8px)', fontSize: 12 }}>
                         {collab.isConnected ? t('w9b.reportRich.onlineUsers') : t('w9b.reportRich.offline')}
                       </div>
                       {collab.onlineUsers.map((u) => (
-                        <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+                        <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '4px 0' }}>
                           <Avatar size={24} style={{ backgroundColor: u.color, fontSize: 12, flexShrink: 0 }}>
                             {u.name.charAt(0).toUpperCase()}
                           </Avatar>

@@ -115,8 +115,8 @@ export const FhirBulkExportPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirExport.pageTitle')}</span>
         <Tag color="cyan">v3.0.6.8</Tag>
@@ -149,12 +149,12 @@ export const FhirBulkExportPage: React.FC = () => {
                 {polling && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('fhirExport.polling')}</>}
               </Space>
             }>
-              <div style={{ fontFamily: 'monospace', fontSize: 12, marginBottom: 8 }}>Job ID: {job.jobId}</div>
-              {job.transactionTime && <div style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>Transaction Time: {job.transactionTime}</div>}
-              {job.error && <Alert type="error" title={job.error} showIcon style={{ marginBottom: 8 }} />}
+              <div style={{ fontFamily: 'monospace', fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>Job ID: {job.jobId}</div>
+              {job.transactionTime && <div style={{ fontSize: 12, color: '#999', marginBottom: 'var(--space-2, 8px)' }}>Transaction Time: {job.transactionTime}</div>}
+              {job.error && <Alert type="error" title={job.error} showIcon style={{ marginBottom: 'var(--space-2, 8px)' }} />}
               {job.files && (
                 <>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('fhirExport.outputFilesLabel')}</div>
+                  <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('fhirExport.outputFilesLabel')}</div>
                   <List size="small" dataSource={job.files} renderItem={(f) => (
                     <List.Item actions={[<Button size="small" type="link" icon={<Download size={12} />} href={f.url} target="_blank">{t('fhirExport.download')}</Button>]}>
                       <Tag color="blue">{f.type}</Tag>

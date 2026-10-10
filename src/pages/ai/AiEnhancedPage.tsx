@@ -145,7 +145,7 @@ const OrganDetectionPanel: React.FC = () => {
       title={<Space><ScanSearch size={16} color="var(--color-primary-600)" />{t('aiEnhanced.organDetectTitle')}</Space>}
       extra={<Tag color="blue">{t('aiEnhanced.organDetectTag')}</Tag>}
     >
-      <Space wrap style={{ marginBottom: 12 }}>
+      <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Input
           value={studyId}
           onChange={(e) => setStudyId(e.target.value)}
@@ -175,7 +175,7 @@ const OrganDetectionPanel: React.FC = () => {
 
       {result && (
         <>
-          <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+          <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <StatCard title={t('aiEnhanced.organsDetected')} value={result.organsDetected} suffix={`/ ${result.organs.length}`} color="primary" icon={<Activity size={18} />} />
             <StatCard title={t('aiEnhanced.avgConfidence')} value={Math.round(result.avgConfidence * 100)} suffix="%" color="info" icon={<Gauge size={18} />} />
             <StatCard title={t('aiEnhanced.primaryOrgan')} value={result.primaryOrgan ? result.organs.find((o) => o.code === result.primaryOrgan)?.label ?? '-' : '-'} color="primary" />
@@ -193,7 +193,7 @@ const OrganDetectionPanel: React.FC = () => {
                 ]}
               >
                 <div style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                     <Space>
                       <CircleDot size={14} color={organ.status === 'detected' ? 'var(--color-primary-600)' : '#bfbfbf'} />
                       <Text strong>{organ.label}</Text>
@@ -236,7 +236,7 @@ const OrganDetectionPanel: React.FC = () => {
 
           {paragraph && (
             <Alert
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 'var(--space-3, 12px)' }}
               type="success"
               showIcon
               message={
@@ -294,7 +294,7 @@ const DraftScorePanel: React.FC = () => {
       title={<Space><Gauge size={16} color="var(--color-primary-600)" />{t('aiEnhanced.draftScoreTitle')}</Space>}
       extra={<Tag color="blue">{t('aiEnhanced.draftScoreTag')}</Tag>}
     >
-      <Space wrap style={{ marginBottom: 8 }}>
+      <Space wrap style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Select value={modality} onChange={setModality} options={MODALITIES.map((m) => ({ value: m, label: m }))} style={{ width: 90 }} />
         <Button size="small" onClick={() => fillSample(SAMPLE_DRAFT_GOOD)}>{t('aiEnhanced.fillGoodSample')}</Button>
         <Button size="small" onClick={() => fillSample(SAMPLE_DRAFT_BAD)}>{t('aiEnhanced.fillBadSample')}</Button>
@@ -304,7 +304,7 @@ const DraftScorePanel: React.FC = () => {
         onChange={(e) => setDraftText(e.target.value)}
         rows={8}
         placeholder={t('aiEnhanced.draftPlaceholder')}
-        style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, marginBottom: 12 }}
+        style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, marginBottom: 'var(--space-3, 12px)' }}
       />
       <Space style={{ width: '100%', justifyContent: 'space-between' }}>
         <Text type="secondary" style={{ fontSize: 12 }}>{draftText.length} {t('aiEnhanced.chars')}</Text>
@@ -324,7 +324,7 @@ const DraftScorePanel: React.FC = () => {
                 suffix="/ 100"
                 styles={{ content: { color: scoreColor(result.score), fontSize: 30 } }}
               />
-              <Tag color={GRADE_COLORS[result.grade] ?? 'default'} style={{ marginTop: 8 }}>{t('aiEnhanced.grade')}: {result.grade}</Tag>
+              <Tag color={GRADE_COLORS[result.grade] ?? 'default'} style={{ marginTop: 'var(--space-2, 8px)' }}>{t('aiEnhanced.grade')}: {result.grade}</Tag>
             </Col>
             <Col span={14}>
               <Progress percent={result.score} strokeColor={scoreColor(result.score)} showInfo={false} />
@@ -338,7 +338,7 @@ const DraftScorePanel: React.FC = () => {
             <Text type="secondary" style={{ fontSize: 12 }}>{t('aiEnhanced.dimensionScore')}</Text>
           </Divider>
           {result.dimensions.map((d) => (
-            <div key={d.key} style={{ marginBottom: 8 }}>
+            <div key={d.key} style={{ marginBottom: 'var(--space-2, 8px)' }}>
               <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                 <Text style={{ fontSize: 12 }}>{d.label}</Text>
                 <Space size={4}>
@@ -459,7 +459,7 @@ const HangingPanel: React.FC = () => {
       title={<Space><LayoutGrid size={16} color="var(--color-primary-600)" />{t('aiEnhanced.hangingTitle')}</Space>}
       extra={<Tag color="blue">{t('aiEnhanced.hangingTag')}</Tag>}
     >
-      <Space wrap style={{ marginBottom: 8 }}>
+      <Space wrap style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Input value={examId} onChange={(e) => setExamId(e.target.value)} placeholder={t('aiEnhanced.examId')} style={{ width: 160 }} />
         <Select value={modality} onChange={setModality} options={MODALITIES.map((m) => ({ value: m, label: m }))} style={{ width: 90 }} />
         <Select value={bodyPart} onChange={setBodyPart} options={BODY_PARTS.map((b) => ({ value: b.value, label: t(b.label) }))} style={{ width: 110 }} />
@@ -474,7 +474,7 @@ const HangingPanel: React.FC = () => {
         value={seriesText}
         onChange={(e) => setSeriesText(e.target.value)}
         placeholder={t('aiEnhanced.seriesPlaceholder')}
-        style={{ marginBottom: 8 }}
+        style={{ marginBottom: 'var(--space-2, 8px)' }}
       />
       <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
         <Button type="primary" icon={<Sparkles size={14} />} onClick={handleRecommend} loading={loading}>
@@ -541,7 +541,7 @@ const HangingPanel: React.FC = () => {
             />
 
             {recommendation.alternatives.length > 0 && (
-              <Space wrap style={{ marginTop: 8 }}>
+              <Space wrap style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <Text type="secondary" style={{ fontSize: 12 }}>{t('aiEnhanced.alternatives')}</Text>
                 {recommendation.alternatives.map((alt) => (
                   <Tag key={alt.layoutId} style={{ fontSize: 12 }}>{alt.name}</Tag>
@@ -588,8 +588,8 @@ const HangingPanel: React.FC = () => {
 const AiEnhancedPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
-      <Card style={{ marginBottom: 16 }}>
-        <Space wrap align="center" style={{ marginBottom: 8 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space wrap align="center" style={{ marginBottom: 'var(--space-2, 8px)' }}>
           <Brain size={26} color="var(--color-primary-600)" />
           <Title level={4} style={{ margin: 0 }}>{t('aiEnhanced.title')}</Title>
           <Tag color="blue">v3.0.6.11-101 Wave 3C</Tag>
@@ -603,10 +603,10 @@ const AiEnhancedPage: React.FC = () => {
       </Card>
 
       <Row gutter={16}>
-        <Col xs={24} xl={12} style={{ marginBottom: 16 }}>
+        <Col xs={24} xl={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <OrganDetectionPanel />
         </Col>
-        <Col xs={24} xl={12} style={{ marginBottom: 16 }}>
+        <Col xs={24} xl={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <DraftScorePanel />
         </Col>
       </Row>

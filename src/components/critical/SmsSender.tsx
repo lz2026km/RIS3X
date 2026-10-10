@@ -144,11 +144,11 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
             <Input.TextArea rows={2} placeholder="13800001111, 13800002222" />
           </Form.Item>
           <Divider style={{ margin: '8px 0' }} />
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>
             <Hash size={10} /> 预览
           </div>
           <Alert type="info" title={renderPreview()} />
-          <Space size={20} style={{ marginTop: 12 }}>
+          <Space size={20} style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Statistic
               title="预计费用"
               value={(defaultPhones.length || 1) * 0.045}
@@ -163,7 +163,7 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
               styles={{ content: {  fontSize: 14  } }}
             />
           </Space>
-          <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 12 }}>
+          <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 'var(--space-3, 12px)' }}>
             <Button onClick={() => setOpen(false)}>取消</Button>
             <Button type="primary" icon={<Send size={12} />} loading={busy} onClick={handleSend}>
               立即发送

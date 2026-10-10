@@ -199,7 +199,7 @@ export const DentalTreatmentPage: React.FC = () => {
       }}
       alert={error ? { message: error, type: 'error' } : undefined}
     >
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalTreatment.statTotal')} value={stats.total} icon={<Activity size={14} />} />
         <StatCard title={t('dentalTreatment.statActive')} value={stats.active} color="warning" />
         <StatCard title={t('dentalTreatment.statCompleted')} value={stats.completed} icon={<CheckCircle2 size={14} />} color="success" />

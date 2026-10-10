@@ -50,7 +50,7 @@ describe('StatusBadge - 报告 14 态徽章', () => {
   it('支持自定义 style', () => {
     const { container } = render(
       <TestWrapper>
-        <StatusBadge status="书写中" style={{ marginLeft: 8 }} />
+        <StatusBadge status="书写中" style={{ marginLeft: '8px' }} />
       </TestWrapper>
     );
     const badge = container.querySelector('span');

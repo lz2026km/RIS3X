@@ -489,15 +489,15 @@ const BreastSpecialtyPage = () => {
 
   return (
     <div style={{ padding: 0 }}>
-      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-6, 24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> {t('breastSpecialty.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? 'var(--color-success-600)' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? t('breastSpecialty.sourceRealtime') : t('breastSpecialty.sourceDemoFallback')}</span></Title>
-          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('breastSpecialty.subtitle')}</p>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Heart size={24} color="#be185d" /> {t('breastSpecialty.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? 'var(--color-success-600)' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? t('breastSpecialty.sourceRealtime') : t('breastSpecialty.sourceDemoFallback')}</span></Title>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('breastSpecialty.subtitle')}</p>
         </div>
         <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500 }}>{t('breastSpecialty.newScreening')}</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)' }}>
         {[
           { label: t('breastSpecialty.statsTodayExams'), value: screeningStats ? String(screeningStats.monthlyNew) : '28', icon: Activity, color: '#be185d', bg: '#ec489922' },
           { label: 'BI-RADS 4-5', value: screeningStats ? String(screeningStats.birads4Plus) : String(suspicious), icon: AlertTriangle, color: 'var(--color-error-600)', bg: '#ef444422' },
@@ -508,28 +508,28 @@ const BreastSpecialtyPage = () => {
           <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, background: k.bg }}><k.icon size={20} color={k.color} /></div>
             <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)' }}>{k.value}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{k.label}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{k.label}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)' }}>
         {[{ key: 'screening', label: t('breastSpecialty.tabScreening') }, { key: 'density', label: t('breastSpecialty.tabDensity') }, { key: 'workflow', label: t('breastSpecialty.tabWorkflow') }, { key: 'stats', label: t('breastSpecialty.tabStats') }, { key: 'cad', label: t('breastSpecialty.tabCad') }, { key: 'dual', label: t('breastSpecialty.tabDual') }].map(tabItem => (
           <button key={tabItem.key} onClick={() => setTab(tabItem.key as any)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: tab === tabItem.key ? '#be185d' : 'var(--bg-card)', color: tab === tabItem.key ? '#fff' : '#64748b' }}>{tabItem.label}</button>
         ))}
       </div>
 
       {tab === 'screening' && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Stethoscope size={16} color="#be185d" /> {t('breastSpecialty.screeningList')}
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Stethoscope size={16} color="#be185d" /> {t('breastSpecialty.screeningList')}
               <SrcBadge real={screeningSource === 'real'} label={t('breastSpecialty.sourceScreeningRealtime')} demoLabel={t('breastSpecialty.sourceDemoFallbackShort')} />
               {screeningLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="var(--text-secondary)" />
-                <input placeholder={t('breastSpecialty.searchPatient')} value={search} onChange={e => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 12, width: 160 }} />
+                <input placeholder={t('breastSpecialty.searchPatient')} value={search} onChange={e => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', marginLeft: 'var(--space-2, 8px)', fontSize: 12, width: 160 }} />
               </div>
             </div>
           </div>
@@ -545,9 +545,9 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'density' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.densityDistribution')}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.densityDistribution')}
               <SrcBadge real={densitySource === 'real'} label={`dbtApi 实时 (${dbtCount} 例)`} demoLabel={t('breastSpecialty.sourceNoDensityEndpoint')} />
               {densityLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
             </div>
@@ -556,21 +556,21 @@ const BreastSpecialtyPage = () => {
               const count = base.filter(r => r.density === d).length;
               const pct = Math.round((count / Math.max(base.length, 1)) * 100);
               return (
-                <div key={d} style={{ marginBottom: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t(DENSITY_LABELS[d] ?? '')}</span><span style={{ fontWeight: 700 }}>{t('breastSpecialty.caseCount', { count, pct })}</span></div>
+                <div key={d} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}><span>{t(DENSITY_LABELS[d] ?? '')}</span><span style={{ fontWeight: 700 }}>{t('breastSpecialty.caseCount', { count, pct })}</span></div>
                   <div style={{ height: 8, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}><div style={{ height: '100%', width: `${pct}%`, background: '#be185d', borderRadius: 4 }} /></div>
                 </div>
               );
             })}
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Microscope size={16} color="#7c3aed" /> {t('breastSpecialty.biradsDistribution')}</div>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)' }}><Microscope size={16} color="#7c3aed" /> {t('breastSpecialty.biradsDistribution')}</div>
             {[1, 2, 3, '4A', '4B', 4, 5].map(b => {
               const base = densitySource === 'real' && densityRows.length > 0 ? densityRows : mockScreening;
               const count = base.filter(r => r.biRads === b || r.biRads === Number(b)).length;
               const color = BIRADS_COLORS[String(b)] ?? '#94a3b8';
               return (
-                <div key={String(b)} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <div key={String(b)} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ width: 60, fontSize: 12, fontWeight: 600, color }}>BI-RADS {b}</span>
                   <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}><div style={{ height: '100%', width: `${count > 0 ? Math.max(count * 20, 8) : 0}%`, background: color, borderRadius: 4 }} /></div>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)', width: 30, textAlign: 'right' }}>{count}</span>
@@ -582,8 +582,8 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'density' && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginTop: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Stethoscope size={16} color="#be185d" /> {t('breastSpecialty.dbtStudies')}
             <SrcBadge real={densitySource === 'real'} label={`dbtApi 实时 (${dbtCount} 例)`} demoLabel={t('breastSpecialty.sourceDemoFallbackShort')} />
             {densityLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
@@ -600,8 +600,8 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'workflow' && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.workflow')}
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.workflow')}
             <SrcBadge
               real={densitySource === 'real' || dataSource === 'real'}
               label={t('breastSpecialty.sourceDbtCadRealtime')}
@@ -609,7 +609,7 @@ const BreastSpecialtyPage = () => {
             />
             {(densityLoading || cadLoading) && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
             {(() => {
               const real = densitySource === 'real' || dataSource === 'real';
               const cadCount = cadResults.length;
@@ -622,12 +622,12 @@ const BreastSpecialtyPage = () => {
                 { step: t('breastSpecialty.step6'), status: 'pending', desc: t('breastSpecialty.step6Desc'), time: '5 min' },
               ];
               return steps.map((w, i) => (
-                <div key={i} style={{ padding: 16, background: w.status === 'active' ? 'var(--color-error-bg)' : 'var(--bg-card)', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div key={i} style={{ padding: 'var(--space-4, 16px)', background: w.status === 'active' ? 'var(--color-error-bg)' : 'var(--bg-card)', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                     {w.status === 'done' ? <CheckCircle size={16} color="var(--color-success-600)" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border-color)', display: 'inline-block' }} />}
                     <span style={{ fontSize: 12, fontWeight: 700, color: w.status === 'active' ? '#be185d' : 'var(--text-primary)' }}>{w.step}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{w.desc}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{w.desc}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('breastSpecialty.estimated')}: {w.time}</div>
                 </div>
               ));
@@ -637,10 +637,10 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'stats' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><BarChart3 size={16} color="#be185d" /> {t('breastSpecialty.monthlyScreeningStats')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)' }}><BarChart3 size={16} color="#be185d" /> {t('breastSpecialty.monthlyScreeningStats')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-2, 8px)', textAlign: 'center' }}>
               {[t('breastSpecialty.month1'), t('breastSpecialty.month2'), t('breastSpecialty.month3'), t('breastSpecialty.month4'), t('breastSpecialty.month5'), t('breastSpecialty.month6')].map((m, i) => {
                 const val = [120, 98, 135, 110, 142, 128][i] ?? 0;
                 return (
@@ -648,17 +648,17 @@ const BreastSpecialtyPage = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: 120 }}>
                       <div style={{ width: '80%', height: `${val / 1.5}px`, background: '#be185d', borderRadius: '4px 4px 0 0', opacity: 0.8 }} />
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{m}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{m}</div>
                     <div style={{ fontSize: 12, fontWeight: 700 }}>{val}</div>
                   </div>
                 );
               })}
             </div>
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><AlertTriangle size={16} color="var(--color-error-600)" /> {t('breastSpecialty.recallTrend')}</div>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)' }}><AlertTriangle size={16} color="var(--color-error-600)" /> {t('breastSpecialty.recallTrend')}</div>
             {[{ month: '2026-07', rate: 8.5, cases: 11 }, { month: '2026-06', rate: 7.2, cases: 9 }, { month: '2026-05', rate: 9.1, cases: 13 }, { month: '2026-04', rate: 6.8, cases: 7 }].map(t => (
-              <div key={t.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <div key={t.month} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 10 }}>
                 <span style={{ width: 80, fontSize: 12, color: 'var(--text-secondary)' }}>{t.month}</span>
                 <div style={{ flex: 1, height: 6, background: 'var(--bg-card)', borderRadius: 3 }}><div style={{ height: '100%', width: `${t.rate * 5}%`, background: '#ea580c', borderRadius: 3 }} /></div>
                 <span style={{ fontSize: 12, fontWeight: 600, width: 40 }}>{t.rate}%</span>
@@ -669,9 +669,9 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'cad' && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BrainCircuit size={16} color="#be185d" /> {t('breastSpecialty.cadList')}
               {dataSource === 'real'
                 ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{t('breastSpecialty.sourceCadRealtime')}</span>
@@ -680,9 +680,9 @@ const BreastSpecialtyPage = () => {
             <button onClick={() => setTab('stats' as any)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }}>{t('breastSpecialty.viewStats')}</button>
           </div>
           {cadLoading ? (
-            <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('breastSpecialty.cadLoading')}</div>
+            <div style={{ padding: 'var(--space-8, 32px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('breastSpecialty.cadLoading')}</div>
           ) : cadError && cadResults.length === 0 ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{cadError}</div>
+            <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{cadError}</div>
           ) : (
             <div style={{ maxHeight: 360, overflowY: 'auto' }}>
               <DataTable<BreastCadResult>
@@ -698,16 +698,16 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'dual' && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <GitBranch size={16} color="#be185d" /> {t('breastSpecialty.dualTasks')}
               <SrcBadge real={dualSource === 'real'} label={t('breastSpecialty.sourceDualRealtime')} demoLabel={t('breastSpecialty.sourceDemoFallbackShort')} />
               {dualLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
             </div>
             <button onClick={() => setShowAssignModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}><UserCheck size={14} /> {t('breastSpecialty.assignDualRead')}</button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
             {[
               { label: t('breastSpecialty.dualTotalAssigned'), value: dualList.length, color: '#be185d', bg: '#ec489922' },
               { label: t('breastSpecialty.dualPendingStat'), value: dualList.filter(a => a.status === 'pending' || a.status === 'both_done').length, color: '#ea580c', bg: '#f9731622' },
@@ -716,7 +716,7 @@ const BreastSpecialtyPage = () => {
             ].map((k, i) => (
               <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 12px', border: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: k.color }}>{k.value}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{k.label}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{k.label}</div>
               </div>
             ))}
           </div>
@@ -733,22 +733,22 @@ const BreastSpecialtyPage = () => {
 
       {arbitrateTarget && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setArbitrateTarget(null)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 560, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 560, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('breastSpecialty.arbitrationTitle')} · {arbitrateTarget.studyId}</div>
-              <button onClick={() => setArbitrateTarget(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setArbitrateTarget(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#be185d', marginBottom: 6 }}>{t('breastSpecialty.reader1')} · {arbitrateTarget.reader1Name}</div>
                 <div style={{ color: 'var(--text-secondary)' }}>{arbitrateTarget.report1 || t('breastSpecialty.none')}</div>
               </div>
-              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#be185d', marginBottom: 6 }}>{t('breastSpecialty.reader2')} · {arbitrateTarget.reader2Name}</div>
                 <div style={{ color: 'var(--text-secondary)' }}>{arbitrateTarget.report2 || t('breastSpecialty.none')}</div>
               </div>
             </div>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.arbitrationReport')} *</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.arbitrationReport')} *</label>
             <textarea value={arbitrateReport} onChange={e => setArbitrateReport(e.target.value)} rows={4} placeholder={t('breastSpecialty.arbitrationPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
               <button onClick={() => setArbitrateTarget(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
@@ -760,19 +760,19 @@ const BreastSpecialtyPage = () => {
 
       {showAssignModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAssignModal(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 440, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 440, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('breastSpecialty.assignDualRead')}</div>
-              <button onClick={() => setShowAssignModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setShowAssignModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.studyIdLabel')} *</label><input value={assignForm.studyId} onChange={e => setAssignForm({ ...assignForm, studyId: e.target.value })} placeholder={t('breastSpecialty.studyIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={assignForm.patientName} onChange={e => setAssignForm({ ...assignForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={assignForm.patientId} onChange={e => setAssignForm({ ...assignForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.colModality')}</label><div style={{ display: 'flex', gap: 8 }}>{(['MG', 'DBT', 'US'] as const).map(m => (
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.studyIdLabel')} *</label><input value={assignForm.studyId} onChange={e => setAssignForm({ ...assignForm, studyId: e.target.value })} placeholder={t('breastSpecialty.studyIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={assignForm.patientName} onChange={e => setAssignForm({ ...assignForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={assignForm.patientId} onChange={e => setAssignForm({ ...assignForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.colModality')}</label><div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{(['MG', 'DBT', 'US'] as const).map(m => (
                 <button key={m} onClick={() => setAssignForm({ ...assignForm, modality: m })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${assignForm.modality === m ? '#be185d' : '#e2e8f0'}`, background: assignForm.modality === m ? 'var(--color-error-bg)' : 'var(--bg-card)', color: assignForm.modality === m ? '#be185d' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{m}</button>
               ))}</div></div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowAssignModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
                 <button onClick={() => void handleAssignDual()} disabled={assignSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 12, fontWeight: 600, cursor: assignSaving ? 'wait' : 'pointer' }}>{assignSaving ? t('breastSpecialty.assigning') : t('breastSpecialty.confirmAssign')}</button>
               </div>
@@ -783,19 +783,19 @@ const BreastSpecialtyPage = () => {
 
       {cadDetail && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setCadDetail(null)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 620, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 620, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('breastSpecialty.cadDetailTitle')} · {cadDetail.patientName}</div>
-              <button onClick={() => setCadDetail(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setCadDetail(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.colId')}: </span>{cadDetail.id}</div>
               <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.studyIdLabel')}: </span>{cadDetail.studyId}</div>
               <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.overallBirads')}: </span><BiradsTag v={cadDetail.overallBiRads} /></div>
               <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.model')}: </span>{cadDetail.modelVersion}</div>
             </div>
             {cadDetail.recommendation && (
-              <div style={{ marginBottom: 16, padding: 12, background: '#f9731622', borderRadius: 8, border: '1px solid #fed7aa', fontSize: 12, color: '#9a3412' }}>{cadDetail.recommendation}</div>
+              <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: '#f9731622', borderRadius: 8, border: '1px solid #fed7aa', fontSize: 12, color: '#9a3412' }}>{cadDetail.recommendation}</div>
             )}
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('breastSpecialty.lesionList', { count: cadDetail.lesions.length })}</div>
             <div style={{ maxHeight: 300, overflowY: 'auto' }}>
@@ -814,20 +814,20 @@ const BreastSpecialtyPage = () => {
 
       {showNewModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowNewModal(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('breastSpecialty.newScreening')}</div>
-              <button onClick={() => setShowNewModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setShowNewModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={newForm.patientId} onChange={e => setNewForm({ ...newForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={newForm.patientName} onChange={e => setNewForm({ ...newForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.colAge')}</label><input type="number" value={newForm.age} onChange={e => setNewForm({ ...newForm, age: Number(e.target.value) })} min={18} max={90} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.riskStratification')}</label><div style={{ display: 'flex', gap: 8 }}>{([['average', t('breastSpecialty.riskAverage')], ['intermediate', t('breastSpecialty.riskIntermediate')], ['high', t('breastSpecialty.riskHigh')]] as const).map(([v, l]) => (
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={newForm.patientId} onChange={e => setNewForm({ ...newForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={newForm.patientName} onChange={e => setNewForm({ ...newForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.colAge')}</label><input type="number" value={newForm.age} onChange={e => setNewForm({ ...newForm, age: Number(e.target.value) })} min={18} max={90} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.riskStratification')}</label><div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{([['average', t('breastSpecialty.riskAverage')], ['intermediate', t('breastSpecialty.riskIntermediate')], ['high', t('breastSpecialty.riskHigh')]] as const).map(([v, l]) => (
                 <button key={v} onClick={() => setNewForm({ ...newForm, risk: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${newForm.risk === v ? '#be185d' : '#e2e8f0'}`, background: newForm.risk === v ? 'var(--color-error-bg)' : 'var(--bg-card)', color: newForm.risk === v ? '#be185d' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
               ))}</div></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.examDate')}</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.examDate')}</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowNewModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
                 <button onClick={() => void handleCreateScreening()} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 12, fontWeight: 600, cursor: saving ? 'wait' : 'pointer' }}>{saving ? t('breastSpecialty.saving') : t('breastSpecialty.createScreening')}</button>
               </div>

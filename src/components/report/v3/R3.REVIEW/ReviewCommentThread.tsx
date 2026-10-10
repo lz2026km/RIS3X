@@ -100,7 +100,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
           background: 'var(--bg-primary)',
           padding: '8px 12px',
           borderRadius: 6,
-          marginBottom: 8,
+          marginBottom: 'var(--space-2, 8px)',
           border: '1px solid var(--border-color)',
         }}
       >
@@ -117,8 +117,8 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
           background: 'var(--bg-card)',
           borderRadius: 6,
           border: '1px solid var(--border-color)',
-          padding: 8,
-          marginBottom: 8,
+          padding: 'var(--space-2, 8px)',
+          marginBottom: 'var(--space-2, 8px)',
         }}
       >
         <Input.TextArea
@@ -199,7 +199,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
                 description={
                   <div>
                     <div style={{ fontSize: 12, color: '#334155' }}>{c.content}</div>
-                    <Space size="small" style={{ marginTop: 4 }}>
+                    <Space size="small" style={{ marginTop: 'var(--space-1, 4px)' }}>
                       <Button
                         size="small"
                         type="text"

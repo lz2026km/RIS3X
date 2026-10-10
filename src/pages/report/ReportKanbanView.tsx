@@ -98,10 +98,10 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, minHeight: 400 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3, 12px)', minHeight: 400 }}>
       {columns.map(col => (
         <div key={col.key} style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '10px 14px', borderRadius: '10px 10px 0 0', background: col.bg, border: `1px solid ${col.border}`, borderBottom: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ padding: '10px 14px', borderRadius: '10px 10px 0 0', background: col.bg, border: `1px solid ${col.border}`, borderBottom: 'none', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.color }} />
             <col.Icon size={14} style={{ color: col.color }} />
             <span style={{ fontSize: 12, fontWeight: 700, color: col.color }}>{col.label}</span>
@@ -112,7 +112,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
               flex: 1, minHeight: 300, padding: 10, borderRadius: '0 0 10px 10px',
               background: dragOverCol === col.key ? `${col.color}08` : 'var(--bg-card)',
               border: `1px solid ${dragOverCol === col.key ? col.color : col.border}`, borderTop: 'none',
-              transition: 'all 0.15s', display: 'flex', flexDirection: 'column', gap: 8,
+              transition: 'all 0.15s', display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)',
             }}>
             {col.items.map(r => (
               <div key={r.id} draggable onDragStart={e => handleDragStart(e, r.id)} onDragEnd={handleDragEnd}
@@ -129,7 +129,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{r.patientName}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     {/* [v3.0.6.11-95 Wave2B P1] 草稿超时角标 */}
                     {isDraftOverdue(r.status, r.updatedTime) && (
                       <span style={{ padding: '1px 6px', borderRadius: 4, background: '#fff7ed', color: '#c2410c', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2, border: '1px solid #fdba74' }}>
@@ -143,7 +143,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
                     )}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4, fontWeight: 500 }}>{r.examItemName}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{r.examItemName}</div>
                 <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>{r.modality} · {r.bodyPart}</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
@@ -158,7 +158,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
                 </div>
                 {['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)) && (
                   <button onClick={e => { e.stopPropagation(); onReview(r) }}
-                    style={{ marginTop: 8, width: '100%', padding: '5px 0', borderRadius: 5, border: 'none', background: col.color, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    style={{ marginTop: 'var(--space-2, 8px)', width: '100%', padding: '5px 0', borderRadius: 5, border: 'none', background: col.color, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
                     <CheckCircle2 size={11} /> 审核
                   </button>
                 )}
@@ -166,7 +166,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
             ))}
             {col.items.length === 0 && (
               <div style={{ textAlign: 'center', padding: '32px 0', color: '#cbd5e1', fontSize: 12 }}>
-                <div style={{ marginBottom: 4 }}>暂无报告</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)' }}>暂无报告</div>
               </div>
             )}
           </div>

@@ -517,7 +517,7 @@ const ReviewTab: React.FC = () => {
       </Card>
 
       <Card size="small" title={t("w4ai.review.trend")}>
-        <Space size={16} style={{ marginBottom: 12 }} wrap>
+        <Space size={16} style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
           <Space size={4}>
             <span style={{ width: 10, height: 10, background: "var(--color-success-600)", display: "inline-block" }} />
             <Text style={{ fontSize: 12 }}>{t("w4ai.review.legendAdopt")}</Text>
@@ -535,7 +535,7 @@ const ReviewTab: React.FC = () => {
           style={{
             display: "flex",
             alignItems: "flex-end",
-            gap: 24,
+            gap: 'var(--space-6, 24px)',
             height: 180,
             padding: "0 8px",
             borderBottom: "1px solid #e2e8f0",
@@ -854,7 +854,7 @@ const ReportTab: React.FC = () => {
             </Space>
           }
         >
-          <Space size={12} wrap style={{ marginBottom: 12 }}>
+          <Space size={12} wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Text>
               <Text type="secondary">{t("w4ai.triage.col.patient")}: </Text>
               {draft.patientName}
@@ -871,7 +871,7 @@ const ReportTab: React.FC = () => {
               background: "#f8fafc",
               border: "1px solid #e2e8f0",
               borderRadius: 8,
-              padding: 12,
+              padding: 'var(--space-3, 12px)',
               fontSize: 12,
               lineHeight: 1.8,
               whiteSpace: "pre-wrap",
@@ -880,7 +880,7 @@ const ReportTab: React.FC = () => {
           >
             {draft.draftText}
           </div>
-          <Space size={16} wrap style={{ marginTop: 12 }}>
+          <Space size={16} wrap style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Text type="secondary" style={{ fontSize: 12 }}>
               {t("w4ai.report.generatedAt")}: {draft.generatedAt}
             </Text>
@@ -948,10 +948,10 @@ const ReportTab: React.FC = () => {
                       </Space>
                     </Space>
 
-                    <Paragraph style={{ marginBottom: 8 }}>{s.text}</Paragraph>
+                    <Paragraph style={{ marginBottom: 'var(--space-2, 8px)' }}>{s.text}</Paragraph>
 
                     {s.guardrails.length > 0 ? (
-                      <Space size={[6, 4]} wrap style={{ marginBottom: 8 }}>
+                      <Space size={[6, 4]} wrap style={{ marginBottom: 'var(--space-2, 8px)' }}>
                         <Brain size={13} color="var(--color-warning-600)" />
                         {s.guardrails.map((g) => (
                           <Tag
@@ -966,7 +966,7 @@ const ReportTab: React.FC = () => {
                     ) : null}
 
                     <div>
-                      <Space size={6} style={{ marginBottom: 4 }}>
+                      <Space size={6} style={{ marginBottom: 'var(--space-1, 4px)' }}>
                         <Quote size={13} color="var(--color-primary-600)" />
                         <Text type="secondary" style={{ fontSize: 12 }}>
                           {t("w4ai.report.citations")}
@@ -985,7 +985,7 @@ const ReportTab: React.FC = () => {
                                 fontSize: 12,
                                 color: "#595959",
                                 borderLeft: "2px solid #bfbfbf",
-                                paddingLeft: 8,
+                                paddingLeft: 'var(--space-2, 8px)',
                               }}
                             >
                               <Tag color="cyan" style={{ marginInlineEnd: 6 }}>

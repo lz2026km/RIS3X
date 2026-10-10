@@ -326,13 +326,13 @@ const LayoutGrid: React.FC<{
   renderViewport: (plane: ViewPlane, idx: number) => React.ReactNode
 }> = ({ layout, planes, renderViewport }) => {
   if (layout === '1x1') {
-    return <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>{renderViewport(planes[0]!, 0)}</div>
+    return <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>{renderViewport(planes[0]!, 0)}</div>
   }
   if (layout === '1x3') {
     return (
       <div style={{ flex: 1, display: 'flex', gap: 6 }}>
         {planes.map((p, i) => (
-          <div key={p} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>{renderViewport(p, i)}</div>
+          <div key={p} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>{renderViewport(p, i)}</div>
         ))}
       </div>
     )
@@ -344,7 +344,7 @@ const LayoutGrid: React.FC<{
         {[0, 2].map(row => (
           <div key={row} style={{ flex: 1, display: 'flex', gap: 6 }}>
             {cells.slice(row, row + 2).map((p, i) => (
-              <div key={`${p}-${i}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>{renderViewport(p, row + i)}</div>
+              <div key={`${p}-${i}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>{renderViewport(p, row + i)}</div>
             ))}
           </div>
         ))}
@@ -554,9 +554,9 @@ export default function FusionV2Page() {
   )
 
   return (
-    <div data-testid="fusion-v2-page" style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div data-testid="fusion-v2-page" style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
       {/* Top toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('nav.fusionV2')}</span>
         <div style={{ flex: 1 }} />
@@ -644,11 +644,11 @@ export default function FusionV2Page() {
       </div>
 
       {/* Viewport area */}
-      <div style={{ display: 'flex', gap: 8, height: 'calc(100vh - 180px)', minHeight: 400 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', height: 'calc(100vh - 180px)', minHeight: 400 }}>
         {/* [Phase 2] 检查选择 + 融合结果面板 */}
-        <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
+        <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', overflowY: 'auto' }}>
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10, border: '1px solid #334155' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
               <Database size={13} color={BLUE} />
               <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('w9d.fusionV2.studySelect')}</span>
               <button style={{ marginLeft: 'auto', ...btnStyle, padding: '2px 6px' }} onClick={() => setPanelOpen(v => !v)}>
@@ -657,7 +657,7 @@ export default function FusionV2Page() {
             </div>
             {panelOpen && (
               <>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
                   <input
                     value={patientInput}
                     onChange={e => setPatientInput(e.target.value)}
@@ -675,7 +675,7 @@ export default function FusionV2Page() {
                 {studies.length === 0 ? (
                   <div style={{ fontSize: 11, color: '#64748b', padding: '8px 0', textAlign: 'center' }}>{t('w9d.fusionV2.noStudy')}</div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                     {studies.map(s => (
                       <button
                         key={s.id}
@@ -694,7 +694,7 @@ export default function FusionV2Page() {
                   </div>
                 )}
                 {selectedStudy && (
-                  <div style={{ marginTop: 8, fontSize: 10, color: '#64748b', lineHeight: 1.7 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 10, color: '#64748b', lineHeight: 1.7 }}>
                     Study: {selectedStudy.studyUid}<br />
                     {t('w9d.fusionV2.series')} {selectedStudy.fixedModality} + {selectedStudy.movingModality}<br />
                     {t('w9d.fusionV2.date')} {selectedStudy.studyDate}
@@ -706,14 +706,14 @@ export default function FusionV2Page() {
 
           {/* 配准结果 */}
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10, border: '1px solid #334155' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 'var(--space-2, 8px)' }}>
               {t('fusion.registerResult')}
             </div>
             {!registration ? (
               <div style={{ fontSize: 11, color: '#64748b' }}>{t('w9d.fusionV2.notRegistered')}</div>
             ) : (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
                   {[
                     { label: 'Dice', value: registration.metrics.dice, color: 'var(--color-success-500)' },
                     { label: 'HD95(mm)', value: registration.metrics.hd95, color: 'var(--color-primary-500)' },
@@ -728,13 +728,13 @@ export default function FusionV2Page() {
                 <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6 }}>
                   {t('w9d.fusionV2.transformType')} {transformType} · {t('w9d.fusionV2.elapsed')} {registration.processingTimeMs || '-'}ms
                 </div>
-                <div style={{ display: 'flex', gap: 4 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                   <button style={{ ...btnStyle, flex: 1, color: BLUE, borderColor: BLUE }} disabled={renderLoading} onClick={() => void runRender()}>
                     {renderLoading ? <Loader2 size={11} className="spin" /> : <Layers size={11} />} {t('w9d.fusionV2.renderFrame')}
                   </button>
                 </div>
                 {renderedFrame && renderedFrame.pixelDataBase64 && (
-                  <div style={{ marginTop: 8, background: '#0f172a', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', background: '#0f172a', borderRadius: 4, overflow: 'hidden' }}>
                     <img
                       src={`data:image/png;base64,${renderedFrame.pixelDataBase64}`}
                       alt={t('w9d.fusionV2.fusedFrame')}
@@ -747,7 +747,7 @@ export default function FusionV2Page() {
           </div>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', overflow: 'hidden' }}>
           <LayoutGrid layout={layout} planes={planes} renderViewport={renderViewport} />
 
           {/* Sidebar controls */}
@@ -781,7 +781,7 @@ export default function FusionV2Page() {
 
           {/* ROI stats */}
           {showRoiStats && roiAnnotations.length > 0 && (
-            <div style={{ background: PANEL_BG, borderRadius: 4, padding: '4px 8px', display: 'flex', gap: 12, flexWrap: 'wrap', fontSize: 10 }}>
+            <div style={{ background: PANEL_BG, borderRadius: 4, padding: '4px 8px', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', fontSize: 10 }}>
               <span style={{ color: '#94a3b8' }}>{t('fusion.roiOverlay')}: {roiAnnotations.length}</span>
               {roiAnnotations.map((ann, i) => (
                 <span key={ann.id} style={{ color: ann.color }}>
@@ -793,7 +793,7 @@ export default function FusionV2Page() {
         </div>
       </div>
 
-      <div style={{ marginTop: 4, fontSize: 10, color: '#475569', textAlign: 'center' }}>
+      <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 10, color: '#475569', textAlign: 'center' }}>
         {t('fusion.hint')}
       </div>
     </div>

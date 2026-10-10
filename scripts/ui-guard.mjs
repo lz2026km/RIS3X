@@ -30,7 +30,10 @@ let clickableNoRole = 0;
 let nativeTable = 0;
 let offScaleFont = 0;
 let rawHeading = 0;
+let spacingTokens = 0;
 const FONT_SCALE = new Set(["10", "11", "12", "14", "16", "18", "20", "24", "30", "36", "48"]);
+const SPACE_SCALE = new Set([4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96]);
+const SPACING_KEYS = ["marginTop", "marginBottom", "marginLeft", "marginRight", "margin", "paddingTop", "paddingBottom", "paddingLeft", "paddingRight", "padding", "gap", "rowGap", "columnGap"];
 
 for (const f of pages) {
   const c = readFileSync(f, "utf8");
@@ -53,6 +56,13 @@ for (const f of pages) {
   while ((fm = fRe.exec(c))) {
     if (!FONT_SCALE.has(fm[1])) offScaleFont++;
   }
+  for (const k of SPACING_KEYS) {
+    const sRe = new RegExp(k + ":\\s*(\\d+)(?=\\s*[,}])", "g");
+    let sm;
+    while ((sm = sRe.exec(c))) {
+      if (SPACE_SCALE.has(Number(sm[1]))) spacingTokens++;
+    }
+  }
 }
 for (const f of allSrc) {
   mojibake += (readFileSync(f, "utf8").match(/\uFFFD/g) || []).length;
@@ -68,6 +78,7 @@ const BUDGET = {
   nativeTable: 26, // 只减不增 (剩余为打印/热力图/日历模板)
   offScaleFont: 42, // 只减不增 (仅允许设计刻度 10/11/12/14/16/18/20/24/30/36/48)
   rawHeading: 13, // 只减不增 (剩余为打印 HTML 模板串)
+  spacingTokens: 0, // 只减不增 (已刻度的数字间距应全部令牌化为 var(--space-N))
 };
 
 const checks = [
@@ -78,6 +89,7 @@ const checks = [
   ["viewportHeight", viewportHeight, "minHeight:'100vh' (内容区已滚动, 会造成幽灵滚动条)"],
   ["hexTotal", hexTotal, "硬编码 #rrggbb (优先使用 design-system.css 令牌)"],
   ["offScaleFont", offScaleFont, "脱离设计尺度的 fontSize (仅 10/11/12/14/16/18/20/24/30/36/48)"],
+  ["spacingTokens", spacingTokens, "落在 --space 刻度的数字间距 (请用 var(--space-N, Npx))"],
   ["mojibake", mojibake, "U+FFFD 乱码"],
   ["clickableNoRole", clickableNoRole, "可点击 div/span 缺 role (交互元素需键盘可达)"],
 ];

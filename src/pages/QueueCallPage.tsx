@@ -92,7 +92,7 @@ const styles: Record<string, React.CSSProperties> = {
   headerLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: 16,
+    gap: 'var(--space-4, 16px)',
   },
   headerLogo: {
     display: 'flex',
@@ -121,7 +121,7 @@ const styles: Record<string, React.CSSProperties> = {
   headerRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: 20,
+    gap: 'var(--space-5, 20px)',
   },
   headerTime: {
     color: '#fff',
@@ -153,8 +153,8 @@ const styles: Record<string, React.CSSProperties> = {
   // 主内容区
   mainContent: {
     display: 'flex',
-    gap: 20,
-    padding: 20,
+    gap: 'var(--space-5, 20px)',
+    padding: 'var(--space-5, 20px)',
     maxWidth: 1600,
     margin: '0 auto',
   },
@@ -164,7 +164,7 @@ const styles: Record<string, React.CSSProperties> = {
     flex: '0 0 65%',
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: 20,
+    gap: 'var(--space-5, 20px)',
   },
 
   // 右侧面板 (35%)
@@ -172,7 +172,7 @@ const styles: Record<string, React.CSSProperties> = {
     flex: '0 0 35%',
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: 20,
+    gap: 'var(--space-5, 20px)',
   },
 
   // 卡片通用样式
@@ -196,22 +196,22 @@ const styles: Record<string, React.CSSProperties> = {
     color: PRIMARY,
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
   },
   cardBody: {
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
   },
 
   // 检查室状态面板
   roomGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
   },
   roomCard: {
     background: BG_LIGHT,
     borderRadius: 12,
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
     border: '2px solid transparent',
     transition: 'all 0.2s ease',
   },
@@ -223,7 +223,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 'var(--space-3, 12px)',
   },
   roomName: {
     fontSize: 14,
@@ -251,19 +251,19 @@ const styles: Record<string, React.CSSProperties> = {
   roomInfo: {
     fontSize: 12,
     color: TEXT_MUTED,
-    marginBottom: 4,
+    marginBottom: 'var(--space-1, 4px)',
   },
   roomPatient: {
     fontSize: 12,
     fontWeight: 600,
     color: TEXT_DARK,
-    marginTop: 8,
+    marginTop: 'var(--space-2, 8px)',
   },
   roomStats: {
     display: 'flex',
-    gap: 16,
-    marginTop: 12,
-    paddingTop: 12,
+    gap: 'var(--space-4, 16px)',
+    marginTop: 'var(--space-3, 12px)',
+    paddingTop: 'var(--space-3, 12px)',
     borderTop: '1px solid var(--border-color)',
   },
   roomStat: {
@@ -304,7 +304,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
     opacity: 0.8,
     letterSpacing: 4,
-    marginBottom: 8,
+    marginBottom: 'var(--space-2, 8px)',
   },
   callNumber: {
     fontSize: 100,
@@ -316,18 +316,18 @@ const styles: Record<string, React.CSSProperties> = {
   callPatientName: {
     fontSize: 36,
     fontWeight: 700,
-    marginTop: 8,
+    marginTop: 'var(--space-2, 8px)',
     letterSpacing: 6,
   },
   callInfo: {
     fontSize: 18,
     opacity: 0.9,
-    marginTop: 12,
+    marginTop: 'var(--space-3, 12px)',
   },
   callRoom: {
     fontSize: 16,
     opacity: 0.7,
-    marginTop: 8,
+    marginTop: 'var(--space-2, 8px)',
   },
   callEmpty: {
     textAlign: 'center' as const,
@@ -350,7 +350,7 @@ const styles: Record<string, React.CSSProperties> = {
   callEmptySubtext: {
     fontSize: 14,
     opacity: 0.4,
-    marginTop: 4,
+    marginTop: 'var(--space-1, 4px)',
   },
 
   // 候诊队列列表
@@ -363,7 +363,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     padding: '12px 16px',
     borderBottom: '1px solid var(--border-light)',
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
     transition: 'background 0.15s ease',
   },
   queueItemHover: {
@@ -390,7 +390,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   queueMeta: {
     display: 'flex',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     alignItems: 'center',
   },
   queueTag: {
@@ -432,7 +432,7 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
   },
   btnRecall: {
     background: ACCENT_ORANGE,
@@ -445,7 +445,7 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
   },
   btnComplete: {
     background: ACCENT_GREEN,
@@ -458,19 +458,19 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
   },
 
   // 统计面板
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
   },
   statCard: {
     background: BG_LIGHT,
     borderRadius: 12,
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
     textAlign: 'center' as const,
   },
   statValue: {
@@ -481,11 +481,11 @@ const styles: Record<string, React.CSSProperties> = {
   statLabel: {
     fontSize: 12,
     color: TEXT_MUTED,
-    marginTop: 4,
+    marginTop: 'var(--space-1, 4px)',
   },
   statChange: {
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 'var(--space-1, 4px)',
   },
   statChangeUp: {
     color: ACCENT_GREEN,
@@ -542,7 +542,7 @@ const styles: Record<string, React.CSSProperties> = {
   // 工具栏
   toolbar: {
     display: 'flex',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--border-light)',
     background: 'var(--bg-card)',
@@ -982,7 +982,7 @@ export default function QueueCallPage() {
                 </div>
               ))}
               {filteredQueue.length === 0 && (
-                <div style={{ ...styles.callEmpty, padding: 32 }}>
+                <div style={{ ...styles.callEmpty, padding: 'var(--space-8, 32px)' }}>
                   <div style={styles.callEmptyText}>{t('queueCall.noMatch')}</div>
                 </div>
               )}
@@ -1001,7 +1001,7 @@ export default function QueueCallPage() {
               </div>
               <span style={{ fontSize: 12, color: TEXT_MUTED }}>{t('queueCall.roomCount', { count: examRooms.length })} {roomsFromApi ? t('queueCall.realtime') : t('queueCall.demoData')}</span>
             </div>
-            <div style={{ ...styles.cardBody, padding: 12 }}>
+            <div style={{ ...styles.cardBody, padding: 'var(--space-3, 12px)' }}>
               <div style={styles.roomGrid}>
                 {examRooms.map(room => (
                   <Card
@@ -1023,7 +1023,7 @@ export default function QueueCallPage() {
                     <div style={styles.roomInfo}>{room.modality.join('/')}</div>
                     {room.currentPatient && (
                       <div style={styles.roomPatient}>
-                        <User size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                        <User size={12} style={{ marginRight: 'var(--space-1, 4px)', verticalAlign: 'middle' }} />
                         {room.currentPatient} ({room.currentQueueNum})
                       </div>
                     )}
@@ -1042,8 +1042,8 @@ export default function QueueCallPage() {
               </div>
               {/* [G005 Wave1A P0] 房间明细: 房间队列 (GET /queue/:roomId) + 实时状态 (GET /queue/:roomId/status) */}
               {selectedRoom && (
-                <div style={{ marginTop: 12, padding: 12, background: 'var(--color-info-bg)', borderRadius: 10, border: `1px solid ${PRIMARY_LIGHT}40` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-info-bg)', borderRadius: 10, border: `1px solid ${PRIMARY_LIGHT}40` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>
                       {roomDetail?.roomName ?? selectedRoom} {t('queueCall.roomDetail')}
                     </span>
@@ -1059,7 +1059,7 @@ export default function QueueCallPage() {
                   ) : (
                     <>
                       {roomDetailStatus && (
-                        <div style={{ display: 'flex', gap: 16, fontSize: 12, color: TEXT_MUTED, marginBottom: 8 }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', fontSize: 12, color: TEXT_MUTED, marginBottom: 'var(--space-2, 8px)' }}>
                           <span>{t('queueCall.statusLabel')} <b style={{ color: getRoomStatusStyle(roomDetailStatus.status) === styles.roomStatusBusy ? ACCENT_YELLOW : ACCENT_GREEN }}>{roomDetailStatus.status ?? '-'}</b></span>
                           <span>{t('queueCall.currentPatient')} <b style={{ color: TEXT_DARK }}>{roomDetailStatus.currentPatient ?? t('queueCall.none')}</b></span>
                           <span>{t('queueCall.waitLabel')} <b style={{ color: TEXT_DARK }}>{roomDetailStatus.waitCount ?? 0}</b></span>
@@ -1069,7 +1069,7 @@ export default function QueueCallPage() {
                         {(roomDetail?.queue ?? []).length === 0 ? (
                           <div style={{ fontSize: 12, color: TEXT_MUTED }}>{t('queueCall.emptyRoomQueue')}</div>
                         ) : (roomDetail?.queue ?? []).map((q: any, idx: number) => (
-                          <div key={q.id ?? idx} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-color)' }}>
+                          <div key={q.id ?? idx} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0', borderBottom: '1px solid var(--border-color)' }}>
                             <span style={{ fontSize: 12, fontWeight: 800, color: PRIMARY, width: 50 }}>{q.queueNum ?? '-'}</span>
                             <span style={{ flex: 1, fontSize: 12, fontWeight: 600 }}>{q.patientName ?? '-'}</span>
                             <span style={{ fontSize: 12, color: TEXT_MUTED }}>{q.examItemName ?? q.examItem ?? ''}</span>
@@ -1136,8 +1136,8 @@ export default function QueueCallPage() {
                 const total = queueCalls.filter(q => q.status !== '已完成').length
                 const percent = total > 0 ? Math.round((count / total) * 100) : 0
                 return (
-                  <div key={type} style={{ marginBottom: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <div key={type} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                       <span style={{ ...styles.typeBadge, ...getTypeStyle(type) }}>{type}</span>
                       <span style={{ fontSize: 12, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
                     </div>
@@ -1171,8 +1171,8 @@ export default function QueueCallPage() {
                 const percent = total > 0 ? Math.round((count / total) * 100) : 0
                 const color = priority === '危重' ? ACCENT_RED : priority === '紧急' ? ACCENT_YELLOW : PRIMARY
                 return (
-                  <div key={priority} style={{ marginBottom: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <div key={priority} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                       <span style={{ ...styles.priorityBadge, ...getPriorityStyle(priority) }}>{priority}</span>
                       <span style={{ fontSize: 12, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
                     </div>

@@ -138,10 +138,10 @@ export default function RadiologistAnnualQCPage() {
       />
       {showCompare && selected && compareData.length > 0 && (
         <div style={{ padding: "0 24px 16px" }}>
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 12px" }}>
               {t('annualQc.compareTitle', { name: selected.name })}
-              <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t('annualQc.demoData')}</span>
+              <span style={{ marginLeft: 'var(--space-2, 8px)', padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t('annualQc.demoData')}</span>
             </h3>
             <div style={{ overflowX: "auto" }}>
               <DataTable<AnnualCompareRow>
@@ -191,14 +191,14 @@ export default function RadiologistAnnualQCPage() {
           </div>
         </div>
       )}
-      <div style={{ padding: 24, display: "grid", gridTemplateColumns: "300px 1fr", gap: 16 }}>
+      <div style={{ padding: 'var(--space-6, 24px)', display: "grid", gridTemplateColumns: "300px 1fr", gap: 'var(--space-4, 16px)' }}>
         {/* 左侧: 医生列表 */}
-        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", maxHeight: 800, overflowY: "auto" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-3, 12px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", maxHeight: 800, overflowY: "auto" }}>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('annualQc.searchDoctor')}
-            style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, marginBottom: 12 }}
+            style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}
           />
           {filteredDoctors.slice(0, 50).map((d) => (
             <button
@@ -211,10 +211,10 @@ export default function RadiologistAnnualQCPage() {
                 border: "1px solid " + (selectedId === d.id ? "var(--color-primary-500)" : "transparent"),
                 borderRadius: 6,
                 cursor: "pointer",
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 textAlign: "left",
               }}
             >
@@ -233,14 +233,14 @@ export default function RadiologistAnnualQCPage() {
         {/* 右侧: 详情 */}
         {selected && (
           <div>
-            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, fontWeight: 700 }}>
                   {selected.name[0]}
                 </div>
                 <div style={{ flex: 1 }}>
                   <Typography.Title level={5} style={{ margin: 0 }}>{selected.name}</Typography.Title>
-                  <AppText size="sm" color="secondary" style={{ marginTop: 4, display: "block" }}>
+                  <AppText size="sm" color="secondary" style={{ marginTop: 'var(--space-1, 4px)', display: "block" }}>
                     {selected.id} · {selected.title} · {selected.subspecialty} · {t('annualQc.yearsOfService', { years: selected.yearsOfExperience })}
                   </AppText>
                 </div>
@@ -258,13 +258,13 @@ export default function RadiologistAnnualQCPage() {
               </StatCardGrid>
             </div>
 
-            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>{t('annualQc.monthlyTrend')}
-                <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t('annualQc.demoData')}</span>
+                <span style={{ marginLeft: 'var(--space-2, 8px)', padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t('annualQc.demoData')}</span>
               </h3>
               {selectedHistory.length > 0 ? (
                 <div>
-                  <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 8, padding: "0 8px" }}>
+                  <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 'var(--space-2, 8px)', padding: "0 8px" }}>
                     {selectedHistory.map((h) => (
                       <div key={h.id} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                         <div style={{ fontSize: 10, color: "var(--text-primary)", fontWeight: 700 }}>{h.qcScore}</div>
@@ -273,7 +273,7 @@ export default function RadiologistAnnualQCPage() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: 16, fontSize: 12, color: "#475569" }}>
+                  <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: "#475569" }}>
                     <strong>{t('annualQc.sixMonthCumulative')}</strong> {t('annualQc.summary', { months: selectedHistory.length, avg: (selectedHistory.reduce((s, h) => s + h.qcScore, 0) / selectedHistory.length).toFixed(1), trend: selectedHistory[selectedHistory.length - 1]!.qcScore > selectedHistory[0]!.qcScore ? t('annualQc.trendUp') : t('annualQc.trendDown') })}
                   </div>
                 </div>

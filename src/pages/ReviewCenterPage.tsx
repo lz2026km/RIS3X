@@ -131,7 +131,7 @@ const ReviewCenterPage: React.FC = () => {
       />
 
       {/* [W2-B] 真实化: 审核待办概览 (reportApi 状态过滤 + cosignApi) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         {[
           { label: t('reviewCenter.initialPending'), value: summary.initial, icon: <ListChecks size={16} />, color: 'var(--color-primary-600)', bg: '#3b82f622' },
           { label: t('reviewCenter.finalPending'), value: summary.final, icon: <ShieldCheck size={16} />, color: '#7c3aed', bg: '#8b5cf622' },

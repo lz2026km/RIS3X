@@ -366,9 +366,9 @@ const EyePixelPage: React.FC = () => {
   const currentStudy = studies.find((s) => s.id === studyId);
 
   return (
-    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+    <div style={{ padding: 'var(--space-4, 16px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       {/* 页头 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: "wrap" }}>
         <ScanLine size={18} color="#7c3aed" />
         <span style={{ fontSize: 16, fontWeight: 700 }}>{t('eyePixel.title')}</span>
         <Tag color="purple">G005 Wave 4B</Tag>
@@ -385,7 +385,7 @@ const EyePixelPage: React.FC = () => {
       <div
         data-testid="eye-pixel-data-source-badge"
         style={{
-          display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 12,
+          display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', fontSize: 12,
           padding: "6px 12px", borderRadius: 8,
           background: source === "api" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
           color: source === "api" ? "#059669" : "var(--color-warning-600)",
@@ -399,7 +399,7 @@ const EyePixelPage: React.FC = () => {
       </div>
 
       {/* 检查 / 实例选择 */}
-      <Card size="small" title={<Space><Activity size={15} />{t('eyePixel.studyInstanceSelect')}</Space>} style={{ marginBottom: 12 }}>
+      <Card size="small" title={<Space><Activity size={15} />{t('eyePixel.studyInstanceSelect')}</Space>} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Space wrap>
           <span style={{ fontSize: 12 }}>{t('eyePixel.studyLabel')}</span>
           <Select
@@ -428,7 +428,7 @@ const EyePixelPage: React.FC = () => {
       </Card>
 
       {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: 80 }}><Spin description={t('eyePixel.loading')} /></div>
+        <div style={{ display: "flex", justifyContent: "center", padding: 'var(--space-20, 80px)' }}><Spin description={t('eyePixel.loading')} /></div>
       ) : (
         <>
           <Row gutter={12}>
@@ -438,10 +438,10 @@ const EyePixelPage: React.FC = () => {
                 size="small"
                 title={<Space><BarChart2 size={15} color="var(--color-primary-600)" />{t('eyePixel.histogram')} <Tag color="blue">256 bins</Tag></Space>}
                 extra={<Button size="small" type="primary" data-testid="eye-pixel-histogram-btn" loading={histLoading} onClick={() => void handleHistogram()}>{t('eyePixel.loadHistogram')}</Button>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
                 {!histogram ? (
-                  <Empty description={t('eyePixel.histogramHint')} style={{ padding: 24 }} />
+                  <Empty description={t('eyePixel.histogramHint')} style={{ padding: 'var(--space-6, 24px)' }} />
                 ) : (
                   <>
                     <ChartContainer type="bar" height={240}>
@@ -457,10 +457,10 @@ const EyePixelPage: React.FC = () => {
                         <Bar dataKey="count" fill="var(--color-primary-500)" isAnimationActive={false} />
                       </BarChart>
                     </ChartContainer>
-                    <div style={{ marginTop: 8 }}>
+                    <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                       <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 6 }}>
                         <span style={{ color: "var(--color-error-500)" }}>{t('eyePixel.meanLine')} {histogram.mean}</span>
-                        {histogram.source && <Tag style={{ marginLeft: 8 }} color="orange">{t('eyePixel.localFallback')}</Tag>}
+                        {histogram.source && <Tag style={{ marginLeft: 'var(--space-2, 8px)' }} color="orange">{t('eyePixel.localFallback')}</Tag>}
                       </div>
                       <Row gutter={[8, 8]}>
                         {stats.map(([label, value]) => (
@@ -481,7 +481,7 @@ const EyePixelPage: React.FC = () => {
                 size="small"
                 title={<Space><Palette size={15} color="#7c3aed" />{t('eyePixel.colormap')}</Space>}
                 extra={colormapLoading ? <Spin size="small" /> : <Tag color="purple">{colormap?.type ?? "-"}</Tag>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
                 <Space direction="vertical" style={{ width: "100%" }} size={8}>
                   <Space wrap>
@@ -538,13 +538,13 @@ const EyePixelPage: React.FC = () => {
                 size="small"
                 title={<Space><Focus size={15} color="#059669" />{t('eyePixel.sharpness')}</Space>}
                 extra={<Button size="small" data-testid="eye-pixel-sharpness-btn" loading={sharpLoading} onClick={() => void handleSharpness()}>{t('eyePixel.analyze')}</Button>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
                 {!sharpness ? (
-                  <Empty description={t('eyePixel.sharpnessHint')} style={{ padding: 16 }} />
+                  <Empty description={t('eyePixel.sharpnessHint')} style={{ padding: 'var(--space-4, 16px)' }} />
                 ) : (
                   <Space direction="vertical" style={{ width: "100%" }} size={8}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
                       <Progress
                         type="circle"
                         size={64}
@@ -580,13 +580,13 @@ const EyePixelPage: React.FC = () => {
                 size="small"
                 title={<Space><ShieldAlert size={15} color="var(--color-error-600)" />{t('eyePixel.artifactDetection')}</Space>}
                 extra={<Button size="small" data-testid="eye-pixel-artifact-btn" loading={artifactLoading} onClick={() => void handleArtifact()}>{t('eyePixel.detect')}</Button>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
                 {!artifacts ? (
-                  <Empty description={t('eyePixel.artifactHint')} style={{ padding: 16 }} />
+                  <Empty description={t('eyePixel.artifactHint')} style={{ padding: 'var(--space-4, 16px)' }} />
                 ) : (
                   <Space direction="vertical" style={{ width: "100%" }} size={8}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
                       <Progress
                         type="circle"
                         size={64}
@@ -602,7 +602,7 @@ const EyePixelPage: React.FC = () => {
                     </div>
                     <Divider style={{ margin: "4px 0" }} />
                     {Array.isArray(artifacts.artifacts) && artifacts.artifacts.map((a: any, i: number) => (
-                      <div key={`art-${i}`} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, padding: "4px 0" }}>
+                      <div key={`art-${i}`} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', fontSize: 12, padding: "4px 0" }}>
                         <Droplets size={13} color="var(--color-error-600)" />
                         <span>{artifactLabel(a.type)}</span>
                         <span style={{ color: "var(--text-secondary)" }}>{t('eyePixel.severity')} {(Number(a.severity) * 100).toFixed(1)}%</span>
@@ -623,7 +623,7 @@ const EyePixelPage: React.FC = () => {
                 size="small"
                 title={<Space><Layers size={15} color="var(--color-info-600)" />{t('eyePixel.mpr')}</Space>}
                 extra={<Button size="small" data-testid="eye-pixel-mpr-btn" loading={mprLoading} onClick={() => void handleMpr()}>{t('eyePixel.reconstruct')}</Button>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
                 <Space direction="vertical" style={{ width: "100%" }} size={8}>
                   <Space wrap>
@@ -642,7 +642,7 @@ const EyePixelPage: React.FC = () => {
                     />
                   </Space>
                   {!mpr ? (
-                    <Empty description={t('eyePixel.mprHint')} style={{ padding: 12 }} />
+                    <Empty description={t('eyePixel.mprHint')} style={{ padding: 'var(--space-3, 12px)' }} />
                   ) : (
                     <>
                       <div
@@ -651,9 +651,9 @@ const EyePixelPage: React.FC = () => {
                           alignItems: "center", justifyContent: "center", height: 170, color: "var(--text-secondary)", fontSize: 12,
                         }}
                       >
-                        <Grid3X3 size={30} color="var(--color-info-600)" style={{ marginBottom: 8 }} />
+                        <Grid3X3 size={30} color="var(--color-info-600)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
                         <div>MPR {mpr.axis} {t('eyePixel.reconstructPreview')}</div>
-                        <div style={{ marginTop: 4, opacity: 0.8 }}>
+                        <div style={{ marginTop: 'var(--space-1, 4px)', opacity: 0.8 }}>
                           {mpr.sliceCount} {t('eyePixel.slices')} · {mpr.resolution} · {mpr.format}
                         </div>
                       </div>

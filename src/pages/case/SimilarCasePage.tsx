@@ -116,7 +116,7 @@ function ImageSearchTab() {
 
   return (
     <div>
-      <Card style={{ marginBottom: 16 }} size="small">
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }} size="small">
         <Space wrap>
           <Select
             placeholder={t('similarCase.selectExamPh')} showSearch allowClear style={{ width: 380 }}
@@ -131,23 +131,23 @@ function ImageSearchTab() {
             {t('similarCase.searchSimilarImages')}
           </Button>
         </Space>
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Text type="secondary" style={{ fontSize: 12 }}>
             {t('similarCase.imageSearchNote')}
           </Text>
         </div>
       </Card>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 48 }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}>
           <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 30 }} />} />
-          <div style={{ marginTop: 12 }}><Text type="secondary">{t('similarCase.extractingFeatures')}</Text></div>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}><Text type="secondary">{t('similarCase.extractingFeatures')}</Text></div>
         </div>
       ) : results.length === 0 ? (
-        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.noSimilarImages')} style={{ padding: 40 }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.selectExamToStart')} style={{ padding: 40 }} />
+        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.noSimilarImages')} style={{ padding: 'var(--space-10, 40px)' }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.selectExamToStart')} style={{ padding: 'var(--space-10, 40px)' }} />
       ) : (
         <>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Text type="secondary">{t('similarCase.returnedPrefix')} <Text strong>{results.length}</Text> {t('similarCase.similarSeriesSuffix')}</Text>
           </div>
           <Row gutter={[16, 16]}>
@@ -173,7 +173,7 @@ function ImageSearchTab() {
                     strokeColor={r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
                     format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
                   />
-                  <div style={{ marginTop: 8 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                     <MiniHistogram hist={r.featureSummary.histogram} height={24} />
                   </div>
                   <Divider style={{ margin: '8px 0' }} />
@@ -207,7 +207,7 @@ function ImageSearchTab() {
             </Descriptions>
             <Divider>{t('similarCase.featureSummary')}</Divider>
             <FeatureSummaryBlock summary={detail.featureSummary} />
-            <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <div style={{ textAlign: 'center', marginTop: 'var(--space-4, 16px)' }}>
               <Text type="secondary" style={{ fontSize: 12 }}>{t('similarCase.anonymizedNote')}</Text>
             </div>
           </div>
@@ -262,7 +262,7 @@ function HybridSearchTab() {
 
   return (
     <div>
-      <Card style={{ marginBottom: 16 }} size="small">
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }} size="small">
         <Space direction="vertical" style={{ width: '100%' }} size={10}>
           <Space wrap>
             <Select
@@ -292,17 +292,17 @@ function HybridSearchTab() {
           />
         </Space>
       </Card>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 48 }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}>
           <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 30 }} />} />
-          <div style={{ marginTop: 12 }}><Text type="secondary">{t('similarCase.hybridSearching')}</Text></div>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}><Text type="secondary">{t('similarCase.hybridSearching')}</Text></div>
         </div>
       ) : results.length === 0 ? (
-        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.noMatchAdjust')} style={{ padding: 40 }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.hybridStartHint')} style={{ padding: 40 }} />
+        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.noMatchAdjust')} style={{ padding: 'var(--space-10, 40px)' }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.hybridStartHint')} style={{ padding: 'var(--space-10, 40px)' }} />
       ) : (
         <>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Text type="secondary">{t('similarCase.returnedPrefix')} <Text strong>{results.length}</Text> {t('similarCase.returnedSuffix2')}</Text>
           </div>
           <Row gutter={[16, 16]}>
@@ -327,11 +327,11 @@ function HybridSearchTab() {
                     strokeColor={r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
                     format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
                   />
-                  <div style={{ marginTop: 8, fontSize: 12, color: '#334155', lineHeight: 1.6, minHeight: 38 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#334155', lineHeight: 1.6, minHeight: 38 }}>
                     {r.impression || `${r.modality} ${r.bodyPart} ${t('similarCase.imageSeriesSuffix')}`}
                   </div>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 11, color: '#64748b', display: 'flex', gap: 12 }}>
+                  <div style={{ fontSize: 11, color: '#64748b', display: 'flex', gap: 'var(--space-3, 12px)' }}>
                     <span>{t('similarCase.textScore')} <Text strong>{r.textScore !== null ? `${Math.round(r.textScore * 100)}%` : '—'}</Text></span>
                     <span>{t('similarCase.imageScore')} <Text strong>{r.imageScore !== null ? `${Math.round(r.imageScore * 100)}%` : '—'}</Text></span>
                     {r.featureSummary && <span>{t('similarCase.featMean')} {r.featureSummary.mean}</span>}
@@ -383,7 +383,7 @@ function HybridSearchTab() {
                 <FeatureSummaryBlock summary={detail.featureSummary} />
               </>
             )}
-            <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <div style={{ textAlign: 'center', marginTop: 'var(--space-4, 16px)' }}>
               <Text type="secondary" style={{ fontSize: 12 }}>{t('similarCase.anonymizedNote2')}</Text>
             </div>
           </div>
@@ -447,7 +447,7 @@ const SimilarCasePage: React.FC = () => {
 
   const textSearchTab = (
     <div>
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space direction="vertical" style={{ width: '100%' }} size={12}>
           <Space wrap>
             <Select
@@ -479,18 +479,18 @@ const SimilarCasePage: React.FC = () => {
         </Space>
       </Card>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 48 }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}>
           <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 30 }} />} />
-          <div style={{ marginTop: 12 }}><Text type="secondary">{t('similarCase.searchingSimilar')}</Text></div>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}><Text type="secondary">{t('similarCase.searchingSimilar')}</Text></div>
         </div>
       ) : results.length === 0 ? (
-        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.noSimilarCases')} style={{ padding: 40 }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.inputToStart')} style={{ padding: 40 }} />
+        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.noSimilarCases')} style={{ padding: 'var(--space-10, 40px)' }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('similarCase.inputToStart')} style={{ padding: 'var(--space-10, 40px)' }} />
       ) : (
         <>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Text type="secondary">{t('similarCase.returnedPrefix')} <Text strong>{results.length}</Text> {t('similarCase.returnedCases')}</Text>
           </div>
           <Row gutter={[16, 16]}>
@@ -529,7 +529,7 @@ const SimilarCasePage: React.FC = () => {
                     strokeColor={c.similarity >= 70 ? 'var(--color-success-600)' : c.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
                     format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
                   />
-                  <div style={{ marginTop: 8, fontSize: 12, color: '#334155', lineHeight: 1.7, minHeight: 54 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#334155', lineHeight: 1.7, minHeight: 54 }}>
                     {highlight(c.impression || c.conclusion, c.keywords)}
                   </div>
                   <Divider style={{ margin: '8px 0' }} />
@@ -574,7 +574,7 @@ const SimilarCasePage: React.FC = () => {
                 <p style={{ lineHeight: 1.8 }}><Tag color="purple">{detail.conclusion}</Tag></p>
               </>
             )}
-            <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <div style={{ textAlign: 'center', marginTop: 'var(--space-4, 16px)' }}>
               <Text type="secondary" style={{ fontSize: 12 }}>{t('similarCase.reportAnonymized')}</Text>
             </div>
           </div>
@@ -584,8 +584,8 @@ const SimilarCasePage: React.FC = () => {
   )
 
   return (
-    <div style={{ padding: 24, maxWidth: 1280, margin: '0 auto' }}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1280, margin: '0 auto' }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Brain size={22} color="#7c3aed" />
         <div>
           <Title level={4} style={{ margin: 0 }}>{t('similarCase.pageTitle')}</Title>

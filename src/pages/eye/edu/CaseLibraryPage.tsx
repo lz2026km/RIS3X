@@ -318,8 +318,8 @@ export const CaseLibraryPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)",}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)",}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <BookOpen size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("eyeCaseLibrary.title")}</span>
         <Tag color="cyan">PR9</Tag>
@@ -366,14 +366,14 @@ export const CaseLibraryPage: React.FC = () => {
                         prefix={<Search size={14} />}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ marginBottom: 8 }}
+                        style={{ marginBottom: 'var(--space-2, 8px)' }}
                       />
                       <Select
                         placeholder={t("eyeCaseLibrary.filterByDisease")}
                         value={diseaseFilter || undefined}
                         onChange={setDiseaseFilter}
                         allowClear
-                        style={{ width: "100%", marginBottom: 8 }}
+                        style={{ width: "100%", marginBottom: 'var(--space-2, 8px)' }}
                         options={[
                           { value: "DR", label: t("eyeCaseLibrary.diseaseDR") },
                           { value: "AMD", label: t("eyeCaseLibrary.diseaseAMD") },
@@ -391,14 +391,14 @@ export const CaseLibraryPage: React.FC = () => {
                       </Button>
 
                       {cohort && (
-                        <div style={{ marginTop: 12 }}>
+                        <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                           <Alert
                             title={t("eyeCaseLibrary.cohortMsg", { id: cohort.cohortId, count: cohort.totalCases })}
                             type="success"
                             showIcon
                           />
                           {stats && (
-                            <div style={{ marginTop: 12, fontSize: 12 }}>
+                            <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12 }}>
                               <Row gutter={[8, 4]}>
                                 <Col span={12}>
                                   <Statistic
@@ -421,7 +421,7 @@ export const CaseLibraryPage: React.FC = () => {
                                 </Col>
                               </Row>
                               <Divider style={{ margin: "8px 0" }} />
-                              <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                              <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>
                                 {t("eyeCaseLibrary.diseaseDistribution")}
                               </div>
                               {Object.entries(stats.diseaseDistribution).map(
@@ -608,7 +608,7 @@ export const CaseLibraryPage: React.FC = () => {
                                   title={t("eyeCaseLibrary.annotateSrHint")}
                                   type="info"
                                   showIcon
-                                  style={{ marginTop: 8 }}
+                                  style={{ marginTop: 'var(--space-2, 8px)' }}
                                 />
                               </>
                             ),
@@ -630,7 +630,7 @@ export const CaseLibraryPage: React.FC = () => {
                                   {t("eyeCaseLibrary.exportSrBtn")}
                                 </Button>
                                 {srExportResult && (
-                                  <div style={{ marginTop: 12, fontSize: 12 }}>
+                                  <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12 }}>
                                     <div>
                                       {t("eyeCaseLibrary.sopInstanceUid")}{" "}
                                       <code>
@@ -665,11 +665,11 @@ export const CaseLibraryPage: React.FC = () => {
                                   {t("eyeCaseLibrary.deidBtn")}
                                 </Button>
                                 {deidentifiedResult && (
-                                  <div style={{ marginTop: 12 }}>
+                                  <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                                     <Tag color="green">
                                       {deidentifiedResult.deidentifiedId}
                                     </Tag>
-                                    <div style={{ fontSize: 12, marginTop: 8 }}>
+                                    <div style={{ fontSize: 12, marginTop: 'var(--space-2, 8px)' }}>
                                       {t("eyeCaseLibrary.actionsExecuted")}
                                     </div>
                                     {deidentifiedResult.actions.map(
@@ -710,7 +710,7 @@ export const CaseLibraryPage: React.FC = () => {
                 <Button
                   type="primary"
                   icon={<FolderPlus size={14} />}
-                  style={{ marginBottom: 12 }}
+                  style={{ marginBottom: 'var(--space-3, 12px)' }}
                   onClick={() => setShowProjectModal(true)}
                 >
                   {t("eye.edu.createProject")}
@@ -723,13 +723,13 @@ export const CaseLibraryPage: React.FC = () => {
                           percent={Math.round((p.completed / p.total) * 100)}
                         />
                         <div
-                          style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8 }}
+                          style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-2, 8px)' }}
                         >
                           {t("eyeCaseLibrary.annotationsProgress", { completed: p.completed, total: p.total })}
                         </div>
                         <Tag
                           color={p.status === "completed" ? "green" : "blue"}
-                          style={{ marginTop: 4 }}
+                          style={{ marginTop: 'var(--space-1, 4px)' }}
                         >
                           {p.status === "completed" ? t("eyeCaseLibrary.completed") : t("eyeCaseLibrary.inProgress")}
                         </Tag>

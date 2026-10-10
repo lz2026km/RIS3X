@@ -182,7 +182,7 @@ export default function MultiSiteDashboardPage() {
         </div>
       </Space>
     ) },
-    { title: t('multiSiteDashboard.colRegion'), dataIndex: "city", key: "city", width: 80, render: (c: string, r: any) => <><MapPin size={11} style={{ marginRight: 4 }} />{c} {r.region}</> },
+    { title: t('multiSiteDashboard.colRegion'), dataIndex: "city", key: "city", width: 80, render: (c: string, r: any) => <><MapPin size={11} style={{ marginRight: 'var(--space-1, 4px)' }} />{c} {r.region}</> },
     { title: t('multiSiteDashboard.colStatus'), dataIndex: "status", key: "status", width: 110, render: (s: string) => {
       const m = STATUS_MAP[s] || { color: "default", labelKey: "", icon: <AlertTriangle size={14} /> }; return <Tag color={m.color} icon={m.icon}>{m.labelKey ? t(m.labelKey) : s}</Tag>;
     } },
@@ -201,14 +201,14 @@ export default function MultiSiteDashboardPage() {
   ];
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
-      <Card style={{ background: "linear-gradient(135deg,var(--color-primary-800) 0%,var(--color-primary-500) 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+      <Card style={{ background: "linear-gradient(135deg,var(--color-primary-800) 0%,var(--color-primary-500) 100%)", color: "#fff", border: "none", marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Space size={16}>
             <Globe size={36} color="#fff" />
             <div>
               <div style={{ fontSize: 20, fontWeight: 800 }}>{t('multiSiteDashboard.title')}</div>
-              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 'var(--space-1, 4px)' }}>
                 {t('multiSiteDashboard.subtitle', { count: sites.length })}
               </div>
             </div>
@@ -227,11 +227,11 @@ export default function MultiSiteDashboardPage() {
         </div>
       </Card>
 
-      {error && <Alert type="warning" showIcon message={t('multiSiteDashboard.fallbackWarning')} description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('multiSiteDashboard.retry')}</Button>} style={{ marginBottom: 16 }} />}
-      {!error && usingFallback && <Alert type="info" showIcon message={t('multiSiteDashboard.dataSourceDemo')} style={{ marginBottom: 16 }} />}
-      {!error && !usingFallback && !loading && <Alert type="success" showIcon message={t('multiSiteDashboard.dataSourceReal')} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="warning" showIcon message={t('multiSiteDashboard.fallbackWarning')} description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('multiSiteDashboard.retry')}</Button>} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
+      {!error && usingFallback && <Alert type="info" showIcon message={t('multiSiteDashboard.dataSourceDemo')} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
+      {!error && !usingFallback && !loading && <Alert type="success" showIcon message={t('multiSiteDashboard.dataSourceReal')} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('multiSiteDashboard.statTotalSites')} value={sites.length} icon={<Building2 size={18} />} color="var(--color-primary-800)" loading={loading} />
         <StatCard title={t('multiSiteDashboard.statOnline')} value={activeCount} icon={<CheckCircle size={18} />} color="#10b981" suffix={`/ ${sites.length}`} loading={loading} />
         <StatCard title={t('multiSiteDashboard.statTotalStudies')} value={totalStudies} color="var(--color-info-600)" loading={loading} />
@@ -240,16 +240,16 @@ export default function MultiSiteDashboardPage() {
         <StatCard title={t('multiSiteDashboard.statTotalStorage')} value={totalStorage.toLocaleString()} icon={<Database size={18} />} color="error" loading={loading} />
       </StatCardGrid>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={16}>
           <Card title={<Space><Network size={16} />{t('multiSiteDashboard.siteListTitle', { count: sites.length })}<Tag color="green">{t('multiSiteDashboard.onlineTag', { count: activeCount })}</Tag><Tag color="red">{t('multiSiteDashboard.offlineTag', { count: offlineCount })}</Tag></Space>} extra={<Badge count={offlineCount} title={t('multiSiteDashboard.alertSites')} />}>
             <DataTable scroll={{ x: 'max-content' }} dataSource={sites} columns={siteColumns} rowKey="id" pagination={false} loading={loading} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }} />
           </Card>
         </Col>
         <Col span={8}>
-          <Card title={<><Activity size={16} /> {t('multiSiteDashboard.syncStatus')}</>} style={{ marginBottom: 16 }}>
+          <Card title={<><Activity size={16} /> {t('multiSiteDashboard.syncStatus')}</>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Statistic title={t('multiSiteDashboard.lastSyncLatency')} value={syncRate.toFixed(1)} suffix="%" styles={{ content: {  color: syncRate > 90 ? "#10b981" : "var(--color-warning-500)"  } }} loading={loading} />
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)' }}>
               <Text>{t('multiSiteDashboard.avgLatencyText', { count: sites.length, latency: (sites.reduce((s, x) => s + x.latencyMs, 0) / Math.max(1, sites.length)).toFixed(1) })}</Text>
               <Progress percent={Math.min(100, (sites.filter(s => s.status === "active").length / Math.max(1, sites.length)) * 100)} status="active" />
             </div>
@@ -320,16 +320,16 @@ export default function MultiSiteDashboardPage() {
               children: (
                 <Row gutter={16}>
                   <Col span={14}>
-                    <Card size="small" title={<Space><Network size={14} />{t('multiSite.crossSiteStats')}</Space>} style={{ marginBottom: 16 }}>
+                    <Card size="small" title={<Space><Network size={14} />{t('multiSite.crossSiteStats')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                       <Row gutter={16}>
                         <Col span={6}><Statistic title={t('multiSite.totalStudies')} value={crossStats?.totalStudies ?? 0} loading={loading} /></Col>
                         <Col span={6}><Statistic title={t('multiSite.totalPatients')} value={crossStats?.totalPatients ?? 0} loading={loading} /></Col>
                         <Col span={6}><Statistic title={t('multiSite.totalStorage')} value={crossStats?.totalStorageGb ?? 0} loading={loading} /></Col>
                         <Col span={6}><Statistic title={t('multiSite.avgUptime')} value={crossStats?.avgUptimePct ?? 0} suffix="%" loading={loading} /></Col>
                       </Row>
-                      <div style={{ marginTop: 12 }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                         <Text type="secondary">{t('multiSite.byRegion')}: </Text>
-                        {(crossStats?.byRegion ?? []).map((r) => <Tag key={r.region} color="blue" style={{ marginBottom: 4 }}>{r.region} · {r.sites}站 · {r.studies.toLocaleString()}检查</Tag>)}
+                        {(crossStats?.byRegion ?? []).map((r) => <Tag key={r.region} color="blue" style={{ marginBottom: 'var(--space-1, 4px)' }}>{r.region} · {r.sites}站 · {r.studies.toLocaleString()}检查</Tag>)}
                       </div>
                     </Card>
                     <Card size="small" title={<Space><Building2 size={14} />{t('multiSite.campus')}</Space>}>
@@ -363,7 +363,7 @@ export default function MultiSiteDashboardPage() {
                           <Switch />
                         </Form.Item>
                         <Button type="primary" onClick={() => void saveFederation()}>{t('multiSite.save')}</Button>
-                        {federation && <Text type="secondary" style={{ marginLeft: 12 }}>{federation.federationId} · {federation.members.length} members</Text>}
+                        {federation && <Text type="secondary" style={{ marginLeft: 'var(--space-3, 12px)' }}>{federation.federationId} · {federation.members.length} members</Text>}
                       </Form>
                     </Card>
                   </Col>

@@ -1139,7 +1139,7 @@ export default function FindingLibraryPage() {
         {/* 内容区 */}
         <div style={{ padding: '12px 14px 14px' }}>
           {/* 标题行 */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--space-2, 8px)' }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text, lineHeight: 1.3, marginBottom: 2 }}>
                 {finding.findingName}
@@ -1154,7 +1154,7 @@ export default function FindingLibraryPage() {
                 border: 'none',
                 background: 'none',
                 cursor: 'pointer',
-                padding: 4,
+                padding: 'var(--space-1, 4px)',
                 color: isFav ? 'var(--color-warning-500)' : COLORS.textLight,
                 display: 'flex',
                 alignItems: 'center',
@@ -1181,7 +1181,7 @@ export default function FindingLibraryPage() {
           </div>
 
           {/* 标签行 */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)', marginBottom: 10 }}>
             {/* 部位 */}
             <span style={{
               padding: '2px 8px',
@@ -1207,7 +1207,7 @@ export default function FindingLibraryPage() {
           </div>
 
           {/* 检查类型 */}
-          <div style={{ display: 'flex', gap: 4, marginBottom: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 10, flexWrap: 'wrap' }}>
             {finding.modality.slice(0, 3).map(m => (
               <span key={m} style={{
                 padding: '2px 6px',
@@ -1240,7 +1240,7 @@ export default function FindingLibraryPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
                 transition: 'all 0.15s',
               }}
             >
@@ -1258,7 +1258,7 @@ export default function FindingLibraryPage() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <Info size={12} />
@@ -1289,7 +1289,7 @@ export default function FindingLibraryPage() {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1000,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
         }}
       >
         <div
@@ -1317,14 +1317,14 @@ export default function FindingLibraryPage() {
             zIndex: 1,
           }}>
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.text, marginBottom: 4 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.text, marginBottom: 'var(--space-1, 4px)' }}>
                 {selectedFinding.findingName}
               </div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>
                 {selectedFinding.disease}
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
               <button
                 onClick={() => toggleFavorite(selectedFinding.id)}
                 style={{
@@ -1338,7 +1338,7 @@ export default function FindingLibraryPage() {
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 {isFav ? <Star size={14} fill="var(--color-warning-500)" color="var(--color-warning-500)" /> : <StarOff size={14} />}
@@ -1365,7 +1365,7 @@ export default function FindingLibraryPage() {
           </div>
 
           {/* 影像图 */}
-          <div style={{ padding: 20, background: COLORS.background }}>
+          <div style={{ padding: 'var(--space-5, 20px)', background: COLORS.background }}>
             <div style={{
               background: `linear-gradient(135deg, #1e293b 0%, #0f172a 100%)`,
               borderRadius: 12,
@@ -1377,7 +1377,7 @@ export default function FindingLibraryPage() {
               overflow: 'hidden',
             }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ marginBottom: 16 }}>
+                <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   {selectedFinding.bodyPart === '头部' && <Brain size={64} color="#60a5fa" />}
                   {selectedFinding.bodyPart === '胸部' && <Activity size={64} color="#60a5fa" />}
                   {selectedFinding.bodyPart === '腹部' && <Activity size={64} color="#60a5fa" />}
@@ -1389,7 +1389,7 @@ export default function FindingLibraryPage() {
                 <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
                   {tv3('findingPlaceholderImage')}
                 </div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>
                   {selectedFinding.findingName} · {selectedFinding.bodyPart}
                 </div>
               </div>
@@ -1422,8 +1422,8 @@ export default function FindingLibraryPage() {
           {/* 内容 */}
           <div style={{ padding: '20px 24px' }}>
             {/* 描述 */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
                 {tv3('findingDetailDescription')}
               </div>
@@ -1441,8 +1441,8 @@ export default function FindingLibraryPage() {
             </div>
 
             {/* 典型疾病 */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Activity size={14} color={COLORS.primaryBlue} />
                 {tv3('findingTypicalFor')}
               </div>
@@ -1464,12 +1464,12 @@ export default function FindingLibraryPage() {
             </div>
 
             {/* 检查要点 */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Scan size={14} color={COLORS.primaryBlue} />
                 {tv3('findingExamTips')}
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                 {selectedFinding.modality.map(m => (
                   <span key={m} style={{
                     padding: '6px 14px',
@@ -1487,8 +1487,8 @@ export default function FindingLibraryPage() {
             </div>
 
             {/* 标签 */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Tag size={14} color={COLORS.primaryBlue} />
                 {tv3('findingDetailTags')}
               </div>
@@ -1508,8 +1508,8 @@ export default function FindingLibraryPage() {
             </div>
 
             {/* 可插入文本 */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
                 {tv3('findingInsertableText')}
               </div>
@@ -1532,8 +1532,8 @@ export default function FindingLibraryPage() {
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 12,
-              marginBottom: 20,
+              gap: 'var(--space-3, 12px)',
+              marginBottom: 'var(--space-5, 20px)',
             }}>
               <div style={{
                 padding: 14,
@@ -1588,7 +1588,7 @@ export default function FindingLibraryPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 boxShadow: isCopied
                   ? '0 4px 12px rgba(5,150,105,0.3)'
                   : '0 4px 12px rgba(59,130,246,0.3)',
@@ -1614,14 +1614,14 @@ export default function FindingLibraryPage() {
     if (favFindings.length === 0) {
       return (
         <div style={{
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           textAlign: 'center',
           color: COLORS.textMuted,
           fontSize: 12,
         }}>
-          <StarOff size={32} color={COLORS.textLight} style={{ marginBottom: 8 }} />
+          <StarOff size={32} color={COLORS.textLight} style={{ marginBottom: 'var(--space-2, 8px)' }} />
           <div>{tv3('findingNoFavorites')}</div>
-          <div style={{ fontSize: 12, marginTop: 4 }}>{tv3('findingFavoritesHint')}</div>
+          <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{tv3('findingFavoritesHint')}</div>
         </div>
       )
     }
@@ -1659,7 +1659,7 @@ export default function FindingLibraryPage() {
           </div>
         ))}
         {favFindings.length > 5 && (
-          <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center', marginTop: 'var(--space-1, 4px)' }}>
             {tv3('findingMore', { count: favFindings.length - 5 })}
           </div>
         )}
@@ -1689,7 +1689,7 @@ export default function FindingLibraryPage() {
             borderBottom: `1px solid ${COLORS.border}`,
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}>
             <div style={{
               width: 32,
@@ -1753,7 +1753,7 @@ export default function FindingLibraryPage() {
           </div>
 
           {/* 统计卡片 */}
-          <div style={{ padding: 12, borderBottom: `1px solid ${COLORS.border}`, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div style={{ padding: 'var(--space-3, 12px)', borderBottom: `1px solid ${COLORS.border}`, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
             <div style={{ padding: '10px 12px', background: COLORS.infoBg, borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.info }}>{filteredFindings.length}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingCurrentDisplay')}</div>
@@ -1831,7 +1831,7 @@ export default function FindingLibraryPage() {
 
           {/* 筛选：按部位 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 'var(--space-2, 8px)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                {tv3('findingFilterByBodyPart')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1869,10 +1869,10 @@ export default function FindingLibraryPage() {
 
           {/* 筛选：按检查类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 'var(--space-2, 8px)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                {tv3('findingFilterByModality')}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
               {MODALITY_LIST.map(m => {
                 const isActive = activeModality === m
                 return (
@@ -1900,7 +1900,7 @@ export default function FindingLibraryPage() {
 
           {/* 筛选：按疾病类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 'var(--space-2, 8px)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                {tv3('findingFilterByDiseaseType')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1941,7 +1941,7 @@ export default function FindingLibraryPage() {
 
           {/* 使用统计 */}
           <div style={{ padding: '10px 14px', borderTop: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <TrendingUp size={10} />
               {tv3('findingMostUsed')}: {stats.topUsed[0]?.findingName || '-'}
             </div>
@@ -1961,7 +1961,7 @@ export default function FindingLibraryPage() {
           justifyContent: 'space-between',
           flexShrink: 0,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <button
               onClick={() => setShowLeftPanel(!showLeftPanel)}
               style={{
@@ -1974,7 +1974,7 @@ export default function FindingLibraryPage() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               {showLeftPanel ? <ChevronDown size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronRight size={14} />}
@@ -1985,7 +1985,7 @@ export default function FindingLibraryPage() {
               {showFavoritesOnly && <span style={{ color: 'var(--color-warning-500)' }}> · {tv3('findingFavoritesOnlyLabel')}</span>}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             {/* 列数切换 */}
             <div style={{ display: 'flex', border: `1px solid ${COLORS.border}`, borderRadius: 6, overflow: 'hidden' }}>
               {[2, 3, 4].map(c => (
@@ -2018,7 +2018,7 @@ export default function FindingLibraryPage() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <RefreshCw size={12} />
@@ -2031,7 +2031,7 @@ export default function FindingLibraryPage() {
         <div style={{
           flex: 1,
           overflow: 'auto',
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
         }}>
           {filteredFindings.length === 0 ? (
             <div style={{
@@ -2043,14 +2043,14 @@ export default function FindingLibraryPage() {
               color: COLORS.textMuted,
             }}>
               <Search size={48} color={COLORS.textLight} />
-              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 16 }}>{tv3('findingNoResults')}</div>
-              <div style={{ fontSize: 12, marginTop: 4 }}>{tv3('findingNoResultsHint')}</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 'var(--space-4, 16px)' }}>{tv3('findingNoResults')}</div>
+              <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{tv3('findingNoResultsHint')}</div>
             </div>
           ) : (
             <div style={{
               display: 'grid',
               gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
-              gap: 16,
+              gap: 'var(--space-4, 16px)',
             }}>
               {filteredFindings.map(f => renderCard(f))}
             </div>

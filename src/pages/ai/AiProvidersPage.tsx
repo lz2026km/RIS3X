@@ -116,8 +116,8 @@ const AiProvidersPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Card style={{ marginBottom: 16 }}>
-        <Space style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Cpu size={24} color="#7c3aed" />
           <Title level={4} style={{ margin: 0 }}>{t('aiProviders.title')}</Title>
           <Tag color="purple">{t('aiProviders.tagConfig')}</Tag>
@@ -125,7 +125,7 @@ const AiProvidersPage: React.FC = () => {
         <Text type="secondary">{t('aiProviders.subtitle')}</Text>
       </Card>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('aiProviders.totalProviders')} value={providers?.providers.length ?? 0} color="primary" icon={<Cpu size={18} />} />
         <StatCard title={t('aiProviders.activeProviders')} value={providers ? 1 : 0} color="success" />
         <StatCard title={t('aiProviders.currentProvider')} value={providers?.active ?? '-'} color="info" />

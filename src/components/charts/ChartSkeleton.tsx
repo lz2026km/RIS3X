@@ -61,17 +61,17 @@ export default function ChartSkeleton({
         boxSizing: 'border-box',
       }}
     >
-      {showHeader && block('40%', 14, { marginBottom: 16 })}
+      {showHeader && block('40%', 14, { marginBottom: 'var(--space-4, 16px)' })}
       <div
         style={{
           display: 'flex',
           alignItems: 'flex-end',
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           height: 'calc(100% - 50px)',
         }}
       >
         {[60, 45, 75, 50, 80, 65, 55, 70].map((h, i) => (
-          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             {block('100%', `${h}%`)}
             {block('60%', 8)}
           </div>

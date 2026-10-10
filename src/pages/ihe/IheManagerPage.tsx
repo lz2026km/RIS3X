@@ -373,7 +373,7 @@ export const IheManagerPage: React.FC = () => {
   ]
 
   const retrievedPreview = Object.entries(xdsRetrieved).length > 0 ? (
-    <Card size="small" title={t('w10Interop.xds.contentPreview')} style={{ marginTop: 12 }}>
+    <Card size="small" title={t('w10Interop.xds.contentPreview')} style={{ marginTop: 'var(--space-3, 12px)' }}>
       <Descriptions column={1} size="small" bordered>
         {Object.entries(xdsRetrieved).map(([uid, r]) => (
           <Descriptions.Item key={uid} label={uid}>
@@ -392,7 +392,7 @@ export const IheManagerPage: React.FC = () => {
       label: <Space><Activity size={14} />{t('iheManager.tabStatus')}</Space>,
       children: (
         <div>
-          {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 12 }} />}
+          {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
           <Card
             size="small"
             title={t('iheManager.integrationStatus')}
@@ -408,14 +408,14 @@ export const IheManagerPage: React.FC = () => {
                     <StatCard title={t('iheManager.transactions')} value={status.transactions.length} suffix={t('iheManager.unitTypes')} icon={<Network size={14} />} />
                   </StatCardGrid>
                 </Col>
-                <Col span={24} style={{ marginTop: 16 }}>
+                <Col span={24} style={{ marginTop: 'var(--space-4, 16px)' }}>
                   <Card size="small" title={t('iheManager.supportedTransactions')}>
                     <Space wrap>
                       {status.transactions.map(code => <Tag key={code} color="blue">{code}</Tag>)}
                     </Space>
                   </Card>
                 </Col>
-                <Col span={24} style={{ marginTop: 16 }}>
+                <Col span={24} style={{ marginTop: 'var(--space-4, 16px)' }}>
                   <Card size="small" title={t('iheManager.config')}>
                     <Tag color="cyan" style={{ fontSize: 14 }}>{status.profile}</Tag>
                   </Card>
@@ -461,9 +461,9 @@ export const IheManagerPage: React.FC = () => {
       key: 'pix',
       label: <Space><Fingerprint size={14} />{t('iheManager.tabPix')}</Space>,
       children: (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           <Card size="small" title={t('iheManager.pixCrossReference')}>
-            <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
+            <p style={{ fontSize: 12, color: '#666', marginBottom: 'var(--space-4, 16px)' }}>
               {t('iheManager.pixCrossReferenceDesc')}
             </p>
             <Button type="primary" onClick={() => window.location.hash = '#/ihe/pix'}>{t('iheManager.goPix')}</Button>
@@ -487,7 +487,7 @@ export const IheManagerPage: React.FC = () => {
               </Button>
             </Form>
             {pixResult && (
-              <Descriptions column={1} size="small" bordered style={{ marginTop: 16 }}>
+              <Descriptions column={1} size="small" bordered style={{ marginTop: 'var(--space-4, 16px)' }}>
                 <Descriptions.Item label={t('iheManager.transaction')}>{pixResult.transaction || '-'}</Descriptions.Item>
                 <Descriptions.Item label="ACK">
                   <Tag color={pixResult.ack === 'AA' ? 'green' : pixResult.ack === 'AE' ? 'red' : 'orange'}>{pixResult.ack || '-'}</Tag>
@@ -504,7 +504,7 @@ export const IheManagerPage: React.FC = () => {
       label: <Space><Users size={14} />{t('iheManager.tabPam')}</Space>,
       children: (
         <Card size="small" title={t('iheManager.pamTitle')}>
-          <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
+          <p style={{ fontSize: 12, color: '#666', marginBottom: 'var(--space-4, 16px)' }}>
             {t('iheManager.pamDesc')}
           </p>
           <Button type="primary" onClick={() => window.location.hash = '#/ihe/pam'}>{t('iheManager.goPam')}</Button>
@@ -515,7 +515,7 @@ export const IheManagerPage: React.FC = () => {
       key: 'xds',
       label: <Space><Database size={14} />{t('w10Interop.ihe.tabXds')}</Space>,
       children: (
-        <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 'var(--space-4, 16px)' }}>
           <Card size="small" title={t('w10Interop.xds.provide')}>
             <Form form={xdsForm} name="iheXdsForm" layout="vertical" size="small">
               <Form.Item label={t('w10Interop.xds.patientId')} name="patientId" rules={[{ required: true, message: t('w10Interop.xds.requiredPatient') }]}>
@@ -553,7 +553,7 @@ export const IheManagerPage: React.FC = () => {
           </Card>
           <div>
             {xdsStats && (
-              <Card size="small" title={t('w10Interop.xds.stats')} style={{ marginBottom: 12 }}>
+              <Card size="small" title={t('w10Interop.xds.stats')} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <Space wrap>
                   <Tag color="blue">{t('w10Interop.stat.total')}: {xdsStats.total}</Tag>
                   <Tag color="purple">bytes: {xdsStats.bytes}</Tag>
@@ -592,7 +592,7 @@ export const IheManagerPage: React.FC = () => {
       label: <Space><Globe size={14} />{t('w10Interop.ihe.tabXca')}</Space>,
       children: (
         <div>
-          <Card size="small" style={{ marginBottom: 12 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Space wrap>
               <span>{t('w10Interop.xca.homeCommunity')}:</span>
               <Select value={xcaScope} onChange={setXcaScope} style={{ width: 320 }}
@@ -605,7 +605,7 @@ export const IheManagerPage: React.FC = () => {
               <Button icon={<Download size={12} />} loading={xcaLoading} disabled={xcaDocs.length === 0} onClick={handleXcaRetrieve}>{t('w10Interop.xca.retrieveBtn')}</Button>
             </Space>
             {xcaCommunities.length > 0 && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <Space wrap>
                   <span>{t('w10Interop.xca.communities')}:</span>
                   {xcaCommunities.map((c) => <Tag key={c.homeCommunityId} color="geekblue">{c.homeCommunityId}: {c.count}</Tag>)}
@@ -658,7 +658,7 @@ export const IheManagerPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Network size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheManager.title')}</span>
         <Tag color="cyan">PIX / PDQ / PAM</Tag>

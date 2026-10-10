@@ -212,7 +212,7 @@ export default function ExamDetailPage() {
           borderBottom: "1px solid var(--border-color)",
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
           background: "linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-600) 100%)",
         }}
       >
@@ -222,7 +222,7 @@ export default function ExamDetailPage() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 4,
+            gap: 'var(--space-1, 4px)',
             padding: "6px 12px",
             border: "1px solid rgba(255,255,255,0.4)",
             borderRadius: 8,
@@ -257,7 +257,7 @@ export default function ExamDetailPage() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 4,
+            gap: 'var(--space-1, 4px)',
             padding: "6px 12px",
             border: "1px solid rgba(255,255,255,0.4)",
             borderRadius: 8,
@@ -281,7 +281,7 @@ export default function ExamDetailPage() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 4,
+            gap: 'var(--space-1, 4px)',
             padding: "6px 12px",
             border: "1px solid rgba(255,255,255,0.4)",
             borderRadius: 8,
@@ -305,7 +305,7 @@ export default function ExamDetailPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             color: "var(--text-secondary)",
             fontSize: 12,
           }}
@@ -320,7 +320,7 @@ export default function ExamDetailPage() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
             color: "var(--color-error-600)",
             fontSize: 12,
           }}
@@ -331,7 +331,7 @@ export default function ExamDetailPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
               padding: "6px 14px",
               border: "1px solid var(--border-color)",
               borderRadius: 8,
@@ -345,7 +345,7 @@ export default function ExamDetailPage() {
           </button>
         </div>
       ) : (
-        <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-5, 20px)' }}>
           <ExamDetailView
             exam={exam}
             onStatusChanged={() => void load()}
@@ -362,7 +362,7 @@ export default function ExamDetailPage() {
           />
 
           {/* [v3.0.6.11-104 Wave 2B] 检查时间线 */}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <DashboardCard
               title={t("examPage.timelineTitle")}
               icon={<History size={14} />}
@@ -373,20 +373,20 @@ export default function ExamDetailPage() {
               testId="exam-timeline-card"
             >
               {!timeline || timeline.events.length === 0 ? (
-                <EmptyState type="nodata" description={t("examPage.timelineEmpty")} style={{ padding: 24 }} />
+                <EmptyState type="nodata" description={t("examPage.timelineEmpty")} style={{ padding: 'var(--space-6, 24px)' }} />
               ) : (
                 <>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-3, 12px)' }}>
                     {t("examPage.timelineEvents", { count: timeline.totalEvents })}
                   </div>
-                  <div style={{ position: "relative", paddingLeft: 20 }}>
+                  <div style={{ position: "relative", paddingLeft: 'var(--space-5, 20px)' }}>
                     <div style={{ position: "absolute", left: 5, top: 4, bottom: 4, width: 2, background: "var(--border-color)" }} />
                     {timeline.events.map((ev, i) => {
                       const color = TIMELINE_COLOR[ev.type] ?? "var(--color-primary-500)"
                       return (
                         <div key={`${ev.type}-${i}`} style={{ position: "relative", paddingBottom: 14 }}>
                           <div style={{ position: "absolute", left: -20, top: 3, width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 0 3px ${color}22` }} />
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', flexWrap: "wrap" }}>
                             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{ev.label}</span>
                             {ev.actor && <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>{ev.actor}</span>}
                             <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted, #94a3b8)", fontFamily: "monospace" }}>
@@ -404,7 +404,7 @@ export default function ExamDetailPage() {
           </div>
 
           {/* [v3.0.6.11-104 Wave 2B] 技师备注编辑 (POST /exams/:id/notes) */}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <DashboardCard title={t("examPage.techNotesTitle")} icon={<MessageSquare size={14} />} testId="exam-notes-card">
               <textarea
                 value={noteText}

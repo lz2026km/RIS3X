@@ -284,8 +284,8 @@ export default function BenchmarkPageV2() {
             borderRadius: 4,
           }}>
             {val}{code === 'exam_count' ? '例' : '%'}
-            {isBest && <Tag color="success" style={{ marginLeft: 4, fontSize: 10, lineHeight: '16px' }}>最优</Tag>}
-            {isWorst && <Tag color="error" style={{ marginLeft: 4, fontSize: 10, lineHeight: '16px' }}>最差</Tag>}
+            {isBest && <Tag color="success" style={{ marginLeft: 'var(--space-1, 4px)', fontSize: 10, lineHeight: '16px' }}>最优</Tag>}
+            {isWorst && <Tag color="error" style={{ marginLeft: 'var(--space-1, 4px)', fontSize: 10, lineHeight: '16px' }}>最差</Tag>}
           </span>
         )
       },
@@ -307,8 +307,8 @@ export default function BenchmarkPageV2() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1600, margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
         <Space>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, var(--color-primary-500), #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <BarChart3 size={22} color="#fff" />
@@ -321,13 +321,13 @@ export default function BenchmarkPageV2() {
       </div>
 
       {apiError && (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 6, fontSize: 12 }}>
           {apiError}
         </div>
       )}
 
       {usingDemo && (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef3c7', border: '1px solid #fcd34d', color: 'var(--color-warning-600)', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: '#fef3c7', border: '1px solid #fcd34d', color: 'var(--color-warning-600)', borderRadius: 6, fontSize: 12 }}>
           {t('w8Dose.benchmarkDemo')}
         </div>
       )}
@@ -341,7 +341,7 @@ export default function BenchmarkPageV2() {
           <StatCard title="危急值闭环率" value={stats.criticalClosedRate ?? '--'} suffix="%" color="#ec4899" />
         </StatCardGrid>
 
-        <div style={{ marginTop: 16, marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', alignItems: 'center' }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>院区选择:</span>
           <Select
             mode="multiple"
@@ -377,7 +377,7 @@ export default function BenchmarkPageV2() {
         <Card
           title={<Space><Activity size={16} /> 跨院区对比矩阵</Space>}
           variant="borderless"
-          style={{ borderRadius: 12, marginTop: 16 }}
+          style={{ borderRadius: 12, marginTop: 'var(--space-4, 16px)' }}
           extra={
             <Button size="small" icon={<Download size={14} />} onClick={handleExport}>
               导出 Excel

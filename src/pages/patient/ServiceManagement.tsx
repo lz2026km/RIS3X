@@ -81,16 +81,16 @@ const STATUS_MAP: Record<string, AppointmentRecord['status']> = {
 
 // ===== Styles =====
 const s = {
-  container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
-  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
-  title: { fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
+  container: { maxWidth: 1000, margin: '0 auto', padding: 'var(--space-6, 24px)', fontFamily: '-apple-system, sans-serif' },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', marginBottom: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
+  title: { fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: 'var(--space-4, 16px)' },
   btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--color-primary-800)', color: '#fff' },
   btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
   input: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, boxSizing: 'border-box' as const },
   select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
-  grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
-  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' as const },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' },
+  grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' },
+  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)', display: 'block' as const },
   badge: (status: string) => ({
     padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
     background: status === '已确认' ? 'var(--color-success-bg)' : status === '已取消' ? 'var(--color-error-bg)' : status === '已完成' ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
@@ -205,13 +205,13 @@ export default function ServiceManagement() {
   return (
     <div style={s.container}>
       {/* 数据源状态条 */}
-      <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', border: `1px solid ${source === 'api' ? 'var(--color-success-border)' : 'var(--color-warning-border)'}`, fontSize: 12, color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', padding: '10px 16px', borderRadius: 8, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', border: `1px solid ${source === 'api' ? 'var(--color-success-border)' : 'var(--color-warning-border)'}`, fontSize: 12, color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         {loading ? t('serviceMgmt.syncing') : source === 'api' ? t('serviceMgmt.sourceApi') : t('serviceMgmt.sourceDemo')}
         {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 'auto' }}>{error}</span>}
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', padding: 4, borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-5, 20px)', background: 'var(--bg-card)', padding: 'var(--space-1, 4px)', borderRadius: 10 }}>
         {(['appointment', 'push', 'preference'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600,
@@ -256,11 +256,11 @@ export default function ServiceManagement() {
                 <input placeholder={t('serviceMgmt.notesPlaceholder')} value={bookingForm.notes} onChange={e => setBookingForm(p => ({ ...p, notes: e.target.value }))} style={s.input} />
               </div>
             </div>
-            <button style={{ ...s.btn, marginTop: 12 }} onClick={() => void handleBook()}>{t('serviceMgmt.submitBooking')}</button>
+            <button style={{ ...s.btn, marginTop: 'var(--space-3, 12px)' }} onClick={() => void handleBook()}>{t('serviceMgmt.submitBooking')}</button>
             {successCode && (
-              <div style={{ marginTop: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-4, 16px)', background: 'var(--color-success-bg)', borderRadius: 8, textAlign: 'center' }}>
                 <div style={{ fontSize: 14, color: 'var(--color-success)', fontWeight: 600 }}>{t('serviceMgmt.bookingSuccess')}</div>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#059669', fontFamily: 'monospace', letterSpacing: 2, marginTop: 8 }}>{successCode}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#059669', fontFamily: 'monospace', letterSpacing: 2, marginTop: 'var(--space-2, 8px)' }}>{successCode}</div>
               </div>
             )}
           </Card>
@@ -282,7 +282,7 @@ export default function ServiceManagement() {
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{a.date} {a.timeSlot}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('serviceMgmt.codePrefix')}{a.code}</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <span style={s.badge(a.status)}>{a.status}</span>
                     {a.status !== '已取消' && a.status !== '已完成' && (
                       <button style={{ ...s.btnSmall, background: 'var(--color-error-bg)', color: 'var(--color-error)' }} onClick={() => void handleCancel(a.id)}>{t('serviceMgmt.cancel')}</button>
@@ -300,16 +300,16 @@ export default function ServiceManagement() {
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={s.title}>{t('serviceMgmt.pushTemplates')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? t('serviceMgmt.templatesRealtime') : t('serviceMgmt.demo')}</span></h3>
           {templates.map(tpl => (
-            <div key={tpl.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginBottom: 8, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+            <div key={tpl.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '14px 16px', marginBottom: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   {tpl.name}
                   <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                     background: tpl.channel === '短信' ? 'var(--color-info-bg)' : tpl.channel === '微信' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                     color: tpl.channel === '短信' ? 'var(--color-info)' : tpl.channel === '微信' ? 'var(--color-success)' : 'var(--color-warning)',
                   }}>{tpl.channel}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{tpl.content}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{tpl.content}</div>
               </div>
               <button onClick={() => toggleTemplate(tpl.id)} style={{
                 ...s.btnSmall, minWidth: 48,
@@ -320,7 +320,7 @@ export default function ServiceManagement() {
               </button>
             </div>
           ))}
-          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t('serviceMgmt.templatesNote')}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>{t('serviceMgmt.templatesNote')}</div>
         </Card>
       )}
 
@@ -328,7 +328,7 @@ export default function ServiceManagement() {
       {activeTab === 'preference' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={s.title}>{t('serviceMgmt.notifyPrefs')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('serviceMgmt.localStorage')}</span></h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
             {[
               { key: 'smsNotify' as const, label: t('serviceMgmt.notifySms') },
               { key: 'wechatNotify' as const, label: t('serviceMgmt.notifyWechat') },
@@ -343,7 +343,7 @@ export default function ServiceManagement() {
               </label>
             ))}
           </div>
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <label style={s.label}>{t('serviceMgmt.language')}</label>
             <select value={prefs.language} onChange={e => setPrefs(p => ({ ...p, language: e.target.value as 'zh-CN' | 'en' }))} style={s.select}>
               <option value="zh-CN">{t('serviceMgmt.langZh')}</option>
@@ -351,7 +351,7 @@ export default function ServiceManagement() {
             </select>
           </div>
           <button
-            style={{ ...s.btn, marginTop: 16 }}
+            style={{ ...s.btn, marginTop: 'var(--space-4, 16px)' }}
             onClick={() => {
               try {
                 window.localStorage.setItem('ris_patient_prefs', JSON.stringify(prefs));

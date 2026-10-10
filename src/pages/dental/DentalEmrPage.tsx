@@ -205,7 +205,7 @@ export const DentalEmrPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadPatient(selectedId)} retryLabel={t('w9.states.retry')} />}
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalEmr.title')}</span>
         <Tag color="cyan">v3.0.6.8-94</Tag>
@@ -217,7 +217,7 @@ export const DentalEmrPage: React.FC = () => {
       </Space>
       {overview && (
         <>
-          <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Col span={6}>
               <Card size="small">
                 <Space>
@@ -246,7 +246,7 @@ export const DentalEmrPage: React.FC = () => {
                   {overview.systemicDisease?.map((d: string) => <Tag key={d} color="orange">{d}</Tag>)}
                   {overview.tags?.map((tag: string) => <Tag key={tag} color="purple">{tag}</Tag>)}
                 </Space>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{t('dentalEmr.firstVisit')}: {overview.firstVisit} | {t('dentalEmr.attending')}: {overview.dentist}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('dentalEmr.firstVisit')}: {overview.firstVisit} | {t('dentalEmr.attending')}: {overview.dentist}</div>
               </Card>
             </Col>
           </Row>
@@ -263,13 +263,13 @@ export const DentalEmrPage: React.FC = () => {
                   <Descriptions.Item label={t('dentalEmr.address')} span={2}>{overview.address}</Descriptions.Item>
                   <Descriptions.Item label={t('dentalEmr.allergyHistory')}>{overview.allergies?.join(',') || t('dentalEmr.none')}</Descriptions.Item>
                 </Descriptions>
-                <Timeline style={{marginTop:16}} items={treatments.slice(0,5).map((tr:any)=>({color:tr.type==='Implant'?'red':tr.type==='Endodontic'?'orange':'blue',children:<><b>{tr.date}</b> {tr.description} <Tag>{tr.type}</Tag> <Tag>¥{tr.cost}</Tag></>}))} />
+                <Timeline style={{marginTop:'var(--space-4, 16px)'}} items={treatments.slice(0,5).map((tr:any)=>({color:tr.type==='Implant'?'red':tr.type==='Endodontic'?'orange':'blue',children:<><b>{tr.date}</b> {tr.description} <Tag>{tr.type}</Tag> <Tag>¥{tr.cost}</Tag></>}))} />
               </>},
               {key:'treatments', label:<span><FileText size={12}/>{t('dentalEmr.tabTreatments')} ({treatments.length})</span>, children:<DataTable dataSource={pagedTreatments} rowKey="id" pagination={treatmentsPagination}
                 columns={[{title:t('dentalEmr.colDate'),dataIndex:'date',width:100},{title:t('dentalEmr.colType'),dataIndex:'type',render:(v:string)=><Tag>{v}</Tag>,width:100},{title:t('dentalEmr.colTooth'),dataIndex:'toothNo',width:60,render:(n:number)=>n?<Tag color="blue">#{n}</Tag>:t('dentalEmr.fullMouth')},{title:t('dentalEmr.colDescription'),dataIndex:'description'},{title:t('dentalEmr.colDentist'),dataIndex:'dentist'},{title:t('dentalEmr.colCost'),dataIndex:'cost',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colSelfPay'),dataIndex:'patientPaid',render:(v:number)=>`¥${v}`,width:80}]} 
               scroll={{ x: 'max-content' }}/>},
               {key:'appointments', label:<span><Clock size={12}/>{t('dentalEmr.tabAppointments')} ({appts.length})</span>, children:<>
-                <div style={{ marginBottom: 8 }}>
+                <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <Button size="small" type="primary" icon={<Plus size={12} />} onClick={openApptCreate}>{t("w3b.apptCreate")}</Button>
                 </div>
                 <DataTable dataSource={pagedAppts} rowKey="id" pagination={apptsPagination}

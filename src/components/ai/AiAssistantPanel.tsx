@@ -81,8 +81,8 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
   };
 
   return (
-    <div data-testid="ai-assistant-panel" style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 8, padding: 12, height, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+    <div data-testid="ai-assistant-panel" style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 8, padding: 'var(--space-3, 12px)', height, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
         <Bot size={15} style={{ color: '#818cf8' }} />
         <span style={{ fontSize: 14, fontWeight: 600 }}>AI 助手</span>
         <span style={{ fontSize: 12, color: llm.ready ? '#10b981' : '#94a3b8' }}>{llm.ready ? 'DeepSeek 已就绪' : '未配置'}</span>
@@ -99,7 +99,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 4, marginBottom: 10, borderBottom: '1px solid #334155' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 10, borderBottom: '1px solid #334155' }}>
         {PANEL_TABS.map((t) => (
           <button
             key={t}
@@ -123,7 +123,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
 
       {tab === 'tasks' ? (
         <>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)', marginBottom: 10 }}>
             {(Object.keys(TASK_LABELS) as LLMTask[]).map(t => (
               <button
                 key={t}
@@ -150,7 +150,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
               value={phrase}
               onChange={e => setPhrase(e.target.value)}
               placeholder="输入短语，如'右肺下叶斑片状高密度影'"
-              style={{ background: '#1e293b', color: 'white', border: '1px solid #334155', borderRadius: 4, padding: 6, fontSize: 12, marginBottom: 8 }}
+              style={{ background: '#1e293b', color: 'white', border: '1px solid #334155', borderRadius: 4, padding: 6, fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}
             />
           )}
 
@@ -175,7 +175,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
             {llm.error ? <span style={{ color: '#fca5a5' }}>错误: {llm.error}</span> : (llm.output || <span style={{ color: '#64748b' }}>输出将显示在此...</span>)}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
             {llm.usage && (
               <span data-testid="ai-usage">
                 tokens: {llm.usage.total} (↑{llm.usage.prompt} ↓{llm.usage.completion})
@@ -195,7 +195,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
           </div>
 
           {llm.history.length > 0 && (
-            <details style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
+            <details style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
               <summary style={{ cursor: 'pointer' }}>历史 ({llm.history.length})</summary>
               <div style={{ maxHeight: 100, overflow: 'auto' }}>
                 {llm.history.slice(-5).map((h, i) => (
@@ -210,18 +210,18 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
       ) : (
         <div data-testid="ai-marketplace-tab" style={{ flex: 1, overflow: 'auto' }}>
           {marketplaceState.loading ? (
-            <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8' }}>加载中...</div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: '#94a3b8' }}>加载中...</div>
           ) : (
             <div>
               {marketplaceState.listings.slice(0, 15).map((l) => (
-                <div key={l.algorithm.id} style={{ background: '#020617', border: '1px solid #1e293b', borderRadius: 4, padding: 8, marginBottom: 6 }}>
+                <div key={l.algorithm.id} style={{ background: '#020617', border: '1px solid #1e293b', borderRadius: 4, padding: 'var(--space-2, 8px)', marginBottom: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{l.algorithm.name}</div>
                       <div style={{ fontSize: 12, color: '#94a3b8' }}>{l.algorithm.vendor} · {l.algorithm.type} · Acc {(l.algorithm.accuracy * 100).toFixed(0)}%</div>
                     </div>
                     {l.installed ? (
-                      <span style={{ fontSize: 12, color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={12} /> 已安装</span>
+                      <span style={{ fontSize: 12, color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><CheckCircle2 size={12} /> 已安装</span>
                     ) : (
                       <button
                         data-testid={`ai-install-${l.algorithm.id}`}

@@ -165,7 +165,7 @@ export default function AccountsReceivablePage() {
     {
       title: t('ar.colStatus'), dataIndex: 'status', key: 'status',
       render: (v: ReceivableItem['status']) => (
-        <span style={{ fontSize: 12, color: v === 'current' ? 'var(--color-success-500)' : v === 'overdue' ? 'var(--color-error-500)' : '#6e7681', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ fontSize: 12, color: v === 'current' ? 'var(--color-success-500)' : v === 'overdue' ? 'var(--color-error-500)' : '#6e7681', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           {v === 'current' ? <Clock size={12} /> : v === 'overdue' ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}
           {v === 'current' ? t('ar.status.current') : v === 'overdue' ? t('ar.status.overdue') : t('ar.status.writeoff')}
         </span>
@@ -196,33 +196,33 @@ export default function AccountsReceivablePage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 700 }}>{t('ar.title')}</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 700 }}>{t('ar.title')}</span></div>
         <button onClick={handleExportCsv} disabled={items.length === 0} title={items.length === 0 ? t('ar.exportDisabled') : t('ar.exportHint')} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: items.length === 0 ? 'not-allowed' : 'pointer', opacity: items.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Download size={14} />{t('ar.exportReport')}</button>
       </div>
 
-      <div style={{ padding: '12px 24px 0', display: 'flex', gap: 12, alignItems: 'center' }}>
+      <div style={{ padding: '12px 24px 0', display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center' }}>
         {loading && <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('ar.loading')}</span>}
         {error && (
           <span style={{ fontSize: 12, color: '#f85149' }}>
             {error} {t('ar.fallbackSuffix')}
-            <button onClick={fetchReceivables} style={{ marginLeft: 8, padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-secondary, #21262d)', color: 'var(--text-primary, #f0f6fc)', cursor: 'pointer', fontSize: 12 }}>{t('ar.retry')}</button>
+            <button onClick={fetchReceivables} style={{ marginLeft: 'var(--space-2, 8px)', padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-secondary, #21262d)', color: 'var(--text-primary, #f0f6fc)', cursor: 'pointer', fontSize: 12 }}>{t('ar.retry')}</button>
           </span>
         )}
         {!error && usingFallback && <span style={{ fontSize: 12, color: '#d29922' }}>{t('ar.fallbackSource')}</span>}
         {!error && !usingFallback && !loading && <span style={{ fontSize: 12, color: 'var(--color-success-500)' }}>{t('ar.realSource')}</span>}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, padding: '20px 24px' }}>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-4, 16px)', padding: '20px 24px' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('ar.totalReceivable')}</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500, var(--color-primary-500))' }}>¥{summary.total.toLocaleString()}</div>
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('ar.overdueAmount')}</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-500, var(--color-error-500))' }}>¥{summary.overdue.toLocaleString()}</div>
         </div>
         {summary.byAging.map(b => (
-          <div key={b.key} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+          <div key={b.key} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
             <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t(b.label)}</div>
             <div style={{ fontSize: 30, fontWeight: 700, color: b.color }}>¥{b.amount.toLocaleString()}</div>
             <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>{t('ar.countUnit', { count: b.count })}</div>
@@ -231,8 +231,8 @@ export default function AccountsReceivablePage() {
       </div>
 
       <div style={{ padding: '0 24px 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
               <input type="text" placeholder={t('ar.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, width: 240,}} />

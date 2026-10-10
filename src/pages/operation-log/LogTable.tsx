@@ -22,18 +22,18 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
   return (
     <div style={{ position: 'relative' }}>
       {groupedLogs.map(([date, dayLogs], _groupIndex) => (
-        <div key={date} style={{ marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, marginLeft: 40 }}>
+        <div key={date} style={{ marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'var(--space-4, 16px)', marginLeft: 'var(--space-10, 40px)' }}>
             <div style={{
               background: PRIMARY, color: WHITE, padding: '4px 12px', borderRadius: 20,
               fontSize: 12, fontWeight: 600, boxShadow: '0 2px 6px rgba(30,58,95,0.3)',
             }}>
               {date}
             </div>
-            <div style={{ flex: 1, height: 1, background: '#e2e8f0', marginLeft: 12 }} />
+            <div style={{ flex: 1, height: 1, background: '#e2e8f0', marginLeft: 'var(--space-3, 12px)' }} />
           </div>
 
-          <div style={{ marginLeft: 40 }}>
+          <div style={{ marginLeft: 'var(--space-10, 40px)' }}>
             {dayLogs.map((log, index) => {
               const isLast = index === dayLogs.length - 1
               return (
@@ -55,7 +55,7 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
 
                   <div style={{
                     flex: 1, background: WHITE, border: '1px solid #e2e8f0',
-                    borderRadius: 10, padding: 14, marginLeft: 16,
+                    borderRadius: 10, padding: 14, marginLeft: 'var(--space-4, 16px)',
                     cursor: 'pointer', transition: 'all 0.2s',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                   }}
@@ -69,13 +69,13 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
                     }}
                     onClick={() => onViewDetail(log)}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         <span style={{
                           background: `${ACTION_COLORS[log.action] || ACCENT}20`,
                           color: ACTION_COLORS[log.action] || ACCENT,
                           padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                          display: 'flex', alignItems: 'center', gap: 4,
+                          display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                         }}>
                           {ACTION_ICONS[log.action]}
                           {log.action}
@@ -90,12 +90,12 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
+                        <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                           <User size={11} />
                           {log.userName}
                         </span>
-                        <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                           <Monitor size={11} />
                           {log.ipAddress}
                         </span>
@@ -137,7 +137,7 @@ function Pagination({
       <div style={{ fontSize: 12, color: GRAY }}>
         显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, total)} 条，共 {total} 条
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, color: GRAY }}>每页</span>
           <select
@@ -149,7 +149,7 @@ function Pagination({
           </select>
           <span style={{ fontSize: 12, color: GRAY }}>条</span>
         </div>
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
@@ -214,7 +214,7 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
       </div>
 
       {logs.length === 0 && (
-        <EmptyState type="noresult" description="无匹配日志" style={{ padding: 40 }} testId="op-log-empty" />
+        <EmptyState type="noresult" description="无匹配日志" style={{ padding: 'var(--space-10, 40px)' }} testId="op-log-empty" />
       )}
 
       {logs.map(log => (
@@ -260,13 +260,13 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
             {log.targetDesc}
           </div>
           <div style={{ color: GRAY }}>{log.ipAddress}</div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
             <button
               onClick={() => onViewDetail(log)}
               style={{
                 padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0',
                 background: WHITE, color: ACCENT, fontSize: 12, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               <Eye size={12} />

@@ -26,7 +26,7 @@ const sectionTitle: CSSProperties = {
   fontSize: 12,
   fontWeight: 600,
   color: 'var(--color-primary-800)',
-  marginBottom: 12,
+  marginBottom: 'var(--space-3, 12px)',
   display: 'flex',
   alignItems: 'center',
   gap: 6,
@@ -73,10 +73,10 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
   )
 
   if (loading) {
-    return <div style={{ padding: 24, textAlign: 'center' }} data-testid={`${testId}-loading`}><Spin tip={t('w7exec.loading')} /></div>
+    return <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center' }} data-testid={`${testId}-loading`}><Spin tip={t('w7exec.loading')} /></div>
   }
   if (error || !data) {
-    return <Empty description={error ?? t('w7exec.empty')} style={{ padding: 24 }} data-testid={`${testId}-empty`} />
+    return <Empty description={error ?? t('w7exec.empty')} style={{ padding: 'var(--space-6, 24px)' }} data-testid={`${testId}-empty`} />
   }
 
   const validation = data.validation
@@ -86,7 +86,7 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
         <div
           data-testid={`${testId}-mismatch`}
           style={{
-            display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 12px', borderRadius: 8,
+            display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', borderRadius: 8,
             background: validation.imageCountMismatch ? '#fef2f2' : '#f0fdf4',
             border: `1px solid ${validation.imageCountMismatch ? '#fecaca' : '#bbf7d0'}`,
             color: validation.imageCountMismatch ? 'var(--color-error-600)' : '#059669',
@@ -102,12 +102,12 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
         </div>
       )}
 
-      <div style={{ marginBottom: 20 }} data-testid={`${testId}-protocol`}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }} data-testid={`${testId}-protocol`}>
         <div style={sectionTitle}><ScanLine size={14} />{t('w7exec.protocol')}</div>
         <div style={panelStyle}>
           {data.protocol || data.state.protocolId ? (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                 <span style={{ fontWeight: 700, fontSize: 12 }}>{data.protocol?.name ?? data.state.protocolName ?? data.state.protocolId}</span>
                 <Tag color="geekblue">{data.protocol?.modality ?? '--'}</Tag>
                 {data.protocol?.code && <Tag>{data.protocol.code}</Tag>}
@@ -115,7 +115,7 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
                   {(data.protocol?.contrast ?? false) ? t('w7exec.contrastYes') : t('w7exec.contrastNo')}
                 </Tag>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                 <div>{t('w7exec.exposureParams')}: <b>{fmtExposure(data.state.exposureParams as Record<string, unknown> | undefined)}</b></div>
                 <div>{t('w7exec.scanRange')}: <b>{data.state.scanRange?.orientation ?? '--'}</b></div>
                 <div>{t('w7exec.expectedSeries')}: <b>{validation.expectedSeries}</b> · {t('w7exec.capturedSeries')}: <b>{validation.capturedSeries}</b></div>
@@ -128,7 +128,7 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
         </div>
       </div>
 
-      <div style={{ marginBottom: 20 }} data-testid={`${testId}-series`}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }} data-testid={`${testId}-series`}>
         <div style={sectionTitle}><Layers size={14} />{t('w7exec.series')} <Tag color="blue">{data.series.length}</Tag></div>
         <div style={panelStyle}>
           {data.series.length === 0 ? (
@@ -158,7 +158,7 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
         </div>
       </div>
 
-      <div style={{ marginBottom: 20 }} data-testid={`${testId}-qc`}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }} data-testid={`${testId}-qc`}>
         <div style={sectionTitle}><ShieldCheck size={14} />{t('w7exec.seriesQc')} <Tag color={rejectCount > 0 ? 'red' : 'green'}>{data.qcSummary.passed}/{data.qcSummary.total}</Tag></div>
         <div style={panelStyle}>
           {data.seriesQc.length === 0 ? (
@@ -166,7 +166,7 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {data.seriesQc.map((q) => (
-                <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }} data-testid={`${testId}-qc-${q.seriesNumber}`}>
+                <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12 }} data-testid={`${testId}-qc-${q.seriesNumber}`}>
                   <Tag color={q.quality === 'PASS' ? 'green' : 'red'}>#{q.seriesNumber} {q.quality === 'PASS' ? t('w7exec.qcPassed') : t('w7exec.qcRejected')}</Tag>
                   {q.score !== undefined && <span>{t('w7exec.qcScore')}: {q.score}</span>}
                   {q.reason && <span style={{ color: 'var(--text-secondary)' }}>{q.reason}</span>}
@@ -178,11 +178,11 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
         </div>
       </div>
 
-      <div style={{ marginBottom: 20 }} data-testid={`${testId}-dose`}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }} data-testid={`${testId}-dose`}>
         <div style={sectionTitle}><Activity size={14} />{t('w7exec.dose')}</div>
         <div style={panelStyle}>
           {data.dose ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, fontSize: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
               <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseDlp')}</div><div style={{ fontWeight: 700 }}>{data.dose.dlp} mGy·cm</div></div>
               <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseCtdiVol')}</div><div style={{ fontWeight: 700 }}>{data.dose.ctdiVol} mGy</div></div>
               <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseSsde')}</div><div style={{ fontWeight: 700 }}>{data.dose.ssde ?? '--'}</div></div>

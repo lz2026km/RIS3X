@@ -16,7 +16,7 @@ export default function ReportToast({ show, message, type }: ReportToastProps) {
       background: type === 'success' ? SUCCESS : type === 'error' ? DANGER : PRIMARY,
       color: WHITE, padding: '12px 20px', borderRadius: 10,
       boxShadow: '0 4px 20px rgba(0,0,0,0.25)', fontSize: 12, fontWeight: 600,
-      display: 'flex', alignItems: 'center', gap: 8, maxWidth: 360,
+      display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', maxWidth: 360,
     }}>
       {type === 'success' ? <CheckCircle size={16} /> : type === 'error' ? <AlertTriangle size={16} /> : <Bell size={16} />}
       {message}

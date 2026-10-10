@@ -89,7 +89,7 @@ export function OeeOverviewSection() {
   }
 
   return (
-    <Space direction="vertical" size={16} style={{ width: '100%', marginBottom: 16 }}>
+    <Space direction="vertical" size={16} style={{ width: '100%', marginBottom: 'var(--space-4, 16px)' }}>
       <StatCardGrid>
         <StatCard
           title={t('oeeExt.avgOee')}
@@ -111,7 +111,7 @@ export function OeeOverviewSection() {
         />
       </StatCardGrid>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
         <DashboardCard
           title={t('oeeExt.dailyTrend')}
           icon={<TrendingUp size={15} />}

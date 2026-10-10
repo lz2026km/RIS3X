@@ -104,7 +104,7 @@ export function ReportReEvaluateSection() {
   ];
 
   return (
-    <Space direction="vertical" size={16} style={{ width: '100%', marginTop: 16 }}>
+    <Space direction="vertical" size={16} style={{ width: '100%', marginTop: 'var(--space-4, 16px)' }}>
       <DashboardCard
         title={t('rqExt.reEvaluate')}
         icon={<ClipboardCheck size={15} />}
@@ -115,31 +115,31 @@ export function ReportReEvaluateSection() {
         }
       >
         <Space direction="vertical" size={12} style={{ width: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('rqExt.reportId')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('rqExt.reportId')}</div>
               <Input value={reportId} onChange={(e) => setReportId(e.target.value)} placeholder={t('rqExt.reportId')} allowClear />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('rqExt.radsCategory')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('rqExt.radsCategory')}</div>
               <Input value={radsCategory} onChange={(e) => setRadsCategory(e.target.value)} placeholder="RADS" allowClear />
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('rqExt.findings')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('rqExt.findings')}</div>
             <Input.TextArea rows={3} value={findings} onChange={(e) => setFindings(e.target.value)} />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('rqExt.conclusion')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('rqExt.conclusion')}</div>
             <Input.TextArea rows={2} value={conclusion} onChange={(e) => setConclusion(e.target.value)} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-3, 12px)' }}>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('rqExt.suggestion')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('rqExt.suggestion')}</div>
               <Input value={suggestion} onChange={(e) => setSuggestion(e.target.value)} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('rqExt.structuredCompletion')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('rqExt.structuredCompletion')}</div>
               <InputNumber min={0} max={1} step={0.1} value={structuredCompletion} onChange={(v) => setStructuredCompletion(v)} style={{ width: '100%' }} />
             </div>
           </div>
@@ -152,8 +152,8 @@ export function ReportReEvaluateSection() {
           </Space>
 
           {result && (
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-              <Space wrap style={{ marginBottom: 8 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
+              <Space wrap style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <Tag color="blue">{t('rqExt.totalScore')}: {result.totalScore}</Tag>
                 <Tag color={result.grade === 'A' ? 'green' : result.grade === 'B' ? 'blue' : result.grade === 'C' ? 'orange' : 'red'}>
                   {t('rqExt.grade')}: {result.grade}
@@ -173,7 +173,7 @@ export function ReportReEvaluateSection() {
                 ]}
               />
               {result.suggestions.length > 0 && (
-                <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>
                   {t('rqExt.suggestions')}: {result.suggestions.join('; ')}
                 </div>
               )}

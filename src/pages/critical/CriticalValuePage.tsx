@@ -389,12 +389,12 @@ export default function CriticalValuePage() {
   }
 
   return (
-    <div data-testid="critical-value-page" style={{ padding: 24, background: 'var(--bg-primary)',}}>
+    <div data-testid="critical-value-page" style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
       {loading && <LoadingBanner message={t("criticalValuePage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{'@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }'}</style>
 
-      <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, var(--color-error-600) 100%)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, color: '#fff' }}>
+      <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, var(--color-error-600) 100%)', borderRadius: 10, padding: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', color: '#fff' }}>
         <div style={{ fontSize: 18 }}></div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700 }}>{t("criticalValuePage.bannerTitle")}</div>
@@ -407,20 +407,20 @@ export default function CriticalValuePage() {
         </div>
       </div>
 
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-1, 4px)' }}>
           <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
           <Title level={4} style={{ margin: 0 }}>{t("criticalValuePage.title")}</Title>
           <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>{t("criticalValuePage.versionBadge")}</span>
         </div>
-        <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>{t("criticalValuePage.subtitle")}</p>
+        <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 'var(--space-8, 32px)' }}>{t("criticalValuePage.subtitle")}</p>
       </div>
 
       {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCV-04 危急值 10min 通报完成率 */}
       <RqiIndicatorLink code="RQI-RCV-04" />
 
       {/* [G005 v3.0.6.11-104 Wave 5B] 多入口收敛: Tab 枢纽导航 (照 QCPage 内嵌模式) */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 6, marginBottom: 16, display: 'flex', gap: 4, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 6, marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key
           return (
@@ -457,7 +457,7 @@ export default function CriticalValuePage() {
         ]}
       />
 
-      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'flex-start' }}>
         <CriticalValueListSection
           search={search} setSearch={setSearch}
           statusFilter={statusFilter} setStatusFilter={setStatusFilter}
@@ -475,7 +475,7 @@ export default function CriticalValuePage() {
           criticalValues={criticalValues}
         />
         {selectedCV && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 480 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)', width: 480 }}>
             <ClosedLoopTracker5Nodes cv={selectedCV} />
             <DetailPanel cv={selectedCV} onClose={() => setSelectedCV(null)} activeTab={detailTab} setActiveTab={setDetailTab} followUpRecords={followUpRecords} historyEvents={historyEvents} />
           </div>

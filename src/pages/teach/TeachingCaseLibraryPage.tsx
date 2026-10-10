@@ -66,7 +66,7 @@ function QrPattern({ data, size = 9 }: { data: string; size?: number }) {
     return out
   }, [data, size])
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${size}, 8px)`, gap: 1, background: 'var(--bg-card, #ffffff)', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', padding: 4, borderRadius: 6 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${size}, 8px)`, gap: 1, background: 'var(--bg-card, #ffffff)', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', padding: 'var(--space-1, 4px)', borderRadius: 6 }}>
       {cells.flat().map((on, i) => (
         <div key={i} style={{ width: 8, height: 8, background: on ? '#111827' : 'var(--bg-card, #ffffff)' }} />
       ))}
@@ -265,13 +265,13 @@ export default function TeachingCaseLibraryPage() {
   const renderCategoryTree = (groups: CategoryNodeDto[]) => {
     const icons = [<FolderOpen key="0" size={13} />, <Scan key="1" size={13} />, <Award key="2" size={13} />, <TagIcon key="3" size={13} />]
     return groups.map((g, gi) => (
-      <div key={g.name} style={{ marginBottom: 8 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div key={g.name} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           {icons[gi % icons.length]}
           {g.name}
           <span style={{ color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{g.count}</span>
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, paddingLeft: 16 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)', paddingLeft: 'var(--space-4, 16px)' }}>
           {(g.children ?? []).slice(0, 12).map((child) => {
             const active =
               (gi === 0 && query.disease === child.name) ||
@@ -300,11 +300,11 @@ export default function TeachingCaseLibraryPage() {
   const filteredCategories = useMemo(() => categories, [categories])
 
   return (
-    <div style={{ padding: 16, maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-4, 16px)', maxWidth: 1400, margin: '0 auto' }}>
       {/* 头部 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <GraduationCap size={20} color="#1677ff" />
             {t('title', '教学病例库')}
           </div>
@@ -321,7 +321,7 @@ export default function TeachingCaseLibraryPage() {
       </div>
 
       {/* 统计卡片 */}
-      <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+      <Row gutter={[12, 12]} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         {[
           { icon: <BookOpen size={18} />, label: t('statTotal', '病例总数'), value: stats?.total ?? total, color: '#1677ff', bg: '#e6f4ff' },
           { icon: <Share2 size={18} />, label: t('statShared', '已分享'), value: stats?.shared ?? 0, color: '#722ed1', bg: '#f9f0ff' },
@@ -341,8 +341,8 @@ export default function TeachingCaseLibraryPage() {
       </Row>
 
       {/* Tab 区域 */}
-      <Card size="small" styles={{ body: { padding: 12 } }}>
-        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))', marginBottom: 12 }}>
+      <Card size="small" styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))', marginBottom: 'var(--space-3, 12px)' }}>
           {[
             { key: 'library', label: t('tabLibrary', '病例库'), icon: <BookOpen size={14} /> },
             { key: 'exam', label: t('tabExam', '考试模式'), icon: <Award size={14} /> },
@@ -368,8 +368,8 @@ export default function TeachingCaseLibraryPage() {
         {activeTab === 'library' && (
           <div style={{ display: 'flex', gap: 14 }}>
             {/* 分类树 */}
-            <div style={{ width: 250, flexShrink: 0, borderRight: '1px solid var(--border-default, rgba(0,0,0,0.12))', paddingRight: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 250, flexShrink: 0, borderRight: '1px solid var(--border-default, rgba(0,0,0,0.12))', paddingRight: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Filter size={13} />
                 {t('categories', '分类')}
               </div>
@@ -377,7 +377,7 @@ export default function TeachingCaseLibraryPage() {
             </div>
             {/* 病例列表 */}
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', marginBottom: 'var(--space-3, 12px)' }}>
                 <Input
                   style={{ width: 220 }}
                   prefix={<Search size={14} color="var(--text-muted, #94a3b8)" />}
@@ -407,10 +407,10 @@ export default function TeachingCaseLibraryPage() {
                 {cases.length === 0 ? (
                   <Empty description={t('noData', '暂无教学病例')} />
                 ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-3, 12px)' }}>
                     {cases.map((c) => {
                       return (
-                        <Card key={c.id} size="small" styles={{ body: { padding: 12 } }}>
+                        <Card key={c.id} size="small" styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
                           <div style={{ display: 'flex', gap: 10 }}>
                             <div style={{
                               width: 64, height: 64, borderRadius: 8, flexShrink: 0,
@@ -421,19 +421,19 @@ export default function TeachingCaseLibraryPage() {
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontWeight: 600, fontSize: 12, color: '#0f172a', lineHeight: 1.4 }}>{c.title}</div>
-                              <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
+                              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginTop: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                                 <Tag color={DIFFICULTY_COLORS[c.difficulty] ?? undefined} style={{ fontSize: 11, marginInlineEnd: 0 }}>{c.difficulty}</Tag>
                                 <Tag style={{ fontSize: 11, marginInlineEnd: 0 }}>{c.disease}</Tag>
                                 <Tag style={{ fontSize: 11, marginInlineEnd: 0 }}>{c.bodyPart}</Tag>
                               </div>
-                              <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', marginTop: 4 }}>
+                              <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', marginTop: 'var(--space-1, 4px)' }}>
                                 <Eye size={11} style={{ verticalAlign: -1 }} /> {c.viewCount}
-                                <Heart size={11} style={{ verticalAlign: -1, marginLeft: 8 }} /> {c.favoriteCount}
-                                {c.shared && <Tag color="purple" style={{ fontSize: 10, marginLeft: 8, marginInlineEnd: 0 }}>{t('sharedBadge', '已分享')}</Tag>}
+                                <Heart size={11} style={{ verticalAlign: -1, marginLeft: 'var(--space-2, 8px)' }} /> {c.favoriteCount}
+                                {c.shared && <Tag color="purple" style={{ fontSize: 10, marginLeft: 'var(--space-2, 8px)', marginInlineEnd: 0 }}>{t('sharedBadge', '已分享')}</Tag>}
                               </div>
                             </div>
                           </div>
-                          <div style={{ fontSize: 11, color: '#475569', marginTop: 8, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <div style={{ fontSize: 11, color: '#475569', marginTop: 'var(--space-2, 8px)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             {c.diagnosis}
                           </div>
                           {c.keyPoints.length > 0 && (
@@ -464,7 +464,7 @@ export default function TeachingCaseLibraryPage() {
         {/* ═══ 考试模式 ═══ */}
         {activeTab === 'exam' && (
           <div>
-            <Card size="small" style={{ marginBottom: 12 }}>
+            <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Space wrap>
                 <span style={{ fontSize: 12 }}>{t('examCount', '抽题数量')}</span>
                 <InputNumber min={2} max={20} value={examConfig.count} onChange={(v) => setExamConfig((prev) => ({ ...prev, count: v ?? 5 }))} />
@@ -492,7 +492,7 @@ export default function TeachingCaseLibraryPage() {
             </Card>
             {!paper && <Empty description={t('examEmpty', '配置抽题数量与难度后开始考试 (病例→诊断选项→评分→错题本)')} />}
             {paper && examResult && (
-              <Card size="small" style={{ marginBottom: 12, borderColor: examResult.passed ? '#b7eb8f' : '#ffccc7' }}>
+              <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)', borderColor: examResult.passed ? '#b7eb8f' : '#ffccc7' }}>
                 <Row gutter={16} align="middle">
                   <Col><Progress type="circle" percent={examResult.score} size={72} status={examResult.passed ? 'success' : 'exception'} /></Col>
                   <Col>
@@ -540,7 +540,7 @@ export default function TeachingCaseLibraryPage() {
         {/* ═══ 错题本 ═══ */}
         {activeTab === 'wrong' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
                 {t('wrongCount', '错题数量')}: <b>{wrongBook.length}</b>
               </div>
@@ -557,7 +557,7 @@ export default function TeachingCaseLibraryPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <span style={{ fontWeight: 600, fontSize: 12 }}>{w.title}</span>
-                        <Tag style={{ marginLeft: 8, fontSize: 11 }}>{w.disease}</Tag>
+                        <Tag style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11 }}>{w.disease}</Tag>
                       </div>
                       <Tag color="red" style={{ fontSize: 11 }}>{t('wrongTimes', '错 {{count}} 次', { count: w.wrongCount })}</Tag>
                     </div>
@@ -631,12 +631,12 @@ export default function TeachingCaseLibraryPage() {
         footer={null}
       >
         {shareTarget && shareInfo && (
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'center' }}>
             <QrPattern data={shareInfo.qrData} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 4 }}>{t('shareLink', '分享链接')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('shareLink', '分享链接')}</div>
               <Input readOnly value={shareInfo.shareUrl} onFocus={(e) => e.target.select()} />
-              <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 8 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>
                 {t('shareHint', '扫码或复制链接即可查看病例详情 (教学共享)')}
               </div>
             </div>
@@ -652,7 +652,7 @@ export default function TeachingCaseLibraryPage() {
         footer={null}
         width={520}
       >
-        <div style={{ maxHeight: 300, overflowY: 'auto', marginBottom: 12 }}>
+        <div style={{ maxHeight: 300, overflowY: 'auto', marginBottom: 'var(--space-3, 12px)' }}>
           {comments.length === 0 && <Empty description={t('noComment', '暂无评论')} />}
           {comments.map((cm) => (
             <div key={cm.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
@@ -664,7 +664,7 @@ export default function TeachingCaseLibraryPage() {
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <Input
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}

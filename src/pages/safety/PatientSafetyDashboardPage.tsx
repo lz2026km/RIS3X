@@ -96,7 +96,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Shield size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('psd.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
@@ -107,18 +107,18 @@ const PatientSafetyDashboardPage: React.FC = () => {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon message={t('psd.loadError')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('psd.loadError')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('psd.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" icon={<Shield size={14} />} loading={loading} color={safetyScore >= 90 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))'} />
         <StatCard title={t('psd.kpiOpen')} value={openCount} loading={loading} color="var(--color-warning-500, var(--color-warning-500))" />
         <StatCard title={t('psd.kpiClosed')} value={closedCount} loading={loading} color="var(--color-success-500, var(--color-success-500))" />
         <StatCard title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} color="var(--color-error-500, var(--color-error-500))" />
       </StatCardGrid>
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+      <Row gutter={[12, 12]} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col xs={24} lg={16}>
           <Card size="small" title={<Space><Activity size={14} />{t('psd.distTrend')}</Space>} loading={loading}>
             <Tabs
@@ -130,7 +130,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                     <Row gutter={[8, 8]}>
                       {severityDist(events).map((s) => (
                         <Col span={12} key={s.key}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                             <span style={{ fontSize: 12, width: 70 }}>{s.label}</span>
                             <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-primary-600, var(--color-primary-600))'} />
                             <span style={{ fontSize: 12, color: '#64748b', width: 30 }}>{s.count}</span>
@@ -147,7 +147,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                     <Row gutter={[8, 8]}>
                       {categoryDist(events).map((c) => (
                         <Col span={12} key={c.key}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                             <span style={{ fontSize: 12, width: 110 }}>{CATEGORY_LABELS[c.key] ?? c.key}</span>
                             <Progress percent={events.length ? Math.round((c.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} />
                             <span style={{ fontSize: 12, color: '#64748b', width: 30 }}>{c.count}</span>
@@ -161,12 +161,12 @@ const PatientSafetyDashboardPage: React.FC = () => {
                   key: 'trend',
                   label: t('psd.tabTrend'),
                   children: (
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 120, paddingTop: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-3, 12px)', height: 120, paddingTop: 'var(--space-3, 12px)' }}>
                       {trendWindow.map((t) => (
                         <div key={t.period} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                           <span style={{ fontSize: 12, fontWeight: 600 }}>{t.total}</span>
                           <div style={{ width: 32, height: Math.max(4, t.total * 14), background: t.total > 5 ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-primary-500, var(--color-primary-500))', borderRadius: '4px 4px 0 0' }} />
-                          <span style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>{t.period}</span>
+                          <span style={{ fontSize: 11, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{t.period}</span>
                         </div>
                       ))}
                       {trendWindow.length === 0 && <Empty description={t('psd.noTrend')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
@@ -179,7 +179,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
         </Col>
 
         <Col xs={24} lg={8}>
-          <Card size="small" title={<Space><AlertTriangle size={14} />{t('psd.highRiskRpn')}</Space>} loading={loading} style={{ marginBottom: 12 }}>
+          <Card size="small" title={<Space><AlertTriangle size={14} />{t('psd.highRiskRpn')}</Space>} loading={loading} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             {risks.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
               <List
                 size="small"

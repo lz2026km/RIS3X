@@ -163,12 +163,12 @@ const AiTriagePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Bot size={20} color="#722ed1" /><Title level={4} style={{ margin: 0 }}>{t('aiTriage.title')}</Title><Tag color="purple">{t('aiTriage.tag')}</Tag>
       </div>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> {t('aiTriage.retry')}</Button>} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> {t('aiTriage.retry')}</Button>} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('aiTriage.statTotal')} value={stats.total ?? items.length} icon={<FileText size={16} />} loading={statsLoading} />
         <StatCard title={t('aiTriage.levelCritical')} value={stats.byLevel?.CRITICAL ?? items.filter(i => i.level === 'CRITICAL').length} color="error" icon={<AlertTriangle size={16} />} loading={statsLoading} />
         <StatCard title={t('aiTriage.statAccuracy')} value={stats.accuracy ?? 95} suffix="%" icon={<CheckCircle size={16} />} loading={statsLoading} />
@@ -210,14 +210,14 @@ const AiTriagePage: React.FC = () => {
         ) : null
       } width={640}>
         {selectedItem && (<div>
-          <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Col span={8}><Card size="small"><Statistic title={t('aiTriage.overallScore')} value={selectedItem.score} styles={{ content: { color: levelColor[selectedItem.level] } }} /></Card></Col>
             <Col span={8}><Card size="small"><Statistic title={t('aiTriage.colLevel')} value={t(levelLabelKey[selectedItem.level] ?? selectedItem.level)} styles={{ content: { color: levelColor[selectedItem.level] } }} /></Card></Col>
             <Col span={8}><Card size="small"><Statistic title={t('aiTriage.colAiConfidence')} value={`${((selectedItem.aiConfidence ?? 0) * 100).toFixed(1)}%`} /></Card></Col>
           </Row>
-          <Card size="small" title={t('aiTriage.factors')} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('aiTriage.factors')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {(selectedItem.factors ?? []).map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <Tooltip title={f.description}>
                   <span style={{ width: 140 }}>{f.name}</span>
                 </Tooltip>
@@ -226,7 +226,7 @@ const AiTriagePage: React.FC = () => {
               </div>
             ))}
           </Card>
-          <Card size="small" title={t('aiTriage.reasoning')} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('aiTriage.reasoning')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <p style={{ color: '#666', fontSize: 12, margin: 0 }}>{selectedItem.reasoning}</p>
           </Card>
           <Space wrap>
@@ -252,20 +252,20 @@ const ScoreForm: React.FC<{ submitting: boolean; onSubmit: (v: { examId: string;
 
   return (
     <div>
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.examIdOptional')}</div>
+      <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.examIdOptional')}</div>
         <input className="ant-input" style={{ width: '100%' }} value={examId} onChange={(e) => setExamId(e.target.value)} placeholder="EXAM-20260807-005" />
       </div>
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.patientName')}</div>
+      <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.patientName')}</div>
         <input className="ant-input" style={{ width: '100%' }} value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder={t('aiTriage.patientNamePlaceholder')} />
       </div>
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.examType')}</div>
+      <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.examType')}</div>
         <Segmented options={['CT', 'MR', 'X-ray', 'US']} value={examType} onChange={(v) => setExamType(v as string)} />
       </div>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.symptoms')}</div>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.symptoms')}</div>
         <textarea className="ant-input" rows={2} style={{ width: '100%' }} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder={t('aiTriage.symptomsPlaceholder')} />
       </div>
       <Button type="primary" block loading={submitting} icon={<Zap size={14} />} onClick={() => onSubmit({ examId, patientName, examType, symptoms })}>{t('aiTriage.startScore')}</Button>

@@ -117,7 +117,7 @@ export default function UserCenterPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
+      <div style={{ display: "flex", justifyContent: "center", padding: 'var(--space-20, 80px)' }}>
         <Spin size="large" tip={t("userCenter.loadingUserInfo")}>
           <div style={{ minWidth: 200, minHeight: 80 }} />
         </Spin>
@@ -126,10 +126,10 @@ export default function UserCenterPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 960, margin: "0 auto" }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 960, margin: "0 auto" }}>
       <Title
         level={3}
-        style={{ display: "flex", alignItems: "center", gap: 8 }}
+        style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}
       >
         <UserRound size={22} /> {t("userCenter.title")}
       </Title>
@@ -144,14 +144,14 @@ export default function UserCenterPage() {
               {t("userCenter.retry")}
             </Button>
           }
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
         />
       )}
 
       <Row gutter={16}>
         <Col xs={24} lg={10}>
           <Card
-            style={{ borderRadius: 8, marginBottom: 16 }}
+            style={{ borderRadius: 8, marginBottom: 'var(--space-4, 16px)' }}
             title={t("userCenter.profile")}
             extra={
               me?.totpEnabled ? (
@@ -166,8 +166,8 @@ export default function UserCenterPage() {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 12,
-                marginBottom: 20,
+                gap: 'var(--space-3, 12px)',
+                marginBottom: 'var(--space-5, 20px)',
               }}
             >
               <Avatar
@@ -225,9 +225,9 @@ export default function UserCenterPage() {
 
         <Col xs={24} lg={14}>
           <Card
-            style={{ borderRadius: 8, marginBottom: 16 }}
+            style={{ borderRadius: 8, marginBottom: 'var(--space-4, 16px)' }}
             title={
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 <KeyRound size={16} /> {t("userCenter.changePassword")}
               </span>
             }
@@ -294,7 +294,7 @@ export default function UserCenterPage() {
           <Card
             style={{ borderRadius: 8 }}
             title={
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 <ShieldCheck size={16} /> {t("userCenter.securityInfo")}
               </span>
             }

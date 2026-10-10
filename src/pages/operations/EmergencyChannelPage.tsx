@@ -158,22 +158,22 @@ export default function EmergencyChannelPage() {
   const enabledCount = channels.filter((c) => c.enabled).length
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
       <Alert
         type="info"
         showIcon
         banner
         message={t('title', '急诊通道管理')}
         description={t('desc', 'PACS 危急值/急诊影像通知通道: 配置短信/电话/微信等通道, 手动触发并跟踪确认处置')}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <HeartPulse size={20} color="#e11d48" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('title', '急诊通道管理')}</span>
         <Tag color="red">{t('stat', '急诊')}</Tag>
       </Space>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('statEnabled', '启用通道')} value={enabledCount} color="success" />
         <StatCard title={t('statTotal', '通道总数')} value={channels.length} />
         <StatCard title={t('statAutoTrigger', '自动触发')} value={autoTriggerEnabled ? t('on', '开启') : t('off', '关闭')} color={autoTriggerEnabled ? 'success' : '#999'} />
@@ -187,17 +187,17 @@ export default function EmergencyChannelPage() {
         size="small"
         title={<Space><Settings size={14} />{t('config', '通道配置')}</Space>}
         extra={<Space><Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchConfig()} loading={configLoading}>{t('refresh', '刷新')}</Button><Button type="primary" size="small" icon={<Save size={12} />} loading={saving} onClick={() => void handleSaveConfig()}>{t('saveConfig', '保存配置')}</Button></Space>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       >
         <Spin spinning={configLoading}>
-          <Card size="small" type="inner" title={t('autoTrigger', '自动触发规则')} style={{ marginBottom: 12 }}>
+          <Card size="small" type="inner" title={t('autoTrigger', '自动触发规则')} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <Space>
                 <Switch checked={autoTriggerEnabled} onChange={setAutoTriggerEnabled} />
                 <span>{t('autoTriggerDesc', '报告/记录命中关键词时自动触发通知')}</span>
               </Space>
               <Space style={{ width: '100%' }} align="start">
-                <span style={{ minWidth: 80, paddingTop: 4 }}>{t('keywords', '触发关键词')}:</span>
+                <span style={{ minWidth: 80, paddingTop: 'var(--space-1, 4px)' }}>{t('keywords', '触发关键词')}:</span>
                 <Select
                   mode="tags"
                   style={{ flex: 1 }}
@@ -235,7 +235,7 @@ export default function EmergencyChannelPage() {
       </Card>
 
       {/* ─────────── 手动触发 (POST /emergency-channel/trigger) ─────────── */}
-      <Card size="small" title={<Space><Zap size={14} />{t('manualTrigger', '手动触发')}</Space>} style={{ marginBottom: 16 }}>
+      <Card size="small" title={<Space><Zap size={14} />{t('manualTrigger', '手动触发')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Form form={triggerForm} layout="vertical" style={{ maxWidth: 640 }} initialValues={{ type: 'critical-finding' }}>
           <Row gutter={16}>
             <Col span={8}>
@@ -324,7 +324,7 @@ export default function EmergencyChannelPage() {
               icon={detail.status === 'sent' ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />}
               message={<Space><Tag>{detail.id}</Tag><Badge status={(STATUS_META[detail.status]?.color ?? 'default') as 'success' | 'processing' | 'error' | 'default' | 'warning'} text={STATUS_META[detail.status]?.label ?? detail.status} /></Space>}
               description={detail.reason}
-              style={{ marginBottom: 12 }}
+              style={{ marginBottom: 'var(--space-3, 12px)' }}
             />
             <Descriptions bordered column={2} size="small">
               <Descriptions.Item label={t('patient', '患者')} span={2}>{detail.patientName ?? '-'} ({detail.patientId})</Descriptions.Item>
@@ -332,7 +332,7 @@ export default function EmergencyChannelPage() {
               <Descriptions.Item label={t('triggeredBy', '触发人')}>{detail.triggeredBy}</Descriptions.Item>
               <Descriptions.Item label={t('triggeredAt', '触发时间')} span={2}>{new Date(detail.triggeredAt).toLocaleString('zh-CN')}</Descriptions.Item>
             </Descriptions>
-            <Card size="small" title={t('notifications', '通知投递记录')} style={{ marginTop: 12 }}>
+            <Card size="small" title={t('notifications', '通知投递记录')} style={{ marginTop: 'var(--space-3, 12px)' }}>
               {detail.notifications?.length ? (
                 <Space direction="vertical" style={{ width: '100%' }}>
                   {detail.notifications.map((n, i) => (
@@ -349,7 +349,7 @@ export default function EmergencyChannelPage() {
                   ))}
                 </Space>
               ) : (
-                <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 12 }}>{t('noData', '暂无通知记录')}</div>
+                <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 'var(--space-3, 12px)' }}>{t('noData', '暂无通知记录')}</div>
               )}
             </Card>
           </>

@@ -183,15 +183,15 @@ export const PatientPortalPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-primary)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" tip={t('w8.patientPortal.loading')} />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }} wrap>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <User size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w8.patientPortal.title')}</span>
         <Tag color="cyan">v3.0.6.11-35</Tag>
@@ -206,7 +206,7 @@ export const PatientPortalPage: React.FC = () => {
           formats={["csv", "json"]}
         />
       </Space>
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Row gutter={16}>
           <Col span={4}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w8.patientPortal.colName')}</span><div style={{ fontSize: 18, fontWeight: 700 }}>{patientInfo.name}</div></Col>
           <Col span={3}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w8.patientPortal.colAge')}</span><div style={{ fontSize: 18, fontWeight: 700 }}>{patientInfo.age}<span style={{ fontSize: 12, fontWeight: 500, marginLeft: 2 }}>{t('w8.patientPortal.yearSuffix')}</span></div></Col>
@@ -258,7 +258,7 @@ export const PatientPortalPage: React.FC = () => {
               </Card>
             </Col>
             <Col span={10}>
-              <Card size="small" title={t('w12Patient.portal.wechatStatus')} style={{ marginBottom: 16 }}>
+              <Card size="small" title={t('w12Patient.portal.wechatStatus')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <Descriptions column={1} size="small">
                   <Descriptions.Item label={t('w12Patient.portal.account')}>{wxAccount || t('w12Patient.dash')}</Descriptions.Item>
                   <Descriptions.Item label={t('w12Patient.wechat.subscribe')}>{wxAccount ? t('w12Patient.portal.opened') : t('w12Patient.wechat.unbound')}</Descriptions.Item>
@@ -266,8 +266,8 @@ export const PatientPortalPage: React.FC = () => {
               </Card>
               <Card size="small" title={t('w12Patient.portal.evaluate')}>
                 <Space direction="vertical" style={{ width: '100%' }}>
-                  <div><span style={{ marginRight: 8 }}>{t('w12Patient.sat.rating')}</span><Rate value={portalRating} onChange={setPortalRating} /></div>
-                  <div><span style={{ marginRight: 8 }}>{t('w12Patient.sat.npsScore')}</span><Rate count={10} value={portalNps} onChange={setPortalNps} /></div>
+                  <div><span style={{ marginRight: 'var(--space-2, 8px)' }}>{t('w12Patient.sat.rating')}</span><Rate value={portalRating} onChange={setPortalRating} /></div>
+                  <div><span style={{ marginRight: 'var(--space-2, 8px)' }}>{t('w12Patient.sat.npsScore')}</span><Rate count={10} value={portalNps} onChange={setPortalNps} /></div>
                   <Input.TextArea rows={2} value={portalComment} onChange={(e) => setPortalComment(e.target.value)} placeholder={t('w12Patient.sat.comment')} />
                   <Button type="primary" size="small" loading={submitting} disabled={!surveys.length} onClick={handleEvaluate}>{t('w12Patient.sat.respond')}</Button>
                 </Space>

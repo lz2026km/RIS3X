@@ -29,7 +29,7 @@ export default function ChartError({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         color: 'var(--color-error, var(--color-error-500))',
         background: 'var(--color-error-bg, #fef2f2)',
         borderRadius: 8,
@@ -43,7 +43,7 @@ export default function ChartError({
           type="button"
           onClick={onRetry}
           style={{
-            marginTop: 4,
+            marginTop: 'var(--space-1, 4px)',
             padding: '4px 12px',
             borderRadius: 6,
             border: '1px solid var(--color-error, var(--color-error-500))',

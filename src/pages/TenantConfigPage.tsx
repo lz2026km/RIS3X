@@ -329,7 +329,7 @@ export default function TenantConfigPage() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
                             <div><strong>{t(`tenantConfig.feat.${f.key}.label`)}</strong></div>
-                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t(`tenantConfig.feat.${f.key}.desc`)}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t(`tenantConfig.feat.${f.key}.desc`)}</div>
                           </div>
                           <Switch
                             checked={features?.[f.key] ?? false}
@@ -421,7 +421,7 @@ export default function TenantConfigPage() {
       >
         <Spin spinning={complianceLoading}>
           {complianceError && (
-            <Alert type="error" showIcon style={{ marginBottom: 12 }} message={t('tenantConfig.loadFailed')} description={complianceError} />
+            <Alert type="error" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} message={t('tenantConfig.loadFailed')} description={complianceError} />
           )}
           {complianceReport && (() => {
             const score = complianceReport.summary?.complianceRate ?? complianceReport.overallCompliance ?? complianceReport.overallScore ?? 0

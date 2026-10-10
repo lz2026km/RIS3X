@@ -70,7 +70,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
   useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   if (!assessment) {
-    return <div style={{ padding: 40, textAlign: 'center' }}>评估系统不存在</div>;
+    return <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center' }}>评估系统不存在</div>;
   }
 
   // 计算结果
@@ -78,17 +78,17 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
   void currentGrade;
 
   return (
-    <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1400, margin: '0 auto' }}>
       {/* 顶部 */}
       <div style={{
         background: `linear-gradient(135deg, ${getGradientColor(assessment.category)} 0%, ${getGradientColor2(assessment.category)} 100%)`,
-        borderRadius: 12, padding: 20, marginBottom: 16, color: '#fff',
+        borderRadius: 12, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', color: '#fff',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <button
             onClick={() => navigate('/critical-value')}
             style={{
-              padding: 4, border: 'none', background: 'rgba(255,255,255,0.2)', color: '#fff',
+              padding: 'var(--space-1, 4px)', border: 'none', background: 'rgba(255,255,255,0.2)', color: '#fff',
               borderRadius: 4, cursor: 'pointer', display: 'flex',
             }}
           >
@@ -96,7 +96,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
           </button>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 2 }}>{assessment.modality} · {assessment.bodyPart}</div>
-            <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               {assessment.systemName} 评估
               <span style={{ fontSize: 12, padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: 3, fontWeight: 700 }}>
                 {assessment.category}
@@ -118,17 +118,17 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：评估项目 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <ListChecks size={13} /> 评估项目
           </div>
           {assessment.evaluationItems.map(item => (
-            <div key={item.key} style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+            <div key={item.key} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{item.label}</div>
               {item.type === 'select' && item.options && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                   {item.options.map(opt => {
                     const selected = values[item.key] === opt;
                     return (
@@ -177,8 +177,8 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
         {/* 右：分级选择 + 评估结果 */}
         <div>
           {/* 分级选择 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Award size={13} /> {assessment.category} 分级
             </div>
             {assessment.grades.map(g => {
@@ -204,7 +204,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                   <div style={{ fontSize: 12, color: selected ? 'rgba(255,255,255,0.9)' : '#64748b', marginTop: 2 }}>
                     {g.description}
                   </div>
-                  <div style={{ fontSize: 12, color: selected ? '#fff' : g.color, fontWeight: 600, marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: selected ? '#fff' : g.color, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>
                     → {g.action}
                   </div>
                 </button>
@@ -213,13 +213,13 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
           </div>
 
           {/* 操作按钮 */}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
             <button
               onClick={() => setShowHistory(!showHistory)}
               style={{
                 flex: 1, padding: 10, border: '1px solid var(--border-color)', borderRadius: 6,
                 background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               <History size={12} /> 历史记录
@@ -232,7 +232,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                 background: selectedGrade ? '#10b981' : '#cbd5e1',
                 color: '#fff', fontSize: 12, fontWeight: 600,
                 cursor: selectedGrade ? 'pointer' : 'not-allowed',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               <Save size={12} /> 保存评估
@@ -243,8 +243,8 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
 
       {/* 历史 */}
       {showHistory && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginTop: 'var(--space-3, 12px)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={13} /> 历次评估记录
             <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
               {historySource === 'api' ? '（qcextApi 实时）' : '（演示数据）'}
@@ -276,7 +276,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             );
           })}
           {historyRows.length === 0 && (
-            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>暂无评估记录</div>
+            <div style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>暂无评估记录</div>
           )}
         </div>
       )}

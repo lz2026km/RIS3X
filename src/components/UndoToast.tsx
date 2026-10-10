@@ -86,7 +86,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
           transform: 'translateX(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           zIndex: 'var(--z-toast)' as unknown as number,
         }}
       >
@@ -97,7 +97,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
               padding: '12px 16px',
               background: '#1e293b',
               border: '1px solid rgba(255,255,255,0.1)',
@@ -119,7 +119,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
                 >
                   撤销
                 </button>
-                <span style={{ marginLeft: 8 }}>或忽略</span>
+                <span style={{ marginLeft: 'var(--space-2, 8px)' }}>或忽略</span>
               </div>
             </div>
             <button
@@ -131,7 +131,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
                 border: 'none',
                 cursor: 'pointer',
                 color: '#64748b',
-                padding: 4,
+                padding: 'var(--space-1, 4px)',
                 display: 'flex',
                 borderRadius: 4,
               }}

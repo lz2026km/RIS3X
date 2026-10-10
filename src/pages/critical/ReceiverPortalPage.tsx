@@ -227,8 +227,8 @@ export default function ReceiverPortalPage() {
 
   return (
     <PageContainer padding={24}>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
           <Title level={4} style={{ margin: 0 }}>{t('receiverPortal.title')}</Title>
           <Tag color="red">{t('receiverPortal.clinicalReceiptTag')}</Tag>
@@ -236,7 +236,7 @@ export default function ReceiverPortalPage() {
         <Button icon={<RefreshCw size={14} />} onClick={() => void refresh()} loading={loading}>{t('receiverPortal.refresh')}</Button>
       </div>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('receiverPortal.pendingNotifications')} value={pendingCount} color="error" icon={<Bell size={14} />} />
         <StatCard title={t('receiverPortal.todayNotifications')} value={items.length} icon={<ShieldAlert size={14} />} />
         <Card size="small">
@@ -246,11 +246,11 @@ export default function ReceiverPortalPage() {
         </Card>
       </StatCardGrid>
 
-      {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 16 }} />}
+      {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
       <Card title={t('receiverPortal.listTitle')}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
         ) : items.length === 0 ? (
           <Empty description={loadError ? t('receiverPortal.loadFailed') : t('receiverPortal.noPending')} image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
@@ -270,16 +270,16 @@ export default function ReceiverPortalPage() {
       >
         {receiptItem && (
           <div>
-            <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '10px 12px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)' }}>{receiptItem.patientName ?? t('receiverPortal.unknownPatient')} · {receiptItem.finding ?? t('receiverPortal.criticalValue')}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{receiptItem.id ?? ''}</div>
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('receiverPortal.confirmDoctor')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#666' }}>{t('receiverPortal.confirmDoctor')}</div>
               <Input value={receiptDoctor} onChange={(e) => setReceiptDoctor(e.target.value)} placeholder={t('receiverPortal.doctorRequired')} />
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('receiverPortal.clinicalComment')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#666' }}>{t('receiverPortal.clinicalComment')}</div>
               <TextArea rows={3} value={receiptComment} onChange={(e) => setReceiptComment(e.target.value)} placeholder={t('receiverPortal.clinicalCommentPlaceholder')} />
             </div>
           </div>

@@ -608,9 +608,9 @@ export default function ImagingComparePage() {
   }
 
   return (
-    <div data-testid="imaging-compare-page" style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div data-testid="imaging-compare-page" style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
       {/* ── 顶栏 ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10, flexWrap: 'wrap' }}>
         <Columns2 size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('nav.imagingCompare')}</span>
         {groupTypeTag}
@@ -621,9 +621,9 @@ export default function ImagingComparePage() {
 
       <div style={{ display: 'flex', gap: 10, height: 'calc(100vh - 150px)', minHeight: 480 }}>
         {/* ── 左: 患者/检查/序列选择 ── */}
-        <div style={{ width: 300, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
+        <div style={{ width: 300, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', overflowY: 'auto' }}>
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 'var(--space-2, 8px)' }}>
               {t('imagingCompare.patientSelect')}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
@@ -636,13 +636,13 @@ export default function ImagingComparePage() {
               />
               <Button size="small" onClick={handlePatientSearch}>{t('imagingCompare.search')}</Button>
             </div>
-            <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 170, overflowY: 'auto' }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', maxHeight: 170, overflowY: 'auto' }}>
               {patients.map((p) => (
                 <button
                   key={p.patientId}
                   onClick={() => void handleSelectPatient(p)}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', textAlign: 'left', cursor: 'pointer',
                     background: selectedPatient?.patientId === p.patientId ? '#3b82f622' : '#0f172a',
                     border: `1px solid ${selectedPatient?.patientId === p.patientId ? '#3b82f688' : '#334155'}`,
                     borderRadius: 6, padding: '6px 8px', color: '#cbd5e1', fontSize: 12,
@@ -655,7 +655,7 @@ export default function ImagingComparePage() {
                 </button>
               ))}
               {patients.length === 0 && (
-                <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 8 }}>{t('imagingCompare.noPatient')}</div>
+                <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('imagingCompare.noPatient')}</div>
               )}
             </div>
           </div>
@@ -678,7 +678,7 @@ export default function ImagingComparePage() {
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#e2e8f0' }}>{study.bodyPart}</span>
                       <span style={{ fontSize: 10, color: '#64748b' }}>{study.studyDate || study.accessionNumber}</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 4 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 'var(--space-1, 4px)' }}>
                       {study.series.map((s) => (
                         <label key={s.seriesInstanceUid} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#94a3b8', cursor: 'pointer', padding: '2px 4px', borderRadius: 4, background: selectedSeries.has(s.seriesInstanceUid) ? '#22d3ee11' : 'transparent' }}>
                           <Checkbox
@@ -693,10 +693,10 @@ export default function ImagingComparePage() {
                   </div>
                 ))}
                 {studies.length === 0 && (
-                  <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 12 }}>{t('imagingCompare.noStudy')}</div>
+                  <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 'var(--space-3, 12px)' }}>{t('imagingCompare.noStudy')}</div>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 6, marginTop: 'var(--space-2, 8px)' }}>
                 <Input
                   size="small" placeholder={t('imagingCompare.sessionNamePlaceholder')}
                   value={sessionName} onChange={(e) => setSessionName(e.target.value)} style={{ flex: 1 }}
@@ -709,7 +709,7 @@ export default function ImagingComparePage() {
                   {t('imagingCompare.createSession')}
                 </Button>
               </div>
-              <div style={{ fontSize: 10, color: '#475569', marginTop: 4 }}>
+              <div style={{ fontSize: 10, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
                 {t('imagingCompare.seriesCount')}: {selectedSeries.size}/4
               </div>
             </div>
@@ -719,7 +719,7 @@ export default function ImagingComparePage() {
             <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 6 }}>
               {t('imagingCompare.sessionList')}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
               {sessions.map((s) => (
                 <div
                   key={s.id}
@@ -746,31 +746,31 @@ export default function ImagingComparePage() {
                 </div>
               ))}
               {sessions.length === 0 && (
-                <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 8 }}>{t('imagingCompare.noSession')}</div>
+                <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('imagingCompare.noSession')}</div>
               )}
             </div>
           </div>
         </div>
 
         {/* ── 右: 2x2 视口 + 同步控制条 + 差异面板 ── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', minWidth: 0 }}>
           {/* 同步控制条 */}
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               {sync.panZoom && sync.wwwl && sync.frame ? <Lock size={13} color={BLUE} /> : <LockOpen size={13} color="#94a3b8" />}
               {t('imagingCompare.sync')}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
               <MousePointerClick size={12} />
               {t('imagingCompare.panZoom')}
               <Switch size="small" checked={sync.panZoom} onChange={(v) => void updateSync('panZoom', v)} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
               <Sun size={12} />
               {t('imagingCompare.wwwl')}
               <Switch size="small" checked={sync.wwwl} onChange={(v) => void updateSync('wwwl', v)} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
               <Layers size={12} />
               {t('imagingCompare.frame')}
               <Switch size="small" checked={sync.frame} onChange={(v) => void updateSync('frame', v)} />
@@ -802,7 +802,7 @@ export default function ImagingComparePage() {
           </div>
 
           {/* 2x2 视口 */}
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 8, minHeight: 0 }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 'var(--space-2, 8px)', minHeight: 0 }}>
             {cells.map((cell, i) => {
               const option = sessionOptions.find((o) => o.value === cell.seriesInstanceUid)
               return (
@@ -833,7 +833,7 @@ export default function ImagingComparePage() {
                     }}>
                       {CELL_LABELS[i]}
                     </span>
-                    {option && <Tag color="blue" style={{ marginLeft: 4, fontSize: 10 }}>{option.modality}</Tag>}
+                    {option && <Tag color="blue" style={{ marginLeft: 'var(--space-1, 4px)', fontSize: 10 }}>{option.modality}</Tag>}
                   </div>
                   <CompareCell
                     cell={cell}
@@ -853,9 +853,9 @@ export default function ImagingComparePage() {
         </div>
 
         {/* ── 差异面板 ── */}
-        <div style={{ width: 300, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
+        <div style={{ width: 300, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', overflowY: 'auto' }}>
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
               <MonitorUp size={14} color={CYAN} />
               <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('imagingCompare.diffPanel')}</span>
             </div>
@@ -906,7 +906,7 @@ export default function ImagingComparePage() {
 
                 {/* 直方图差异 */}
                 <div style={{ marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0', marginBottom: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0', marginBottom: 'var(--space-1, 4px)' }}>
                     {t('imagingCompare.histogramDiff')}: <span style={{ color: CYAN }}>{diffMetrics.histogramDiff.toFixed(4)}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 56, background: '#0f172a', borderRadius: 4, padding: '4px 2px' }}>
@@ -918,8 +918,8 @@ export default function ImagingComparePage() {
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: 10, marginTop: 3, fontSize: 10, color: '#64748b' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, background: 'var(--color-primary-500)', display: 'inline-block' }} /> A</span>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, background: '#facc15', display: 'inline-block' }} /> B</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: 'var(--color-primary-500)', display: 'inline-block' }} /> A</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: '#facc15', display: 'inline-block' }} /> B</span>
                   </div>
                 </div>
 
@@ -938,7 +938,7 @@ export default function ImagingComparePage() {
                     { title: 'Δ', dataIndex: 'diff', render: (v: string) => <span style={{ fontSize: 11, fontWeight: 700, color: CYAN }}>{v}</span> },
                   ]}
                 />
-                <div style={{ fontSize: 10, color: '#475569', marginTop: 4 }}>
+                <div style={{ fontSize: 10, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
                   {t('imagingCompare.diffHint')}
                 </div>
               </>

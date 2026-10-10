@@ -96,11 +96,11 @@ export default function ReportKpiDashboardPage() {
   if (!snapshot || snapshot.values.length === 0) {
     // [v3.0.6.11-103 Wave 6] 骨架屏加载态
     return (
-      <div role="status" data-testid="report-kpi-loading" style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
+      <div role="status" data-testid="report-kpi-loading" style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
           {Array.from({ length: 4 }, (_, i) => <SkeletonKpi key={i} />)}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ height: 260, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
           <div style={{ height: 260, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
         </div>
@@ -159,11 +159,11 @@ export default function ReportKpiDashboardPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <BarChart3 size={20} color="var(--color-primary-800)" /> {t('reportKpi.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             {/* [G005 Wave2B P2] KpiEngine 本地合成指标 → 演示数据徽标 */}
@@ -175,7 +175,7 @@ export default function ReportKpiDashboardPage() {
             {t('reportKpi.subtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
           {(['today', 'month', 'year'] as const).map(p => (
             <button
               key={p}
@@ -191,7 +191,7 @@ export default function ReportKpiDashboardPage() {
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <Button icon={<RefreshCw size={14} />} loading={biLoading} onClick={() => setRefreshKey(k => k + 1)}>{t('w7demo.refresh')}</Button>
           <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.export')}</ActionButton>
         </div>
@@ -200,7 +200,7 @@ export default function ReportKpiDashboardPage() {
       {biError && !biLoading && <ErrorBanner message={biError} onRetry={() => setRefreshKey(k => k + 1)} retryLabel={t('w7demo.retry')} />}
 
       {/* 核心 KPI 4 大 (v3.0.6.11-103 Wave 6: KpiCard) */}
-      <KpiCardGrid minWidth={260} gap={10} style={{ marginBottom: 12 }}>
+      <KpiCardGrid minWidth={260} gap={10} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <KpiCard title={t('reportKpi.reportCount')} value={kpiValue('kpi-001')} suffix={t('reportKpi.unitReports')} icon={<FileText size={20} />} color="primary" trend={trendProps('kpi-001')} />
         <KpiCard title={t('reportKpi.avgSign')} value={kpiValue('kpi-010')} suffix={t('reportKpi.unitMinutes')} icon={<Clock size={20} />} color="info" trend={{ value: val('kpi-010')?.mom ?? 0, direction: val('kpi-010')?.trend === 'up' ? 'down' : val('kpi-010')?.trend === 'down' ? 'up' : undefined, goodWhenDown: true }} />
         <KpiCard title={t('reportKpi.gradeARate')} value={val('kpi-020')?.value ?? 0} suffix="%" icon={<Target size={20} />} color="success" trend={trendProps('kpi-020')} />
@@ -208,7 +208,7 @@ export default function ReportKpiDashboardPage() {
       </KpiCardGrid>
 
       {/* 质量 + 时效 + 危急值 + CA + 区块链 */}
-      <KpiCardGrid minWidth={200} gap={8} style={{ marginBottom: 12 }}>
+      <KpiCardGrid minWidth={200} gap={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <KpiCard title={t('reportKpi.signed')} value={val('kpi-001')?.value ?? 0} icon={<CheckCircle2 size={18} />} color="success" size="sm" />
         <KpiCard title={t('reportKpi.pendingReports')} value={kpiValue('kpi-004')} icon={<Clock size={18} />} color="warning" size="sm" />
         <KpiCard title={t('reportKpi.criticalTimelyRate')} value={`${kpiValue('kpi-030')}%`} icon={<Zap size={18} />} color="info" size="sm" />
@@ -217,13 +217,13 @@ export default function ReportKpiDashboardPage() {
       </KpiCardGrid>
 
       {/* 设备利用率 + 24h 分布 (v3.0.6.11-103 Wave 6: DashboardCard / ProgressRing / TrendChart) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
         <DashboardCard
           title={t('reportKpi.deviceUtilization')}
           icon={<Cpu size={14} />}
           extra={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{periodLabel}</span>}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-1, 4px)' }}>
             <ProgressRing percent={avgDeviceRate} size={72} strokeWidth={8} subLabel={t('reportKpi.avg')} />
             <div style={{ flex: 1, display: 'grid', gap: 10 }}>
               {devices.map((dev, i) => {
@@ -258,14 +258,14 @@ export default function ReportKpiDashboardPage() {
             height={120}
             showLegend={false}
           />
-          <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-around', fontSize: 12, color: 'var(--text-secondary)' }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', justifyContent: 'space-around', fontSize: 12, color: 'var(--text-secondary)' }}>
             <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
           </div>
         </DashboardCard>
       </div>
 
       {/* 7 天趋势 + 检查类型分布 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
         <DashboardCard title={t('reportKpi.trend7d')} icon={<TrendingUp size={14} />}>
           <TrendChart
             type="bar"
@@ -281,7 +281,7 @@ export default function ReportKpiDashboardPage() {
             const count = modalityTotals[mod] ?? 0;
             const pct = ((count / modalityTotal) * 100).toFixed(1);
             return (
-              <div key={mod} style={{ marginBottom: 8 }}>
+              <div key={mod} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{mod}</span>
                   <span><strong style={{ color: modalityColors[mod] }}>{count}</strong> <span style={{ color: 'var(--text-secondary)' }}>({pct}%)</span></span>
@@ -302,8 +302,8 @@ export default function ReportKpiDashboardPage() {
         <KpiCard title={t('reportKpi.carbonReduction')} value={`${(val('kpi-082')?.value ?? 92) * 0.013} t`} sub={t('reportKpi.monthCumulative')} icon={<Gauge size={20} />} color="success" />
       </KpiCardGrid>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginTop: 'var(--space-3, 12px)' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={13} /> {t('w1tables.kpi.title')}
         </div>
         <DataTable dataSource={kpiRows} rowKey="kpiId" columns={kpiColumns} pagination={{ pageSize: 20, showSizeChanger: false }} emptyText={t('w1tables.noData')} />

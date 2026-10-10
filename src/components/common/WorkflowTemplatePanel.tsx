@@ -16,7 +16,7 @@ export interface WorkflowTemplatePanelProps {
 }
 
 const panel: CSSProperties = {
-  background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16,
+  background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)',
 }
 
 export default function WorkflowTemplatePanel({ modality, compact, style }: WorkflowTemplatePanelProps) {
@@ -31,10 +31,10 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
 
   return (
     <div style={{ ...panel, ...style }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
         <ListChecks size={16} color="var(--color-primary-800)" />
         <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t('w3d.workflow.title')}</span>
-        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <Timer size={12} />{t('w3d.workflow.estimated', { min: current.estimatedTotalMin })}
         </span>
       </div>
@@ -42,17 +42,17 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
       <select
         value={selected}
         onChange={(e) => setSelected(Number(e.target.value))}
-        style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 12, marginBottom: 12 }}
+        style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}
       >
         {list.map((w, i) => (
           <option key={w.code} value={i}>{w.code} · {w.name} ({w.modality})</option>
         ))}
       </select>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
         {current.phases.map((phase) => (
           <div key={phase.name} style={{ background: 'var(--bg-primary)', borderRadius: 8, padding: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }}>{phase.name}</span>
               <span style={{ fontSize: 11, color: '#94a3b8' }}>{phase.responsible} · {phase.durationMin}min</span>
             </div>
@@ -60,7 +60,7 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
               {phase.steps.map((s, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s}</li>)}
             </ul>
             {phase.checkpoints && phase.checkpoints.length > 0 && (
-              <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                 {phase.checkpoints.map((c, i) => (
                   <span key={i} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(30,64,175,0.1)', color: 'var(--color-primary-800)' }}>{t('w3d.workflow.checkpoints')}: {c}</span>
                 ))}
@@ -71,13 +71,13 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
       </div>
 
       {!compact && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 'var(--space-3, 12px)' }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-success-600)', marginBottom: 4 }}>{t('w3d.workflow.qualityChecks')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-success-600)', marginBottom: 'var(--space-1, 4px)' }}>{t('w3d.workflow.qualityChecks')}</div>
             <ul style={{ margin: 0, paddingLeft: 18 }}>{current.qualityChecks.map((q, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{q}</li>)}</ul>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-error-600)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-error-600)', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <AlertTriangle size={12} />{t('w3d.workflow.commonErrors')}
             </div>
             <ul style={{ margin: 0, paddingLeft: 18 }}>{current.commonErrors.map((q, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{q}</li>)}</ul>

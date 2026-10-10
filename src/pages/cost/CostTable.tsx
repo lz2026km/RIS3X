@@ -9,7 +9,7 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
   const rowStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '40px 1fr 80px 100px 100px 100px 100px',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
@@ -61,7 +61,7 @@ export function ConsumableRow({ item, index }: { item: ConsumableCost; index: nu
   const rowStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '40px 1fr 80px 80px 100px 100px',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
@@ -104,7 +104,7 @@ export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
   const rowStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '40px 1fr 60px 100px 100px 100px',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
@@ -114,7 +114,7 @@ export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
   return (
     <div style={rowStyle}>
       <span style={{ color: '#6e7681', fontSize: 12 }}>{index + 1}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <span style={{
           padding: '2px 8px',
           borderRadius: 4,
@@ -147,7 +147,7 @@ export function MedicalConsumableRow({ item, index }: { item: MedicalConsumableD
   const rowStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '40px 80px 1fr 80px 80px 100px 120px',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
@@ -188,7 +188,7 @@ export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; 
   const rowStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '40px 1fr 80px 80px 80px 80px 100px 100px 100px',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
@@ -237,7 +237,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
   const rowStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 100px 100px',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
@@ -249,7 +249,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
   return (
     <div style={rowStyle}>
       <span style={{ color: '#6e7681', fontSize: 12 }}>{index + 1}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <span style={{
           padding: '2px 8px',
           borderRadius: 4,
@@ -308,7 +308,7 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
   const rowStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 80px 90px 90px',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: '12px 16px',
     borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
@@ -324,7 +324,7 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
           </span>
         ) : index + 1}
       </span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <span style={{
           padding: '2px 8px',
           borderRadius: 4,

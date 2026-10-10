@@ -19,7 +19,7 @@ interface FilterBarProps {
 
 export function FilterBar({ searchPlaceholder = '搜索...', searchValue = '', onSearchChange, filters = [], filterValues = {}, onFilterChange, actions }: FilterBarProps) {
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '12px 16px', border: '1px solid var(--border-color)', marginBottom: 16, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '12px 16px', border: '1px solid var(--border-color)', marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
       {onSearchChange && (
         <div style={{ position: 'relative', flex: '0 0 220px' }}>
           <Search size={13} color="#94a3b8" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />

@@ -174,9 +174,9 @@ const MprPage: React.FC = () => {
   const activeBtnStyle: React.CSSProperties = { ...btnStyle, background: BLUE, borderColor: BLUE, color: '#fff' }
 
   return (
-    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
       {loadError && <ErrorBanner message={loadError} />}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('w9d.mpr.title')}</span>
         <Tag color="cyan">{t('w9d.mpr.tag')}</Tag>
@@ -184,7 +184,7 @@ const MprPage: React.FC = () => {
         {mode === 'synthetic' && <Tag>{t('w9d.syntheticData')}</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center' }}>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9d.mpr.sliceLabel')}</span>
         <Slider min={0} max={maxSlice} value={sliceIndex} onChange={setSliceIndex} style={{ width: 200 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{sliceIndex}/{maxSlice}</span>
@@ -199,7 +199,7 @@ const MprPage: React.FC = () => {
         <button style={showCrosshair ? activeBtnStyle : btnStyle} onClick={() => setShowCrosshair(v => !v)}>{t('w9d.crosshair')}</button>
         <button style={btnStyle} onClick={() => { setSliceIndex(0); setWw(400); setWl(40) }}><RotateCcw size={12} /> {t('w9d.resetView')}</button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, height: 'calc(100vh - 140px)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-2, 8px)', height: 'calc(100vh - 140px)' }}>
         <div style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {mode === 'loading' ? <Spin size="large" /> : (
             <Viewport plane="axial" sliceIndex={sliceIndex} ww={ww} wl={wl} mode={mode} jobId={jobId} onTotalSlices={handleTotalSlices} />

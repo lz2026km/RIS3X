@@ -254,13 +254,13 @@ export function useTableColumnConfig<T extends ColumnLike>(
 
   const columnPanel = (
     <div style={{ width: 300, maxHeight: 380, overflowY: "auto" }} data-testid="column-config-panel">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-2, 8px)' }}>
         <span style={{ fontWeight: 700, fontSize: 12 }}>{t("w14Ux.columns.title")}</span>
         <Button type="link" size="small" icon={<RotateCcw size={12} />} onClick={resetColumns}>
           {t("w14Ux.columns.reset")}
         </Button>
       </div>
-      <div style={{ fontSize: 11, color: "var(--text-muted, #94a3b8)", marginBottom: 8 }}>
+      <div style={{ fontSize: 11, color: "var(--text-muted, #94a3b8)", marginBottom: 'var(--space-2, 8px)' }}>
         {t("w14Ux.columns.dragHint")}
       </div>
       {order.map((k, i) => {
@@ -271,7 +271,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
               padding: "4px 2px",
             }}
           >
@@ -317,7 +317,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
           <Bookmark size={13} style={{ color: "var(--color-primary-600, var(--color-primary-600))" }} />
           <span style={{ fontWeight: 700, fontSize: 12 }}>{t("w14Ux.views.title")}</span>
         </div>
-        <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+        <div style={{ display: "flex", gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
           <Input
             size="small"
             value={viewName}
@@ -341,7 +341,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
             dropdownRender={(menu) => (
               <div>
                 {menu}
-                <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", padding: 4 }}>
+                <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", padding: 'var(--space-1, 4px)' }}>
                   {savedViews.map((v) => (
                     <div
                       key={v.id}
@@ -378,7 +378,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
       <Button size="small" icon={<Columns3 size={13} />} data-testid="column-config-button">
         {t("w14Ux.columns.configure")}
         {hiddenCount > 0 && (
-          <span style={{ color: "var(--color-warning-600, var(--color-warning-600))", marginLeft: 4 }}>
+          <span style={{ color: "var(--color-warning-600, var(--color-warning-600))", marginLeft: 'var(--space-1, 4px)' }}>
             ({hiddenCount})
           </span>
         )}

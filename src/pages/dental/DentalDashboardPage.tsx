@@ -63,7 +63,7 @@ export const DentalDashboardPage: React.FC = () => {
   }, [load]);
 
   if (loading && !stats) {
-    return (<DentalPageLayout header={{ title: t('dentalDash.title') }}><div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}><Spin /> {t('dentalDash.loading')}</div></DentalPageLayout>);
+    return (<DentalPageLayout header={{ title: t('dentalDash.title') }}><div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}><Spin /> {t('dentalDash.loading')}</div></DentalPageLayout>);
   }
   if (!stats && !loading) {
     return (<DentalPageLayout header={{ title: t('dentalDash.title') }}><EmptyState tip={t('dentalDash.noStats')} onCreate={() => void load()} createLabel={t('dentalDash.reload')} /></DentalPageLayout>);
@@ -83,10 +83,10 @@ export const DentalDashboardPage: React.FC = () => {
         ),
       }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalDash.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalDash.retry')}</Button>} />}
 
       <Spin spinning={loading}>
-        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('dentalDash.todayPatients')} value={stats?.todayPatients ?? 0} icon={<Users size={14} />} />
           <StatCard title={t('dentalDash.weekPatients')} value={stats?.thisWeek ?? 0} icon={<TrendingUp size={14} />} />
           <StatCard title={t('dentalDash.revenueToday')} prefix="¥" value={stats?.revenueToday ?? 0} />
@@ -98,12 +98,12 @@ export const DentalDashboardPage: React.FC = () => {
         </StatCardGrid>
       </Spin>
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+      <Row gutter={[12, 12]} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col xs={24} md={12}>
           <Card size="small" title={t('dentalDash.topTreatments')} extra={<Tag>{t('dentalDash.caseCount', { count: Object.values(topTreat).reduce((a, b) => a + (b ?? 0), 0) })}</Tag>}>
             <Row gutter={8}>
               {Object.entries(topTreat).map(([key, value]) => (
-                <Col span={8} key={key} style={{ marginBottom: 8 }}>
+                <Col span={8} key={key} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <Statistic title={key} value={value ?? 0} />
                 </Col>
               ))}
@@ -159,7 +159,7 @@ export const DentalDashboardPage: React.FC = () => {
         />
       </Card>
 
-      <Alert title={t('dentalDash.dataUpdatedAt', { time: refreshAt.toLocaleTimeString('zh-CN') })} type="success" showIcon style={{ marginTop: 16 }} />
+      <Alert title={t('dentalDash.dataUpdatedAt', { time: refreshAt.toLocaleTimeString('zh-CN') })} type="success" showIcon style={{ marginTop: 'var(--space-4, 16px)' }} />
     </DentalPageLayout>
   );
 };

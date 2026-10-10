@@ -159,9 +159,9 @@ export default function WorkloadHeatmapPage() {
   const avgTime = workload.length > 0 ? Math.round(workload.reduce((s, d) => s + (d.avgTime ?? 0), 0) / workload.length) : 0
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <header style={{ background: 'linear-gradient(135deg,var(--color-info-600) 0%,var(--color-info-500) 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <header style={{ background: 'linear-gradient(135deg,var(--color-info-600) 0%,var(--color-info-500) 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 'var(--space-4, 16px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <BarChart3 size={20} />
           <div>
             <div style={{ fontSize: 16, fontWeight: 800 }}>工作负载热力图</div>
@@ -182,10 +182,10 @@ export default function WorkloadHeatmapPage() {
       </header>
 
       {error && (
-        <Alert type="warning" showIcon message="部分数据未加载" description={error} style={{ marginBottom: 16 }} closable />
+        <Alert type="warning" showIcon message="部分数据未加载" description={error} style={{ marginBottom: 'var(--space-4, 16px)' }} closable />
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard label="医生总检查量" value={loading ? '-' : String(totalExams)} unit="例" color="var(--color-info-600)" />
         <KpiCard label="在岗医生" value={loading ? '-' : String(workload.length)} unit="人" color="#7c3aed" />
         <KpiCard label="报告总量" value={loading ? '-' : String(totalReports)} unit="份" color="var(--color-error-600)" />
@@ -195,13 +195,13 @@ export default function WorkloadHeatmapPage() {
       <Card
         size="small"
         title="医生 × 时段 热力格 (statsApi.workload 实时数据)"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={<Tag color={loading ? 'default' : 'success'}>{loading ? '加载中' : `${workload.length} 名医生`}</Tag>}
       >
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin size="large" /></div>
         ) : doctorRows.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 24 }}>暂无工作量数据</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}>暂无工作量数据</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ borderCollapse: 'collapse', fontSize: 12 }}>
@@ -217,7 +217,7 @@ export default function WorkloadHeatmapPage() {
               <tbody>
                 {doctorRows.map(({ doctor, hourly, max }) => (
                   <tr key={doctor.doctorId ?? doctor.doctorName}>
-                    <td style={{ padding: 4, color: 'var(--color-primary-800)', fontWeight: 600 }}>
+                    <td style={{ padding: 'var(--space-1, 4px)', color: 'var(--color-primary-800)', fontWeight: 600 }}>
                       <div>{doctor.doctorName}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{doctor.department ?? ''} · 报告 {doctor.reportCount ?? 0}</div>
                     </td>
@@ -227,18 +227,18 @@ export default function WorkloadHeatmapPage() {
                         <td
                           key={c.hour}
                           title={`${doctor.doctorName} ${c.hour}:00 检查 ${c.load} 例`}
-                          style={{ padding: 4, background: intensityColor(intensity), textAlign: 'center', color: intensity > 0.55 ? '#fff' : '#0f172a' }}
+                          style={{ padding: 'var(--space-1, 4px)', background: intensityColor(intensity), textAlign: 'center', color: intensity > 0.55 ? '#fff' : '#0f172a' }}
                         >
                           {c.load > 0 ? c.load : ''}
                         </td>
                       )
                     })}
-                    <td style={{ padding: 4, textAlign: 'center', fontWeight: 700, color: 'var(--color-info-600)' }}>{doctor.examCount ?? 0}</td>
+                    <td style={{ padding: 'var(--space-1, 4px)', textAlign: 'center', fontWeight: 700, color: 'var(--color-info-600)' }}>{doctor.examCount ?? 0}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>
               <span>低</span>
               {[0.1, 0.3, 0.5, 0.7, 0.95].map((v) => (
                 <span key={v} style={{ width: 24, height: 12, background: intensityColor(v), display: 'inline-block', borderRadius: 2 }} />
@@ -251,9 +251,9 @@ export default function WorkloadHeatmapPage() {
 
       <WorkloadHeatmap sites={sites} cells={cells} />
 
-      <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+      <div style={{ marginTop: 'var(--space-4, 16px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'var(--space-3, 12px)' }}>
         {sites.map((s) => (
-          <div key={s.siteId} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, border: '1px solid var(--border-color)' }}>
+          <div key={s.siteId} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 }}>{s.siteName}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>容量评分 {s.capacityScore}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>

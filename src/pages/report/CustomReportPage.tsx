@@ -576,9 +576,9 @@ export default function CustomReportPage() {
         subtitle={t('customReport.pageSubtitle')}
       />
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadAll()} retryLabel={t('w9.states.retry')} />}
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ padding: 'var(--space-6, 24px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
         {/* 统计卡 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-3, 12px)' }}>
           {[
             { label: t('customReport.statDefs'), value: stats.total, color: 'var(--color-primary-500)', bg: '#dbeafe', icon: <FileSpreadsheet size={18} /> },
             { label: t('customReport.statScheduled'), value: stats.scheduled, color: 'var(--color-warning-500)', bg: '#fef3c7', icon: <Clock size={18} /> },
@@ -639,7 +639,7 @@ export default function CustomReportPage() {
         </Card>
 
         {/* 数据源徽标 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#64748b', padding: '0 4px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b', padding: '0 4px', flexWrap: 'wrap' }}>
           <Tag color="blue" style={{ margin: 0 }}>{t('customReport.dataSource')}</Tag>
           <span>{t('customReport.dsLegend')}</span>
         </div>
@@ -667,7 +667,7 @@ export default function CustomReportPage() {
           size="small"
           current={step}
           items={WIZARD_STEPS.map((title) => ({ title }))}
-          style={{ marginBottom: 20, marginTop: 8 }}
+          style={{ marginBottom: 'var(--space-5, 20px)', marginTop: 'var(--space-2, 8px)' }}
         />
         <div style={{ minHeight: 300 }}>
           {step === 0 && (
@@ -688,7 +688,7 @@ export default function CustomReportPage() {
           )}
 
           {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               <Alert
                 type="info"
                 showIcon
@@ -712,7 +712,7 @@ export default function CustomReportPage() {
           )}
 
           {step === 2 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div>
                 <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('customReport.dataSource')}</Text>
                 <Radio.Group
@@ -720,7 +720,7 @@ export default function CustomReportPage() {
                   onChange={(e) => setForm({ ...form, dataSource: e.target.value })}
                   options={DATA_SOURCE_OPTIONS}
                 />
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{t('customReport.dataSourceHint')}</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>{t('customReport.dataSourceHint')}</div>
               </div>
               <div>
                 <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('customReport.statPeriod')}</Text>
@@ -730,7 +730,7 @@ export default function CustomReportPage() {
                   style={{ width: 160 }}
                   options={Object.entries(PERIOD_LABELS).map(([value, label]) => ({ value, label: `${label} (${value})` }))}
                 />
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>
                   <CalendarRange size={11} style={{ verticalAlign: -1 }} /> {t('customReport.lookbackWindow')}
                 </div>
               </div>
@@ -738,7 +738,7 @@ export default function CustomReportPage() {
           )}
 
           {step === 3 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div>
                 <Text strong style={{ display: 'block', marginBottom: 6 }}>
                   <ArrowUpDown size={12} style={{ verticalAlign: -1 }} /> {t('customReport.sortField')}
@@ -795,9 +795,9 @@ export default function CustomReportPage() {
         width={860}
       >
         {resultLoading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin /></div>
         ) : result ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             <Alert
               type="success"
               showIcon
@@ -805,7 +805,7 @@ export default function CustomReportPage() {
               description={t('customReport.resultMeta', { period: PERIOD_LABELS[result.summary.period as string] ?? result.summary.period ?? '-', dsType: result.summary.dataSource ?? '-', id: result.id })}
             />
             {result.summary && Object.keys(result.summary).filter((k) => k.includes('合计')).length > 0 && (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                 {Object.entries(result.summary).filter(([k]) => k.includes('合计')).map(([k, v]) => (
                   <Tag key={k} color="blue" style={{ margin: 0 }}>{k}: {String(v)}</Tag>
                 ))}
@@ -826,7 +826,7 @@ export default function CustomReportPage() {
             </Space>
           </div>
         ) : (
-          <Empty description={t('customReport.emptyResult')} style={{ padding: 32 }} />
+          <Empty description={t('customReport.emptyResult')} style={{ padding: 'var(--space-8, 32px)' }} />
         )}
       </Modal>
 
@@ -869,7 +869,7 @@ export default function CustomReportPage() {
         width={540}
       >
         {scheduleDef && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
             <div>
               <Text strong style={{ display: 'block', marginBottom: 6 }}>
                 <Clock size={13} style={{ verticalAlign: -1 }} /> {t('customReport.scheduleRule')}
@@ -882,7 +882,7 @@ export default function CustomReportPage() {
                 showSearch
                 allowClear={false}
               />
-              <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 'var(--space-1, 4px)' }}>
                 {t('customReport.scheduleHint')}
               </Text>
             </div>
@@ -898,7 +898,7 @@ export default function CustomReportPage() {
                 placeholder={t('customReport.recipientsPlaceholder')}
                 options={RECIPIENT_OPTIONS}
               />
-              <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 'var(--space-1, 4px)' }}>
                 {t('customReport.currentSubscribers', { names: recipients.length > 0 ? recipients.join('、') : t('customReport.notSelected') })}
               </Text>
             </div>

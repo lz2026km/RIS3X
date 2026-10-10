@@ -94,7 +94,7 @@ export default function DepartmentQualityPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <CheckCircle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>科室质量管理</span>
         </div>
         <button onClick={handleExportQualityReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -104,7 +104,7 @@ export default function DepartmentQualityPage() {
 
       <div style={{ padding: '20px 24px' }}>
         {loadError && <ErrorBanner message={loadError} />}
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {[
             { title: '当前评分', value: avgScore, unit: '分', icon: Activity, color: avgScore >= 80 ? 'var(--color-success-500)' : 'var(--color-warning-500)' },
             { title: '通过率', value: overallPassRate, unit: '%', icon: CheckCircle, color: 'var(--color-success-500)' },
@@ -112,20 +112,20 @@ export default function DepartmentQualityPage() {
             { title: '总计检查', value: totalChecks, icon: BarChart3, color: 'var(--color-primary-500)' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 160 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
               <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>
-                {k.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{k.unit}</span>
+                {k.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 'var(--space-1, 4px)' }}>{k.unit}</span>
               </div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <TrendingUp size={16} color="var(--color-primary-500)" />质量评分趋势
             </div>
             <ChartContainer height={240} state={SCORE_TREND.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
@@ -141,8 +141,8 @@ export default function DepartmentQualityPage() {
             </ChartContainer>
           </div>
 
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BarChart3 size={16} color="var(--color-success-500)" />各检查项通过/未通过
             </div>
             <ChartContainer height={240} state={barData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
@@ -159,12 +159,12 @@ export default function DepartmentQualityPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <PieIcon size={16} color="#8b5cf6" />评分等级分布
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6, 24px)' }}>
               <ChartContainer height={180} style={{ width: 220, flexShrink: 0 }} state={SCORE_DIST.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
                 <PieChart>
                   <Pie data={SCORE_DIST} cx="50%" cy="50%" outerRadius={80} dataKey="count" nameKey="range" labelLine={false}>
@@ -175,7 +175,7 @@ export default function DepartmentQualityPage() {
               </ChartContainer>
               <div style={{ flex: 1 }}>
                 {SCORE_DIST.map((d, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', fontSize: 12 }}>
                     <span style={{ width: 10, height: 10, borderRadius: 2, background: d.color, display: 'inline-block' }} />
                     <span style={{ color: 'var(--text-muted, #8b949e)', flex: 1 }}>{d.range}</span>
                     <span style={{ color: 'var(--text-primary, #f0f6fc)', fontWeight: 600 }}>{d.count}</span>
@@ -185,11 +185,11 @@ export default function DepartmentQualityPage() {
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <AlertTriangle size={16} color="var(--color-error-500)" />提醒
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 12 }}>近期未通过检查 ({totalFailed}) 项需复查</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-3, 12px)' }}>近期未通过检查 ({totalFailed}) 项需复查</div>
             {RECENT_CHECKS.filter(c => !c.passed).slice(0, 3).map(c => (
               <div key={c.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
@@ -219,7 +219,7 @@ export default function DepartmentQualityPage() {
                 dataIndex: 'passed',
                 key: 'passed',
                 render: (v: boolean) => (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: v ? 'var(--color-success-500)' : 'var(--color-error-500)', fontSize: 12 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: v ? 'var(--color-success-500)' : 'var(--color-error-500)', fontSize: 12 }}>
                     {v ? <CheckCircle size={12} /> : <XCircle size={12} />}{v ? '通过' : '未通过'}
                   </span>
                 ),

@@ -28,7 +28,7 @@ interface MaintPlan {
 
 export function MaintenanceHistoryTable({ records }: { records: MaintRecord[] }) {
   return (
-    <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 18 }}>
+    <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-4, 16px)', border: `1px solid ${C.border}`, marginBottom: 18 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
           <FileText size={14} style={{ color: C.accent }} /> 维保历史记录
@@ -71,7 +71,7 @@ export function MaintenancePlanTable({ plans, onAddPlan, onDeletePlan, onComplet
 }) {
   const hasActions = Boolean(onDeletePlan || onCompletePlan)
   return (
-    <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 18 }}>
+    <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-4, 16px)', border: `1px solid ${C.border}`, marginBottom: 18 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
           <CalendarDays size={14} style={{ color: C.warning }} /> 保养计划列表（季度/半年/年度）
@@ -82,7 +82,7 @@ export function MaintenancePlanTable({ plans, onAddPlan, onDeletePlan, onComplet
             style={{
               padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
               background: `${C.accent}10`, color: C.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)'
             }}
           >
             + 添加计划

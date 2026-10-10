@@ -27,7 +27,7 @@ const CARD_DEFS = (t: KpiTotals) => [
 export default function TechnicianKpiCards({ totals, loading }: Props) {
   if (loading) {
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }} data-testid="tech-kpi-cards">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3, 12px)' }} data-testid="tech-kpi-cards">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} style={{
             height: 96, borderRadius: 12, background: 'var(--bg-deep)',
@@ -39,17 +39,17 @@ export default function TechnicianKpiCards({ totals, loading }: Props) {
   }
   if (!totals) return null
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }} data-testid="tech-kpi-cards">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3, 12px)' }} data-testid="tech-kpi-cards">
       {CARD_DEFS(totals).map((c) => (
         <div key={c.key} style={{
           background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px',
           border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }} data-testid={`tech-kpi-${c.key}`}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: c.color, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: c.color, fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>
             {c.icon}
             <span>{c.label}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-1, 4px)' }}>
             <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{c.value}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.unit}</span>
           </div>

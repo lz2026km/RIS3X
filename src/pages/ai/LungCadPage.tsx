@@ -176,7 +176,7 @@ const LungCadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Crosshair size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("lungCad.title")}</span>
         <Button
@@ -218,7 +218,7 @@ const LungCadPage: React.FC = () => {
           </>
         )}
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard
           title={t("lungCad.statTotal")}
           value={results.length}
@@ -257,7 +257,7 @@ const LungCadPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               {t("lungCad.retry")}
@@ -319,7 +319,7 @@ const LungCadPage: React.FC = () => {
                 },
               ]}
             />
-            <Card size="small" style={{ marginTop: 16 }}>
+            <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
               <Text strong>{t("lungCad.recommendationLabel")} </Text>
               <Text>{selected.recommendation}</Text>
             </Card>

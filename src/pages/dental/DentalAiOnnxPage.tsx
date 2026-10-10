@@ -138,8 +138,8 @@ export const DentalAiOnnxPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Brain size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalAiOnnx.title')}</span>
         <Tag color="cyan">v3.0.6.8-81</Tag>
@@ -155,10 +155,10 @@ export const DentalAiOnnxPage: React.FC = () => {
             {modelStatus === 'ready' && (
               <>
                 <AntdUpload accept="image/*" showUploadList={false} beforeUpload={(f) => { handleFileChange(f); return false; }}>
-                  <Button block icon={<Upload size={14} />} style={{ marginTop: 12 }}>{t('dentalAiOnnx.uploadRadiograph')}</Button>
+                  <Button block icon={<Upload size={14} />} style={{ marginTop: 'var(--space-3, 12px)' }}>{t('dentalAiOnnx.uploadRadiograph')}</Button>
                 </AntdUpload>
-                {imagePreview && <div style={{ marginTop: 8 }}><img src={imagePreview} alt="preview" loading="lazy" decoding="async" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 4 }} /></div>}
-                <Button type="primary" block icon={<Scan size={14} />} onClick={runInference} loading={loading} style={{ marginTop: 12 }}>
+                {imagePreview && <div style={{ marginTop: 'var(--space-2, 8px)' }}><img src={imagePreview} alt="preview" loading="lazy" decoding="async" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 4 }} /></div>}
+                <Button type="primary" block icon={<Scan size={14} />} onClick={runInference} loading={loading} style={{ marginTop: 'var(--space-3, 12px)' }}>
                   {t('dentalAiOnnx.runInference')}
                 </Button>
               </>
@@ -169,7 +169,7 @@ export const DentalAiOnnxPage: React.FC = () => {
           <Card title={result ? t('dentalAiOnnx.resultTitle', { mode: result.isRealInference ? t('dentalAiOnnx.realInference') : t('dentalAiOnnx.simulatedInference') }) : t('dentalAiOnnx.result')} size="small">
             {result ? (
               <div>
-                <Alert type="success" title={t('dentalAiOnnx.detected', { count: result.detections.length })} description={t('dentalAiOnnx.frameworkModel', { framework: result.framework, model: result.model })} style={{ marginBottom: 12 }} showIcon />
+                <Alert type="success" title={t('dentalAiOnnx.detected', { count: result.detections.length })} description={t('dentalAiOnnx.frameworkModel', { framework: result.framework, model: result.model })} style={{ marginBottom: 'var(--space-3, 12px)' }} showIcon />
                 <List dataSource={result.detections} renderItem={(d: DentalDetection) => (
                   <List.Item>
                     <Space>
@@ -183,7 +183,7 @@ export const DentalAiOnnxPage: React.FC = () => {
             ) : (
               <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-secondary)' }}>
                 <Scan size={48} />
-                <div style={{ marginTop: 12 }}>{t('dentalAiOnnx.uploadPrompt')}</div>
+                <div style={{ marginTop: 'var(--space-3, 12px)' }}>{t('dentalAiOnnx.uploadPrompt')}</div>
               </div>
             )}
           </Card>

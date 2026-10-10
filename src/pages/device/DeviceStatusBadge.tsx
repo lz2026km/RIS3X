@@ -45,7 +45,7 @@ export function StatusBadge({ status }: { status: string }) {
   const color = STATUS_COLORS[status] || '#94a3b8'
   return (
     <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 4,
+      display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
       padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
       background: `${color}18`, color,
     }}>

@@ -39,7 +39,7 @@ export function PageSection({
       style={{ display: "flex", flexDirection: "column", gap, ...style }}
     >
       {hasHeader && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             {title !== undefined && (
               <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.35, color: "var(--text-primary, #1e293b)" }}>

@@ -220,8 +220,8 @@ const VrPage: React.FC = () => {
   const activeBtnStyle: React.CSSProperties = { ...btnStyle, background: BLUE, borderColor: BLUE, color: '#fff' }
 
   return (
-    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Box size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('vr.title')}</span>
         <Tag color="cyan">{t('vr.tag.volumeRendering')}</Tag>
@@ -230,7 +230,7 @@ const VrPage: React.FC = () => {
         {realError && <Tag color="red">{t('vr.tag.fallback')}</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('vr.label.preset')}</span>
         {(Object.keys(PRESETS) as PresetType[]).map(p => (
           <button key={p} style={preset === p ? activeBtnStyle : btnStyle} onClick={() => handlePresetChange(p)}>
@@ -250,7 +250,7 @@ const VrPage: React.FC = () => {
         </button>
         {/* [v3.0.6.11-100 Wave 6B (D-2)] 3D → 报告: 画布截帧同通道发送 (报告书写页自动插入图注) */}
         <button
-          style={{ ...btnStyle, color: '#7dd3fc', borderColor: '#0e7490', marginLeft: 8 }}
+          style={{ ...btnStyle, color: '#7dd3fc', borderColor: '#0e7490', marginLeft: 'var(--space-2, 8px)' }}
           onClick={handleSendToReport}
           data-testid="vr-send-to-report"
         >

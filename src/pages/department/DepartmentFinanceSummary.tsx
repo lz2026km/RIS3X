@@ -69,21 +69,21 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
 
   const panelStyle = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const panelHeaderStyle = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-primary)" };
-  const panelBodyStyle = { padding: 16 };
+  const panelBodyStyle = { padding: 'var(--space-4, 16px)' };
 
   if (activeTab === "performance") {
     return (
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={panelStyle}>
           <div style={panelHeaderStyle}>
             <span>{t("deptFinance.workloadStats")} {/* [G005 Wave2B P2] PERFORMANCE_DATA 等全硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></span>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
               <select style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}><option>{t("deptFinance.thisWeek")}</option><option>{t("deptFinance.thisMonth")}</option><option>{t("deptFinance.thisQuarter")}</option></select>
             </div>
           </div>
           <div style={panelBodyStyle}>
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.personalReportCount")}</div>
+              <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)' }}>{t("deptFinance.personalReportCount")}</div>
                 <ChartContainer type="bar" state={PERFORMANCE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noReportCountData")}>
                   <BarChart data={PERFORMANCE_DATA}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
@@ -94,7 +94,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
                 </ChartContainer>
               </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.positiveRateTrend")}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)' }}>{t("deptFinance.positiveRateTrend")}</div>
               <ChartContainer type="line" state={POSITIVE_RATE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noPositiveRateData")}>
                 <LineChart data={POSITIVE_RATE_DATA}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
@@ -109,10 +109,10 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
         <div style={panelStyle}>
           <div style={panelHeaderStyle}><span>{t("deptFinance.workloadRankingQc")}</span></div>
           <div style={panelBodyStyle}>
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.workloadTop5")}</div>
+            <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)' }}>{t("deptFinance.workloadTop5")}</div>
               {WORKLOAD_RANKING.map((r, i) => (
-                <div key={r.rank} style={{ display: "flex", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${C.borderLight}`, gap: 12 }}>
+                <div key={r.rank} style={{ display: "flex", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${C.borderLight}`, gap: 'var(--space-3, 12px)' }}>
                   <div style={{ width: 24, height: 24, borderRadius: "50%", background: i === 0 ? "var(--color-warning-400)" : i === 1 ? "#94a3b8" : i === 2 ? "#cd7c32" : C.borderLight, color: i < 3 ? C.white : C.textMid, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }}>{r.rank}</div>
                   <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{r.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{r.role}</div></div>
                   <div style={{ textAlign: "right" }}><div style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{t("deptFinance.portions", { count: r.written + r.reviewed })}</div><div style={{ fontSize: 12, color: C.success }}>{t("deptFinance.score", { score: r.score })}</div></div>
@@ -120,7 +120,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
               ))}
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.qualityScore")}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)' }}>{t("deptFinance.qualityScore")}</div>
               <div>
                 <ChartContainer type="bar" state={QUALITY_SCORE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noQualityScoreData")}>
                   <BarChart data={QUALITY_SCORE_DATA} layout="vertical">
@@ -142,33 +142,33 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
   if (activeTab === "kpi") {
     return (
       <div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
           {DEPT_KPI_METRICS.map((metric, i) => (
-            <div key={i} style={{ padding: 16, background: C.white, borderRadius: 8, border: `1px solid ${C.borderLight}`, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+            <div key={i} style={{ padding: 'var(--space-4, 16px)', background: C.white, borderRadius: 8, border: `1px solid ${C.borderLight}`, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{metric.label}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: metric.trend === "up" ? C.success : metric.trend === "down" ? C.danger : C.textMid }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)', fontSize: 12, color: metric.trend === "up" ? C.success : metric.trend === "down" ? C.danger : C.textMid }}>
                   {metric.trend === "up" ? <TrendingUp size={14} /> : metric.trend === "down" ? <TrendingDown size={14} /> : <Minus size={14} />}
                   {metric.change > 0 ? "+" : ""}{metric.change}%
                 </div>
               </div>
-              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark, marginBottom: 4 }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>
                 {metric.value.toLocaleString()}<span style={{ fontSize: 14, fontWeight: 400, color: C.textMid }}> {metric.unit}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.textLight }}>
                 <span>{t("deptFinance.target", { value: metric.target.toLocaleString() })}</span>
                 <span>{t("deptFinance.peer", { value: metric.peerAvg.toLocaleString() })}</span>
               </div>
-              <div style={{ marginTop: 8, background: C.bgLight, height: 4, borderRadius: 2, overflow: "hidden" }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', background: C.bgLight, height: 4, borderRadius: 2, overflow: "hidden" }}>
                 <div style={{ width: `${Math.min(100, (metric.value / metric.target) * 100)}%`, height: "100%", background: metric.value >= metric.target ? C.success : metric.value >= metric.peerAvg ? C.warning : C.danger, borderRadius: 2 }} />
               </div>
             </div>
           ))}
         </div>
-        <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)' }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 'var(--space-4, 16px)' }}>
             <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>{t("deptFinance.kpiMonthlyTrend")} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></h4>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
               {["cards", "charts"].map((v) => (
                 <button key={v} onClick={() => setKpiView(v as any)} style={{ padding: "4px 12px", background: kpiView === v ? C.primary : C.white, color: kpiView === v ? C.white : C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{v === "cards" ? t("deptFinance.overview") : t("deptFinance.charts")}</button>
               ))}
@@ -190,10 +190,10 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
             </ChartContainer>
           )}
           {kpiView === "cards" && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 'var(--space-3, 12px)' }}>
               {KPI_TREND_DATA.map((d, i) => (
-                <div key={i} style={{ padding: 12, background: C.white, borderRadius: 6, textAlign: "center", border: `1px solid ${C.borderLight}` }}>
-                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 4 }}>{d.month}</div>
+                <div key={i} style={{ padding: 'var(--space-3, 12px)', background: C.white, borderRadius: 6, textAlign: "center", border: `1px solid ${C.borderLight}` }}>
+                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{d.month}</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{d.revenue}w</div>
                   <div style={{ fontSize: 12, color: C.textLight }}>{t("deptFinance.unitCases", { value: d.exams })}</div>
                   <div style={{ fontSize: 12, color: C.success }}>{t("deptFinance.unitScore", { value: d.quality })}</div>

@@ -65,14 +65,14 @@ export const DEPT_STAFF: StaffMember[] = [
 const PermissionTag = ({ permission }: { permission: string }) => {
   const p = PERMISSIONS.find((x) => x.key === permission);
   if (!p) return null;
-  return <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", background: C.primaryLighter, color: C.primary, borderRadius: 4, fontSize: 12, margin: "2px" }}>{p.label}</span>;
+  return <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)', padding: "2px 8px", background: C.primaryLighter, color: C.primary, borderRadius: 4, fontSize: 12, margin: "2px" }}>{p.label}</span>;
 };
 
 const StaffCard = ({ staff, isSelected, onClick }: { staff: StaffMember; isSelected: boolean; onClick: () => void }) => {
   const role = ROLES[staff.role];
   const statusColors = { online: C.success, busy: C.warning, offline: C.textLight };
   return (
-    <div style={{ background: isSelected ? C.primaryLighter : C.white, borderRadius: 8, padding: "12px 16px", cursor: "pointer", border: `1px solid ${isSelected ? C.primary : C.borderLight}`, transition: "all 0.2s", display: "flex", alignItems: "center", gap: 12 }} onClick={onClick}>
+    <div style={{ background: isSelected ? C.primaryLighter : C.white, borderRadius: 8, padding: "12px 16px", cursor: "pointer", border: `1px solid ${isSelected ? C.primary : C.borderLight}`, transition: "all 0.2s", display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }} onClick={onClick}>
       <div style={{ width: 40, height: 40, borderRadius: "50%", background: role?.color || C.textLight, display: "flex", alignItems: "center", justifyContent: "center", color: C.white, fontSize: 16, fontWeight: 600, position: "relative" }}>
         {staff.name.charAt(0)}
         <div style={{ position: "absolute", bottom: 0, right: 0, width: 10, height: 10, borderRadius: "50%", background: statusColors[staff.status] || C.textLight, border: "2px solid white" }} />
@@ -117,22 +117,22 @@ export default function DepartmentStaffList({
 
   const panelStyle = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const panelHeaderStyle = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-primary)" };
-  const panelBodyStyle = { padding: 16 };
+  const panelBodyStyle = { padding: 'var(--space-4, 16px)' };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "280px 1fr 320px", gap: 16, marginBottom: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "280px 1fr 320px", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
       <div style={panelStyle}>
         <div style={panelHeaderStyle}><span>{t("deptStaff.title")}</span><span style={{ fontSize: 12, color: C.textLight }}>{t("deptStaff.memberCount", { count: filteredStaff.length })}</span></div>
-        <div style={{ padding: 12 }}>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <div style={{ padding: 'var(--space-3, 12px)' }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
             <input type="text" placeholder={t("deptStaff.searchPlaceholder")} value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} style={{ flex: 1, padding: "6px 10px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 12 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-3, 12px)' }}>
             {roleFilters.map((f) => (
               <button key={f.key} onClick={() => setRoleFilter(f.key)} style={{ padding: "3px 10px", border: `1px solid ${roleFilter === f.key ? C.primary : C.border}`, background: roleFilter === f.key ? C.primaryLighter : C.white, color: roleFilter === f.key ? C.primary : C.textMid, borderRadius: 4, fontSize: 12, cursor: "pointer" }}>{f.label}</button>
             ))}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 500, overflow: "auto" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', maxHeight: 500, overflow: "auto" }}>
             {filteredStaff.map((staff) => (
               <StaffCard key={staff.id} staff={staff} isSelected={selectedStaff?.id === staff.id} onClick={() => setSelectedStaff(staff)} />
             ))}
@@ -140,21 +140,21 @@ export default function DepartmentStaffList({
         </div>
       </div>
       <div style={panelStyle}>
-        <div style={panelHeaderStyle}><span>{t("deptStaff.detail")}</span><button onClick={onEdit} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Edit3 style={{ width: 12, height: 12 }} /> {t("deptStaff.edit")}</button></div>
+        <div style={panelHeaderStyle}><span>{t("deptStaff.detail")}</span><button onClick={onEdit} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Edit3 style={{ width: 12, height: 12 }} /> {t("deptStaff.edit")}</button></div>
         <div style={panelBodyStyle}>
           {selectedStaff && (
             <div>
-              <div style={{ display: "flex", gap: 20, marginBottom: 24 }}>
+              <div style={{ display: "flex", gap: 'var(--space-5, 20px)', marginBottom: 'var(--space-6, 24px)' }}>
                 <div style={{ width: 80, height: 80, borderRadius: "50%", background: ROLES[selectedStaff.role]?.color || C.textLight, display: "flex", alignItems: "center", justifyContent: "center", color: C.white, fontSize: 30, fontWeight: 600 }}>{selectedStaff.name.charAt(0)}</div>
                 <div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: C.textDark, marginBottom: 4 }}>{selectedStaff.name}</div>
-                  <div style={{ fontSize: 14, color: ROLES[selectedStaff.role]?.color, marginBottom: 8 }}>{ROLES[selectedStaff.role]?.label} · {selectedStaff.title}</div>
-                  <div style={{ display: "flex", gap: 16, fontSize: 12, color: C.textMid }}><span>{t("deptStaff.employeeId")}{selectedStaff.id}</span><span>{t("deptStaff.dept")}{selectedStaff.dept}</span></div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>{selectedStaff.name}</div>
+                  <div style={{ fontSize: 14, color: ROLES[selectedStaff.role]?.color, marginBottom: 'var(--space-2, 8px)' }}>{ROLES[selectedStaff.role]?.label} · {selectedStaff.title}</div>
+                  <div style={{ display: "flex", gap: 'var(--space-4, 16px)', fontSize: 12, color: C.textMid }}><span>{t("deptStaff.employeeId")}{selectedStaff.id}</span><span>{t("deptStaff.dept")}{selectedStaff.dept}</span></div>
                 </div>
               </div>
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>{t("deptStaff.contactInfo")}</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)', borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 'var(--space-2, 8px)' }}>{t("deptStaff.contactInfo")}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)' }}>
                   <div style={{ fontSize: 12 }}><span style={{ color: C.textMid }}>{t("deptStaff.phone")}</span>{selectedStaff.phone}</div>
                   <div style={{ fontSize: 12 }}><span style={{ color: C.textMid }}>{t("deptStaff.email")}</span>{selectedStaff.email}</div>
                   <div style={{ fontSize: 12 }}><span style={{ color: C.textMid }}>{t("deptStaff.joinDate")}</span>{selectedStaff.joinDate}</div>
@@ -162,8 +162,8 @@ export default function DepartmentStaffList({
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>{t("deptStaff.permissions")}</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)', borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 'var(--space-2, 8px)' }}>{t("deptStaff.permissions")}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 'var(--space-1, 4px)' }}>
                   {(ROLES[selectedStaff.role]?.permission || []).map((p) => <PermissionTag key={p} permission={p} />)}
                   {(((!ROLES[selectedStaff.role]?.permission || []) as unknown) as { length: number }).length === 0 && <span style={{ fontSize: 12, color: C.textLight, fontStyle: "italic" }}>{t("deptStaff.noPermissions")}</span>}
                 </div>

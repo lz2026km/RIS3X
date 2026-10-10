@@ -75,8 +75,8 @@ export const RealMeasurementPanel: React.FC<MeasurementPanelProps> = ({
   };
 
   return (
-    <div style={{ padding: 12 }}>
-      <div style={{ marginBottom: 12 }}>
+    <div style={{ padding: 'var(--space-3, 12px)' }}>
+      <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Space wrap>
           {TOOL_DEFS.map(t => (
             <Tooltip key={t.key} title={t.label}>
@@ -96,14 +96,14 @@ export const RealMeasurementPanel: React.FC<MeasurementPanelProps> = ({
 
       <Divider style={{ margin: '8px 0' }} />
 
-      <Space size="small" style={{ marginBottom: 8 }}>
+      <Space size="small" style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Tag color="blue">总 {summary.total}</Tag>
         <Tag color="green">长度 {summary.length}</Tag>
         <Tag color="cyan">角度 {summary.angle}</Tag>
         <Tag color="orange">面积 {summary.area}</Tag>
       </Space>
 
-      <Space style={{ marginBottom: 8, width: '100%', justifyContent: 'space-between' }}>
+      <Space style={{ marginBottom: 'var(--space-2, 8px)', width: '100%', justifyContent: 'space-between' }}>
         <Select
           size="small"
           value={filter}
@@ -133,7 +133,7 @@ export const RealMeasurementPanel: React.FC<MeasurementPanelProps> = ({
             <div
               key={m.id}
               style={{
-                padding: 8,
+                padding: 'var(--space-2, 8px)',
                 marginBottom: 6,
                 background: 'var(--bg-card)',
                 borderRadius: 4,
@@ -157,7 +157,7 @@ export const RealMeasurementPanel: React.FC<MeasurementPanelProps> = ({
                   onClick={() => onDelete(m.id)}
                 />
               </Space>
-              {m.text && <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>{m.text}</div>}
+              {m.text && <div style={{ fontSize: 12, color: '#666', marginTop: 'var(--space-1, 4px)' }}>{m.text}</div>}
               <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
                 {new Date(m.createdAt).toLocaleString('zh-CN')}
                 {m.createdBy && ` · ${m.createdBy}`}

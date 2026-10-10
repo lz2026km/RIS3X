@@ -361,24 +361,24 @@ function ErrorFallback({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: 24,
+        padding: 'var(--space-6, 24px)',
         background: "var(--color-error-bg, #fef2f2)",
         color: "var(--text-primary, #0f172a)",
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      <h1 style={{ color: "var(--color-error, var(--color-error-600))", fontSize: 24, marginBottom: 16 }}>
+      <h1 style={{ color: "var(--color-error, var(--color-error-600))", fontSize: 24, marginBottom: 'var(--space-4, 16px)' }}>
         出现错误
       </h1>
       <pre
         style={{
           background: THEME_TOKENS.bgCard,
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           borderRadius: 8,
           maxWidth: 800,
           overflow: "auto",
           fontSize: 12,
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         {error.message}

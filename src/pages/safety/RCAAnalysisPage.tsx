@@ -101,7 +101,7 @@ export default function RCAAnalysisPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-error-600),#991b1b)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <Search size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('rca.title')}</span>
         </div>
         <button onClick={handleCreateRca} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -110,7 +110,7 @@ export default function RCAAnalysisPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {[
             { title: t('rca.statTotal'), value: rcas.length, icon: FileText, color: 'var(--color-error-600, var(--color-error-600))' },
             { title: t('rca.status.analyzing'), value: rcas.filter(r => r.capaStatus === 'analyzing').length, icon: Search, color: 'var(--color-primary-500, var(--color-primary-500))' },
@@ -118,25 +118,25 @@ export default function RCAAnalysisPage() {
             { title: t('rca.status.closed'), value: rcas.filter(r => r.capaStatus === 'closed').length, icon: CheckCircle, color: 'var(--color-success-500, var(--color-success-500))' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
               <div style={{ fontSize: 30, fontWeight: 700 }}>{k.value}</div>
             </div>
           ))}
         </div>
 
         {selectedRca ? (
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-5, 20px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 600 }}>{selectedRca.eventTitle}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{selectedRca.id} · {selectedRca.dateOccurred}</div>
               </div>
               <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[selectedRca.capaStatus]}20`, color: STATUS_COLORS[selectedRca.capaStatus] }}>{t(STATUS_LABELS[selectedRca.capaStatus])}</span>
             </div>
-            <div style={{ marginBottom: 16, color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{selectedRca.description}</div>
+            <div style={{ marginBottom: 'var(--space-4, 16px)', color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{selectedRca.description}</div>
 
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t('rca.rootCauses')}</div>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('rca.rootCauses')}</div>
               {(selectedRca.rootCauses ?? []).length > 0 ? (
                 <ul style={{ margin: 0, padding: '0 0 0 20px', color: 'var(--color-error-500)', fontSize: 12 }}>
                   {(selectedRca.rootCauses ?? []).map((rc, i) => <li key={i}>{rc}</li>)}
@@ -146,12 +146,12 @@ export default function RCAAnalysisPage() {
               )}
             </div>
 
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t('rca.fishbone')}</div>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('rca.fishbone')}</div>
               {(selectedRca.fishboneData ?? []).length > 0 ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                   {(selectedRca.fishboneData ?? []).map((fb, i) => (
-                    <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12, border: '1px solid var(--bg-secondary, #21262d)' }}>
+                    <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 'var(--space-3, 12px)', border: '1px solid var(--bg-secondary, #21262d)' }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-warning-500)', marginBottom: 6 }}>{fb.category}</div>
                       {fb.causes.map((c, j) => <div key={j} style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 2 }}>• {c}</div>)}
                     </div>
@@ -162,17 +162,17 @@ export default function RCAAnalysisPage() {
               )}
             </div>
 
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t('rca.fiveWhys')}</div>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('rca.fiveWhys')}</div>
               {(selectedRca.fiveWhys ?? []).length > 0 ? (selectedRca.fiveWhys ?? []).map((fw, i) => (
-                <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12, border: '1px solid var(--bg-secondary, #21262d)', marginBottom: 8 }}>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('rca.problem')}: {fw.problem}</div>
+                <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 'var(--space-3, 12px)', border: '1px solid var(--bg-secondary, #21262d)', marginBottom: 'var(--space-2, 8px)' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('rca.problem')}: {fw.problem}</div>
                   {fw.whys.map((w, j) => (
                     <div key={j} style={{ fontSize: 12, marginBottom: 2, paddingLeft: `${w.level * 20}px` }}>
                       <span style={{ color: 'var(--color-primary-500)' }}>{t('rca.why')} </span><span style={{ color: 'var(--text-primary, #f0f6fc)' }}>{w.answer}</span>
                     </div>
                   ))}
-                  <div style={{ fontSize: 12, color: 'var(--color-success-500)', marginTop: 4 }}>{t('rca.rootCause')}: {fw.rootCause}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-success-500)', marginTop: 'var(--space-1, 4px)' }}>{t('rca.rootCause')}: {fw.rootCause}</div>
                 </div>
               )) : (
                 <div style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{t('rca.noFiveWhys')}</div>
@@ -180,10 +180,10 @@ export default function RCAAnalysisPage() {
             </div>
 
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t('rca.capaPlans')}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('rca.capaPlans')}</div>
               {(selectedRca.capaPlans ?? []).length > 0 ? (selectedRca.capaPlans ?? []).map((cp, i) => (
-                <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12, border: '1px solid var(--bg-secondary, #21262d)', marginBottom: 8 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 'var(--space-3, 12px)', border: '1px solid var(--bg-secondary, #21262d)', marginBottom: 'var(--space-2, 8px)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{cp.id}</span>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: cp.implementationStatus === 'completed' ? '#22c55e20' : cp.implementationStatus === 'in-progress' ? '#3b82f620' : '#8b949e20', color: cp.implementationStatus === 'completed' ? 'var(--color-success-500)' : cp.implementationStatus === 'in-progress' ? 'var(--color-primary-500)' : 'var(--text-muted, #8b949e)' }}>
                       {t({ pending: 'rca.capa.pending', 'in-progress': 'rca.capa.in_progress', completed: 'rca.capa.completed' }[cp.implementationStatus] ?? cp.implementationStatus)}
@@ -199,7 +199,7 @@ export default function RCAAnalysisPage() {
             </div>
 
             {selectedRca.capaStatus !== 'closed' && (
-              <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <button onClick={handleCloseRca} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--color-error-600)', color: '#fff', cursor: 'pointer', fontSize: 12 }}>
                   {t('rca.closeRca')}
                 </button>
@@ -211,9 +211,9 @@ export default function RCAAnalysisPage() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <BarChart3 size={16} color="var(--color-primary-500)" />{t('rca.statusChart')}
                 </div>
                 <ChartContainer height={200} state={statusData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('rca.noStatusData')}>
@@ -226,8 +226,8 @@ export default function RCAAnalysisPage() {
                   </BarChart>
                 </ChartContainer>
               </div>
-              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <CheckCircle size={16} color="var(--color-success-500)" />{t('rca.capaChart')}
                 </div>
                 <ChartContainer height={200} state={capaChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('rca.noCapaData')}>
@@ -242,7 +242,7 @@ export default function RCAAnalysisPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               {(['all', 'open', 'analyzing', 'capa-planned', 'implementing', 'verified', 'closed'] as const).map(s => (
                 <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? 'var(--color-error-600)' : 'var(--border-default, #30363d)'}`, background: filter === s ? '#dc262620' : 'transparent', color: filter === s ? 'var(--color-error-600)' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
                   {s === 'all' ? t('rca.all') : t(STATUS_LABELS[s as RcaStatus])}

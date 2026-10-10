@@ -151,7 +151,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 'var(--space-5, 20px)',
     padding: '12px 24px',
     background: 'rgba(30, 41, 59, 0.8)',
     borderRadius: 12,
@@ -160,7 +160,7 @@ const s: Record<string, React.CSSProperties> = {
   headerTitle: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
   },
   headerText: {
     fontSize: 20,
@@ -184,8 +184,8 @@ const s: Record<string, React.CSSProperties> = {
   kpiBar: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: 16,
-    marginBottom: 20,
+    gap: 'var(--space-4, 16px)',
+    marginBottom: 'var(--space-5, 20px)',
   },
   kpiCard: {
     background: 'rgba(30, 41, 59, 0.9)',
@@ -206,7 +206,7 @@ const s: Record<string, React.CSSProperties> = {
   kpiLabel: {
     fontSize: 14,
     color: 'var(--text-secondary)',
-    marginBottom: 8,
+    marginBottom: 'var(--space-2, 8px)',
   },
   kpiValue: {
     fontSize: 48,
@@ -218,14 +218,14 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 20,
     fontWeight: 400,
     color: 'var(--text-secondary)',
-    marginLeft: 4,
+    marginLeft: 'var(--space-1, 4px)',
   },
   kpiTrend: {
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
     fontSize: 14,
-    marginTop: 8,
+    marginTop: 'var(--space-2, 8px)',
   },
   kpiTrendUp: { color: '#4ade80' },
   kpiTrendDown: { color: 'var(--color-error-500)' },
@@ -233,46 +233,46 @@ const s: Record<string, React.CSSProperties> = {
   mainGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 2fr 1fr',
-    gap: 20,
-    marginBottom: 20,
+    gap: 'var(--space-5, 20px)',
+    marginBottom: 'var(--space-5, 20px)',
   },
   // 面板通用样式
   panel: {
     background: 'rgba(30, 41, 59, 0.9)',
     borderRadius: 12,
-    padding: 20,
+    padding: 'var(--space-5, 20px)',
     border: '1px solid rgba(71, 85, 105, 0.5)',
   },
   panelTitle: {
     fontSize: 16,
     fontWeight: 600,
     color: '#f1f5f9',
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    paddingBottom: 12,
+    gap: 'var(--space-2, 8px)',
+    paddingBottom: 'var(--space-3, 12px)',
     borderBottom: '1px solid rgba(71, 85, 105, 0.5)',
   },
   // 叫号区域
   callingCard: {
     background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05))',
     borderRadius: 12,
-    padding: 24,
+    padding: 'var(--space-6, 24px)',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 'var(--space-5, 20px)',
     border: '1px solid rgba(59, 130, 246, 0.3)',
   },
   callingLabel: {
     fontSize: 16,
     color: 'var(--text-secondary)',
-    marginBottom: 12,
+    marginBottom: 'var(--space-3, 12px)',
   },
   callingPatient: {
     fontSize: 56,
     fontWeight: 800,
     color: 'var(--color-primary-500)',
-    marginBottom: 8,
+    marginBottom: 'var(--space-2, 8px)',
   },
   callingRoom: {
     fontSize: 30,
@@ -283,8 +283,8 @@ const s: Record<string, React.CSSProperties> = {
   roomGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 12,
-    marginBottom: 20,
+    gap: 'var(--space-3, 12px)',
+    marginBottom: 'var(--space-5, 20px)',
   },
   roomCard: {
     background: 'rgba(51, 65, 85, 0.5)',
@@ -292,7 +292,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: '12px 16px',
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
   },
   roomDot: {
     width: 12,
@@ -315,7 +315,7 @@ const s: Record<string, React.CSSProperties> = {
   barChart: {
     display: 'flex',
     alignItems: 'flex-end',
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
     height: 100,
     padding: '8px 0',
   },
@@ -324,7 +324,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
   },
   bar: {
     width: '100%',
@@ -339,7 +339,7 @@ const s: Record<string, React.CSSProperties> = {
   lineChartArea: {
     height: 200,
     position: 'relative',
-    marginTop: 16,
+    marginTop: 'var(--space-4, 16px)',
   },
   lineChartSvg: {
     width: '100%',
@@ -349,8 +349,8 @@ const s: Record<string, React.CSSProperties> = {
   pieChartContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: 24,
-    marginTop: 16,
+    gap: 'var(--space-6, 24px)',
+    marginTop: 'var(--space-4, 16px)',
   },
   pieChart: {
     width: 140,
@@ -363,8 +363,8 @@ const s: Record<string, React.CSSProperties> = {
   pieLegendItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
+    gap: 'var(--space-2, 8px)',
+    marginBottom: 'var(--space-2, 8px)',
   },
   pieLegendDot: {
     width: 10,
@@ -413,12 +413,12 @@ const s: Record<string, React.CSSProperties> = {
   qualityGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
   },
   qualityCard: {
     background: 'rgba(51, 65, 85, 0.5)',
     borderRadius: 10,
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
     textAlign: 'center',
   },
   qualityIcon: {
@@ -438,11 +438,11 @@ const s: Record<string, React.CSSProperties> = {
   qualityLabel: {
     fontSize: 12,
     color: 'var(--text-secondary)',
-    marginTop: 4,
+    marginTop: 'var(--space-1, 4px)',
   },
   // 进度条
   progressItem: {
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   progressLabel: {
     display: 'flex',
@@ -464,7 +464,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   // 耗材预警
   alertList: {
-    marginTop: 12,
+    marginTop: 'var(--space-3, 12px)',
   },
   alertItem: {
     display: 'flex',
@@ -473,7 +473,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: '10px 12px',
     background: 'rgba(239, 68, 68, 0.1)',
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: 'var(--space-2, 8px)',
     border: '1px solid rgba(239, 68, 68, 0.3)',
   },
   alertName: {
@@ -481,7 +481,7 @@ const s: Record<string, React.CSSProperties> = {
     color: '#f1f5f9',
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
   },
   alertStock: {
     fontSize: 14,
@@ -492,7 +492,7 @@ const s: Record<string, React.CSSProperties> = {
   bottomGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: 20,
+    gap: 'var(--space-5, 20px)',
   },
 }
 
@@ -516,7 +516,7 @@ function KPICard({ data }: { data: typeof KPI_DATA[0] }) {
       <div style={{ ...s.kpiTrend, color: trendColor }}>
         <TrendIcon size={16} />
         <span>{diff > 0 ? '+' : ''}{diff} ({percent}%)</span>
-        <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>{t('opsCenter.vsYesterday')}</span>
+        <span style={{ color: 'var(--text-secondary)', marginLeft: 'var(--space-1, 4px)' }}>{t('opsCenter.vsYesterday')}</span>
       </div>
     </div>
   )
@@ -624,7 +624,7 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
         <span>{data[data.length - 1]?.hour}</span>
       </div>
       {/* 图例 */}
-      <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 12 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', justifyContent: 'center', marginTop: 'var(--space-3, 12px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 20, height: 3, background: '#4ade80', borderRadius: 2 }} />
           <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.legendToday')}</span>
@@ -1154,7 +1154,7 @@ export default function OperationsCenterPage() {
     ]
     return (
       <div style={{
-        display: 'flex', gap: 6, marginBottom: 16, padding: 6,
+        display: 'flex', gap: 6, marginBottom: 'var(--space-4, 16px)', padding: 6,
         background: 'rgba(30, 41, 59, 0.9)', borderRadius: 10,
         border: '1px solid rgba(71, 85, 105, 0.5)', width: 'fit-content',
       }}>
@@ -1176,7 +1176,7 @@ export default function OperationsCenterPage() {
         {extSource === 'api' && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
-            background: 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: 600, fontSize: 12, marginLeft: 8,
+            background: 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: 600, fontSize: 12, marginLeft: 'var(--space-2, 8px)',
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
             {t('opsCenter.extApiBadge')}
@@ -1185,7 +1185,7 @@ export default function OperationsCenterPage() {
         {extSource === 'demo' && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
-            background: 'rgba(245,158,11,0.15)', color: 'var(--color-warning-400)', fontWeight: 600, fontSize: 12, marginLeft: 8,
+            background: 'rgba(245,158,11,0.15)', color: 'var(--color-warning-400)', fontWeight: 600, fontSize: 12, marginLeft: 'var(--space-2, 8px)',
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-warning-400)' }} />
             {t('opsCenter.extDemoBadge')}
@@ -1205,15 +1205,15 @@ export default function OperationsCenterPage() {
 
   // 渲染: 预警面板
   const renderAlertsPanel = () => (
-    <div style={{ ...s.panel, marginBottom: 16 }}>
+    <div style={{ ...s.panel, marginBottom: 'var(--space-4, 16px)' }}>
       <div style={s.panelTitle}>
         <BadgeAlert size={18} color={alerts.some(a => a.level === 'danger') ? 'var(--color-error-500)' : 'var(--color-warning-400)'} />
         {t('opsCenter.alertsTitle')}
-        <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+        <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
           {t('opsCenter.alertsPending', { n: alerts.length })}
         </span>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
         {alerts.length === 0 && (
           <div style={{ textAlign: 'center', padding: '20px 0', color: '#4ade80', fontSize: 12 }}>
             <CheckCircle size={20} style={{ marginBottom: 6 }} /> {t('opsCenter.noAlerts')}
@@ -1221,7 +1221,7 @@ export default function OperationsCenterPage() {
         )}
         {alerts.map(a => (
           <div key={a.id} style={{
-            display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 8,
+            display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 14px', borderRadius: 8,
             background: a.level === 'danger' ? 'rgba(239,68,68,0.12)' : a.level === 'warning' ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.12)',
             border: `1px solid ${a.level === 'danger' ? 'rgba(239,68,68,0.4)' : a.level === 'warning' ? 'rgba(245,158,11,0.4)' : 'rgba(59,130,246,0.4)'}`,
           }}>
@@ -1234,7 +1234,7 @@ export default function OperationsCenterPage() {
               {a.type === 'device' ? <WifiOff size={18} /> : a.type === 'queue' ? <TimerReset size={18} /> : <AlertTriangle size={18} />}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 {a.title}
                 <span style={{
                   padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600,
@@ -1253,9 +1253,9 @@ export default function OperationsCenterPage() {
         ))}
       </div>
       {extError && (
-        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--color-warning-400)', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--color-warning-400)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <AlertTriangle size={11} /> {extError}
-          <button onClick={() => void loadOpsExt()} style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 4, border: '1px solid var(--color-warning-400)', background: 'transparent', color: 'var(--color-warning-400)', cursor: 'pointer', fontSize: 11 }}>{t('opsCenter.retry')}</button>
+          <button onClick={() => void loadOpsExt()} style={{ marginLeft: 'var(--space-2, 8px)', padding: '1px 8px', borderRadius: 4, border: '1px solid var(--color-warning-400)', background: 'transparent', color: 'var(--color-warning-400)', cursor: 'pointer', fontSize: 11 }}>{t('opsCenter.retry')}</button>
         </div>
       )}
     </div>
@@ -1277,7 +1277,7 @@ export default function OperationsCenterPage() {
     {
       title: t('opsCenter.thUtilization'), dataIndex: 'utilization', key: 'utilization',
       render: (v: number) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
             <div style={{ width: `${Math.min(100, v)}%`, height: '100%', background: v >= 80 ? '#4ade80' : v >= 50 ? 'var(--color-warning-400)' : 'var(--color-primary-500)', borderRadius: 3 }} />
           </div>
@@ -1303,7 +1303,7 @@ export default function OperationsCenterPage() {
     {
       title: t('opsCenter.thAvgDuration'), key: 'avgDuration',
       render: (_v: unknown, m: any) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
             <div style={{
               width: `${Math.min(100, m.avgDurationMin ? (30 / m.avgDurationMin) * 100 : 50)}%`,
@@ -1378,7 +1378,7 @@ export default function OperationsCenterPage() {
       <div style={s.panelTitle}>
         <Monitor size={18} color="var(--color-primary-500)" />
         {t('opsCenter.equipmentBoardTitle')}
-        <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+        <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
           {t('opsCenter.equipmentBoardSub')}
         </span>
       </div>
@@ -1394,7 +1394,7 @@ export default function OperationsCenterPage() {
         />
       )}
       {/* [v3.0.6.11-99 Wave10B] 开机率/利用率 7 日趋势 (oeeApi dailyTrend 回退演示) */}
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 'var(--space-4, 16px)' }}>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Zap size={14} color="var(--color-warning-400)" /> {t('opsCenter.uptimeTrend')}
         </div>
@@ -1408,7 +1408,7 @@ export default function OperationsCenterPage() {
             { day: 'D-1', uptime: 96.3, util: 90.8 },
             { day: t('opsCenter.todayLabel'), uptime: kpiExt[0]!.value, util: kpiExt[2]!.value || 91.2 },
           ].map(d => (
-            <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 100 }}>
                 <div style={{
                   width: 12, borderRadius: '3px 3px 0 0', height: `${d.uptime}px`,
@@ -1424,7 +1424,7 @@ export default function OperationsCenterPage() {
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
             <span style={{ width: 10, height: 10, borderRadius: 2, background: '#4ade80' }} /> {t('opsCenter.legendUptime')}
           </span>
@@ -1442,7 +1442,7 @@ export default function OperationsCenterPage() {
       <div style={s.panelTitle}>
         <Users size={18} color="#8b5cf6" />
         {t('opsCenter.manpowerBoardTitle')}
-        <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+        <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
           {t('opsCenter.manpowerBoardSub')}
         </span>
       </div>
@@ -1462,13 +1462,13 @@ export default function OperationsCenterPage() {
 
   // 渲染: 质量维度看板
   const renderQualityView = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' }}>
       <div style={s.panel}>
         <div style={s.panelTitle}>
           <ShieldCheck size={18} color="#4ade80" />
           {t('opsCenter.qualityMetrics')}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
           {qualityBoard.map(q => (
             <div key={q.id} style={{
               padding: 18, borderRadius: 10, textAlign: 'center',
@@ -1479,11 +1479,11 @@ export default function OperationsCenterPage() {
                 {q.value}
                 <span style={{ fontSize: 14, fontWeight: 400, marginLeft: 2 }}>{q.unit}</span>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{q.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{q.label}</div>
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
           {qualityBoard.map(q => (
             <span key={q.id} style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12,
@@ -1524,9 +1524,9 @@ export default function OperationsCenterPage() {
 
   // 渲染: 急诊通道看板
   const renderEmergencyView = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
       {/* [v3.0.6.11-99 Wave10B] 急诊通道统计条 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3, 12px)' }}>
         {[
           { label: t('opsCenter.ecTotal'), value: emergencySummary.total, color: 'var(--color-primary-500)', unit: t('opsCenter.ecUnit') },
           { label: t('opsCenter.ecToday'), value: emergencySummary.todayCount, color: 'var(--color-warning-400)', unit: t('opsCenter.ecUnit') },
@@ -1535,37 +1535,37 @@ export default function OperationsCenterPage() {
           { label: t('opsCenter.ecAvgResponse'), value: emergencySummary.avgMinutes, color: '#a78bfa', unit: t('opsCenter.ecAvgUnit', { n: emergencySummary.slaMin }) },
         ].map(s => (
           <div key={s.label} style={{
-            padding: 16, textAlign: 'center', borderRadius: 10,
+            padding: 'var(--space-4, 16px)', textAlign: 'center', borderRadius: 10,
             background: 'rgba(51,65,85,0.5)', border: '1px solid rgba(71,85,105,0.5)',
           }}>
             <div style={{ fontSize: 30, fontWeight: 800, color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>
               {s.label}{s.unit ? ` (${s.unit})` : ''}
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 'var(--space-5, 20px)' }}>
       <div style={s.panel}>
         <div style={s.panelTitle}>
           <Siren size={18} color="var(--color-error-500)" />
           {t('opsCenter.ecConfigTitle')}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           <div style={{
             padding: 14, borderRadius: 8,
             background: emergencyConfig.autoTrigger ? 'rgba(34,197,94,0.1)' : 'rgba(148,163,184,0.1)',
             border: `1px solid ${emergencyConfig.autoTrigger ? 'rgba(34,197,94,0.3)' : 'rgba(148,163,184,0.3)'}`,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>
               <HeartPulse size={16} color={emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8'} />
               {t('opsCenter.ecAutoTrigger')}
               <span style={{ marginLeft: 'auto', fontSize: 12, color: emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8' }}>
                 {emergencyConfig.autoTrigger ? t('opsCenter.ecOn') : t('opsCenter.ecOff')}
               </span>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {t('opsCenter.ecKeywords')}
               {emergencyConfig.keywords.length === 0 && <span>—</span>}
               {emergencyConfig.keywords.map(k => (
@@ -1574,7 +1574,7 @@ export default function OperationsCenterPage() {
                 </span>
               ))}
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-2, 8px)' }}>
               <span dangerouslySetInnerHTML={{ __html: t('opsCenter.ecChannelsEnabled', { n: emergencyConfig.channels }) }} />
             </div>
           </div>
@@ -1590,7 +1590,7 @@ export default function OperationsCenterPage() {
         <div style={s.panelTitle}>
           <Stethoscope size={18} color="var(--color-primary-500)" />
           {t('opsCenter.ecRecordsTitle')}
-          <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+          <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
             emergencyChannelApi.listRecords
           </span>
         </div>
@@ -1598,13 +1598,13 @@ export default function OperationsCenterPage() {
           <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: 12 }}>
             <CheckCircle size={28} color="#4ade80" style={{ margin: '0 auto 10px', display: 'block' }} />
             {t('opsCenter.ecNoRecords')}
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{t('opsCenter.ecNoRecordsSub')}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('opsCenter.ecNoRecordsSub')}</div>
           </div>
         ) : (
           <div style={{ maxHeight: 360, overflowY: 'auto' }}>
             {emergencyRecords.map(r => (
               <div key={r.id} style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0',
+                display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 0',
                 borderBottom: '1px solid rgba(71,85,105,0.3)',
               }}>
                 <div style={{
@@ -1618,7 +1618,7 @@ export default function OperationsCenterPage() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>
                     {r.patientName || r.patientId}
-                    <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--color-error-500)', background: 'rgba(239,68,68,0.15)', padding: '1px 8px', borderRadius: 999 }}>{r.type}</span>
+                    <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--color-error-500)', background: 'rgba(239,68,68,0.15)', padding: '1px 8px', borderRadius: 999 }}>{r.type}</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {r.reason} · {r.channels.join(' / ')}
@@ -1642,7 +1642,7 @@ export default function OperationsCenterPage() {
       </div>
 
       {/* [v3.0.6.11-99 Wave10B] 通知渠道明细 + 触发类型分布 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' }}>
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <Bell size={18} color="#60a5fa" />
@@ -1653,7 +1653,7 @@ export default function OperationsCenterPage() {
             dataSource={channelDetail}
             rowKey="type"
           />
-          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
             {t('opsCenter.ecEscalationDesc')}
           </div>
         </div>
@@ -1667,7 +1667,7 @@ export default function OperationsCenterPage() {
               {t('opsCenter.ecNoTypeData')}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               {emergencySummary.byType.slice(0, 6).map(([type, count]) => {
                 const maxType = Math.max(1, ...emergencySummary.byType.map(([, c]) => c))
                 return (
@@ -1688,7 +1688,7 @@ export default function OperationsCenterPage() {
             </div>
           )}
           <div style={{
-            marginTop: 16, padding: 12, borderRadius: 8, fontSize: 12, lineHeight: 1.7,
+            marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', borderRadius: 8, fontSize: 12, lineHeight: 1.7,
             background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#fecaca',
           }}>
             <span dangerouslySetInnerHTML={{ __html: t('opsCenter.ecClosureReq', { n: emergencySummary.slaMin || 10 }) }} />
@@ -1709,7 +1709,7 @@ export default function OperationsCenterPage() {
             <p style={s.headerSub}>{t('opsCenter.headerSub')}</p>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6, 24px)' }}>
           {loading && (
             <span style={{ fontSize: 12, color: 'var(--color-warning-400)' }}>
               <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2, animation: 'spin 1s linear infinite' }} />
@@ -1727,7 +1727,7 @@ export default function OperationsCenterPage() {
       </div>
 
       {/* 数据源状态条 [W2-A] */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-4, 16px)', fontSize: 12, flexWrap: 'wrap' }}>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
           background: dataSource === 'api' ? 'rgba(34,197,94,0.15)' : 'rgba(245,158,11,0.15)',
@@ -1739,7 +1739,7 @@ export default function OperationsCenterPage() {
         {apiError && (
           <span style={{ color: 'var(--color-error-500)' }}>
             {apiError}
-            <button onClick={() => void loadDashboard()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500)', background: 'transparent', color: 'var(--color-error-500)', cursor: 'pointer', fontSize: 12 }}>{t('opsCenter.retry')}</button>
+            <button onClick={() => void loadDashboard()} style={{ marginLeft: 'var(--space-2, 8px)', padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500)', background: 'transparent', color: 'var(--color-error-500)', cursor: 'pointer', fontSize: 12 }}>{t('opsCenter.retry')}</button>
           </span>
         )}
       </div>
@@ -1762,7 +1762,7 @@ export default function OperationsCenterPage() {
 
       {/* [v3.0.6.11-99 Wave10B] Tab 内容: 总览为原有主体, 其余按维度 */}
       {activeSection === 'overview' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
       {/* 主内容区 */}
       <div style={s.mainGrid}>
         {/* 左侧：实时叫号与候诊态势 */}
@@ -1784,8 +1784,8 @@ export default function OperationsCenterPage() {
             ))}
           </div>
 
-          <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.queueChange')}</div>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('opsCenter.queueChange')}</div>
             <QueueChart data={queueData} />
           </div>
         </div>
@@ -1796,28 +1796,28 @@ export default function OperationsCenterPage() {
             <TrendingUp size={20} color="#4ade80" />
             {t('opsCenter.todayTrend')}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
             <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{hourlyCaption}</span>
-            <span style={{ fontSize: 12, color: 'var(--color-warning-400)', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 12, color: 'var(--color-warning-400)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <Zap size={14} /> {peakText}
             </span>
           </div>
           <TrendChart data={hourlyData} />
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 24 }}>
-            <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-6, 24px)' }}>
+            <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{todayTotal}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.todayTotal')}</div>
             </div>
-            <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
+            <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500)' }}>{yesterdayTotal}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.yesterdayTotal')}</div>
             </div>
-            <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
+            <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{growthText}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.momGrowth')}</div>
             </div>
-            <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
+            <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-warning-400)' }}>{(peakText.split('(')[0] ?? '').replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.peakPeriod')}</div>
             </div>
@@ -1837,8 +1837,8 @@ export default function OperationsCenterPage() {
             rowKey="rank"
           />
 
-          <div style={{ marginTop: 24 }}>
-            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.projectDistribution')}</div>
+          <div style={{ marginTop: 'var(--space-6, 24px)' }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('opsCenter.projectDistribution')}</div>
             <PieChartComponent data={projectData} />
           </div>
         </div>
@@ -1858,9 +1858,9 @@ export default function OperationsCenterPage() {
             ))}
           </div>
           
-          <div style={{ marginTop: 20, padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.todayOverview')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div style={{ marginTop: 'var(--space-5, 20px)', padding: 'var(--space-4, 16px)', background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('opsCenter.todayOverview')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{summaryOverview.adverse}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.adverseEvents')}</div>
@@ -1888,21 +1888,21 @@ export default function OperationsCenterPage() {
           <ProgressBar label={t('opsCenter.progressRoomOccupancy')} value={efficiencyData.roomOccupancy} color="#8b5cf6" />
           <ProgressBar label={t('opsCenter.progressReportTimely')} value={efficiencyData.reportTimelyRate} color="#4ade80" />
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginTop: 8 }}>
-            <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
-              <Clock size={20} color="var(--color-warning-400)" style={{ marginBottom: 8 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)' }}>
+            <div style={{ padding: 'var(--space-4, 16px)', background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
+              <Clock size={20} color="var(--color-warning-400)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
               <div style={{ fontSize: 30, fontWeight: 700, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.avgExamTime')}</div>
             </div>
-            <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
-              <CheckCircle size={20} color="#4ade80" style={{ marginBottom: 8 }} />
+            <div style={{ padding: 'var(--space-4, 16px)', background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
+              <CheckCircle size={20} color="#4ade80" style={{ marginBottom: 'var(--space-2, 8px)' }} />
               <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.progressReportTimely')}</div>
             </div>
           </div>
 
-          <div style={{ marginTop: 20 }}>
-            <div style={{ fontSize: 14, color: 'var(--color-error-500)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ marginTop: 'var(--space-5, 20px)' }}>
+            <div style={{ fontSize: 14, color: 'var(--color-error-500)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <AlertTriangle size={16} />
               {t('opsCenter.materialAlert')}
             </div>
@@ -1939,7 +1939,7 @@ export default function OperationsCenterPage() {
 
       {/* 底部状态栏 */}
       <div style={{
-        marginTop: 20,
+        marginTop: 'var(--space-5, 20px)',
         padding: '12px 24px',
         background: 'rgba(30, 41, 59, 0.8)',
         borderRadius: 8,
@@ -1948,7 +1948,7 @@ export default function OperationsCenterPage() {
         alignItems: 'center',
         border: '1px solid rgba(71, 85, 105, 0.5)',
       }}>
-        <div style={{ display: 'flex', gap: 32 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-8, 32px)' }}>
           <span style={{ fontSize: 12, color: '#4ade80', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
             {t('opsCenter.systemNormal')}

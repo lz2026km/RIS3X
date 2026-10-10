@@ -136,7 +136,7 @@ const FractureCadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.fracture.title")}</span>
         <Button
@@ -178,7 +178,7 @@ const FractureCadPage: React.FC = () => {
           </>
         )}
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("w9d.fracture.statTotal")} value={results.length} color="primary" icon={<Activity size={18} />} />
         <StatCard
           title={t("w9d.fracture.statSevere")}
@@ -195,7 +195,7 @@ const FractureCadPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               {t("w9d.fracture.retry")}

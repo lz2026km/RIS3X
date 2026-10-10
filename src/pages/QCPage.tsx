@@ -785,7 +785,7 @@ export default function QCPage() {
     const pct = (value / max) * 100
     const color = pct >= 90 ? SUCCESS : pct >= 80 ? WARNING : pct >= 70 ? '#f97316' : DANGER
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <div style={{ flex: 1, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
           <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 3, transition: 'width 0.3s' }} />
         </div>
@@ -804,7 +804,7 @@ export default function QCPage() {
       { key: 'tracking', label: t("qcPage.issueTracking"), icon: <AlertTriangle size={14} /> },
     ]
     return (
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', marginBottom: 16, display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
         {subTabs.map(tab => {
           const isActive = regionalTab === tab.key
           return (
@@ -824,7 +824,7 @@ export default function QCPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
                 transition: 'all 0.2s',
               }}
             >
@@ -838,7 +838,7 @@ export default function QCPage() {
   }
 
   return (
-    <PageTemplate container={false} showHeader={false} testId="qc-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)',}}>
+    <PageTemplate container={false} showHeader={false} testId="qc-page" style={{ padding: 'var(--space-6, 24px)', maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)',}}>
       {loading && <LoadingBanner message={t("qcPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
@@ -846,13 +846,13 @@ export default function QCPage() {
         as="h1"
         size="md"
         icon={<div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={18} color='#fff' /></div>}
-        title={<>{t('qc.title')}<AppText size="xs" color="secondary" style={{ fontWeight: 400, marginLeft: 8 }}>{t("qcPage.pageTitle")}</AppText></>}
+        title={<>{t('qc.title')}<AppText size="xs" color="secondary" style={{ fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{t("qcPage.pageTitle")}</AppText></>}
         subtitle={<AppText size="sm" color="secondary" as="p" style={{ margin: 0 }}>{t('qc.subtitle')}</AppText>}
-        style={{ marginBottom: 20 }}
+        style={{ marginBottom: 'var(--space-5, 20px)' }}
       />
 
       {/* Tab Navigation */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '6px', marginBottom: 16, display: 'flex', gap: 4, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '6px', marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
         {TABS.map(tab => {
           const isActive = activeTab === tab.key
           return (
@@ -885,12 +885,12 @@ export default function QCPage() {
 
       {/* Tab Content */}
       {activeTab === 'report' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* [v1.0.4 R4] 升级入口横幅 */}
           <div style={{
                     background: 'linear-gradient(135deg, var(--color-success-bg) 0%, var(--color-info-bg) 100%)',
             border: '1px solid #86efac', borderRadius: 10, padding: '10px 16px',
-            display: 'flex', alignItems: 'center', gap: 12,
+            display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)',
           }}>
             <div style={{ fontSize: 18 }}></div>
               <div style={{ flex: 1 }}>
@@ -906,9 +906,9 @@ export default function QCPage() {
           </div>
 
           {/* Stat Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {statCardsReport.map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
@@ -921,14 +921,14 @@ export default function QCPage() {
           </div>
 
           {/* 评分系统三维矩阵 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Target size={16} color={PRIMARY} />{t("qcPage.scoreMatrixTitle")}<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>{t("qcPage.scorePerfLink")}</AppText>
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
               {SCORE_MATRIX.map(item => (
                 <div key={item.dimension} style={{ background: `${item.color}15`, borderRadius: 10, padding: '16px', border: `2px solid ${item.color}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <span style={{ color: WHITE, fontWeight: 800, fontSize: 14 }}>{item.weight}</span>
                     </div>
@@ -938,7 +938,7 @@ export default function QCPage() {
                 </div>
               ))}
             </div>
-            <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
               <div style={{ width: 28, height: 28, borderRadius: 6, background: PRIMARY, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <BarChart3 size={14} color={WHITE} />
               </div>
@@ -950,12 +950,12 @@ export default function QCPage() {
           </div>
 
           {/* 医生评分排行榜 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Award size={16} color={PRIMARY} />{t("qcPage.doctorRanking")}<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>{t("qcPage.monthlyStats")}</AppText>
             </h3>
             {/* 排行榜统计卡片 */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
               {[
                 { label: t("qcPage.avgTotal"), value: doctorScoreStats.avgTotalScore.toFixed(1), icon: <Star size={16} />, color: ACCENT, bg: '#3b82f622' },
                 { label: t("qcPage.excellentDoctors"), value: `${doctorScoreStats.excellentCount}人`, icon: <Award size={16} />, color: SUCCESS, bg: '#22c55e22' },
@@ -986,7 +986,7 @@ export default function QCPage() {
                     const isTop3 = doctor.rank <= 3
                     const rankColor = doctor.rank === 1 ? '#92400e' : doctor.rank === 2 ? '#475569' : doctor.rank === 3 ? '#92400e' : PRIMARY
                     return isTop3 ? (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
                         <Award size={16} color={doctor.rank === 1 ? 'var(--color-warning-400)' : doctor.rank === 2 ? '#94a3b8' : '#cd7f32'} />
                         <span style={{ fontWeight: 800, fontSize: 14, color: rankColor }}>{doctor.rank}</span>
                       </div>
@@ -1028,9 +1028,9 @@ export default function QCPage() {
           </div>
 
           {/* 质控问题分布 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
             {/* 问题类型统计 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t("qcPage.issueDistribution")}<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>{t("qcPage.monthlyStats")}</AppText>
               </h3>
@@ -1063,19 +1063,19 @@ export default function QCPage() {
             </div>
 
             {/* 各维度平均分 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <BarChart3 size={16} color={PRIMARY} />{t("qcPage.dimAvgScores")}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t("qcPage.allDoctors")}</span>
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
                 {[
                   { label: t("qcPage.dimFormat"), score: doctorScoreStats.avgFormatScore, weight: '30%', color: 'var(--color-primary-500)' },
                   { label: t("qcPage.dimAccuracy"), score: doctorScoreStats.avgAccuracyScore, weight: '50%', color: '#059669' },
                   { label: t("qcPage.dimTimeliness"), score: doctorScoreStats.avgTimelinessScore, weight: '20%', color: 'var(--color-warning-600)' },
                 ].map(item => (
                   <div key={item.label}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
                         <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{item.label}</span>
                         <span style={{ padding: '1px 6px', background: `${item.color}20`, color: item.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{item.weight}</span>
@@ -1088,7 +1088,7 @@ export default function QCPage() {
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 16, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <AppText size="xs" color="secondary" as="span">{t("qcPage.weightedAvg")}</AppText>
                   <span style={{ fontSize: 24, fontWeight: 700, color: PRIMARY }}>{doctorScoreStats.avgTotalScore.toFixed(1)}{t("qcPage.scoreUnit")}</span>
@@ -1098,7 +1098,7 @@ export default function QCPage() {
           </div>
 
           {/* 甲乙丙丁等级分布 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Award size={16} color={PRIMARY} />{t("qcPage.gradeDistribution")}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
             </h3>
@@ -1106,7 +1106,7 @@ export default function QCPage() {
               {gradeDistributionData.map(item => (
                 <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '12px 8px', textAlign: 'center', border: `2px solid ${item.color}` }}>
                   <div style={{ fontSize: 30, fontWeight: 700, color: item.color }}>{item.grade}</div>
-                  <div style={{ fontSize: 12, color: item.color, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+                  <div style={{ fontSize: 12, color: item.color, fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{item.label}</div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.count}{t("qcPage.reportUnit")}</div>
                   <div style={{ fontSize: 12, color: item.color }}>{item.percentage}%</div>
                 </div>
@@ -1128,8 +1128,8 @@ export default function QCPage() {
           </div>
 
           {/* Search & Filter */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 12, border: '1px solid var(--border-color)', display: 'flex', gap: 12, alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: LIGHT_BG, borderRadius: 8, padding: '8px 12px' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flex: 1, background: LIGHT_BG, borderRadius: 8, padding: '8px 12px' }}>
               <Search size={14} color={GRAY} />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("qcPage.searchPlaceholder")} style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent', color: PRIMARY }} />
             </div>
@@ -1190,7 +1190,7 @@ export default function QCPage() {
                   key: 'action',
                   align: 'center',
                   render: (_v, r) => (
-                    <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                    <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '0 auto' }}>
                       <Eye size={14} />{t('qc.detail')}</button>
                   ),
                 },
@@ -1201,14 +1201,14 @@ export default function QCPage() {
       )}
 
       {activeTab === 'image' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* Stat Cards [v3.0.6.11-96 Wave5A P2] imageQCData 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {statCardsImage.map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
@@ -1243,7 +1243,7 @@ export default function QCPage() {
                   dataIndex: 'issues',
                   align: 'center',
                   render: (value: string[]) => (
-                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap', justifyContent: 'center' }}>
                       {value.length === 0 ? (
                         <span style={{ fontSize: 12, color: SUCCESS }}>{t('qcimage.noIssues')}</span>
                       ) : value.map(issue => (
@@ -1267,7 +1267,7 @@ export default function QCPage() {
                   key: 'action',
                   align: 'center',
                   render: (_v, img) => (
-                    <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.imageDetailTitle', { id: img.id }), content: t('w9b.qc.viewingImage', { id: img.id }) }) }} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                    <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.imageDetailTitle', { id: img.id }), content: t('w9b.qc.viewingImage', { id: img.id }) }) }} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '0 auto' }}>
                       <Image size={14} />{t('qcimage.viewImage')}</button>
                   ),
                 },
@@ -1276,10 +1276,10 @@ export default function QCPage() {
           </div>
 
           {/* Waste Film Analysis Chart */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <PieChart size={16} color={ACCENT} />{t('qcimage.rejectDistribution')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, alignItems: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6, 24px)', alignItems: 'center' }}>
               <ChartContainer height={220}>
                 <RechartsPie>
                   <Pie data={dashboardData.issueDistribution} cx='50%' cy='50%' innerRadius={55} outerRadius={90} paddingAngle={3} dataKey='value' labelLine={false}>
@@ -1306,35 +1306,35 @@ export default function QCPage() {
       )}
 
       {activeTab === 'timeout' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* Summary Cards [v3.0.6.11-96 Wave5A P2] timeoutData 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <Clock size={18} color={WARNING} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{t('qc.timeoutCount')}</span>
               </div>
               <div style={{ fontSize: 30, fontWeight: 700, color: WARNING }}>{timeoutData.length}</div>
-              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t("qcPage.shareOfToday")} {(timeoutData.length / reportQCData.length * 100).toFixed(0)}%</div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>{t("qcPage.shareOfToday")} {(timeoutData.length / reportQCData.length * 100).toFixed(0)}%</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <AlertTriangle size={18} color={DANGER} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{t('qc.severeTimeout')}</span>
               </div>
               <div style={{ fontSize: 30, fontWeight: 700, color: DANGER }}>{timeoutData.filter(t => t.severity === '严重').length}</div>
-              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t("qcPage.delayOver3h")}</div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>{t("qcPage.delayOver3h")}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <TrendingUp size={18} color={ACCENT} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{t('qc.avgDelay')}</span>
               </div>
               <div style={{ fontSize: 30, fontWeight: 700, color: ACCENT }}>{Math.round(timeoutData.reduce((s, t) => s + t.delayMinutes, 0) / timeoutData.length)}</div>
-              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t("qcPage.minPerCase")}</div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>{t("qcPage.minPerCase")}</div>
             </div>
           </div>
 
@@ -1379,8 +1379,8 @@ export default function QCPage() {
           </div>
 
           {/* Reason Analysis & Suggestions */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qc.timeoutAnalysis')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1392,7 +1392,7 @@ export default function QCPage() {
                 ].map(item => (
                   <div key={item.reason} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 4 }}>{item.reason}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 'var(--space-1, 4px)' }}>{item.reason}</div>
                       <div style={{ height: 6, background: 'var(--border-color)', borderRadius: 3 }}>
                         <div style={{ width: item.pct, height: '100%', background: WARNING, borderRadius: 3 }} />
                       </div>
@@ -1402,7 +1402,7 @@ export default function QCPage() {
                 ))}
               </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Zap size={16} color={SUCCESS} />{t('qcdefect.suggestions')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1429,12 +1429,12 @@ export default function QCPage() {
       )}
 
       {activeTab === 'inspection' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* 抽检统计卡片 [v3.0.6.11-96 Wave5A P2] inspectionStats 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {[
               { label: t("qcPage.samplingTotal"), value: inspectionStats.totalInspected, icon: <ClipboardList size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
               { label: t("qcPage.samplingPassRate"), value: `${inspectionStats.passedRate}%`, icon: <CheckCircle size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
@@ -1442,7 +1442,7 @@ export default function QCPage() {
               { label: t("qcPage.defectFoundRate"), value: `${inspectionStats.defectRate}%`, icon: <AlertTriangle size={18} color={WARNING} />, bg: '#f59e0b22', color: WARNING },
               { label: t("qcPage.samplingAvgScore"), value: inspectionStats.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
             ].map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
@@ -1455,9 +1455,9 @@ export default function QCPage() {
           </div>
 
           {/* 抽检结果等级分布 + 缺陷统计 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
             {/* 抽检等级分布 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ClipboardCheck size={16} color={PRIMARY} />{t('qcdefect.gradeDistribution')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
               </h3>
@@ -1483,11 +1483,11 @@ export default function QCPage() {
             </div>
 
             {/* 抽检缺陷类型分布 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span><span style={{ marginLeft: 6, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600, verticalAlign: 'middle' }}>{t("qcPage.demoData")}</span>
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {reportDefectData.map(item => (
                   <div key={item.defectType} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: item.color, flexShrink: 0 }} />
@@ -1594,8 +1594,8 @@ export default function QCPage() {
           </div>
 
           {/* 抽检问题汇总与改进建议 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qcdefect.issueSummary')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1616,7 +1616,7 @@ export default function QCPage() {
                 ))}
               </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Zap size={16} color={SUCCESS} />{t('qcdefect.suggestions')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1643,16 +1643,16 @@ export default function QCPage() {
       )}
 
       {activeTab === 'dashboard' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* Key Metrics */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {[
               { label: t("qcPage.complianceRate"), value: `${dashboardData.passRate}%`, icon: <Target size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
               { label: t("qcPage.excellentGoodRate"), value: `${dashboardData.excellentRate}%`, icon: <Award size={18} color={'var(--color-warning-500)'} />, bg: '#f59e0b22', color: 'var(--color-warning-500)' },
               { label: t("qcPage.totalReviews"), value: dashboardData.totalReviewed, icon: <FileText size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
               { label: t("qcPage.compositeScore"), value: dashboardData.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
             ].map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
@@ -1665,11 +1665,11 @@ export default function QCPage() {
           </div>
 
           {/* Charts Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
             {/* Pass Rate Ring */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t("qcPage.complianceExcellentRate2")}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-5, 20px)' }}>
                 <ChartContainer height={180}>
                   <RechartsPie>
                     <Pie data={[{ name: t("qcPage.compliant"), value: dashboardData.passRate }, { name: t("qcPage.notCompliant"), value: 100 - dashboardData.passRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
@@ -1687,7 +1687,7 @@ export default function QCPage() {
                   </RechartsPie>
                 </ChartContainer>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 12, marginTop: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 30, fontWeight: 700, color: SUCCESS }}>{dashboardData.passRate}%</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{t('qc.passRate')}</div>
@@ -1700,7 +1700,7 @@ export default function QCPage() {
             </div>
 
             {/* Issue Distribution */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.imageIssueDist')}</h3>
               <ChartContainer height={200}>
                 <BarChart data={dashboardData.issueDistribution} layout='vertical'>
@@ -1719,8 +1719,8 @@ export default function QCPage() {
           </div>
 
           {/* Trend Chart */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('qc.scoreTrend')}</h3>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button onClick={() => setTrendRange('7d')} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${trendRange === '7d' ? ACCENT : BORDER}`, background: trendRange === '7d' ? ACCENT : 'var(--bg-card)', color: trendRange === '7d' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.sevenDays')}</button>
@@ -1740,8 +1740,8 @@ export default function QCPage() {
           </div>
 
           {/* Weak Links & Target Comparison */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qc.weakLinks')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1754,10 +1754,10 @@ export default function QCPage() {
                 ))}
               </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Target size={16} color={ACCENT} />{t('qc.targetVsActual')}</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                 {[
                   { label: t("qcPage.timelyRate"), target: '95%', actual: '88%', color: DANGER },
                   { label: t("qcPage.excellentGoodRate"), target: '70%', actual: '65%', color: WARNING },
@@ -1782,7 +1782,7 @@ export default function QCPage() {
 
       {/* ==================== 区域影像质控 Tab ==================== */}
       {activeTab === 'regional' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* 区域质控子Tab */}
           {renderRegionalSubTabs()}
 
@@ -1790,8 +1790,8 @@ export default function QCPage() {
           {regionalTab === 'overview' && (
             <>
               {/* 区域接入统计 */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Building2 size={18} color={ACCENT} />
                   </div>
@@ -1800,7 +1800,7 @@ export default function QCPage() {
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.institutionCount')}</div>
                   </div>
                 </div>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--color-success-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <FileText size={18} color={SUCCESS} />
                   </div>
@@ -1809,7 +1809,7 @@ export default function QCPage() {
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.monthlyReportTotal')}</div>
                   </div>
                 </div>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--color-warning-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Star size={18} color='var(--color-warning-500)' />
                   </div>
@@ -1818,7 +1818,7 @@ export default function QCPage() {
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.regionalScore')}</div>
                   </div>
                 </div>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: '#8b5cf622', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Globe size={18} color='#8b5cf6' />
                   </div>
@@ -1830,7 +1830,7 @@ export default function QCPage() {
               </div>
 
               {/* 区域趋势图 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <TrendingUp size={16} color={ACCENT} />{t('qc.regionalTrend')}</h3>
                 <ChartContainer height={260}>
@@ -1849,7 +1849,7 @@ export default function QCPage() {
                     <Line type='monotone' dataKey='passRate' stroke={WARNING} strokeWidth={1.5} dot={false} name='passRate' />
                   </AreaChart>
                 </ChartContainer>
-                <div style={{ display: 'flex', gap: 20, justifyContent: 'center', marginTop: 12 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-5, 20px)', justifyContent: 'center', marginTop: 'var(--space-3, 12px)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 12, height: 3, background: ACCENT, borderRadius: 2 }} />
                     <span style={{ fontSize: 12, color: GRAY }}>{t('qc.compositeScore')}</span>
@@ -1866,10 +1866,10 @@ export default function QCPage() {
               </div>
 
               {/* 机构列表 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Building2 size={16} color={ACCENT} />{t('qc.regionalInstitutions')}</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                   {regionalInstitutions.slice(0, 4).map(inst => (
                     <div
                       key={inst.id}
@@ -1878,7 +1878,7 @@ export default function QCPage() {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 12,
+                        gap: 'var(--space-3, 12px)',
                         padding: '12px 16px',
                         background: LIGHT_BG,
                         borderRadius: 8,
@@ -1896,17 +1896,17 @@ export default function QCPage() {
                         )}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                           <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{inst.name}</span>
                           <span style={{ padding: '1px 6px', background: inst.level === '三甲' ? 'var(--color-info-bg)' : inst.level === '三乙' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: inst.level === '三甲' ? ACCENT : inst.level === '三乙' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{inst.level}</span>
                           <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.rankPrefix")}{inst.ranking}名</span>
                         </div>
-                        <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-1, 4px)' }}>
                           <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.monthlyReports")} <span style={{ fontWeight: 600, color: PRIMARY }}>{inst.reportsThisMonth.toLocaleString()}</span></span>
                           <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.avgScoreLabel")} <span style={{ fontWeight: 600, color: inst.avgScore >= 85 ? SUCCESS : inst.avgScore >= 80 ? WARNING : DANGER }}>{inst.avgScore}</span></span>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         {inst.trend === 'up' ? <TrendingUp size={14} color={SUCCESS} /> : inst.trend === 'down' ? <TrendingDown size={14} color={DANGER} /> : <Minus size={14} color={GRAY} />}
                         {expandedInstitution === inst.id ? <ChevronUp size={14} color={GRAY} /> : <ChevronDown size={14} color={GRAY} />}
                       </div>
@@ -1916,10 +1916,10 @@ export default function QCPage() {
               </div>
 
               {/* 不合格原因分析 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <AlertTriangle size={16} color={WARNING} />{t('qc.unqualifiedAnalysis')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6, 24px)' }}>
                   <div>
                     <ChartContainer height={200}>
                       <BarChart data={unqualifiedReasonData} layout='vertical'>
@@ -1931,7 +1931,7 @@ export default function QCPage() {
                       </BarChart>
                     </ChartContainer>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                     {unqualifiedReasonData.map(item => (
                       <div key={item.reason} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 8, height: 8, borderRadius: 2, background: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, flexShrink: 0 }} />
@@ -1949,8 +1949,8 @@ export default function QCPage() {
 
           {/* 机构排名 */}
           {regionalTab === 'ranking' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Award size={16} color={ACCENT} />{t('qc.regionalRanking')}</h3>
                 <DataTable
@@ -1996,7 +1996,7 @@ export default function QCPage() {
                       key: 'trend',
                       align: 'center',
                       render: (_v, r) => (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
                           {r.trend === 'up' ? <TrendingUp size={14} color={SUCCESS} /> : r.trend === 'down' ? <TrendingDown size={14} color={DANGER} /> : <Minus size={14} color={GRAY} />}
                           {r.trend !== 'same' && (
                             <span style={{ fontSize: 12, fontWeight: 600, color: r.trend === 'up' ? SUCCESS : DANGER }}>
@@ -2011,9 +2011,9 @@ export default function QCPage() {
               </div>
 
               {/* 雷达图对比 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.top3Comparison')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6, 24px)' }}>
                   <ChartContainer height={280}>
                     <RadarChart data={[
                       { subject: t("qcPage.imageQuality"), top1: 93, top2: 91, top3: 89 },
@@ -2029,13 +2029,13 @@ export default function QCPage() {
                       <Legend />
                     </RadarChart>
                   </ChartContainer>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                     {[
                       { name: t("qcPage.hospitalCity1"), score: 91.2, color: PIE_COLORS[0], rank: 1 },
                       { name: t("qcPage.hospitalTcm"), score: 89.5, color: PIE_COLORS[1], rank: 2 },
                       { name: t("qcPage.hospitalCity3"), score: 88.7, color: PIE_COLORS[2], rank: 3 },
                     ].map(inst => (
-                      <div key={inst.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
+                      <div key={inst.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                         <div style={{ width: 28, height: 28, borderRadius: '50%', background: inst.rank <= 3 ? 'var(--color-warning-bg)' : 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span style={{ fontWeight: 800, fontSize: 12, color: '#92400e' }}>{inst.rank}</span>
                         </div>
@@ -2056,12 +2056,12 @@ export default function QCPage() {
 
           {/* 质控标准管理 */}
           {regionalTab === 'standards' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {/* 图像质量标准 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Image size={16} color={ACCENT} />{t('qc.imageQualityStandard')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
                   {[
                     { level: t("qcPage.excellent"), min: t("qcPage.score90plus"), desc: qcStandards.imageQuality.excellent.desc, color: SUCCESS, bg: '#22c55e22' },
                     { level: t("qcPage.good"), min: t("qcPage.score80to89"), desc: qcStandards.imageQuality.good.desc, color: WARNING, bg: '#f59e0b22' },
@@ -2069,7 +2069,7 @@ export default function QCPage() {
                     { level: t("qcPage.poor"), min: t("qcPage.scoreBelow70"), desc: qcStandards.imageQuality.poor.desc, color: DANGER, bg: '#ef444422' },
                   ].map(item => (
                     <div key={item.level} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `2px solid ${item.color}` }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                         <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.level}</span>
                         <span style={{ padding: '2px 8px', background: item.color, color: WHITE, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>{item.min}</span>
                       </div>
@@ -2080,10 +2080,10 @@ export default function QCPage() {
               </div>
 
               {/* 报告质量标准 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <FileText size={16} color={ACCENT} />{t('qc.reportQualityStandard')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
                   {[
                     { level: t("qcPage.excellent"), min: t("qcPage.score90plus"), desc: qcStandards.reportQuality.excellent.desc, color: SUCCESS, bg: '#22c55e22' },
                     { level: t("qcPage.good"), min: t("qcPage.score80to89"), desc: qcStandards.reportQuality.good.desc, color: WARNING, bg: '#f59e0b22' },
@@ -2091,7 +2091,7 @@ export default function QCPage() {
                     { level: t("qcPage.poor"), min: t("qcPage.scoreBelow70"), desc: qcStandards.reportQuality.poor.desc, color: DANGER, bg: '#ef444422' },
                   ].map(item => (
                     <div key={item.level} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `2px solid ${item.color}` }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                         <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.level}</span>
                         <span style={{ padding: '2px 8px', background: item.color, color: WHITE, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>{item.min}</span>
                       </div>
@@ -2102,10 +2102,10 @@ export default function QCPage() {
               </div>
 
               {/* 检查时效标准 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Clock size={16} color={ACCENT} />{t('qc.reportTimelinessStandard')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
                   {[
                     { type: t("qcPage.criticalValue"), minutes: t("qcPage.emergency30Min"), desc: qcStandards.timeliness.urgent.desc, color: DANGER, bg: '#ef444422', icon: <AlertTriangle size={16} /> },
                     { type: t("qcPage.emergency"), minutes: t("qcPage.within60Min"), desc: qcStandards.timeliness.stat.desc, color: WARNING, bg: '#f59e0b22', icon: <Zap size={16} /> },
@@ -2113,7 +2113,7 @@ export default function QCPage() {
                     { type: t("qcPage.special"), minutes: t("qcPage.special4h"), desc: qcStandards.timeliness.extended.desc, color: '#8b5cf6', bg: '#8b5cf622', icon: <FileText size={16} /> },
                   ].map(item => (
                     <div key={item.type} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `1px solid ${item.color}` }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                         <span style={{ color: item.color }}>{item.icon}</span>
                         <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.type}</span>
                       </div>
@@ -2125,10 +2125,10 @@ export default function QCPage() {
               </div>
 
               {/* 危急值漏报标准 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <AlertTriangle size={16} color={DANGER} />{t('qc.criticalValueStandard')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' }}>
                   {[
                     { type: t("qcPage.notify10Min"), rate: '100%', desc: qcStandards.criticalValue.required.desc, color: SUCCESS, bg: '#22c55e22' },
                     { type: t("qcPage.registerRate"), rate: '≥95%', desc: qcStandards.criticalValue.reported.desc, color: SUCCESS, bg: '#22c55e22' },
@@ -2137,7 +2137,7 @@ export default function QCPage() {
                     <div key={item.type} style={{ background: item.bg, borderRadius: 10, padding: '16px', border: `1px solid ${item.color}` }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: item.color, marginBottom: 6 }}>{item.type}</div>
                       <div style={{ fontSize: 30, fontWeight: 700, color: item.color }}>{item.rate}</div>
-                      <div style={{ fontSize: 12, color: item.color, marginTop: 8, lineHeight: 1.4 }}>{item.desc}</div>
+                      <div style={{ fontSize: 12, color: item.color, marginTop: 'var(--space-2, 8px)', lineHeight: 1.4 }}>{item.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -2147,10 +2147,10 @@ export default function QCPage() {
 
           {/* 质控报表 */}
           {regionalTab === 'reports' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {/* 报表类型切换 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 12, border: '1px solid var(--border-color)', display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginRight: 8 }}>{t('qc.reportType')}</span>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginRight: 'var(--space-2, 8px)' }}>{t('qc.reportType')}</span>
                 {[
                   { key: 'monthly', label: t("qcPage.monthlyReport"), icon: <FileBarChart size={14} /> },
                   { key: 'quarterly', label: t("qcPage.quarterlyReport"), icon: <BarChart2 size={14} /> },
@@ -2177,7 +2177,7 @@ export default function QCPage() {
                     {type.label}
                   </button>
                 ))}
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   <button
                     onClick={() => handleExportPDF(regionalReportType === 'monthly' ? t("qcPage.monthlyQcReport") : regionalReportType === 'quarterly' ? t("qcPage.quarterlyQcReport") : t("qcPage.annualQcReport"))}
                     style={{
@@ -2201,13 +2201,13 @@ export default function QCPage() {
               {/* 月报内容 */}
               {regionalReportType === 'monthly' && (
                 <>
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                       <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <FileBarChart size={16} color={ACCENT} />{reportSummaryData.monthly.period} {t("qcPage.qcMonthlyReport")}
                       </h3>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                       {[
                         { label: t("qcPage.totalReports"), value: reportSummaryData.monthly.totalReports.toLocaleString(), icon: <FileText size={16} />, color: ACCENT, bg: '#3b82f622' },
                         { label: t("qcPage.avgScore"), value: reportSummaryData.monthly.avgScore, icon: <Star size={16} />, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
@@ -2223,7 +2223,7 @@ export default function QCPage() {
                         </div>
                       ))}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
                       <div>
                         <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.excellentReportsLabel")} {reportSummaryData.monthly.excellentCount.toLocaleString()}</h4>
                         <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
@@ -2242,9 +2242,9 @@ export default function QCPage() {
                   </div>
 
                   {/* 问题分布 */}
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px' }}>{t('qc.monthlyIssues')}</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6, 24px)' }}>
                       <ChartContainer height={180}>
                         <PieChart>
                           <Pie data={reportSummaryData.monthly.issues} cx='50%' cy='50%' innerRadius={45} outerRadius={75} paddingAngle={3} dataKey='count' labelLine={false}>
@@ -2255,7 +2255,7 @@ export default function QCPage() {
                           <Tooltip formatter={(v) => `${v}例`} />
                         </PieChart>
                       </ChartContainer>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                         {reportSummaryData.monthly.issues.map((item, idx) => (
                           <div key={item.type} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: PIE_COLORS[idx % PIE_COLORS.length], flexShrink: 0 }} />
@@ -2272,11 +2272,11 @@ export default function QCPage() {
 
               {/* 季报内容 */}
               {regionalReportType === 'quarterly' && (
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <BarChart2 size={16} color={ACCENT} />{reportSummaryData.quarterly.period} {t("qcPage.qcQuarterlyReport")}
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                     {[
                       { label: t("qcPage.totalReports"), value: reportSummaryData.quarterly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
                       { label: t("qcPage.avgScore"), value: reportSummaryData.quarterly.avgScore, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
@@ -2291,9 +2291,9 @@ export default function QCPage() {
                   </div>
                   <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
                     <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.momChange")}</h4>
-                    <div style={{ display: 'flex', gap: 16 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
                       {reportSummaryData.quarterly.trends.map(item => (
-                        <div key={item.metric} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div key={item.metric} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                           <span style={{ fontSize: 12, color: GRAY }}>{item.metric}:</span>
                           <AppText size="sm" weight={700} as="span" style={{ color: PRIMARY }}>{item.value}</AppText>
                           <span style={{ fontSize: 12, color: item.trend === 'up' ? SUCCESS : item.trend === 'down' ? DANGER : GRAY }}>
@@ -2309,11 +2309,11 @@ export default function QCPage() {
 
               {/* 年报内容 */}
               {regionalReportType === 'yearly' && (
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FileBarChart size={16} color={ACCENT} />{reportSummaryData.yearly.period} {t("qcPage.qcAnnualReport")}
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                     {[
                       { label: t("qcPage.totalReports"), value: reportSummaryData.yearly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
                       { label: t("qcPage.avgScore"), value: reportSummaryData.yearly.avgScore, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
@@ -2328,7 +2328,7 @@ export default function QCPage() {
                   </div>
                   <div>
                     <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.annualExcellentInstitutions")}</h4>
-                    <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
                       {reportSummaryData.yearly.rankings.map((r, idx) => (
                         <div key={r.institution} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: idx === 0 ? 'var(--color-warning-bg)' : LIGHT_BG, borderRadius: 8, border: `1px solid ${idx === 0 ? 'var(--color-warning-400)' : BORDER}` }}>
                           <div style={{ width: 24, height: 24, borderRadius: '50%', background: idx === 0 ? 'var(--color-warning-400)' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2349,9 +2349,9 @@ export default function QCPage() {
 
           {/* 问题追踪与整改 */}
           {regionalTab === 'tracking' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <AlertTriangle size={16} color={WARNING} />{t('qc.issueTracking')}</h3>
                   <button
@@ -2409,13 +2409,13 @@ export default function QCPage() {
               </div>
 
               {/* 整改统计 */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' }}>
                 {[
                   { label: t("qcPage.pendingCorrection"), count: issueTrackingData.filter(i => i.status === '整改中').length, color: WARNING, bg: '#f59e0b22' },
                   { label: t("qcPage.corrected"), count: issueTrackingData.filter(i => i.status === '已整改').length, color: SUCCESS, bg: '#22c55e22' },
                   { label: t("qcPage.overdueCorrection"), count: 0, color: DANGER, bg: '#ef444422' },
                 ].map(item => (
-                  <div key={item.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+                  <div key={item.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <AlertTriangle size={18} color={item.color} />
                     </div>
@@ -2433,8 +2433,8 @@ export default function QCPage() {
 
       {/* ==================== Peer Review Tab ==================== */}
       {activeTab === 'peerReview' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', marginBottom: 8, display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', marginBottom: 'var(--space-2, 8px)', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
             {[
               { key: 'assignment', label: t("qcPage.randomAssign"), icon: <Users size={14} /> },
               { key: 'scoring', label: t("qcPage.scoringStandard"), icon: <Star size={14} /> },
@@ -2444,13 +2444,13 @@ export default function QCPage() {
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
                 background: peerReviewTab === tab.key ? ACCENT : 'transparent',
                 color: peerReviewTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}>{tab.icon}{tab.label}</button>
             ))}
           </div>
           {peerReviewTab === 'assignment' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('qc.blindReviewAssignment')}</h3>
                 <button onClick={handleRandomAssign} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Zap size={14} />{t('qc.randomAssign')}</button>
@@ -2481,15 +2481,15 @@ export default function QCPage() {
             </div>
           )}
           {peerReviewTab === 'scoring' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.reviewCriteria')}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
                 {[
                   { dim: t("qcPage.accuracyMetric2"), desc: t("qcPage.accuracyDesc"), weight: '40%', icon: <Target size={20} />, color: '#059669' },
                   { dim: t("qcPage.completenessMetric2"), desc: t("qcPage.completenessDesc"), weight: '35%', icon: <FileText size={20} />, color: 'var(--color-primary-500)' },
                   { dim: t("qcPage.timelinessMetric2"), desc: t("qcPage.timelinessDesc"), weight: '25%', icon: <Clock size={20} />, color: 'var(--color-warning-500)' },
                 ].map(item => (
-                  <div key={item.dim} style={{ background: `${item.color}10`, borderRadius: 10, padding: 16, border: `2px solid ${item.color}` }}>
+                  <div key={item.dim} style={{ background: `${item.color}10`, borderRadius: 10, padding: 'var(--space-4, 16px)', border: `2px solid ${item.color}` }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE }}>{item.icon}</div>
                       <div><div style={{ fontSize: 14, fontWeight: 700, color: item.color }}>{item.dim}</div><div style={{ fontSize: 12, color: item.color, opacity: 0.7 }}>{t("qcPage.weight")} {item.weight}</div></div>
@@ -2501,13 +2501,13 @@ export default function QCPage() {
             </div>
           )}
           {peerReviewTab === 'reliability' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.kappa')}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
-                <div style={{ background: LIGHT_BG, borderRadius: 10, padding: 20, textAlign: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-5, 20px)' }}>
+                <div style={{ background: LIGHT_BG, borderRadius: 10, padding: 'var(--space-5, 20px)', textAlign: 'center' }}>
                   <div style={{ fontSize: 48, fontWeight: 800, color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>{kappaData.kappaValue.toFixed(2)}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginTop: 8 }}>Cohen's Kappa</div>
-                  <div style={{ padding: '4px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, display: 'inline-block', marginTop: 8, background: kappaData.kappaValue >= 0.75 ? 'var(--color-success-bg)' : kappaData.kappaValue >= 0.6 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginTop: 'var(--space-2, 8px)' }}>Cohen's Kappa</div>
+                  <div style={{ padding: '4px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, display: 'inline-block', marginTop: 'var(--space-2, 8px)', background: kappaData.kappaValue >= 0.75 ? 'var(--color-success-bg)' : kappaData.kappaValue >= 0.6 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>
                     {kappaData.agreement === 'substantial' ? t("qcPage.highlyConsistent") : kappaData.agreement === 'moderate' ? t("qcPage.moderatelyConsistent") : t("qcPage.needsImprovement2")}
                   </div>
                 </div>
@@ -2535,21 +2535,21 @@ export default function QCPage() {
 
       {/* ==================== Rule-Based Report Checker Tab ==================== */}
       {activeTab === 'ruleChecker' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {[
               { label: t("qcPage.qualityScore"), value: `${overallQualityScore}/100`, icon: <Star size={18} />, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER, bg: overallQualityScore >= 80 ? 'var(--color-success-bg)' : overallQualityScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
               { label: t("qcPage.totalRules"), value: qcRulesConfig.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
               { label: t("qcPage.passCount"), value: qcRulesConfig.filter(r => r.passed).length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
               { label: t("qcPage.failCount"), value: qcRulesConfig.filter(r => !r.passed).length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
             ].map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
                 <div><div style={{ fontSize: 30, fontWeight: 700, color: card.color }}>{card.value}</div><AppText size="xs" color="secondary">{card.label}</AppText></div>
               </div>
             ))}
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
             {[
               { key: 'rules', label: t("qcPage.ruleConfig"), icon: <Settings size={14} /> },
               { key: 'results', label: t("qcPage.checkResult"), icon: <CheckCircle size={14} /> },
@@ -2558,25 +2558,25 @@ export default function QCPage() {
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
                 background: ruleCheckerTab === tab.key ? ACCENT : 'transparent',
                 color: ruleCheckerTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}>{tab.icon}{tab.label}</button>
             ))}
           </div>
           {ruleCheckerTab === 'rules' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.configurableRules')}</h3>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 'var(--space-4, 16px)' }}>
                 {['structure', 'content', 'terminology', 'compliance'].map(cat => (
                   <span key={cat} style={{ padding: '3px 12px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--bg-card)', color: GRAY }}>
                     {cat === 'structure' ? t("qcPage.structure") : cat === 'content' ? t("qcPage.content") : cat === 'terminology' ? t("qcPage.terminology") : t("qcPage.compliance")}
                   </span>
                 ))}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {qcRulesConfig.map(rule => {
                   const catColor = rule.category === 'structure' ? 'var(--color-primary-500)' : rule.category === 'content' ? '#059669' : rule.category === 'terminology' ? 'var(--color-warning-500)' : '#7c3aed'
                   return (
-                    <div key={rule.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: LIGHT_BG, borderRadius: 8, border: `1px solid ${rule.passed ? 'var(--color-success-border)' : 'var(--color-error-border)'}` }}>
+                    <div key={rule.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 14px', background: LIGHT_BG, borderRadius: 8, border: `1px solid ${rule.passed ? 'var(--color-success-border)' : 'var(--color-error-border)'}` }}>
                       <div style={{ width: 8, height: 8, borderRadius: 2, background: catColor, flexShrink: 0 }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{rule.name}</div>
@@ -2591,9 +2591,9 @@ export default function QCPage() {
             </div>
           )}
           {ruleCheckerTab === 'results' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.scoreDashboard')}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-5, 20px)', alignItems: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="200" height="120" viewBox="0 0 200 120">
@@ -2609,7 +2609,7 @@ export default function QCPage() {
                     </svg>
                     <div style={{ position: 'absolute', bottom: 20, fontSize: 30, fontWeight: 700, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER }}>{overallQualityScore}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: GRAY, marginTop: 8 }}>{t('qc.overallScore')}</div>
+                  <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-2, 8px)' }}>{t('qc.overallScore')}</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {[
@@ -2619,7 +2619,7 @@ export default function QCPage() {
                     { label: t("qcPage.compliance"), value: 88, color: '#7c3aed' },
                   ].map(item => (
                     <div key={item.label}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                         <span style={{ color: GRAY }}>{item.label}</span>
                         <span style={{ fontWeight: 700, color: item.color }}>{item.value}%</span>
                       </div>
@@ -2637,21 +2637,21 @@ export default function QCPage() {
 
       {/* ==================== Rad-Path Correlation Tab ==================== */}
       {activeTab === 'radPath' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {[
               { label: t("qcPage.totalCompareCases"), value: concordanceStats.total, icon: <Activity size={18} />, color: ACCENT, bg: '#3b82f622' },
               { label: t("qcPage.consistent"), value: concordanceStats.concordant, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
               { label: t("qcPage.inconsistent"), value: concordanceStats.discordant, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
               { label: t("qcPage.agreementRate"), value: `${concordanceStats.total > 0 ? Math.round(concordanceStats.concordant / concordanceStats.total * 100) : 0}%`, icon: <Target size={18} />, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
             ].map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
                 <div><div style={{ fontSize: 30, fontWeight: 700, color: card.color }}>{card.value}</div><AppText size="xs" color="secondary">{card.label}</AppText></div>
               </div>
             ))}
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
             {[
               { key: 'overview', label: t("qcPage.compareOverview"), icon: <Activity size={14} /> },
               { key: 'discordant', label: t("qcPage.inconsistentCases"), icon: <AlertTriangle size={14} /> },
@@ -2660,13 +2660,13 @@ export default function QCPage() {
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
                 background: radPathTab === tab.key ? ACCENT : 'transparent',
                 color: radPathTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}>{tab.icon}{tab.label}</button>
             ))}
           </div>
           {radPathTab === 'overview' && (
             <>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.concordanceTrend')}</h3>
                 <ChartContainer height={240}>
                   <AreaChart data={radPathTrend}>
@@ -2705,21 +2705,21 @@ export default function QCPage() {
             </>
           )}
           {radPathTab === 'discordant' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={DANGER} />{t('qc.discordantAnalysis')}</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                 {radPathData.filter(d => d.concordance === 'discordant').map(d => (
-                  <div key={d.id} style={{ display: 'flex', gap: 12, padding: '14px 16px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
+                  <div key={d.id} style={{ display: 'flex', gap: 'var(--space-3, 12px)', padding: '14px 16px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--color-error-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <AlertTriangle size={18} color={DANGER} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
                         <span style={{ fontWeight: 700, color: PRIMARY }}>{d.patientName} ({d.id})</span>
                         <span style={{ fontSize: 12, color: GRAY }}>{d.date}</span>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 12 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-3, 12px)' }}>
                         <div style={{ background: 'var(--color-info-bg)', borderRadius: 6, padding: '8px 10px' }}>
                           <div style={{ fontSize: 12, color: ACCENT, fontWeight: 600, marginBottom: 2 }}>{t('qc.radDiagnosis')}</div>
                           <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{d.radDiagnosis}</div>
@@ -2729,7 +2729,7 @@ export default function QCPage() {
                           <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{d.pathResult}</div>
                         </div>
                       </div>
-                      <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+                      <div style={{ marginTop: 10, display: 'flex', gap: 'var(--space-2, 8px)' }}>
                         {d.consultationStarted ? (
                           <span style={{ padding: '4px 12px', borderRadius: 6, background: 'var(--color-info-bg)', color: ACCENT, fontSize: 12, fontWeight: 600 }}>{t("qcPage.consultationInitiated")}</span>
                         ) : (
@@ -2752,21 +2752,21 @@ export default function QCPage() {
 
       {/* ==================== ACR Compliance Dashboard Tab ==================== */}
       {activeTab === 'acr' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {[
               { label: t("qcPage.docReadiness"), value: `${readinessScore}%`, icon: <FileText size={18} />, color: readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER, bg: readinessScore >= 80 ? 'var(--color-success-bg)' : readinessScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
               { label: t("qcPage.compliantModalities"), value: acrRequirementsData.filter(a => a.status === '已达标').length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
               { label: t("qcPage.pendingModalities"), value: acrRequirementsData.filter(a => a.status !== '已达标').length, icon: <AlertTriangle size={18} />, color: WARNING, bg: '#f59e0b22' },
               { label: t("qcPage.historyChecklist"), value: inspectionFindings.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
             ].map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
                 <div><div style={{ fontSize: 30, fontWeight: 700, color: card.color }}>{card.value}</div><AppText size="xs" color="secondary">{card.label}</AppText></div>
               </div>
             ))}
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
             {[
               { key: 'requirements', label: t("qcPage.acrChecklist"), icon: <ClipboardList size={14} /> },
               { key: 'readiness', label: t("qcPage.readinessCheck"), icon: <FileText size={14} /> },
@@ -2775,28 +2775,28 @@ export default function QCPage() {
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
                 background: acrTab === tab.key ? ACCENT : 'transparent',
                 color: acrTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}>{tab.icon}{tab.label}</button>
             ))}
           </div>
           {acrTab === 'requirements' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               {acrRequirementsData.map(mod => {
                 const statusColor = mod.status === '已达标' ? SUCCESS : mod.status === '部分达标' ? WARNING : DANGER
                 const statusBg = mod.status === '已达标' ? 'var(--color-success-bg)' : mod.status === '部分达标' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)'
                 return (
-                  <div key={mod.modality} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div key={mod.modality} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{mod.modality}</span>
                         <span style={{ fontSize: 12, color: GRAY }}>{mod.completed}/{mod.total} {t("qcPage.itemsCompliant")}</span>
                       </div>
                       <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: statusBg, border: 'transparent', color: statusColor, dot: statusColor }}>{mod.status}</StatusTag>
                     </div>
-                    <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4, marginBottom: 12 }}>
+                    <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4, marginBottom: 'var(--space-3, 12px)' }}>
                       <div style={{ width: `${(mod.completed / mod.total) * 100}%`, height: '100%', background: statusColor, borderRadius: 4 }} />
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)' }}>
                       {mod.requirements.map(req => (
                         <div key={req} style={{ fontSize: 12, padding: '6px 8px', background: LIGHT_BG, borderRadius: 6, textAlign: 'center', color: GRAY }}>{req}</div>
                       ))}
@@ -2808,9 +2808,9 @@ export default function QCPage() {
           )}
           {acrTab === 'readiness' && (
             <>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.readinessScoreTitle')}</h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-5, 20px)' }}>
                   <div style={{ textAlign: 'center' }}>
                     <svg width="140" height="140" viewBox="0 0 140 140">
                       <circle cx="70" cy="70" r="55" fill="none" stroke="var(--border-color)" strokeWidth="10" />
@@ -2818,7 +2818,7 @@ export default function QCPage() {
                       <text x="70" y="70" textAnchor="middle" dominantBaseline="central" fontSize="28" fontWeight="800" fill={readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER}>{readinessScore}</text>
                     </svg>
                   </div>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                     {[
                       { label: t("qcPage.acrManual"), value: 80, color: SUCCESS },
                       { label: t("qcPage.acrSop"), value: 75, color: WARNING },
@@ -2839,7 +2839,7 @@ export default function QCPage() {
                   </div>
                 </div>
               </div>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.inspectionFindings')}</h3>
                 <DataTable
                   rowKey="id"
@@ -2873,8 +2873,8 @@ export default function QCPage() {
 
       {/* ==================== Quality Trend Analysis Tab ==================== */}
       {activeTab === 'trendAnalysis' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
             {[
               { key: 'department', label: t("qcPage.deptOverallTrend"), icon: <BarChart3 size={14} /> },
               { key: 'individual', label: t("qcPage.personalTrend"), icon: <User size={14} /> },
@@ -2883,20 +2883,20 @@ export default function QCPage() {
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
                 background: trendAnalysisTab === tab.key ? ACCENT : 'transparent',
                 color: trendAnalysisTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}>{tab.icon}{tab.label}</button>
             ))}
           </div>
           {trendAnalysisTab === 'department' && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
                 {[
                   { label: t("qcPage.currentMonthlyAvg"), value: monthlyQualityData[monthlyQualityData.length - 1]!.deptAvg, suffix: t("qcPage.scoreUnit"), color: ACCENT, bg: '#3b82f622' },
                   { label: t("qcPage.ucl"), value: monthlyQualityData[0]!.upperControl, suffix: t("qcPage.scoreUnit"), color: SUCCESS, bg: '#22c55e22' },
                   { label: t("qcPage.lcl"), value: monthlyQualityData[0]!.lowerControl, suffix: t("qcPage.scoreUnit"), color: WARNING, bg: '#f59e0b22' },
                   { label: t("qcPage.cl"), value: monthlyQualityData[0]!.mean, suffix: t("qcPage.scoreUnit"), color: '#8b5cf6', bg: '#8b5cf622' },
                 ].map(card => (
-                  <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Target size={18} color={card.color} />
                     </div>
@@ -2904,7 +2904,7 @@ export default function QCPage() {
                   </div>
                 ))}
               </div>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <TrendingUp size={16} color={ACCENT} />{t('qc.spcChart')}</h3>
                 <ChartContainer height={280}>
@@ -2924,11 +2924,11 @@ export default function QCPage() {
                 </ChartContainer>
               </div>
               {controlAlerts.length > 0 && (
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Bell size={16} color={DANGER} />{t('qc.controlAlerts')}</h3>
                   {controlAlerts.map((alert, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: alert.type.includes('out_of_control') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', borderRadius: 6, marginBottom: 8 }}>
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: alert.type.includes('out_of_control') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', borderRadius: 6, marginBottom: 'var(--space-2, 8px)' }}>
                       {alert.type.includes('out_of_control') ? <AlertTriangle size={14} color={DANGER} /> : <Bell size={14} color={WARNING} />}
                       <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{alert.message}</span>
                     </div>
@@ -2938,7 +2938,7 @@ export default function QCPage() {
             </>
           )}
           {trendAnalysisTab === 'individual' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.doctorTrendComparison')}</h3>
               <ChartContainer height={280}>
                 <AreaChart data={monthlyQualityData}>
@@ -2953,9 +2953,9 @@ export default function QCPage() {
                   <Line type='monotone' dataKey='indivAvg' stroke={SUCCESS} strokeWidth={2} dot={{ r: 4, fill: SUCCESS }} name={t('qcPage.individualAvgScore')} />
                 </AreaChart>
               </ChartContainer>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-4, 16px)' }}>
                 {indivDoctorTrendData.map((doc, idx) => (
-                  <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: idx % 2 === 0 ? 'var(--color-info-bg)' : 'var(--color-success-bg)', borderRadius: 8 }}>
+                  <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 14px', background: idx % 2 === 0 ? 'var(--color-info-bg)' : 'var(--color-success-bg)', borderRadius: 8 }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? 'var(--color-warning-400)' : doc.rank <= 3 ? '#94a3b8' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, color: WHITE }}>{doc.rank}</div>
                     <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{doc.name}</div><div style={{ fontSize: 12, color: GRAY }}>{t("qcPage.report")} {doc.reportCount} {t("qcPage.reportUnit")}</div></div>
                     <div style={{ textAlign: 'right' }}>
@@ -2971,15 +2971,15 @@ export default function QCPage() {
       )}
 
       {activeTab === 'settings' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 800 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)', maxWidth: 800 }}>
           {/* Report Timeout Settings */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={16} color={ACCENT} />{t('qc.reviewTimeoutSettings')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.reportTimeoutLabel')}</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.reportTimeoutMinutes} onChange={e => setTempRules({ ...tempRules, reportTimeoutMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 12,}} />
                   ) : (
@@ -2990,7 +2990,7 @@ export default function QCPage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.reminderLabel')}</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.reminderBeforeMinutes} onChange={e => setTempRules({ ...tempRules, reminderBeforeMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 12,}} />
                   ) : (
@@ -3001,7 +3001,7 @@ export default function QCPage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.autoEscalateLabel')}</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.autoEscalateAfterMinutes} onChange={e => setTempRules({ ...tempRules, autoEscalateAfterMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 12,}} />
                   ) : (
@@ -3012,7 +3012,7 @@ export default function QCPage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.dailyQuotaLabel')}</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.dailyReviewQuota} onChange={e => setTempRules({ ...tempRules, dailyReviewQuota: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 12,}} />
                   ) : (
@@ -3025,13 +3025,13 @@ export default function QCPage() {
           </div>
 
           {/* Image Quality Standards */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Image size={16} color={ACCENT} />{t('qc.imageScoreStandard')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4, 16px)' }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.excellentStandard')}</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.imageScoreExcellent} onChange={e => setTempRules({ ...tempRules, imageScoreExcellent: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 12,}} />
                   ) : (
@@ -3042,7 +3042,7 @@ export default function QCPage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.goodStandard')}</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.imageScoreGood} onChange={e => setTempRules({ ...tempRules, imageScoreGood: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 12,}} />
                   ) : (
@@ -3054,7 +3054,7 @@ export default function QCPage() {
             </div>
             <div style={{ marginTop: 14, padding: '12px 14px', background: 'var(--color-warning-bg)', borderRadius: 8 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>{t('qc.gradeDescription')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)' }}>
                 {[
                   { level: t("qcPage.excellent"), range: `≥${qcRules.imageScoreExcellent}分`, color: SUCCESS, bg: '#22c55e22' },
                   { level: t("qcPage.good"), range: `${qcRules.imageScoreGood}-${qcRules.imageScoreExcellent - 1}分`, color: WARNING, bg: '#f59e0b22' },
@@ -3071,7 +3071,7 @@ export default function QCPage() {
           </div>
 
           {/* QC Reminder Rules */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Bell size={16} color={ACCENT} />{t('qc.reminderRules')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -3082,7 +3082,7 @@ export default function QCPage() {
                 { label: t("qcPage.alertRejectAuto"), enabled: false, desc: t("qcPage.alertRejectDesc") },
                 { label: t("qcPage.alertPeerAssign"), enabled: true, desc: t("qcPage.alertPeerDesc") },
               ].map((rule, _idx) => (
-                <div key={rule.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
+                <div key={rule.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{rule.label}</div>
                     <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>{rule.desc}</div>
@@ -3112,42 +3112,42 @@ export default function QCPage() {
 
       {/* [v3.0.6.11-103 Wave 10] 重复页合并: 嵌入 QualityControlPage (评分/危急值/缺陷/月报/实时仪表盘) */}
       {activeTab === 'v3' && (
-        <div data-testid="qc-embedded-quality-control" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="qc-embedded-quality-control" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <QualityControlPage />
         </div>
       )}
 
       {/* [v3.0.6.11-103 Wave 10] 重复页合并: 嵌入 RadiologyQCDashboardPage (放射科质控总看板) */}
       {activeTab === 'radDashboard' && (
-        <div data-testid="qc-embedded-rad-dashboard" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="qc-embedded-rad-dashboard" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <RadiologyQCDashboardPage />
         </div>
       )}
 
       {/* [v3.0.6.11-104 Wave 5A] 质控收敛: 嵌入 AIQCPage (AI 智能质控, 旧路由 /ai-qc redirect → /qc?tab=ai) */}
       {activeTab === 'ai' && (
-        <div data-testid="qc-embedded-ai-qc" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="qc-embedded-ai-qc" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <AIQCPage />
         </div>
       )}
 
       {/* [v3.0.6.11-104 Wave 5A] 质控收敛: 嵌入 DepartmentQualityPage (科室质量, 旧路由 /quality/department redirect → /qc?tab=deptQuality) */}
       {activeTab === 'deptQuality' && (
-        <div data-testid="qc-embedded-dept-quality" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="qc-embedded-dept-quality" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <DepartmentQualityPage />
         </div>
       )}
 
       {/* [v3.0.6.11-105 Wave 2C] 国标指标(2024): 嵌入 W2B RqiIndicatorPage; 深链 /qc?tab=rqi2024 */}
       {activeTab === 'rqi2024' && (
-        <div data-testid="qc-embedded-rqi-2024" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="qc-embedded-rqi-2024" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <RqiIndicatorPage />
         </div>
       )}
 
       {/* [G005 W9-QC] 统一质控评分台: 嵌入 QualityScoringCenterPage; 深链 /qc?tab=scoringCenter */}
       {activeTab === 'scoringCenter' && (
-        <div data-testid="qc-embedded-scoring-center" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="qc-embedded-scoring-center" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <QualityScoringCenterPage />
         </div>
       )}
@@ -3156,11 +3156,11 @@ export default function QCPage() {
       {showRatingModal && selectedReport && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRatingModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <Title level={5} style={{ margin: 0 }}>{t('dc.qualityScore')}</Title>
-              <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+              <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ width: 60, height: 60, borderRadius: 12, background: `${PRIMARY}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <FileText size={28} color={PRIMARY} />
               </div>
@@ -3186,7 +3186,7 @@ export default function QCPage() {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ marginTop: 'var(--space-5, 20px)', display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowRatingModal(false)} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t('dcm.close')}</button>
             </div>
           </div>
@@ -3200,7 +3200,7 @@ export default function QCPage() {
           background: toast.type === 'success' ? SUCCESS : toast.type === 'error' ? DANGER : PRIMARY,
           color: WHITE, padding: '12px 20px', borderRadius: 10,
           boxShadow: '0 4px 20px rgba(0,0,0,0.25)', fontSize: 12, fontWeight: 600,
-          display: 'flex', alignItems: 'center', gap: 8, maxWidth: 360,
+          display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', maxWidth: 360,
         }}>
           {toast.type === 'success' ? <CheckCircle size={16} /> : toast.type === 'error' ? <AlertTriangle size={16} /> : <Bell size={16} />}
           {toast.message}
@@ -3210,17 +3210,17 @@ export default function QCPage() {
       {/* 进度Modal */}
       {progressModal.show && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 32, width: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-8, 32px)', width: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center' }}>
             {!progressModal.complete ? (
               <>
                 <div style={{ width: 48, height: 48, border: '4px solid var(--border-color)', borderTopColor: ACCENT, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-                <div style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>{progressModal.title}</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-2, 8px)' }}>{progressModal.title}</div>
                 <AppText size="sm" color="secondary" as="div">{progressModal.message}</AppText>
               </>
             ) : (
               <>
                 <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
-                <div style={{ fontSize: 16, fontWeight: 600, color: SUCCESS, marginBottom: 8 }}>{progressModal.title}{t("qcPage.complete")}</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: SUCCESS, marginBottom: 'var(--space-2, 8px)' }}>{progressModal.title}{t("qcPage.complete")}</div>
                 <AppText size="sm" color="secondary" as="div">{progressModal.message}</AppText>
               </>
             )}
@@ -3232,12 +3232,12 @@ export default function QCPage() {
       {detailModal.show && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailModal(d => ({ ...d, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <Title level={5} style={{ margin: 0 }}>{detailModal.title}</Title>
-              <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+              <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6 }}>{detailModal.content}</div>
-            <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ marginTop: 'var(--space-5, 20px)', display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t('dcm.close')}</button>
             </div>
           </div>
@@ -3248,12 +3248,12 @@ export default function QCPage() {
       {formModal.show && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setFormModal(f => ({ ...f, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <Title level={5} style={{ margin: 0 }}>{formModal.title}</Title>
-              <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+              <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 12, color: GRAY, textAlign: 'center', padding: '20px 0' }}>{t("qcPage.formContentDemo")}</div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
               <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('dc.cancel')}</button>
               <button onClick={() => { setFormModal(f => ({ ...f, show: false })); showToast(`${formModal.title}成功`, 'success') }} style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.confirm')}</button>
             </div>
@@ -3265,9 +3265,9 @@ export default function QCPage() {
       {peerReviewDetail && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPeerReviewDetail(null)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <Title level={5} style={{ margin: 0 }}>{t("qcPage.blindReviewDetail")} {peerReviewDetail.id}</Title>
-              <button onClick={() => setPeerReviewDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+              <button onClick={() => setPeerReviewDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
@@ -3284,7 +3284,7 @@ export default function QCPage() {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ marginTop: 'var(--space-5, 20px)', display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setPeerReviewDetail(null)} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t('dcm.close')}</button>
             </div>
           </div>

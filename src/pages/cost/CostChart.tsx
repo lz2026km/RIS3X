@@ -15,10 +15,10 @@ export function CostCard({ title, value, subtitle, icon: Icon, trend, trendValue
     background: 'var(--bg-card, #161b22)',
     border: '1px solid var(--border-default, #30363d)',
     borderRadius: 8,
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
     display: 'flex',
     flexDirection: 'column',
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
   }
 
   const headerStyle: React.CSSProperties = {
@@ -46,7 +46,7 @@ export function CostCard({ title, value, subtitle, icon: Icon, trend, trendValue
   const trendStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
     fontSize: 12,
     color: trend === 'up' ? 'var(--color-success-500)' : 'var(--color-error-500)',
   }
@@ -80,7 +80,7 @@ export function SimpleBarChart({ data, height = 200 }: { data: { label: string; 
     <div style={{
       display: 'flex',
       alignItems: 'flex-end',
-      gap: 8,
+      gap: 'var(--space-2, 8px)',
       height,
       padding: '16px 8px',
     }}>
@@ -92,7 +92,7 @@ export function SimpleBarChart({ data, height = 200 }: { data: { label: string; 
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}>
             <div style={{
               width: '100%',
@@ -117,7 +117,7 @@ export function SimpleHorizontalBarChart({ data, height = 200 }: { data: { label
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: 8,
+      gap: 'var(--space-2, 8px)',
       height,
       padding: '16px 8px',
       overflowY: 'auto',
@@ -128,7 +128,7 @@ export function SimpleHorizontalBarChart({ data, height = 200 }: { data: { label
           <div key={idx} style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             height: 24,
           }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', width: 60, flexShrink: 0 }}>{item.label}</span>
@@ -173,7 +173,7 @@ export function SimplePieChart({ data, size = 160 }: { data: { label: string; va
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6, 24px)' }}>
       <svg width={size} height={size} viewBox={`0 0 ${size * 2} ${size * 2}`}>
         {data.map((item, idx) => {
           const percent = total > 0 ? item.value / total : 0
@@ -198,9 +198,9 @@ export function SimplePieChart({ data, size = 160 }: { data: { label: string; va
           年度成本
         </text>
       </svg>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
         {data.map((item, idx) => (
-          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <div style={{ width: 12, height: 12, borderRadius: 2, background: item.color }} />
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{item.label}</span>
             <span style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)', marginLeft: 'auto' }}>{total > 0 ? formatPercent((item.value / total) * 100) : '0%'}</span>

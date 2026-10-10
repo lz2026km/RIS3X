@@ -110,14 +110,14 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <ListChecks size={18} />
             <strong style={{ fontSize: 16 }}>{t('reportReview.initial.title')}</strong>
-            <Tag color="purple" style={{ marginLeft: 8 }}>
+            <Tag color="purple" style={{ marginLeft: 'var(--space-2, 8px)' }}>
               R3.REVIEW.001
             </Tag>
           </Space>
@@ -137,7 +137,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             </Button>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={5}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportReview.initial.total')}</span>}
@@ -186,7 +186,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
           background: 'var(--bg-card)',
           padding: '8px 12px',
           borderRadius: 6,
-          marginBottom: 8,
+          marginBottom: 'var(--space-2, 8px)',
           border: '1px solid var(--border-color)',
         }}
       >
@@ -231,7 +231,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
         style={{
           background: 'var(--bg-card)',
           borderRadius: 8,
-          padding: 4,
+          padding: 'var(--space-1, 4px)',
           maxHeight: 600,
           overflowY: 'auto',
         }}
@@ -256,7 +256,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                     : task.isOverdue
                       ? '3px solid var(--color-error-600)'
                       : '3px solid transparent',
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
                 transition: 'all 0.15s',
               }}
               data-testid={`initial-check-item-${task.id}`}
@@ -374,7 +374,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
               [t('w1Buttons.checklist.critical'), detailTask.criticalFinding ? t('w1Buttons.checklist.yes') : t('w1Buttons.checklist.no')],
               [t('w1Buttons.checklist.cosign'), detailTask.needsCosign ? t('w1Buttons.checklist.yes') : t('w1Buttons.checklist.no')],
             ] as Array<[string, string]>).map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', gap: 12, fontSize: 12, padding: '6px 8px', background: 'var(--bg-deep, #f8fafc)', borderRadius: 6 }}>
+              <div key={k} style={{ display: 'flex', gap: 'var(--space-3, 12px)', fontSize: 12, padding: '6px 8px', background: 'var(--bg-deep, #f8fafc)', borderRadius: 6 }}>
                 <span style={{ width: 110, color: 'var(--text-secondary, #64748b)', flexShrink: 0 }}>{k}</span>
                 <span style={{ color: 'var(--text-primary, #1e293b)' }}>{v}</span>
               </div>

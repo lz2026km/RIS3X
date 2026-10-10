@@ -533,7 +533,7 @@ const DirectorDashboardPage: React.FC = () => {
 
   // 渲染Tab1: 工作量排名
   const renderWorkloadTab = () => (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
       <DashboardCard title={t('directorDash.doctorRanking')} icon={<Trophy size={14} />} bodyPadding={0}>
         <DataTable
@@ -651,7 +651,7 @@ const DirectorDashboardPage: React.FC = () => {
               dataIndex: 'utilization',
               align: 'right',
               render: (value: number) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
                   <div style={{ ...styles.progressBar, width: '100px' }}>
                     <div style={styles.progressFill(`${value}%`, utilizationColor(value))} />
                   </div>
@@ -667,7 +667,7 @@ const DirectorDashboardPage: React.FC = () => {
 
   // 渲染Tab2: 设备效率看板
   const renderEquipmentTab = () => (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       {/* [v3.0.6.11-103 Wave 6] 设备使用率 → TrendChart 柱状 + ProgressRing 平均 */}
       <DashboardCard
         title={t('directorDash.deviceUsageChart')}
@@ -725,7 +725,7 @@ const DirectorDashboardPage: React.FC = () => {
                 dataIndex: 'fullRate',
                 align: 'right',
                 render: (value: number) => (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
                     <div style={{ ...styles.progressBar, width: '100px' }}>
                       <div style={styles.progressFill(`${value}%`, 'var(--color-primary)')} />
                     </div>
@@ -783,7 +783,7 @@ const DirectorDashboardPage: React.FC = () => {
 
   // 渲染Tab3: 质控评分榜
   const renderQualityTab = () => (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
       <DashboardCard title={t('directorDash.reportQualityRank')} icon={<Trophy size={14} />} bodyPadding={0}>
         <DataTable
@@ -872,7 +872,7 @@ const DirectorDashboardPage: React.FC = () => {
               title: t('directorDash.colThreeDim'),
               key: 'threeDim',
               render: () => (
-                <div style={{ display: 'flex', gap: 4 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                   <div style={{ width: 6, height: 24, backgroundColor: 'var(--color-primary-500)', borderRadius: 2 }} />
                   <div style={{ width: 6, height: 24, backgroundColor: '#10b981', borderRadius: 2 }} />
                   <div style={{ width: 6, height: 24, backgroundColor: 'var(--color-warning-500)', borderRadius: 2 }} />
@@ -916,7 +916,7 @@ const DirectorDashboardPage: React.FC = () => {
   // 渲染Tab4: 收入与成本
   const renderRevenueTab = () => {
     return (
-      <div style={{ display: 'grid', gap: 16 }}>
+      <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
         {/* [v3.0.6.11-103 Wave 6] 每日收入折线图 → TrendChart */}
         <DashboardCard title={t('directorDash.dailyRevenueChart')} icon={<LineChartIcon size={14} />}>
           <TrendChart
@@ -985,11 +985,11 @@ const DirectorDashboardPage: React.FC = () => {
   if (loading) {
     // [v3.0.6.11-103 Wave 6] 骨架屏加载态
     return (
-      <div role="status" data-testid="director-loading" style={{ padding: 24 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div role="status" data-testid="director-loading" style={{ padding: 'var(--space-6, 24px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
           {Array.from({ length: 6 }, (_, i) => <SkeletonKpi key={i} testId={`director-kpi-skeleton-${i}`} />)}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           <div style={{ height: 280, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
           <div style={{ height: 280, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
         </div>
@@ -998,8 +998,8 @@ const DirectorDashboardPage: React.FC = () => {
   }
   if (!dataAvailable) {
     return (
-      <div data-testid="director-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('directorDash.noData')}</div>
+      <div data-testid="director-empty" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>{t('directorDash.noData')}</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('directorDash.noDataHint')}</div>
       </div>
     );
@@ -1009,7 +1009,7 @@ const DirectorDashboardPage: React.FC = () => {
     <div style={styles.container}>
       {/* 头部 */}
       <div style={styles.header}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
           <div>
             <div style={styles.headerTitle}>{t('directorDash.pageTitle')}</div>
             <div style={styles.headerSubtitle}>
@@ -1038,19 +1038,19 @@ const DirectorDashboardPage: React.FC = () => {
       </div>
 
       {error && (
-        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 16 }}>
+        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>
           {error}
-          <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>{t('directorDash.retry')}</button>
+          <button onClick={() => void load()} style={{ marginLeft: 'var(--space-3, 12px)', padding: '3px 10px', borderRadius: 4, border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>{t('directorDash.retry')}</button>
         </div>
       )}
       {fallbackBlocks.length > 0 && (
-        <div style={{ background: 'var(--color-warning-bg)', border: '1px solid #fde68a', color: '#92400e', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 16 }}>
+        <div style={{ background: 'var(--color-warning-bg)', border: '1px solid #fde68a', color: '#92400e', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>
           {t('directorDash.demoBlocks')} {fallbackBlocks.join(' / ')}
         </div>
       )}
 
       {/* 顶部 KPI 卡行 (v3.0.6.11-103 Wave 6: KpiCard 卡片化) */}
-      <KpiCardGrid minWidth={230} style={{ marginBottom: 24 }}>
+      <KpiCardGrid minWidth={230} style={{ marginBottom: 'var(--space-6, 24px)' }}>
         {todayStats.map((stat, idx) => {
           const color = stat.color === 'var(--color-success-500)' ? 'success' : stat.color === 'var(--color-warning-500)' ? 'warning' : stat.color === 'var(--color-primary-800)' ? 'primary' : 'primary';
           const icons = [<Scan size={20} key="i" />, <FileText size={20} key="i" />, <AlertOctagon size={20} key="i" />, <CheckCircle2 size={20} key="i" />, <Gauge size={20} key="i" />, <DollarSign size={20} key="i" />];

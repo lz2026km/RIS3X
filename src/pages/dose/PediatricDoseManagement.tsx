@@ -50,7 +50,7 @@ export default function PediatricDoseManagement() {
         ) / totalPediatricExams;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
@@ -63,7 +63,7 @@ export default function PediatricDoseManagement() {
           fontSize: 12,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <AlertTriangle size={14} /> 演示数据：rdsrApi 无儿童专项端点（患者记录未含年龄分组），儿童剂量记录为本地模拟
@@ -72,7 +72,7 @@ export default function PediatricDoseManagement() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}
       >
         <Stat label="儿童检查总量" value={totalPediatricExams} suffix="人次" color="var(--color-primary-800)" />
@@ -124,7 +124,7 @@ function ReductionFactorCards() {
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         border: "1px solid #e2e8f0",
       }}
     >
@@ -133,7 +133,7 @@ function ReductionFactorCards() {
           fontSize: 12,
           fontWeight: 700,
           color: "var(--color-primary-800)",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         儿童CT剂量折扣系数参考
@@ -142,7 +142,7 @@ function ReductionFactorCards() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}
       >
         <ReductionCard age="0-5岁" factor="40%" formula="DLP = 成人 × 0.4" color="var(--color-error-600)" bg="#fef2f2" border="#fecaca" />
@@ -174,7 +174,7 @@ function ReductionCard({
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: bg,
         borderRadius: 8,
         textAlign: "center",
@@ -182,13 +182,13 @@ function ReductionCard({
       }}
     >
       {icon === "user" ? (
-        <User size={24} color={color} style={{ marginBottom: 8 }} />
+        <User size={24} color={color} style={{ marginBottom: 'var(--space-2, 8px)' }} />
       ) : (
-        <Baby size={24} color={color} style={{ marginBottom: 8 }} />
+        <Baby size={24} color={color} style={{ marginBottom: 'var(--space-2, 8px)' }} />
       )}
       <div style={{ fontSize: 14, fontWeight: 700, color }}>{age}</div>
-      <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 4 }}>{factor}</div>
-      <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{formula}</div>
+      <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 'var(--space-1, 4px)' }}>{factor}</div>
+      <div style={{ fontSize: 12, color: "#64748b", marginTop: 'var(--space-1, 4px)' }}>{formula}</div>
     </div>
   );
 }
@@ -199,7 +199,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         border: "1px solid #e2e8f0",
       }}
     >
@@ -208,7 +208,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
           fontSize: 12,
           fontWeight: 700,
           color: "var(--color-primary-800)",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         儿童CT检查记录
@@ -275,7 +275,7 @@ const Stat = ({
     }}
   >
     <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
-    <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 4 }}>{value}</div>
+    <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 'var(--space-1, 4px)' }}>{value}</div>
     <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{suffix}</div>
   </div>
 );

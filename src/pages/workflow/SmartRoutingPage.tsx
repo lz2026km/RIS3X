@@ -217,17 +217,17 @@ const SmartRoutingPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Route size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('smartRouting.title')}</Title>
         <Tag color="blue">{t('smartRouting.tagQualificationAware')}</Tag>
         <Tag color="purple">{t('smartRouting.tagPipeline')}</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartRouting.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartRouting.retry')}</Button>} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('smartRouting.statRules')} value={rules.length} icon={<GitBranch size={16} />} />
         <StatCard title={t('smartRouting.statDoctors')} value={qualifications.length} icon={<GraduationCap size={16} />} />
         <StatCard title={t('smartRouting.statAssignments')} value={history.length} icon={<History size={16} />} />
@@ -321,7 +321,7 @@ const SmartRoutingPage: React.FC = () => {
                 </Form>
 
                 {preview && (
-                  <Card size="small" title={t('smartRouting.assignPreviewTitle')} style={{ marginBottom: 16, background: '#f6ffed' }}>
+                  <Card size="small" title={t('smartRouting.assignPreviewTitle')} style={{ marginBottom: 'var(--space-4, 16px)', background: '#f6ffed' }}>
                     <Row gutter={16}>
                       <Col span={6}>
                         <Statistic title={t('smartRouting.assignedDoctor')} value={preview.assignedTo} styles={{ content: { fontSize: 18 } }} prefix={<User size={16} />} />
@@ -336,7 +336,7 @@ const SmartRoutingPage: React.FC = () => {
                         <Statistic title={t('smartRouting.matchedQualification')} value={preview.qualification ?? '-'} styles={{ content: { fontSize: 18 } }} />
                       </Col>
                     </Row>
-                    <div style={{ marginTop: 12, color: '#389e0d' }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', color: '#389e0d' }}>
                       {t('smartRouting.reasonLabel')} {preview.reason} · {new Date(preview.assignedAt).toLocaleString()}
                     </div>
                   </Card>

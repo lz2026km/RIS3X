@@ -204,7 +204,7 @@ const KpiWallPage: React.FC = () => {
   }, [data, occupiedRate])
 
   const blockHeader = (icon: React.ReactNode, title: string, tag?: React.ReactNode) => (
-    <div style={{ fontSize: 36, fontWeight: 800, color: '#e2e8f0', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ fontSize: 36, fontWeight: 800, color: '#e2e8f0', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
       {icon} {title}
       {tag}
     </div>
@@ -244,13 +244,13 @@ const KpiWallPage: React.FC = () => {
               {topDoctors.map((d, i) => {
                 const max = Math.max(1, ...topDoctors.map((x) => x.reportCount ?? 0))
                 return (
-                  <div key={d.doctorId ?? d.doctorName + i} style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div key={d.doctorId ?? d.doctorName + i} style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)' }}>
                     <div style={{ width: 56, height: 56, borderRadius: 12, background: i < 3 ? 'rgba(251,191,36,0.15)' : 'rgba(59,130,246,0.15)', color: i < 3 ? 'var(--color-warning-400)' : '#60a5fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 700 }}>
                       {i + 1}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 20, fontWeight: 700, color: '#e2e8f0' }}>{d.doctorName} <span style={{ color: '#64748b', fontSize: 14, fontWeight: 400 }}>{d.department ?? ''}</span></div>
-                      <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ flex: 1, height: 10, background: 'rgba(148,163,184,0.15)', borderRadius: 5 }}>
                           <div style={{ width: `${Math.round(((d.reportCount ?? 0) / max) * 100)}%`, height: '100%', background: i < 3 ? 'linear-gradient(90deg,var(--color-warning-500),var(--color-warning-400))' : 'linear-gradient(90deg,var(--color-primary-600),#60a5fa)', borderRadius: 5 }} />
                         </div>
@@ -261,7 +261,7 @@ const KpiWallPage: React.FC = () => {
                   </div>
                 )
               })}
-              {topDoctors.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('kpiWall.noWorkload')} style={{ margin: 40 }} />}
+              {topDoctors.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('kpiWall.noWorkload')} style={{ margin: 'var(--space-10, 40px)' }} />}
             </div>
           </div>
         )
@@ -270,15 +270,15 @@ const KpiWallPage: React.FC = () => {
           <div style={{ padding: '48px 40px' }}>
             {blockHeader(<HeartPulse size={30} color="#f87171" />, t('kpiWall.headerCritical'), <Tag color="red" style={{ fontSize: 12, padding: '2px 10px' }}>{t('kpiWall.today')}</Tag>)}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
-              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 32 }}>
+              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 'var(--space-8, 32px)' }}>
                 <div style={{ fontSize: 120, fontWeight: 800, color: '#f87171', lineHeight: 1.1 }}>{data.daily?.criticalCount ?? 0}</div>
                 <div style={{ color: '#94a3b8', fontSize: 16 }}>{t('kpiWall.criticalReportsToday')}</div>
               </div>
-              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 32, color: '#cbd5e1', fontSize: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 'var(--space-8, 32px)', color: '#cbd5e1', fontSize: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
                   <span>{t('kpiWall.avgTime')}</span><span style={{ fontWeight: 700, color: '#4ade80' }}>{data.daily?.avgTAT != null ? `${data.daily.avgTAT} min` : '--'}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
                   <span>{t('kpiWall.qcAvgScore')}</span><span style={{ fontWeight: 700, color: 'var(--color-warning-400)' }}>{data.daily?.qcAvgScore ?? '--'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -297,13 +297,13 @@ const KpiWallPage: React.FC = () => {
                 const s = statusLabel[room.status] ?? { text: room.status, color: '#94a3b8' }
                 const inUse = room.status === 'occupied'
                 return (
-                  <div key={room.id} style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 24, borderLeft: `5px solid ${s.color}` }}>
+                  <div key={room.id} style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 'var(--space-6, 24px)', borderLeft: `5px solid ${s.color}` }}>
                     <div style={{ fontSize: 30, fontWeight: 700, color: '#f1f5f9' }}>{room.roomNo}</div>
                     <div style={{ margin: '10px 0', fontSize: 16, color: s.color, fontWeight: 700 }}>{s.text}</div>
                     {inUse ? (
                       <>
                         <div style={{ fontSize: 14, color: '#cbd5e1' }}>{room.currentPatient ?? '--'}</div>
-                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{room.examItem ?? ''}</div>
+                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{room.examItem ?? ''}</div>
                         <div style={{ fontSize: 12, color: room.overdue ? '#f87171' : '#94a3b8', marginTop: 6 }}>
                           {t('kpiWall.startAt')} {room.startTime?.slice(11) ?? '--'} · {room.expectedEnd ? `${t('kpiWall.expectedAt')} ${room.expectedEnd.slice(11)}` : ''} {room.overdue ? t('kpiWall.overdueTag') : ''}
                         </div>
@@ -314,7 +314,7 @@ const KpiWallPage: React.FC = () => {
                   </div>
                 )
               })}
-              {data.rooms.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('kpiWall.noOccupancy')} style={{ margin: 40 }} />}
+              {data.rooms.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('kpiWall.noOccupancy')} style={{ margin: 'var(--space-10, 40px)' }} />}
             </div>
           </div>
         )
@@ -323,11 +323,11 @@ const KpiWallPage: React.FC = () => {
           <div style={{ padding: '48px 40px' }}>
             {blockHeader(<Gauge size={30} color="#2dd4bf" />, t('kpiWall.headerOee'), <Tag color="cyan" style={{ fontSize: 12, padding: '2px 10px' }}>{t('kpiWall.last7DaysAvg')}</Tag>)}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
-              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 32 }}>
+              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 'var(--space-8, 32px)' }}>
                 <div style={{ fontSize: 110, fontWeight: 800, color: '#2dd4bf', lineHeight: 1.1 }}>{data.oeeAvg != null ? `${data.oeeAvg}%` : '--'}</div>
                 <div style={{ color: '#94a3b8', fontSize: 16 }}>{t('kpiWall.oeeMeanCaption')}</div>
               </div>
-              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 32 }}>
+              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 'var(--space-8, 32px)' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#e2e8f0', marginBottom: 14 }}>{t('kpiWall.deviceStatusDist')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, fontSize: 16 }}>
                   <div>{t('kpiWall.roomIdle')} <strong style={{ color: '#4ade80' }}>{data.rooms.filter((r) => r.status === 'idle').length}</strong></div>
@@ -368,15 +368,15 @@ const KpiWallPage: React.FC = () => {
           <div style={{ padding: '48px 40px' }}>
             {blockHeader(<Clock size={30} color="var(--color-warning-400)" />, t('kpiWall.headerSla'), <Tag color="gold" style={{ fontSize: 12, padding: '2px 10px' }}>{t('kpiWall.slaThreshold')}</Tag>)}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
-              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 32 }}>
+              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 'var(--space-8, 32px)' }}>
                 <div style={{ fontSize: 110, fontWeight: 800, color: 'var(--color-warning-400)', lineHeight: 1.1 }}>{data.sla.complianceRate != null ? `${data.sla.complianceRate}%` : '--'}</div>
                 <div style={{ color: '#94a3b8', fontSize: 16 }}>{t('kpiWall.criticalSlaRate')}</div>
               </div>
-              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 32, fontSize: 20, color: '#cbd5e1' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 'var(--space-8, 32px)', fontSize: 20, color: '#cbd5e1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
                   <span>{t('kpiWall.criticalTotal')}</span><span style={{ fontWeight: 700, color: '#f87171' }}>{data.sla.total ?? '--'}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
                   <span>{t('kpiWall.criticalTodayCount')}</span><span style={{ fontWeight: 700, color: '#f87171' }}>{data.daily?.criticalCount ?? 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -414,7 +414,7 @@ const KpiWallPage: React.FC = () => {
               {data.performance.rows.slice(0, 10).map((p, i) => {
                 const max = Math.max(1, ...data.performance.rows.map((x) => x.bonus ?? 0))
                 return (
-                  <div key={p.doctorName + i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div key={p.doctorName + i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                     <span style={{ width: 28, fontSize: 16, fontWeight: 800, color: i < 3 ? 'var(--color-warning-400)' : '#64748b' }}>{i + 1}</span>
                     <span style={{ width: 150, fontSize: 16, color: '#cbd5e1' }}>{p.doctorName}</span>
                     <div style={{ flex: 1, height: 14, background: 'rgba(148,163,184,0.15)', borderRadius: 7 }}>
@@ -425,7 +425,7 @@ const KpiWallPage: React.FC = () => {
                   </div>
                 )
               })}
-              {data.performance.rows.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('kpiWall.noBonus')} style={{ margin: 40 }} />}
+              {data.performance.rows.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('kpiWall.noBonus')} style={{ margin: 'var(--space-10, 40px)' }} />}
               {data.performance.totalBonus != null && (
                 <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>
                   <span style={{ color: '#94a3b8', fontSize: 16 }}>{t('kpiWall.monthlyBonusTotal')}</span>
@@ -485,7 +485,7 @@ const KpiWallPage: React.FC = () => {
             G005 · {activeTemplate?.config?.autoRotateMs ? Math.round(Number(activeTemplate.config.autoRotateMs) / 1000) : 15} {t('kpiWall.autoRotateSuffix')} {activeTemplate?.name ?? t('kpiWall.defaultTemplate')}
           </span>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           {/* [Wave 5B-A] 数据源徽标 */}
           <Tag
             color={data.dataSource === 'api' ? 'green' : 'orange'}
@@ -553,7 +553,7 @@ const KpiWallPage: React.FC = () => {
           <div style={{ padding: '80px 40px', textAlign: 'center' }}>
             <Empty
               description={<span style={{ color: '#94a3b8' }}>{t('kpiWall.loadFailedEmpty')}</span>}
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 'var(--space-4, 16px)' }}
               image={<AlertTriangle size={48} style={{ opacity: 0.4 }} />}
             />
             <Button type="primary" icon={<RefreshCw size={14} />} onClick={() => setRetryTick((n) => n + 1)}>{t('kpiWall.retry')}</Button>

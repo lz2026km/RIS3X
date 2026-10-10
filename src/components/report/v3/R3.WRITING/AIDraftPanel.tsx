@@ -799,12 +799,12 @@ export const AIDraftPanel: React.FC<Props> = ({
         {result && (
           <Row gutter={12}>
             <Col span={12}>
-              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.compareModal.original')}</span>} styles={{ body: { padding: 12 } }}>
+              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.compareModal.original')}</span>} styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
                 <div style={{
                   height: 240, borderRadius: 8,
                   background: 'linear-gradient(135deg, #0f172a, #1e293b)',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  color: '#94a3b8', fontSize: 12, gap: 8,
+                  color: '#94a3b8', fontSize: 12, gap: 'var(--space-2, 8px)',
                 }}>
                   <div style={{ fontSize: 30, opacity: 0.6 }}></div>
                   <div>{modality} · {bodyPart}</div>
@@ -814,10 +814,10 @@ export const AIDraftPanel: React.FC<Props> = ({
               </Card>
             </Col>
             <Col span={12}>
-              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.compareModal.draftFindings')}</span>} styles={{ body: { padding: 12 } }}>
+              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.compareModal.draftFindings')}</span>} styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
                 <div style={{ height: 240, overflowY: 'auto', fontSize: 12, lineHeight: 1.9, color: '#334155', whiteSpace: 'pre-wrap' }}>
                   {result.findings || t('aiDraft.none')}
-                  <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #e2e8f0', color: '#7c3aed', fontWeight: 600 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', paddingTop: 'var(--space-2, 8px)', borderTop: '1px dashed #e2e8f0', color: '#7c3aed', fontWeight: 600 }}>
                     {t('aiDraft.compareModal.impression')}{result.impression}
                   </div>
                 </div>

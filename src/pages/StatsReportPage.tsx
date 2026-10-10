@@ -1100,7 +1100,7 @@ export default function StatsReportPage() {
       </div>
 
       {/* [W3-B] 数据源状态 / 错误提示 */}
-      <div style={{ padding: '4px 24px 0', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ padding: '4px 24px 0', display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{
           ...styles.badge,
           backgroundColor: isLive ? COLORS.successLight : '#fef3c7',
@@ -1143,33 +1143,33 @@ export default function StatsReportPage() {
 
       {/* [W1-B] 周报: statsApi.getWeekly (GET /stats/weekly) */}
       {weekly && (
-        <div style={{ ...styles.tableCard, marginBottom: 16 }}>
+        <div style={{ ...styles.tableCard, marginBottom: 'var(--space-4, 16px)' }}>
           <div style={styles.tableHeader}>
             <div style={styles.tableTitle}>
               <TrendingUp size={18} /> {t('statsReport.weeklyTitle')}
-              <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}> {t('statsReport.realtime')}</span>
+              <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 'var(--space-2, 8px)' }}> {t('statsReport.realtime')}</span>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, padding: '0 0 12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', padding: '0 0 12px' }}>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>{weekly.totalExams}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.totalExamsShort')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>{t('statsReport.totalExamsShort')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.success }}>{weekly.totalReports}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.totalReportsShort')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>{t('statsReport.totalReportsShort')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.danger }}>{weekly.totalCritical}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.criticalValues')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>{t('statsReport.criticalValues')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.secondary }}>{weekly.avgExamsPerDay}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.avgDailyExams')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>{t('statsReport.avgDailyExams')}</div>
             </div>
           </div>
           {weekly.daily.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, minHeight: 90, padding: '8px 4px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)', minHeight: 90, padding: '8px 4px 0' }}>
               {weekly.daily.slice(-7).map((d, i) => {
                 const max = Math.max(...weekly.daily.map(x => x.count), 1)
                 return (
@@ -1178,7 +1178,7 @@ export default function StatsReportPage() {
                     <div style={{ height: 60, background: COLORS.bgGray, borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
                       <div style={{ width: '100%', height: `${Math.max((d.count / max) * 100, 4)}%`, background: COLORS.primaryLight, borderRadius: '4px 4px 0 0' }} />
                     </div>
-                    <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 4 }}>{(d.date ?? '').slice(5)}</div>
+                    <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>{(d.date ?? '').slice(5)}</div>
                   </div>
                 )
               })}
@@ -1189,11 +1189,11 @@ export default function StatsReportPage() {
 
       {/* [Wave1B P2] 模态分布: statsApi.getTopModalities (GET /stats/top-modalities) */}
       {topModalities.length > 0 && (
-        <div style={{ ...styles.tableCard, marginBottom: 16 }}>
+        <div style={{ ...styles.tableCard, marginBottom: 'var(--space-4, 16px)' }}>
           <div style={styles.tableHeader}>
             <div style={styles.tableTitle}>
               <Radio size={18} /> {t('statsReport.modalityDistributionPrefix')}{topModalities.length})
-              {topModalitiesLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}> {t('statsReport.realtime')}</span>}
+              {topModalitiesLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 'var(--space-2, 8px)' }}> {t('statsReport.realtime')}</span>}
             </div>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '14px 16px' }}>
@@ -1208,7 +1208,7 @@ export default function StatsReportPage() {
                     <span style={{ fontSize: 12, fontWeight: 700, color: color }}>{name}</span>
                     <span style={{ fontSize: 16, fontWeight: 800, color: COLORS.textDark }}>{count}</span>
                   </div>
-                  <div style={{ height: 8, background: 'rgba(148,163,184,0.25)', borderRadius: 4, marginTop: 8, overflow: 'hidden' }}>
+                  <div style={{ height: 8, background: 'rgba(148,163,184,0.25)', borderRadius: 4, marginTop: 'var(--space-2, 8px)', overflow: 'hidden' }}>
                     <div style={{ width: `${(count / max) * 100}%`, height: '100%', background: color, borderRadius: 4 }} />
                   </div>
                   <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 6 }}>{((count / max) * 100).toFixed(0)}% {t('statsReport.relativeHighest')}</div>
@@ -1221,13 +1221,13 @@ export default function StatsReportPage() {
 
       {/* [G005 Wave1B] analyticsStatsApi: 预测趋势 / 设备利用率 / 报告准确率 (失败回退不阻断) */}
       {(analyticsLive || utilization || accuracy) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           {/* 预测趋势小图 */}
           <div style={styles.tableCard}>
             <div style={styles.tableHeader}>
               <div style={styles.tableTitle}>
                 <TrendingUp size={18} /> {t('statsReport.forecastTrend')}
-                {analyticsLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>{t('statsReport.forecast')}</span>}
+                {analyticsLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 'var(--space-2, 8px)' }}>{t('statsReport.forecast')}</span>}
               </div>
               <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('statsReport.forecastNote')}</span>
             </div>
@@ -1250,7 +1250,7 @@ export default function StatsReportPage() {
                           borderRadius: '4px 4px 0 0',
                         }} />
                       </div>
-                      <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 4 }}>{(p.date ?? '').slice(5)}</div>
+                      <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>{(p.date ?? '').slice(5)}</div>
                     </div>
                   )
                 })
@@ -1264,17 +1264,17 @@ export default function StatsReportPage() {
               <div style={styles.tableHeader}>
                 <div style={styles.tableTitle}>
                   <Gauge size={18} /> {t('statsReport.deviceUtilization')}
-                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>{t('statsReport.utilization')}</span>
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 'var(--space-2, 8px)' }}>{t('statsReport.utilization')}</span>
                 </div>
               </div>
-              <div style={{ padding: 16 }}>
+              <div style={{ padding: 'var(--space-4, 16px)' }}>
                 <div style={{ fontSize: 30, fontWeight: 700, color: (utilization.current ?? 0) >= (utilization.target ?? 0) ? COLORS.success : COLORS.warning }}>
                   {(utilization.current ?? 0).toFixed(1)}%
                 </div>
                 <div style={{ height: 10, background: COLORS.bgGray, borderRadius: 5, overflow: 'hidden', marginTop: 10 }}>
                   <div style={{ width: `${Math.min((utilization.current ?? 0), (utilization.max ?? 100)) / ((utilization.max ?? 100) || 1) * 100}%`, height: '100%', background: COLORS.primaryLight, borderRadius: 5 }} />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-2, 8px)' }}>
                   <span>{t('statsReport.targetPrefix')}{utilization.target ?? 0}%</span>
                   <span>{t('statsReport.upperLimitPrefix')}{utilization.max ?? 0}%</span>
                 </div>
@@ -1288,10 +1288,10 @@ export default function StatsReportPage() {
               <div style={styles.tableHeader}>
                 <div style={styles.tableTitle}>
                   <Activity size={18} /> {t('statsReport.reportAccuracy')}
-                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>{t('statsReport.accuracy')}</span>
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 'var(--space-2, 8px)' }}>{t('statsReport.accuracy')}</span>
                 </div>
               </div>
-              <div style={{ padding: 16 }}>
+              <div style={{ padding: 'var(--space-4, 16px)' }}>
                 <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>{accuracy.value?.toFixed(1)}%</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 12, color: (accuracy.previous ?? 0) <= accuracy.value ? COLORS.success : COLORS.danger }}>
                   {accuracy.previous != null && (
@@ -1301,7 +1301,7 @@ export default function StatsReportPage() {
                     </>
                   )}
                 </div>
-                <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>{t('statsReport.qcPassRate')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-2, 8px)' }}>{t('statsReport.qcPassRate')}</div>
               </div>
             </div>
           )}
@@ -1420,7 +1420,7 @@ export default function StatsReportPage() {
             </ActionButton>
           </div>
           {csvNote && (
-            <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <CheckCircle size={13} color={COLORS.success} />
               {csvNote}
             </div>
@@ -1435,7 +1435,7 @@ export default function StatsReportPage() {
               {activeTab === 'doctor' && <><User size={18} /> {t('statsReport.doctorReport')}</>}
               {activeTab === 'date' && <><Calendar size={18} /> {t('statsReport.dateReport')}</>}
               {isLive && (
-                <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>
+                <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 'var(--space-2, 8px)' }}>
                   {t('statsReport.realtime')}
                 </span>
               )}

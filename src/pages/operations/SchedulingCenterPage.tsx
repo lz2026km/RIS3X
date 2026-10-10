@@ -171,8 +171,8 @@ export const SchedulingCenterPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <CalendarDays size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sch.title')}</span>
         <Tag color="green">{t('sch.realtimeOccupancy')}</Tag>
@@ -180,11 +180,11 @@ export const SchedulingCenterPage: React.FC = () => {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
+        <Alert type="error" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('sch.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('sch.totalAppointments')} value={stats.total} icon={<Clock size={14} />} />
         <StatCard title={t('sch.todayAppointments')} value={todayCount} color="primary" />
         <StatCard title={t('sch.state.inProgress')} value={activeCount} color="warning" />
@@ -197,7 +197,7 @@ export const SchedulingCenterPage: React.FC = () => {
             <Spin spinning={loading}>
               <Calendar
                 fullCellRender={(date) => (
-                  <div style={{ padding: 4, cursor: 'pointer' }} onClick={() => setSelectedDate(date)}>
+                  <div style={{ padding: 'var(--space-1, 4px)', cursor: 'pointer' }} onClick={() => setSelectedDate(date)}>
                     <div style={{ fontSize: 12, color: date.isSame(selectedDate, 'day') ? 'var(--color-primary-600)' : 'inherit' }}>{date.date()}</div>
                     {dateCellRender(date)}
                   </div>

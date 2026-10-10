@@ -105,8 +105,8 @@ const MllpMonitorPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Card size="small" className="shadow-sm" style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+      <Card size="small" className="shadow-sm" style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
           <Space>
             <Activity size={18} color="#7c3aed" />
             <div>
@@ -125,7 +125,7 @@ const MllpMonitorPage: React.FC = () => {
       </Card>
 
       {error && (
-        <Alert type="error" showIcon message={t('mllpMon.loadFailTitle')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('mllpMon.loadFailTitle')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> {t('mllpMon.retry')}</Button>} />
       )}
 
@@ -141,7 +141,7 @@ const MllpMonitorPage: React.FC = () => {
                   : <Button size="small" type="primary" icon={<Play size={12} />} onClick={handleStart} loading={operating}>{t('mllpMon.start')}</Button>}
               </Space>
             }
-            style={{ marginBottom: 12 }}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
           >
             {loading ? <Spin /> : (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
@@ -203,7 +203,7 @@ const MllpMonitorPage: React.FC = () => {
                     />
                   }>
                     {loading ? (
-                      <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
+                      <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)' }}><Spin /></div>
                     ) : archive.length === 0 ? <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description={t('mllpMon.emptyArchive')} /> : (
                       <DataTable
                         rowKey="id"
@@ -233,7 +233,7 @@ const MllpMonitorPage: React.FC = () => {
 };
 
 const DividerCustom: React.FC<{ label: string }> = ({ label }) => (
-  <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, borderBottom: '1px solid var(--border-color)', paddingBottom: 4 }}>{label}</div>
+  <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, borderBottom: '1px solid var(--border-color)', paddingBottom: 'var(--space-1, 4px)' }}>{label}</div>
 );
 
 export default MllpMonitorPage;

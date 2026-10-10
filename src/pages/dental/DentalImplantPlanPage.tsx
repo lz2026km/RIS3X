@@ -147,8 +147,8 @@ export const DentalImplantPlanPage: React.FC = () => {
 
   return (
     <DentalPageLayout header={{ title: t('dentalImplantPlan.title'), tags: [<Tag key='b' color='blue'>{t('dentalImplantPlan.tagBenchmark')}</Tag>, <Tag key='s' color='green'>{t('dentalImplantPlan.tagBrands')}</Tag>] }}>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalImplantPlan.retry')}</Button>} />}
-      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalImplantPlan.retry')}</Button>} />}
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <StatCard title={t('dentalImplantPlan.statTotal')} value={display.length} icon={<Plus size={12} />} />
         <StatCard title={t('dentalImplantPlan.statPending')} value={display.filter(p => p.status === 'pending' || p.status === 'planning').length} color="warning" />
         <StatCard title={t('dentalImplantPlan.statApproved')} value={display.filter(p => p.status === 'approved' || p.status === 'implementing').length} color="primary" />
@@ -199,7 +199,7 @@ export const DentalImplantPlanPage: React.FC = () => {
             title={t('w4b.implant.catalogTitle')}
             extra={<Button size="small" icon={<RefreshCw size={11} />} loading={modelsLoading} onClick={() => void loadModels()} />}
           >
-            {modelsError && <Alert type="warning" showIcon message={modelsError} style={{ marginBottom: 8 }} />}
+            {modelsError && <Alert type="warning" showIcon message={modelsError} style={{ marginBottom: 'var(--space-2, 8px)' }} />}
             <DataTable
               rowKey={(r: any) => r.id ?? `${r.brand}-${r.model}`}
               loading={modelsLoading}
@@ -216,10 +216,10 @@ export const DentalImplantPlanPage: React.FC = () => {
               ]}
             />
           </Card>
-          <Card size="small" title={t('dentalImplantPlan.boneAnalysis')} style={{ marginTop: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t('dentalImplantPlan.boneTypeA')}</span><Tag color='green'>42%</Tag></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t('dentalImplantPlan.boneTypeB')}</span><Tag color='blue'>38%</Tag></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t('dentalImplantPlan.boneTypeC')}</span><Tag color='orange'>20%</Tag></div>
+          <Card size="small" title={t('dentalImplantPlan.boneAnalysis')} style={{ marginTop: 'var(--space-2, 8px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}><span>{t('dentalImplantPlan.boneTypeA')}</span><Tag color='green'>42%</Tag></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}><span>{t('dentalImplantPlan.boneTypeB')}</span><Tag color='blue'>38%</Tag></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}><span>{t('dentalImplantPlan.boneTypeC')}</span><Tag color='orange'>20%</Tag></div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>{t('dentalImplantPlan.boneNote')}</div>
           </Card>
         </Col>
@@ -257,7 +257,7 @@ export const DentalImplantPlanPage: React.FC = () => {
       <Modal title={`${t('dentalImplantPlan.detailTitle')} - ${detail?.id ?? ''}`} open={detailModal} onCancel={() => setDetailModal(false)} footer={null} width={560}>
         {detail && (
           <>
-            <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
+            <Descriptions bordered column={2} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Descriptions.Item label={t('dentalImplantPlan.patient')}>{detail.patientName}</Descriptions.Item>
               <Descriptions.Item label={t('dentalImplantPlan.toothPosition')}><Tag color="blue">FDI {detail.toothNo}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('dentalImplantPlan.type')}>{detail.type}</Descriptions.Item>

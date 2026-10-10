@@ -147,7 +147,7 @@ function RegistrationWizard({
               justifyContent: "space-between",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
               <UserPlus size={22} color="#fff" />
               <div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>
@@ -181,7 +181,7 @@ function RegistrationWizard({
               <X size={16} color="#fff" />
             </button>
           </div>
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)' }}>
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
@@ -189,7 +189,7 @@ function RegistrationWizard({
                   flex: 1,
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}
               >
                 <div
@@ -230,13 +230,13 @@ function RegistrationWizard({
           </div>
         </div>
 
-        <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
+        <div style={{ flex: 1, overflow: "auto", padding: 'var(--space-6, 24px)' }}>
           {step === 1 && (
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 16,
+                gap: 'var(--space-4, 16px)',
               }}
             >
               <div style={{ gridColumn: "1 / -1" }}>
@@ -260,7 +260,7 @@ function RegistrationWizard({
                   style={inputStyle("name")}
                 />
                 {errors.name && (
-                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>
                     {errors.name}
                   </div>
                 )}
@@ -280,7 +280,7 @@ function RegistrationWizard({
                 <div
                   role="radiogroup"
                   aria-label={t('patientForm.gender')}
-                  style={{ display: "flex", gap: 16, paddingTop: 4 }}
+                  style={{ display: "flex", gap: 'var(--space-4, 16px)', paddingTop: 'var(--space-1, 4px)' }}
                 >
                   {(["男", "女"] as GenderFilter[]).map((g) => (
                     <label
@@ -352,7 +352,7 @@ function RegistrationWizard({
                   style={inputStyle("idCard")}
                 />
                 {errors.idCard && (
-                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>
                     {errors.idCard}
                   </div>
                 )}
@@ -379,7 +379,7 @@ function RegistrationWizard({
                   style={inputStyle("phone")}
                 />
                 {errors.phone && (
-                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>
                     {errors.phone}
                   </div>
                 )}
@@ -444,7 +444,7 @@ function RegistrationWizard({
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 16,
+                gap: 'var(--space-4, 16px)',
               }}
             >
               <div style={{ gridColumn: "1 / -1" }}>
@@ -480,7 +480,7 @@ function RegistrationWizard({
                 {errors.allergyHistory && (
                   <div
                     role="alert"
-                    style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}
+                    style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}
                   >
                     {errors.allergyHistory}
                   </div>
@@ -587,8 +587,8 @@ function RegistrationWizard({
                 />
               </div>
               {/* [G005 W6] 结构化登记字段 */}
-              <div style={{ gridColumn: "1 / -1", marginTop: 4 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 8 }}>
+              <div style={{ gridColumn: "1 / -1", marginTop: 'var(--space-1, 4px)' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-2, 8px)' }}>
                   {t('patientForm.structuredAllergy')}
                 </div>
               </div>
@@ -742,7 +742,7 @@ function RegistrationWizard({
                   </button>
                 </div>
                 {(formData.structuredAllergyCodes ?? []).map((a, idx) => (
-                  <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 8, marginBottom: 6 }}>
+                  <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                     <input
                       value={a.code}
                       onChange={(e) => {
@@ -801,7 +801,7 @@ function RegistrationWizard({
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 16,
+                gap: 'var(--space-4, 16px)',
               }}
             >
               <div style={{ gridColumn: "1 / -1" }}>
@@ -828,7 +828,7 @@ function RegistrationWizard({
                   style={inputStyle("emergencyContact")}
                 />
                 {errors.emergencyContact && (
-                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>
                     {errors.emergencyContact}
                   </div>
                 )}
@@ -855,7 +855,7 @@ function RegistrationWizard({
                   style={inputStyle("emergencyPhone")}
                 />
                 {errors.emergencyPhone && (
-                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>
                     {errors.emergencyPhone}
                   </div>
                 )}
@@ -863,13 +863,13 @@ function RegistrationWizard({
               <div
                 style={{
                   gridColumn: "1 / -1",
-                  padding: 16,
+                  padding: 'var(--space-4, 16px)',
                   background: "#f0fdf4",
                   borderRadius: 8,
                   border: "1px solid #bbf7d0",
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}
               >
                 <CheckCircle size={16} color="var(--color-success-600)" />
@@ -905,7 +905,7 @@ function RegistrationWizard({
           >
             {t('patientForm.cancel')}
           </button>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
             {step > 1 && (
               <button
                 onClick={handlePrev}
@@ -997,7 +997,7 @@ export function PatientCreateForm({
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid var(--border-color)",
-        padding: 24,
+        padding: 'var(--space-6, 24px)',
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
     >
@@ -1005,8 +1005,8 @@ export function PatientCreateForm({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
-          marginBottom: 24,
+          gap: 'var(--space-3, 12px)',
+          marginBottom: 'var(--space-6, 24px)',
         }}
       >
         <button
@@ -1037,7 +1037,7 @@ export function PatientCreateForm({
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-5, 20px)' }}>
         <FormField label={t('patientForm.name')} required error={formErrors.name}>
           <input
             type="text"
@@ -1059,7 +1059,7 @@ export function PatientCreateForm({
           <div
             role="radiogroup"
             aria-label={t('patientForm.gender')}
-            style={{ display: "flex", gap: 16, paddingTop: 4 }}
+            style={{ display: "flex", gap: 'var(--space-4, 16px)', paddingTop: 'var(--space-1, 4px)' }}
           >
             {(["男", "女"] as GenderFilter[]).map((g) => (
               <label
@@ -1252,7 +1252,7 @@ export function PatientCreateForm({
             }}
           />
           {formErrors.emergencyContact && (
-            <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>
               {formErrors.emergencyContact}
             </div>
           )}
@@ -1286,7 +1286,7 @@ export function PatientCreateForm({
             }}
           />
           {formErrors.emergencyPhone && (
-            <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>
               {formErrors.emergencyPhone}
             </div>
           )}
@@ -1450,9 +1450,9 @@ export function PatientCreateForm({
         style={{
           display: "flex",
           justifyContent: "flex-end",
-          gap: 12,
-          marginTop: 32,
-          paddingTop: 24,
+          gap: 'var(--space-3, 12px)',
+          marginTop: 'var(--space-8, 32px)',
+          paddingTop: 'var(--space-6, 24px)',
           borderTop: "1px solid var(--border-color)",
         }}
       >

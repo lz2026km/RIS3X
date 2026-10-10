@@ -98,7 +98,7 @@ export function AiCaseLibrarySection() {
   }
 
   return (
-    <Space direction="vertical" size={16} style={{ width: '100%', padding: 8 }}>
+    <Space direction="vertical" size={16} style={{ width: '100%', padding: 'var(--space-2, 8px)' }}>
       <StatCardGrid>
         {MODEL_KEYS.map((m) => {
           const summary = library[m.statKey];

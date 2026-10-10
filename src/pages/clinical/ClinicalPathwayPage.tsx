@@ -134,7 +134,7 @@ export const ClinicalPathwayPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Route size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('clinicalPathway.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
@@ -142,10 +142,10 @@ export const ClinicalPathwayPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('clinicalPathway.refresh')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('clinicalPathway.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('clinicalPathway.retry')}</Button>} />}
 
       <Spin spinning={loading}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('clinicalPathway.statActive')} value={stats?.active ?? pathways.filter((p) => p.status === 'active').length} icon={<Play size={14} color="#52c41a" />} />
           <StatCard title={t('clinicalPathway.statPaused')} value={stats?.paused ?? pathways.filter((p) => p.status === 'paused').length} icon={<PauseCircle size={14} color="#faad14" />} />
           <StatCard title={t('clinicalPathway.statPatients')} value={stats?.totalPatients ?? patients.length} icon={<Users size={14} />} />
@@ -155,7 +155,7 @@ export const ClinicalPathwayPage: React.FC = () => {
         </StatCardGrid>
       </Spin>
 
-      <Card size="small" title={t('clinicalPathway.pathwayDef')} style={{ marginBottom: 16 }}>
+      <Card size="small" title={t('clinicalPathway.pathwayDef')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DataTable
           dataSource={pathways}
           rowKey="id"
@@ -186,7 +186,7 @@ export const ClinicalPathwayPage: React.FC = () => {
       <Card
         size="small"
         title={`${t('w2Orphans.pathwayDefinitions')} (${t('w2Orphans.definitionCount', { count: definitions.length })})`}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       >
         <DataTable
           dataSource={definitions}
@@ -274,7 +274,7 @@ export const ClinicalPathwayPage: React.FC = () => {
       <Modal title={`${t('clinicalPathway.detailTitle')} - ${detail?.patient ?? ''}`} open={!!detail} onCancel={() => setDetail(null)} footer={null} width={480}>
         {detail && (
           <>
-            <Space style={{ marginBottom: 12 }}>
+            <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Tag color="blue">{detail.pathway}</Tag>
               <Badge status={detail.status === 'on-track' ? 'success' : 'error'} text={detail.status === 'on-track' ? t('clinicalPathway.onTrack') : t('clinicalPathway.delayed')} />
             </Space>
@@ -290,7 +290,7 @@ export const ClinicalPathwayPage: React.FC = () => {
               }))}
             />
             <Timeline
-              style={{ marginTop: 16 }}
+              style={{ marginTop: 'var(--space-4, 16px)' }}
               items={[
                 { color: 'green', children: `录入路径：${detail.enteredAt}` },
                 ...(detail.variance ? [{ color: 'red', children: `偏差：${detail.variance}` }] : []),
@@ -310,7 +310,7 @@ export const ClinicalPathwayPage: React.FC = () => {
       >
         {definition && (
           <>
-            <Space style={{ marginBottom: 12 }} wrap>
+            <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
               <Tag color="blue">{t('w2Orphans.inclusion')}: {definition.inclusion}</Tag>
               <Tag color="red">{t('w2Orphans.exclusion')}: {definition.exclusion}</Tag>
             </Space>

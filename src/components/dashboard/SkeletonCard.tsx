@@ -41,7 +41,7 @@ export function SkeletonCard({
         borderRadius: 12,
         border: "1px solid var(--color-gray-200, #e2e8f0)",
         boxShadow: "var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))",
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         height,
         ...style,
       }}
@@ -51,9 +51,9 @@ export function SkeletonCard({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            paddingBottom: 12,
-            marginBottom: 16,
+            gap: 'var(--space-2, 8px)',
+            paddingBottom: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-4, 16px)',
             borderBottom: "1px solid var(--border-color)",
           }}
         >
@@ -95,7 +95,7 @@ export function SkeletonKpi({ testId }: { testId?: string }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
         <div style={{ flex: 1 }}>
           <div style={{ ...pulse, width: 72, height: 12, marginBottom: 10 }} />
-          <div style={{ ...pulse, width: 120, height: 26, marginBottom: 8 }} />
+          <div style={{ ...pulse, width: 120, height: 26, marginBottom: 'var(--space-2, 8px)' }} />
           <div style={{ ...pulse, width: 96, height: 12 }} />
         </div>
         <div style={{ ...pulse, width: 40, height: 40, borderRadius: "50%" }} />

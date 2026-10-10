@@ -385,14 +385,14 @@ export default function TatDashboardPage() {
     <PageContainer
       maxWidth="fluid"
       padding={0}
-      style={{ paddingBottom: 24 }}
+      style={{ paddingBottom: 'var(--space-6, 24px)' }}
     >
       <div
         style={{
           background: "var(--bg-card)",
           padding: "20px 24px",
           borderBottom: "1px solid var(--border-color)",
-          marginBottom: 20,
+          marginBottom: 'var(--space-5, 20px)',
         }}
       >
         <div
@@ -456,7 +456,7 @@ export default function TatDashboardPage() {
           <Alert
             type="error"
             showIcon
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 'var(--space-4, 16px)' }}
             title={error}
             action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
                 {t('tatDashboard.retry')}
@@ -465,7 +465,7 @@ export default function TatDashboardPage() {
           />
         )}
         <Spin spinning={loading}>
-          <StatCardGrid style={{ marginBottom: 20 }}>
+          <StatCardGrid style={{ marginBottom: 'var(--space-5, 20px)' }}>
             <StatCard
               title={t('tatDashboard.avgTat')}
               value={stats.avgTat}
@@ -495,7 +495,7 @@ export default function TatDashboardPage() {
             />
           </StatCardGrid>
 
-          <Row gutter={16} style={{ marginBottom: 20 }}>
+          <Row gutter={16} style={{ marginBottom: 'var(--space-5, 20px)' }}>
             <Col span={12}>
               <Card
                 title={t('tatDashboard.modalityDistribution')}
@@ -511,7 +511,7 @@ export default function TatDashboardPage() {
                   <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} />
                 ) : (
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                    style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}
                   >
                     {modalityRows.map((d, i) => (
                       <div
@@ -589,7 +589,7 @@ export default function TatDashboardPage() {
                   <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} />
                 ) : (
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                    style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}
                   >
                     {filteredDoctorRows.map((d, i) => (
                       <div
@@ -689,7 +689,7 @@ export default function TatDashboardPage() {
           <Card
             title={<Space><Layers size={16} />{t('tatDashboard.olapTitle')}</Space>}
             size="small"
-            style={{ borderRadius: 8, marginTop: 16 }}
+            style={{ borderRadius: 8, marginTop: 'var(--space-4, 16px)' }}
             extra={
               <Space>
                 <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadCubes()}>{t('tatDashboard.refreshCubes')}</Button>
@@ -697,7 +697,7 @@ export default function TatDashboardPage() {
               </Space>
             }
           >
-            <Space wrap style={{ marginBottom: 12 }}>
+            <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Select
                 style={{ width: 220 }}
                 placeholder={t('tatDashboard.selectCubePlaceholder')}
@@ -727,19 +727,19 @@ export default function TatDashboardPage() {
                 options={(selectedCubeMeta?.measures ?? ["exam_count", "report_count", "avg_report_time", "report_timely_rate"]).map((m) => ({ value: m, label: m }))}
               />
             </Space>
-            {drillError && <Alert type="error" showIcon style={{ marginBottom: 12 }} message={drillError} />}
+            {drillError && <Alert type="error" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} message={drillError} />}
             {drillRows.length === 0 && !drillError ? (
               <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.drillHint')} />
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 'var(--space-4, 16px)' }}>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>{t('tatDashboard.barChart')}: {chartMeasure}</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 'var(--space-2, 8px)' }}>{t('tatDashboard.barChart')}: {chartMeasure}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
                     {drillRows.slice(0, 15).map((r, i) => {
                       const label = String(r[drillColumns[0]?.code ?? "dimension"] ?? r.dimension ?? `行${i + 1}`)
                       const val = Number(r[chartMeasure]) || 0
                       return (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                           <span style={{ width: 90, fontSize: 12, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
                           <div style={{ flex: 1, height: 16, background: "var(--bg-primary)", borderRadius: 4, overflow: "hidden" }}>
                             <div style={{ width: `${(val / drillChartMax) * 100}%`, height: "100%", background: "var(--color-primary-600)", borderRadius: 4, transition: "width 0.3s" }} />

@@ -47,13 +47,13 @@ function Pagination({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
           fontSize: 12,
           color: "#64748b",
         }}
       >
         {onPageSizeChange && (
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
             <span>{t("patientTable.pagination.perPage")}</span>
             <select
               aria-label={t("patientTable.pagination.perPageAria")}
@@ -81,7 +81,7 @@ function Pagination({
           {t("patientTable.pagination.summary", { start: startItem, end: endItem, total: totalItems })}
         </span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -303,7 +303,7 @@ export function PatientTable({
       render: (_value, p) => {
         getPatientExams(p.id, exams);
         return (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <div
               style={{
                 width: 28,
@@ -434,7 +434,7 @@ export function PatientTable({
       fixed: "right",
       align: "center",
       render: (_value, p) => (
-        <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: 'var(--space-1, 4px)', justifyContent: "center" }}>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -452,7 +452,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Eye size={14} />
@@ -475,7 +475,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Edit2 size={14} />
@@ -497,7 +497,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <PlusCircle size={14} />
@@ -519,7 +519,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <FileText size={14} />
@@ -550,7 +550,7 @@ export function PatientTable({
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Trash2 size={14} />
@@ -568,7 +568,7 @@ export function PatientTable({
       {visibleDuplicates.length > 0 && (
         <div
           style={{
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
             padding: "12px 16px",
             background: "#fffbeb",
             border: "1px solid #fde68a",
@@ -578,7 +578,7 @@ export function PatientTable({
             justifyContent: "space-between",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <GitFork size={18} color="var(--color-warning-600)" />
             <span style={{ fontSize: 12, fontWeight: 600, color: "#92400e" }}>
               {t("patientTable.duplicates.detected", { count: visibleDuplicates.length })}
@@ -587,7 +587,7 @@ export function PatientTable({
               {t("patientTable.duplicates.advice")}
             </span>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
             {visibleDuplicates.slice(0, 3).map((d, i) => (
               <span
                 key={i}
@@ -631,13 +631,13 @@ export function PatientTable({
       {selectedPatientIds.size > 0 && (
         <div
           style={{
-            marginBottom: 12,
+            marginBottom: 'var(--space-3, 12px)',
             padding: "10px 16px",
             background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))",
             borderRadius: 10,
             display: "flex",
             alignItems: "center",
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
             boxShadow: "0 4px 12px rgba(30,58,95,0.3)",
           }}
         >
@@ -759,7 +759,7 @@ export function PatientTable({
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}
             >
               <Search size={32} color="#cbd5e1" aria-hidden />
@@ -782,11 +782,11 @@ export function PatientTable({
       {selectedPatient && (
         <div
           style={{
-            marginTop: 16,
+            marginTop: 'var(--space-4, 16px)',
             background: "var(--bg-card)",
             borderRadius: 12,
             border: "1px solid #e2e8f0",
-            padding: 20,
+            padding: 'var(--space-5, 20px)',
             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
           }}
         >
@@ -795,10 +795,10 @@ export function PatientTable({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: 16,
+              marginBottom: 'var(--space-4, 16px)',
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
               <div
                 style={{
                   width: 56,
@@ -847,7 +847,7 @@ export function PatientTable({
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 16,
+              gap: 'var(--space-4, 16px)',
             }}
           >
             {[
@@ -894,14 +894,14 @@ export function PatientTable({
             ].map((item) => (
               <div
                 key={item.labelKey}
-                style={{ padding: 12, background: "var(--bg-primary)", borderRadius: 8 }}
+                style={{ padding: 'var(--space-3, 12px)', background: "var(--bg-primary)", borderRadius: 8 }}
               >
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                   }}
                 >
                   <span style={{ color: "#94a3b8" }}>{item.icon}</span>
@@ -921,14 +921,14 @@ export function PatientTable({
             selectedPatient.allergyHistory !== "无" && (
               <div
                 style={{
-                  marginTop: 16,
+                  marginTop: 'var(--space-4, 16px)',
                   padding: "12px 16px",
                   background: "var(--color-error-bg)",
                   border: "1px solid #fecaca",
                   borderRadius: 8,
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}
               >
                 <AlertTriangle size={16} color="var(--color-error-600)" />
@@ -942,13 +942,13 @@ export function PatientTable({
                 </span>
               </div>
             )}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <div
               style={{
                 fontSize: 12,
                 fontWeight: 700,
                 color: "var(--color-primary-800)",
-                marginBottom: 8,
+                marginBottom: 'var(--space-2, 8px)',
               }}
             >
               {t("patientTable.pastHistory")}
@@ -957,7 +957,7 @@ export function PatientTable({
               style={{
                 fontSize: 12,
                 color: "#334155",
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
                 background: "var(--bg-primary)",
                 borderRadius: 8,
               }}

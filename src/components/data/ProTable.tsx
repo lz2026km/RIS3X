@@ -175,8 +175,8 @@ export function ProTable<T extends object = Record<string, unknown>>({
         <div
           style={{
             display: 'flex',
-            gap: 8,
-            padding: 16,
+            gap: 'var(--space-2, 8px)',
+            padding: 'var(--space-4, 16px)',
             borderBottom: '1px solid var(--border-subtle)',
             alignItems: 'center',
             flexWrap: 'wrap',
@@ -206,7 +206,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
               aria-label={t('common.refresh')}
             >
@@ -225,7 +225,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
               aria-label={t('common.export')}
             >
@@ -294,7 +294,7 @@ export function AppStatistic({
           style={{
             fontSize: 12,
             color: trend.positive ? 'var(--color-success-600)' : 'var(--color-error-600)',
-            marginTop: 4,
+            marginTop: 'var(--space-1, 4px)',
           }}
         >
           {trend.positive ? '↑' : '↓'} {Math.abs(trend.value)}% 较上期
@@ -475,9 +475,9 @@ export function PageContainer({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 24,
+            marginBottom: 'var(--space-6, 24px)',
             flexWrap: 'wrap',
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
           }}
         >
           {breadcrumb}

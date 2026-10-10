@@ -80,7 +80,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
 
   return (
     <div data-testid="kpi-dashboard">
-      <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'flex-end' }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)', width: '100%', justifyContent: 'flex-end' }}>
         <Segmented
           value={r}
           onChange={(v) => setR(v as any)}
@@ -93,7 +93,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
         />
       </Space>
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic
@@ -177,7 +177,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
         </Col>
       </Row>
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={16}>
           <Card size="small" title={t('w9e.kpiDashboard.trendTitle')} data-testid="kpi-trend">
             <ChartContainer height={260} state={filtered.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.kpiDashboard.noTrend')}>

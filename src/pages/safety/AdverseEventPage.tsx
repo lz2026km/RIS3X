@@ -114,7 +114,7 @@ export default function AdverseEventPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <ShieldAlert size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('ade.title')}</span>
         </div>
         <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -124,9 +124,9 @@ export default function AdverseEventPage() {
 
       <div style={{ padding: '20px 24px' }}>
         {showForm && (
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20, marginBottom: 20 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('ade.newEvent')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('ade.newEvent')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
               <select style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} value={formData.eventType ?? ''} onChange={e => setFormData({ ...formData, eventType: e.target.value as EventCategory })}>
                 <option value="">{t('ade.selectEventType')}</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{t(v)}</option>)}
@@ -140,16 +140,16 @@ export default function AdverseEventPage() {
               <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.location')} value={formData.location ?? ''} onChange={e => setFormData({ ...formData, location: e.target.value })} />
               <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.reportedBy')} value={formData.reportedBy ?? ''} onChange={e => setFormData({ ...formData, reportedBy: e.target.value })} />
             </div>
-            <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 80, marginBottom: 12 }} placeholder={t('ade.description')} value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
-            <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 12 }} placeholder={t('ade.contributingFactors')} value={(formData.contributingFactors ?? []).join(', ')} onChange={e => setFormData({ ...formData, contributingFactors: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('ade.submit')}</button>
+            <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 80, marginBottom: 'var(--space-3, 12px)' }} placeholder={t('ade.description')} value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+            <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 'var(--space-3, 12px)' }} placeholder={t('ade.contributingFactors')} value={(formData.contributingFactors ?? []).join(', ')} onChange={e => setFormData({ ...formData, contributingFactors: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} />
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
+              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Send size={13} />{t('ade.submit')}</button>
               <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer' }}>{t('ade.cancel')}</button>
             </div>
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {[
             { title: t('ade.monthEvents'), value: events.length, icon: AlertTriangle, color: 'var(--color-error-500, var(--color-error-500))' },
             { title: t('ade.investigating'), value: events.filter(e => e.status === 'investigating').length, icon: Search, color: 'var(--color-warning-500, var(--color-warning-500))' },
@@ -157,7 +157,7 @@ export default function AdverseEventPage() {
             { title: t('ade.closed'), value: events.filter(e => e.status === 'closed').length, icon: XCircle, color: 'var(--text-muted, #8b949e)' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
@@ -166,9 +166,9 @@ export default function AdverseEventPage() {
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Activity size={16} color="var(--color-primary-500)" />{t('ade.trendTitle')}
             </div>
             <ChartContainer height={240} state={trendChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('ade.noTrendData')}>
@@ -181,8 +181,8 @@ export default function AdverseEventPage() {
               </LineChart>
             </ChartContainer>
           </div>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BarChart3 size={16} color="var(--color-success-500)" />{t('ade.typeDistribution')}
             </div>
             <ChartContainer height={240} state={categoryChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('ade.noTypeData')}>
@@ -197,7 +197,7 @@ export default function AdverseEventPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           {(['all', 'reported', 'investigating', 'resolved', 'closed'] as const).map(s => (
             <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#7c3aed' : 'var(--border-default, #30363d)'}`, background: filter === s ? '#7c3aed20' : 'transparent', color: filter === s ? '#7c3aed' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
               {s === 'all' ? t('ade.all') : t(STATUS_LABELS[s])}

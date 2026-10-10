@@ -162,7 +162,7 @@ export const DimseUploadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <UploadIcon style={{ fontSize: 20, color: 'var(--color-primary-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimseUpload.title')}</span>
         <Tag color="blue">v3.0.6.11-75 W3-2</Tag>
@@ -171,9 +171,9 @@ export const DimseUploadPage: React.FC = () => {
         title={t('dimseUpload.alert')}
         type="info"
         showIcon
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dimseUpload.statTotal')} value={records.length} color="primary" />
         <StatCard title={t('dimseUpload.statSuccess')} value={successCount} color="success" />
         <StatCard title={t('dimseUpload.statFail')} value={failCount} color="error" />
@@ -199,13 +199,13 @@ export const DimseUploadPage: React.FC = () => {
           </Space>
           {uploading && (
             <div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{stage}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{stage}</div>
               <Progress percent={progress} status="active" />
             </div>
           )}
         </Space>
       </Card>
-      <Card size="small" title={t('dimseUpload.recordsTitle', { count: records.length })} style={{ marginTop: 16 }}>
+      <Card size="small" title={t('dimseUpload.recordsTitle', { count: records.length })} style={{ marginTop: 'var(--space-4, 16px)' }}>
         <DataTable
           dataSource={records}
           rowKey="key"

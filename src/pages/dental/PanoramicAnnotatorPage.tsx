@@ -111,8 +111,8 @@ export const PanoramicAnnotatorPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Ruler size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.panoramic.title')}</span>
         <Tag color="cyan">v3.0.6.8-55</Tag>
@@ -137,12 +137,12 @@ export const PanoramicAnnotatorPage: React.FC = () => {
           }>
             <canvas ref={canvasRef} width={700} height={550} style={{ width: '100%', height: 'auto', cursor: 'crosshair', border: '1px solid #333', borderRadius: 4 }}
               onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} />
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('w9d.panoramic.hint')}{annotations.length}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('w9d.panoramic.hint')}{annotations.length}</div>
           </Card>
         </Col>
         <Col span={6}>
           <Card title={t('w9d.panoramic.annotationList')} size="small">
-            {annotations.map((a, i) => <div key={a.id} style={{ padding: 8, marginBottom: 4, background: 'var(--bg-card)', borderRadius: 4, borderLeft: `3px solid ${a.color}` }}>
+            {annotations.map((a, i) => <div key={a.id} style={{ padding: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)', background: 'var(--bg-card)', borderRadius: 4, borderLeft: `3px solid ${a.color}` }}>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{a.tool} - {a.label ? t(a.label) : '-'}</div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.tool === 'ruler' ? Math.round(Math.sqrt(a.w*a.w + a.h*a.h)) + 'mm' : `${a.w}×${a.h}`}</div>
               <Button type="text" size="small" danger icon={<Trash2 size={10} />} onClick={() => setAnnotations(annotations.filter((_, j) => j !== i))}>{t('w9d.panoramic.delete')}</Button>

@@ -255,7 +255,7 @@ export function StatCard({
             style={{
               fontSize: 12,
               color: "var(--text-secondary, #475569)",
-              marginBottom: 4,
+              marginBottom: 'var(--space-1, 4px)',
               fontWeight: 500,
             }}
           >
@@ -312,7 +312,7 @@ export function StatCard({
               style={{
                 fontSize: 12,
                 color: "var(--color-gray-400, #94a3b8)",
-                marginTop: 4,
+                marginTop: 'var(--space-1, 4px)',
               }}
             >
               {resolvedSub}
@@ -324,7 +324,7 @@ export function StatCard({
                 display: "flex",
                 alignItems: "center",
                 gap: 2,
-                marginTop: 4,
+                marginTop: 'var(--space-1, 4px)',
                 fontSize: 12,
                 fontWeight: 600,
                 color: trendColor,
@@ -335,7 +335,7 @@ export function StatCard({
             </div>
           )}
           {sparkline && sparkline.length >= 2 && (
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Sparkline data={sparkline} color={fgColor} height={size === "lg" ? 48 : size === "sm" ? 34 : 40} testId={testId ? `${testId}-spark` : undefined} />
             </div>
           )}

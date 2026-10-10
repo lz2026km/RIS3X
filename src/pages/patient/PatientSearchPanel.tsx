@@ -24,13 +24,13 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
       background: 'var(--bg-card)',
       borderRadius: 10,
       border: '1px solid var(--border-color)',
-      padding: 16,
-      marginBottom: 16,
+      padding: 'var(--space-4, 16px)',
+      marginBottom: 'var(--space-4, 16px)',
     }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>性别</label>
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
             {(['全部', '男', '女'] as GenderFilter[]).map(g => (
               <button
                 key={g}
@@ -98,42 +98,42 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
           </select>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)' }}>
           <button onClick={onReset}
-            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
             <RefreshCw size={12} />重置
           </button>
           <button onClick={onToggleSavePreset}
-            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: showSavePreset ? 'var(--color-info-bg)' : 'var(--bg-card)', color: showSavePreset ? 'var(--color-primary-800)' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: showSavePreset ? 'var(--color-info-bg)' : 'var(--bg-card)', color: showSavePreset ? 'var(--color-primary-800)' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
             <Bookmark size={12} />预设
           </button>
           <button onClick={() => { const event = new CustomEvent('apply-patient-filter'); window.dispatchEvent(event) }}
-            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
             <Search size={12} />筛选
           </button>
         </div>
       </div>
 
       {showSavePreset && (
-        <div style={{ marginTop: 12, padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
             <BookmarkCheck size={14} color="var(--color-primary-800)" />
             <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>筛选预设</span>
           </div>
           {presets && presets.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
               {presets.map((p, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '4px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                   <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, padding: 0 }}>{p.name}</button>
                   <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#94a3b8' }}><X size={10} /></button>
                 </div>
               ))}
             </div>
           )}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..."
               style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={12} />保存当前</button>
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Save size={12} />保存当前</button>
           </div>
         </div>
       )}
@@ -180,8 +180,8 @@ export function PatientSearchPanel(props: PatientSearchPanelProps) {
 
       <div style={{
         background: 'var(--bg-card)', borderRadius: 10, padding: '12px 16px',
-        border: '1px solid var(--border-color)', marginBottom: 16,
-        display: 'flex', gap: 12, alignItems: 'center',
+        border: '1px solid var(--border-color)', marginBottom: 'var(--space-4, 16px)',
+        display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center',
         boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
       }}>
         <Search size={16} style={{ color: '#94a3b8', flexShrink: 0 }} />

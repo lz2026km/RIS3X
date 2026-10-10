@@ -348,8 +348,8 @@ export const AiReportWriterPage: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)",}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)",}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <FileText size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiReportWriter.title')}</span>
         <Tag color="cyan">PR2</Tag>
@@ -477,7 +477,7 @@ export const AiReportWriterPage: React.FC = () => {
             </Form>
           </Card>
 
-          <Card title={t('aiReportWriter.aiOps')} size="small" style={{ marginTop: 16 }}>
+          <Card title={t('aiReportWriter.aiOps')} size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
             <Space wrap>
               <Button
                 type="primary"
@@ -544,7 +544,7 @@ export const AiReportWriterPage: React.FC = () => {
             {busy ? (
               <div style={{ textAlign: "center", padding: 60 }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 16, color: "var(--text-secondary)" }}>
+                <div style={{ marginTop: 'var(--space-4, 16px)', color: "var(--text-secondary)" }}>
                   {t('aiReportWriter.inferring')}
                 </div>
               </div>
@@ -572,7 +572,7 @@ export const AiReportWriterPage: React.FC = () => {
                 </Space>
               }
               size="small"
-              style={{ marginTop: 16 }}
+              style={{ marginTop: 'var(--space-4, 16px)' }}
             >
               {extracting ? (
                 <Spin />
@@ -594,7 +594,7 @@ export const AiReportWriterPage: React.FC = () => {
                   <Col span={24}>
                     <Divider style={{ margin: "4px 0" }} />
                     <div
-                      style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}
+                      style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}
                     >
                       {t('aiReportWriter.diagnosisIcd')}
                     </div>
@@ -639,7 +639,7 @@ export const AiReportWriterPage: React.FC = () => {
                 </Space>
               }
               size="small"
-              style={{ marginTop: 16 }}
+              style={{ marginTop: 'var(--space-4, 16px)' }}
             >
               <List
                 size="small"
@@ -697,7 +697,7 @@ export const AiReportWriterPage: React.FC = () => {
               title={vocab.cn + " / " + vocab.en}
               type="info"
               showIcon
-              style={{ marginBottom: 12 }}
+              style={{ marginBottom: 'var(--space-3, 12px)' }}
             />
             <div>
               {vocab.terms.map((term: string, i: number) => (
@@ -710,7 +710,7 @@ export const AiReportWriterPage: React.FC = () => {
                         (prev) => prev + (prev.endsWith(" ") ? "" : " ") + term,
                       );
                   }}
-                  style={{ margin: 4, fontSize: 12 }}
+                  style={{ margin: 'var(--space-1, 4px)', fontSize: 12 }}
                 >
                   {term}
                 </Tag.CheckableTag>

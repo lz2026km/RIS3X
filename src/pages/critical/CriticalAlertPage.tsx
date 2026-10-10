@@ -319,7 +319,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <AlertTriangle size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{tr('criticalAlert.title')}</span>
         <Input.Search
@@ -334,11 +334,11 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
       </Space>
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
+        <Alert type="error" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={error}
           action={<Button size="small" onClick={refresh}><RefreshCw size={14} /> {tr('criticalAlert.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={tr('criticalAlert.statTotal')} value={stats?.totalAlerts ?? alerts.length} icon={<Bell size={16} />} />
         <StatCard title={tr('criticalAlert.statPending')} value={stats?.activeCount ?? pendingCount} color="error" />
         <StatCard title={tr('criticalAlert.statAcknowledged')} value={stats?.acknowledgedCount ?? 0} color="warning" />
@@ -346,11 +346,11 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
       </StatCardGrid>
 
       {severityDist.length > 0 && (
-        <Card size="small" title={tr('criticalAlert.severityDist')} style={{ marginBottom: 16 }}>
+        <Card size="small" title={tr('criticalAlert.severityDist')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Row gutter={16}>
             {severityDist.map((s) => (
               <Col span={6} key={s.severity}>
-                <Space style={{ marginBottom: 4 }}>
+                <Space style={{ marginBottom: 'var(--space-1, 4px)' }}>
                   <Tag color={severityColor[s.severity]}>{sevLabel(s.severity)}</Tag>
                   <span>{s.count}</span>
                 </Space>
@@ -366,12 +366,12 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
       <Card
         size="small"
         title={<Space size={6}><Bell size={13} color="var(--color-primary-600)" />{tr('criticalAgg.title')}</Space>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={<Button size="small" icon={<RefreshCw size={12} />} loading={aggregateLoading} onClick={() => void loadAggregate()}>{tr('criticalAgg.refresh')}</Button>}
         data-testid="critical-aggregate"
       >
         {aggregateLoading && aggregate.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 16, color: '#94a3b8' }}><Spin size="small" /> {tr('criticalAgg.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', color: '#94a3b8' }}><Spin size="small" /> {tr('criticalAgg.loading')}</div>
         ) : aggregateError ? (
           <Alert
             type="warning"
@@ -383,8 +383,8 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           <EmptyState description={tr('criticalAgg.empty')} />
         ) : (
           <>
-            <Alert type="info" showIcon style={{ marginBottom: 12 }} message={tr('criticalAgg.aliasNote')} />
-            <Row gutter={16} style={{ marginBottom: 12 }}>
+            <Alert type="info" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} message={tr('criticalAgg.aliasNote')} />
+            <Row gutter={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Col span={6}><Statistic title={tr('criticalAgg.total')} value={aggregate.length} /></Col>
               <Col span={6}><Statistic title={tr('criticalAgg.active')} value={aggregate.filter((a) => a.status === 'active').length} styles={{ content: { color: '#ff4d4f' } }} /></Col>
               <Col span={6}><Statistic title={tr('criticalAgg.acknowledged')} value={aggregate.filter((a) => a.status === 'acknowledged').length} styles={{ content: { color: '#faad14' } }} /></Col>
@@ -395,7 +395,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
                 <Tag key={sev} color={severityColor[sev]}>{sevLabel(sev)}: {aggBySeverity[sev] ?? 0}</Tag>
               ))}
             </Space>
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Space wrap size={[8, 8]}>
                 {(['active', 'acknowledged', 'resolved', 'escalated'] as string[]).map((st) => (
                   <Tag key={st} color={statusColor[st]}>{statLabel(st)}: {aggByStatus[st] ?? 0}</Tag>
@@ -410,7 +410,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
       <Card
         size="small"
         title={<Space size={6}><ArrowUp size={13} color="#7c3aed" />{tr('w4b.esc.listTitle', { count: chains.length })}</Space>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={
           <Space>
             <Select
@@ -457,7 +457,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
         <Card
           size="small"
           title={t('relatedAlerts')}
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           extra={<Button size="small" onClick={() => { setRelatedShown(false); setRelatedAlerts([]) }}>{tr('criticalAlert.close')}</Button>}
         >
           <Spin spinning={relatedLoading}>
@@ -536,7 +536,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
       >
         {selected && (
           <>
-            <Card size="small" style={{ marginBottom: 16 }}>
+            <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Space direction="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Text strong>{selected.patientName}</Text>
@@ -552,7 +552,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
             </Card>
 
             {/* [v3.0.6.11-103 Wave 13] 5 步流程进度: 触发→通知→确认→处置→记录 (闭环) */}
-            <Card size="small" style={{ marginBottom: 16 }} title={<Space size={6}><AlertTriangle size={13} color="var(--color-primary-600)" />{t('flowTitle')}</Space>}>
+            <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }} title={<Space size={6}><AlertTriangle size={13} color="var(--color-primary-600)" />{t('flowTitle')}</Space>}>
               <Steps
                 size="small"
                 current={selected.flowStatus === 'escalated' ? 0 : Math.max(0, selected.step ?? 0)}

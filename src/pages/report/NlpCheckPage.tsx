@@ -86,8 +86,8 @@ export default function NlpCheckPage() {
     if (last < text.length) parts.push({ text: text.slice(last) })
 
     return (
-      <div style={{ marginTop: 12, padding: 12, background: "var(--bg-primary)", borderRadius: 8, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", marginBottom: 8 }}>{t("highlightedText")}</div>
+      <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: "var(--bg-primary)", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", marginBottom: 'var(--space-2, 8px)' }}>{t("highlightedText")}</div>
         <div style={{ lineHeight: 1.8 }}>
           {parts.map((p, i) =>
             p.highlight ? (
@@ -106,8 +106,8 @@ export default function NlpCheckPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<FileText size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")} />
-      <div style={{ padding: 24 }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           <button onClick={() => setActiveTab("spell")} style={{ padding: "6px 16px", background: activeTab === "spell" ? "var(--color-primary-800)" : "#fff", color: activeTab === "spell" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "spell" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <SpellCheck size={14} />{t("spellCheck")}
           </button>
@@ -116,17 +116,17 @@ export default function NlpCheckPage() {
           </button>
         </div>
 
-        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", marginBottom: 8, display: "block" }}>{t("inputText")}</label>
+        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", marginBottom: 'var(--space-2, 8px)', display: "block" }}>{t("inputText")}</label>
           <textarea
             value={text}
             onChange={e => setText(e.target.value)}
             rows={8}
-            style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, resize: "vertical", fontFamily: "monospace", lineHeight: 1.6 }}
+            style={{ width: "100%", padding: 'var(--space-3, 12px)', border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, resize: "vertical", fontFamily: "monospace", lineHeight: 1.6 }}
             placeholder={t("inputPlaceholder")}
           />
           {renderHighlighted()}
-          <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', display: "flex", gap: 'var(--space-2, 8px)' }}>
             <button onClick={handleCheck} disabled={loading || !text.trim()} style={{ padding: "8px 20px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               <CheckCircle size={14} />{loading ? t("checking") : t("check")}
             </button>
@@ -139,16 +139,16 @@ export default function NlpCheckPage() {
         </div>
 
         {spellResult && spellResult.suggestions.length > 0 && (
-          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={16} color="var(--color-warning-500)" />{t("suggestions")} ({spellResult.suggestions.length})</h3>
             {spellResult.suggestions.map((s, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                 <span style={{ background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{s.word}</span>
                 <span style={{ color: "#64748b", fontSize: 12 }}>→</span>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
                   {s.candidates.map((c, ci) => (
                     <button key={ci} onClick={() => applySuggestion(s.offset, s.length, c)} style={{ padding: "2px 10px", background: "#dbeafe", color: "var(--color-primary-800)", border: "1px solid #bfdbfe", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
-                      <Replace size={10} style={{ marginRight: 4 }} />{c}
+                      <Replace size={10} style={{ marginRight: 'var(--space-1, 4px)' }} />{c}
                     </button>
                   ))}
                 </div>
@@ -158,21 +158,21 @@ export default function NlpCheckPage() {
         )}
 
         {spellResult && spellResult.suggestions.length === 0 && (
-          <div style={{ marginTop: 16, padding: 16, background: "#d1fae5", borderRadius: 8, display: "flex", alignItems: "center", gap: 8, color: "#065f46" }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-4, 16px)', background: "#d1fae5", borderRadius: 8, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', color: "#065f46" }}>
             <CheckCircle size={16} color="#10b981" />{t("noIssues")}
           </div>
         )}
 
         {termResult && termResult.normalized.length > 0 && (
-          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={16} color="var(--color-primary-500)" />{t("termNormalization")} ({termResult.normalized.length})</h3>
             {termResult.normalized.map((n, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                 <span style={{ background: "#dbeafe", color: "var(--color-primary-800)", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{n.term}</span>
                 <span style={{ color: "#64748b", fontSize: 12 }}>→</span>
                 <span style={{ background: "#d1fae5", color: "#065f46", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{n.preferred}</span>
                 <button onClick={() => applyTerminology(n.offset, n.length, n.preferred)} style={{ marginLeft: "auto", padding: "2px 10px", background: "#10b981", color: "#fff", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 11, fontWeight: 600 }}>
-                  <Replace size={10} style={{ marginRight: 4 }} />{t("replace")}
+                  <Replace size={10} style={{ marginRight: 'var(--space-1, 4px)' }} />{t("replace")}
                 </button>
               </div>
             ))}

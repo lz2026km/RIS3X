@@ -258,7 +258,7 @@ export const ComplianceDocsPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} align="center">
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} align="center">
         <ScrollText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('complianceDocs.title')}</span>
         <Tag color="green">{t('complianceDocs.statusFlow')}</Tag>
@@ -266,19 +266,19 @@ export const ComplianceDocsPage: React.FC = () => {
 
       {error && (
         <Alert
-          type="error" showIcon style={{ marginBottom: 16 }} message={error}
+          type="error" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('complianceDocs.retry')}</Button>}
         />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('complianceDocs.statTotal')} value={counts.total} />
         <StatCard title={t('complianceDocs.statusCurrent')} value={counts.current} color="success" />
         <StatCard title={t('complianceDocs.statusDraft')} value={counts.draft} color="warning" />
         <StatCard title={t('complianceDocs.statusArchived')} value={counts.archived} color="#8c8c8c" />
       </StatCardGrid>
 
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space wrap>
           <Select
             allowClear placeholder={t('complianceDocs.categoryFilter')} style={{ width: 150 }}
@@ -323,7 +323,7 @@ export const ComplianceDocsPage: React.FC = () => {
         width={640}
         destroyOnHidden
       >
-        <Form form={form} layout="vertical" style={{ marginTop: 8 }}>
+        <Form form={form} layout="vertical" style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Row gutter={12}>
             <Col span={16}>
               <Form.Item name="title" label={t('complianceDocs.colTitle')} rules={[{ required: true, message: t('complianceDocs.titleRequired') }]}>
@@ -399,8 +399,8 @@ export const ComplianceDocsPage: React.FC = () => {
               <Descriptions.Item label={t('complianceDocs.publishedAt')}>{fmt(detail.publishedAt)}</Descriptions.Item>
               <Descriptions.Item label={t('complianceDocs.archivedAt')}>{fmt(detail.archivedAt)}</Descriptions.Item>
             </Descriptions>
-            <Typography.Title level={5} style={{ marginTop: 16 }}>{t('complianceDocs.docContent')}</Typography.Title>
-            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 12, lineHeight: 1.7 }}>
+            <Typography.Title level={5} style={{ marginTop: 'var(--space-4, 16px)' }}>{t('complianceDocs.docContent')}</Typography.Title>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, fontSize: 12, lineHeight: 1.7 }}>
               {detail.content || t('complianceDocs.noContent')}
             </pre>
           </>
@@ -423,13 +423,13 @@ export const ComplianceDocsPage: React.FC = () => {
                 <Descriptions.Item label={t('w2Orphans.systemName')}>{report.systemName}</Descriptions.Item>
                 <Descriptions.Item label={t('w2Orphans.standard')}>{report.complianceStandard}</Descriptions.Item>
               </Descriptions>
-              <Typography.Title level={5} style={{ marginTop: 16 }}>{t('w2Orphans.summary')}</Typography.Title>
-              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 12, lineHeight: 1.7 }}>
+              <Typography.Title level={5} style={{ marginTop: 'var(--space-4, 16px)' }}>{t('w2Orphans.summary')}</Typography.Title>
+              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, fontSize: 12, lineHeight: 1.7 }}>
                 {JSON.stringify(report.summary, null, 2)}
               </pre>
               {report.checklist && report.checklist.length > 0 && (
                 <>
-                  <Typography.Title level={5} style={{ marginTop: 16 }}>{t('w2Orphans.checklist')}</Typography.Title>
+                  <Typography.Title level={5} style={{ marginTop: 'var(--space-4, 16px)' }}>{t('w2Orphans.checklist')}</Typography.Title>
                   <Space direction="vertical" size={4} style={{ width: '100%' }}>
                     {report.checklist.map((c) => (
                       <div key={c.item} style={{ fontSize: 12 }}>

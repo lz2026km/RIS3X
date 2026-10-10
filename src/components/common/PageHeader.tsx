@@ -178,10 +178,10 @@ export function PageHeader({
           padding: "20px 24px",
           display: "flex",
           alignItems: "center",
-          gap: 16,
+          gap: 'var(--space-4, 16px)',
           color: bannerColor,
           borderRadius: 8,
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
           ...style,
         }}
       >
@@ -223,7 +223,7 @@ export function PageHeader({
           )}
         </div>
         {actions && (
-          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>{actions}</div>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', flexShrink: 0 }}>{actions}</div>
         )}
       </div>
     );
@@ -237,8 +237,8 @@ export function PageHeader({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
+          gap: 'var(--space-3, 12px)',
+          marginBottom: 'var(--space-4, 16px)',
           flexWrap: "wrap",
           ...style,
         }}
@@ -266,7 +266,7 @@ export function PageHeader({
             style={{
               marginLeft: "auto",
               display: "flex",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
               alignItems: "center",
             }}
           >
@@ -287,8 +287,8 @@ export function PageHeader({
         display: "flex",
         justifyContent: "space-between",
         alignItems: isMinimal ? "center" : "flex-start",
-        marginBottom: 20,
-        gap: 16,
+        marginBottom: 'var(--space-5, 20px)',
+        gap: 'var(--space-4, 16px)',
         flexWrap: "wrap",
         ...style,
       }}
@@ -339,7 +339,7 @@ export function PageHeader({
         <div
           style={{
             display: "flex",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             alignItems: "center",
             flexShrink: 0,
             flexWrap: "wrap",

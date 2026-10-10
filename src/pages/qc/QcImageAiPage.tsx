@@ -198,16 +198,16 @@ export default function QcImageAiPage() {
       <PageHeader icon={<Camera size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")}
         actions={<Button size="small" icon={<RefreshCw size={12} />} loading={loadingStats} onClick={() => void loadStats(modality, dateFrom, dateTo)}>刷新统计</Button>} />
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
         {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-IIA-01 图像伪影率 */}
         <RqiIndicatorLink code="RQI-IIA-01" />
-        <div style={{ marginBottom: 16, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)', display: "flex", gap: 'var(--space-3, 12px)', alignItems: "center", flexWrap: "wrap" }}>
           {MODALITY_OPTIONS.map(m => (
             <button key={m} onClick={() => setModality(m)} style={{ padding: "6px 14px", background: modality === m ? "var(--color-primary-800)" : "var(--bg-card)", color: modality === m ? "#fff" : "#475569", border: "1px solid " + (modality === m ? "var(--color-primary-800)" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
               {m === "all" ? t("all") : m}
             </button>
           ))}
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginLeft: "auto" }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center", marginLeft: "auto" }}>
             <Calendar size={14} color="#64748b" />
             <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }} />
             <span style={{ color: "#94a3b8" }}>~</span>
@@ -216,12 +216,12 @@ export default function QcImageAiPage() {
         </div>
 
         {error && (
-          <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
+          <Alert type="error" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={error}
             action={<Button size="small" onClick={() => { setError(""); void loadStats(modality, dateFrom, dateTo) }}><RefreshCw size={14} /> 重试</Button>} />
         )}
 
         {stats && stats.totalScores === 0 && (
-          <div style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ marginBottom: 'var(--space-2, 8px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Tag color="orange">{tr("w2Empty.demoData")}</Tag>
             <span style={{ fontSize: 12, color: "#94a3b8" }}>{tr("w2Empty.noDataHint")}</span>
           </div>
@@ -235,7 +235,7 @@ export default function QcImageAiPage() {
           </StatCardGrid>
         </Spin>
 
-        <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)', display: "flex", gap: 'var(--space-2, 8px)' }}>
           <button onClick={() => setActiveTab("v1")} style={{ padding: "6px 16px", background: activeTab === "v1" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "v1" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v1" ? "var(--color-primary-800)" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
             V1
           </button>
@@ -245,11 +245,11 @@ export default function QcImageAiPage() {
         </div>
 
         {/* AI 评分流程 (选影像 -> score-v2 -> 结果) */}
-        <div style={{ marginBottom: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ marginBottom: 'var(--space-6, 24px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 6 }}>
             <Sparkles size={18} color="#8b5cf6" /> AI 影像质控评分
           </h3>
-          <Space wrap style={{ marginBottom: 12 }}>
+          <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Input placeholder="影像实例 ID" value={instanceId} onChange={e => setInstanceId(e.target.value)} onPressEnter={() => void runScore()} style={{ width: 300 }} allowClear />
             <Select value={scoreModality} onChange={setScoreModality} style={{ width: 110 }} options={MODALITIES.map(m => ({ value: m, label: m }))} />
             <Button type="primary" icon={<Zap size={14} />} loading={scoring} onClick={() => void runScore()}>开始 AI 评分</Button>
@@ -259,11 +259,11 @@ export default function QcImageAiPage() {
             ))}
           </Space>
           {scored && (
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "var(--bg-card)", borderRadius: 8, padding: 12 }}>
+            <div style={{ display: "flex", gap: 'var(--space-3, 12px)', flexWrap: "wrap", background: "var(--bg-card)", borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
               <ScoreBlock title="伪影" scores={[scored.artifactScores.motion, scored.artifactScores.metal, scored.artifactScores.ring]} labels={["运动", "金属", "环状"]} colors={["var(--color-warning-500)", "var(--color-error-500)", "#8b5cf6"]} />
               <ScoreBlock title="摆位" scores={[scored.positioningScores.setup, scored.positioningScores.rotation, scored.positioningScores.offset]} labels={["摆位", "旋转", "偏移"]} colors={["#8b5cf6", "var(--color-primary-500)", "var(--color-info-500)"]} />
               <div style={{ flex: "1 1 140px" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>曝光: {scored.exposure.value} ({scored.exposure.score})</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 'var(--space-2, 8px)' }}>曝光: {scored.exposure.value} ({scored.exposure.score})</div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: scoreColor(scored.overall) }}>{scored.overall.toFixed(1)}</div>
                 <div style={{ fontSize: 12, color: "#64748b" }}>综合评分 ({scored.instanceId})</div>
               </div>
@@ -272,35 +272,35 @@ export default function QcImageAiPage() {
         </div>
 
         {/* [v3.0.6.11-104 Wave 2C] AI 质控结果回读: 按实例查询 (V1) + V2 结果列表 (三态) */}
-        <div style={{ marginBottom: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }} data-testid="qcai-result-readback">
+        <div style={{ marginBottom: 'var(--space-6, 24px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }} data-testid="qcai-result-readback">
           <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 6 }}>
             <Eye size={18} color="var(--color-primary-500)" /> {tr("qcai.lookup.title")}
           </h3>
-          <Space wrap style={{ marginBottom: 12 }}>
+          <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Input placeholder={tr("qcai.lookup.placeholder")} value={lookupId} onChange={e => setLookupId(e.target.value)} onPressEnter={() => void lookupByInstance()} style={{ width: 300 }} allowClear />
             <Button type="primary" icon={<Search size={14} />} loading={lookupLoading} onClick={() => void lookupByInstance()}>{tr("qcai.lookup.button")}</Button>
             <span style={{ color: "#94a3b8", fontSize: 12 }}>{tr("qcai.lookup.endpointHint")}</span>
           </Space>
 
           {lookupLoading ? (
-            <div style={{ padding: 16, textAlign: "center", color: "#94a3b8" }}><Spin /></div>
+            <div style={{ padding: 'var(--space-4, 16px)', textAlign: "center", color: "#94a3b8" }}><Spin /></div>
           ) : lookupError ? (
             <Alert type="warning" showIcon message={lookupError} />
           ) : lookupResult ? (
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "var(--bg-card)", borderRadius: 8, padding: 12 }} data-testid="qcai-v1-result">
+            <div style={{ display: "flex", gap: 'var(--space-3, 12px)', flexWrap: "wrap", background: "var(--bg-card)", borderRadius: 8, padding: 'var(--space-3, 12px)' }} data-testid="qcai-v1-result">
               <ScoreBlock title={tr("qcai.lookup.artifact")} scores={[lookupResult.motionArtifact, lookupResult.metalArtifact, lookupResult.ringArtifact]} labels={[tr("qcai.motion"), tr("qcai.metal"), tr("qcai.ring")]} colors={["var(--color-warning-500)", "var(--color-error-500)", "#8b5cf6"]} />
               <ScoreBlock title={tr("qcai.lookup.positioning")} scores={[lookupResult.positioningCorrect, lookupResult.positioningMildRotation, lookupResult.positioningSevereOffset]} labels={[tr("qcai.setup"), tr("qcai.rotation"), tr("qcai.offset")]} colors={["#8b5cf6", "var(--color-primary-500)", "var(--color-info-500)"]} />
               <div style={{ flex: "1 1 140px" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>{tr("qcai.lookup.overall")}: {lookupResult.overall.toFixed(1)}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 'var(--space-2, 8px)' }}>{tr("qcai.lookup.overall")}: {lookupResult.overall.toFixed(1)}</div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: scoreColor(lookupResult.overall) }}>{lookupResult.overall.toFixed(1)}</div>
                 <div style={{ fontSize: 12, color: "#64748b" }}>{lookupResult.instanceId} · {lookupResult.modality}</div>
               </div>
             </div>
           ) : (
-            <div style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 12 }}>{tr("qcai.lookup.empty")}</div>
+            <div style={{ padding: 'var(--space-5, 20px)', textAlign: "center", color: "#94a3b8", fontSize: 12 }}>{tr("qcai.lookup.empty")}</div>
           )}
 
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border-color)", fontSize: 12, color: "#64748b" }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', paddingTop: 'var(--space-3, 12px)', borderTop: "1px solid var(--border-color)", fontSize: 12, color: "#64748b" }}>
             {recordsLoading ? (
               <span><Spin size="small" /> {tr("qcai.resultList.loading")}</span>
             ) : recordsError ? (
@@ -315,24 +315,24 @@ export default function QcImageAiPage() {
 
         {activeTab === "v2" && (
           <>
-            <div style={{ display: "flex", gap: 20, marginTop: 4 }}>
-              <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <div style={{ display: "flex", gap: 'var(--space-5, 20px)', marginTop: 'var(--space-1, 4px)' }}>
+              <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Zap size={16} color="var(--color-warning-500)" /> {t("artifactDetail")}</h3>
                 <SubBarChart data={filtered} getValues={r => [r.artifactScores.motion, r.artifactScores.metal, r.artifactScores.ring]} colors={["var(--color-warning-500)", "var(--color-error-500)", "#8b5cf6"]} labels={[t("motion"), t("metal"), t("ring")]} max={5} />
               </div>
-              <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Eye size={16} color="#8b5cf6" /> {t("positioningDetail")}</h3>
                 <SubBarChart data={filtered} getValues={r => [r.positioningScores.setup, r.positioningScores.rotation, r.positioningScores.offset]} colors={["#8b5cf6", "var(--color-primary-500)", "var(--color-info-500)"]} labels={[t("setup"), t("rotation"), t("offset")]} max={5} />
               </div>
-              <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Activity size={16} color="#10b981" /> {t("exposureDetail")}</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "8px 0" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', padding: "8px 0" }}>
                   {EXPOSURE_VALUES.map(ev => {
                     const items = filtered.filter(r => r.exposure.value === ev)
                     const avg = items.length ? items.reduce((s, r) => s + r.exposure.score, 0) / items.length : 0
                     const color = ev === "正常" ? "#10b981" : ev === "不足" ? "var(--color-warning-500)" : "var(--color-error-500)"
                     return (
-                      <div key={ev} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div key={ev} style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
                         <span style={{ width: 40, fontSize: 12, fontWeight: 600, color }}>{ev}</span>
                         <div style={{ flex: 1, height: 12, background: "var(--border-color)", borderRadius: 6, overflow: "hidden" }}>
                           <div style={{ width: `${(avg / 5) * 100}%`, height: "100%", background: color, borderRadius: 6, transition: "width 0.3s" }} />
@@ -345,14 +345,14 @@ export default function QcImageAiPage() {
               </div>
             </div>
 
-            <div style={{ marginTop: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <div style={{ marginTop: 'var(--space-6, 24px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px", display: "flex", alignItems: "center", gap: 6 }}><TrendingUp size={18} color="var(--color-primary-500)" /> {t("overallTrend")}</h3>
               {trendData.length > 0 ? (
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 120, padding: "0 8px" }}>
                   {trendData.map((p, i) => {
                     const h = (p.avgOverall / 5) * 100
                     return (
-                      <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                      <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
                         <span style={{ fontSize: 10, color: "#475569", fontWeight: 600 }}>{p.avgOverall.toFixed(1)}</span>
                         <div style={{ width: "100%", maxWidth: 32, height: 100, background: "var(--border-color)", borderRadius: "4px 4px 0 0", position: "relative", overflow: "hidden" }}>
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${h}%`, background: "linear-gradient(to top, var(--color-primary-500), #60a5fa)", borderRadius: "4px 4px 0 0", transition: "height 0.3s" }} />
@@ -363,13 +363,13 @@ export default function QcImageAiPage() {
                   })}
                 </div>
               ) : (
-                <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>{t("noData")}</div>
+                <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "#94a3b8" }}>{t("noData")}</div>
               )}
             </div>
           </>
         )}
 
-        <div style={{ marginTop: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ marginTop: 'var(--space-6, 24px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>{t("scoreTable")}</h3>
           <Spin spinning={detailLoading || recordsLoading}>
             <div style={{ overflowX: "auto" }}>
@@ -402,12 +402,12 @@ export default function QcImageAiPage() {
             </div>
           </Spin>
           {detail && (
-            <div style={{ marginTop: 12, background: "var(--color-info-bg)", borderRadius: 8, padding: 12, fontSize: 12, color: "var(--text-primary)" }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)', background: "var(--color-info-bg)", borderRadius: 8, padding: 'var(--space-3, 12px)', fontSize: 12, color: "var(--text-primary)" }}>
               <b>详情</b> - {detail.instanceId} [{detail.modality}]
-              <span style={{ marginLeft: 12 }}>伪影: {detail.artifactScores.motion}/{detail.artifactScores.metal}/{detail.artifactScores.ring}</span>
-              <span style={{ marginLeft: 12 }}>摆位: {detail.positioningScores.setup}/{detail.positioningScores.rotation}/{detail.positioningScores.offset}</span>
-              <span style={{ marginLeft: 12 }}>曝光: {detail.exposure.value} {detail.exposure.score}</span>
-              <span style={{ marginLeft: 12 }}>综合: <b>{detail.overall}</b></span>
+              <span style={{ marginLeft: 'var(--space-3, 12px)' }}>伪影: {detail.artifactScores.motion}/{detail.artifactScores.metal}/{detail.artifactScores.ring}</span>
+              <span style={{ marginLeft: 'var(--space-3, 12px)' }}>摆位: {detail.positioningScores.setup}/{detail.positioningScores.rotation}/{detail.positioningScores.offset}</span>
+              <span style={{ marginLeft: 'var(--space-3, 12px)' }}>曝光: {detail.exposure.value} {detail.exposure.score}</span>
+              <span style={{ marginLeft: 'var(--space-3, 12px)' }}>综合: <b>{detail.overall}</b></span>
             </div>
           )}
         </div>
@@ -419,8 +419,8 @@ export default function QcImageAiPage() {
 function ScoreBlock({ title, scores, labels, colors }: { title: string; scores: number[]; labels: string[]; colors: string[] }) {
   return (
     <div style={{ flex: "1 1 220px" }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>{title}</div>
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 'var(--space-2, 8px)' }}>{title}</div>
+      <div style={{ display: "flex", gap: 'var(--space-4, 16px)', flexWrap: "wrap" }}>
         {scores.map((s, i) => (
           <div key={i}>
             <div style={{ fontSize: 20, fontWeight: 800, color: scoreColor(s) }}>{s.toFixed(1)}</div>
@@ -442,14 +442,14 @@ function SubBarChart({ data, getValues, colors, labels, max }: {
   const items = data.slice(0, 20)
   return (
     <div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+      <div style={{ display: "flex", gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-2, 8px)' }}>
         {labels.map((l, i) => (
-          <span key={l} style={{ fontSize: 11, fontWeight: 600, color: colors[i], display: "flex", alignItems: "center", gap: 4 }}>
+          <span key={l} style={{ fontSize: 11, fontWeight: 600, color: colors[i], display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: colors[i], display: "inline-block" }} />{l}
           </span>
         ))}
       </div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 80 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 'var(--space-1, 4px)', height: 80 }}>
         {items.map((r, i) => {
           const vals = getValues(r)
           return (

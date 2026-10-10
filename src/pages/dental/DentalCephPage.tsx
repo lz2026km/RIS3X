@@ -325,7 +325,7 @@ export const DentalCephPage: React.FC = () => {
   if (mode === "list") {
     return (
       <PageContainer padding={24}>
-        <Space style={{ marginBottom: 16 }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Crosshair size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             {t("ceph.title")}
@@ -339,7 +339,7 @@ export const DentalCephPage: React.FC = () => {
           <Button size="small" type="primary" onClick={() => setCreateModal(true)}>{t("w3b.cephCreate")}</Button>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t("ceph.totalStudies")} value={studies.length} icon={<Crosshair size={16} />} />
           <StatCard title={t("ceph.analyzed")} value={studies.filter((s: any) => s.status === "analyzed").length} color="success" />
           <StatCard title={t("ceph.pending")} value={studies.filter((s: any) => s.status === "pending").length} color="warning" />
@@ -354,7 +354,7 @@ export const DentalCephPage: React.FC = () => {
                 onClick={() => handleSelect(s)}
                 style={{
                   cursor: "pointer",
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                   borderLeft: `4px solid ${s.status === "analyzed" ? "#52c41a" : "#faad14"}`,
                 }}
               >
@@ -367,7 +367,7 @@ export const DentalCephPage: React.FC = () => {
                     text={s.status}
                   />
                 </Space>
-                <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
+                <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: "var(--text-secondary)" }}>
                   {s.age}{t("ceph.ageSuffix")} {s.gender === "M" ? t("ceph.male") : t("ceph.female")} |{" "}
                   {s.analysisType || t("ceph.notAnalyzed")} | {s.acquisitionDate}
                 </div>
@@ -384,9 +384,9 @@ export const DentalCephPage: React.FC = () => {
           confirmLoading={creating}
           width={460}
         >
-          <Row gutter={12} style={{ marginTop: 8 }}>
+          <Row gutter={12} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Col span={12}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("w3b.patientName")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("w3b.patientName")}</div>
               <Input
                 value={cephForm.patientName}
                 onChange={(e) => setCephForm({ ...cephForm, patientName: e.target.value })}
@@ -394,18 +394,18 @@ export const DentalCephPage: React.FC = () => {
               />
             </Col>
             <Col span={6}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("ceph.age")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("ceph.age")}</div>
               <InputNumber min={3} max={90} style={{ width: "100%" }} value={cephForm.age}
                 onChange={(v) => setCephForm({ ...cephForm, age: v ?? 12 })} />
             </Col>
             <Col span={6}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("ceph.gender")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("ceph.gender")}</div>
               <Select style={{ width: "100%" }} value={cephForm.gender}
                 onChange={(v) => setCephForm({ ...cephForm, gender: v })}
                 options={[{ value: "M", label: t("ceph.male") }, { value: "F", label: t("ceph.female") }]} />
             </Col>
-            <Col span={24} style={{ marginTop: 8 }}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("ceph.analysisTypes")}</div>
+            <Col span={24} style={{ marginTop: 'var(--space-2, 8px)' }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("ceph.analysisTypes")}</div>
               <Select style={{ width: "100%" }} value={cephForm.analysisType}
                 onChange={(v) => setCephForm({ ...cephForm, analysisType: v })}
                 options={ANALYSIS_TYPES} />
@@ -418,7 +418,7 @@ export const DentalCephPage: React.FC = () => {
 
   return (
     <PageContainer padding={16}>
-      <Space style={{ marginBottom: 12 }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           {t("ceph.back")}
         </Button>
@@ -477,7 +477,7 @@ export const DentalCephPage: React.FC = () => {
                 cursor: "crosshair",
               }}
             />
-            <Space style={{ marginTop: 8 }}>
+            <Space style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Button
                 size="small"
                 icon={<Eye size={10} />}
@@ -540,7 +540,7 @@ export const DentalCephPage: React.FC = () => {
                 </Space>
               }
             >
-              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>
                 {t("ceph.diagnosis")}{analysis.diagnosis}
               </div>
               <DataTable
@@ -591,7 +591,7 @@ export const DentalCephPage: React.FC = () => {
                   {t("ceph.archAnalysis")}
                 </Space>
               }
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
             >
               <Space wrap>
                 <Tag>{t("ceph.maxillaArch")}{archData.maxillaArch.archLength}mm</Tag>
@@ -617,10 +617,10 @@ export const DentalCephPage: React.FC = () => {
         footer={null}
         width={720}
       >
-        {lmDefError && <Alert type="error" showIcon message={lmDefError} style={{ marginBottom: 12 }} />}
+        {lmDefError && <Alert type="error" showIcon message={lmDefError} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
         <Spin spinning={lmDefLoading}>
-          <div style={{ marginBottom: 16 }}>
-            <Space style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
               <b>{t("w4b.ceph.analysisCount")}</b>
               <Tag color="blue">{analysisTypes.length}</Tag>
             </Space>
@@ -651,8 +651,8 @@ export const DentalCephPage: React.FC = () => {
               ]}
             />
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <Space style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
               <b>{t("w4b.ceph.currentLandmarks")}</b>
               <Tag color={studyLandmarkSource === "saved" ? "green" : "default"}>
                 {t("w4b.ceph.source")}: {studyLandmarkSource === "saved" ? t("w4b.ceph.sourceSaved") : t("w4b.ceph.sourceDefault")}
@@ -670,7 +670,7 @@ export const DentalCephPage: React.FC = () => {
             />
           </div>
           <div>
-            <Space style={{ marginBottom: 8 }}>
+            <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
               <b>{t("w4b.ceph.landmarks")} (18)</b>
               <Tag>{Object.keys(globalLandmarks).length}</Tag>
             </Space>

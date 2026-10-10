@@ -157,13 +157,13 @@ const TeleSignPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <FileSignature size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('teleSign.title')}</span>
         <Button type="primary" size="small" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>{t('teleSign.createSession')}</Button>
       </Space>
-      {error && <Alert type="warning" showIcon message={t('teleSign.loadFail')} description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> {t('teleSign.retry')}</Button>} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="warning" showIcon message={t('teleSign.loadFail')} description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> {t('teleSign.retry')}</Button>} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
       <Card>
         <DataTable rowKey="id" dataSource={pagedSessions} columns={columns} pagination={sessionsPagination} loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
@@ -174,12 +174,12 @@ const TeleSignPage: React.FC = () => {
           <Button type="primary" icon={<CheckCircle size={14} />} onClick={handleApprove}>{t('teleSign.approve')}</Button>
         </Space>
       }>
-        <Card size="small" title={selectedSession?.reportTitle} style={{ marginBottom: 16 }}>
+        <Card size="small" title={selectedSession?.reportTitle} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Text>{t('teleSign.patientStrong')} {selectedSession?.patientName}</Text><br />
           <Text>{t('teleSign.signerStrong')} {selectedSession?.signerName}</Text>
         </Card>
         <Text strong>{t('teleSign.signatureBoard')}</Text>
-        <div style={{ border: '1px solid #d9d9d9', borderRadius: 4, marginTop: 8, marginBottom: 16 }}>
+        <div style={{ border: '1px solid #d9d9d9', borderRadius: 4, marginTop: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           <canvas ref={canvasRef} width={500} height={150} style={{ width: '100%', height: 150, cursor: 'crosshair' }} onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onMouseLeave={stopDrawing} />
         </div>
         <TextArea placeholder={t('teleSign.remarkPlaceholder')} rows={2} value={comment} onChange={e => setComment(e.target.value)} />
@@ -191,13 +191,13 @@ const TeleSignPage: React.FC = () => {
           <Text strong>{t('teleSign.col.signer')}: </Text><Text>{selectedSession?.signerName}</Text><br />
           <Text strong>{t('teleSign.col.status')}: </Text><Tag color={selectedSession?.status === 'approved' ? 'green' : selectedSession?.status === 'rejected' ? 'red' : 'orange'}>{selectedSession?.status === 'approved' ? t('teleSign.status.approved') : selectedSession?.status === 'rejected' ? t('teleSign.status.rejected') : t('teleSign.status.pending')}</Tag><br />
           {selectedSession?.comment && <><Text strong>{t('teleSign.remarkStrong')} </Text><Text>{selectedSession.comment}</Text></>}
-          {selectedSession?.signatureData && <div style={{ marginTop: 16 }}><Text strong>{t('teleSign.signatureStrong')}</Text><img src={selectedSession.signatureData} alt="signature" loading="lazy" decoding="async" style={{ maxWidth: 200, border: '1px solid #eee', marginTop: 8 }} /></div>}
+          {selectedSession?.signatureData && <div style={{ marginTop: 'var(--space-4, 16px)' }}><Text strong>{t('teleSign.signatureStrong')}</Text><img src={selectedSession.signatureData} alt="signature" loading="lazy" decoding="async" style={{ maxWidth: 200, border: '1px solid #eee', marginTop: 'var(--space-2, 8px)' }} /></div>}
         </Card>
       </Modal>
 
       {/* [W1-B] 发起签署会话: POST /tele-sign/session */}
       <Modal title={t('teleSign.createSessionTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={480}>
-        <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
+        <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item label={t('teleSign.col.reportId')} name="reportId" rules={[{ required: true, message: t('teleSign.validate.reportId') }]}>
             <Input placeholder={t('teleSign.ph.reportId')} />
           </Form.Item>

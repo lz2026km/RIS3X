@@ -133,7 +133,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <User size={20} color="var(--color-primary-600)" />
         <Box size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('patientDevice.title')}</span>
@@ -353,7 +353,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                     <Col span={8}><Statistic title={t('patientDevice.utilization')} value={((selectedDevice.utilization || 0) * 100).toFixed(0)} suffix="%" /></Col>
                     <Col span={8}><Statistic title={t('patientDevice.assetValue')} value={((selectedDevice.totalValue || 0) / 10000).toFixed(1)} suffix={t('patientDevice.tenThousand')} /></Col>
                   </Row>
-                  <Descriptions column={2} size="small" bordered style={{ marginTop: 12 }}>
+                  <Descriptions column={2} size="small" bordered style={{ marginTop: 'var(--space-3, 12px)' }}>
                     <Descriptions.Item label={t('patientDevice.manufacturer')}>{selectedDevice.manufacturer || '-'}</Descriptions.Item>
                     <Descriptions.Item label={t('patientDevice.model')}>{selectedDevice.model || '-'}</Descriptions.Item>
                     <Descriptions.Item label={t('patientDevice.room')}>{selectedDevice.room || '-'}</Descriptions.Item>
@@ -362,7 +362,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                     <Descriptions.Item label={t('patientDevice.responsible')}>{selectedDevice.responsibleEngineer || '-'}</Descriptions.Item>
                   </Descriptions>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('patientDevice.maintenanceHistory')} ({deviceHistory.length})</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('patientDevice.maintenanceHistory')} ({deviceHistory.length})</div>
                   <Timeline items={deviceHistory.slice(0, 5).map((h: any) => ({
                     children: <div>{h.lastMaintenance} - {h.name} - {h.remainingHours}h</div>,
                   }))} />
@@ -402,7 +402,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
         onOk={() => handleDeviceMaintain(deviceModal.data.id, '定期维护')}
         width={400}
       >
-        <Alert title={t('patientDevice.maintenanceAlert')} type="info" showIcon style={{ marginBottom: 8 }} />
+        <Alert title={t('patientDevice.maintenanceAlert')} type="info" showIcon style={{ marginBottom: 'var(--space-2, 8px)' }} />
         <p>{t('patientDevice.device')}: {deviceModal.data.name} ({deviceModal.data.id})</p>
       </Modal>
     </PageContainer>

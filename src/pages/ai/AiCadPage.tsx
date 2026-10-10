@@ -123,8 +123,8 @@ const AccuracyPanel: React.FC = () => {
   const totalCases = overall?.totalCases ?? 0
 
   return (
-    <div style={{ padding: 16 }}>
-      <Space style={{ marginBottom: 12 }}>
+    <div style={{ padding: 'var(--space-4, 16px)' }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Gauge size={16} color="var(--color-primary-600)" />
         <span style={{ fontWeight: 600 }}>{t('aiCad.accuracyTitle')}</span>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>
@@ -133,12 +133,12 @@ const AccuracyPanel: React.FC = () => {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error}
+        <Alert type="error" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} message={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('aiCad.retry')}</Button>} />
       )}
 
       <Spin spinning={loading && !overall && trend.length === 0}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <StatCard
             title={t('aiCad.overallAccuracy')}
             value={overall?.accuracy ?? '-'}
@@ -154,7 +154,7 @@ const AccuracyPanel: React.FC = () => {
           <StatCard title={t('aiCad.npv')} value={overall?.npv ?? '-'} suffix="%" />
         </StatCardGrid>
 
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           {MODEL_ACCURACY_QUERY.map((m) => {
             const acc = byModel[m.key]
             return (
@@ -225,7 +225,7 @@ const AiCadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Cpu size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiCad.title')}</span>
         <Tag color="cyan">{t('aiCad.cadAggregation')}</Tag>
@@ -243,14 +243,14 @@ const AiCadPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           message={error}
           action={<Button size="small" onClick={() => void loadStats()}><RefreshCw size={14} /> {t('aiCad.retry')}</Button>}
         />
       )}
 
       <Spin spinning={loading && !stats}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           {MODULE_META.map((m) => {
             const s = (stats?.[m.key] ?? undefined) as CadModuleStats | undefined
             const confirmed = s?.statuses?.find((x: { status: string; count: number }) => x.status === 'confirmed')?.count ?? 0
@@ -272,7 +272,7 @@ const AiCadPage: React.FC = () => {
         </StatCardGrid>
       </Spin>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={8}>
           <Card size="small" title={t('aiCad.overallAccuracy')}>
             <Progress percent={stats?.accuracy?.overall ?? 0} strokeColor="var(--color-primary-600)" />
@@ -380,9 +380,9 @@ const CadDetectPanel: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 'var(--space-4, 16px)' }}>
       <Card size="small" title={<Space><ScanSearch size={16} color="var(--color-primary-600)" />{t('aiCad.detectTitle')}</Space>}>
-        <Space wrap style={{ marginBottom: 12 }}>
+        <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Input
             placeholder={t('aiCad.instancePlaceholder')}
             value={instanceId}
@@ -400,20 +400,20 @@ const CadDetectPanel: React.FC = () => {
           ))}
         </Space>
         {error && (
-          <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error} action={<Button size="small" onClick={() => setError('')}>{t('aiCad.close')}</Button>} />
+          <Alert type="error" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} message={error} action={<Button size="small" onClick={() => setError('')}>{t('aiCad.close')}</Button>} />
         )}
 
         {current && (
-          <Card size="small" type="inner" title={`${t('aiCad.detectResult')} - ${current.instanceId}`} style={{ marginBottom: 16 }}
+          <Card size="small" type="inner" title={`${t('aiCad.detectResult')} - ${current.instanceId}`} style={{ marginBottom: 'var(--space-4, 16px)' }}
             extra={<Space>{current.simulated && <Tag color="gold">{t('aiCad.simulatedFallback')}</Tag>}<Tag color="green">{current.findings.length} {t('aiCad.lesions')}</Tag></Space>}>
-            <Row gutter={16} style={{ marginBottom: 12 }}>
+            <Row gutter={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Col span={8}><Statistic title={t('aiCad.detectedLesions')} value={current.findings.length} suffix={t('aiCad.unitLesion')} /></Col>
               <Col span={8}><Statistic title={t('aiCad.maxConfidence')} value={current.findings.length ? Math.max(...current.findings.map(f => f.confidence)) * 100 : 0} precision={1} suffix="%" /></Col>
               <Col span={8}><Statistic title={t('aiCad.detectTime')} value={current.detectedAt.slice(0, 19).replace('T', ' ')} /></Col>
             </Row>
             <DataTable scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} dataSource={current.findings} columns={findingColumns} pagination={false}/>
             {current.heatmapUrl && (
-              <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b' }}>
                 {t('aiCad.heatmap')}: <code>{current.heatmapUrl}</code>
               </div>
             )}
@@ -445,11 +445,11 @@ const CadDetectPanel: React.FC = () => {
         )}
       </Card>
 
-      <Card size="small" title={t('aiCad.detail')} style={{ marginTop: 16 }}>
+      <Card size="small" title={t('aiCad.detail')} style={{ marginTop: 'var(--space-4, 16px)' }}>
         <Spin spinning={loadingDetail}>
           {detail ? (
             <>
-              <Space style={{ marginBottom: 12 }}>
+              <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <Tag color="blue">{detail.instanceId}</Tag>
                 <span style={{ fontSize: 12, color: '#64748b' }}>{t('aiCad.detectedAt')} {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
                 {detail.simulated && <Tag color="gold">{t('aiCad.simulatedFallback')}</Tag>}

@@ -203,12 +203,12 @@ export const Scan3DViewerPage: React.FC = () => {
         </Space>
       </div>
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-        <div style={{ width: 260, background: '#0f172a', padding: 12, overflow: 'auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ width: 260, background: '#0f172a', padding: 'var(--space-3, 12px)', overflow: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
             <span style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600 }}>{t('scan3d.scanRecords')}</span>
             <Button size="small" icon={<RefreshCw size={11} />} onClick={() => void loadScans()} />
           </div>
-          {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 8, fontSize: 12 }} />}
+          {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-2, 8px)', fontSize: 12 }} />}
           <Spin spinning={listLoading}>
             {scans.length === 0 && !listLoading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span style={{ color: 'var(--text-secondary)' }}>{t('scan3d.noRecords')}</span>} />}
             {scans.map(s => (
@@ -244,7 +244,7 @@ export const Scan3DViewerPage: React.FC = () => {
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: 'var(--text-secondary)' }}>
               <div style={{ textAlign: 'center' }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 16 }}>{t('scan3d.modelLoading')}</div>
+                <div style={{ marginTop: 'var(--space-4, 16px)' }}>{t('scan3d.modelLoading')}</div>
               </div>
             </div>
           )}
@@ -254,8 +254,8 @@ export const Scan3DViewerPage: React.FC = () => {
             </div>
           )}
           {study && (
-            <div style={{ position: 'absolute', left: 12, bottom: 12, width: 280, background: 'rgba(15,23,42,0.88)', border: '1px solid #1e293b', borderRadius: 8, padding: 12, color: '#e2e8f0' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('scan3d.modelInfo')}</div>
+            <div style={{ position: 'absolute', left: 12, bottom: 12, width: 280, background: 'rgba(15,23,42,0.88)', border: '1px solid #1e293b', borderRadius: 8, padding: 'var(--space-3, 12px)', color: '#e2e8f0' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('scan3d.modelInfo')}</div>
               <Descriptions column={1} size="small" colon={false}>
                 <Descriptions.Item label={t('scan3d.patient')}><span style={{ fontSize: 12 }}>{study.patientName}</span></Descriptions.Item>
                 <Descriptions.Item label={t('scan3d.scanType')}><span style={{ fontSize: 12 }}>{study.scanType ?? study.modality}</span></Descriptions.Item>

@@ -164,7 +164,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
   )
 
   return (
-    <div data-testid="hanging-protocol-switcher" style={{ display: 'inline-flex', gap: 4 }}>
+    <div data-testid="hanging-protocol-switcher" style={{ display: 'inline-flex', gap: 'var(--space-1, 4px)' }}>
       <Select
         value={active?.id}
         onChange={handleApply}
@@ -175,7 +175,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
           value: p.id,
           label: (
             <span>
-              {p.builtin && <Star size={10} style={{ marginRight: 4, color: 'var(--color-warning-500)' }} />}
+              {p.builtin && <Star size={10} style={{ marginRight: 'var(--space-1, 4px)', color: 'var(--color-warning-500)' }} />}
               {p.name}
             </span>
           ),
@@ -203,7 +203,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
               title={
                 <span>
                   {p.name}
-                  {p.builtin && <Star size={12} style={{ marginLeft: 4, color: 'var(--color-warning-500)' }} />}
+                  {p.builtin && <Star size={12} style={{ marginLeft: 'var(--space-1, 4px)', color: 'var(--color-warning-500)' }} />}
                 </span>
               }
               extra={
@@ -222,7 +222,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
               }
             >
               <div style={{ fontSize: 12, color: '#64748b' }}>{p.description}</div>
-              <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {p.views.map((v) => (
                   <span
                     key={v.id}

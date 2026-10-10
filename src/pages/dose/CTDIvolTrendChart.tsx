@@ -43,13 +43,13 @@ export default function CTDIvolTrendChart() {
         <div
           style={{
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-2, 8px)' }}>
             {label}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -92,7 +92,7 @@ export default function CTDIvolTrendChart() {
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         border: "1px solid #e2e8f0",
       }}
     >
@@ -101,7 +101,7 @@ export default function CTDIvolTrendChart() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <div>
@@ -120,7 +120,7 @@ export default function CTDIvolTrendChart() {
         >
           演示数据 · 未接入接口
         </span>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
           <LineLegend color="var(--color-primary-500)" label="CT-1" />
           <LineLegend color="#8b5cf6" label="CT-2" />
           <LineLegend color="var(--color-error-600)" label="阈值" />
@@ -163,9 +163,9 @@ export default function CTDIvolTrendChart() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 8,
-          marginTop: 16,
-          padding: 12,
+          gap: 'var(--space-2, 8px)',
+          marginTop: 'var(--space-4, 16px)',
+          padding: 'var(--space-3, 12px)',
           background: "var(--bg-primary)",
           borderRadius: 8,
         }}
@@ -180,7 +180,7 @@ export default function CTDIvolTrendChart() {
 }
 
 const LineLegend = ({ color, label }: { color: string; label: string }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
     <div style={{ width: 10, height: 3, background: color, borderRadius: 2 }} />
     <span style={{ fontSize: 12, color: "#64748b" }}>{label}</span>
   </div>

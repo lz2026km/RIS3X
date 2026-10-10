@@ -119,7 +119,7 @@ export const V3ReportHubPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('v3Hub.title')}</span>
         <Tag color="cyan">PR6 (v3.0.6.8-50)</Tag>
@@ -127,7 +127,7 @@ export const V3ReportHubPage: React.FC = () => {
         <Tag color="green">{t('v3Hub.tagClients')}</Tag>
       </Space>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('v3Hub.statTemplates')} value={templates.length} color="primary" />
         <StatCard title={t('v3Hub.statTasks')} value={tasks.length} color="success" />
         <StatCard title={t('v3Hub.statFhir')} value={fhirList.length} />
@@ -161,7 +161,7 @@ export const V3ReportHubPage: React.FC = () => {
                 <Card
                   size="small"
                   title={t('v3Hub.recentReports')}
-                  style={{ marginTop: 16 }}
+                  style={{ marginTop: 'var(--space-4, 16px)' }}
                   extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadReports(reportPage)}>{t('v3Hub.refresh')}</Button>}
                 >
                   <DataTable

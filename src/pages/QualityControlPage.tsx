@@ -154,7 +154,7 @@ const QualityControlPage: React.FC = () => {
                     >
                       <div style={{ fontSize: 12 }}><strong>{s.patientName}</strong></div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.reportId}</div>
-                      <div style={{ marginTop: 4 }}>
+                      <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                         <Tag color={s.grade === '甲' ? 'green' : s.grade === '乙' ? 'blue' : s.grade === '丙' ? 'gold' : 'red'}>{s.grade} {s.totalScore}</Tag>
                       </div>
                     </Card>
@@ -173,7 +173,7 @@ const QualityControlPage: React.FC = () => {
                           <div style={{ height: 60, background: 'var(--bg-card)', borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
                             <div style={{ width: '100%', height: `${Math.max((p.totalScore / max) * 100, 4)}%`, background: p.grade === 'A' ? '#10b981' : p.grade === 'B' ? 'var(--color-primary-500)' : 'var(--color-warning-500)', borderRadius: '4px 4px 0 0' }} />
                           </div>
-                          <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>{p.date.slice(5)}</div>
+                          <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{p.date.slice(5)}</div>
                         </div>
                       );
                     })}

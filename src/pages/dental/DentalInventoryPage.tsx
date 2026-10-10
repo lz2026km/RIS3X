@@ -198,14 +198,14 @@ export const DentalInventoryPage: React.FC = () => {
       }}
     >
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadInventory()} retryLabel={t('w9.states.retry')} />}
-      <StatCardGrid style={{ marginBottom: 16 }}>
+      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w9.common.statsStockTotal')} value={items.length} icon={<Package size={18} />} color="primary" />
         <StatCard title={t('w9.common.statsLowStock')} value={lowCount} icon={<AlertTriangle size={18} />} color="error" />
         <StatCard title={t('w9.common.statsWarningStock')} value={warnCount} icon={<AlertTriangle size={18} />} color="warning" />
         <StatCard title={t('w9.dentalInv.totalStock')} value={totalStock.toLocaleString('zh-CN')} suffix={t('w9.common.statsStockTotal')} icon={<Wallet size={18} />} color="success" />
       </StatCardGrid>
 
-      <Space style={{ marginBottom: 12 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
         <Input
           size="small"
           allowClear
@@ -220,7 +220,7 @@ export const DentalInventoryPage: React.FC = () => {
       </Space>
 
       {loading ? (
-        <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('w9.common.loading')}</div>
+        <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>{t('w9.common.loading')}</div>
       ) : filtered.length === 0 ? (
         <EmptyState tip={t('w9.dentalInv.empty')} onCreate={() => setModalOpen(true)} createLabel={t('w9.dentalInv.create')} />
       ) : (
@@ -276,7 +276,7 @@ export const DentalInventoryPage: React.FC = () => {
             <Descriptions.Item label={t('w9.dentalInv.stock')}><b>{detail.stock}</b> {unitLabel(detail.unit)}</Descriptions.Item>
             <Descriptions.Item label={t('w9.dentalInv.minStock')}>{detail.minStock}</Descriptions.Item>
           </Descriptions>
-          <Space style={{ marginTop: 12 }}>
+          <Space style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Button onClick={() => onAdjust(1)}>{t('w9.dentalInv.inbound')}</Button>
             <Button danger onClick={() => onAdjust(-1)} disabled={detail.stock <= 0}>{t('w9.dentalInv.outbound')}</Button>
           </Space>

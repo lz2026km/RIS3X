@@ -187,7 +187,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -204,7 +204,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             </Tooltip>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={4}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('criticalValueEscalation.totalRules')}</span>}
@@ -261,10 +261,10 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
         type="warning"
         showIcon
         title={t('criticalValueEscalation.strategyAlert')}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
-      <Card size="small" style={{ marginBottom: 12 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Space wrap>
           <Segmented
             value={filterLevel}
@@ -288,8 +288,8 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                 key={rule.id}
                 data-testid={`escalation-rule-${rule.id}`}
                 style={{
-                  padding: 12,
-                  marginBottom: 8,
+                  padding: 'var(--space-3, 12px)',
+                  marginBottom: 'var(--space-2, 8px)',
                   background: rule.enabled ? 'var(--color-success-bg)' : 'var(--bg-card)',
                   borderRadius: 6,
                   border: '1px solid ' + (rule.enabled ? 'var(--color-success-border)' : 'var(--border-color)'),
@@ -405,7 +405,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           <Space orientation="vertical" style={{ width: '100%' }} size={10}>
             <Row gutter={8}>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.fromLevel')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('criticalValueEscalation.fromLevel')}</div>
                 <Select
                   style={{ width: '100%' }}
                   value={editing.fromLevel}
@@ -414,7 +414,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                 />
               </Col>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.toRole')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('criticalValueEscalation.toRole')}</div>
                 <Select
                   style={{ width: '100%' }}
                   value={editing.toRole}
@@ -428,7 +428,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             </Row>
             <Row gutter={8}>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.triggerDuration')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('criticalValueEscalation.triggerDuration')}</div>
                 <InputNumber
                   style={{ width: '100%' }}
                   min={1}
@@ -438,7 +438,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                 />
               </Col>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.priority')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('criticalValueEscalation.priority')}</div>
                 <InputNumber
                   style={{ width: '100%' }}
                   min={1}
@@ -449,7 +449,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
               </Col>
             </Row>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.messageTemplate')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('criticalValueEscalation.messageTemplate')}</div>
               <Input.TextArea
                 rows={3}
                 value={editing.messageTemplate}
@@ -457,7 +457,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValue.notifyChannels')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('criticalValue.notifyChannels')}</div>
               <Select
                 mode="multiple"
                 style={{ width: '100%' }}

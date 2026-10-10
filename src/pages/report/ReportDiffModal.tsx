@@ -94,7 +94,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
 
   return (
     <div
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-6, 24px)' }}
       onClick={onClose}
     >
       <div
@@ -118,9 +118,9 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-5, 20px)' }}>
           {loading ? (
-            <div style={{ padding: 60, textAlign: 'center', color: '#64748b', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <div style={{ padding: 60, textAlign: 'center', color: '#64748b', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
               <Loader2 size={16} style={{ animation: 'spin 0.9s linear infinite' }} /> 正在加载版本历史...
             </div>
           ) : !data ? (
@@ -128,27 +128,27 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
           ) : (
             <>
               {/* 左右分栏 */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
-                <div style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid #fed7aa', borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#9a3412', marginBottom: 8 }}>上一版本</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 'var(--space-4, 16px)' }}>
+                <div style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid #fed7aa', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#9a3412', marginBottom: 'var(--space-2, 8px)' }}>上一版本</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.8, maxHeight: 260, overflowY: 'auto' }}>
                     {Object.keys(pickText(data.oldVersion)).length === 0
                       ? <em style={{ color: '#94a3b8' }}>（空）</em>
                       : Object.entries(pickText(data.oldVersion)).map(([k, v]) => (
-                        <div key={k} style={{ marginBottom: 8 }}>
+                        <div key={k} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                           <div style={{ fontWeight: 600 }}>{FIELD_LABEL[k] ?? k}</div>
                           <div>{v}</div>
                         </div>
                       ))}
                   </div>
                 </div>
-                <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-success)', marginBottom: 8 }}>当前版本</div>
+                <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-success)', marginBottom: 'var(--space-2, 8px)' }}>当前版本</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.8, maxHeight: 260, overflowY: 'auto' }}>
                     {Object.keys(pickText(data.newVersion)).length === 0
                       ? <em style={{ color: '#94a3b8' }}>（空）</em>
                       : Object.entries(pickText(data.newVersion)).map(([k, v]) => (
-                        <div key={k} style={{ marginBottom: 8 }}>
+                        <div key={k} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                           <div style={{ fontWeight: 600 }}>{FIELD_LABEL[k] ?? k}</div>
                           <div>{v}</div>
                         </div>
@@ -158,12 +158,12 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
               </div>
 
               {/* 差异高亮 (computeDiff) */}
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ArrowLeftRight size={13} /> 字段级差异高亮（红=删除 绿=新增）
               </div>
               {merged && merged.length > 0 ? (
                 merged.map(f => (
-                  <div key={f.field} style={{ marginBottom: 12, padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
+                  <div key={f.field} style={{ marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, padding: '2px 8px', background: 'var(--color-info-bg)', borderRadius: 4, display: 'inline-block' }}>
                       {f.label}
                     </div>
@@ -173,13 +173,13 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
                   </div>
                 ))
               ) : (
-                <div style={{ padding: 16, textAlign: 'center', background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', borderRadius: 8, color: 'var(--color-success)', fontSize: 12 }}>
+                <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center', background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', borderRadius: 8, color: 'var(--color-success)', fontSize: 12 }}>
                   两个版本内容一致,无差异
                 </div>
               )}
 
               {data.changes && data.changes.length > 0 && (
-                <div style={{ marginTop: 12, padding: 10, background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid var(--color-warning-border)' }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid var(--color-warning-border)' }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-warning)', marginBottom: 6 }}>后端变更记录（{data.changes.length} 项）</div>
                   {data.changes.map((c, i) => (
                     <div key={i} style={{ fontSize: 12, marginBottom: 6, padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 4 }}>
@@ -200,7 +200,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
           )}
         </div>
 
-        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
           <button onClick={onClose} style={{ padding: '8px 24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>关闭</button>
         </div>
       </div>

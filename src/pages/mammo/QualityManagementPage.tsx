@@ -14,18 +14,18 @@ import { RqiIndicatorLink } from '../../components/qc/RqiIndicatorLink'
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
-  header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  header: { marginBottom: 'var(--space-6, 24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
-  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
-  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
+  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' },
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-6, 24px)' },
   statCard: { background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statValue: { fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
-  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
-  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
-  grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
+  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' },
+  grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-4, 16px)' },
   btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: 'var(--color-primary-600)', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
@@ -210,7 +210,7 @@ const QualityManagementPage = () => {
           <Typography.Title level={4} style={{ margin: 0 }}>{t('mammoQc.title')}</Typography.Title>
           <p style={s.subtitle}>{t('mammoQc.subtitle')}</p>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 6, background: source === 'demo' ? '#fffbeb' : '#ecfdf5', border: `1px solid ${source === 'demo' ? 'var(--color-warning-500)' : '#10b981'}`, color: source === 'demo' ? '#b45309' : '#047857' }}>
             {source === 'demo' ? t('mammoQc.sourceDemo') : t('mammoQc.sourceReal')}
           </span>
@@ -223,7 +223,7 @@ const QualityManagementPage = () => {
       <RqiIndicatorLink code="RQI-RCR-07" />
 
       {error && (
-        <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)', padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>{t('mammoQc.loadFailedPrefix')}{error}</span>
           <button onClick={fetchAll} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #fca5a5', background: 'var(--bg-card)', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>{t('mammoQc.retry')}</button>
         </div>
@@ -245,7 +245,7 @@ const QualityManagementPage = () => {
         <div style={s.grid3}>
           {acrChecks.map((item, i) => (
             <div key={i} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontWeight: 600, fontSize: 12 }}>{item.name}</span>
                 <span style={{ fontWeight: 700, fontSize: 16, color: item.score >= 90 ? 'var(--color-success-600)' : item.score >= 80 ? '#ca8a04' : 'var(--color-error-600)' }}>{item.score}</span>
               </div>
@@ -255,13 +255,13 @@ const QualityManagementPage = () => {
               </ul>
             </div>
           ))}
-          {!loading && acrChecks.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: 12 }}>{t('mammoQc.noAcrData')}</div>}
+          {!loading && acrChecks.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: 'var(--space-3, 12px)' }}>{t('mammoQc.noAcrData')}</div>}
         </div>
       </Card>
 
       <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
         <div style={s.sectionTitle}><FileText size={16} color='#7c3aed' />{t('mammoQc.qcRecords')}</div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12,}} placeholder={t('mammoQc.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
           <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> {t('mammoQc.refresh')}</button>
         </div>
@@ -301,7 +301,7 @@ const QualityManagementPage = () => {
             </tbody>
           </table>
         </div>
-        <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <button style={s.btnPrimary} onClick={handleEvaluate} disabled={evaluating}><AlertTriangle size={14} /> {evaluating ? t('mammoQc.evaluating') : t('mammoQc.startEval')}</button>
           {evaluateResult && (
             <span style={{ ...s.bad, background: evalStatusStyle[evaluateResult.overall]?.bg, color: evalStatusStyle[evaluateResult.overall]?.text, fontSize: 14, padding: '6px 14px' }}>
@@ -311,7 +311,7 @@ const QualityManagementPage = () => {
         </div>
         {evaluateResult && (
           <div style={{ marginTop: 14 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('mammoQc.ruleHits')} ({evaluateResult.hits.length})</div>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('mammoQc.ruleHits')} ({evaluateResult.hits.length})</div>
             <div style={s.scrollBox}>
               <table style={s.table}>
                 <thead><tr>
@@ -388,7 +388,7 @@ const QualityManagementPage = () => {
               key: 'stats',
               label: <span><BarChart3 size={12} /> {t('mammoQc.stats')}</span>,
               children: (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
                   {[
                     { label: t('mammoQc.statTotalRecords'), value: qcStats?.totalRecords ?? 0, unit: '条', color: 'var(--color-primary-600)' },
                     { label: t('mammoQc.statPassRate'), value: qcStats?.passRate ?? 0, unit: '%', color: 'var(--color-success-600)' },
@@ -396,12 +396,12 @@ const QualityManagementPage = () => {
                     { label: t('mammoQc.statFailRate'), value: qcStats?.failRate ?? 0, unit: '%', color: 'var(--color-error-600)' },
                   ].map((item, i) => (
                     <div key={i} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10 }}>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{item.label}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{item.label}</div>
                       <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{item.unit}</span></div>
                     </div>
                   ))}
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 8 }}>{t('mammoQc.techDim')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('mammoQc.techDim')}</div>
                     <DataTable<{ technologist: string; count: number; avgScore: number }>
                       rowKey={(r) => r.technologist}
                       columns={[

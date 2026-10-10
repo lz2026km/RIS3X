@@ -134,7 +134,7 @@ export default function GuidelineLibraryPage() {
       render: (_: unknown, g: CdsGuidelineDto) => (
         <div>
           <span>{g.name}</span>
-          <span style={{ fontSize: 12, color: '#6e7681', marginLeft: 8 }}>({g.id})</span>
+          <span style={{ fontSize: 12, color: '#6e7681', marginLeft: 'var(--space-2, 8px)' }}>({g.id})</span>
         </div>
       ),
     },
@@ -145,7 +145,7 @@ export default function GuidelineLibraryPage() {
     {
       title: t('guideline.colActions'), key: 'actions',
       render: (_: unknown, g: CdsGuidelineDto) => (
-        <button onClick={(e) => { e.stopPropagation(); handleOpenDetail(g.id) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={(e) => { e.stopPropagation(); handleOpenDetail(g.id) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <Eye size={12} />{t('guideline.detail')}
         </button>
       ),
@@ -155,11 +155,11 @@ export default function GuidelineLibraryPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <BookOpen size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('guideline.title')}</span>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button onClick={() => { fetchGuidelines() }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
             <RefreshCw size={14} />{t('guideline.refresh')}
           </button>
@@ -170,7 +170,7 @@ export default function GuidelineLibraryPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ position: 'relative' }}>
             <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
             <input
@@ -185,7 +185,7 @@ export default function GuidelineLibraryPage() {
         </div>
 
         {error && (
-          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 16 }}>
+          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>
             {t('guideline.loadFailed')}: {error}
           </div>
         )}
@@ -211,9 +211,9 @@ export default function GuidelineLibraryPage() {
 
       {showCreateModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 520, maxWidth: '90vw' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BookOpen size={18} style={{ color: 'var(--color-primary-500)' }} /> {t('guideline.newGuideline')}
               </div>
               <button onClick={() => setShowCreateModal(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
@@ -222,22 +222,22 @@ export default function GuidelineLibraryPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelName')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('guideline.labelName')}</label>
                 <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder={t('guideline.namePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.colCategory')}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('guideline.colCategory')}</label>
                   <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }}>
                     {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelVersion')}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('guideline.labelVersion')}</label>
                   <input value={form.version} onChange={(e) => setForm((f) => ({ ...f, version: e.target.value }))} placeholder="2025" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.colStatus')}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('guideline.colStatus')}</label>
                   <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }}>
                     <option value="draft">{t('guideline.statusDraft')}</option>
                     <option value="active">{t('guideline.statusActive')}</option>
@@ -245,16 +245,16 @@ export default function GuidelineLibraryPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelSource')}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('guideline.labelSource')}</label>
                   <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder={t('guideline.sourcePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelDescription')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('guideline.labelDescription')}</label>
                 <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} placeholder={t('guideline.descriptionPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 20 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end', marginTop: 'var(--space-5, 20px)' }}>
               <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('guideline.cancel')}</button>
               <button onClick={handleCreate} disabled={creating} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Save size={14} />{creating ? t('guideline.creating') : t('guideline.createGuideline')}
@@ -266,9 +266,9 @@ export default function GuidelineLibraryPage() {
 
       {detailOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }} onClick={() => setDetailOpen(false)}>
-          <div style={{ width: 480, maxWidth: '92vw', height: '100%', background: 'var(--bg-card, #161b22)', borderLeft: '1px solid var(--border-default, #30363d)', padding: 24, overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 480, maxWidth: '92vw', height: '100%', background: 'var(--bg-card, #161b22)', borderLeft: '1px solid var(--border-default, #30363d)', padding: 'var(--space-6, 24px)', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BookOpen size={18} style={{ color: 'var(--color-primary-500)' }} /> {t('guideline.detailTitle')}
               </div>
               <button onClick={() => setDetailOpen(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
@@ -288,12 +288,12 @@ export default function GuidelineLibraryPage() {
                   { label: t('guideline.labelSource'), value: detail.source || '-' },
                   { label: t('guideline.colUpdatedAt'), value: detail.updatedAt ? new Date(detail.updatedAt).toLocaleString('zh-CN') : '-' },
                 ].map((row) => (
-                  <div key={row.label} style={{ display: 'flex', gap: 12, padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
+                  <div key={row.label} style={{ display: 'flex', gap: 'var(--space-3, 12px)', padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
                     <span style={{ width: 80, fontSize: 12, color: 'var(--text-muted, #8b949e)', flexShrink: 0 }}>{row.label}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{row.value}</span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', gap: 12, padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
                   <span style={{ width: 80, fontSize: 12, color: 'var(--text-muted, #8b949e)', flexShrink: 0 }}>{t('guideline.labelDescription')}</span>
                   <span style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)', lineHeight: 1.6 }}>{detail.description || '-'}</span>
                 </div>

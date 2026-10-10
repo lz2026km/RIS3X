@@ -240,7 +240,7 @@ export function CommandPalette({
               border: "none",
               cursor: "pointer",
               color: "#94a3b8",
-              padding: 4,
+              padding: 'var(--space-1, 4px)',
               display: "flex",
               borderRadius: 4,
               flexShrink: 0,
@@ -303,7 +303,7 @@ export function CommandPalette({
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 12,
+                      gap: 'var(--space-3, 12px)',
                       padding: "8px 16px",
                       cursor: "pointer",
                       background: isSelected ? "#f1f5f9" : "transparent",
@@ -353,7 +353,7 @@ export function CommandPalette({
             padding: "8px 16px",
             borderTop: "1px solid #e2e8f0",
             display: "flex",
-            gap: 16,
+            gap: 'var(--space-4, 16px)',
             fontSize: 12,
             color: "#94a3b8",
           }}

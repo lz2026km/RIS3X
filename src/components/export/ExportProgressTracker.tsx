@@ -41,7 +41,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
 
   const content = (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {progress.status === 'running' ? (
             <Loader2 size={14} color={statusColor()} className="spin" />
@@ -59,7 +59,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
 
       {!compact && (
         <>
-          <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
+          <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden', marginBottom: 'var(--space-2, 8px)' }}>
             <div style={{
               width: `${pct}%`, height: '100%',
               background: `linear-gradient(90deg, var(--color-primary-500), ${statusColor()})`,
@@ -68,7 +68,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
             }} />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, fontSize: 12, color: '#64748b' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-1, 4px)', fontSize: 12, color: '#64748b' }}>
             <div>
               <div style={{ fontWeight: 600, color: '#1e293b' }}>{progress.processed}/{progress.total}</div>
               <div>已处理</div>
@@ -100,8 +100,8 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
           )}
 
           {progress.history.length > 0 && (
-            <div style={{ marginTop: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <BarChart3 size={10} /> 事件日志
               </div>
               <div style={{ maxHeight: 80, overflowY: 'auto', fontSize: 12, color: '#94a3b8' }}>
@@ -122,7 +122,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
   );
 
   if (compact) {
-    return <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{content}</div>;
+    return <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>{content}</div>;
   }
 
   return (

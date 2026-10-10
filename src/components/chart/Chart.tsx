@@ -44,14 +44,14 @@ const containerStyle: CSSProperties = {
   borderRadius: 8,
   border: '1px solid var(--border-subtle, #e2e8f0)',
   background: 'var(--bg-card)',
-  padding: 16,
+  padding: 'var(--space-4, 16px)',
 }
 
 const headerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  marginBottom: 12,
+  marginBottom: 'var(--space-3, 12px)',
 }
 
 function CustomTooltip({ active, payload, label }: TooltipProps<number, string> & { onDrill?: (data: Record<string, unknown>) => void }) {
@@ -65,9 +65,9 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string> 
       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
       fontSize: 12,
     }}>
-      <div style={{ fontWeight: 600, marginBottom: 4, color: '#1e293b' }}>{label}</div>
+      <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)', color: '#1e293b' }}>{label}</div>
       {payload.map((entry, i) => (
-        <div key={i} style={{ color: entry.color, display: 'flex', gap: 8 }}>
+        <div key={i} style={{ color: entry.color, display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <span>{entry.name}:</span>
           <strong>{entry.value}</strong>
         </div>
@@ -316,7 +316,7 @@ export function Chart({
           </AreaChart>
         )
       default:
-        return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>不支持的图表类型: {type}</div>
+        return <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: '#94a3b8' }}>不支持的图表类型: {type}</div>
     }
   }
 

@@ -26,7 +26,7 @@ const GROUP_LABEL: Record<ShortcutGroup, string> = {
 function KeyCap({ keys }: { keys: string }) {
   const parts = keys.split(/\s+/);
   return (
-    <span style={{ display: "inline-flex", gap: 4, flexShrink: 0 }}>
+    <span style={{ display: "inline-flex", gap: 'var(--space-1, 4px)', flexShrink: 0 }}>
       {parts.map((p, i) => (
         <kbd
           key={`${p}-${i}`}
@@ -94,7 +94,7 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
     alignItems: "center",
     justifyContent: "center",
     background: "rgba(15,23,42,0.45)",
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
   };
 
   return createPortal(
@@ -180,12 +180,12 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
 
         <div style={{ overflowY: "auto", padding: "8px 20px 20px" }}>
           {grouped.length === 0 && (
-            <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)" }}>
+            <div style={{ padding: 'var(--space-6, 24px)', textAlign: "center", color: "var(--text-muted)" }}>
               {t("common.noData")}
             </div>
           )}
           {grouped.map(({ group, items }) => (
-            <section key={group} style={{ marginTop: 16 }}>
+            <section key={group} style={{ marginTop: 'var(--space-4, 16px)' }}>
               <div
                 style={{
                   fontSize: 12,
@@ -193,12 +193,12 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
                   letterSpacing: "0.05em",
                   textTransform: "uppercase",
                   color: "var(--color-primary-600, var(--color-primary-600))",
-                  marginBottom: 8,
+                  marginBottom: 'var(--space-2, 8px)',
                 }}
               >
                 {t(GROUP_LABEL[group])}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 6, columnGap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 6, columnGap: 'var(--space-4, 16px)' }}>
                 {items.map((sc) => (
                   <div key={sc.id} style={{ display: "contents" }}>
                     <span style={{ fontSize: 12, color: "var(--text-primary, #1e293b)" }}>

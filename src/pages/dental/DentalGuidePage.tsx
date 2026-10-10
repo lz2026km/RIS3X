@@ -162,7 +162,7 @@ export const DentalGuidePage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
           {t('dentalGuide.title')}
@@ -171,7 +171,7 @@ export const DentalGuidePage: React.FC = () => {
         <Tag color="purple">{t('dentalGuide.guideModuleTag')}</Tag>
       </Space>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalGuide.totalGuides')} value={guides.length} icon={<Layers size={16} />} />
         <StatCard title={t('dentalGuide.designing')} value={guides.filter((g: any) => g.status === "designing").length} color="warning" />
         <StatCard title={t('dentalGuide.exportedStl')} value={guides.filter((g: any) => g.guideFile).length} color="success" />
@@ -256,7 +256,7 @@ export const DentalGuidePage: React.FC = () => {
                           key={g.id}
                           size="small"
                           style={{
-                            marginBottom: 8,
+                            marginBottom: 'var(--space-2, 8px)',
                             borderLeft: `4px solid ${g.status === "designed" ? "#52c41a" : "#faad14"}`,
                           }}
                         >
@@ -286,7 +286,7 @@ export const DentalGuidePage: React.FC = () => {
                             style={{
                               fontSize: 11,
                               color: "var(--text-secondary)",
-                              marginTop: 4,
+                              marginTop: 'var(--space-1, 4px)',
                             }}
                           >
                             {g.material} | {g.sleeveType || t('dentalGuide.sleeveToSelect')} |{" "}
@@ -345,7 +345,7 @@ export const DentalGuidePage: React.FC = () => {
                       <Select
                         placeholder={t('dentalGuide.selectBrand')}
                         onChange={handleBrandChange}
-                        style={{ width: 200, marginBottom: 12 }}
+                        style={{ width: 200, marginBottom: 'var(--space-3, 12px)' }}
                         options={[
                           { value: "straumann", label: "Straumann" },
                           { value: "nobel", label: "Nobel" },
@@ -387,7 +387,7 @@ export const DentalGuidePage: React.FC = () => {
                             if (Array.isArray(r)) setSleeves(r);
                           })
                         }
-                        style={{ width: 200, marginBottom: 12 }}
+                        style={{ width: 200, marginBottom: 'var(--space-3, 12px)' }}
                         options={[
                           { value: "straumann", label: "Straumann" },
                           { value: "nobel", label: "Nobel" },
@@ -428,7 +428,7 @@ export const DentalGuidePage: React.FC = () => {
         confirmLoading={sleeveModal.saving}
         width={400}
       >
-        <div style={{ fontSize: 12, marginBottom: 8 }}>
+        <div style={{ fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>
           {t('dentalGuide.guideLabel')}: {sleeveModal.guide?.patientName ?? '-'} · FDI #{sleeveModal.guide?.toothNo ?? '-'}
         </div>
         <Select
@@ -451,7 +451,7 @@ export const DentalGuidePage: React.FC = () => {
       >
         {previewGuide && (
           <div>
-            <div style={{ background: '#0f172a', borderRadius: 8, padding: 16, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ background: '#0f172a', borderRadius: 8, padding: 'var(--space-4, 16px)', display: 'flex', justifyContent: 'center' }}>
               <svg width="320" height="190" viewBox="0 0 320 190" aria-label={t('w1Buttons.dental.previewTitle')}>
                 <rect x="0" y="0" width="320" height="190" fill="#0f172a" />
                 <path d="M40 130 Q40 40 160 40 Q280 40 280 130" fill="none" stroke="#38bdf8" strokeWidth="3" />
@@ -466,14 +466,14 @@ export const DentalGuidePage: React.FC = () => {
                 <text x="160" y="178" textAnchor="middle" fill="#94a3b8" fontSize="11">FDI #{previewGuide.toothNo ?? '-'} · {previewGuide.type}</text>
               </svg>
             </div>
-            <div style={{ marginTop: 12, fontSize: 12, lineHeight: 1.9, color: 'var(--text-primary)' }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, lineHeight: 1.9, color: 'var(--text-primary)' }}>
               <div>{t('dentalGuide.guideLabel')}: {previewGuide.patientName ?? '-'} - {previewGuide.createdBy ?? '-'}</div>
               <div>{t('dentalGuide.guideType')}: {previewGuide.type}</div>
               <div>{t('dentalGuide.material')}: {previewGuide.material}</div>
               <div>{t('dentalGuide.metalSleeve')}: {previewGuide.sleeveType || t('dentalGuide.sleeveToSelect')}</div>
               <div>{previewGuide.fixationPin ? t('dentalGuide.withPin') : t('dentalGuide.withoutPin')} · {previewGuide.createdAt?.slice(0, 10) ?? '-'}</div>
             </div>
-            <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>{t('w1Buttons.dental.previewHint')}</div>
+            <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t('w1Buttons.dental.previewHint')}</div>
           </div>
         )}
       </Modal>

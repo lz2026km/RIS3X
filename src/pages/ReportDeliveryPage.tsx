@@ -324,7 +324,7 @@ export default function ReportDeliveryPage() {
       render: (_: unknown, r) => {
         const recall = recalls[r.id];
         return (
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
             {r.status === 'failed' && !recall && (
               <button
                 onClick={async () => {
@@ -379,12 +379,12 @@ export default function ReportDeliveryPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {recordsLoading && <LoadingBanner message={t('w9.states.loading')} />}
       {fromReportId && (
         <div style={{
-          marginBottom: 12, padding: '10px 14px', background: 'var(--color-success-bg)', border: '1px solid #bbf7d0',
-          borderRadius: 8, fontSize: 12, color: '#166534', display: 'flex', alignItems: 'center', gap: 8,
+          marginBottom: 'var(--space-3, 12px)', padding: '10px 14px', background: 'var(--color-success-bg)', border: '1px solid #bbf7d0',
+          borderRadius: 8, fontSize: 12, color: '#166534', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
         }}>
           <Send size={14} />
           <span>
@@ -399,9 +399,9 @@ export default function ReportDeliveryPage() {
         </div>
       )}
       {/* 顶部 v3 升级标识 */}
-      <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Send size={20} color="#07c160" /> {t('reportDelivery.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
             <StatusTag status="info" style={{ fontWeight: 700 }}>R3.DIST v3.0.5.1</StatusTag>
@@ -437,8 +437,8 @@ export default function ReportDeliveryPage() {
 
       {/* [G005 W8-Report] 召回通知列表 (HL7 ORU C + 临床回执) */}
       {Object.keys(recalls).length > 0 && (
-        <div style={{ marginBottom: 16, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-card)', padding: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-card)', padding: 'var(--space-3, 12px)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Undo2 size={13} /> {t('w8Report.recall.listTitle')} ({Object.keys(recalls).length})
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
@@ -488,9 +488,9 @@ export default function ReportDeliveryPage() {
         </div>
       ) : (
         <>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Send size={20} color="#07c160" /> {t('reportDelivery.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </Title>
@@ -498,7 +498,7 @@ export default function ReportDeliveryPage() {
             {t('reportDelivery.classicSubtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={() => navigate('/report-export')}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
@@ -509,7 +509,7 @@ export default function ReportDeliveryPage() {
       </div>
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard icon={Send} label={t('reportDelivery.kpiMonth')} value={DELIVERY_KPI.totalThisMonth} color="#07c160" />
         <KpiCard icon={CheckCircle2} label={t('reportDelivery.kpiSuccessRate')} value={`${DELIVERY_KPI.successRate}%`} color="#10b981" />
         <KpiCard icon={Eye} label={t('reportDelivery.kpiReadRate')} value={`${DELIVERY_KPI.readRate}%`} color="var(--color-primary-500)" />
@@ -517,7 +517,7 @@ export default function ReportDeliveryPage() {
       </div>
 
       {/* 渠道分布卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6, marginBottom: 'var(--space-4, 16px)' }}>
         {(Object.keys(CHANNEL_CONFIG) as DeliveryChannel[]).map(c => {
           const conf = CHANNEL_CONFIG[c];
           const Icon = conf.icon;
@@ -541,7 +541,7 @@ export default function ReportDeliveryPage() {
       </div>
 
       {/* 操作栏 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 10, marginBottom: 12, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 10, marginBottom: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Filter size={12} color="var(--text-secondary)" />
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
           <option value="all">{t('reportDelivery.allStatus')}</option>
@@ -568,7 +568,7 @@ export default function ReportDeliveryPage() {
               background: sending || selectedRecords.size === 0 ? '#cbd5e1' : '#07c160',
               color: '#fff', fontSize: 12, fontWeight: 600,
               cursor: sending || selectedRecords.size === 0 ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
             }}
           >
             <Send size={12} /> {t('reportDelivery.batchPush')}
@@ -601,7 +601,7 @@ export default function ReportDeliveryPage() {
         okButtonProps={{ danger: true }}
         destroyOnHidden
       >
-        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>
           {t('reportDelivery.recallStatePrefix')} <strong>{t('reportDelivery.statusRecalled')}</strong>{t('reportDelivery.recallStateMid')}<strong>{t('reportDelivery.localRecord')}</strong>。
         </p>
         <textarea

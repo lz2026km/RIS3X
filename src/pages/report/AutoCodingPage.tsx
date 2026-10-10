@@ -112,8 +112,8 @@ export default function AutoCodingPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Code size={20} color="var(--color-primary-500)" />} title={t('w17.coding.title')} subtitle={t('w17.coding.subtitle')} />
-      <div style={{ padding: 24 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 16 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           {[
             { label: t('w17.coding.statsTerms'), value: result?.total ?? 0, color: 'var(--color-primary-500)' },
             { label: t('w17.coding.statsConfirmed'), value: confirmedTerms.length, color: '#10b981' },
@@ -122,15 +122,15 @@ export default function AutoCodingPage() {
             { label: t('w17.coding.statsIcd10'), value: structuredPayload.icd10.length, color: '#f43f5e' },
           ].map((card) => (
             <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{card.label}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{card.label}</div>
               <div style={{ fontSize: 24, fontWeight: 700, color: card.color }}>{card.value}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-5, 20px)', flexWrap: 'wrap' }}>
           {/* 输入 */}
-          <div style={{ flex: 1, minWidth: 320, background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ flex: 1, minWidth: 320, background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={16} color="var(--color-primary-500)" />{t('w17.coding.input')}
             </h3>
@@ -138,10 +138,10 @@ export default function AutoCodingPage() {
               value={text}
               onChange={(e) => { setText(e.target.value); setResult(null); setWritten(false) }}
               rows={10}
-              style={{ width: '100%', padding: 12, border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
+              style={{ width: '100%', padding: 'var(--space-3, 12px)', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
               placeholder={t('w17.coding.inputPlaceholder')}
             />
-            <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ marginTop: 10, display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', flexWrap: 'wrap' }}>
               <ActionButton action="submit" loading={loading} disabled={!text.trim()} onClick={() => void handleEncode()} icon={<Sparkles size={14} />}>
                 {loading ? t('w17.coding.encoding') : t('w17.coding.encode')}
               </ActionButton>
@@ -156,8 +156,8 @@ export default function AutoCodingPage() {
             </div>
 
             {result && result.terms.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>{t('w17.coding.termList')} ({result.terms.length})</span>
                   <button onClick={() => setConfirmed(new Set(result.terms.map((term) => term.keyword)))} style={{ fontSize: 11, color: 'var(--color-primary-700)', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
                     {t('w17.coding.confirmAll')}
@@ -166,12 +166,12 @@ export default function AutoCodingPage() {
                     {t('w17.coding.clearAll')}
                   </button>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 420, overflowY: 'auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', maxHeight: 420, overflowY: 'auto' }}>
                   {result.terms.map((term: AutoEncodedTerm, i: number) => {
                     const isConfirmed = confirmed.has(term.keyword)
                     return (
                       <div key={`${term.keyword}-${i}`} style={{ border: isConfirmed ? '1.5px solid #10b981' : '1px solid #e2e8f0', borderRadius: 8, padding: 10, background: isConfirmed ? '#f0fdf4' : '#fff' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6, flexWrap: 'wrap' }}>
                           <button
                             onClick={() => toggleConfirm(term.keyword)}
                             style={{ border: 'none', background: isConfirmed ? '#10b981' : '#e2e8f0', color: isConfirmed ? '#fff' : '#64748b', borderRadius: 5, width: 22, height: 22, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
@@ -186,7 +186,7 @@ export default function AutoCodingPage() {
                             {t('w17.coding.confidence')}: {(term.confidence * 100).toFixed(0)}%
                           </span>
                         </div>
-                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', fontSize: 12 }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', fontSize: 12 }}>
                           <div style={{ flex: 1, minWidth: 200 }}>
                             <div style={{ fontSize: 11, fontWeight: 600, color: '#8b5cf6', marginBottom: 3 }}>SNOMED CT</div>
                             {term.snomed.length > 0 ? term.snomed.map((c) => (
@@ -211,18 +211,18 @@ export default function AutoCodingPage() {
               </div>
             )}
             {result && result.terms.length === 0 && (
-              <div style={{ marginTop: 12, padding: 16, textAlign: 'center', color: '#94a3b8', fontSize: 12, background: '#f8fafc', borderRadius: 8 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-4, 16px)', textAlign: 'center', color: '#94a3b8', fontSize: 12, background: '#f8fafc', borderRadius: 8 }}>
                 {t('w17.coding.noTerms')}
               </div>
             )}
           </div>
 
           {/* 结构化写入 */}
-          <div style={{ flex: 1, minWidth: 320, background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ flex: 1, minWidth: 320, background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShieldCheck size={16} color="#10b981" />{t('w17.coding.writeTitle')}
             </h3>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('w17.coding.reportId')}</label>
+            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('w17.coding.reportId')}</label>
             <input
               value={reportId}
               onChange={(e) => { setReportId(e.target.value); setWritten(false) }}
@@ -235,7 +235,7 @@ export default function AutoCodingPage() {
             <pre style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 8, padding: 14, fontSize: 11, lineHeight: 1.7, minHeight: 240, maxHeight: 380, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
               {JSON.stringify(structuredPayload, null, 2)}
             </pre>
-            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
               <ActionButton action="save" disabled={confirmedTerms.length === 0} onClick={() => void handleWriteToReport()} icon={<Send size={14} />}>
                 {t('w17.coding.writeToReport')}
               </ActionButton>
@@ -243,7 +243,7 @@ export default function AutoCodingPage() {
                 {t('w17.coding.copy')}
               </ActionButton>
               {written && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#059669', fontWeight: 600 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: '#059669', fontWeight: 600 }}>
                   <CheckCircle2 size={14} />{t('w17.coding.writtenFlag')}
                 </span>
               )}

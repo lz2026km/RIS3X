@@ -807,7 +807,7 @@ export default function AIOrchestrationPage() {
                       </div>
                       <div>
                         <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('aiOrch.labelFindingContent')}</span>
-                        <div style={{ marginTop: 4, whiteSpace: 'pre-wrap', lineHeight: '22px' }}>
+                        <div style={{ marginTop: 'var(--space-1, 4px)', whiteSpace: 'pre-wrap', lineHeight: '22px' }}>
                           {fmtList(list)}
                         </div>
                       </div>
@@ -929,7 +929,7 @@ export default function AIOrchestrationPage() {
             <Card
               variant="borderless"
               style={{ borderRadius: 12, height: '100%' }}
-              styles={{ body: { display: 'flex', flexDirection: 'column', gap: 12, height: '100%' } }}
+              styles={{ body: { display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', height: '100%' } }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Space>
@@ -948,7 +948,7 @@ export default function AIOrchestrationPage() {
               </div>
 
               <div style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: '18px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
                   {m.status === 'FAILED' ? <WifiOff size={12} /> : <Wifi size={12} />}
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.endpoint ?? t('aiOrch.endpointNotConfigured')}</span>
                 </div>
@@ -972,7 +972,7 @@ export default function AIOrchestrationPage() {
                 </Col>
               </Row>
 
-              <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 'auto', display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                 <Button size="small" icon={<FlaskConical size={13} />} onClick={() => void handleTest(m.id)}>{t('aiOrch.test')}</Button>
                 {m.status !== 'DEPLOYED' ? (
                   <Button size="small" type="primary" icon={<Play size={13} />} onClick={() => void handleDeploy(m.id)}>{t('aiOrch.deploy')}</Button>
@@ -990,8 +990,8 @@ export default function AIOrchestrationPage() {
   const drawerFindings = drawerJob?.result?.findings ?? [];
 
   return (
-    <div style={{ padding: 24, maxWidth: 1440, margin: '0 auto' }}>
-      <Card variant="borderless" style={{ borderRadius: 12, marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1440, margin: '0 auto' }}>
+      <Card variant="borderless" style={{ borderRadius: 12, marginBottom: 'var(--space-4, 16px)' }}>
         <PageHeader
           icon={
             <div style={{
@@ -1033,7 +1033,7 @@ export default function AIOrchestrationPage() {
               label: <Space><Boxes size={15} />{t('aiOrch.tabModelMarket')}</Space>,
               children: (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                     <Space>
                       <Badge count={models.length} color="#8b5cf6" style={{ boxShadow: 'none' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.registeredModels')}</span>
@@ -1055,7 +1055,7 @@ export default function AIOrchestrationPage() {
               label: <Space><GitBranch size={15} />{t('aiOrch.tabIntegrations')}</Space>,
               children: (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                     <Space>
                       <Badge count={integrations.length} color="#0ea5e9" style={{ boxShadow: 'none' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.integrationTitle')}</span>
@@ -1076,8 +1076,8 @@ export default function AIOrchestrationPage() {
                     locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.emptyIntegrations')} /> }}
                   scroll={{ x: 'max-content' }}
                   />
-                  <div style={{ marginTop: 20 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ marginTop: 'var(--space-5, 20px)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
                       <Space>
                         <span style={{ fontWeight: 600 }}><Workflow size={14} style={{ marginRight: 6, color: '#8b5cf6' }} />{t('aiOrch.orchPipeline')}</span>
                         {orchLoading && <Spin size="small" />}
@@ -1105,7 +1105,7 @@ export default function AIOrchestrationPage() {
               label: <Space><ListChecks size={15} />{t('aiOrch.tabJobs')}</Space>,
               children: (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                     <Space>
                       <Badge count={jobs.length} color="#10b981" style={{ boxShadow: 'none' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.jobsAutoRefresh')}</span>
@@ -1133,7 +1133,7 @@ export default function AIOrchestrationPage() {
               label: <Space><FileText size={15} />{t('aiOrch.tabSr')}</Space>,
               children: (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                     <Space>
                       <Badge count={srReports.length} color="#8b5cf6" style={{ boxShadow: 'none' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.srGenerated')}</span>
@@ -1162,7 +1162,7 @@ export default function AIOrchestrationPage() {
               label: <Space><Layers size={15} />{t('aiOrch.tabFusion')}</Space>,
               children: (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                     <Space>
                       <Badge count={fusionJobs.length} color="#0ea5e9" style={{ boxShadow: 'none' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.fusionTasks')}</span>
@@ -1189,7 +1189,7 @@ export default function AIOrchestrationPage() {
               label: <Space><Sparkles size={15} />{t('aiOrch.tabAssist')}</Space>,
               children: (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                     <Space>
                       <Badge count={assistItems.length} color="#10b981" style={{ boxShadow: 'none' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.assistTemplates')}</span>
@@ -1225,7 +1225,7 @@ export default function AIOrchestrationPage() {
                               style={{ borderRadius: 10, height: '100%' }}
                               styles={{ body: { display: 'flex', flexDirection: 'column', gap: 10, height: '100%' } }}
                             >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
                                 <Space>
                                   <Sparkles size={15} style={{ color: '#10b981' }} />
                                   <span style={{ fontWeight: 600 }}>{title}</span>
@@ -1272,7 +1272,7 @@ export default function AIOrchestrationPage() {
         cancelText={t('aiOrch.cancel')}
         width={520}
       >
-        <Form form={registerForm} layout="vertical" style={{ marginTop: 12 }}>
+        <Form form={registerForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="name" label={t('aiOrch.fldModelName')} rules={[{ required: true, message: t('aiOrch.msgModelName') }]}>
             <Input placeholder={t('aiOrch.phModelName')} />
           </Form.Item>
@@ -1316,7 +1316,7 @@ export default function AIOrchestrationPage() {
         cancelText={t('aiOrch.cancel')}
         width={560}
       >
-        <Form form={integrationForm} layout="vertical" style={{ marginTop: 12 }}>
+        <Form form={integrationForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="modelId" label={t('aiOrch.fldAiModel')} rules={[{ required: true, message: t('aiOrch.msgSelectModel') }]}>
             <Select
               placeholder={t('aiOrch.phSelectRegisteredModel')}
@@ -1366,7 +1366,7 @@ export default function AIOrchestrationPage() {
         cancelText={t('aiOrch.cancel')}
         width={480}
       >
-        <Form form={triggerForm} layout="vertical" style={{ marginTop: 12 }}>
+        <Form form={triggerForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="modelId" label={t('aiOrch.fldAiModelDeployed')} rules={[{ required: true, message: t('aiOrch.msgSelectModel') }]}>
             <Select
               placeholder={deployedModels.length ? t('aiOrch.phSelectDeployedModel') : t('aiOrch.phNoDeployableModel')}
@@ -1395,7 +1395,7 @@ export default function AIOrchestrationPage() {
         cancelText={t('aiOrch.cancel')}
         width={480}
       >
-        <Form form={eventForm} layout="vertical" style={{ marginTop: 12 }}>
+        <Form form={eventForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="trigger" label={t('aiOrch.fldEventType')} rules={[{ required: true, message: t('aiOrch.msgEventType') }]} initialValue="ON_STUDY_COMPLETE">
             <Select options={TRIGGER_OPTIONS} />
           </Form.Item>
@@ -1431,7 +1431,7 @@ export default function AIOrchestrationPage() {
         cancelText={t('aiOrch.cancel')}
         width={520}
       >
-        <Form form={srForm} layout="vertical" style={{ marginTop: 12 }}>
+        <Form form={srForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="studyId" label={t('aiOrch.fldExamId')} rules={[{ required: true, message: t('aiOrch.msgExamId') }]}>
             <Input placeholder={t('aiOrch.phExamId5001')} />
           </Form.Item>
@@ -1485,7 +1485,7 @@ export default function AIOrchestrationPage() {
         cancelText={t('aiOrch.cancel')}
         width={560}
       >
-        <Form form={orchForm} layout="vertical" style={{ marginTop: 12 }}>
+        <Form form={orchForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="workflowName" label={t('aiOrch.fldOrchName')} rules={[{ required: true, message: t('aiOrch.msgOrchName') }]}>
             <Input placeholder={t('aiOrch.phOrchName')} />
           </Form.Item>
@@ -1495,7 +1495,7 @@ export default function AIOrchestrationPage() {
           <Form.Item label={t('aiOrch.fldExecSteps')} required>
             <Form.List name="steps" initialValue={[{ action: 'ai_detection', target: 'MOD-001' }, { action: 'report_draft', target: 'TPL-CHEST-CT' }]}>
               {(fields, { add, remove }) => (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                   {fields.map(({ key, name, ...restField }) => (
                     <Space key={key} align="baseline" style={{ display: 'flex' }}>
                       <span style={{ width: 20, color: 'var(--text-secondary)', fontSize: 12 }}>{name + 1}</span>
@@ -1530,9 +1530,9 @@ export default function AIOrchestrationPage() {
         width={440}
       >
         {testResult && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 8,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', borderRadius: 8,
               background: testResult.reachable ? '#f6ffed' : '#fff1f0',
             }}>
               {testResult.reachable ? <CheckCircle size={28} color="#52c41a" /> : <XCircle size={28} color="#ff4d4f" />}
@@ -1568,7 +1568,7 @@ export default function AIOrchestrationPage() {
         }
       >
         {drawerJob && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
             <Descriptions column={2} size="small" bordered>
               <Descriptions.Item label={t('aiOrch.labelModel')} span={2}>
                 {drawerJob.model ? (
@@ -1604,9 +1604,9 @@ export default function AIOrchestrationPage() {
             </Descriptions>
 
             {drawerJob.status === 'RUNNING' && (
-              <div style={{ padding: 16, borderRadius: 8, background: 'var(--color-info-bg)', textAlign: 'center' }}>
+              <div style={{ padding: 'var(--space-4, 16px)', borderRadius: 8, background: 'var(--color-info-bg)', textAlign: 'center' }}>
                 <Spin />
-                <div style={{ marginTop: 8, color: '#597ef7', fontSize: 12 }}>{t('aiOrch.runningHint')}</div>
+                <div style={{ marginTop: 'var(--space-2, 8px)', color: '#597ef7', fontSize: 12 }}>{t('aiOrch.runningHint')}</div>
               </div>
             )}
 
@@ -1641,8 +1641,8 @@ export default function AIOrchestrationPage() {
                       activeIndex={activeFinding}
                       onSelect={setActiveFinding}
                     />
-                    <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('aiOrch.abnormalListTitle')}</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('aiOrch.abnormalListTitle')}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                       {drawerFindings.map((f, i) => {
                         const active = i === activeFinding;
                         return (

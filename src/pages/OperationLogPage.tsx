@@ -429,7 +429,7 @@ export default function OperationLogPage() {
         background: WHITE, borderBottom: '1px solid var(--border-color)', padding: '14px 24px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <History size={24} color={PRIMARY} />
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{t('opLog.title')}</div>
@@ -468,23 +468,23 @@ export default function OperationLogPage() {
         </div>
       </div>
 
-      <div style={{ padding: 20 }}>
+      <div style={{ padding: 'var(--space-5, 20px)' }}>
         {/* 今日趋势卡片 */}
         {showStats && (
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <TodayTrendCard {...todayTrendData} />
           </div>
         )}
 
         {/* 快捷时间筛选 + Tab切换 */}
         <div style={{
-          background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)',
-          marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          background: WHITE, borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
+          marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
             {/* 快捷时间筛选 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 12, color: GRAY, marginRight: 4 }}>{t('opLog.quickFilter')}</span>
+              <span style={{ fontSize: 12, color: GRAY, marginRight: 'var(--space-1, 4px)' }}>{t('opLog.quickFilter')}</span>
               {QUICK_TIME_FILTERS.map(filter => (
                 <button
                   key={filter.value}
@@ -504,11 +504,11 @@ export default function OperationLogPage() {
 
             {/* Tab切换 */}
             {showStats && (
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                 <button onClick={() => setViewTab('logs')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'logs' ? PRIMARY : 'transparent', color: viewTab === 'logs' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('opLog.tabLogStats')}</button>
                 <button onClick={() => setViewTab('duration')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'duration' ? PRIMARY : 'transparent', color: viewTab === 'duration' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('opLog.tabDuration')}</button>
                 <button onClick={() => setViewTab('heatmap')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'heatmap' ? PRIMARY : 'transparent', color: viewTab === 'heatmap' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('opLog.tabHeatmap')}</button>
-                <button onClick={() => setViewTab('hipaa')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'hipaa' ? PRIMARY : 'transparent', color: viewTab === 'hipaa' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Shield size={14} />{t('opLog.tabHipaa')}</button>
+                <button onClick={() => setViewTab('hipaa')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'hipaa' ? PRIMARY : 'transparent', color: viewTab === 'hipaa' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Shield size={14} />{t('opLog.tabHipaa')}</button>
               </div>
             )}
           </div>
@@ -548,12 +548,12 @@ export default function OperationLogPage() {
 
         {/* 统计图表 */}
         {showStats && (
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {viewTab === 'logs' && <StatisticsCharts logs={filteredLogs} />}
             {viewTab === 'duration' && <DurationAnalysisView logs={filteredLogs} />}
             {viewTab === 'heatmap' && (
-              <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-                <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ background: WHITE, borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Activity size={16} />{t('opLog.userActivityHeatmap')}
                 </div>
                 <UserActivityHeatmap logs={filteredLogs} />
@@ -588,7 +588,7 @@ export default function OperationLogPage() {
                   <div style={{ fontSize: 12, color: GRAY }}>
                     {t('opLog.hipaaPager', { from: ((hipaaCurrentPage - 1) * hipaaPageSize) + 1, to: Math.min(hipaaCurrentPage * hipaaPageSize, hipaaFilteredLogs.length), total: hipaaFilteredLogs.length })}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.perPage')}</span>
                       <Select
@@ -600,7 +600,7 @@ export default function OperationLogPage() {
                       />
                       <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.itemsUnit')}</span>
                     </div>
-                    <div style={{ display: 'flex', gap: 4 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                       <button onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))} disabled={hipaaCurrentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer' }}>{t('opLog.prevPage')}</button>
                       <button onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))} disabled={hipaaCurrentPage === hipaaTotalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer' }}>{t('opLog.nextPage')}</button>
                     </div>
@@ -630,16 +630,16 @@ export default function OperationLogPage() {
               background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)',
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
             }}>
-              <div style={{ padding: 20 }}>
+              <div style={{ padding: 'var(--space-5, 20px)' }}>
                 <TimelineView logs={paginatedLogs} onViewDetail={setSelectedLog} />
                 <div style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '12px 0', borderTop: '1px solid var(--border-color)', marginTop: 16,
+                  padding: '12px 0', borderTop: '1px solid var(--border-color)', marginTop: 'var(--space-4, 16px)',
                 }}>
                   <div style={{ fontSize: 12, color: GRAY }}>
                     {t('opLog.hipaaPager', { from: ((currentPage - 1) * pageSize) + 1, to: Math.min(currentPage * pageSize, filteredLogs.length), total: filteredLogs.length })}
                   </div>
-                  <div style={{ display: 'flex', gap: 4 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                     <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>{t('opLog.prevPage')}</button>
                     <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === totalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>{t('opLog.nextPage')}</button>
                   </div>
@@ -651,7 +651,7 @@ export default function OperationLogPage() {
       </div>
 
       {/* 实时流/异常检测/会话追踪/合规报告/区块链 Tab栏 */}
-      <div style={{ background: WHITE, borderRadius: 10, padding: '4px', margin: '0 20px 16px', display: 'flex', gap: 4, border: `1px solid var(--border-color)`, flexWrap: 'wrap' }}>
+      <div style={{ background: WHITE, borderRadius: 10, padding: '4px', margin: '0 20px 16px', display: 'flex', gap: 'var(--space-1, 4px)', border: `1px solid var(--border-color)`, flexWrap: 'wrap' }}>
         {[
           { key: 'stream', label: t('opLog.liveStream'), icon: <Radio size={14} /> },
           { key: 'anomaly', label: t('opLog.anomalyDetect'), icon: <AlertTriangle size={14} /> },
@@ -672,13 +672,13 @@ export default function OperationLogPage() {
       {liveTab === 'stream' && (
         <div style={{ background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', margin: '0 20px 16px', overflow: 'hidden' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#1e293b', color: WHITE }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Radio size={16} color="var(--color-success-500)" />
               <span style={{ fontWeight: 600, fontSize: 12 }}>{t('opLog.liveStream')}</span>
               <span style={{ background: 'var(--color-success-500)', width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opLog.poll5s')}</span>
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
               <Select
                 size="small"
                 style={{ width: 100 }}
@@ -686,7 +686,7 @@ export default function OperationLogPage() {
                 onChange={(v) => setSeverityFilter(v)}
                 options={['全部', 'info', 'warn', 'error', 'critical'].map(s => ({ value: s, label: s }))}
               />
-              <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? 'var(--color-success-500)' : '#64748b', color: WHITE, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? 'var(--color-success-500)' : '#64748b', color: WHITE, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 {autoScroll ? <Play size={12} /> : <Pause size={12} />}{autoScroll ? t('opLog.autoScroll') : t('opLog.pause')}
               </button>
             </div>
@@ -695,7 +695,7 @@ export default function OperationLogPage() {
             {liveLogs.filter(l => severityFilter === '全部' || l.source === severityFilter || l.action.includes(severityFilter)).slice(0, 100).map((log, idx) => {
               const levelColor = log.action.includes('删除') || log.action.includes('驳回') ? 'var(--color-error-500)' : log.action.includes('导出') || log.action.includes('修改') ? 'var(--color-warning-500)' : log.action.includes('登录') ? '#7c3aed' : 'var(--color-primary-500)'
               return (
-                <div key={log.id} style={{ padding: '4px 12px', display: 'flex', gap: 12, borderBottom: '1px solid #1e293b', background: idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
+                <div key={log.id} style={{ padding: '4px 12px', display: 'flex', gap: 'var(--space-3, 12px)', borderBottom: '1px solid #1e293b', background: idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                   <span style={{ color: 'var(--text-secondary)', minWidth: 80 }}>{new Date(log.timestamp).toLocaleTimeString()}</span>
                   <span style={{ color: levelColor, fontWeight: 600, minWidth: 70 }}>[{log.action}]</span>
                   <span style={{ color: 'var(--color-success-500)', minWidth: 60 }}>{log.userName}</span>
@@ -710,21 +710,21 @@ export default function OperationLogPage() {
 
       {/* 异常检测 */}
       {liveTab === 'anomaly' && (
-        <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {[
               { label: t('opLog.anomalyEvents'), value: anomalyLogs.length, icon: <AlertTriangle size={18} />, color: DANGER, bg: 'var(--color-error-bg)' },
               { label: t('opLog.highRiskAnomaly'), value: anomalyScores.filter(s => s.score >= 70).length, icon: <AlertCircle size={18} />, color: '#7c3aed', bg: 'var(--color-info-bg)' },
               { label: t('opLog.offHours'), value: anomalyLogs.filter(l => new Date(l.timestamp).getHours() >= 22 || new Date(l.timestamp).getHours() < 6).length, icon: <Clock size={18} />, color: WARNING, bg: 'var(--color-warning-bg)' },
               { label: t('opLog.batchExportDelete'), value: anomalyLogs.filter(l => l.action === '批量导出' || l.action === '删除报告').length, icon: <Download size={18} />, color: '#f97316', bg: 'var(--color-warning-bg)' },
             ].map(card => (
-              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
                 <div><div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
               </div>
             ))}
           </div>
-          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('opLog.anomalyScoreDetail')}</h3>
             <DataTable<(typeof anomalyScores)[number]>
               rowKey="id"
@@ -734,13 +734,13 @@ export default function OperationLogPage() {
               scroll={{ x: 'max-content' }}
             />
             {anomalyScores.filter(s => s.score >= 70).length > 0 && (
-              <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--color-error-bg)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: '10px 14px', background: 'var(--color-error-bg)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <AlertTriangle size={16} color={DANGER} />
                 <span style={{ fontSize: 12, color: '#991b1b' }}>{t('opLog.highRiskWarning', { count: anomalyScores.filter(s => s.score >= 70).length })}</span>
               </div>
             )}
           </div>
-          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('opLog.anomalyTrend')}</h3>
             <ChartContainer type="area" height={200}>
               <AreaChart data={anomalyTrend} margin={chartDefaults.margin}>
@@ -757,26 +757,26 @@ export default function OperationLogPage() {
 
       {/* 会话追踪 */}
       {liveTab === 'session' && (
-        <div style={{ margin: '0 20px 16px', display: 'flex', gap: 16 }}>
-          <div style={{ width: 220, flexShrink: 0, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
+        <div style={{ margin: '0 20px 16px', display: 'flex', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ width: 220, flexShrink: 0, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)' }}>
             <h3 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>{t('opLog.selectUser')}</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
               {sessionUsers.map(name => (
                 <button key={name} onClick={() => setSelectedSessionUser(name)} style={{
                   padding: '8px 12px', borderRadius: 6, border: 'none', textAlign: 'left',
                   background: selectedSessionUser === name ? ACCENT : 'transparent',
                   color: selectedSessionUser === name ? WHITE : PRIMARY,
-                  fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
                 }}>
                   <User size={14} />{name}
                 </button>
               ))}
             </div>
           </div>
-          <div style={{ flex: 1, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
+          <div style={{ flex: 1, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)' }}>
             {selectedSessionUser ? (
               <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
                   <h3 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <User size={16} />{t('opLog.userSessionTimeline', { name: selectedSessionUser })}
                   </h3>
@@ -784,19 +784,19 @@ export default function OperationLogPage() {
                 </div>
                 <div style={{ position: 'relative' }}>
                   {sessionLogs.slice(0, 30).map((log, idx) => (
-                    <div key={log.id} style={{ display: 'flex', gap: 12, paddingBottom: 12 }}>
+                    <div key={log.id} style={{ display: 'flex', gap: 'var(--space-3, 12px)', paddingBottom: 'var(--space-3, 12px)' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
                         <span style={{ fontSize: 12, color: GRAY }}>{formatTime(log.timestamp)}</span>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: ACTION_COLORS[log.action] || ACCENT, marginTop: 4, border: '2px solid var(--border-color)' }} />
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: ACTION_COLORS[log.action] || ACCENT, marginTop: 'var(--space-1, 4px)', border: '2px solid var(--border-color)' }} />
                         {idx < sessionLogs.length - 1 && <div style={{ width: 2, height: '100%', background: 'var(--border-color)' }} />}
                       </div>
-                      <div style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)', marginBottom: 4 }}>
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                      <div style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)', marginBottom: 'var(--space-1, 4px)' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                           <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${ACTION_COLORS[log.action] || ACCENT}20`, color: ACTION_COLORS[log.action] || ACCENT }}>{log.action}</span>
                           <span style={{ fontSize: 12, color: GRAY }}>{log.module}</span>
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{log.targetDesc}</div>
-                        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>
                           <Globe size={10} style={{ verticalAlign: 'middle' }} /> {log.ipAddress}
                           {log.department && <> · {log.department}</>}
                         </div>
@@ -806,8 +806,8 @@ export default function OperationLogPage() {
                 </div>
               </>
             ) : (
-              <div style={{ textAlign: 'center', padding: 40, color: GRAY }}>
-                <Users size={40} style={{ marginBottom: 12, opacity: 0.5 }} />
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: GRAY }}>
+                <Users size={40} style={{ marginBottom: 'var(--space-3, 12px)', opacity: 0.5 }} />
                 <div style={{ fontSize: 14 }}>{t('opLog.selectUserHint')}</div>
               </div>
             )}
@@ -817,9 +817,9 @@ export default function OperationLogPage() {
 
       {/* 合规报告 */}
       {liveTab === 'complianceReports' && (
-        <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ background: WHITE, borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <FileBarChart size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>{t('opLog.complianceTemplate')}</span>
             </div>
@@ -846,11 +846,11 @@ export default function OperationLogPage() {
               {t('opLog.exportPdf')}
             </ActionButton>
           </div>
-          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>
               {t('opLog.complianceSummaryTitle', { period: reportSchedule === 'daily' ? t('opLog.daily') : reportSchedule === 'weekly' ? t('opLog.weekly') : t('opLog.monthly') })}
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
               {[
                 { label: t('opLog.totalOps'), value: filteredLogs.length, color: ACCENT },
                 { label: t('opLog.compliantOps'), value: Math.round(filteredLogs.length * 0.92), color: SUCCESS },
@@ -858,11 +858,11 @@ export default function OperationLogPage() {
               ].map(card => (
                 <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: card.color }}>{card.value}</div>
-                  <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{card.label}</div>
+                  <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>{card.label}</div>
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 16, background: 'var(--color-success-bg)', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ marginTop: 'var(--space-4, 16px)', background: 'var(--color-success-bg)', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Shield size={16} color={SUCCESS} />
               <span style={{ fontSize: 12, color: '#065f46' }}>{t('opLog.complianceReady')}</span>
             </div>
@@ -872,9 +872,9 @@ export default function OperationLogPage() {
 
       {/* 区块链存证 */}
       {liveTab === 'blockchain' && (
-        <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ background: WHITE, borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Fingerprint size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>{t('opLog.blockchainEvidence')}</span>
               <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.sha256Chain')}</span>
@@ -890,7 +890,7 @@ export default function OperationLogPage() {
             }}><Shield size={14} />{t('opLog.verifyIntegrity')}</button>
           </div>
           {verifyResult && (
-            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyOk ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: verifyOk ? SUCCESS : DANGER, fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyOk ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: verifyOk ? SUCCESS : DANGER, fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               {verifyOk ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
               {verifyResult}
             </div>
@@ -914,7 +914,7 @@ export default function OperationLogPage() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 8, padding: '8px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', padding: '8px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
             <GitBranch size={14} color={GRAY} />
             <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.blockchainFooter', { height: blockchainData.length, latest: new Date().toISOString().slice(0, 10) })}</span>
           </div>
@@ -923,7 +923,7 @@ export default function OperationLogPage() {
 
       {/* Toast */}
       {toastMsg && (
-        <div style={{ position: 'fixed', top: 24, right: 24, padding: '10px 18px', borderRadius: 8, background: SUCCESS, color: WHITE, fontSize: 12, fontWeight: 600, zIndex: 9999, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ position: 'fixed', top: 24, right: 24, padding: '10px 18px', borderRadius: 8, background: SUCCESS, color: WHITE, fontSize: 12, fontWeight: 600, zIndex: 9999, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <CheckCircle size={16} />{toastMsg}
         </div>
       )}
@@ -939,18 +939,18 @@ export default function OperationLogPage() {
           alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }}>
           <div style={{ background: WHITE, borderRadius: 12, padding: '32px 40px', minWidth: 320, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-            <div style={{ textAlign: 'center', marginBottom: 20 }}>
-              <Loader2 size={40} style={{ color: PRIMARY, animation: 'spin 1s linear infinite', marginBottom: 12 }} />
-              <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5, 20px)' }}>
+              <Loader2 size={40} style={{ color: PRIMARY, animation: 'spin 1s linear infinite', marginBottom: 'var(--space-3, 12px)' }} />
+              <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-2, 8px)' }}>
                 {exportProgress < 100 ? t('opLog.exportingProgress') : t('opLog.exportDone')}
               </div>
-              <div style={{ fontSize: 12, color: GRAY, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-4, 16px)' }}>
                 {exportProgress < 100 ? t('opLog.pleaseWait') : t('opLog.fileReady')}
               </div>
               <div style={{ width: '100%', height: 8, background: 'var(--border-color)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{ width: `${exportProgress}%`, height: '100%', background: exportProgress === 100 ? SUCCESS : PRIMARY, transition: 'width 0.2s ease-out' }} />
               </div>
-              <div style={{ fontSize: 12, color: GRAY, marginTop: 8 }}>{exportProgress}%</div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-2, 8px)' }}>{exportProgress}%</div>
             </div>
           </div>
         </div>

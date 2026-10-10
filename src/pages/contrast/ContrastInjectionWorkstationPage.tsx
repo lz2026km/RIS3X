@@ -25,8 +25,8 @@ const PATIENT_ID = 'P-DEMO'
 const DEFAULT_EGFR_THRESHOLD = 30
 const BLOCKER_CODES = ['NO_CONSENT', 'ALLERGY_POSITIVE', 'EGFR_BELOW_THRESHOLD', 'PREGNANCY']
 
-const panelStyle: CSSProperties = { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }
-const inputStyle: CSSProperties = { width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, marginTop: 4, boxSizing: 'border-box' }
+const panelStyle: CSSProperties = { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }
+const inputStyle: CSSProperties = { width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, marginTop: 'var(--space-1, 4px)', boxSizing: 'border-box' }
 
 export default function ContrastInjectionWorkstationPage() {
   const [protocols, setProtocols] = useState<InjectionProtocol[]>([])
@@ -316,10 +316,10 @@ export default function ContrastInjectionWorkstationPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-info-600),#164e63)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <Syringe size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('contrastWs.title')}</span>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           {device && (
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 12px', borderRadius: 6, background: device.status === 'online' ? '#22c55e20' : device.status === 'offline' ? '#ef444420' : '#f59e0b20', color: device.status === 'online' ? 'var(--color-success-500)' : device.status === 'offline' ? 'var(--color-error-500)' : 'var(--color-warning-500)' }}>
               <Monitor size={14} />{device.deviceName}: {device.status === 'online' ? t('contrastWs.device.online') : device.status === 'offline' ? t('contrastWs.device.offline') : device.status === 'busy' ? t('contrastWs.device.busy') : t('contrastWs.device.error')}
@@ -336,10 +336,10 @@ export default function ContrastInjectionWorkstationPage() {
         <RqiIndicatorLink code="RQI-ICME-05" tone="dark" />
       </div>
 
-      <div style={{ padding: '20px 24px', display: 'grid', gridTemplateColumns: showHistory ? '1fr 1fr' : '1fr', gap: 20 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ padding: '20px 24px', display: 'grid', gridTemplateColumns: showHistory ? '1fr 1fr' : '1fr', gap: 'var(--space-5, 20px)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div style={panelStyle}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('contrastWs.selectProtocol')}</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)' }}>{t('contrastWs.selectProtocol')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <select value={selectedProtocol} onChange={e => { setSelectedProtocol(e.target.value); setCalculatedParams(null) }} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}}>
                 <option value="">{t('contrastWs.selectProtocolPlaceholder')}</option>
@@ -347,7 +347,7 @@ export default function ContrastInjectionWorkstationPage() {
               </select>
 
               {selectedProtocol && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 'var(--space-2, 8px)' }}>
                   <div>
                     <label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('contrastWs.weight')}</label>
                     <input type="number" value={weight} onChange={e => setWeight(Number(e.target.value))} style={inputStyle} />
@@ -364,13 +364,13 @@ export default function ContrastInjectionWorkstationPage() {
               </button>
 
               {calculatedParams && (
-                <div style={{ marginTop: 8, padding: 12, background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-success-500)', marginBottom: 8 }}>{t('contrastWs.calcResult')}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-success-500)', marginBottom: 'var(--space-2, 8px)' }}>{t('contrastWs.calcResult')}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                     <div><span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{t('contrastWs.volume')}</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.volumeMl} mL</div></div>
                     <div><span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{t('contrastWs.flowRate')}</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.flowRateMls} mL/s</div></div>
                   </div>
-                  <div style={{ marginTop: 4, fontSize: 12, color: '#6e7681' }}>{calculatedParams.rationale}</div>
+                  <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: '#6e7681' }}>{calculatedParams.rationale}</div>
                 </div>
               )}
             </div>
@@ -378,8 +378,8 @@ export default function ContrastInjectionWorkstationPage() {
 
           {/* [Wave 3B] 注射前核查面板 */}
           <div style={{ ...panelStyle, borderColor: preCheck ? (preCheck.passed ? 'var(--color-success-500)' : 'var(--color-error-500)') : 'var(--border-default, #30363d)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 {preCheck?.passed ? <ShieldCheck size={16} color="var(--color-success-500)" /> : <ShieldAlert size={16} color={preCheck ? 'var(--color-error-500)' : 'var(--text-muted, #8b949e)'} />}
                 {t('contrastSafety.preCheck')}
               </div>
@@ -388,18 +388,18 @@ export default function ContrastInjectionWorkstationPage() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, cursor: 'pointer' }}>
                 <input type="checkbox" checked={consentSigned} onChange={e => { setConsentSigned(e.target.checked); setPreCheck(null) }} />
                 {t('contrastSafety.consentSigned')}
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, cursor: 'pointer' }}>
                 <input type="checkbox" checked={pregnant} onChange={e => { setPregnant(e.target.checked); setPreCheck(null) }} />
                 {t('contrastSafety.pregnant')}
               </label>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)' }}>
               {([
                 { key: 'consent', label: t('contrastSafety.consent') },
                 { key: 'allergy', label: t('contrastSafety.allergy') },
@@ -418,20 +418,20 @@ export default function ContrastInjectionWorkstationPage() {
                       {passed ? <CheckCircle2 size={13} color="var(--color-success-500)" /> : <XCircle size={13} color="var(--color-error-500)" />}
                       {item.label}
                     </div>
-                    <div style={{ fontSize: 11, color: passed ? 'var(--color-success-500)' : 'var(--color-error-500)', marginTop: 4 }}>{check?.detail ?? '—'}</div>
+                    <div style={{ fontSize: 11, color: passed ? 'var(--color-success-500)' : 'var(--color-error-500)', marginTop: 'var(--space-1, 4px)' }}>{check?.detail ?? '—'}</div>
                   </div>
                 )
               })}
             </div>
 
             {preCheck && !preCheck.passed && (
-              <div style={{ marginTop: 12, padding: '10px 12px', background: '#ef444415', border: '1px solid #ef444440', borderRadius: 6, fontSize: 12, color: '#f87171' }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('contrastSafety.blocked')}</div>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: '10px 12px', background: '#ef444415', border: '1px solid #ef444440', borderRadius: 6, fontSize: 12, color: '#f87171' }}>
+                <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('contrastSafety.blocked')}</div>
                 <div>{preCheck.blockers.map(blockerLabel).join('、')}</div>
               </div>
             )}
             {preCheck?.passed && (
-              <div style={{ marginTop: 12, padding: '10px 12px', background: '#22c55e15', border: '1px solid #22c55e40', borderRadius: 6, fontSize: 12, color: 'var(--color-success-500)', fontWeight: 600 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: '10px 12px', background: '#22c55e15', border: '1px solid #22c55e40', borderRadius: 6, fontSize: 12, color: 'var(--color-success-500)', fontWeight: 600 }}>
                 {t('contrastSafety.passed')}
               </div>
             )}
@@ -439,8 +439,8 @@ export default function ContrastInjectionWorkstationPage() {
 
           {/* [Wave 3B] 过敏试验记录 */}
           <div style={panelStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <FlaskConical size={16} />{t('contrastSafety.allergyRecord')}
               </div>
               <button onClick={() => setShowAllergyForm(!showAllergyForm)} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: showAllergyForm ? 'var(--bg-secondary, #21262d)' : 'transparent', color: 'var(--text-primary, #f0f6fc)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -449,7 +449,7 @@ export default function ContrastInjectionWorkstationPage() {
             </div>
 
             {showAllergyForm && (
-              <div style={{ padding: 12, background: 'var(--bg-primary, #0d1117)', borderRadius: 6, marginBottom: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, marginBottom: 'var(--space-3, 12px)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
                   <label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('contrastWs.contrastAgent')}</label>
                   <input value={allergyForm.contrastType} onChange={e => setAllergyForm({ ...allergyForm, contrastType: e.target.value })} placeholder={selectedProto?.contrastName ?? t('contrastWs.defaultContrast')} style={inputStyle} />
@@ -470,7 +470,7 @@ export default function ContrastInjectionWorkstationPage() {
                   <label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('contrastSafety.notes')}</label>
                   <input value={allergyForm.notes} onChange={e => setAllergyForm({ ...allergyForm, notes: e.target.value })} style={inputStyle} />
                 </div>
-                <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 8 }}>
+                <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   <button onClick={() => void handleRecordAllergy()} disabled={allergySubmitting} style={{ padding: '7px 16px', borderRadius: 6, border: 'none', background: 'var(--color-info-600)', color: '#fff', cursor: allergySubmitting ? 'wait' : 'pointer', fontSize: 12 }}>{t('contrastSafety.submit')}</button>
                   <button onClick={() => setShowAllergyForm(false)} style={{ padding: '7px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('contrastSafety.cancel')}</button>
                 </div>
@@ -492,7 +492,7 @@ export default function ContrastInjectionWorkstationPage() {
 
           {/* [Wave 3B] 注射后留观 */}
           <div style={panelStyle}>
-            <div style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <Clock size={16} />{t('contrastSafety.observation')}
             </div>
             {!observation ? (
@@ -510,7 +510,7 @@ export default function ContrastInjectionWorkstationPage() {
                   </div>
                   <span style={{ fontSize: 12, color: '#6e7681' }}>{observation.id}</span>
                 </div>
-                <div style={{ height: 6, background: 'var(--bg-primary, #0d1117)', borderRadius: 3, overflow: 'hidden', marginBottom: 12 }}>
+                <div style={{ height: 6, background: 'var(--bg-primary, #0d1117)', borderRadius: 3, overflow: 'hidden', marginBottom: 'var(--space-3, 12px)' }}>
                   <div style={{ height: '100%', width: `${observation.status === 'discharged' ? 100 : Math.min(100, ((observation.durationMinutes * 60 - liveRemaining) / (observation.durationMinutes * 60)) * 100)}%`, background: liveCanDischarge ? 'var(--color-success-500)' : 'var(--color-info-600)', transition: 'width 0.5s linear' }} />
                 </div>
 
@@ -519,8 +519,8 @@ export default function ContrastInjectionWorkstationPage() {
                   {observation.records.map((rec, idx) => (
                     <div key={idx} style={{ padding: '6px 10px', background: 'var(--bg-primary, #0d1117)', borderRadius: 4, fontSize: 12 }}>
                       <span style={{ color: '#6e7681' }}>{new Date(rec.at).toLocaleTimeString('zh-CN')}</span>
-                      <span style={{ marginLeft: 8 }}>{rec.symptoms}</span>
-                      {rec.action && <span style={{ marginLeft: 8, color: 'var(--text-muted, #8b949e)' }}>[{rec.action}]</span>}
+                      <span style={{ marginLeft: 'var(--space-2, 8px)' }}>{rec.symptoms}</span>
+                      {rec.action && <span style={{ marginLeft: 'var(--space-2, 8px)', color: 'var(--text-muted, #8b949e)' }}>[{rec.action}]</span>}
                     </div>
                   ))}
                   {observation.records.length === 0 && <div style={{ color: '#6e7681', fontSize: 12 }}>{t('contrastSafety.noRecords')}</div>}
@@ -532,12 +532,12 @@ export default function ContrastInjectionWorkstationPage() {
                       <input value={recordForm.symptoms} onChange={e => setRecordForm({ ...recordForm, symptoms: e.target.value })} placeholder={t('contrastSafety.symptoms')} style={inputStyle} />
                       <input value={recordForm.action} onChange={e => setRecordForm({ ...recordForm, action: e.target.value })} placeholder={t('contrastSafety.action')} style={inputStyle} />
                     </div>
-                    <button onClick={() => void handleAddObservationRecord()} disabled={!recordForm.symptoms.trim()} style={{ marginTop: 8, padding: '7px 14px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: recordForm.symptoms.trim() ? 'var(--text-primary, #f0f6fc)' : '#484f58', cursor: recordForm.symptoms.trim() ? 'pointer' : 'not-allowed', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button onClick={() => void handleAddObservationRecord()} disabled={!recordForm.symptoms.trim()} style={{ marginTop: 'var(--space-2, 8px)', padding: '7px 14px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: recordForm.symptoms.trim() ? 'var(--text-primary, #f0f6fc)' : '#484f58', cursor: recordForm.symptoms.trim() ? 'pointer' : 'not-allowed', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Plus size={13} />{t('contrastSafety.addRecord')}
                     </button>
 
-                    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, cursor: 'pointer' }}>
                         <input type="checkbox" checked={doctorRelease} onChange={e => setDoctorRelease(e.target.checked)} />
                         {t('contrastSafety.doctorRelease')}
                       </label>
@@ -546,7 +546,7 @@ export default function ContrastInjectionWorkstationPage() {
                       </button>
                     </div>
                     {!liveCanDischarge && (
-                      <div style={{ marginTop: 8, fontSize: 12, color: 'var(--color-warning-500)' }}>{t('contrastSafety.durationNotMet')}</div>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--color-warning-500)' }}>{t('contrastSafety.durationNotMet')}</div>
                     )}
                   </>
                 )}
@@ -555,23 +555,23 @@ export default function ContrastInjectionWorkstationPage() {
           </div>
 
           <div style={panelStyle}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('contrastWs.protocolDetail')}</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)' }}>{t('contrastWs.protocolDetail')}</div>
             {selectedProto ? (
               <div>
-                <div style={{ display: 'flex', gap: 16, marginBottom: 8 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('contrastWs.totalVolume')} <span style={{ color: 'var(--text-primary, #f0f6fc)' }}>{selectedProto.totalVolumeMl}mL</span></span>
                   <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('contrastWs.concentration')} <span style={{ color: 'var(--text-primary, #f0f6fc)' }}>{selectedProto.concentration}</span></span>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 8 }}>{t('contrastWs.phases')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-2, 8px)' }}>{t('contrastWs.phases')}</div>
                 {selectedProto.phases.map((phase, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', background: 'var(--bg-primary, #0d1117)', borderRadius: 4, marginBottom: 4, fontSize: 12 }}>
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', background: 'var(--bg-primary, #0d1117)', borderRadius: 4, marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>
                     <span>{phase.phase === 'bolus' ? t('contrastWs.phase.bolus') : phase.phase === 'chaser' ? t('contrastWs.phase.chaser') : phase.phase === 'delay' ? t('contrastWs.phase.delay') : t('contrastWs.phase.fractional')}</span>
                     <span>{phase.volumeMl > 0 ? `${phase.volumeMl}mL @ ${phase.flowRateMls}mL/s` : `延迟 ${phase.delaySec}s`}</span>
                     <span style={{ color: '#6e7681' }}>{phase.description}</span>
                   </div>
                 ))}
                 {calculatedParams && (
-                  <button onClick={() => void handleStartInjection()} disabled={injecting || !canInject} title={canInject ? '' : t('contrastSafety.injectionBlocked')} style={{ marginTop: 12, width: '100%', padding: '10px', borderRadius: 6, border: 'none', cursor: injecting ? 'wait' : canInject ? 'pointer' : 'not-allowed', background: canInject ? 'var(--color-success-500)' : 'var(--bg-secondary, #21262d)', color: canInject ? '#fff' : '#484f58', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <button onClick={() => void handleStartInjection()} disabled={injecting || !canInject} title={canInject ? '' : t('contrastSafety.injectionBlocked')} style={{ marginTop: 'var(--space-3, 12px)', width: '100%', padding: '10px', borderRadius: 6, border: 'none', cursor: injecting ? 'wait' : canInject ? 'pointer' : 'not-allowed', background: canInject ? 'var(--color-success-500)' : 'var(--bg-secondary, #21262d)', color: canInject ? '#fff' : '#484f58', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
                     <Play size={16} />{injecting ? t('contrastWs.commandSending') : canInject ? t('contrastWs.startInjection') : t('contrastSafety.blocked')}
                   </button>
                 )}
@@ -584,12 +584,12 @@ export default function ContrastInjectionWorkstationPage() {
         </div>
 
         {showHistory && (
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, maxHeight: '80vh', overflowY: 'auto' }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('contrastWs.injectionHistory')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)' }}>{t('contrastWs.injectionHistory')}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
               {records.map(r => (
                 <div key={r.id} style={{ padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontSize: 12 }}>{r.patientName}</span>
                      <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 3, background: r.status === 'completed' ? '#22c55e20' : r.status === 'in_progress' ? '#3b82f620' : '#ef444420', color: r.status === 'completed' ? 'var(--color-success-500)' : r.status === 'in_progress' ? 'var(--color-primary-500)' : 'var(--color-error-500)' }}>
                       {r.status === 'completed' ? t('contrastWs.recStatus.completed') : r.status === 'in_progress' ? t('contrastWs.recStatus.inProgress') : r.status === 'cancelled' ? t('contrastWs.recStatus.cancelled') : t('contrastWs.recStatus.aborted')}

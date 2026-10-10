@@ -123,7 +123,7 @@ export const FhirServerPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirServer.title')}</span>
         <Tag color="cyan">v3.0.6.8-61</Tag>
@@ -137,7 +137,7 @@ export const FhirServerPage: React.FC = () => {
         <ErrorBanner message={loadError} onRetry={() => void loadResources(resourceType)} retryLabel={t('w7demo.retry')} />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('fhirServer.capability')} value="1" color="primary" icon={<Globe size={18} />} />
         <StatCard title={t('fhirServer.resourceType')} value="5" color="primary" icon={<Search size={18} />} />
         <StatCard title={t('fhirServer.interaction')} value="4" suffix={t('fhirServer.kinds')} color="primary" icon={<Send size={18} />} />
@@ -154,9 +154,9 @@ export const FhirServerPage: React.FC = () => {
                 <Descriptions.Item label={t('fhirServer.interaction')}>{capability.rest?.[0]?.interaction?.join(', ') ?? '-'}</Descriptions.Item>
                 <Descriptions.Item label={t('fhirServer.security')}>{capability.rest?.[0]?.security?.cors ? t('fhirServer.corsSmart') : t('fhirServer.none')}</Descriptions.Item>
               </Descriptions>
-              <div style={{fontWeight:600,marginTop:12,marginBottom:4}}>{t('fhirServer.resourceTypes')}</div>
+              <div style={{fontWeight:600,marginTop:'var(--space-3, 12px)',marginBottom:'var(--space-1, 4px)'}}>{t('fhirServer.resourceTypes')}</div>
               {(capability.rest?.[0]?.resource ?? []).map((r: any) => <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>)}
-              <Alert type="info" showIcon style={{ marginTop: 12 }} message={t('fhirServer.capabilityAlert')} />
+              <Alert type="info" showIcon style={{ marginTop: 'var(--space-3, 12px)' }} message={t('fhirServer.capabilityAlert')} />
             </Card> : null
           },
           { key:'browse', label:t('fhirServer.tabBrowse'), children:
@@ -186,10 +186,10 @@ export const FhirServerPage: React.FC = () => {
                   <Input value={fhirQuery} onChange={e=>setFhirQuery(e.target.value)} placeholder='_count=5&name:contains=张' />
                   <Button type="primary" icon={<Search size={14}/>} onClick={handleQuery}>{t('fhirServer.query')}</Button>
                 </Space.Compact>
-                <div style={{fontSize:11,color:'#999',marginTop:4}}>{t('fhirServer.querySyntax')}</div>
+                <div style={{fontSize:11,color:'#999',marginTop:'var(--space-1, 4px)'}}>{t('fhirServer.querySyntax')}</div>
               </Card>
               {queryResult && <Card size="small" title={t('fhirServer.queryResult')}>
-                <pre style={{fontSize:12,maxHeight:400,overflow:'auto',background:'var(--bg-card)',padding:8,borderRadius:4}}>
+                <pre style={{fontSize:12,maxHeight:400,overflow:'auto',background:'var(--bg-card)',padding:'var(--space-2, 8px)',borderRadius:4}}>
                   {JSON.stringify(queryResult, null, 2).slice(0, 2000)}
                 </pre>
               </Card>}
@@ -198,7 +198,7 @@ export const FhirServerPage: React.FC = () => {
           { key:'send', label:t('fhirServer.tabSend'), children:
             <Card size="small" extra={<Button type="primary" icon={<Send size={12}/>} onClick={() => setSendModal(true)}>{t('fhirServer.sendResource')}</Button>}>
               <Button block icon={<Plus size={14}/>} onClick={() => setSendModal(true)}>{t('fhirServer.newAndSend')}</Button>
-              <div style={{fontSize:12,color:'#999',marginTop:8}}>{t('fhirServer.sendHint')}</div>
+              <div style={{fontSize:12,color:'#999',marginTop:'var(--space-2, 8px)'}}>{t('fhirServer.sendHint')}</div>
             </Card>
           },
         ]}

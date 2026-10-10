@@ -190,23 +190,23 @@ export const SmartAuthPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-primary)",}}>
-      <Space style={{ marginBottom: 16 }} wrap>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-primary)",}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <ShieldCheck size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('smartAuth.title')}</span>
         <Tag color="blue">SMART on FHIR</Tag>
         <Tag color="green">R4</Tag>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError(null)} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="error" showIcon message={error} closable onClose={() => setError(null)} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 16, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
         <Card
           size="small"
           title={<Space><FileJson size={14} />{t('smartAuth.configTitle')}</Space>}
           extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={fetchConfig} loading={configLoading}>{t('smartAuth.refresh')}</Button>}
         >
-          {configError && <Alert type="warning" showIcon message={configError} style={{ marginBottom: 12 }} />}
+          {configError && <Alert type="warning" showIcon message={configError} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
           {config ? (
             <Descriptions column={1} size="small" bordered>
               <Descriptions.Item label={t('smartAuth.authorizationEndpoint')}>{config.authorization_endpoint || "-"}</Descriptions.Item>
@@ -227,7 +227,7 @@ export const SmartAuthPage: React.FC = () => {
             state: `st-${Date.now()}`,
             scopes: ["openid", "fhirUser", "patient/*.read"],
           }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)' }}>
               <Form.Item label={t('smartAuth.clientId')} name="clientId" rules={[{ required: true }]}>
                 <Input placeholder="g005-ris-web" />
               </Form.Item>
@@ -265,7 +265,7 @@ export const SmartAuthPage: React.FC = () => {
         size="small"
         title={<Space><KeyRound size={14} />{t('smartAuth.flow')}</Space>}
         extra={authCode && <Tag color="green">code: {authCode}</Tag>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       >
         <Space wrap size={12}>
           <Button
@@ -296,7 +296,7 @@ export const SmartAuthPage: React.FC = () => {
         </Space>
 
         {tokenInfo && (
-          <Descriptions column={1} size="small" bordered style={{ marginTop: 16 }}>
+          <Descriptions column={1} size="small" bordered style={{ marginTop: 'var(--space-4, 16px)' }}>
             <Descriptions.Item label="access_token">
               <Text code style={{ wordBreak: "break-all" }}>{tokenInfo.accessToken}</Text>
             </Descriptions.Item>
@@ -308,7 +308,7 @@ export const SmartAuthPage: React.FC = () => {
         )}
 
         {introspect && (
-          <Descriptions column={2} size="small" bordered style={{ marginTop: 16 }}>
+          <Descriptions column={2} size="small" bordered style={{ marginTop: 'var(--space-4, 16px)' }}>
             <Descriptions.Item label={t('smartAuth.status')}>
               <Tag color={introspect.active ? "green" : "red"}>{String(introspect.active)}</Tag>
             </Descriptions.Item>

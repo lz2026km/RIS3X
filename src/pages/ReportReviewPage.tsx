@@ -296,7 +296,7 @@ export default function ReportReviewPage() {
         const statusConf = STATUS_CONFIG[task.status];
         const StageIcon = stageConf.icon;
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
             <span style={{ padding: '1px 6px', borderRadius: 3, background: stageConf.bg, color: stageConf.color, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
               <StageIcon size={9} /> {stageConf.label}
             </span>
@@ -334,12 +334,12 @@ export default function ReportReviewPage() {
     },
   ];
 
-  if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.loading')}</div>;
-  if (error) return <div role="alert" data-testid="review-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
+  if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.loading')}</div>;
+  if (error) return <div role="alert" data-testid="review-error" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (tasks.length === 0) {
     return (
-      <div data-testid="review-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('reportReviewPage.emptyTitle')}</div>
+      <div data-testid="review-empty" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>{t('reportReviewPage.emptyTitle')}</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportReviewPage.emptyHint')}</div>
       </div>
     );
@@ -352,9 +352,9 @@ export default function ReportReviewPage() {
         background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)',
         color: '#fff', padding: '12px 20px', flexShrink: 0,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <ClipboardCheck size={20} />
               {t('reportReviewPage.title')}
               <span style={{
@@ -372,7 +372,7 @@ export default function ReportReviewPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 'var(--space-2, 8px)' }}>
           <KpiMini icon={ListChecks} label={t('reportReviewPage.kpiToday')} value={reviewKpi.totalToday} color="#bfdbfe" />
           <KpiMini icon={Clock} label={t('reportReviewPage.kpiPendingInitial')} value={reviewKpi.pendingInitial} color="#fde68a" />
           <KpiMini icon={ShieldCheck} label={t('reportReviewPage.kpiPendingFinal')} value={reviewKpi.pendingFinal} color="#fed7aa" />
@@ -413,7 +413,7 @@ export default function ReportReviewPage() {
           );
         })}
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0' }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0' }}>
           <div style={{ position: 'relative' }}>
             <Search size={12} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
             <input
@@ -494,7 +494,7 @@ export default function ReportReviewPage() {
         />
 
         {/* 右：任务详情 + 审核操作 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-4, 16px)' }}>
           {selectedTask ? (
             <ReviewTaskDetail
               task={selectedTask}
@@ -510,7 +510,7 @@ export default function ReportReviewPage() {
               onReloadTasks={() => { void loadTasks(); }}
             />
           ) : (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.selectTaskHint')}</div>
+            <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.selectTaskHint')}</div>
           )}
         </div>
       </div>
@@ -631,7 +631,7 @@ const ReviewTaskDetail: React.FC<{
   return (
     <div>
       {/* [v3.0.6.11-103 Wave 12] 报告流程状态条: 7 态状态机 + 下一步一键流转 (审核/签发场景) */}
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <ReportFlowBar
           status={(task as any).statusRaw || (task.stage === 'initial' ? 'INITIAL_REVIEW' : task.stage === 'final' ? 'FINAL_REVIEW' : task.stage === 'sign' ? 'SIGNING' : undefined)}
           reportId={task.reportId}
@@ -647,10 +647,10 @@ const ReviewTaskDetail: React.FC<{
       {/* [v3.0.6.11-103 Wave 12] 修改痕迹视图: 原文 + diff 高亮 */}
       {diffOpen && (
         <div style={{
-          background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)',
           border: '1px solid var(--border-color)',
         }} data-testid="review-diff-view">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <History size={14} /> {t('w12.review.modificationView')}
               <Tag color="green" style={{ margin: 0 }}>{task.reportId}</Tag>
@@ -660,17 +660,17 @@ const ReviewTaskDetail: React.FC<{
             </button>
           </div>
           {diffLoading ? (
-            <div style={{ padding: 24, textAlign: 'center', color: '#64748b', fontSize: 12 }}>{t('w12.review.diffLoading')}</div>
+            <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: '#64748b', fontSize: 12 }}>{t('w12.review.diffLoading')}</div>
           ) : diffData && diffData.old !== diffData.cur ? (
             <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
               <div style={{ marginBottom: 6, color: '#64748b' }}>
-                <span style={{ background: '#fef2f2', color: '#b91c1c', padding: '1px 6px', borderRadius: 3, marginRight: 8 }}>{t('reportReviewPage.diffRemoved')}</span>
+                <span style={{ background: '#fef2f2', color: '#b91c1c', padding: '1px 6px', borderRadius: 3, marginRight: 'var(--space-2, 8px)' }}>{t('reportReviewPage.diffRemoved')}</span>
                 <span style={{ background: '#ecfdf5', color: '#047857', padding: '1px 6px', borderRadius: 3 }}>{t('reportReviewPage.diffAdded')}</span>
               </div>
               <DiffHighlight oldText={diffData.old} newText={diffData.cur} />
               {diffData.changes.length > 0 && (
-                <div style={{ marginTop: 10, padding: 8, background: 'var(--color-warning-bg)', borderRadius: 6 }}>
-                  <div style={{ fontWeight: 700, color: '#b45309', marginBottom: 4 }}>{t('w12.review.diffField')} ({diffData.changes.length})</div>
+                <div style={{ marginTop: 10, padding: 'var(--space-2, 8px)', background: 'var(--color-warning-bg)', borderRadius: 6 }}>
+                  <div style={{ fontWeight: 700, color: '#b45309', marginBottom: 'var(--space-1, 4px)' }}>{t('w12.review.diffField')} ({diffData.changes.length})</div>
                   {diffData.changes.map((c, i) => (
                     <div key={i} style={{ fontSize: 12, color: '#78350f' }}>• {c}</div>
                   ))}
@@ -678,8 +678,8 @@ const ReviewTaskDetail: React.FC<{
               )}
             </div>
           ) : (
-            <div style={{ padding: 16, textAlign: 'center', color: 'var(--color-success)', fontSize: 12 }}>
-              <CheckCircle2 size={14} style={{ verticalAlign: -2, marginRight: 4 }} /> {t('w12.review.diffNoChange')}
+            <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center', color: 'var(--color-success)', fontSize: 12 }}>
+              <CheckCircle2 size={14} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} /> {t('w12.review.diffNoChange')}
             </div>
           )}
         </div>
@@ -688,7 +688,7 @@ const ReviewTaskDetail: React.FC<{
       {/* [v3.0.6.11-103 Wave 12] 发布后处置: 危急值自动检测 + 一键转危急值处置 + 随访自动建议 */}
       {(task.status === 'completed' || task.status === 'rejected') && (
         <div style={{
-          background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)',
           border: '1px solid var(--border-color)',
         }} data-testid="post-publish-panel">
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -698,9 +698,9 @@ const ReviewTaskDetail: React.FC<{
             {criticalHits.length > 0 ? (
               <div style={{
                 padding: 10, borderRadius: 6, background: 'var(--color-error-bg)',
-                border: '1px solid #fca5a5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap',
+                border: '1px solid #fca5a5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-2, 8px)', flexWrap: 'wrap',
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <Siren size={16} color="var(--color-error-600)" />
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#b91c1c' }}>
@@ -725,7 +725,7 @@ const ReviewTaskDetail: React.FC<{
               </div>
             )}
           </div>
-          <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: 8 }}>
+          <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <CalendarClock size={13} /> {t('w12.review.followupSuggest')}
             </div>
@@ -741,12 +741,12 @@ const ReviewTaskDetail: React.FC<{
       )}
       {/* 头部 */}
       <div style={{
-        background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
+        background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)',
         border: '1px solid var(--border-color)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               {task.patientName}
               <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 400 }}>· {task.modality} {task.bodyPart}</span>
             </div>
@@ -756,7 +756,7 @@ const ReviewTaskDetail: React.FC<{
             <span style={{
               padding: '3px 10px', borderRadius: 4,
               background: stageConf.bg, color: stageConf.color, fontWeight: 700, fontSize: 12,
-              display: 'flex', alignItems: 'center', gap: 4,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
             }}>
               <StageIcon size={11} /> {stageConf.label}
             </span>
@@ -780,9 +780,9 @@ const ReviewTaskDetail: React.FC<{
         </div>
 
         {/* 阶段进度 */}
-        <div style={{ marginTop: 12, padding: 10, background: 'var(--content-bg)', borderRadius: 6 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: 'var(--content-bg)', borderRadius: 6 }}>
           <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>{t('reportReviewPage.threeStageProcess')}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             {['initial', 'final', 'sign'].map((s, i) => {
               const sConf = STAGE_CONFIG[s as ReviewStage];
               const SIcon = sConf.icon;
@@ -791,10 +791,10 @@ const ReviewTaskDetail: React.FC<{
               return (
                 <React.Fragment key={s}>
                   <div style={{
-                    flex: 1, padding: 8, background: 'var(--bg-card)', border: `1px solid ${isCurrent ? sConf.color : '#e2e8f0'}`,
+                    flex: 1, padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', border: `1px solid ${isCurrent ? sConf.color : '#e2e8f0'}`,
                     borderRadius: 4, textAlign: 'center',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 12, color: isPast ? '#10b981' : isCurrent ? sConf.color : 'var(--text-secondary)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: isPast ? '#10b981' : isCurrent ? sConf.color : 'var(--text-secondary)' }}>
                       <SIcon size={11} />
                       <strong>{sConf.label}</strong>
                     </div>
@@ -814,14 +814,14 @@ const ReviewTaskDetail: React.FC<{
 
       {/* 报告内容（只读） */}
       <div style={{
-        background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
+        background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)',
         border: '1px solid var(--border-color)',
       }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={14} /> {t('reportReviewPage.reportContent')}
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
               {/* [v3.0.6.11-103 Wave 12] 修改痕迹开关: 原文 diff 高亮 */}
               <button
                 onClick={() => void loadDiff()}
@@ -829,7 +829,7 @@ const ReviewTaskDetail: React.FC<{
                   padding: '4px 8px', border: `1px solid ${diffOpen ? 'var(--color-primary-800)' : 'var(--border-color)'}`, borderRadius: 4,
                   background: diffOpen ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   color: diffOpen ? 'var(--color-primary-800)' : 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 4, fontWeight: diffOpen ? 700 : 400,
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontWeight: diffOpen ? 700 : 400,
                 }}
               >
                 <History size={11} /> {diffOpen ? t('w12.review.originalView') : t('w12.review.modificationView')}
@@ -845,21 +845,21 @@ const ReviewTaskDetail: React.FC<{
             </div>
           </div>
         <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
-          <div style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
             <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionFindings')}</strong>
-            <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
+            <div style={{ marginTop: 'var(--space-1, 4px)', padding: 'var(--space-2, 8px)', background: 'var(--content-bg)', borderRadius: 4 }}>
               {findingsText}
             </div>
           </div>
-          <div style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
             <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionImpression')}</strong>
-            <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
+            <div style={{ marginTop: 'var(--space-1, 4px)', padding: 'var(--space-2, 8px)', background: 'var(--content-bg)', borderRadius: 4 }}>
               {impressionText}
             </div>
           </div>
           <div>
             <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
-            <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
+            <div style={{ marginTop: 'var(--space-1, 4px)', padding: 'var(--space-2, 8px)', background: 'var(--content-bg)', borderRadius: 4 }}>
               {(task as any).recommendationsText || t('reportReviewPage.followupAdvice')}
             </div>
           </div>
@@ -876,25 +876,25 @@ const ReviewTaskDetail: React.FC<{
         styles={{ body: { maxHeight: '85vh', overflowY: 'auto' } }}
       >
         <div style={{ fontSize: 12, lineHeight: 2, color: 'var(--text-primary)' }}>
-          <div style={{ marginBottom: 16, padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, fontSize: 12 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.patientLabel')}</span>{task.patientName}</div>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.examLabel')}</span>{task.bodyPart}（{task.modality}）</div>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.reportDoctorLabel')}</span>{task.reportDoctorTitle} {task.reportDoctorName}</div>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.submitTimeLabel')}</span>{task.submittedAt}</div>
             </div>
           </div>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionFindings')}</strong>
-            <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{findingsText}</div>
+            <div style={{ marginTop: 'var(--space-1, 4px)', padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 4 }}>{findingsText}</div>
           </div>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionImpression')}</strong>
-            <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{impressionText}</div>
+            <div style={{ marginTop: 'var(--space-1, 4px)', padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 4 }}>{impressionText}</div>
           </div>
           <div>
             <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
-            <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>
+            <div style={{ marginTop: 'var(--space-1, 4px)', padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 4 }}>
               {(task as any).recommendationsText || t('reportReviewPage.followupAdvice')}
             </div>
           </div>
@@ -904,19 +904,19 @@ const ReviewTaskDetail: React.FC<{
       {/* 初审/终审历史 */}
       {(task.initialAuditCompletedAt || task.finalAuditCompletedAt) && (
         <div style={{
-          background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)',
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={14} /> {t('reportReviewPage.auditHistory')}
           </div>
           {task.initialAuditCompletedAt && (
-            <div style={{ padding: 10, background: 'var(--color-info-bg)', border: '1px solid #bae6fd', borderRadius: 6, marginBottom: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ padding: 10, background: 'var(--color-info-bg)', border: '1px solid #bae6fd', borderRadius: 6, marginBottom: 'var(--space-2, 8px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                 <strong style={{ color: '#0369a1', fontSize: 12 }}>{t('reportReviewPage.initialAuditDone')}</strong>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.initialAuditCompletedAt}</span>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>
                 {task.initialAuditTitle} {task.initialAuditDoctorName} · {t('reportReviewPage.score')} {task.initialAuditScore}/100
               </div>
               {task.initialAuditSuggestion && (
@@ -928,11 +928,11 @@ const ReviewTaskDetail: React.FC<{
           )}
           {task.finalAuditCompletedAt && (
             <div style={{ padding: 10, background: '#8b5cf622', border: '1px solid #f0abfc', borderRadius: 6 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                 <strong style={{ color: '#86198f', fontSize: 12 }}>{t('reportReviewPage.finalAuditDone')}</strong>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.finalAuditCompletedAt}</span>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>
                 {task.finalAuditTitle} {task.finalAuditDoctorName} · {t('reportReviewPage.score')} {task.finalAuditScore}/100
               </div>
               {task.finalAuditSuggestion && (
@@ -944,7 +944,7 @@ const ReviewTaskDetail: React.FC<{
           )}
           {task.rejectedReason && (
             <div style={{ padding: 10, background: 'var(--color-error-bg)', border: '1px solid #fca5a5', borderRadius: 6 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#b91c1c', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#b91c1c', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <XCircle size={12} /> {t('reportReviewPage.statusRejected')}
               </div>
               <div style={{ fontSize: 12, color: '#7f1d1d' }}>{task.rejectedReason}</div>
@@ -956,16 +956,16 @@ const ReviewTaskDetail: React.FC<{
       {/* 审核操作面板 */}
       {(task.status === 'pending' || task.status === 'in-progress' || task.status === 'overdue') && (
         <div style={{
-          background: 'var(--bg-card)', borderRadius: 8, padding: 16,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)',
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Edit2 size={14} /> {stageConf.label}{t('reportReviewPage.actions')}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('reportReviewPage.auditScoreLabel')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('reportReviewPage.auditScoreLabel')}</div>
               <input
                 type="range" min={0} max={100} value={auditScore}
                 onChange={e => setAuditScore(Number(e.target.value))}
@@ -976,8 +976,8 @@ const ReviewTaskDetail: React.FC<{
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('reportReviewPage.quickScore')}</div>
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('reportReviewPage.quickScore')}</div>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 {[60, 75, 85, 90, 95].map(s => (
                   <button
                     key={s}
@@ -998,21 +998,21 @@ const ReviewTaskDetail: React.FC<{
             </div>
           </div>
 
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('reportReviewPage.auditOpinion')}</div>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('reportReviewPage.auditOpinion')}</div>
             <textarea
               value={auditSuggestion}
               onChange={e => setAuditSuggestion(e.target.value)}
               rows={3}
               placeholder={t('reportReviewPage.auditOpinionPlaceholder')}
               style={{
-                width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
+                width: '100%', padding: 'var(--space-2, 8px)', border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, resize: 'vertical', fontFamily: 'inherit',
               }}
             />
             {/* [v3.0.6.11-103 Wave 12] 快捷退回原因: 一键填充 */}
             <div style={{ marginTop: 6 }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('w12.review.quickReasons')}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('w12.review.quickReasons')}</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {QUICK_REJECT_REASONS.map(r => (
                   <button
@@ -1033,7 +1033,7 @@ const ReviewTaskDetail: React.FC<{
           </div>
 
           {/* 决策按钮 */}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
             <button
               onClick={() => setAuditDecision('approve')}
               style={{
@@ -1068,7 +1068,7 @@ const ReviewTaskDetail: React.FC<{
             loading={submitting}
             disabled={!auditDecision || (auditDecision === 'reject' && !auditSuggestion)}
             block
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
             onClick={() => onAuditSubmit(auditDecision ?? 'approve')}
           >
             {submitting ? t('reportReviewPage.submitting') : t('w9c.reportReview.submitLabel', { stage: stageConf.label, name: currentUser.name })}

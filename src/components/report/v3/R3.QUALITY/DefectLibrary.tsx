@@ -150,7 +150,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -173,7 +173,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </Button>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={4}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('defectLibrary.totalDefects')}</span>}
@@ -255,7 +255,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         ]}
       />
 
-      <Card size="small" style={{ marginBottom: 8 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Space wrap>
           <Input
             prefix={<Search size={12} />}
@@ -326,7 +326,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           style={{
             background: 'var(--bg-card)',
             borderRadius: 8,
-            padding: 4,
+            padding: 'var(--space-1, 4px)',
             maxHeight: 600,
             overflowY: 'auto',
           }}
@@ -339,7 +339,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                 data-testid={`defect-${d.code}`}
                 style={{
                   padding: 10,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                   background: d.isActive ? 'var(--bg-card)' : 'var(--bg-primary)',
                   borderRadius: 6,
                   border: '1px solid var(--border-color)',
@@ -368,14 +368,14 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.description}</div>
                       {d.examples.length > 0 && (
-                        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }}>
                           {t('defectLibrary.examplesPrefix')}{d.examples.join('；')}
                         </div>
                       )}
-                      <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 'var(--space-1, 4px)' }}>
                         {t('defectLibrary.solutionPrefix')}{d.solution}
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }}>
                         {t('defectLibrary.trigger')} {d.count} {t('defectLibrary.timesUnit')} · {t('defectLibrary.remediationSla')} {d.sla}h · {t('defectLibrary.updated')} {new Date(d.updatedAt).toLocaleDateString()}
                         {d.tags.length > 0 && t('w9e.defectLibrary.tagsPrefix', { tags: d.tags.join(', ') })}
                       </div>
@@ -491,7 +491,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                           height: 6,
                           background: 'var(--border-light)',
                           borderRadius: 3,
-                          marginTop: 4,
+                          marginTop: 'var(--space-1, 4px)',
                           overflow: 'hidden',
                         }}
                       >
@@ -525,7 +525,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                 })}
               </Space>
             </Card>
-            <Card size="small" title={t('defectLibrary.top5')} style={{ marginTop: 12 }}>
+            <Card size="small" title={t('defectLibrary.top5')} style={{ marginTop: 'var(--space-3, 12px)' }}>
               <List
                 size="small"
                 dataSource={[...defects].sort((a, b) => b.count - a.count).slice(0, 5)}
@@ -562,17 +562,17 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         width={680}
       >
         <Space orientation="vertical" style={{ width: '100%' }} size={10}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.code')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.code')}</div>
               <Input defaultValue={editing?.code} disabled={!!editing} placeholder={t('defectLibrary.codePlaceholder')} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.name')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.name')}</div>
               <Input defaultValue={editing?.name} placeholder={t('defectLibrary.namePlaceholder')} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.category')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.category')}</div>
               <Select
                 defaultValue={editing?.category}
                 options={DEFECT_CATEGORIES.map((c) => ({ value: c.code, label: c.name }))}
@@ -580,7 +580,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.severity')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.severity')}</div>
               <Select
                 defaultValue={editing?.severity}
                 options={[
@@ -592,11 +592,11 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.slaHours')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.slaHours')}</div>
               <Input type="number" defaultValue={editing?.sla ?? 24} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.trainingRequired')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.trainingRequired')}</div>
               <Select
                 defaultValue={editing?.trainingRequired ? 'yes' : 'no'}
                 options={[
@@ -608,15 +608,15 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </div>
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.description')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.description')}</div>
             <Input.TextArea defaultValue={editing?.description} rows={2} />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.solution')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.solution')}</div>
             <Input.TextArea defaultValue={editing?.solution} rows={2} />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.examples')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.examples')}</div>
             <Input defaultValue={editing?.examples.join('；')} />
           </div>
         </Space>
@@ -659,7 +659,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                 </ul>
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
               <div>
                 <Tag>{t('defectLibrary.triggerCount')}</Tag> <strong>{detailDrawer.count}</strong>
               </div>

@@ -82,10 +82,10 @@ const s = {
   container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #0f766e, #14b8a6)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
-  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
-  tabRow: { display: 'flex', margin: '0 16px', gap: 4 },
+  searchBar: { display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
+  tabRow: { display: 'flex', margin: '0 16px', gap: 'var(--space-1, 4px)' },
   tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#0f766e' : '#94a3b8', borderBottom: active ? '2px solid #0f766e' : '2px solid transparent' }),
-  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' },
+  listItem: { display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' },
 }
 
 export default function TechMobileWorkstation() {
@@ -395,7 +395,7 @@ export default function TechMobileWorkstation() {
       <div style={s.header}>
         <div style={s.headerTitle}>{t('techMobile.title')}</div>
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('techMobile.subtitle')}{summary.date ? ` · ${summary.date}` : ''}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-3, 12px)' }}>
           {[
             { value: summary.examsToday, label: t('techMobile.todayExams'), bg: 'rgba(255,255,255,0.15)' },
             { value: summary.pendingExams, label: t('techMobile.pendingExams'), bg: 'rgba(255,255,255,0.15)' },
@@ -409,7 +409,7 @@ export default function TechMobileWorkstation() {
           ))}
         </div>
         {/* [v3.0.6.11-95 Wave1B] 检查耗时统计: /worklist/stats 扩展字段 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)' }}>
           {[
             { value: techStats.completedToday, label: t('techMobile.completedToday'), bg: 'rgba(255,255,255,0.15)' },
             { value: techStats.avgDurationMin ? `${techStats.avgDurationMin} 分钟` : '--', label: t('techMobile.avgDuration'), bg: 'rgba(255,255,255,0.15)' },
@@ -449,7 +449,7 @@ export default function TechMobileWorkstation() {
       <div style={s.tabRow}>
         {[{ key: 'exams' as const, icon: ListChecks, label: t('techMobile.tabExams') }, { key: 'devices' as const, icon: Monitor, label: t('techMobile.tabDevices') }].map(tb => (
           <div key={tb.key} role="button" tabIndex={0} style={s.tab(tab === tb.key)} onClick={() => setTab(tb.key)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTab(tb.key) } }}>
-            <tb.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+            <tb.icon size={14} style={{ display: 'inline', marginRight: 'var(--space-1, 4px)', verticalAlign: 'middle' }} />
             {tb.label}
           </div>
         ))}
@@ -467,7 +467,7 @@ export default function TechMobileWorkstation() {
             ))}
           </div>
 
-          <div style={{ marginTop: 4 }}>
+          <div style={{ marginTop: 'var(--space-1, 4px)' }}>
             {filteredExams.map(item => (
               <div key={item.id} role="button" tabIndex={0} style={s.listItem} onClick={() => void openDetail(item)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void openDetail(item) } }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: STATUS_COLORS[item.status], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -489,7 +489,7 @@ export default function TechMobileWorkstation() {
                     {item.deviceName ? `${item.deviceName}${item.roomName ? ` · ${item.roomName}` : ''}` : item.roomName || t('techMobile.unassignedDevice')} · {item.scheduledTime}
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }} onClick={e => e.stopPropagation()}>
                   {item.status === 'scheduled' && (
                     <>
                       <button onClick={() => void handleCheckIn(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--color-primary-600)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.checkIn')}</button>
@@ -521,9 +521,9 @@ export default function TechMobileWorkstation() {
           </div>
         </>
       ) : (
-        <div style={{ padding: 16 }}>
+        <div style={{ padding: 'var(--space-4, 16px)' }}>
           {devices.map(device => (
-            <div key={device.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, marginBottom: 8, border: '1px solid var(--border-color)' }}>
+            <div key={device.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, marginBottom: 'var(--space-2, 8px)', border: '1px solid var(--border-color)' }}>
               {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="var(--color-error-600)" /> : <AlertCircle size={18} color="var(--color-warning-600)" />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{device.name}</div>

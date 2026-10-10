@@ -106,8 +106,8 @@ export default function ReportToolbar({
           display: "flex",
           alignItems: "center",
           gap: 6,
-          marginLeft: 8,
-          paddingLeft: 12,
+          marginLeft: 'var(--space-2, 8px)',
+          paddingLeft: 'var(--space-3, 12px)',
           borderLeft: "1px solid #e2e8f0",
         }}
       >
@@ -156,7 +156,7 @@ export default function ReportToolbar({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
               padding: "4px 10px",
               borderRadius: 6,
               background: "#fff5f5",
@@ -172,7 +172,7 @@ export default function ReportToolbar({
         )}
       </div>
 
-      <div style={{ display: "flex", gap: 6, marginLeft: 8, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 6, marginLeft: 'var(--space-2, 8px)', flexWrap: "wrap" }}>
         {[
           {
             label: "全部",
@@ -246,7 +246,7 @@ export default function ReportToolbar({
         style={{
           marginLeft: "auto",
           display: "flex",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           alignItems: "center",
         }}
       >
@@ -274,7 +274,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <Printer size={12} /> 批量打印
@@ -320,7 +320,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <Download size={12} /> 批量导出
@@ -345,7 +345,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <ShieldCheck size={12} /> 批量审核
@@ -370,7 +370,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <PenLine size={12} /> 批量签署
@@ -395,7 +395,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <CheckCircle size={12} /> 批量发布
@@ -420,7 +420,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <Send size={12} /> 批量提交审核
@@ -446,7 +446,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
               data-testid="bulk-archive-btn"
             >
@@ -472,7 +472,7 @@ export default function ReportToolbar({
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <XCircle size={12} /> 批量删除

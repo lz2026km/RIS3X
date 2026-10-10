@@ -166,7 +166,7 @@ export const DefectCategoryTree: React.FC<{
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -177,7 +177,7 @@ export const DefectCategoryTree: React.FC<{
             <Tag color="cyan">{t('w9e.defectCategoryTree.levelTag')}</Tag>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={6}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('w9e.defectCategoryTree.statTopCategories')}</span>}
@@ -212,7 +212,7 @@ export const DefectCategoryTree: React.FC<{
         </Row>
       </div>
 
-      <Card size="small" style={{ marginBottom: 8 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Space wrap>
           <Input
             prefix={<Search size={12} />}
@@ -309,7 +309,7 @@ export const DefectCategoryTree: React.FC<{
                 </Space>
                 <div style={{ fontSize: 12, color: '#475569' }}>{selectedNode.data.cat.description}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{selectedNode.data.cat.descriptionEn}</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)' }}>
                   <div>
                     <Tag>{t('w9e.defectCategoryTree.totalTrigger')}</Tag> <strong>{selectedNode.data.cat.totalCount}</strong>
                   </div>
@@ -325,7 +325,7 @@ export const DefectCategoryTree: React.FC<{
                 </div>
                 {selectedNode.data.defects.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('w9e.defectCategoryTree.defectSamples')}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>{t('w9e.defectCategoryTree.defectSamples')}</div>
                     <Space orientation="vertical" style={{ width: '100%' }} size={4}>
                       {selectedNode.data.defects.slice(0, 3).map((d) => (
                         <div
@@ -364,7 +364,7 @@ export const DefectCategoryTree: React.FC<{
                 )}
               </Space>
             ) : (
-              <div style={{ color: '#94a3b8', textAlign: 'center', padding: 20 }}>
+              <div style={{ color: '#94a3b8', textAlign: 'center', padding: 'var(--space-5, 20px)' }}>
                 {t('w9e.defectCategoryTree.selectHint')}
               </div>
             )}

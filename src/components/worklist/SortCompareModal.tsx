@@ -33,39 +33,39 @@ export function SortCompareModal({ items, onClose }: SortCompareModalProps) {
       onClick={onClose}
     >
       <div style={{
-        background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 640, maxHeight: '80vh', overflow: 'auto',
+        background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 640, maxHeight: '80vh', overflow: 'auto',
       }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>排序前后对比</h3>
           <button onClick={onClose} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}>
             <X size={18} />
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-          <div style={{ flex: 1, padding: 12, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ flex: 1, padding: 'var(--space-3, 12px)', background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-success-600)' }}>{improved.length}</div>
             <div style={{ fontSize: 12, color: '#15803d' }}>优先级提升</div>
           </div>
-          <div style={{ flex: 1, padding: 12, background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+          <div style={{ flex: 1, padding: 'var(--space-3, 12px)', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-error-600)' }}>{declined.length}</div>
             <div style={{ fontSize: 12, color: '#991b1b' }}>优先级下降</div>
           </div>
-          <div style={{ flex: 1, padding: 12, background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+          <div style={{ flex: 1, padding: 'var(--space-3, 12px)', background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#64748b' }}>{items.length - changed.length}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>排序不变</div>
           </div>
         </div>
 
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 8 }}>排序变化详情</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 'var(--space-2, 8px)' }}>排序变化详情</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
           {items.slice(0, 30).map((item) => {
             const diff = item.beforeRank - item.afterRank
             const isImproved = diff > 0
             const isDeclined = diff < 0
             return (
               <div key={item.exam.id} style={{
-                display: 'flex', alignItems: 'center', gap: 8,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
                 padding: '6px 8px', borderRadius: 6,
                 background: isImproved ? '#f0fdf4' : isDeclined ? '#fef2f2' : '#f8fafc',
                 fontSize: 12,
@@ -94,7 +94,7 @@ export function SortCompareModal({ items, onClose }: SortCompareModalProps) {
             )
           })}
           {items.length > 30 && (
-            <div style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', padding: 8 }}>
+            <div style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', padding: 'var(--space-2, 8px)' }}>
               ... 仅显示前30项, 共 {items.length} 项
             </div>
           )}

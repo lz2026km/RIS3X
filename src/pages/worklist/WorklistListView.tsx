@@ -154,7 +154,7 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 4,
+          gap: 'var(--space-1, 4px)',
           fontSize: 12,
           color: exam.imagesAcquired > 0 ? "var(--color-primary-800)" : "#94a3b8",
           cursor: "default",
@@ -204,7 +204,7 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#fff",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <ImagePlus size={22} style={{ opacity: 0.8 }} />
@@ -212,7 +212,7 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
               <span style={{ fontSize: 10, opacity: 0.7 }}>{exam.imagesAcquired || 0} {t('wl.frames')}</span>
             </div>
           )}
-          <div style={{ marginTop: 8, fontSize: 11, color: "var(--text-secondary)", textAlign: "center" }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: "var(--text-secondary)", textAlign: "center" }}>
             {exam.examItemName}
           </div>
         </div>
@@ -311,7 +311,7 @@ export function ListView({
       render: (value, exam) => (
         <div>
           <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{String(value)}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text-secondary)", fontSize: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)', color: "var(--text-secondary)", fontSize: 12 }}>
             <Scan size={10} /> {exam.modality} · {exam.bodyPart}
           </div>
         </div>
@@ -341,7 +341,7 @@ export function ListView({
       key: "roomId",
       width: 90,
       render: (value) => (
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
           <Radio size={11} color="var(--text-secondary)" />
           {getRoomById(String(value ?? ""))?.roomNumber || "-"}
         </span>
@@ -466,7 +466,7 @@ export function ListView({
       width: 120,
       searchable: true,
       render: (value, exam) => (
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
           <Stethoscope size={11} color="var(--text-secondary)" />
           {String(value || getDoctorById(exam.technologistId || "")?.name || "-")}
         </span>
@@ -479,7 +479,7 @@ export function ListView({
       width: 110,
       searchable: true,
       render: (value, exam) => (
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
           <UserCheck size={11} color="var(--text-secondary)" />
           <span style={{ color: exam.radiologistId ? "var(--color-primary-800)" : "#94a3b8" }}>
             {exam.radiologistName || getDoctorById(String(value ?? ""))?.name || t("wl.unassigned")}
@@ -610,7 +610,7 @@ export function ListView({
         columns={columns as unknown as TableColumnsType<RadiologyExam>}
         dataSource={listPagination.pageData}
         rowKey="id"
-        loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
+        loading={{ spinning: loading, indicator: <div style={{ padding: 'var(--space-6, 24px)' }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
         sticky
         pagination={listPagination.pagination}
         scroll={{ x: 1800, y: "calc(100vh - 400px)" }}

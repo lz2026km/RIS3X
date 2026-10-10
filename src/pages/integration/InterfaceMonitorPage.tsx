@@ -165,7 +165,7 @@ export const InterfaceMonitorPage: React.FC = () => {
 
   const messagesTab = (
     <div>
-      <Card size="small" className="shadow-sm" style={{ marginBottom: 12 }}>
+      <Card size="small" className="shadow-sm" style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Space wrap>
           <Select allowClear placeholder={t('w10Interop.filter.interface')} value={filterIface} onChange={setFilterIface} style={{ width: 150 }}
             options={INTERFACES.map((i) => ({ value: i, label: i }))} />
@@ -197,7 +197,7 @@ export const InterfaceMonitorPage: React.FC = () => {
           value={b.total}
           color="primary"
           sub={
-            <Descriptions column={1} size="small" style={{ marginTop: 8 }}>
+            <Descriptions column={1} size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Descriptions.Item label={t('w10Interop.stat.success')}><Tag color="green">{b.success}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('w10Interop.stat.fail')}><Tag color="red">{b.fail}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('w10Interop.stat.retry')}><Tag color="orange">{b.retry}</Tag></Descriptions.Item>
@@ -209,8 +209,8 @@ export const InterfaceMonitorPage: React.FC = () => {
   )
 
   return (
-    <div style={{ padding: 16 }}>
-      <Card size="small" className="shadow-sm" style={{ marginBottom: 12 }}>
+    <div style={{ padding: 'var(--space-4, 16px)' }}>
+      <Card size="small" className="shadow-sm" style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Space>
             <Radio className="w-5 h-5 text-blue-600" size={20} />
@@ -223,9 +223,9 @@ export const InterfaceMonitorPage: React.FC = () => {
         </div>
       </Card>
 
-      {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 12 }} />}
+      {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <StatCard title={t('w10Interop.stat.total')} value={stats.totalMessages} color="primary" icon={<Server size={18} />} />
         <StatCard title={t('w10Interop.stat.successRate')} value={stats.successRate} suffix="%" color="success" />
         <StatCard title={t('w10Interop.stat.fail')} value={stats.fail} color="error" />

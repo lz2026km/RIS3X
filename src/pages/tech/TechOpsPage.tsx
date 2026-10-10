@@ -289,14 +289,14 @@ function HourHeatmap({ devices }: { devices: DeviceUtilization[] }) {
           ))}
         </tbody>
       </table>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 11, color: C.textMid }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)', fontSize: 11, color: C.textMid }}>
         {t('techOps.occupancyLegend')} {[10, 35, 60, 85].map((r) => (
-          <span key={r} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <span key={r} style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <span style={{ width: 14, height: 14, borderRadius: 3, background: `rgba(59,130,246,${r / 100})`, display: 'inline-block' }} />
             ~{r}%
           </span>
         ))}
-        <span style={{ marginLeft: 8 }}>{t('techOps.clickForDetail')}</span>
+        <span style={{ marginLeft: 'var(--space-2, 8px)' }}>{t('techOps.clickForDetail')}</span>
       </div>
     </div>
   )
@@ -457,7 +457,7 @@ export default function TechOpsPage() {
     return (
       <div>
         <div style={{ padding: '20px 0 0' }}>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', marginBottom: 'var(--space-4, 16px)' }}>
             {[
               { title: t('techOps.kpiAvgRate'), value: `${utilStats?.meanRate ?? 0}%`, sub: t('techOps.daysAvg', { days: util?.days ?? 30 }), icon: <Gauge size={20} />, color: C.blue },
               { title: t('techOps.kpiPeakRate'), value: `${utilStats?.peakRate ?? 0}%`, sub: `${fmtDate(utilStats?.peakDate ?? '')}`, icon: <TrendingUp size={20} />, color: C.red },
@@ -466,7 +466,7 @@ export default function TechOpsPage() {
               { title: t('techOps.kpiTotalExams'), value: utilStats?.totalExams ?? 0, sub: t('techOps.dailyAvg', { count: utilStats?.avgDailyExams ?? 0 }), icon: <ListOrdered size={20} />, color: C.teal },
             ].map((kpi) => (
               <div key={kpi.title} style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
                   <span style={{ color: kpi.color }}>{kpi.icon}</span>
                 </div>
@@ -477,12 +477,12 @@ export default function TechOpsPage() {
           </div>
         </div>
 
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BarChart3 size={16} color={C.blue} />
               <span style={{ fontWeight: 600 }}>{t('techOps.utilTrendTitle')}</span>
-              {util?.seeded && <Tag color="orange" style={{ marginLeft: 4 }}>{t('techOps.seed')}</Tag>}
+              {util?.seeded && <Tag color="orange" style={{ marginLeft: 'var(--space-1, 4px)' }}>{t('techOps.seed')}</Tag>}
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               {[7, 14, 30].map((d) => (
@@ -494,23 +494,23 @@ export default function TechOpsPage() {
           </div>
           <Spin spinning={loading}>
             <RateLineChart rates={util?.series.map((s) => s.rate) ?? []} labels={util?.series.map((s) => s.date) ?? []} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.textLight, marginTop: 4 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.textLight, marginTop: 'var(--space-1, 4px)' }}>
               <span>{t('techOps.trendNote1')}</span>
               <span>{t('techOps.trendNote2')}</span>
             </div>
           </Spin>
         </div>
 
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
             <CalendarClock size={16} color={C.purple} />
             <span style={{ fontWeight: 600 }}>{t('techOps.hourHeatmapTitle')}</span>
           </div>
           <HourHeatmap devices={util?.devices ?? []} />
         </div>
 
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
             <Server size={16} color={C.teal} />
             <span style={{ fontWeight: 600 }}>{t('techOps.deviceCompare')}</span>
           </div>
@@ -537,7 +537,7 @@ export default function TechOpsPage() {
                 key: 'technician',
                 render: (_v, dev) => (
                   <span style={{ color: C.textMid }}>
-                    <User size={12} style={{ verticalAlign: -2, marginRight: 4 }} />
+                    <User size={12} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} />
                     {dev.technician}
                   </span>
                 ),
@@ -546,7 +546,7 @@ export default function TechOpsPage() {
                 title: t('techOps.thAvgRate'),
                 key: 'meanRate',
                 render: (_v, dev) => (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 120 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', minWidth: 120 }}>
                     <div style={{ flex: 1, background: 'var(--bg-primary)', borderRadius: 4, height: 8, overflow: 'hidden', minWidth: 80 }}>
                       <div style={{ width: `${dev.meanRate}%`, height: 8, background: rateColor(dev.meanRate), borderRadius: 4 }} />
                     </div>
@@ -572,13 +572,13 @@ export default function TechOpsPage() {
   function renderEmergency() {
     return (
       <div>
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
             <Siren size={16} color={C.red} />
             <span style={{ fontWeight: 600 }}>{t('techOps.emgInsertTitle')}</span>
             <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.emgInsertDesc')}</span>
           </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', alignItems: 'center' }}>
             <Select
               size="middle" style={{ width: 110 }} value={emgForm.modality}
               onChange={(v) => setEmgForm({ ...emgForm, modality: v })}
@@ -615,8 +615,8 @@ export default function TechOpsPage() {
         </div>
 
         {suggestions !== null && (
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
               <Clock size={15} color={C.blue} />
               <span style={{ fontWeight: 600 }}>{t('techOps.suggestionTitle')}</span>
               <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.suggestionDesc')}</span>
@@ -624,10 +624,10 @@ export default function TechOpsPage() {
             {suggestions.length === 0 ? (
               <Empty description={t('techOps.noSlot')} style={{ color: C.textMid }} />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 'var(--space-3, 12px)' }}>
                 {suggestions.map((s) => (
                   <div key={s.id} style={{ background: C.panel, border: `1px solid ${s.conflictCount > 0 ? 'var(--color-warning)' : C.border}`, borderRadius: 8, padding: 14 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap', gap: 6 }}>
                       <Tag color={STRATEGY_COLORS[s.strategy]} style={{ marginRight: 0 }}>{s.strategyLabel}</Tag>
                       {s.conflictCount > 0
                         ? <Tag color="red" icon={<AlertTriangle size={11} />}>{t('techOps.conflicts', { count: s.conflictCount })}</Tag>
@@ -646,7 +646,7 @@ export default function TechOpsPage() {
                     <div style={{ fontSize: 12, color: C.textLight, marginBottom: 10, minHeight: 32, lineHeight: 1.5 }}>{s.note}</div>
                     {s.conflicts.length > 0 && (
                       <div style={{ marginBottom: 10 }}>
-                        <div style={{ fontSize: 11, color: C.textMid, marginBottom: 4 }}>{t('techOps.conflictDetail')}</div>
+                        <div style={{ fontSize: 11, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t('techOps.conflictDetail')}</div>
                         {s.conflicts.slice(0, 3).map((c) => (
                           <Tooltip key={c.examId} title={`${c.patientName} ${c.examItem} ${fmtMin(c.startMin)}-${fmtMin(c.endMin)} · ${t('techOps.overlapMin', { count: c.overlapMin })}`}>
                             <div style={{ fontSize: 11, color: C.orange, background: 'rgba(245,158,11,0.08)', borderRadius: 4, padding: '3px 8px', marginBottom: 3 }}>
@@ -667,8 +667,8 @@ export default function TechOpsPage() {
           </div>
         )}
 
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
             <Timer size={15} color={C.teal} />
             <span style={{ fontWeight: 600 }}>{t('techOps.emgRecords')}</span>
             <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.recordCount', { count: records.length })}</span>
@@ -718,13 +718,13 @@ export default function TechOpsPage() {
   function renderOptimize() {
     return (
       <div>
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
             <ArrowRightLeft size={16} color={C.blue} />
             <span style={{ fontWeight: 600 }}>{t('techOps.optTitle')}</span>
             <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.optDesc')}</span>
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
             <Button size="middle" icon={<ListOrdered size={14} />} loading={optLoading} onClick={() => void handleLoadDemo()}>
               {optQueue ? t('techOps.reloadDemoQueue') : t('techOps.loadDemoQueue')}
             </Button>
@@ -739,9 +739,9 @@ export default function TechOpsPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(560px,1fr))', gap: 16, marginBottom: 16 }}>
-          <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(560px,1fr))', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <User size={15} color={C.teal} />
               <span style={{ fontWeight: 600 }}>{t('techOps.queueTitle')}</span>
               <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.itemCount', { count: optQueue?.exams.length ?? 0 })}</span>
@@ -768,8 +768,8 @@ export default function TechOpsPage() {
             )}
           </div>
 
-          <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <Server size={15} color={C.purple} />
               <span style={{ fontWeight: 600 }}>{t('techOps.deviceMatrix')}</span>
               <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.deviceCount', { count: optQueue?.devices.length ?? 0 })}</span>
@@ -803,17 +803,17 @@ export default function TechOpsPage() {
 
         {optResult && (
           <>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
-                <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('techOps.waitBefore')}</div>
+                <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-2, 8px)' }}>{t('techOps.waitBefore')}</div>
                 <div style={{ fontSize: 24, fontWeight: 700, color: C.red }}>{t('techOps.minUnit', { count: optResult.totalWaitBefore })}</div>
               </div>
               <div style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
-                <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('techOps.waitAfter')}</div>
+                <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-2, 8px)' }}>{t('techOps.waitAfter')}</div>
                 <div style={{ fontSize: 24, fontWeight: 700, color: C.green }}>{t('techOps.minUnit', { count: optResult.totalWaitAfter })}</div>
               </div>
               <div style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
-                <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('techOps.waitReduce')}</div>
+                <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-2, 8px)' }}>{t('techOps.waitReduce')}</div>
                 <div style={{ fontSize: 24, fontWeight: 700, color: C.blue }}>{optResult.better ? `${optResult.improvementPct}%` : t('techOps.notImproved')}</div>
                 <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>
                   {optResult.better ? t('techOps.savedMin', { count: Math.max(0, optResult.totalWaitBefore - optResult.totalWaitAfter) }) : t('techOps.sameAsBefore')}
@@ -822,14 +822,14 @@ export default function TechOpsPage() {
             </div>
 
             {optResult.unassigned.length > 0 && (
-              <div style={{ background: 'rgba(248,113,113,0.08)', border: `1px solid ${C.red}`, borderRadius: 8, padding: '10px 16px', marginBottom: 16, fontSize: 12, color: C.red }}>
+              <div style={{ background: 'rgba(248,113,113,0.08)', border: `1px solid ${C.red}`, borderRadius: 8, padding: '10px 16px', marginBottom: 'var(--space-4, 16px)', fontSize: 12, color: C.red }}>
                 <AlertTriangle size={14} style={{ verticalAlign: -2, marginRight: 6 }} />
                 {t('techOps.unassignedWarn', { count: optResult.unassigned.length, list: optResult.unassigned.map((u) => `${u.patientName}(${u.modality})`).join('、') })}
               </div>
             )}
 
-            <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <BarChart3 size={15} color={C.blue} />
                 <span style={{ fontWeight: 600 }}>{t('techOps.scheduleTitle')}</span>
                 <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.assignCount', { count: assignments.length })}</span>
@@ -880,7 +880,7 @@ export default function TechOpsPage() {
     <div data-testid="tech-ops-page" style={{ background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-950))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <LayoutGrid size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('techOps.title')}</span>
           <span style={{
@@ -892,7 +892,7 @@ export default function TechOpsPage() {
             {dataSource === 'api' ? t('techOps.apiLive') : t('techOps.demoData')}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('techOps.subtitle')}</span>
           <span title={t('techOps.refreshData')} style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => { void loadUtil(); void loadRecords() }}>
             <RefreshCw size={16} />
@@ -934,7 +934,7 @@ export default function TechOpsPage() {
       >
         {confirmTarget && (
           <div style={{ fontSize: 12 }}>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', marginBottom: 10 }}>
               <Tag color={STRATEGY_COLORS[confirmTarget.strategy]}>{confirmTarget.strategyLabel}</Tag>
               <Tag color={MODALITY_COLORS[confirmTarget.modality]}>{confirmTarget.modality}</Tag>
               <span style={{ color: C.textMid }}>
@@ -943,12 +943,12 @@ export default function TechOpsPage() {
             </div>
             {confirmTarget.conflictCount > 0 ? (
               <div style={{ color: C.orange, lineHeight: 1.7 }}>
-                <AlertTriangle size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                <AlertTriangle size={13} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} />
                 {t('techOps.conflictWarn', { count: confirmTarget.conflictCount })}
               </div>
             ) : (
               <div style={{ color: C.green }}>
-                <CheckCircle2 size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                <CheckCircle2 size={13} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} />
                 {t('techOps.noConflictOk')}
               </div>
             )}
@@ -966,7 +966,7 @@ export default function TechOpsPage() {
       >
         {insertResult && (
           <div style={{ fontSize: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
               {insertResult.success
                 ? <CheckCircle2 size={18} color={C.green} />
                 : <XCircle size={18} color={C.red} />}
@@ -976,7 +976,7 @@ export default function TechOpsPage() {
               <div style={{ marginBottom: 10 }}>
                 <div style={{ color: C.textMid, marginBottom: 6 }}>{t('techOps.conflictList')}</div>
                 {insertResult.conflicts.map((c) => (
-                  <div key={c.examId} style={{ background: 'var(--bg-primary)', border: `1px solid ${C.border}`, borderRadius: 6, padding: '6px 10px', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
+                  <div key={c.examId} style={{ background: 'var(--bg-primary)', border: `1px solid ${C.border}`, borderRadius: 6, padding: '6px 10px', marginBottom: 'var(--space-1, 4px)', display: 'flex', justifyContent: 'space-between' }}>
                     <span>{c.patientName} · {c.examItem} ({c.type === 'ONGOING' ? t('techOps.ongoing') : t('techOps.scheduled')})</span>
                     <span style={{ color: C.orange }}>{c.action === 'PREEMPT' ? t('techOps.preempt') : t('techOps.defer')} {t('techOps.overlapMin', { count: c.overlapMin })}</span>
                   </div>
@@ -1015,7 +1015,7 @@ export default function TechOpsPage() {
       </Modal>
 
       <div style={{ padding: '0 24px' }}>
-        <div style={{ border: `1px solid ${C.border}`, borderRadius: 8, padding: '12px 16px', marginBottom: 24, fontSize: 12, color: C.textLight }}>
+        <div style={{ border: `1px solid ${C.border}`, borderRadius: 8, padding: '12px 16px', marginBottom: 'var(--space-6, 24px)', fontSize: 12, color: C.textLight }}>
           {t('techOps.footnote')}
         </div>
       </div>

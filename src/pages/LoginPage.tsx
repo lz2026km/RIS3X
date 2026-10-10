@@ -243,7 +243,7 @@ export default function LoginPage() {
           </p>
           <div
             className="anim-stagger"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 12 }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 'var(--space-3, 12px)' }}
           >
             {BRAND_FEATURES.map((f) => (
               <div key={f.title} className="login-brand-card">
@@ -251,7 +251,7 @@ export default function LoginPage() {
                   <f.icon size={18} color="currentColor" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{f.title}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 'var(--space-1, 4px)' }}>{f.title}</div>
                   <div style={{ fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.7)' }}>{f.desc}</div>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function LoginPage() {
             boxShadow: 'var(--shadow-xl)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-2, 8px)' }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
               <Radio size={22} color="currentColor" />
             </div>
@@ -305,7 +305,7 @@ export default function LoginPage() {
           )}
 
           {/* WCAG 2.1 AA: 颜色对比度 ≥ 4.5:1（正文）/ 3:1（大文本）。边框使用 var(--border-color)（深色模式 #334155，对比度 4.7:1） */}
-          <label htmlFor="login-role" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, marginTop: 20 }}>
+          <label htmlFor="login-role" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, marginTop: 'var(--space-5, 20px)' }}>
             {t('login.demoRole')}
           </label>
           <div style={{ position: 'relative' }}>
@@ -369,7 +369,7 @@ export default function LoginPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
               opacity: _submitting ? 0.85 : 1,
             }}
           >
@@ -378,7 +378,7 @@ export default function LoginPage() {
           </button>
 
           <div style={{ marginTop: 18, padding: '12px 14px', background: 'var(--color-pending-bg)', border: '1px solid var(--color-pending-border)', borderRadius: 10, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Sparkles size={14} />
               {t('login.demoEnv')}
             </div>

@@ -103,7 +103,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
     <div style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-      gap: 16,
+      gap: 'var(--space-4, 16px)',
     }}>
       {exams.slice(0, visibleCount).map(exam => {
         const device = getDeviceById(exam.deviceId ?? '')
@@ -150,7 +150,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
               alignItems: 'flex-start',
               borderBottom: '1px solid var(--border-light)',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <div
                   onClick={(e) => toggleSelect(exam.id, e)}
                   style={{
@@ -182,7 +182,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-end',
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}>
                 <span style={{
                   ...pc,
@@ -222,32 +222,32 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                   fontSize: 12,
                   color: 'var(--text-secondary)',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <Monitor size={11} />
                     {device?.name?.split('（')[0] || '-'}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <Radio size={11} />
                     {room?.roomNumber || '-'}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <Scan size={11} />
                     {exam.modality} · {exam.bodyPart}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <Clock size={11} />
                     {exam.examTime || '-'}
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 {(() => {
                   const sla = getSLAInfo(exam.createdTime)
                   const autoPri = calculatePriority(exam)
                   return (
                     <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: sla.color, fontWeight: 600 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: sla.color, fontWeight: 600 }}>
                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: sla.color }} />
                         SLA {sla.elapsedMinutes}m
                       </div>
@@ -267,7 +267,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                 color: 'var(--text-secondary)',
               }}>
                 <span style={{ fontFamily: 'monospace' }}>{exam.accessionNumber}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   <Images size={11} />
                   {exam.imagesAcquired} {t('worklistCard.imagesUnit')}
                 </span>

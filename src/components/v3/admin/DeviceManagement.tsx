@@ -68,7 +68,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
 
   return (
     <div data-testid="device-management">
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic title={t('w9e.deviceManagement.statTotal')} value={stats.total} prefix={<Cpu size={14} />} />
@@ -91,7 +91,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
         </Col>
       </Row>
 
-      <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'flex-end' }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)', width: '100%', justifyContent: 'flex-end' }}>
         <Button type="primary" icon={<Plus size={14} />} onClick={() => { setEditing(null); form.resetFields(); setModal(true) }} data-testid="device-create-btn">
           {t('w9e.deviceManagement.createDevice')}
         </Button>

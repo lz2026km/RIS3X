@@ -2453,14 +2453,14 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 'var(--space-5, 20px)',
   },
   title: { fontSize: 18, fontWeight: 700, color: "var(--color-primary-800)", margin: 0 },
   kpiRow: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: 12,
-    marginBottom: 20,
+    gap: 'var(--space-3, 12px)',
+    marginBottom: 'var(--space-5, 20px)',
   },
   kpiCard: {
     background: "var(--bg-card)",
@@ -2495,7 +2495,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     gap: 0,
     borderBottom: "2px solid var(--border-color)",
-    marginBottom: 20,
+    marginBottom: 'var(--space-5, 20px)',
   },
   tab: {
     padding: "12px 24px",
@@ -2509,7 +2509,7 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "all 0.2s",
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
   },
   toolbar: {
     display: "flex",
@@ -2520,12 +2520,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "14px 18px",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   searchBox: {
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     background: "var(--content-bg)",
     border: "1px solid var(--border-color)",
     borderRadius: 8,
@@ -2573,7 +2573,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 12,
+    marginBottom: 'var(--space-3, 12px)',
   },
   cardPatient: {
     fontSize: 16,
@@ -2595,8 +2595,8 @@ const styles: Record<string, React.CSSProperties> = {
   cardRow: {
     display: "flex",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
+    gap: 'var(--space-2, 8px)',
+    marginBottom: 'var(--space-2, 8px)',
     fontSize: 12,
     color: "var(--text-secondary)",
   },
@@ -2624,7 +2624,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 4,
     background: "var(--color-info-bg)",
     color: "var(--color-primary)",
-    marginTop: 4,
+    marginTop: 'var(--space-1, 4px)',
     display: "inline-block",
   },
   cardRestriction: {
@@ -2638,8 +2638,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cardActions: {
     display: "flex",
-    gap: 8,
-    marginTop: 12,
+    gap: 'var(--space-2, 8px)',
+    marginTop: 'var(--space-3, 12px)',
   },
   tableWrapper: {
     background: "var(--bg-card)",
@@ -2668,7 +2668,7 @@ const styles: Record<string, React.CSSProperties> = {
   badge: {
     display: "inline-flex",
     alignItems: "center",
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
     padding: "4px 10px",
     borderRadius: 12,
     fontSize: 12,
@@ -2688,7 +2688,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   btnGroup: {
     display: "flex",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
   },
   btn: {
     display: "flex",
@@ -2722,19 +2722,19 @@ const styles: Record<string, React.CSSProperties> = {
   statsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: 16,
-    marginBottom: 24,
+    gap: 'var(--space-4, 16px)',
+    marginBottom: 'var(--space-6, 24px)',
   },
   statCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 20,
+    padding: 'var(--space-5, 20px)',
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   statTitle: {
     fontSize: 12,
     color: "var(--text-secondary)",
-    marginBottom: 8,
+    marginBottom: 'var(--space-2, 8px)',
   },
   statValue: {
     fontSize: 30,
@@ -2744,29 +2744,29 @@ const styles: Record<string, React.CSSProperties> = {
   chartCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 20,
+    padding: 'var(--space-5, 20px)',
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   chartTitle: {
     fontSize: 14,
     fontWeight: 600,
     color: "var(--color-primary-800)",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   ruleCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 12,
+    marginBottom: 'var(--space-3, 12px)',
     borderLeft: "4px solid var(--color-primary)",
   },
   ruleHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 'var(--space-2, 8px)',
   },
   drugTable: {
     width: "100%",
@@ -2797,12 +2797,12 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     padding: "20px 24px",
     color: "var(--text-inverse)",
-    marginBottom: 20,
+    marginBottom: 'var(--space-5, 20px)',
   },
   voucherCardTitle: {
     fontSize: 18,
     fontWeight: 700,
-    marginBottom: 4,
+    marginBottom: 'var(--space-1, 4px)',
   },
   voucherCardSubtitle: {
     fontSize: 12,
@@ -2810,8 +2810,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   voucherStatsRow: {
     display: "flex",
-    gap: 24,
-    marginTop: 16,
+    gap: 'var(--space-6, 24px)',
+    marginTop: 'var(--space-4, 16px)',
   },
   voucherStatItem: {
     display: "flex",
@@ -2835,7 +2835,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "14px 18px",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
     border: "1px solid var(--color-info-bg)",
   },
   voucherFilterBtn: {
@@ -2881,7 +2881,7 @@ const styles: Record<string, React.CSSProperties> = {
   voucherStatusBadge: {
     display: "inline-flex",
     alignItems: "center",
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
     padding: "4px 10px",
     borderRadius: 12,
     fontSize: 12,
@@ -2900,7 +2900,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   pageButtons: {
     display: "flex",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
   },
   pageBtn: {
     display: "flex",
@@ -2926,7 +2926,7 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: "var(--z-toast, 800)",
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     animation: "slideIn 0.3s ease",
   },
   toastSuccess: {
@@ -2956,7 +2956,7 @@ const styles: Record<string, React.CSSProperties> = {
   modal: {
     background: "var(--bg-card)",
     borderRadius: 12,
-    padding: 24,
+    padding: 'var(--space-6, 24px)',
     minWidth: 360,
     maxWidth: 480,
     boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
@@ -2965,12 +2965,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 16,
     fontWeight: 700,
     color: "var(--color-primary-800)",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   modalText: {
     fontSize: 14,
     color: "var(--text-secondary)",
-    marginBottom: 20,
+    marginBottom: 'var(--space-5, 20px)',
   },
   modalActions: {
     display: "flex",
@@ -2979,13 +2979,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
   // 医保基金监控样式
   fundMonitorSection: {
-    marginBottom: 24,
+    marginBottom: 'var(--space-6, 24px)',
   },
   fundMonitorHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   fundMonitorTitle: {
     fontSize: 16,
@@ -2993,13 +2993,13 @@ const styles: Record<string, React.CSSProperties> = {
     color: "var(--color-primary-800)",
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
   },
   fundKpiRow: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: 12,
-    marginBottom: 20,
+    gap: 'var(--space-3, 12px)',
+    marginBottom: 'var(--space-5, 20px)',
   },
   fundKpiCard: {
     background: "var(--bg-card)",
@@ -3033,32 +3033,32 @@ const styles: Record<string, React.CSSProperties> = {
   fundChartRow: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: 16,
-    marginBottom: 20,
+    gap: 'var(--space-4, 16px)',
+    marginBottom: 'var(--space-5, 20px)',
   },
   fundChartCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 20,
+    padding: 'var(--space-5, 20px)',
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   fundChartTitle: {
     fontSize: 14,
     fontWeight: 600,
     color: "var(--color-primary-800)",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   violationListCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 20,
+    padding: 'var(--space-5, 20px)',
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 16,
+    marginBottom: 'var(--space-4, 16px)',
   },
   violationItem: {
     display: "flex",
     alignItems: "flex-start",
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
     padding: "12px 0",
     borderBottom: "1px solid var(--border-light)",
   },
@@ -3081,7 +3081,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 'var(--space-1, 4px)',
   },
   violationType: {
     fontSize: 12,
@@ -3244,7 +3244,7 @@ const PendingAuditCard: React.FC<{
       {audit.restriction}
     </div>
 
-    <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 12 }}>
+    <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-3, 12px)' }}>
       <Stethoscope size={14} style={{ marginRight: 6 }} />
       {audit.reason}
     </AppText>
@@ -3266,7 +3266,7 @@ const PendingAuditCard: React.FC<{
       <PermissionGate permission="audit.approve">
         <button
           type="button"
-          style={{ ...styles.btn, ...styles.btnDanger, marginLeft: 4, padding: "6px 14px", fontWeight: 600 }}
+          style={{ ...styles.btn, ...styles.btnDanger, marginLeft: 'var(--space-1, 4px)', padding: "6px 14px", fontWeight: 600 }}
           onClick={() => onReject(audit.id)}
         >
           <X size={16} /> {t("reject")}
@@ -3274,14 +3274,14 @@ const PendingAuditCard: React.FC<{
       </PermissionGate>
       <button
         type="button"
-        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 4 }}
+        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 'var(--space-1, 4px)' }}
         onClick={() => onRequestInfo(audit.id)}
       >
         <MessageSquare size={16} /> {t("requestInfo")}
       </button>
       <button
         type="button"
-        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 4 }}
+        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 'var(--space-1, 4px)' }}
         onClick={() => onViewDetail(audit.id)}
       >
         <FileText size={16} /> {t("insuranceAudit.detail")}
@@ -4098,7 +4098,7 @@ export default function InsuranceAuditPage() {
               />
               {t("insuranceAudit.deptUsageDist")}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-4, 16px)' }}>
               <div style={{ width: 220, height: 220, flexShrink: 0 }}>
               <ChartContainer height={220} state={deptUsageData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noDeptDistData")}>
                 <PieChart>
@@ -4131,8 +4131,8 @@ export default function InsuranceAuditPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 8,
-                      marginBottom: 8,
+                      gap: 'var(--space-2, 8px)',
+                      marginBottom: 'var(--space-2, 8px)',
                     }}
                   >
                     <div
@@ -4225,7 +4225,7 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.violationWarning")}
               <span
                 style={{
-                  marginLeft: 8,
+                  marginLeft: 'var(--space-2, 8px)',
                   fontSize: 12,
                   fontWeight: 400,
                   color: "var(--text-secondary)",
@@ -4341,7 +4341,7 @@ export default function InsuranceAuditPage() {
                   fontSize: 12,
                   padding: "2px 6px",
                   borderRadius: 10,
-                  marginLeft: 4,
+                  marginLeft: 'var(--space-1, 4px)',
                 }}
               >
                 {pendingAudits.length}
@@ -4432,11 +4432,11 @@ export default function InsuranceAuditPage() {
             <div role="status" aria-live="polite" style={styles.emptyState}>
               <ClipboardList
                 size={48}
-                style={{ marginBottom: 12, opacity: 0.5 }}
+                style={{ marginBottom: 'var(--space-3, 12px)', opacity: 0.5 }}
                 aria-hidden
               />
               <div>{t("noPending")}</div>
-              <div style={{ fontSize: 12, marginTop: 4, color: "var(--text-secondary)" }}>
+              <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)', color: "var(--text-secondary)" }}>
                 {t("insuranceAudit.noData")}
               </div>
             </div>
@@ -4643,29 +4643,29 @@ export default function InsuranceAuditPage() {
             <div style={styles.statCard}>
               <div style={styles.statTitle}>{t("stats.monthlyTotal")}</div>
               <div style={styles.statValue}>326</div>
-              <TrendingUp size={16} color="var(--color-success)" style={{ marginTop: 8 }} />
-              <AppText size="xs" color="success" as="span" style={{ marginLeft: 4 }}>
+              <TrendingUp size={16} color="var(--color-success)" style={{ marginTop: 'var(--space-2, 8px)' }} />
+              <AppText size="xs" color="success" as="span" style={{ marginLeft: 'var(--space-1, 4px)' }}>
                 +12%
               </AppText>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>{t("insuranceAudit.statCtEnhance")}</div>
               <div style={styles.statValue}>158</div>
-              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
+              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
                 {t("insuranceAudit.share485")}
               </AppText>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>{t("insuranceAudit.statMriEnhance")}</div>
               <div style={styles.statValue}>98</div>
-              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
+              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
                 {t("insuranceAudit.share301")}
               </AppText>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>{t("insuranceAudit.statDsaAnticoag")}</div>
               <div style={styles.statValue}>70</div>
-              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
+              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
                 {t("insuranceAudit.share215")}
               </AppText>
             </div>
@@ -4675,13 +4675,13 @@ export default function InsuranceAuditPage() {
             <div style={styles.chartTitle}>
               <BarChart3
                 size={18}
-                style={{ marginRight: 8, verticalAlign: "middle" }}
+                style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
               />
               {t("insuranceAudit.resultDist")}
             </div>
-            <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 'var(--space-6, 24px)', flexWrap: "wrap" }}>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
+                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   {t("insuranceAudit.passedRate")}
                 </AppText>
                 <div
@@ -4699,7 +4699,7 @@ export default function InsuranceAuditPage() {
                       width: "78.5%",
                       display: "flex",
                       alignItems: "center",
-                      paddingLeft: 12,
+                      paddingLeft: 'var(--space-3, 12px)',
                     }}
                   >
                     <span
@@ -4711,7 +4711,7 @@ export default function InsuranceAuditPage() {
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
+                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   {t("insuranceAudit.rejectedRate")}
                 </AppText>
                 <div
@@ -4729,7 +4729,7 @@ export default function InsuranceAuditPage() {
                       width: "12.3%",
                       display: "flex",
                       alignItems: "center",
-                      paddingLeft: 12,
+                      paddingLeft: 'var(--space-3, 12px)',
                     }}
                   >
                     <span
@@ -4741,7 +4741,7 @@ export default function InsuranceAuditPage() {
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
+                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   {t("insuranceAudit.supplementRate")}
                 </AppText>
                 <div
@@ -4759,7 +4759,7 @@ export default function InsuranceAuditPage() {
                       width: "9.2%",
                       display: "flex",
                       alignItems: "center",
-                      paddingLeft: 12,
+                      paddingLeft: 'var(--space-3, 12px)',
                     }}
                   >
                     <span
@@ -4777,11 +4777,11 @@ export default function InsuranceAuditPage() {
             <div style={styles.chartTitle}>
               <Activity
                 size={18}
-                style={{ marginRight: 8, verticalAlign: "middle" }}
+                style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
               />
               {t("insuranceAudit.drugTop5")}
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
               {[
                 { name: "碘海醇注射液", count: 68, pct: 21 },
                 { name: "钆双胺注射液", count: 52, pct: 16 },
@@ -4791,7 +4791,7 @@ export default function InsuranceAuditPage() {
               ].map((item, i) => (
                 <div
                   key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 12 }}
+                  style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}
                 >
                   <AppText size="sm" color="secondary" as="div" style={{ width: 24 }}>
                     {i + 1}
@@ -4885,7 +4885,7 @@ export default function InsuranceAuditPage() {
                 onChange={(e) => setVoucherSearch(e.target.value)}
               />
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
               {["全部", t("insuranceAudit.voucherIssued2"), t("insuranceAudit.voucherPending2"), t("insuranceAudit.voucherVoided")].map((status) => (
                 <button
                   key={status}
@@ -4956,25 +4956,25 @@ export default function InsuranceAuditPage() {
 
       {/* 837理赔 */}
       {activeTab === "claim837" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
           <div
             style={{
               background: 'var(--bg-card)',
               borderRadius: 10,
-              padding: 16,
+              padding: 'var(--space-4, 16px)',
               border: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
               <FileText size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>
                 {t("insuranceAudit.claimsTitle")}
               </span>
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
               <button
                 onClick={() => setClaimBatchMode(!claimBatchMode)}
                 style={{
@@ -5087,7 +5087,7 @@ export default function InsuranceAuditPage() {
             style={{
               background: 'var(--bg-card)',
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               border: "1px solid var(--border-color)",
             }}
           >
@@ -5120,12 +5120,12 @@ export default function InsuranceAuditPage() {
 
       {/* 拒赔管理 */}
       {activeTab === "denial" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
             }}
           >
             {[
@@ -5170,7 +5170,7 @@ export default function InsuranceAuditPage() {
                   border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}
               >
                 <div
@@ -5198,7 +5198,7 @@ export default function InsuranceAuditPage() {
             ))}
           </div>
           <div
-            style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}
+            style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 'var(--space-4, 16px)' }}
           >
             <div
               style={{
@@ -5294,7 +5294,7 @@ export default function InsuranceAuditPage() {
               style={{
                 background: 'var(--bg-card)',
                 borderRadius: 12,
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
                 border: "1px solid var(--border-color)",
               }}
             >
@@ -5326,7 +5326,7 @@ export default function InsuranceAuditPage() {
               </ChartContainer>
               <div
                 style={{
-                  marginTop: 12,
+                  marginTop: 'var(--space-3, 12px)',
                   display: "flex",
                   flexDirection: "column",
                   gap: 6,
@@ -5368,12 +5368,12 @@ export default function InsuranceAuditPage() {
 
       {/* 预授权 */}
       {activeTab === "preAuth" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
             }}
           >
             {[
@@ -5416,7 +5416,7 @@ export default function InsuranceAuditPage() {
                   border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}
               >
                 <div
@@ -5447,7 +5447,7 @@ export default function InsuranceAuditPage() {
             style={{
               background: 'var(--bg-card)',
               borderRadius: 10,
-              padding: 12,
+              padding: 'var(--space-3, 12px)',
               border: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
@@ -5503,7 +5503,7 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.newPreauth")}
             </button>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
             {preAuthData
               .filter(
                 (p) => preAuthFilter === "全部" || p.status === preAuthFilter,
@@ -5529,7 +5529,7 @@ export default function InsuranceAuditPage() {
                     style={{
                       background: 'var(--bg-card)',
                       borderRadius: 10,
-                      padding: 16,
+                      padding: 'var(--space-4, 16px)',
                       border: `1px solid ${statusColor}30`,
                       borderLeft: `4px solid ${statusColor}`,
                     }}
@@ -5546,7 +5546,7 @@ export default function InsuranceAuditPage() {
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 8,
+                          gap: 'var(--space-2, 8px)',
                         }}
                       >
                         <span style={{ fontWeight: 700, color: PRIMARY }}>
@@ -5559,7 +5559,7 @@ export default function InsuranceAuditPage() {
                       <div
                         style={{
                           display: "flex",
-                          gap: 8,
+                          gap: 'var(--space-2, 8px)',
                           alignItems: "center",
                         }}
                       >
@@ -5603,7 +5603,7 @@ export default function InsuranceAuditPage() {
                                   fontSize: 12,
                                   fontWeight: 600,
                                   cursor: "pointer",
-                                  marginLeft: 4,
+                                  marginLeft: 'var(--space-1, 4px)',
                                 }}
                               >
                                 {t("insuranceAudit.reject")}
@@ -5617,8 +5617,8 @@ export default function InsuranceAuditPage() {
                       style={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
-                        gap: 8,
-                        marginBottom: 8,
+                        gap: 'var(--space-2, 8px)',
+                        marginBottom: 'var(--space-2, 8px)',
                       }}
                     >
                       <AppText size="xs" color="secondary" as="div">
@@ -5660,7 +5660,7 @@ export default function InsuranceAuditPage() {
                     {p.expiryDate && (
                       <div
                         style={{
-                          marginTop: 8,
+                          marginTop: 'var(--space-2, 8px)',
                           fontSize: 12,
                           color:
                             new Date(p.expiryDate) < new Date()
@@ -5668,7 +5668,7 @@ export default function InsuranceAuditPage() {
                               : WARNING,
                           display: "flex",
                           alignItems: "center",
-                          gap: 4,
+                          gap: 'var(--space-1, 4px)',
                         }}
                       >
                         <Clock size={11} />
@@ -5684,12 +5684,12 @@ export default function InsuranceAuditPage() {
 
       {/* DRG校验 */}
       {activeTab === "drg" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
             }}
           >
             {[
@@ -5734,7 +5734,7 @@ export default function InsuranceAuditPage() {
                   border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}
               >
                 <div
@@ -5814,7 +5814,7 @@ export default function InsuranceAuditPage() {
             style={{
               background: 'var(--bg-card)',
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               border: "1px solid var(--border-color)",
             }}
           >
@@ -5832,7 +5832,7 @@ export default function InsuranceAuditPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(4, 1fr)",
-                gap: 12,
+                gap: 'var(--space-3, 12px)',
               }}
             >
               {drgMapping.map((m) => (
@@ -5841,7 +5841,7 @@ export default function InsuranceAuditPage() {
                   style={{
                     background: "var(--content-bg)",
                     borderRadius: 8,
-                    padding: 12,
+                    padding: 'var(--space-3, 12px)',
                     border: "1px solid var(--border-color)",
                   }}
                 >
@@ -5853,7 +5853,7 @@ export default function InsuranceAuditPage() {
                   <AppText size="xs" color="secondary" as="div">
                     ICD: {m.icdStart}-{m.icdEnd}
                   </AppText>
-                  <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
+                  <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
                     {m.category}
                   </AppText>
                 </div>
@@ -5878,7 +5878,7 @@ export default function InsuranceAuditPage() {
               >
                 <BookOpen
                   size={18}
-                  style={{ marginRight: 8, verticalAlign: "middle" }}
+                  style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
                 />
                 {t("insuranceAudit.indicationRules")}
               </h3>
@@ -5928,7 +5928,7 @@ export default function InsuranceAuditPage() {
           {indicationRulesState.map((rule) => (
             <div key={rule.id} style={styles.ruleCard}>
               <div style={styles.ruleHeader}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                   <span
                     style={{ fontSize: 14, fontWeight: 600, color: "var(--color-primary-800)" }}
                   >
@@ -5967,7 +5967,7 @@ export default function InsuranceAuditPage() {
                   </PermissionGate>
                 </div>
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-2, 8px)' }}>
                 <Pill size={14} style={{ marginRight: 6 }} />
                 <strong>{t("insuranceAudit.drugLabel")}</strong> {rule.drugName}
               </div>
@@ -5978,7 +5978,7 @@ export default function InsuranceAuditPage() {
                   background: "var(--color-warning-bg)",
                   borderRadius: 6,
                   color: "var(--color-warning)",
-                  marginBottom: 8,
+                  marginBottom: 'var(--space-2, 8px)',
                 }}
               >
                 <ShieldCheck size={14} style={{ marginRight: 6 }} />
@@ -5990,18 +5990,18 @@ export default function InsuranceAuditPage() {
             </div>
           ))}
 
-          <div style={{ marginTop: 24 }}>
+          <div style={{ marginTop: 'var(--space-6, 24px)' }}>
             <h3
               style={{
                 fontSize: 14,
                 fontWeight: 600,
                 color: "var(--color-primary-800)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               <Filter
                 size={18}
-                style={{ marginRight: 8, verticalAlign: "middle" }}
+                style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
               />
               {t("insuranceAudit.restrictedDrugLibrary")}
             </h3>
@@ -6139,13 +6139,13 @@ export default function InsuranceAuditPage() {
                   <div
                     style={{
                       marginTop: 14,
-                      padding: 12,
+                      padding: 'var(--space-3, 12px)',
                       background: "var(--bg-card)",
                       borderRadius: 8,
                       fontSize: 12,
                     }}
                   >
-                    <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
+                    <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 'var(--space-1, 4px)' }}>
                       {t("insuranceAudit.auditResultLabel")}{auditDetail.result || "-"}
                     </div>
                     <div style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
@@ -6190,7 +6190,7 @@ export default function InsuranceAuditPage() {
               rows={3}
               style={{
                 width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)",
-                fontSize: 12, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12, resize: "vertical",
+                fontSize: 12, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 'var(--space-3, 12px)', resize: "vertical",
               }}
             />
             <div style={styles.modalActions}>
@@ -6277,7 +6277,7 @@ export default function InsuranceAuditPage() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", fontSize: 12 }}>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.patientIdRequired")}</div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.patientIdRequired")}</div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.patientIdPlaceholder")}
@@ -6286,7 +6286,7 @@ export default function InsuranceAuditPage() {
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.patientNameRequired")}</div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.patientNameRequired")}</div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.patientName")}
@@ -6295,7 +6295,7 @@ export default function InsuranceAuditPage() {
                 />
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.examItem2")}</div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.examItem2")}</div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.examItemPlaceholder")}
@@ -6304,7 +6304,7 @@ export default function InsuranceAuditPage() {
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.contrast2")}</div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.contrast2")}</div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.contrastPlaceholder")}
@@ -6313,7 +6313,7 @@ export default function InsuranceAuditPage() {
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.anticoagulant")}</div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.anticoagulant")}</div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.anticoagulantPlaceholder")}
@@ -6322,7 +6322,7 @@ export default function InsuranceAuditPage() {
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.amountYuan")}</div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.amountYuan")}</div>
                 <input
                   style={styles.input}
                   type="number"
@@ -6332,7 +6332,7 @@ export default function InsuranceAuditPage() {
                 />
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.applyReason")}</div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.applyReason")}</div>
                 <textarea
                   rows={2}
                   style={{ ...styles.input, resize: "vertical" }}

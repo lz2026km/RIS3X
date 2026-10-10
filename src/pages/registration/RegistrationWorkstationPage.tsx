@@ -301,14 +301,14 @@ const RegistrationWorkstationPage: React.FC = () => {
 
   return (
     <PageContainer padding={24} data-testid="registration-page">
-      <Card style={{ marginBottom: 16 }}>
-        <Space align="center" style={{ marginBottom: 4 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space align="center" style={{ marginBottom: 'var(--space-1, 4px)' }}>
           <ClipboardCheck size={24} color="var(--color-primary-800)" />
           <Title level={4} style={{ margin: 0 }}>{t('w6Reg.title')}</Title>
           <Tag color="blue">G005 W6</Tag>
         </Space>
         <div><Text type="secondary">{t('w6Reg.subtitle')}</Text></div>
-        <Space size={[8, 8]} wrap style={{ marginTop: 8 }}>
+        <Space size={[8, 8]} wrap style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Tag>{t('w6Reg.step.search')}</Tag>
           <Tag>{t('w6Reg.step.identity')}</Tag>
           <Tag>{t('w6Reg.step.prep')}</Tag>
@@ -323,11 +323,11 @@ const RegistrationWorkstationPage: React.FC = () => {
         <Col xs={24} lg={8}>
           <Card
             title={<Space><ScanLine size={16} />{t('w6Reg.scan.title')}</Space>}
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 'var(--space-4, 16px)' }}
           >
             <Text type="secondary" style={{ fontSize: 12 }}>{t('w6Reg.scan.subtitle')}</Text>
             <Input
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
               placeholder={t('w6Reg.scan.placeholder')}
               value={scanCode}
               onChange={(e) => setScanCode(e.target.value)}
@@ -335,7 +335,7 @@ const RegistrationWorkstationPage: React.FC = () => {
               allowClear
               data-testid="registration-scan-input"
             />
-            <Space style={{ marginTop: 8, width: '100%' }} wrap>
+            <Space style={{ marginTop: 'var(--space-2, 8px)', width: '100%' }} wrap>
               <Select
                 placeholder={t('w6Reg.scan.type')}
                 value={scanType}
@@ -363,7 +363,7 @@ const RegistrationWorkstationPage: React.FC = () => {
                   <Tag color={scanResult.source === 'db' ? 'green' : 'gold'}>{scanResult.source === 'db' ? t('w6Reg.scan.sourceDb') : t('w6Reg.scan.sourceSeed')}</Tag>
                   <Tag>{t('w6Reg.scan.type')}: {scanResult.type}</Tag>
                 </Space>
-                <div style={{ marginTop: 8 }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                   <Text strong>{t('w6Reg.scan.candidates')} ({scanResult.candidates.length})</Text>
                   {scanResult.candidates.length === 0 ? (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('w6Reg.scan.noMatch')} />
@@ -427,7 +427,7 @@ const RegistrationWorkstationPage: React.FC = () => {
                           data-testid={`prep-${item.key}`}
                         >
                           <span>{item.label}</span>
-                          <Tag style={{ marginLeft: 8 }} color={item.required ? 'red' : 'default'}>
+                          <Tag style={{ marginLeft: 'var(--space-2, 8px)' }} color={item.required ? 'red' : 'default'}>
                             {item.required ? t('w6Reg.prep.required') : t('w6Reg.prep.optional')}
                           </Tag>
                         </Checkbox>
@@ -536,10 +536,10 @@ const RegistrationWorkstationPage: React.FC = () => {
                     </Space>
                   </Col>
                 </Row>
-                {renalHighRisk && <Alert style={{ marginTop: 8 }} type="error" showIcon message={t('w6Reg.safety.highRisk')} />}
-                {!renalHighRisk && renalCaution && <Alert style={{ marginTop: 8 }} type="warning" showIcon message={t('w6Reg.safety.renalCaution')} />}
-                {pregnancyAlert && <Alert style={{ marginTop: 8 }} type="warning" showIcon message={t('w6Reg.safety.pregnancyAlert')} />}
-                {allergyRisk && <Alert style={{ marginTop: 8 }} type="error" showIcon message={t('w6Reg.safety.allergyAlert')} />}
+                {renalHighRisk && <Alert style={{ marginTop: 'var(--space-2, 8px)' }} type="error" showIcon message={t('w6Reg.safety.highRisk')} />}
+                {!renalHighRisk && renalCaution && <Alert style={{ marginTop: 'var(--space-2, 8px)' }} type="warning" showIcon message={t('w6Reg.safety.renalCaution')} />}
+                {pregnancyAlert && <Alert style={{ marginTop: 'var(--space-2, 8px)' }} type="warning" showIcon message={t('w6Reg.safety.pregnancyAlert')} />}
+                {allergyRisk && <Alert style={{ marginTop: 'var(--space-2, 8px)' }} type="error" showIcon message={t('w6Reg.safety.allergyAlert')} />}
               </Card>
 
               {/* 缴费 */}
@@ -562,14 +562,14 @@ const RegistrationWorkstationPage: React.FC = () => {
                       columns={chargeColumns}
                       pagination={false}
                     />
-                    <StatCardGrid minWidth={150} gap={16} style={{ marginTop: 12 }}>
+                    <StatCardGrid minWidth={150} gap={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
                       <StatCard title={t('w6Reg.charge.total')} value={charge.totalAmount} prefix="¥" size="sm" />
                       <StatCard title={t('w6Reg.charge.insurance')} value={charge.insuranceAmount} prefix="¥" size="sm" />
                       <StatCard title={t('w6Reg.charge.selfPay')} value={charge.selfPayAmount} prefix="¥" size="sm" />
                       <StatCard title={t('w6Reg.charge.paid')} value={charge.paidAmount} prefix="¥" size="sm" color="success" />
                       <StatCard title={t('w6Reg.charge.balance')} value={charge.balance} prefix="¥" size="sm" color={charge.balance > 0 ? 'error' : 'success'} />
                     </StatCardGrid>
-                    <Space style={{ marginTop: 12 }}>
+                    <Space style={{ marginTop: 'var(--space-3, 12px)' }}>
                       <Select
                         value={payMethod}
                         onChange={setPayMethod}
@@ -597,7 +597,7 @@ const RegistrationWorkstationPage: React.FC = () => {
                 <Row gutter={16}>
                   <Col span={12}>
                     <Text strong>{t('w6Reg.safety.vitals')}</Text>
-                    <Row gutter={[8, 8]} style={{ marginTop: 8 }}>
+                    <Row gutter={[8, 8]} style={{ marginTop: 'var(--space-2, 8px)' }}>
                       {vitalsFields.map((f) => (
                         <Col span={12} key={f.key}>
                           <Text style={{ fontSize: 12 }}>{f.label}</Text>
@@ -611,7 +611,7 @@ const RegistrationWorkstationPage: React.FC = () => {
                         </Col>
                       ))}
                     </Row>
-                    <Space style={{ marginTop: 12 }}>
+                    <Space style={{ marginTop: 'var(--space-3, 12px)' }}>
                       <Select
                         style={{ width: 180 }}
                         placeholder={t('w6Reg.triage.selectNurse')}

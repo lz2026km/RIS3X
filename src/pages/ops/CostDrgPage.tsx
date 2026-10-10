@@ -90,7 +90,7 @@ export default function CostDrgPage() {
 
   const overviewTab = (
     <>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w11Device.cost.totalRevenue')} value={costSummary?.totalRevenue ?? 0} prefix="¥" color="primary" loading={loading} />
         <StatCard title={t('w11Device.cost.totalCost')} value={costSummary?.totalCost ?? 0} prefix="¥" color="warning" loading={loading} />
         <StatCard title={t('w11Device.cost.totalMargin')} value={costSummary?.margin.margin ?? 0} prefix="¥" color="success" loading={loading} />
@@ -152,7 +152,7 @@ export default function CostDrgPage() {
 
   const drgTab = (
     <>
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space>
           <Text>{t('w11Device.drg.groupLookup')}:</Text>
           <Input value={diag} onChange={(e) => setDiag(e.target.value)} placeholder={t('w11Device.drg.diagPlaceholder')} style={{ width: 240 }} />
@@ -160,7 +160,7 @@ export default function CostDrgPage() {
           {diagResult && <Tag color="blue">{diagResult.code} · {diagResult.name} · {t('w11Device.drg.weight')} {diagResult.weight} · {fmtMoney(diagResult.payment)}</Tag>}
         </Space>
       </Card>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w11Device.drg.title')} value={drg?.totals.cases ?? 0} suffix="例" loading={loading} />
         <StatCard title={t('w11Device.drg.totalWeight')} value={drg?.totals.totalWeight ?? 0} loading={loading} />
         <StatCard title={t('w11Device.cost.revenue')} value={drg?.totals.revenue ?? 0} prefix="¥" color="primary" loading={loading} />
@@ -188,7 +188,7 @@ export default function CostDrgPage() {
 
   const reportsTab = (
     <>
-      <Card size="small" title={<Space><FileText size={14} />{t('w11Device.report.title')}</Space>} style={{ marginBottom: 16 }}>
+      <Card size="small" title={<Space><FileText size={14} />{t('w11Device.report.title')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DataTable
           rowKey="id" loading={loading} scroll={{ x: 'max-content' }} pagination={false}
           dataSource={defs}
@@ -225,14 +225,14 @@ export default function CostDrgPage() {
   )
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+      <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space size={16}>
             <BarChart3 size={34} color="#fff" />
             <div>
               <div style={{ fontSize: 20, fontWeight: 800 }}>{t('costDrg.title')}</div>
-              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>{t('costDrg.subtitle')}</div>
+              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 'var(--space-1, 4px)' }}>{t('costDrg.subtitle')}</div>
             </div>
           </Space>
           <Space>
@@ -242,7 +242,7 @@ export default function CostDrgPage() {
         </div>
       </Card>
 
-      {error && <Alert type="warning" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void loadAll()}>{t('w11Device.retry')}</Button>} />}
+      {error && <Alert type="warning" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void loadAll()}>{t('w11Device.retry')}</Button>} />}
 
       <Card>
         <Tabs

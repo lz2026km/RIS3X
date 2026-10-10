@@ -79,23 +79,23 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
         </span>
       </div>
 
-      <div style={{ padding: 16 }}>
+      <div style={{ padding: 'var(--space-4, 16px)' }}>
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: 12,
-            marginBottom: 16,
+            gap: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Monitor size={14} color="#64748b" />
             <span style={{ fontSize: 12, color: "#64748b" }}>设备:</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>
               {patient.device}
             </span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Calendar size={14} color="#64748b" />
             <span style={{ fontSize: 12, color: "#64748b" }}>日期:</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>
@@ -104,7 +104,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           <span style={modalityTag("#eff6ff", "var(--color-primary-600)")}>{patient.modality}</span>
           <span style={modalityTag("#f5f3ff", "#7c3aed")}>{patient.examItem}</span>
           {patient.isPediatric && (
@@ -119,11 +119,11 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             display: "grid",
             gridTemplateColumns: "1fr 1fr 1fr",
             gap: 10,
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <div style={doseBox}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>
               本次剂量
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, color: badge.color }}>
@@ -132,7 +132,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
           <div style={doseBox}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>
               法规阈值
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-primary-800)" }}>
@@ -141,7 +141,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
           <div style={doseBox}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>占比</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>占比</div>
             <div
               style={{
                 fontSize: 18,
@@ -155,7 +155,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           </div>
         </div>
 
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <div
             style={{
               display: "flex",
@@ -198,7 +198,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginTop: 4,
+              marginTop: 'var(--space-1, 4px)',
             }}
           >
             <span style={{ fontSize: 12, color: "#94a3b8" }}>0%</span>
@@ -211,8 +211,8 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 8,
-            padding: 12,
+            gap: 'var(--space-2, 8px)',
+            padding: 'var(--space-3, 12px)',
             background: "var(--bg-primary)",
             borderRadius: 8,
           }}
@@ -243,7 +243,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           padding: "12px 16px",
           borderTop: "1px solid #f1f5f9",
           display: "flex",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <button
@@ -278,7 +278,7 @@ const modalityTag = (bg: string, color: string): React.CSSProperties => ({
 const doseBox: React.CSSProperties = {
   background: "var(--bg-primary)",
   borderRadius: 8,
-  padding: 12,
+  padding: 'var(--space-3, 12px)',
   textAlign: "center",
 };
 

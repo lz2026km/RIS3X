@@ -109,7 +109,7 @@ export function SettingsPanel({
               label: t("settings.tab.layout"),
               children: (
                 <div style={{ padding: "8px 0" }}>
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="layoutPreset"
                       aria-label={t("settings.layoutPreset")}
@@ -133,7 +133,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="leftPanelWidth"
                       aria-label={t("settings.leftPanelWidth")}
@@ -155,7 +155,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="rightPanelWidth"
                       aria-label={t("settings.rightPanelWidth")}
@@ -177,7 +177,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ display: "flex", gap: 24, marginBottom: 16 }}>
+                  <div style={{ display: "flex", gap: 'var(--space-6, 24px)', marginBottom: 'var(--space-4, 16px)' }}>
                     <div>
                       <label
                         htmlFor="showLeftPanel"
@@ -216,7 +216,7 @@ export function SettingsPanel({
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="rightPanelDefaultTab"
                       aria-label={t("settings.rightPanelDefaultTab")}
@@ -241,7 +241,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="leftPanelDefaultSection"
                       aria-label={t("settings.leftPanelDefaultSection")}
@@ -275,7 +275,7 @@ export function SettingsPanel({
               label: t("settings.tab.editor"),
               children: (
                 <div style={{ padding: "8px 0" }}>
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="editorFontSize"
                       aria-label={t("settings.editor.fontSize")}
@@ -297,7 +297,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="editorFontFamily"
                       aria-label={t("settings.editor.fontFamily")}
@@ -318,7 +318,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="editorLineHeight"
                       aria-label={t("settings.editor.lineHeight")}
@@ -340,7 +340,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="editorTabSize"
                       aria-label={t("settings.editor.tabSize")}
@@ -362,7 +362,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ display: "flex", gap: 24 }}>
+                  <div style={{ display: "flex", gap: 'var(--space-6, 24px)' }}>
                     <div>
                       <label
                         htmlFor="autoSave"
@@ -414,7 +414,7 @@ export function SettingsPanel({
               label: t("settings.tab.theme"),
               children: (
                 <div style={{ padding: "8px 0" }}>
-                  <div style={{ marginBottom: 24 }}>
+                  <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
                     <label
                       htmlFor="theme"
                       aria-label={t("settings.themeLabel")}
@@ -440,7 +440,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="fontSizeScale"
                       aria-label={t("settings.fontSizeScale")}
@@ -462,7 +462,7 @@ export function SettingsPanel({
                     />
                   </div>
 
-                  <div style={{ display: "flex", gap: 24 }}>
+                  <div style={{ display: "flex", gap: 'var(--space-6, 24px)' }}>
                     <div>
                       <label
                         htmlFor="reducedMotion"
@@ -511,7 +511,7 @@ export function SettingsPanel({
               label: t("settings.tab.shortcuts"),
               children: (
                 <div style={{ padding: "8px 0" }}>
-                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
                     <label
                       htmlFor="shortcutPreset"
                       aria-label={t("settings.shortcutPreset")}
@@ -536,14 +536,14 @@ export function SettingsPanel({
 
                   <div style={{ maxHeight: 360, overflowY: "auto" }}>
                     {Object.entries(groupedShortcuts).map(([group, items]) => (
-                      <div key={group} style={{ marginBottom: 20 }}>
+                      <div key={group} style={{ marginBottom: 'var(--space-5, 20px)' }}>
                         <div
                           style={{
                             fontSize: 12,
                             fontWeight: 600,
                             color: "#94a3b8",
                             textTransform: "uppercase",
-                            marginBottom: 8,
+                            marginBottom: 'var(--space-2, 8px)',
                             letterSpacing: "0.05em",
                           }}
                         >

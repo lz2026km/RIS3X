@@ -102,12 +102,12 @@ export default function DICOMSRParser() {
   const rows = [...parsed.map(mapResult), ...dicomSRRecords];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       <div
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -116,7 +116,7 @@ export default function DICOMSRParser() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <div>
@@ -169,8 +169,8 @@ export default function DICOMSRParser() {
               fontSize: 12,
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
+              gap: 'var(--space-2, 8px)',
+              marginBottom: 'var(--space-3, 12px)',
             }}
           >
             <CheckCircle size={14} /> DICOM SR解析成功，已提取 1 条剂量记录 (CTDIvol/DLP)
@@ -187,8 +187,8 @@ export default function DICOMSRParser() {
               fontSize: 12,
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
+              gap: 'var(--space-2, 8px)',
+              marginBottom: 'var(--space-3, 12px)',
             }}
           >
             <AlertTriangle size={14} /> {uploadError}
@@ -205,8 +205,8 @@ export default function DICOMSRParser() {
               fontSize: 12,
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
+              gap: 'var(--space-2, 8px)',
+              marginBottom: 'var(--space-3, 12px)',
             }}
           >
             <AlertTriangle size={14} /> {t('w8Dose.dicomLocalParse')}
@@ -221,7 +221,7 @@ export default function DICOMSRParser() {
             fontSize: 12,
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <AlertTriangle size={14} /> 演示数据：表格内既有记录为本地模拟；选择 DICOM JSON 文件可触发真实 /rdsr/parse 解析
@@ -232,7 +232,7 @@ export default function DICOMSRParser() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -241,7 +241,7 @@ export default function DICOMSRParser() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           RDSR 解析结果 {parsed.length > 0 ? `(新解析 ${parsed.length} 条)` : ''}

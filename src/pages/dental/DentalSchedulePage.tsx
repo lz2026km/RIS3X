@@ -178,14 +178,14 @@ export const DentalSchedulePage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Calendar size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalSchedule.pageTitle')}</span>
         <Tag color="cyan">v3.0.6.8-103</Tag>
         <Tag color="blue">{t('dentalSchedule.benchmarkTag')}</Tag>
       </Space>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalSchedule.statToday')} value={stats?.todayAppointments || 0} icon={<Calendar size={16} />} />
         <StatCard title={t('dentalSchedule.statCompleted')} value={stats?.completed || 0} color="success" />
         <StatCard title={t('dentalSchedule.statInProgress')} value={stats?.inProgress || 0} color="warning" />
@@ -193,10 +193,10 @@ export const DentalSchedulePage: React.FC = () => {
         <StatCard title={t('dentalSchedule.statChairUsage')} value={Math.round((stats?.chairUtilization||0)*100)} suffix="%" />
         <StatCard title={t('dentalSchedule.statAvgWait')} value={stats?.avgWaitTime || 0} suffix="min" />
       </StatCardGrid>
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DatePicker value={dayjs(selectedDate)} placeholder={t('dentalSchedule.selectDate')} onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width: 200}} />
       </div>
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         {chairs.map((c: any) => (
           <Col span={4} key={c.id}>
             <Card size="small" hoverable onClick={() => setSelectedChair(c.id)}
@@ -206,11 +206,11 @@ export const DentalSchedulePage: React.FC = () => {
             </Card>
           </Col>
         ))}
-        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'var(--color-primary-600)':'#d9d9d9'}}><Space><User size={14}/><span>{t('dentalSchedule.all')}</span></Space><div style={{fontSize:11,color:'var(--text-secondary)',marginTop:4}}>{t('dentalSchedule.totalPrefix')} {appts.length} {t('dentalSchedule.apptUnit')}</div></Card></Col>
+        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'var(--color-primary-600)':'#d9d9d9'}}><Space><User size={14}/><span>{t('dentalSchedule.all')}</span></Space><div style={{fontSize:11,color:'var(--text-secondary)',marginTop:'var(--space-1, 4px)'}}>{t('dentalSchedule.totalPrefix')} {appts.length} {t('dentalSchedule.apptUnit')}</div></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
         {key:'schedule', label:t('dentalSchedule.tabSchedule'), children:<>
-          <Button type="primary" icon={<Plus size={14}/>} style={{marginBottom:8}} onClick={()=>setCreateModal(true)}>{t('dentalSchedule.newAppt')}</Button>
+          <Button type="primary" icon={<Plus size={14}/>} style={{marginBottom:'var(--space-2, 8px)'}} onClick={()=>setCreateModal(true)}>{t('dentalSchedule.newAppt')}</Button>
           {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalSchedule.noApptToday')} /> : (
             <DataTable dataSource={pagedFiltered} rowKey="id" pagination={filteredPagination}
               columns={[
@@ -238,7 +238,7 @@ export const DentalSchedulePage: React.FC = () => {
                 <Form layout="vertical" size="small">
                   <Form.Item label={t('dentalSchedule.colPatient')}><Select value={psrRec.patientId} onChange={v=>setPsrRec({...psrRec,patientId:v})} options={patients} placeholder={t('dentalSchedule.selectPatient')} /></Form.Item>
                   <Form.Item label={t('dentalSchedule.quadrant')}><Segmented value={psrRec.quadrant} onChange={v=>setPsrRec({...psrRec,quadrant:v as number})} options={[{value:1,label:t('dentalSchedule.quadrantRU')},{value:2,label:t('dentalSchedule.quadrantLU')},{value:3,label:t('dentalSchedule.quadrantLL')},{value:4,label:t('dentalSchedule.quadrantRL')}]} /></Form.Item>
-                  <div style={{fontSize:12,fontWeight:600,marginBottom:4}}>{t('dentalSchedule.probingDepth')}</div>
+                  <div style={{fontSize:12,fontWeight:600,marginBottom:'var(--space-1, 4px)'}}>{t('dentalSchedule.probingDepth')}</div>
                   <Row gutter={4}>
                     {[0,1,2,3,4,5].map(i => (
                       <Col span={4} key={i}>
@@ -253,8 +253,8 @@ export const DentalSchedulePage: React.FC = () => {
                       </Col>
                     ))}
                   </Row>
-                  <div style={{fontSize:11,color:"var(--text-secondary)",marginTop:4}}>{t('dentalSchedule.probingNote')}</div>
-                  <Form.Item label={t('dentalSchedule.mobility')} style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:t('dentalSchedule.mobility0')},{value:1,label:t('dentalSchedule.mobility1')},{value:2,label:t('dentalSchedule.mobility2')},{value:3,label:t('dentalSchedule.mobility3')}]} /></Form.Item>
+                  <div style={{fontSize:11,color:"var(--text-secondary)",marginTop:'var(--space-1, 4px)'}}>{t('dentalSchedule.probingNote')}</div>
+                  <Form.Item label={t('dentalSchedule.mobility')} style={{marginTop:'var(--space-2, 8px)'}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:t('dentalSchedule.mobility0')},{value:1,label:t('dentalSchedule.mobility1')},{value:2,label:t('dentalSchedule.mobility2')},{value:3,label:t('dentalSchedule.mobility3')}]} /></Form.Item>
                   <Form.Item label={t('dentalSchedule.psrCode')}><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:t('dentalSchedule.psr0')},{value:1,label:t('dentalSchedule.psr1')},{value:2,label:t('dentalSchedule.psr2')},{value:3,label:t('dentalSchedule.psr3')},{value:4,label:t('dentalSchedule.psr4')}]} /></Form.Item>
                   <Form.Item label={t('dentalSchedule.note')}><Input.TextArea value={psrRec.note} onChange={e=>setPsrRec({...psrRec,note:e.target.value})} rows={2} /></Form.Item>
                   <Button type="primary" block loading={psrSaving} onClick={async()=>{
@@ -287,7 +287,7 @@ export const DentalSchedulePage: React.FC = () => {
                   <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalSchedule.noPsr')} />
                 ) : (
                   psrHistory.map((rec: any, i: number) => (
-                    <Card key={rec.id || i} size="small" style={{ marginBottom: 4 }} title={`${t('dentalSchedule.quadrant')} ${rec.quadrant ?? '-'} · ${rec.patientId ?? ''}`}>
+                    <Card key={rec.id || i} size="small" style={{ marginBottom: 'var(--space-1, 4px)' }} title={`${t('dentalSchedule.quadrant')} ${rec.quadrant ?? '-'} · ${rec.patientId ?? ''}`}>
                       <Space wrap>
                         <Tag color="blue">{t('dentalSchedule.psrScore')}: {rec.psrCode ?? '-'}</Tag>
                         <Tag color="orange">{t('dentalSchedule.probingLabel')}: {Array.isArray(rec.probingDepths) ? `${Math.min(...rec.probingDepths)}-${Math.max(...rec.probingDepths)}mm` : '-'}</Tag>
@@ -295,7 +295,7 @@ export const DentalSchedulePage: React.FC = () => {
                         <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{String(rec.createdAt ?? rec.recordedAt ?? '').replace('T', ' ').slice(0, 16) || '—'}</span>
                       </Space>
                       {Array.isArray(rec.probingDepths) && (
-                        <div style={{ marginTop: 4, fontSize: 11, color: 'var(--text-secondary)' }}>{t('dentalSchedule.sixPoints')}: {rec.probingDepths.join('-')}mm {rec.note ? `| ${rec.note}` : ''}</div>
+                        <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 11, color: 'var(--text-secondary)' }}>{t('dentalSchedule.sixPoints')}: {rec.probingDepths.join('-')}mm {rec.note ? `| ${rec.note}` : ''}</div>
                       )}
                     </Card>
                   ))

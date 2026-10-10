@@ -87,14 +87,14 @@ export const DentalWorkspacePage: React.FC = () => {
       alert={error ? { message: error, type: 'error' } : undefined}
     >
       <Spin spinning={loading}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('dental.stat.todayPatients')} value={stats?.todayPatients ?? 0} icon={<Calendar size={14} />} />
           <StatCard title={t('dental.stat.weekPatients')} value={stats?.thisWeek ?? 0} icon={<Activity size={14} />} color="primary" />
           <StatCard title={t('dental.stat.todayRevenue')} prefix="¥" value={stats?.revenueToday ?? 0} color="success" />
           <StatCard title={t('dental.stat.pendingAppointments')} value={appointments.length} color="warning" />
         </StatCardGrid>
 
-        <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+        <Row gutter={[12, 12]} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           {QUICK_LINKS.map((q) => (
             <Col span={8} key={q.key}>
               <Card size="small" hoverable onClick={() => navigate(q.href)} style={{ cursor: 'pointer' }}>
@@ -120,7 +120,7 @@ export const DentalWorkspacePage: React.FC = () => {
               ) : (
                 <div>
                   {appointments.map((a) => (
-                    <div key={a.id ?? a.patientId} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                    <div key={a.id ?? a.patientId} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 12 }}>{a.patientName ?? a.patientId}</div>
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.type ?? a.modality ?? ''} · {a.time ?? a.date ?? ''}</div>
@@ -140,7 +140,7 @@ export const DentalWorkspacePage: React.FC = () => {
               ) : (
                 <div>
                   {recentStudies.map((s) => (
-                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ fontSize: 12 }}>{s.patientName} <Tag style={{ marginLeft: 6 }}>{s.modality}</Tag></span>
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.region} · {s.acquisitionDate?.slice(0, 10)}</div>
@@ -153,7 +153,7 @@ export const DentalWorkspacePage: React.FC = () => {
             </Card>
           </Col>
         </Row>
-        <Alert style={{ marginTop: 16 }} title={t('w9d.dentalWorkspace.ready', { count: pendingCount + appointments.length })} type="success" showIcon />
+        <Alert style={{ marginTop: 'var(--space-4, 16px)' }} title={t('w9d.dentalWorkspace.ready', { count: pendingCount + appointments.length })} type="success" showIcon />
       </Spin>
     </DentalPageLayout>
   );

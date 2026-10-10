@@ -714,9 +714,9 @@ export default function DicomCompressPage() {
     <PageContainer padding={24}>
       {contextHolder}
       <Title level={3}>
-        <Shrink size={16} style={{ marginRight: 8 }} />
+        <Shrink size={16} style={{ marginRight: 'var(--space-2, 8px)' }} />
         {t("compressV2.title")}
-        <Text type="secondary" style={{ fontSize: 12, marginLeft: 12 }}>
+        <Text type="secondary" style={{ fontSize: 12, marginLeft: 'var(--space-3, 12px)' }}>
           {t("compressV2.subtitle")}
         </Text>
       </Title>
@@ -791,7 +791,7 @@ export default function DicomCompressPage() {
               <div>
                 <Text strong>{t("compressV2.transferSyntax")}</Text>
                 <Select
-                  style={{ width: "100%", marginTop: 4 }}
+                  style={{ width: "100%", marginTop: 'var(--space-1, 4px)' }}
                   value={selectedSyntax}
                   onChange={setSelectedSyntax}
                   options={syntaxes.map(s => ({
@@ -831,9 +831,9 @@ export default function DicomCompressPage() {
                 <div>
                   <Divider style={{ margin: "12px 0" }} />
                   <Text strong style={{ fontSize: 12 }}>{t("compressV2.strategyTitle")}</Text>
-                  <div style={{ marginTop: 8, maxHeight: 240, overflowY: "auto" }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', maxHeight: 240, overflowY: "auto" }}>
                     {strategies.slice(0, 8).map(s => (
-                      <div key={s.modality} style={{ marginBottom: 8 }}>
+                      <div key={s.modality} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                         <Space size={6} wrap>
                           <Tag color="blue">{s.modalityName}</Tag>
                           <Text style={{ fontSize: 12 }}>{s.recommendedName}</Text>
@@ -904,7 +904,7 @@ export default function DicomCompressPage() {
               <Divider style={{ margin: "8px 0" }} />
               <Text strong style={{ fontSize: 12 }}>{t("compressV2.transcodeTitle")}</Text>
               <Select
-                style={{ width: "100%", marginTop: 4 }}
+                style={{ width: "100%", marginTop: 'var(--space-1, 4px)' }}
                 value={transcodeTarget}
                 onChange={setTranscodeTarget}
                 options={syntaxes.map(s => ({
@@ -952,7 +952,7 @@ export default function DicomCompressPage() {
           </Space>
         }
         variant="outlined"
-        style={{ marginTop: 16 }}
+        style={{ marginTop: 'var(--space-4, 16px)' }}
       >
         {currentTask ? (
           <div>
@@ -968,14 +968,14 @@ export default function DicomCompressPage() {
               <StatCard title={t("compressV2.thModality")} value={currentTask.modality ?? "-"} size="sm" />
             </StatCardGrid>
             {(currentTask.status === "pending" || currentTask.status === "processing") && (
-              <div style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
                 <Text>{t("compressV2.progressing")}</Text>
                 <Progress percent={currentTask.progress} />
               </div>
             )}
             {currentTask.status === "done" && currentTask.compressedSize !== null && (
               <div>
-                <StatCardGrid minWidth={200} gap={16} style={{ marginTop: 12 }}>
+                <StatCardGrid minWidth={200} gap={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
                   <StatCard
                     title={t("compressV2.thOriginalSize")}
                     value={formatBytes(currentTask.originalSize)}
@@ -1015,7 +1015,7 @@ export default function DicomCompressPage() {
                 <Alert
                   type={currentTask.lossless ? "success" : "warning"}
                   showIcon
-                  style={{ marginTop: 12 }}
+                  style={{ marginTop: 'var(--space-3, 12px)' }}
                   message={
                     currentTask.lossless
                       ? t("compressV2.losslessAlert")
@@ -1025,15 +1025,15 @@ export default function DicomCompressPage() {
               </div>
             )}
             {currentTask.status === "done" && currentTask.compressedSize === null && (
-              <Alert type="success" showIcon title={t("compressV2.done")} style={{ marginTop: 12 }} />
+              <Alert type="success" showIcon title={t("compressV2.done")} style={{ marginTop: 'var(--space-3, 12px)' }} />
             )}
             {currentTask.status === "failed" && (
-              <Alert type="error" showIcon title={currentTask.error ?? t("compressV2.failed")} style={{ marginTop: 12 }} />
+              <Alert type="error" showIcon title={currentTask.error ?? t("compressV2.failed")} style={{ marginTop: 'var(--space-3, 12px)' }} />
             )}
             {currentTask.status === "done" && (
               <Button
                 icon={<Maximize2 />}
-                style={{ marginTop: 12 }}
+                style={{ marginTop: 'var(--space-3, 12px)' }}
                 onClick={handleDecompress}
               >
                 {t("compressV2.decompressVerify")}
@@ -1058,7 +1058,7 @@ export default function DicomCompressPage() {
         variant="outlined"
       >
         {taskStats && (
-          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <StatCard title={t("compressV2.kpiTotalTasks")} value={taskStats.totalTasks} size="sm" />
             <StatCard title={t("compressV2.kpiCompleted")} value={taskStats.completedTasks} color="success" size="sm" />
             <StatCard title={t("compressV2.kpiFailed")} value={taskStats.failedTasks} color="error" size="sm" />
@@ -1099,7 +1099,7 @@ export default function DicomCompressPage() {
             variant="outlined"
           >
             {comparing ? (
-              <Spin tip={t("compressV2.comparing")} style={{ display: "block", padding: 32 }}>
+              <Spin tip={t("compressV2.comparing")} style={{ display: "block", padding: 'var(--space-8, 32px)' }}>
                 <div style={{ height: 60 }} />
               </Spin>
             ) : compareRows.length > 0 ? (
@@ -1124,7 +1124,7 @@ export default function DicomCompressPage() {
           >
             {ratios.byAlgorithm.length > 0 ? (
               <>
-                <Text strong style={{ display: "block", marginBottom: 8 }}>
+                <Text strong style={{ display: "block", marginBottom: 'var(--space-2, 8px)' }}>
                   {t("compressV2.thByAlgo")}
                 </Text>
                 <DataTable dataSource={ratios.byAlgorithm} columns={ratioColumns} rowKey={r => r.algorithm} pagination={false} scroll={{ x: 'max-content' }}/>

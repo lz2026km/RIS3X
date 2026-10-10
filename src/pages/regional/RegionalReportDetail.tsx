@@ -451,14 +451,14 @@ export const ModalContent: React.FC<ModalContentProps> = ({
               </div>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.applyInstitution')} *</label><Select style={{ width: '100%' }} value={consultationForm.institution || undefined} placeholder={t('regionalReport.selectInstitution')} onChange={v => setForm({ institution: v })} options={institutions.map(inst => ({ value: inst.name, label: inst.name }))} /></div>
             </div>
-            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }} onClick={onSubmitConsultation}><Send size={13} />{t('regionalReport.submit')}</button></div>
+            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={onSubmitConsultation}><Send size={13} />{t('regionalReport.submit')}</button></div>
           </>
         )}
         {modalType === 'opinion' && (
           <>
             <div style={styles.modalHeader}><span>{t('regionalReport.fillConsultationOpinion')}</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
             <div style={styles.modalBody}><div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.consultationOpinion')}</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '150px' }} placeholder={t('regionalReport.consultationOpinionDetailPlaceholder')} value={opinionText} onChange={e => onOpinionTextChange(e.target.value)} /></div></div>
-            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }} onClick={onSubmitOpinion}><Send size={13} />{t('regionalReport.submitOpinion')}</button></div>
+            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={onSubmitOpinion}><Send size={13} />{t('regionalReport.submitOpinion')}</button></div>
           </>
         )}
         {modalType === 'review' && (

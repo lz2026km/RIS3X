@@ -98,7 +98,7 @@ export default function TechnicianKpiDashboardPage() {
   )
 
   return (
-    <div style={{ padding: 20, maxWidth: 1240, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1240, margin: '0 auto' }}>
       {/* 头部 */}
       <PageHeader
         icon={<BarChart3 size={18} color="var(--color-primary-800)" />}
@@ -154,7 +154,7 @@ export default function TechnicianKpiDashboardPage() {
 
       {/* 数据源徽标 */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 12,
+        display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', fontSize: 12,
         padding: '6px 12px', borderRadius: 8,
         background: dataSource === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
         color: dataSource === 'api' ? '#059669' : 'var(--color-warning-600)',
@@ -166,17 +166,17 @@ export default function TechnicianKpiDashboardPage() {
           : '数据源: 本地 demo 回退 (后端不可用)'}
       </div>
 
-      {error && <AppText size="xs" color="error" style={{ marginBottom: 12, display: 'block' }}>{error}</AppText>}
+      {error && <AppText size="xs" color="error" style={{ marginBottom: 'var(--space-3, 12px)', display: 'block' }}>{error}</AppText>}
 
       {loading && !data ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><Spin /></div>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-20, 80px)' }}><Spin /></div>
       ) : (
         <>
           {/* KPI 卡网格 */}
           <TechnicianKpiCards totals={totals} loading={loading} />
 
           {/* 趋势图 + 排行 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 16, alignItems: 'start' }} data-testid="tech-kpi-trend">
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)', alignItems: 'start' }} data-testid="tech-kpi-trend">
             <div style={{
               background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
               padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
@@ -210,7 +210,7 @@ export default function TechnicianKpiDashboardPage() {
 
           {/* 技师明细表 */}
           <div style={{
-            marginTop: 16, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
+            marginTop: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
             padding: '14px 18px', overflow: 'auto',
           }} data-testid="tech-kpi-detail-table">
             <AppText size="sm" weight={700} style={{ color: THEME_TOKENS.textPrimary, display: 'block', marginBottom: 10 }}>技师明细 ({data?.technicians.length ?? 0})</AppText>

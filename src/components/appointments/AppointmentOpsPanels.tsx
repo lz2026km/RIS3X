@@ -99,18 +99,18 @@ export default function AppointmentOpsPanels() {
 
   return (
     <div data-testid="appointment-ops" style={{ background: 'var(--bg-card)', borderRadius: 10, border: `1px solid ${borderGray}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginRight: 6 }}>{t('w5Appt.opsTitle')}</div>
         {tabBtn('WAITLIST', t('w5Appt.opsWaitlist'), <ListChecks size={13} />)}
         {tabBtn('REMINDER', t('w5Appt.opsReminderPlan'), <Bell size={13} />)}
         {tabBtn('NOSHOW', t('w5Appt.opsNoShow'), <UserX size={13} />)}
-        <button onClick={() => void load()} style={{ marginLeft: 'auto', padding: '5px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: textGray, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => void load()} style={{ marginLeft: 'auto', padding: '5px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: textGray, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <RefreshCw size={12} /> {busy ? '...' : t('w5Appt.opsRefresh')}
         </button>
         {toast && <span style={{ fontSize: 11, color: '#059669', fontWeight: 700 }}>{toast}</span>}
       </div>
 
-      <div style={{ padding: 12, overflowX: 'auto' }}>
+      <div style={{ padding: 'var(--space-3, 12px)', overflowX: 'auto' }}>
         {tab === 'WAITLIST' && (
           <>
             <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
@@ -123,7 +123,7 @@ export default function AppointmentOpsPanels() {
                 <option value="urgent">{t('w5Appt.priorityUrgent')}</option>
                 <option value="critical">{t('w5Appt.priorityCritical')}</option>
               </select>
-              <button onClick={() => void addWaitlist()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => void addWaitlist()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Plus size={13} /> {t('w5Appt.opsAdd')}
               </button>
             </div>
@@ -146,7 +146,7 @@ export default function AppointmentOpsPanels() {
                       'act')}
                   </tr>
                 ))}
-                {waitlist.length === 0 && <tr><td colSpan={6} style={{ padding: 20, textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
+                {waitlist.length === 0 && <tr><td colSpan={6} style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
               </tbody>
             </table>
           </>
@@ -155,7 +155,7 @@ export default function AppointmentOpsPanels() {
         {tab === 'REMINDER' && (
           <>
             <div style={{ marginBottom: 10 }}>
-              <button onClick={() => void fireDue()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => void fireDue()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Send size={13} /> {t('w5Appt.opsFireDue')}
               </button>
             </div>
@@ -177,7 +177,7 @@ export default function AppointmentOpsPanels() {
                       'act')}
                   </tr>
                 ))}
-                {reminders.length === 0 && <tr><td colSpan={5} style={{ padding: 20, textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
+                {reminders.length === 0 && <tr><td colSpan={5} style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
               </tbody>
             </table>
           </>
@@ -186,7 +186,7 @@ export default function AppointmentOpsPanels() {
         {tab === 'NOSHOW' && (
           <>
             <div style={{ marginBottom: 10 }}>
-              <button onClick={() => void scan()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: 'var(--color-error-600)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => void scan()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: 'var(--color-error-600)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <ScanLine size={13} /> {t('w5Appt.opsScan')}
               </button>
             </div>
@@ -206,7 +206,7 @@ export default function AppointmentOpsPanels() {
                       'act')}
                   </tr>
                 ))}
-                {noShows.length === 0 && <tr><td colSpan={5} style={{ padding: 20, textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
+                {noShows.length === 0 && <tr><td colSpan={5} style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
               </tbody>
             </table>
           </>

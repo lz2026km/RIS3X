@@ -245,18 +245,18 @@ export default function MobilePushPage() {
   }
 
   const containerStyle: React.CSSProperties = {
-    maxWidth: 480, margin: '0 auto', padding: 16,
+    maxWidth: 480, margin: '0 auto', padding: 'var(--space-4, 16px)',
     background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif',
   }
 
   const headerStyle: React.CSSProperties = {
     background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))',
-    borderRadius: 12, padding: 16, marginBottom: 16, color: '#fff',
+    borderRadius: 12, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)', color: '#fff',
   }
 
   const cardStyle: React.CSSProperties = {
     background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
-    marginBottom: 8, overflow: 'hidden',
+    marginBottom: 'var(--space-2, 8px)', overflow: 'hidden',
   }
 
   const btnBase: React.CSSProperties = {
@@ -268,12 +268,12 @@ export default function MobilePushPage() {
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
           <div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>{t('mobilePush.title')}</div>
             <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('mobilePush.subtitle')}</div>
             {/* [v3.0.6.11-88 Round10] /mobile/push-notifications 后端未实现, MSW 演示数据 */}
-            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>{t('mobilePush.dataSource')}</div>
+            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 'var(--space-1, 4px)' }}>{t('mobilePush.dataSource')}</div>
           </div>
           <div style={{
             width: 44, height: 44, borderRadius: 10,
@@ -283,7 +283,7 @@ export default function MobilePushPage() {
             {pushEnabled ? <Bell size={22} color="#34d399" /> : <BellOff size={22} color="#f87171" />}
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)' }}>
           {[
             { value: unreadCount, label: t('mobilePush.labelUnread'), bg: 'rgba(255,255,255,0.15)' },
             { value: notifications.length, label: t('mobilePush.labelTotal'), bg: 'rgba(255,255,255,0.15)' },
@@ -299,8 +299,8 @@ export default function MobilePushPage() {
 
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
 
-      <div style={{ ...cardStyle, padding: 12 }}>
-        <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ ...cardStyle, padding: 'var(--space-3, 12px)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={handleEnablePush}
             disabled={pushEnabled}
@@ -319,27 +319,27 @@ export default function MobilePushPage() {
             <Send size={14} />{t('mobilePush.testPush')}
           </button>
         </div>
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
+        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>
           {t('mobilePush.pushStatus')} <span style={{ color: pushPermission === 'granted' ? '#059669' : 'var(--color-error-600)', fontWeight: 600 }}>
             {pushPermission === 'granted' ? t('mobilePush.authorized') : pushPermission === 'denied' ? t('mobilePush.denied') : pushPermission === 'unsupported' ? t('mobilePush.unsupported') : t('mobilePush.unauthorized')}
           </span>
-          <span style={{ marginLeft: 8 }}>{t('mobilePush.channel')} <span style={{ fontWeight: 600 }}>{pushService.supported ? t('mobilePush.browserPush') : 'N/A'}</span></span>
+          <span style={{ marginLeft: 'var(--space-2, 8px)' }}>{t('mobilePush.channel')} <span style={{ fontWeight: 600 }}>{pushService.supported ? t('mobilePush.browserPush') : 'N/A'}</span></span>
         </div>
       </div>
 
       {showTestPanel && (
-        <div style={{ ...cardStyle, padding: 12, border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
+        <div style={{ ...cardStyle, padding: 'var(--space-3, 12px)', border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
-          <div style={{ marginBottom: 8 }}>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('mobilePush.formTitle')}</label>
+          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formTitle')}</label>
             <input
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
               style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, boxSizing: 'border-box' }}
             />
           </div>
-          <div style={{ marginBottom: 8 }}>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('mobilePush.formBody')}</label>
+          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formBody')}</label>
             <textarea
               value={testBody}
               onChange={(e) => setTestBody(e.target.value)}
@@ -354,8 +354,8 @@ export default function MobilePushPage() {
       )}
 
       {/* [v3.0.6.11-99 Wave7B] 推送订阅类型: 危急值/报告完成/随访提醒/质控通知/系统公告 */}
-      <div style={{ ...cardStyle, padding: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('mobilePush.subscriptionTypes')}</div>
+      <div style={{ ...cardStyle, padding: 'var(--space-3, 12px)' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('mobilePush.subscriptionTypes')}</div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {subscriptionOptions().map(opt => {
             const checked = subTypes.includes(opt.key)
@@ -375,13 +375,13 @@ export default function MobilePushPage() {
             )
           })}
         </div>
-        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>
+        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>
           {t('mobilePush.subscriptionHint')}
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <Filter size={12} color="#64748b" />
           <span style={{ fontSize: 12, color: '#64748b' }}>{t('mobilePush.category')}</span>
         </div>
@@ -400,7 +400,7 @@ export default function MobilePushPage() {
         ))}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
         <span style={{ fontSize: 12, color: '#64748b' }}>
           {t('mobilePush.totalPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{filtered.length}</span> {t('mobilePush.totalSuffix')}
         </span>
@@ -423,7 +423,7 @@ export default function MobilePushPage() {
             onClick={() => handleMarkRead(n.id)}
             style={{
               ...cardStyle,
-              padding: 12, cursor: 'pointer',
+              padding: 'var(--space-3, 12px)', cursor: 'pointer',
               borderLeft: `4px solid ${cfg.borderColor}`,
               background: n.read ? 'var(--bg-card)' : 'var(--color-info-bg)',
             }}
@@ -447,7 +447,7 @@ export default function MobilePushPage() {
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{n.body}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 11, color: '#94a3b8' }}>
                     <Clock size={10} style={{ marginRight: 2 }} />
                     {n.receivedAt}
@@ -456,7 +456,7 @@ export default function MobilePushPage() {
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); handleDelete(n.id) }}
-                style={{ padding: 4, border: 'none', background: 'transparent', cursor: 'pointer', color: '#cbd5e1' }}
+                style={{ padding: 'var(--space-1, 4px)', border: 'none', background: 'transparent', cursor: 'pointer', color: '#cbd5e1' }}
               >
                 <Trash2 size={14} />
               </button>
@@ -466,13 +466,13 @@ export default function MobilePushPage() {
       })}
 
       {filtered.length === 0 && (
-        <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
-          <BellOff size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
+        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>
+          <BellOff size={32} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.5 }} />
           <div style={{ fontSize: 14 }}>{t('mobilePush.noNotifications')}</div>
         </div>
       )}
 
-      <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8 }}>
+      <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8 }}>
         <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
           <strong>{t('mobilePush.configTitle')}</strong><br />
           {t('mobilePush.configLine1')}<br />

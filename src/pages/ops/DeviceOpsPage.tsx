@@ -278,7 +278,7 @@ export default function DeviceOpsPage() {
     {
       title: t('deviceOps.colDeviceName'), dataIndex: 'name', key: 'name',
       render: (v: string) => (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Monitor size={14} color="var(--color-primary-500)" />
           <span>{v}</span>
         </span>
@@ -288,7 +288,7 @@ export default function DeviceOpsPage() {
       title: t('deviceOps.colStatus'), dataIndex: 'status', key: 'status',
       render: (v: Device['status']) => {
         const sc = STATUS_CONFIG[v]
-        return <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: sc?.color }}>{sc && <sc.icon size={12} />}{sc?.label}</span>
+        return <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: sc?.color }}>{sc && <sc.icon size={12} />}{sc?.label}</span>
       },
     },
     { title: t('deviceOps.colType'), dataIndex: 'type', key: 'type', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
@@ -299,12 +299,12 @@ export default function DeviceOpsPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Monitor size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deviceOps.title')}</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}><Monitor size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deviceOps.title')}</span></div>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('deviceOps.summary', { count: devices.length, source: dataSource === 'api' ? t('deviceOps.realtime') : t('deviceOps.demo') })}</span>
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-4, 16px)', fontSize: 12, flexWrap: 'wrap' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
             background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))', fontWeight: 600,
@@ -315,12 +315,12 @@ export default function DeviceOpsPage() {
           {apiError && (
             <span style={{ color: 'var(--color-error-500, var(--color-error-500))' }}>
               {apiError}
-              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, var(--color-error-500))', background: 'transparent', color: 'var(--color-error-500, var(--color-error-500))', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.retry')}</button>
+              <button onClick={() => void loadDevices()} style={{ marginLeft: 'var(--space-2, 8px)', padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, var(--color-error-500))', background: 'transparent', color: 'var(--color-error-500, var(--color-error-500))', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.retry')}</button>
             </span>
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
           {['all', ...types].map(ty => (
             <button key={ty} onClick={() => setFilterType(ty)}
               style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filterType === ty ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: filterType === ty ? '#fff' : 'var(--text-muted, #8b949e)' }}>
@@ -334,9 +334,9 @@ export default function DeviceOpsPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BarChart {...({ size: 16, color: "var(--color-primary-500)" } as Record<string, unknown>)} />{t('deviceOps.utilizationTitle')}
             </div>
             <ChartContainer height={200} state={utilData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deviceOps.noUtilization')}>
@@ -350,8 +350,8 @@ export default function DeviceOpsPage() {
             </ChartContainer>
           </div>
 
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--color-error-500)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--color-error-500)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <AlertTriangle size={16} />{t('deviceOps.faultTitle')}
             </div>
             {faults.map((f, i) => (
@@ -362,7 +362,7 @@ export default function DeviceOpsPage() {
                     {f.severity === 'critical' ? t('deviceOps.severityCritical') : t('deviceOps.severityWarning')}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 4 }}>{f.issue}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 'var(--space-1, 4px)' }}>{f.issue}</div>
                 <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>{t('deviceOps.etaPrefix')}: {f.eta}</div>
               </div>
             ))}
@@ -370,7 +370,7 @@ export default function DeviceOpsPage() {
         </div>
 
         <StateView empty={filtered.length === 0} emptyDescription={t('w2d.empty')}>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden', marginBottom: 'var(--space-6, 24px)' }}>
           <DataTable
             dataSource={filtered}
             rowKey="id"
@@ -383,7 +383,7 @@ export default function DeviceOpsPage() {
               expandedRowRender: (record) => {
                 const d = record as Device
                 return (
-                  <div style={{ display: 'flex', gap: 24, fontSize: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', fontSize: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                     <div><span style={{ color: '#6e7681' }}>{t('deviceOps.firmware')}: </span><span>{d.firmware}</span></div>
                     <div><span style={{ color: '#6e7681' }}>IP: </span><span>{d.ip}</span></div>
                     <div><span style={{ color: '#6e7681' }}>{t('deviceOps.lastMaintenance')}: </span><span>{d.lastMaintenance}</span></div>
@@ -410,8 +410,8 @@ export default function DeviceOpsPage() {
         </div>
         </StateView>
 
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Clock size={16} color="#8b5cf6" />{t('deviceOps.maintRecords')} {dataSource === 'api' && <span style={{ fontSize: 11, color: 'var(--color-success-500)' }}>{t('deviceOps.maintRealtime')}</span>}
           </div>
           <DataTable
@@ -429,13 +429,13 @@ export default function DeviceOpsPage() {
         </div>
 
         {/* [W1-B] 剂量追踪: deviceMgmtApi.getDoseTracking / recordDose */}
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Gauge size={16} color="#22d3ee" />{t('deviceOps.doseTracking')} <span style={{ fontSize: 11, color: '#22d3ee' }}>{t('deviceOps.doseRealtime')}</span>
             <button onClick={() => void loadDoses()} style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.refresh')}</button>
           </div>
-          {doseError && <div style={{ fontSize: 12, color: 'var(--color-error-500)', marginBottom: 8 }}>{doseError}</div>}
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16, marginBottom: 12 }}>
+          {doseError && <div style={{ fontSize: 12, color: 'var(--color-error-500)', marginBottom: 'var(--space-2, 8px)' }}>{doseError}</div>}
+          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={{ maxHeight: 260, overflowY: 'auto' }}>
               <DataTable
                 dataSource={doseRecords}
@@ -452,12 +452,12 @@ export default function DeviceOpsPage() {
                 ]}
               />
             </div>
-            <div style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12 }}>
+            <div style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 'var(--space-3, 12px)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', marginBottom: 10 }}>{t('deviceOps.registerDose')}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 <input placeholder={t('deviceOps.patientIdPlaceholder')} value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}} />
                 <input placeholder={t('deviceOps.deviceIdPlaceholder')} value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}} />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 'var(--space-2, 8px)' }}>
                   <input type="number" placeholder={t('deviceOps.doseValuePlaceholder')} value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}} />
                   <select value={doseForm.doseUnit} onChange={e => setDoseForm({ ...doseForm, doseUnit: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}}>
                     <option>mGy</option><option>mGy·cm</option><option>dGy</option>

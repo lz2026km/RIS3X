@@ -23,7 +23,7 @@ interface Marker {
 const btnStyle: React.CSSProperties = {
   background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
   borderRadius: 4, padding: '6px 10px', fontSize: 12, cursor: 'pointer',
-  display: 'inline-flex', alignItems: 'center', gap: 4,
+  display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
 }
 const activeBtnStyle: React.CSSProperties = { ...btnStyle, background: BLUE, borderColor: BLUE, color: '#fff' }
 
@@ -537,8 +537,8 @@ const DbtPage: React.FC = () => {
   }
 
   return (
-    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('dbtPage.title')}</span>
         <Tag color="cyan">{t('dbtPage.subtitle')}</Tag>
@@ -551,17 +551,17 @@ const DbtPage: React.FC = () => {
         )}
       </div>
 
-      {studiesError && <Alert type="error" showIcon message={studiesError} style={{ marginBottom: 12 }} />}
+      {studiesError && <Alert type="error" showIcon message={studiesError} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
       {studiesLoading && <Spin tip={t('dbtPage.loadingStudies')} style={{ display: 'block', margin: '40px 0' }} />}
 
       {!studiesLoading && studies.length === 0 && !studiesError && (
-        <Alert type="warning" showIcon message={t('dbtPage.noDbtData')} description={t('dbtPage.noDbtDataDesc')} style={{ marginBottom: 12 }} />
+        <Alert type="warning" showIcon message={t('dbtPage.noDbtData')} description={t('dbtPage.noDbtDataDesc')} style={{ marginBottom: 'var(--space-3, 12px)' }} />
       )}
 
       {studies.length > 0 && (
         <>
-          <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', flexWrap: 'wrap' }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>{t('dbtPage.studyList')}</span>
               <Select
                 value={selectedStudyId || undefined}
@@ -598,18 +598,18 @@ const DbtPage: React.FC = () => {
               { label: t('dbtPage.viewReconstruct'), value: 'reconstruct' },
               { label: t('dbtPage.viewCompare'), value: 'compare' },
             ]}
-            style={{ marginBottom: 12 }}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
           />
 
           {mode !== 'compare' && (
-            <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: 'calc(100vh - 300px)' }}>
                   {slicesLoading && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}><Spin tip={t('dbtPage.loadingSlices')} /></div>}
-                  {!slicesLoading && slicesError && <div style={{ padding: 24 }}><Alert type="error" showIcon message={slicesError} /></div>}
+                  {!slicesLoading && slicesError && <div style={{ padding: 'var(--space-6, 24px)' }}><Alert type="error" showIcon message={slicesError} /></div>}
                   {!slicesLoading && !slicesError && viewportCanvas(mode)}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, background: PANEL_BG, borderRadius: 6, padding: '8px 12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)', background: PANEL_BG, borderRadius: 6, padding: '8px 12px' }}>
                   <button style={currentSlice === 0 ? { ...btnStyle, opacity: 0.4 } : btnStyle} disabled={currentSlice === 0} onClick={() => { setCurrentSlice(0); setPlaying(false) }}>
                     <SkipBack size={14} />
                   </button>
@@ -637,7 +637,7 @@ const DbtPage: React.FC = () => {
               </div>
 
               <div style={{ width: 240, flexShrink: 0 }}>
-                <Card size="small" title={t('dbtPage.windowCard')} style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
+                <Card size="small" title={t('dbtPage.windowCard')} style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 'var(--space-3, 12px)' }}>
                   <div style={{ marginBottom: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>
                       <span>WW</span><span style={{ color: '#facc15' }}>{ww}</span>
@@ -655,7 +655,7 @@ const DbtPage: React.FC = () => {
                 <Card size="small" title={t('dbtPage.markerCard')} style={{ background: PANEL_BG, border: '1px solid #334155' }}>
                   {currentMarkers.length === 0 && <div style={{ fontSize: 12, color: '#64748b', padding: '6px 0' }}>{t('dbtPage.noMarkers')}</div>}
                   {currentMarkers.map((m) => (
-                    <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '3px 0', borderBottom: '1px solid #1e293b' }}>
+                    <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, padding: '3px 0', borderBottom: '1px solid #1e293b' }}>
                       <span style={{ width: 10, height: 10, background: m.auto ? '#facc15' : '#f97316', borderRadius: 2, display: 'inline-block' }} />
                       <span style={{ color: '#cbd5e1' }}>{m.auto ? t('dbtPage.auto') : t('dbtPage.manual')}</span>
                       <span style={{ color: '#64748b' }}>x:{m.x} y:{m.y} {m.w}×{m.h}px</span>
@@ -663,7 +663,7 @@ const DbtPage: React.FC = () => {
                       <button style={{ ...btnStyle, padding: '2px 6px', fontSize: 11 }} onClick={() => setMarkersBySlice((prev) => ({ ...prev, [currentSlice]: (prev[currentSlice] ?? []).filter((mm) => mm.id !== m.id) }))}>{t('dbtPage.delete')}</button>
                     </div>
                   ))}
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 8 }}>
+                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 'var(--space-2, 8px)' }}>
                     {t('dbtPage.threshold', { value: Math.round(wl + ww * 0.55), count: currentMarkers.filter((m) => m.auto).length })}
                   </div>
                 </Card>
@@ -674,11 +674,11 @@ const DbtPage: React.FC = () => {
           {mode === 'compare' && (
             <div>
               {compareLoading && <Spin tip={t('dbtPage.loadingCompare')} style={{ display: 'block', margin: '40px 0' }} />}
-              {compareError && <Alert type="error" showIcon message={compareError} style={{ marginBottom: 12 }} />}
+              {compareError && <Alert type="error" showIcon message={compareError} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
               {!compareLoading && compareResult && (
                 <>
-                  <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
-                    <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', fontSize: 12 }}>
+                  <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 'var(--space-3, 12px)' }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', flexWrap: 'wrap', fontSize: 12 }}>
                       <span style={{ color: GREEN }}>
                         {t('dbtPage.compareCurrent', { date: formatDate(compareResult.current.studyDate), name: compareResult.current.patientName, accession: compareResult.current.accessionNumber })}
                       </span>
@@ -688,7 +688,7 @@ const DbtPage: React.FC = () => {
                       <span style={{ color: '#94a3b8' }}>{t('dbtPage.syncScrollOn')}</span>
                     </div>
                   </Card>
-                  <div style={{ display: 'flex', gap: 12 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
                     <div style={{ flex: 1, background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: 'calc(100vh - 380px)' }}>
                       <SliceCanvas
                         pixels={comparePixels.current}
@@ -714,7 +714,7 @@ const DbtPage: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, background: PANEL_BG, borderRadius: 6, padding: '8px 12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginTop: 10, background: PANEL_BG, borderRadius: 6, padding: '8px 12px' }}>
                     <span style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>{t('dbtPage.syncSliceLabel')}</span>
                     <Slider min={0} max={14} value={compareSlice} onChange={setCompareSlice} style={{ flex: 1, margin: 0 }} />
                     <span style={{ fontSize: 11, color: '#94a3b8' }}>{compareSlice + 1}/15</span>
@@ -735,22 +735,22 @@ const DbtPage: React.FC = () => {
         footer={null}
         width={680}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           <Card size="small" title={t('dbtPage.featureConfirm')}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.calcCount', { count: currentMarkers.filter(m => m.auto).length })}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('dbtPage.calcCount', { count: currentMarkers.filter(m => m.auto).length })}</div>
                 <InputNumber min={0} max={500} value={biradsCalcCount} onChange={(v) => setBiradsCalcCount(v ?? 0)} style={{ width: '100%' }} />
               </div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.distribution')}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('dbtPage.distribution')}</div>
                 <Select value={biradsDistribution} onChange={setBiradsDistribution} style={{ width: '100%' }} options={[
                   { value: 'clustered', label: t('dbtPage.distClustered') }, { value: 'linear', label: t('dbtPage.distLinear') }, { value: 'segmental', label: t('dbtPage.distSegmental') },
                   { value: 'regional', label: t('dbtPage.distRegional') }, { value: 'diffuse', label: t('dbtPage.distDiffuse') },
                 ]} />
               </div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.morphology')}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('dbtPage.morphology')}</div>
                 <Select value={biradsMorphology} onChange={setBiradsMorphology} style={{ width: '100%' }} options={[
                   { value: 'punctate', label: t('dbtPage.morphPunctate') }, { value: 'round', label: t('dbtPage.morphRound') },
                   { value: 'coarse', label: t('dbtPage.morphCoarse') }, { value: 'popcorn', label: t('dbtPage.morphPopcorn') },
@@ -758,23 +758,23 @@ const DbtPage: React.FC = () => {
                   { value: 'fine_pleomorphic', label: t('dbtPage.morphFinePleomorphic') }, { value: 'fine_linear', label: t('dbtPage.morphFineLinear') },
                 ]} />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Checkbox checked={biradsHasMass} onChange={(e) => setBiradsHasMass(e.target.checked)}>{t('dbtPage.hasMass')}</Checkbox>
               </div>
               {biradsHasMass && (
                 <>
                   <div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.massSize')}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('dbtPage.massSize')}</div>
                     <InputNumber min={1} max={200} value={biradsMassSize} onChange={(v) => setBiradsMassSize(v ?? 15)} style={{ width: '100%' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.massShape')}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('dbtPage.massShape')}</div>
                     <Select value={biradsMassShape} onChange={setBiradsMassShape} style={{ width: '100%' }} options={[
                       { value: 'round', label: t('dbtPage.shapeRound') }, { value: 'oval', label: t('dbtPage.shapeOval') }, { value: 'irregular', label: t('dbtPage.shapeIrregular') },
                     ]} />
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.margin')}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('dbtPage.margin')}</div>
                     <Select value={biradsMassMargin} onChange={setBiradsMassMargin} style={{ width: '100%' }} options={[
                       { value: 'circumscribed', label: t('dbtPage.marginCircumscribed') }, { value: 'microlobulated', label: t('dbtPage.marginMicrolobulated') },
                       { value: 'indistinct', label: t('dbtPage.marginIndistinct') }, { value: 'spiculated', label: t('dbtPage.marginSpiculated') },

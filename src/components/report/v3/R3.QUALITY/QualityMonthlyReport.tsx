@@ -85,7 +85,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
         data-testid="quality-monthly-report"
         role="status"
         aria-label={t('qualityMonthly.loadingLabel')}
-        style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}
+        style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: '#94a3b8' }}
       >
         {t('qualityMonthly.loading')}
       </div>
@@ -113,7 +113,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           color: '#fff',
           padding: '14px 18px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
@@ -432,14 +432,14 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
             children: (
               <Card size="small">
                 {report.sections.map((s) => (
-                  <div key={s.key} style={{ marginBottom: 16 }}>
+                  <div key={s.key} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', margin: 0 }}>
                       {s.title} · {s.titleEn}
                     </h3>
-                    <p style={{ fontSize: 12, color: '#475569', marginTop: 4, lineHeight: 1.6 }}>{s.content}</p>
+                    <p style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)', lineHeight: 1.6 }}>{s.content}</p>
                   </div>
                 ))}
-                <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
                   {t('qualityMonthly.generatedAt')} {new Date(report.generatedAt).toLocaleString()} by {report.generatedBy}
                 </div>
               </Card>

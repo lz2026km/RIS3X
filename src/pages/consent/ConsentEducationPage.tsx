@@ -280,7 +280,7 @@ export const ConsentEducationPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <FileSignature size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('consentEdu.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
@@ -288,9 +288,9 @@ export const ConsentEducationPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('consentEdu.refresh')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('consentEdu.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('consentEdu.retry')}</Button>} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('consentEdu.pending')} value={stats.pending} color="warning" icon={<Clock size={14} />} />
         <StatCard title={t('consentEdu.signed')} value={stats.signed} color="success" icon={<CheckCircle2 size={14} />} />
         <StatCard title={t('consentEdu.refused')} value={stats.refused} color="error" />
@@ -341,7 +341,7 @@ export const ConsentEducationPage: React.FC = () => {
         size="small"
         title={<Space><BookOpen size={14} />{t('consentEdu.eduLibrary')}</Space>}
         extra={<Button size="small" icon={<UploadIcon size={12} />} onClick={() => setUploadModal(true)}>{t('consentEdu.uploadMaterial')}</Button>}
-        style={{ marginTop: 16 }}
+        style={{ marginTop: 'var(--space-4, 16px)' }}
       >
         <Tabs
           size="small"
@@ -489,7 +489,7 @@ export const ConsentEducationPage: React.FC = () => {
       >
         {viewMaterial && (
           <>
-            <Descriptions bordered column={2} size="small" style={{ marginBottom: 12 }}>
+            <Descriptions bordered column={2} size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Descriptions.Item label={t('consentEdu.category')}><Tag color={CATEGORY_COLORS[viewMaterial.category] ?? 'default'}>{viewMaterial.category}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('consentEdu.format')}>{viewMaterial.format}</Descriptions.Item>
               <Descriptions.Item label={t('consentEdu.pages')}>{viewMaterial.pages}</Descriptions.Item>
@@ -501,7 +501,7 @@ export const ConsentEducationPage: React.FC = () => {
       </Modal>
 
       {consents.length === 0 && !loading && (
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Empty image={<Inbox size={48} color="#94a3b8" />} description={t('consentEdu.noConsent')} />
         </div>
       )}
@@ -515,7 +515,7 @@ export const ConsentEducationPage: React.FC = () => {
       >
         {viewConsent && (
           <>
-            <Descriptions bordered column={2} size="small" style={{ marginBottom: 12 }}>
+            <Descriptions bordered column={2} size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Descriptions.Item label={t('consentEdu.patient')} span={2}>{viewConsent.patient}</Descriptions.Item>
               <Descriptions.Item label={t('consentEdu.patientId')}>{viewConsent.patientId ?? '—'}</Descriptions.Item>
               <Descriptions.Item label={t('consentEdu.examId')}>{viewConsent.examId ?? '—'}</Descriptions.Item>

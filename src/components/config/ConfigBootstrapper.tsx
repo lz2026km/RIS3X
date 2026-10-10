@@ -66,7 +66,7 @@ export const ConfigBootstrapper: React.FC<{ children: ReactNode }> = ({ children
 
 const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = ({ error, onRetry }) => {
   return (
-    <div style={{ display: "grid", placeItems: "center", background: "#fff2f0", padding: 24 }}>
+    <div style={{ display: "grid", placeItems: "center", background: "#fff2f0", padding: 'var(--space-6, 24px)' }}>
       <Result
         status="error"
         icon={<Bug size={48} />}
@@ -77,13 +77,13 @@ const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = 
             重试
           </Button>,
         ]}
-        style={{ maxWidth: 720, background: THEME_TOKENS.bgCard, padding: 24, borderRadius: 8 }}
+        style={{ maxWidth: 720, background: THEME_TOKENS.bgCard, padding: 'var(--space-6, 24px)', borderRadius: 8 }}
       >
         <Alert
           type="error"
           showIcon
           title={error.message}
-          style={{ textAlign: "left", marginBottom: 12 }}
+          style={{ textAlign: "left", marginBottom: 'var(--space-3, 12px)' }}
         />
         <Paragraph style={{ textAlign: "left" }}>
           <Text strong>Modules registered ({listModules().length}):</Text>
@@ -95,7 +95,7 @@ const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = 
             </li>
           ))}
         </ul>
-        <Paragraph style={{ textAlign: "left", marginTop: 12 }}>
+        <Paragraph style={{ textAlign: "left", marginTop: 'var(--space-3, 12px)' }}>
           <Text type="secondary">
             修复方法：检查 <Text code>src/config/clinicalConfig/defaults/</Text> 下对应 JSON，
             或修正 zod schema 后重试。

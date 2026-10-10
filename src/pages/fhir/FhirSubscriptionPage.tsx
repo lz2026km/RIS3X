@@ -165,8 +165,8 @@ export const FhirSubscriptionPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Bell size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirSub.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
@@ -242,7 +242,7 @@ export const FhirSubscriptionPage: React.FC = () => {
           <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fhirSub.loadingDetail')}</div>
         ) : selectedSub ? (
           <div>
-            <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: 16, borderRadius: 6, fontSize: 12, overflow: 'auto', maxHeight: 400 }}>
+            <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: 'var(--space-4, 16px)', borderRadius: 6, fontSize: 12, overflow: 'auto', maxHeight: 400 }}>
               {JSON.stringify(selectedSub, null, 2)}
             </pre>
           </div>

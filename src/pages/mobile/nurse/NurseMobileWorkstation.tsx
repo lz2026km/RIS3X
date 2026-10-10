@@ -40,10 +40,10 @@ const s = {
   container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
-  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
-  tabRow: { display: 'flex', margin: '0 16px', gap: 4 },
+  searchBar: { display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
+  tabRow: { display: 'flex', margin: '0 16px', gap: 'var(--space-1, 4px)' },
   tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#7c3aed' : '#94a3b8', borderBottom: active ? '2px solid #7c3aed' : '2px solid transparent' }),
-  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' },
+  listItem: { display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' },
 }
 
 export default function NurseMobileWorkstation() {
@@ -182,7 +182,7 @@ export default function NurseMobileWorkstation() {
       <div style={s.header}>
         <div style={s.headerTitle}>{t('nurse.title')}</div>
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('nurse.subtitle')}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-3, 12px)' }}>
           {[
             { value: appointments.filter(a => a.status === 'waiting').length, label: t('nurse.stat.waiting'), bg: 'var(--color-warning-bg)', color: 'var(--color-warning)' },
             { value: appointments.filter(a => a.status === 'in-progress').length, label: t('nurse.stat.inProgress'), bg: 'var(--color-info-bg)', color: 'var(--color-info)' },
@@ -214,7 +214,7 @@ export default function NurseMobileWorkstation() {
       <div style={s.tabRow}>
         {[{ key: 'queue' as const, icon: Calendar, label: t('nurse.tab.queue') }, { key: 'meds' as const, icon: Syringe, label: t('nurse.tab.meds') }, { key: 'critical' as const, icon: AlertTriangle, label: t('nurse.tab.critical') }].map(t => (
           <div key={t.key} style={s.tab(tab === t.key)} onClick={() => setTab(t.key)}>
-            <t.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+            <t.icon size={14} style={{ display: 'inline', marginRight: 'var(--space-1, 4px)', verticalAlign: 'middle' }} />
             {t.label}
           </div>
         ))}
@@ -231,7 +231,7 @@ export default function NurseMobileWorkstation() {
             ))}
           </div>
 
-          <div style={{ marginTop: 4 }}>
+          <div style={{ marginTop: 'var(--space-1, 4px)' }}>
             {filtered.map(item => {
               const sc = STATUS_CONFIG[item.status] ?? { bg: 'var(--bg-card)', color: 'var(--text-secondary)', label: t('nurse.unknown') }
               return (
@@ -251,7 +251,7 @@ export default function NurseMobileWorkstation() {
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.appointmentTime}</div>
                     {item.notes && <div style={{ fontSize: 12, color: 'var(--color-warning-600)', marginTop: 2 }}>{item.notes}</div>}
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', alignItems: 'flex-end' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: sc.bg, color: sc.color }}>{sc.label}</span>
                     {item.status === 'waiting' && (
                       <button onClick={() => handleCheckIn(item.id)} disabled={checkingInId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: checkingInId === item.id ? 0.6 : 1 }}>
@@ -270,10 +270,10 @@ export default function NurseMobileWorkstation() {
           </div>
         </>
       ) : tab === 'critical' ? (
-        <div style={{ padding: 16 }}>
+        <div style={{ padding: 'var(--space-4, 16px)' }}>
           {criticals.map(c => (
             <div key={c.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? 'var(--color-error-border)' : 'var(--color-warning-border)'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? 'var(--color-error-600)' : 'var(--color-warning-600)'}` }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.patientName}</span>
                 <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: c.severity === 'CRITICAL' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: c.severity === 'CRITICAL' ? 'var(--color-error)' : 'var(--color-warning)' }}>
                   {c.severity === 'CRITICAL' ? t('nurse.sevCritical') : c.severity === 'URGENT' ? t('nurse.sevUrgent') : c.severity}
@@ -284,7 +284,7 @@ export default function NurseMobileWorkstation() {
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{c.createdAt ? new Date(c.createdAt).toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''} · {c.notifiedTo ?? t('nurse.notNotified')}</span>
                 {isAcked(c) ? (
-                  <span style={{ color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <CheckCircle size={14} /> {t('nurse.acked')}
                   </span>
                 ) : (
@@ -299,37 +299,37 @@ export default function NurseMobileWorkstation() {
               </div>
             </div>
           ))}
-          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>{t('nurse.noCriticals')}</div>}
+          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8', fontSize: 12 }}>{t('nurse.noCriticals')}</div>}
         </div>
       ) : (
-        <div style={{ padding: 16 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ padding: 'var(--space-4, 16px)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Syringe size={16} color="#7c3aed" /> {t('nurse.medTitle')}
               <span style={{ fontSize: 11, fontWeight: 400, color: '#94a3b8' }}>{t('nurse.medNotice')}</span>
             </div>
-            <div style={{ display: 'grid', gap: 8 }}>
+            <div style={{ display: 'grid', gap: 'var(--space-2, 8px)' }}>
               {appointments.filter(a => a.contrastRequired || a.medications.length > 0).map(item => (
                 <div key={item.id} style={{ padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName} - {item.examItem}</div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
                     {item.contrastRequired && <span>{t('nurse.needsContrastPrefix')}{item.medications.join(', ')}</span>}
                     {!item.contrastRequired && <span>{t('nurse.noContrast')}</span>}
                   </div>
-                  <button onClick={() => handleMedication(item.id)} style={{ marginTop: 8, padding: '4px 12px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                  <button onClick={() => handleMedication(item.id)} style={{ marginTop: 'var(--space-2, 8px)', padding: '4px 12px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                     {t('nurse.recordMedication')}
                   </button>
                 </div>
               ))}
               {appointments.filter(a => a.contrastRequired || a.medications.length > 0).length === 0 && medRecords.length === 0 && (
-                <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', fontSize: 12 }}>{t('nurse.noMedPatients')}</div>
+                <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: '#94a3b8', fontSize: 12 }}>{t('nurse.noMedPatients')}</div>
               )}
             </div>
           </div>
           {medRecords.length > 0 && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginTop: 'var(--space-3, 12px)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>{t('nurse.medRecordsTitle')} ({medRecords.length})</div>
-              <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ display: 'grid', gap: 'var(--space-2, 8px)' }}>
                 {medRecords.map(r => (
                   <div key={r.id} style={{ padding: '10px 12px', background: 'rgba(124,58,237,0.12)', borderRadius: 8, fontSize: 12 }}>
                     <div style={{ fontWeight: 600, color: '#4c1d95' }}>{r.patientName} · {r.medication} {r.dosage}</div>

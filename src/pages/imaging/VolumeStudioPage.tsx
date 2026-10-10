@@ -540,7 +540,7 @@ const VolumeStudioPage: React.FC = () => {
       key: "mpr",
       label: t("vsMpr", "MPR 三平面联动"),
       children: (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsPosition", "定位点")}</span>
             <span style={{ fontSize: 11, color: "#64748b" }}>X</span>
@@ -558,7 +558,7 @@ const VolumeStudioPage: React.FC = () => {
             <Tag color="blue" icon={<Crosshair size={10} />}>{t("vsCrosshairHint", "点击画布十字线联动")}</Tag>
             {mprLoading && <Spin size="small" />}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, flex: 1, minHeight: 0 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 'var(--space-2, 8px)', flex: 1, minHeight: 0 }}>
             {(["axial", "coronal", "sagittal"] as const).map((plane) => (
               <div key={plane} style={{ background: CARD_BG, borderRadius: 6, border: "1px solid #1e293b", overflow: "hidden", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <canvas
@@ -579,7 +579,7 @@ const VolumeStudioPage: React.FC = () => {
       key: "vr",
       label: t("vsVr", "VR 体绘制"),
       children: (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsPreset", "传输函数")}</span>
             {VR_PRESETS.map((p) => (
@@ -620,7 +620,7 @@ const VolumeStudioPage: React.FC = () => {
       key: "cpr",
       label: t("vsCpr", "CPR 曲面重建"),
       children: (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsSlice", "路径层位 Z")}</span>
             <Slider min={0} max={Math.max(1, maxPos.z - 1)} value={cprSliceZ} onChange={(v) => { setCprSliceZ(v); setCprResult(null); }} style={{ width: 160 }} />
@@ -634,7 +634,7 @@ const VolumeStudioPage: React.FC = () => {
             )}
             <span style={{ fontSize: 11, color: "#64748b" }}>{t("vsCprHint", "点击画布添加路径点, 拖动移动")}</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flex: 1, minHeight: 0 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-2, 8px)', flex: 1, minHeight: 0 }}>
             <div style={{ background: CARD_BG, borderRadius: 6, border: "1px solid #1e293b", overflow: "hidden", position: "relative" }}>
               <canvas
                 ref={cprCanvasRef}
@@ -662,7 +662,7 @@ const VolumeStudioPage: React.FC = () => {
       key: "cut",
       label: t("vsCut", "切割"),
       children: (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsNormal", "法向量")}</span>
             <InputNumber size="small" value={cutNormal.x} onChange={(v) => setCutNormal((n) => ({ ...n, x: v ?? 0 }))} style={numInputStyle} />
@@ -688,8 +688,8 @@ const VolumeStudioPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ background: "#020617", color: "#cbd5e1", padding: 12, display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+    <div style={{ background: "#020617", color: "#cbd5e1", padding: 'var(--space-3, 12px)', display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
         <Box size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t("volumeStudioTitle", "多平面重建工作室")}</span>
         <Tag color="cyan">MPR V2</Tag>

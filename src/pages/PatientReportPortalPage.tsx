@@ -186,7 +186,7 @@ export default function PatientReportPortalPage() {
       title: t('patientPortal.patient'), dataIndex: 'patientName', key: 'patientName',
       render: (_: unknown, a) => (
         <div style={{ minWidth: 130 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{a.patientName}</span>
             <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-secondary)' }}>{a.id}</span>
           </div>
@@ -197,7 +197,7 @@ export default function PatientReportPortalPage() {
     {
       title: t('patientPortal.accessList'), key: 'counts', width: 130,
       render: (_: unknown, a) => (
-        <div style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>
           <span>{a.viewCount}</span>
           <span>{a.downloadCount}</span>
           <span>{a.shareCount}</span>
@@ -207,11 +207,11 @@ export default function PatientReportPortalPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1400, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Smartphone size={20} color="#0ea5e9" /> {t('patientPortal.pageTitle')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
             {accessSource === 'api' ? (
@@ -228,17 +228,17 @@ export default function PatientReportPortalPage() {
             {t('patientPortal.pageSubtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <QrShareButton shortUrl="https://r.hospital.cn/portal" label={t('patientPortal.patientEntry')} />
           <button
             onClick={() => setFeedbackOpen(true)}
-            style={{ padding: '6px 12px', border: '1px solid #10b981', borderRadius: 6, background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid #10b981', borderRadius: 6, background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
           >
             <MessageSquarePlus size={14} /> {t('patientPortal.serviceFeedback')}
           </button>
           <button
             onClick={() => setShowShareDialog(true)}
-            style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#8b5cf622', color: '#6d28d9', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#8b5cf622', color: '#6d28d9', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
           >
             <Link2 size={14} /> {t('patientPortal.shareLink')}
           </button>
@@ -264,23 +264,23 @@ export default function PatientReportPortalPage() {
 
       {/* [G005 Wave1A P0] 患者端 mobile 摘要 (GET /patient-portal/mobile/{patients,doctors,nurses,techs}) */}
       {mobileSummary && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, padding: 10, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid #bae6fd' }}>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.patient')} <b style={{ marginLeft: 4 }}>{mobileSummary.patients}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.doctor')} <b style={{ marginLeft: 4 }}>{mobileSummary.doctors}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.nurse')} <b style={{ marginLeft: 4 }}>{mobileSummary.nurses}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.technician')} <b style={{ marginLeft: 4 }}>{mobileSummary.techs}</b></div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', padding: 10, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid #bae6fd' }}>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.patient')} <b style={{ marginLeft: 'var(--space-1, 4px)' }}>{mobileSummary.patients}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.doctor')} <b style={{ marginLeft: 'var(--space-1, 4px)' }}>{mobileSummary.doctors}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.nurse')} <b style={{ marginLeft: 'var(--space-1, 4px)' }}>{mobileSummary.nurses}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.technician')} <b style={{ marginLeft: 'var(--space-1, 4px)' }}>{mobileSummary.techs}</b></div>
         </div>
       )}
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard icon={FileText} label={t('patientPortal.statReports')} value={access.length} color="#0ea5e9" />
         <KpiCard icon={Eye} label={t('patientPortal.statViews')} value={access.reduce((s, a) => s + a.viewCount, 0)} color="#10b981" />
         <KpiCard icon={Download} label={t('patientPortal.statDownloads')} value={access.reduce((s, a) => s + a.downloadCount, 0)} color="#7c3aed" />
         <KpiCard icon={Share2} label={t('patientPortal.statShares')} value={access.reduce((s, a) => s + a.shareCount, 0)} color="var(--color-warning-500)" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：访问列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>
@@ -307,10 +307,10 @@ export default function PatientReportPortalPage() {
 
         {/* 右：详情 + 预览 */}
         {selectedAccess && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             {/* 详情卡片 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%',
                   background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff',
@@ -329,7 +329,7 @@ export default function PatientReportPortalPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <InfoCell icon={Eye} label={t('patientPortal.view')} value={selectedAccess.viewCount} color="#10b981" />
                 <InfoCell icon={Download} label={t('patientPortal.download')} value={selectedAccess.downloadCount} color="var(--color-primary-500)" />
                 <InfoCell icon={Share2} label={t('patientPortal.share')} value={selectedAccess.shareCount} color="#7c3aed" />
@@ -340,21 +340,21 @@ export default function PatientReportPortalPage() {
               <button
                 onClick={() => void handleViewReportDetail()}
                 disabled={reportDetailLoading}
-                style={{ marginBottom: 12, padding: '6px 14px', border: '1px solid #0ea5e9', borderRadius: 6, background: 'var(--color-info-bg)', color: '#0369a1', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                style={{ marginBottom: 'var(--space-3, 12px)', padding: '6px 14px', border: '1px solid #0ea5e9', borderRadius: 6, background: 'var(--color-info-bg)', color: '#0369a1', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
               >
                 <Eye size={13} /> {reportDetailLoading ? t('patientPortal.loadingReport') : t('patientPortal.viewReportDetail')}
               </button>
 
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.deviceFingerprint')}</div>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('patientPortal.deviceFingerprint')}</div>
                 <div style={{ padding: 6, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                   {selectedAccess.deviceFingerprint}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.ipHistory')}</div>
-                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('patientPortal.ipHistory')}</div>
+                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                   {selectedAccess.ipHistory.map((ip, i) => (
                     <span key={i} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', fontSize: 12, borderRadius: 10, fontFamily: 'monospace' }}>
                       {ip}
@@ -365,8 +365,8 @@ export default function PatientReportPortalPage() {
             </div>
 
             {/* 模拟 H5 预览 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Smartphone size={13} /> {t('patientPortal.h5Preview')}
               </div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -378,16 +378,16 @@ export default function PatientReportPortalPage() {
       </div>
       {/* [G005 Wave1B] 宣教材料卡: patientPortalApi.listEducation / getEducation */}
       {educationItems.length > 0 && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12, marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <FileText size={13} /> {t('patientPortal.educationMaterials')} ({educationItems.length}) <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>patient-portal/education</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'var(--space-2, 8px)' }}>
             {educationItems.slice(0, 8).map((item: any) => (
               <button
                 key={item.id ?? item.key}
                 onClick={() => void handleViewEducation(item)}
-                style={{ textAlign: 'left', padding: 10, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 4 }}
+                style={{ textAlign: 'left', padding: 10, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}
               >
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{item.title ?? item.key ?? item.id}</span>
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.summary ?? item.content?.slice(0, 60) ?? ''}</span>
@@ -426,8 +426,8 @@ export default function PatientReportPortalPage() {
         width={520}
       >
         {educationDetail && (
-          <div style={{ marginTop: 8 }}>
-            <div style={{ marginBottom: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                 {(educationDetail.category ? `${t('patientPortal.categoryLabel')}: ${educationDetail.category} · ` : '') + (educationDetail.contentType ? `${t('patientPortal.typeLabel')}: ${educationDetail.contentType}` : '')}
               </span>
@@ -435,7 +435,7 @@ export default function PatientReportPortalPage() {
             <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: 360, overflowY: 'auto' }}>
               {educationDetail.content ?? educationDetail.value ?? t('patientPortal.noContent')}
             </div>
-            {educationDetail.updatedAt && <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>{t('patientPortal.updated')}: {String(educationDetail.updatedAt).slice(0, 10)}</div>}
+            {educationDetail.updatedAt && <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>{t('patientPortal.updated')}: {String(educationDetail.updatedAt).slice(0, 10)}</div>}
           </div>
         )}
       </Modal>
@@ -449,12 +449,12 @@ export default function PatientReportPortalPage() {
         width={560}
       >
         {reportDetail && (
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
             {reportDetail.error ? (
-              <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{reportDetail.error}</div>
+              <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{reportDetail.error}</div>
             ) : (
               <>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, flexWrap: 'wrap' }}>
                   {reportDetail.modality && <StatusTag status="info">{reportDetail.modality}</StatusTag>}
                   {reportDetail.bodyPart && <StatusTag status="info">{reportDetail.bodyPart}</StatusTag>}
                   {reportDetail.examDate && <StatusTag status="neutral">{String(reportDetail.examDate).slice(0, 10)}</StatusTag>}
@@ -466,7 +466,7 @@ export default function PatientReportPortalPage() {
                 {reportDetail.recommendations && <DetailBlock label={t('patientPortal.detailRecommendation')} value={reportDetail.recommendations} />}
                 {reportDetail.conclusion && <DetailBlock label={t('patientPortal.detailConclusion')} value={reportDetail.conclusion} />}
                 {!(reportDetail.findings || reportDetail.impression || reportDetail.diagnosis || reportDetail.recommendations || reportDetail.conclusion) && (
-                  <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('patientPortal.noReportText')}</div>
+                  <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('patientPortal.noReportText')}</div>
                 )}
                 {reportDetail.signedAt && <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)' }}>{t('patientPortal.signedAt')}: {String(reportDetail.signedAt).replace('T', ' ').slice(0, 16)}</div>}
               </>
@@ -486,13 +486,13 @@ export default function PatientReportPortalPage() {
         confirmLoading={feedbackSubmitting}
         width={440}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('patientPortal.satisfaction')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('patientPortal.satisfaction')}</div>
             <Rate value={feedbackRating} onChange={setFeedbackRating} />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('patientPortal.suggestions')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('patientPortal.suggestions')}</div>
             <Input.TextArea
               rows={3}
               maxLength={500}
@@ -569,22 +569,22 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
         <div style={{ flex: 1, overflow: 'auto', padding: 10, fontSize: 12 }}>
           {tab === 'home' && (
             <div>
-              <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: 12, borderRadius: 8, marginBottom: 8 }}>
+              <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: 'var(--space-3, 12px)', borderRadius: 8, marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700 }}>{t('patientPortal.hello')}{access.patientName}</div>
                 <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>{t('patientPortal.reportReady')}</div>
-                <button onClick={() => setTab('report')} style={{ marginTop: 8, padding: '4px 12px', background: 'var(--bg-card)', color: '#0ea5e9', border: 'none', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
+                <button onClick={() => setTab('report')} style={{ marginTop: 'var(--space-2, 8px)', padding: '4px 12px', background: 'var(--bg-card)', color: '#0ea5e9', border: 'none', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
                   {t('patientPortal.viewReport')} →
                 </button>
               </div>
-              <div style={{ background: 'var(--bg-card)', padding: 8, borderRadius: 6, marginBottom: 6 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.myReports')}</div>
+              <div style={{ background: 'var(--bg-card)', padding: 'var(--space-2, 8px)', borderRadius: 6, marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('patientPortal.myReports')}</div>
                 <div style={{ padding: 6, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12 }}>
                   <div>胸部 CT 平扫</div>
                   <div style={{ color: 'var(--text-secondary)', marginTop: 2 }}>2026-06-04 · 14:30</div>
                 </div>
               </div>
-              <div style={{ background: 'var(--bg-card)', padding: 8, borderRadius: 6 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.quickEntry')}</div>
+              <div style={{ background: 'var(--bg-card)', padding: 'var(--space-2, 8px)', borderRadius: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('patientPortal.quickEntry')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, fontSize: 12 }}>
                   <div style={{ textAlign: 'center' }}><br/>{t('patientPortal.download')}</div>
                   <div style={{ textAlign: 'center' }}><br/>{t('patientPortal.share')}</div>
@@ -603,17 +603,17 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                   {t('patientPortal.reportApproved')}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  <div style={{ marginBottom: 4 }}>
+                  <div style={{ marginBottom: 'var(--space-1, 4px)' }}>
                     <strong>{t('patientPortal.detailFindings')}：</strong>双肺纹理清晰...
                   </div>
-                  <div style={{ marginBottom: 4 }}>
+                  <div style={{ marginBottom: 'var(--space-1, 4px)' }}>
                     <strong>{t('patientPortal.detailImpression')}：</strong>胸部 CT 平扫未见明显异常。
                   </div>
                   <div>
                     <strong>{t('patientPortal.detailRecommendation')}：</strong>年度随访。
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginTop: 'var(--space-2, 8px)' }}>
                   <button onClick={handleDownloadPdf} style={{ flex: 1, padding: '4px 8px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     PDF
                   </button>
@@ -631,7 +631,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
           {tab === 'image' && (
             <div style={{ background: '#0f172a', padding: 6, borderRadius: 6, color: '#fff', textAlign: 'center' }}>
               <div style={{ fontSize: 12, marginBottom: 6 }}>{t('patientPortal.imageThumbnails')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-1, 4px)' }}>
                 {[1,2,3,4,5,6].map(i => (
                   <div key={i} style={{ aspectRatio: 1, background: 'linear-gradient(135deg, #1e293b, #334155)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
                     {i}
@@ -643,7 +643,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
 
           {tab === 'me' && (
             <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 6 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#0ea5e9', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {access.patientName[0]}
                 </div>
@@ -715,7 +715,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
 // ============================================================
 const InfoCell: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
   <div>
-    <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+    <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
       <Icon size={10} /> {label}
     </div>
     <div style={{ fontSize: 18, fontWeight: 700, color, marginTop: 2 }}>{value}</div>
@@ -725,7 +725,7 @@ const InfoCell: React.FC<{ icon: any; label: string; value: number | string; col
 // [G005 Wave1B] 报告详情文本块
 const DetailBlock: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div style={{ marginBottom: 10 }}>
-    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.7, background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap' }}>{value}</div>
+    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.7, background: 'var(--bg-card)', padding: 'var(--space-2, 8px)', borderRadius: 6, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap' }}>{value}</div>
   </div>
 );

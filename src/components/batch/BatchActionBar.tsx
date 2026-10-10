@@ -54,7 +54,7 @@ export default function BatchActionBar({ selectedCount, onAction, actions, onCle
         zIndex: 100,
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
         padding: '12px 20px',
         background: 'var(--bg-card)',
         borderRadius: 12,
@@ -109,7 +109,7 @@ export default function BatchActionBar({ selectedCount, onAction, actions, onCle
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
               padding: '8px 10px',
               borderRadius: 8,
               border: 'none',

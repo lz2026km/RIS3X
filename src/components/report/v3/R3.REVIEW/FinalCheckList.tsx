@@ -399,7 +399,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               <List.Item
                 key={it.code}
                 data-testid={`final-check-item-${it.code}`}
-                style={{ padding: '10px 12px', borderRadius: 6, background: st.bg, marginBottom: 4, borderLeft: `3px solid ${st.color}` }}
+                style={{ padding: '10px 12px', borderRadius: 6, background: st.bg, marginBottom: 'var(--space-1, 4px)', borderLeft: `3px solid ${st.color}` }}
                 actions={[
                   <Select
                     key="status"
@@ -431,16 +431,16 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{it.description}</div>
                       {it.evidence && (
-                        <div style={{ fontSize: 12, color: 'var(--color-info)', background: 'var(--color-info-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-info)', background: 'var(--color-info-bg)', padding: 'var(--space-1, 4px)', borderRadius: 4, marginTop: 'var(--space-1, 4px)' }}>
                           {it.evidence}
                         </div>
                       )}
                       {it.remark && (
-                        <div style={{ fontSize: 12, color: 'var(--color-warning)', background: 'var(--color-warning-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-warning)', background: 'var(--color-warning-bg)', padding: 'var(--space-1, 4px)', borderRadius: 4, marginTop: 'var(--space-1, 4px)' }}>
                           {it.remark}
                         </div>
                       )}
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }}>
                         {t('reportReview.final.scoreLabel')} {it.score}/{it.maxScore} · {t('reportReview.final.weightLabel')} {it.weight} · {it.autoCheckable ? t('reportReview.final.auto') : t('reportReview.final.manual')} · {it.checkedBy ? `${t('reportReview.final.reviewedBy')} ${it.checkedBy} · ${timeAgo(it.checkedAt)}` : t('reportReview.final.notReviewed')}
                       </div>
                     </div>
@@ -526,7 +526,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag color={d.status === 'consistent' ? 'success' : 'warning'}>{d.status}</Tag>
                   </Space>
                 </Space>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }}>
                   {d.findings.join(' · ')}
                 </div>
               </div>
@@ -534,7 +534,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           </Card>
           <Card size="small" title={t('reportReview.final.crossReference')}>
             {consistency.crossReference.map((c) => (
-              <Tag key={c.source} color={c.matched ? 'green' : 'red'} style={{ marginBottom: 4 }}>
+              <Tag key={c.source} color={c.matched ? 'green' : 'red'} style={{ marginBottom: 'var(--space-1, 4px)' }}>
                 {c.source}: {c.detail}
               </Tag>
             ))}
@@ -551,7 +551,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           <Card size="small" title={t('reportReview.final.scoringTitle', { grade: scoring.grade, score: scoring.totalScore })} extra={
             <Tag color={scoring.passed ? 'green' : 'red'}>{scoring.passed ? t('reportReview.final.status.passed') : scoring.blocked ? t('reportReview.severity.blocker') : t('reportReview.final.notReached')}</Tag>
           }>
-            <Row gutter={12} style={{ marginBottom: 12 }}>
+            <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Col span={6}><Statistic title={t('reportReview.final.totalScore')} value={scoring.totalScore} suffix="/100" styles={{ content: {  color: '#7c3aed'  } }} /></Col>
               <Col span={6}><Statistic title={t('reportReview.final.status.passed')} value={scoring.passed ? t('reportReview.common.yes') : t('reportReview.common.no')} styles={{ content: {  color: scoring.passed ? '#10b981' : 'var(--color-error-600)'  } }} /></Col>
               <Col span={6}><Statistic title={t('reportReview.severity.blocker')} value={scoring.blocked ? t('reportReview.common.yes') : t('reportReview.common.no')} styles={{ content: {  color: scoring.blocked ? 'var(--color-error-600)' : '#10b981'  } }} /></Col>
@@ -574,12 +574,12 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               </div>
             ))}
             {scoring.hardFailures.length > 0 && (
-              <Alert type="error" showIcon style={{ marginTop: 8 }} title={t('reportReview.final.hardFailures')} description={
+              <Alert type="error" showIcon style={{ marginTop: 'var(--space-2, 8px)' }} title={t('reportReview.final.hardFailures')} description={
                 <Space wrap>{scoring.hardFailures.map((f) => <Tag key={f} color="red">{f}</Tag>)}</Space>
               } />
             )}
             {scoring.softWarnings.length > 0 && (
-              <Alert type="warning" showIcon style={{ marginTop: 8 }} title={t('reportReview.final.softWarnings')} description={
+              <Alert type="warning" showIcon style={{ marginTop: 'var(--space-2, 8px)' }} title={t('reportReview.final.softWarnings')} description={
                 <Space wrap>{scoring.softWarnings.map((w) => <Tag key={w} color="orange">{w}</Tag>)}</Space>
               } />
             )}
@@ -592,7 +592,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             <Row gutter={8}>
               {rubric.gradeBands.map((g) => (
                 <Col span={4} key={g.grade}>
-                  <div style={{ padding: 8, borderRadius: 4, background: g.color, color: '#fff', textAlign: 'center' }}>
+                  <div style={{ padding: 'var(--space-2, 8px)', borderRadius: 4, background: g.color, color: '#fff', textAlign: 'center' }}>
                     <div style={{ fontSize: 18, fontWeight: 700 }}>{g.grade}</div>
                     <div style={{ fontSize: 12 }}>{g.minScore}-{g.maxScore}</div>
                     <div style={{ fontSize: 12 }}>{g.label}</div>
@@ -608,7 +608,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderNotes = () => (
     <div data-testid="final-checklist-notes" role="region" aria-label={t('reportReview.final.notes')}>
-      <Space style={{ marginBottom: 8 }}>
+      <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Button type="primary" size="small" icon={<PenLine size={12} />} onClick={() => setNoteOpen(true)}>{t('reportReview.final.addNote')}</Button>
       </Space>
       {notes.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportReview.final.noNotes')} /> : (
@@ -645,7 +645,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <div>
                     <div style={{ fontSize: 12 }}>{n.content}</div>
                     {n.mentions.length > 0 && (
-                      <div style={{ marginTop: 4 }}>{n.mentions.map((m) => <Tag key={m} color="cyan">@{m}</Tag>)}</div>
+                      <div style={{ marginTop: 'var(--space-1, 4px)' }}>{n.mentions.map((m) => <Tag key={m} color="cyan">@{m}</Tag>)}</div>
                     )}
                   </div>
                 }
@@ -659,7 +659,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderWorkload = () => (
     <div data-testid="final-checklist-workload" role="region" aria-label={t('reportReview.final.workload')}>
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}><Statistic title={t('reportReview.final.groupTotalFinal')} value={workload.reduce((a, w) => a + w.totalFinalChecks, 0)} prefix={<ClipboardCheck size={14} />} /></Col>
         <Col span={6}><Statistic title={t('reportReview.final.groupRejected')} value={workload.reduce((a, w) => a + w.rejectedCount, 0)} prefix={<RotateCcw size={14} />} styles={{ content: {  color: 'var(--color-error-600)'  } }} /></Col>
         <Col span={6}><Statistic title={t('reportReview.final.avgScore')} value={workload.length === 0 ? 0 : Math.round(workload.reduce((a, w) => a + w.averageScore, 0) / workload.length)} prefix={<Award size={14} />} /></Col>
@@ -715,9 +715,9 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             </Descriptions>
             <Divider style={{ margin: '8px 0' }} />
             <strong>{t('reportReview.final.aiSummary')}</strong>
-            <div style={{ fontSize: 12, padding: 8, background: 'var(--color-info-bg)', borderRadius: 4, marginTop: 4 }}>{prior.aiSummary}</div>
+            <div style={{ fontSize: 12, padding: 'var(--space-2, 8px)', background: 'var(--color-info-bg)', borderRadius: 4, marginTop: 'var(--space-1, 4px)' }}>{prior.aiSummary}</div>
             {prior.recommendedAction && (
-              <Alert type="info" showIcon style={{ marginTop: 8 }} title={t('reportReview.final.recommendation')} description={prior.recommendedAction} />
+              <Alert type="info" showIcon style={{ marginTop: 'var(--space-2, 8px)' }} title={t('reportReview.final.recommendation')} description={prior.recommendedAction} />
             )}
           </Card>
           <Card size="small" title={t('reportReview.final.comparisonDetail')}>
@@ -749,7 +749,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderMultiSig = () => (
     <div data-testid="final-checklist-multisig" role="region" aria-label={t('reportReview.final.multiSig')}>
-      <Space style={{ marginBottom: 8 }}>
+      <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Button type="primary" size="small" icon={<Award size={12} />} onClick={() => setMsOpen(true)}>{t('reportReview.final.startMultiSig')}</Button>
       </Space>
       {multiSigs.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportReview.final.noMultiSig')} /> : (
@@ -765,7 +765,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('reportReview.final.deadline')} {fmtTime(m.expiresAt)}</span>
                 </Space>
                 <div style={{ fontSize: 12 }}>{m.reason}</div>
-                <Timeline style={{ marginTop: 8 }}>
+                <Timeline style={{ marginTop: 'var(--space-2, 8px)' }}>
                   {m.slots.map((s) => (
                     <Timeline.Item key={s.id} color={s.status === 'signed' ? 'green' : s.status === 'rejected' ? 'red' : 'gray'} dot={
                       s.status === 'signed' ? <CheckCircle2 size={14} /> : s.status === 'rejected' ? <XCircle size={14} /> : <Clock size={14} />
@@ -791,13 +791,13 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderEmergency = () => (
     <div data-testid="final-checklist-emergency" role="region" aria-label={t('reportReview.final.emergencyChannel')}>
-      <Space style={{ marginBottom: 8 }}>
+      <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Button danger size="small" icon={<Phone size={12} />} onClick={() => setEmOpen(true)}>{t('reportReview.final.triggerEmergency')}</Button>
         <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('reportReview.final.emergencyHint')}</span>
       </Space>
       {/* [G005 Wave3A P2] 通道配置卡 */}
       {emConfig && (
-        <Card size="small" style={{ marginBottom: 12 }} title={
+        <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }} title={
           <Space><Settings2 size={14} /><span>{t('reportReview.final.channelConfig')}</span></Space>
         } extra={
           <Button type="primary" size="small" icon={<Save size={12} />} loading={emConfigSaving} onClick={handleSaveChannelConfig}>{t('reportReview.final.saveConfig')}</Button>
@@ -805,7 +805,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           <Row gutter={[12, 8]}>
             {emConfig.channels.map((c) => (
               <Col span={12} key={c.type} data-testid={`em-channel-${c.type}`}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                   <Tag color={CHANNEL_META[c.type].color} style={{ marginRight: 0 }}>{CHANNEL_META[c.type].label}</Tag>
                   <Switch size="small" checked={c.enabled} onChange={(v) => updateChannelConfig(c.type, { enabled: v })} />
                   <Select
@@ -889,7 +889,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         )}
       </Card>
       {emergencies.length > 0 && (
-        <Card size="small" title={<Space><Bell size={14} /><span>{t('reportReview.final.emergencyTasks')}</span></Space>} style={{ marginTop: 12 }}>
+        <Card size="small" title={<Space><Bell size={14} /><span>{t('reportReview.final.emergencyTasks')}</span></Space>} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <List
           dataSource={emergencies}
           renderItem={(e) => (
@@ -971,7 +971,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     {s.skippable && <Tag color="orange">{t('reportReview.final.skippable')}</Tag>}
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('reportReview.final.slaMinutes', { n: s.slaMinutes })}</span>
                   </Space>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{t('reportReview.final.rolesAllowed')} {s.rolesAllowed.join(' / ')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }}>{t('reportReview.final.rolesAllowed')} {s.rolesAllowed.join(' / ')}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('reportReview.final.exitCriteria')} {s.exitCriteria.join(' · ')}</div>
                 </Timeline.Item>
               ))}
@@ -983,7 +983,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                 key={target}
                 type="info"
                 showIcon
-                style={{ marginBottom: 4 }}
+                style={{ marginBottom: 'var(--space-1, 4px)' }}
                 title={t(REJECT_TARGET_META[target].label)}
                 description={t(REJECT_TARGET_META[target].description)}
               />
@@ -996,7 +996,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   return (
     <div data-testid="final-check-list" role="region" aria-label={t('reportReview.final.title')}>
-      <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, #be185d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, #be185d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 'var(--space-3, 12px)' }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <ShieldCheck size={18} />
@@ -1016,7 +1016,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             <Button size="small" icon={<RefreshCw size={12} />} onClick={load}>{t('reportReview.common.refresh')}</Button>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>{t('reportReview.final.totalLists')}</span>} value={stats.total} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<FileText size={14} />} /></Col>
           <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>{t('reportReview.final.inProgress')}</span>} value={stats.inProgress} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<Activity size={14} />} /></Col>
           <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>{t('reportReview.status.completed')}</span>} value={stats.completed} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<CheckCircle2 size={14} />} /></Col>
@@ -1025,7 +1025,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         </Row>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', padding: '8px 12px', borderRadius: 6, marginBottom: 8, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', padding: '8px 12px', borderRadius: 6, marginBottom: 'var(--space-2, 8px)', border: '1px solid var(--border-color)' }}>
         <Space wrap>
           <Select size="small" value={filter.status || 'all'} onChange={(v) => setFilter({ ...filter, status: v })} style={{ width: 110 }} options={[
             { value: 'all', label: t('reportReview.initial.allStatus') },
@@ -1050,7 +1050,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             loading={loading}
             dataSource={tasks}
             locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportReview.final.noFinalTasks')} /> }}
-            style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 4 }}
+            style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-1, 4px)' }}
             renderItem={(task) => {
               const priConf = PRIORITY_META[task.priority] ?? PRIORITY_META.routine!;
               const list = lists.find((l) => l.taskId === task.id);
@@ -1059,7 +1059,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   key={task.id}
                   onClick={() => onSelect?.(task)}
                   style={{
-                    cursor: 'pointer', padding: '10px 12px', borderRadius: 6, marginBottom: 4,
+                    cursor: 'pointer', padding: '10px 12px', borderRadius: 6, marginBottom: 'var(--space-1, 4px)',
                     background: task.id === selectedId ? 'var(--color-pending-bg)' : task.isOverdue ? 'var(--color-error-bg)' : 'transparent',
                     borderLeft: task.id === selectedId ? '3px solid #7c3aed' : task.isOverdue ? '3px solid var(--color-error-600)' : '3px solid transparent',
                   }}
@@ -1097,7 +1097,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         </Col>
         <Col span={16}>
           {!activeList ? (
-            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportReview.final.selectTaskHint')} style={{ marginTop: 80 }} />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportReview.final.selectTaskHint')} style={{ marginTop: 'var(--space-20, 80px)' }} />
           ) : (
             <Card
               size="small"
@@ -1141,7 +1141,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               }
             >
               {summary && (
-                <Row gutter={12} style={{ marginBottom: 12 }}>
+                <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                   <Col span={4}><Statistic title={t('reportReview.final.status.passed')} value={summary.passed} styles={{ content: {  fontSize: 14, color: '#10b981'  } }} prefix={<CheckCircle2 size={12} />} /></Col>
                   <Col span={4}><Statistic title={t('reportReview.final.status.failed')} value={summary.failed} styles={{ content: {  fontSize: 14, color: 'var(--color-error-600)'  } }} prefix={<XCircle size={12} />} /></Col>
                   <Col span={4}><Statistic title={t('reportReview.final.status.warning')} value={summary.warning} styles={{ content: {  fontSize: 14, color: 'var(--color-warning-500)'  } }} prefix={<AlertTriangle size={12} />} /></Col>

@@ -87,10 +87,10 @@ const IolCalculatorPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }} data-testid="iol-calculator-page">
+    <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }} data-testid="iol-calculator-page">
       <Row gutter={16}>
         <Col xs={24} xl={16}>
-          <Space style={{ marginBottom: 12 }}>
+          <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Button
               icon={<ArrowLeft size={14} />}
               onClick={() => window.history.back()}
@@ -105,7 +105,7 @@ const IolCalculatorPage: React.FC = () => {
           <Card
             size="small"
             title={<Space><Save size={14} />{t('iolCalc.submitCalc')}</Space>}
-            style={{ marginTop: 12 }}
+            style={{ marginTop: 'var(--space-3, 12px)' }}
           >
             <Form
               layout="inline"
@@ -135,7 +135,7 @@ const IolCalculatorPage: React.FC = () => {
             </Form>
             {submitted && (
               <Alert
-                style={{ marginTop: 8 }}
+                style={{ marginTop: 'var(--space-2, 8px)' }}
                 type={saveError ? 'warning' : 'success'}
                 showIcon
                 title={saveError ?? (patientId ? t('w9d.iolCalc.submittedToPatient', { patientId }) : t('w9d.iolCalc.submittedResult'))}
@@ -167,7 +167,7 @@ const IolCalculatorPage: React.FC = () => {
             <Button
               icon={<RotateCcw size={12} />}
               size="small"
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
               onClick={() => setResetKey(k => k + 1)}
             >
               {t('iolCalc.reset')}
@@ -175,9 +175,9 @@ const IolCalculatorPage: React.FC = () => {
           </Card>
 
           {lastSummary && (
-            <Card size="small" title={t('iolCalc.recentSubmit')} style={{ marginTop: 12 }}>
+            <Card size="small" title={t('iolCalc.recentSubmit')} style={{ marginTop: 'var(--space-3, 12px)' }}>
               <Statistic title={t('iolCalc.iolPower')} value={lastSummary.iolPower} suffix="D" />
-              <div style={{ marginTop: 4, color: 'var(--text-secondary)', fontSize: 12 }}>
+              <div style={{ marginTop: 'var(--space-1, 4px)', color: 'var(--text-secondary)', fontSize: 12 }}>
                 {patientId ? `${t('w9d.octa.patient')} ${patientId}` : t('iolCalc.unboundPatient')} · {eyeSide || 'OD/OS'}
               </div>
             </Card>

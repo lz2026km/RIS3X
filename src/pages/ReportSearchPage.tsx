@@ -348,7 +348,7 @@ export default function ReportSearchPage() {
     {
       title: t('w3tables.col.actions'), key: 'actions', width: 220,
       render: (_: unknown, r) => (
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
           <button style={{ padding: '2px 8px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
             onClick={() => window.open(`/reports?reportId=${r.reportId || r.id}`, '_blank')}>
             <Eye size={10} /> {t('reportSearch.view')}
@@ -376,10 +376,10 @@ export default function ReportSearchPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16 }}>
-        <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Search size={20} color="var(--color-primary-800)" /> {t('reportSearch.title')}
           <StatusTag status="success" style={{ fontWeight: 700 }}>R7</StatusTag>
         </Typography.Title>
@@ -389,9 +389,9 @@ export default function ReportSearchPage() {
       </div>
 
       {/* 搜索框 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12, position: 'relative' }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', border: '2px solid var(--color-primary-500)', borderRadius: 6, background: 'var(--bg-card)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginBottom: 'var(--space-3, 12px)', position: 'relative' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '0 12px', border: '2px solid var(--color-primary-500)', borderRadius: 6, background: 'var(--bg-card)' }}>
             <Search size={16} color="var(--color-primary-500)" />
             <input
               type="text"
@@ -403,20 +403,20 @@ export default function ReportSearchPage() {
             />
             {query && <X size={14} onClick={() => setQuery('')} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />}
           </div>
-          <button onClick={handleSearch} disabled={loading} style={{ padding: '10px 18px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={handleSearch} disabled={loading} style={{ padding: '10px 18px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <Search size={13} />
             {loading ? t('reportSearch.searching') : t('reportSearch.search')}
           </button>
-          <button onClick={() => setShowAdvanced(!showAdvanced)} style={{ padding: '10px 14px', background: showAdvanced ? 'var(--color-primary-800)' : 'var(--bg-card)', color: showAdvanced ? '#fff' : '#475569', border: '1px solid ' + (showAdvanced ? 'var(--color-primary-800)' : '#cbd5e1'), borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={() => setShowAdvanced(!showAdvanced)} style={{ padding: '10px 14px', background: showAdvanced ? 'var(--color-primary-800)' : 'var(--bg-card)', color: showAdvanced ? '#fff' : '#475569', border: '1px solid ' + (showAdvanced ? 'var(--color-primary-800)' : '#cbd5e1'), borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <Filter size={12} /> {t('reportSearch.advancedFilter')}
           </button>
         </div>
 
         {/* 联想下拉 */}
         {suggestions.length > 0 && (
-          <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 4, background: 'var(--bg-card)', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid var(--border-color)', zIndex: 10, maxHeight: 240, overflowY: 'auto' }}>
+          <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid var(--border-color)', zIndex: 10, maxHeight: 240, overflowY: 'auto' }}>
             {suggestions.map((s, i) => (
-              <div key={i} onClick={() => setQuery(s.label)} style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--border-light)' }}
+              <div key={i} onClick={() => setQuery(s.label)} style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', borderBottom: '1px solid var(--border-light)' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}>
                 <s.icon size={12} color={s.color} />
@@ -432,11 +432,11 @@ export default function ReportSearchPage() {
 
         {/* 高级筛选 */}
         {showAdvanced && (
-          <div style={{ marginTop: 12, padding: 12, background: 'var(--bg-card)', borderRadius: 6, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 6, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             {/* [G005 v3.0.6.11-99 Wave 10E-1] 模态多选 */}
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.modalityMulti')}</label>
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportSearch.modalityMulti')}</label>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                 {modalityOptions.map(m => {
                   const on = modalityMulti.includes(m) || (modalityMulti.length === 0 && modality === m);
                   return (
@@ -451,13 +451,13 @@ export default function ReportSearchPage() {
             </div>
             <FilterSelect label={t('reportSearch.bodyPart')} value={bodyPart} onChange={setBodyPart} options={[{ v: 'all', l: t('reportSearch.all') }, ...bodyPartOptions.map(b => ({ v: b, l: b }))]} />
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.doctorId')}</label>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportSearch.doctorId')}</label>
               <input type="text" value={doctor} onChange={e => setDoctor(e.target.value)} placeholder={t('reportSearch.doctorIdPlaceholder')} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             {/* [G005 v3.0.6.11-99 Wave 10E-1] 状态多选 */}
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.statusMulti')}</label>
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportSearch.statusMulti')}</label>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                 {statusOptions.map(st => {
                   const on = statusMulti.includes(st) || (statusMulti.length === 0 && status === st);
                   return (
@@ -471,23 +471,23 @@ export default function ReportSearchPage() {
               </div>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.dateFrom')}</label>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportSearch.dateFrom')}</label>
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.dateTo')}</label>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportSearch.dateTo')}</label>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-end', gap: 6 }}>
               <button onClick={handleSearch} style={{ padding: '6px 14px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>{t('reportSearch.applyFilter')}</button>
               <button onClick={() => { setModality('all'); setBodyPart('all'); setStatus('all'); setDoctor(''); setDateFrom(''); setDateTo(''); setModalityMulti([]); setStatusMulti([]) }} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>{t('reportSearch.reset')}</button>
-              <button onClick={handleSaveQuery} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={handleSaveQuery} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Save size={10} /> {t('reportSearch.saveQuery')}
               </button>
-              <button onClick={() => setShowHistoryPanel(v => !v)} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => setShowHistoryPanel(v => !v)} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <History size={10} /> {t('reportSearch.history')} ({searchHistory.length})
               </button>
-              <button onClick={() => setShowFavorites(v => !v)} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => setShowFavorites(v => !v)} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Star size={10} /> {t('reportSearch.favorites')} ({favorites.length})
               </button>
             </div>
@@ -495,11 +495,11 @@ export default function ReportSearchPage() {
         )}
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 数据源徽标 */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '7px 12px',
+        display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', padding: '7px 12px',
         borderRadius: 8, fontSize: 12,
         background: error ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
         border: `1px solid ${error ? '#fde68a' : '#bbf7d0'}`,
@@ -516,7 +516,7 @@ export default function ReportSearchPage() {
       </div>
 
       {/* 统计 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
         <StatBox label={t('reportSearch.statResults')} value={stats.total} color="var(--color-primary-500)" />
         <StatBox label={t('reportSearch.statAvgQuality')} value={stats.avgScore} color="#10b981" />
         <StatBox label={t('reportSearch.statCritical')} value={stats.critical} color="var(--color-error-600)" />
@@ -524,7 +524,7 @@ export default function ReportSearchPage() {
       </div>
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 结果统计条: 命中数 + 按模态分布 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 14px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 12, fontSize: 12, flexWrap: 'wrap' }} data-testid="search-result-stats">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '8px 14px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 'var(--space-3, 12px)', fontSize: 12, flexWrap: 'wrap' }} data-testid="search-result-stats">
         <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 5 }}>
           <FileText size={13} /> {t('reportSearch.hits')} <b style={{ fontSize: 16 }}>{total}</b> {t('reportSearch.itemsCount')}
         </span>
@@ -554,9 +554,9 @@ export default function ReportSearchPage() {
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 收藏夹 / 历史 面板 */}
       {(showFavorites || showHistoryPanel) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }} data-testid="search-favorites-panel">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }} data-testid="search-favorites-panel">
           {showFavorites && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <Star size={13} /> {t('reportSearch.favoritesPanel')} ({favorites.length})
@@ -568,7 +568,7 @@ export default function ReportSearchPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
                   {favorites.map((f, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12 }}>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12 }}>
                       <Star size={11} color="var(--color-warning-500)" fill="var(--color-warning-500)" />
                       <button onClick={() => applyCriteria(f)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, textAlign: 'left', flex: 1 }}>
                         {f.label}
@@ -584,7 +584,7 @@ export default function ReportSearchPage() {
             </div>
           )}
           {showHistoryPanel && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <History size={13} /> {t('reportSearch.searchHistoryPanel')} ({searchHistory.length})
@@ -601,7 +601,7 @@ export default function ReportSearchPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
                   {searchHistory.map((h, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12 }}>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12 }}>
                       <History size={11} color="var(--color-primary-500)" />
                       <button onClick={() => applyCriteria(h)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-primary)', textAlign: 'left', flex: 1 }}>
                         <b style={{ color: 'var(--color-primary-800)' }}>{h.label || t('reportSearch.all')}</b>
@@ -619,10 +619,10 @@ export default function ReportSearchPage() {
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 检索洞察: 平均分/危急率/模态分布/部位 TOP */}
       {results.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr 1fr', gap: 12, marginBottom: 12 }} data-testid="search-insights">
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }} data-testid="search-insights">
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('reportSearch.qualityRisk')}</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
               <div style={{ flex: 1, background: 'var(--color-success-bg)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#059669' }}>{insights.avgScore}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('reportSearch.avgQuality')}</div>
@@ -637,7 +637,7 @@ export default function ReportSearchPage() {
               {t('reportSearch.pendingReview')} <b style={{ color: 'var(--color-warning-600)' }}>{results.filter(r => ['待审核', '审核中'].includes(r.status)).length}</b> {t('reportSearch.itemsCount')}
             </div>
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('reportSearch.byModality')}</div>
             {insights.modalityCounts.length === 0 ? (
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportSearch.noDistribution')}</div>
@@ -662,7 +662,7 @@ export default function ReportSearchPage() {
               </>
             )}
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('reportSearch.bodyPartTop')}</div>
             {insights.bodyPartTop.length === 0 ? (
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportSearch.noData')}</div>
@@ -688,8 +688,8 @@ export default function ReportSearchPage() {
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 热门检索词 + 报告收藏 */}
       {(hotKeywords.length > 0 || reportFavs.length > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 12, marginBottom: 12 }} data-testid="search-hot-and-report-favs">
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }} data-testid="search-hot-and-report-favs">
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
               <Search size={13} /> {t('reportSearch.hotKeywords')}
             </div>
@@ -711,7 +711,7 @@ export default function ReportSearchPage() {
               {t('reportSearch.hotNote')}
             </div>
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-3, 12px)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 5 }}>
                 <Star size={13} /> {t('reportSearch.favoritedReports')} ({reportFavs.length})
@@ -727,7 +727,7 @@ export default function ReportSearchPage() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 180, overflowY: 'auto' }}>
                 {reportFavs.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12 }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12 }}>
                     <Star size={11} color="var(--color-warning-500)" fill="var(--color-warning-500)" />
                     <code style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--text-secondary)' }}>{f.reportId}</code>
                     <b style={{ color: 'var(--color-primary-800)' }}>{f.patientName}</b>
@@ -747,8 +747,8 @@ export default function ReportSearchPage() {
       )}
 
       {/* 结果列表 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>
             {t('reportSearch.searchResults')} ({total} {t('reportSearch.itemsCount')})
           </div>
@@ -759,7 +759,7 @@ export default function ReportSearchPage() {
             <button onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')} style={{ padding: '4px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
               {t('reportSearch.sortByTime')} {sortDir === 'desc' ? '↓' : '↑'} {sortDir === 'desc' ? t('reportSearch.newToOld') : t('reportSearch.oldToNew')}
             </button>
-            <button onClick={exportResultsCsv} style={{ padding: '4px 10px', background: 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button onClick={exportResultsCsv} style={{ padding: '4px 10px', background: 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <Download size={11} /> {t('reportSearch.exportCsv')}
             </button>
           </div>
@@ -767,7 +767,7 @@ export default function ReportSearchPage() {
 
         {/* 生效筛选摘要 */}
         {searched && activeFilterChips.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-3, 12px)' }}>
             {activeFilterChips.map(chip => (
               <span key={chip} style={{ padding: '2px 10px', borderRadius: 999, background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', fontSize: 12 }}>
                 {chip}
@@ -783,10 +783,10 @@ export default function ReportSearchPage() {
             </Spin>
           </div>
         ) : !searched ? (
-          <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('reportSearch.searchHint')} style={{ padding: 40 }} />
+          <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('reportSearch.searchHint')} style={{ padding: 'var(--space-10, 40px)' }} />
         ) : results.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-            <Search size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
+          <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
+            <Search size={32} style={{ opacity: 0.3, marginBottom: 'var(--space-2, 8px)' }} />
             <div>{t('reportSearch.noResults')}</div>
           </div>
         ) : (
@@ -808,8 +808,8 @@ export default function ReportSearchPage() {
 
       {/* 页脚统计 */}
       <div style={{
-        marginTop: 16, padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 8,
-        border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 16,
+        marginTop: 'var(--space-4, 16px)', padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 8,
+        border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)',
         fontSize: 12, color: 'var(--text-secondary)', flexWrap: 'wrap',
       }} data-testid="report-search-footer">
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -832,8 +832,8 @@ export default function ReportSearchPage() {
 // ============================================================
 function StatBox({ label, value, color }: any) {
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{label}</div>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
       <div style={{ fontSize: 20, fontWeight: 800, color }}>{value}</div>
     </div>
   );
@@ -842,7 +842,7 @@ function StatBox({ label, value, color }: any) {
 function FilterSelect({ label, value, onChange, options }: any) {
   return (
     <div>
-      <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{label}</label>
+      <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)' }}>
         {options.map((o: any) => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>

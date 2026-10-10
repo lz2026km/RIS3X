@@ -303,7 +303,7 @@ export default function AIQCPage() {
             />
           ))}
         </svg>
-        <div style={{ display: 'flex', gap: 16, marginTop: 8, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)', justifyContent: 'center' }}>
           {series.map((s) => (
             <span key={s.key} style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 10, height: 3, background: s.color, display: 'inline-block' }} />
@@ -555,7 +555,7 @@ export default function AIQCPage() {
   const ScoreBar = ({ score }: { score: number }) => {
     const color = getScoreColor(score)
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <div style={{
           flex: 1,
           height: 8,
@@ -629,7 +629,7 @@ export default function AIQCPage() {
 
   return (
     <div style={{
-      padding: 24,
+      padding: 'var(--space-6, 24px)',
       maxWidth: 1600,
       margin: '0 auto',
       background: DARK_BG, color: WHITE,
@@ -637,8 +637,8 @@ export default function AIQCPage() {
       {/* [v1.0.4 R4] 升级入口横幅 */}
       <div style={{
         background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
-        borderRadius: 10, padding: 12, marginBottom: 16,
-        display: 'flex', alignItems: 'center', gap: 12,
+        borderRadius: 10, padding: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)',
+        display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)',
       }}>
         <div style={{ fontSize: 18 }}></div>
         <div style={{ flex: 1 }}>
@@ -654,7 +654,7 @@ export default function AIQCPage() {
           style={{
             padding: '6px 12px', border: 'none', borderRadius: 4,
             background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 4,
+            display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
           }}
         >
           {t('aiQcPage.oneClickDraft')}
@@ -662,9 +662,9 @@ export default function AIQCPage() {
       </div>
 
       {/* Header */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <div style={{
               width: 40,
               height: 40,
@@ -746,7 +746,7 @@ export default function AIQCPage() {
         </div>
         {apiError && (
           <div style={{
-            marginTop: 12,
+            marginTop: 'var(--space-3, 12px)',
             padding: '10px 14px',
             borderRadius: 8,
             border: `1px solid ${WARNING}66`,
@@ -767,8 +767,8 @@ export default function AIQCPage() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 16,
-        marginBottom: 24,
+        gap: 'var(--space-4, 16px)',
+        marginBottom: 'var(--space-6, 24px)',
       }}>
         {statCards.map((card, idx) => (
           <div
@@ -776,7 +776,7 @@ export default function AIQCPage() {
             style={{
               background: DARK_CARD,
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               border: `1px solid ${DARK_BORDER}`,
               position: 'relative',
               overflow: 'hidden',
@@ -795,7 +795,7 @@ export default function AIQCPage() {
               display: 'flex',
               alignItems: 'flex-start',
               justifyContent: 'space-between',
-              marginBottom: 12,
+              marginBottom: 'var(--space-3, 12px)',
             }}>
               <div style={{
                 width: 44,
@@ -819,8 +819,8 @@ export default function AIQCPage() {
                 {card.trend}
               </span>
             </div>
-            <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>{card.label}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-1, 4px)' }}>{card.label}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-1, 4px)' }}>
               <span style={{ fontSize: 30, fontWeight: 700, color: WHITE }}>{card.value}</span>
               <span style={{ fontSize: 14, color: GRAY }}>{card.unit}</span>
             </div>
@@ -832,17 +832,17 @@ export default function AIQCPage() {
       <div style={{
         background: DARK_CARD,
         borderRadius: 12,
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         border: `1px solid ${DARK_BORDER}`,
-        marginBottom: 20,
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Filter size={16} color={PRIMARY} />
             <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>{t('aiQcPage.multiFilter')}</span>
           </div>
@@ -862,7 +862,7 @@ export default function AIQCPage() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <RefreshCw size={12} /> {t('aiQcPage.reset')}
@@ -872,7 +872,7 @@ export default function AIQCPage() {
         <div style={{
           display: 'grid',
           gridTemplateColumns: '2fr 1fr 1fr 1fr 1.5fr',
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
           alignItems: 'center',
         }}>
           {/* 搜索框 */}
@@ -953,7 +953,7 @@ export default function AIQCPage() {
           </select>
 
           {/* 日期范围 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <input
               type="date"
               value={dateRange.start}
@@ -988,7 +988,7 @@ export default function AIQCPage() {
         background: DARK_CARD,
         borderRadius: 12,
         border: `1px solid ${DARK_BORDER}`,
-        marginBottom: 20,
+        marginBottom: 'var(--space-5, 20px)',
         overflow: 'hidden',
       }}>
         <div style={{
@@ -1000,13 +1000,13 @@ export default function AIQCPage() {
           flexWrap: 'wrap',
           gap: 10,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Gauge size={16} color={PRIMARY} />
             <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>{t('aiQcPage.autoQc3d')}</span>
             <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.autoQc3dDesc')}</span>
             {assessing && <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.assessing')}</span>}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <input
               type="text"
               value={assessStudyId}
@@ -1071,7 +1071,7 @@ export default function AIQCPage() {
           flexWrap: 'wrap',
           background: DARK_BG,
         }}>
-          <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <Target size={13} /> {t('aiQcPage.passThreshold')}
           </span>
           {([
@@ -1184,10 +1184,10 @@ export default function AIQCPage() {
         )}
         {batchResults.length > 0 && (
           <div style={{ borderBottom: `1px solid ${DARK_BORDER}`, padding: '14px 20px', overflowX: 'auto' }}>
-            <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', gap: 14, alignItems: 'center' }}>
+            <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)', display: 'flex', gap: 14, alignItems: 'center' }}>
               <span>{t('aiQcPage.batchResults', { count: batchResults.length })}</span>
               {([['通过', 'aiQcPage.verdictPass'], ['告警', 'aiQcPage.verdictWarn'], ['失败', 'aiQcPage.verdictFail']] as [string, string][]).map(([v, k]) => (
-                <span key={v} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span key={v} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: verdictColor(v) }} /> {t(k)}
                 </span>
               ))}
@@ -1245,17 +1245,17 @@ export default function AIQCPage() {
           </div>
         )}
         {dimAssessments.length === 0 && !assessing ? (
-          <div style={{ padding: 40, textAlign: 'center', color: GRAY }}>
+          <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: GRAY }}>
             <Gauge size={36} style={{ opacity: 0.5 }} />
-            <p style={{ marginTop: 8 }}>{t('aiQcPage.no3dResult')}</p>
+            <p style={{ marginTop: 'var(--space-2, 8px)' }}>{t('aiQcPage.no3dResult')}</p>
           </div>
         ) : (
-          <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
             {dimAssessments.map((a) => (
               <div key={a.studyId} style={{
                 background: DARK_BG,
                 borderRadius: 10,
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
                 border: `1px solid ${DARK_BORDER}`,
               }}>
                 <div style={{
@@ -1264,9 +1264,9 @@ export default function AIQCPage() {
                   justifyContent: 'space-between',
                   marginBottom: 14,
                   flexWrap: 'wrap',
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: WHITE }}>{t('aiQcPage.studyId')} {a.studyId}</span>
                     <span style={{ fontSize: 12, color: GRAY }}>{a.modality} · {a.bodyPart}</span>
                     {a.instanceId && <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.instance')} {a.instanceId}</span>}
@@ -1291,7 +1291,7 @@ export default function AIQCPage() {
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}>
                   {[
                     { key: 'artifact', label: t('aiQcPage.artifactAssess'), icon: <Wrench size={15} />, data: a.artifact },
@@ -1301,14 +1301,14 @@ export default function AIQCPage() {
                     <div key={dim.key} style={{
                       background: DARK_CARD,
                       borderRadius: 8,
-                      padding: 12,
+                      padding: 'var(--space-3, 12px)',
                       border: `1px solid ${DARK_BORDER}`,
                     }}>
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        marginBottom: 8,
+                        marginBottom: 'var(--space-2, 8px)',
                       }}>
                         <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 6 }}>
                           {dim.icon} {dim.label}
@@ -1322,7 +1322,7 @@ export default function AIQCPage() {
                         </span>
                       </div>
                       <ScoreBar score={dim.data.score} />
-                      <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                         {dim.data.issues.map((iss, i) => (
                           <div key={i} style={{
                             fontSize: 12,
@@ -1364,7 +1364,7 @@ export default function AIQCPage() {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Bot size={16} color={PRIMARY} />
             <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>{t('aiQcPage.qcRecords')}</span>
             <span style={{
@@ -1377,16 +1377,16 @@ export default function AIQCPage() {
               {t('aiQcPage.totalCount', { count: filteredData.length })}
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: SUCCESS }} />
               <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.qualified')}</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: WARNING }} />
               <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.warning')}</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: DANGER }} />
               <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.unqualified')}</span>
             </div>
@@ -1434,7 +1434,7 @@ export default function AIQCPage() {
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 4,
+                      gap: 'var(--space-1, 4px)',
                     }}
                   >
                     <Eye size={12} /> {t('aiQcPage.detail')}
@@ -1514,7 +1514,7 @@ export default function AIQCPage() {
             style={{
               background: DARK_CARD,
               borderRadius: 16,
-              padding: 24,
+              padding: 'var(--space-6, 24px)',
               width: 500,
               maxWidth: '90%',
               border: `1px solid ${DARK_BORDER}`,
@@ -1525,7 +1525,7 @@ export default function AIQCPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: 20,
+              marginBottom: 'var(--space-5, 20px)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Brain size={20} color={PRIMARY} />
@@ -1538,21 +1538,21 @@ export default function AIQCPage() {
                   border: 'none',
                   color: GRAY,
                   cursor: 'pointer',
-                  padding: 4,
+                  padding: 'var(--space-1, 4px)',
                 }}
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div style={{ display: 'grid', gap: 16 }}>
+            <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
               <div style={{
                 background: DARK_BG,
                 borderRadius: 10,
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
               }}>
-                <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('aiQcPage.aiOverallScore')}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)' }}>{t('aiQcPage.aiOverallScore')}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                   <span style={{
                     fontSize: 24,
                     fontWeight: 700,
@@ -1562,14 +1562,14 @@ export default function AIQCPage() {
                   </span>
                   <div style={{ flex: 1 }}>
                     <ScoreBar score={selectedRecord.aiScore} />
-                    <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>
                       {getScoreLabel(selectedRecord.aiScore)}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 {[
                   [t('aiQcPage.reportId'), selectedRecord.id],
                   [t('aiQcPage.deviceType'), selectedRecord.deviceType],
@@ -1581,9 +1581,9 @@ export default function AIQCPage() {
                   <div key={label} style={{
                     background: DARK_BG,
                     borderRadius: 8,
-                    padding: 12,
+                    padding: 'var(--space-3, 12px)',
                   }}>
-                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
                     <div style={{ fontSize: 14, color: WHITE, fontWeight: 500 }}>{value}</div>
                   </div>
                 ))}
@@ -1593,10 +1593,10 @@ export default function AIQCPage() {
                 <div style={{
                   background: '#991b1b22',
                   borderRadius: 8,
-                  padding: 12,
+                  padding: 'var(--space-3, 12px)',
                   border: '1px solid #991b1b',
                 }}>
-                  <div style={{ fontSize: 12, color: DANGER, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 12, color: DANGER, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <AlertTriangle size={14} /> {t('aiQcPage.issuesFoundLabel')}
                   </div>
                   <div style={{ fontSize: 12, color: WHITE }}>{selectedRecord.issues}</div>
@@ -1606,14 +1606,14 @@ export default function AIQCPage() {
               <div style={{
                 background: DARK_BG,
                 borderRadius: 8,
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
               }}>
-                <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('aiQcPage.confirmStatus')}</div>
+                <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)' }}>{t('aiQcPage.confirmStatus')}</div>
                 <ConfirmStatus confirmed={selectedRecord.confirmed} time={selectedRecord.confirmedTime} />
               </div>
             </div>
 
-            <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
+            <div style={{ marginTop: 'var(--space-5, 20px)', display: 'flex', gap: 10 }}>
               <button
                 style={{
                   flex: 1,

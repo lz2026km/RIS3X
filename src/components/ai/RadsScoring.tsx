@@ -59,7 +59,7 @@ const RadsScoring: React.FC<RadsScoringProps> = ({ result, history }) => {
     <Space orientation="vertical" style={{ width: '100%' }} size="middle">
       {result && (
         <Card size="small">
-          <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ textAlign: 'center' }}>
               <canvas ref={canvasRef} width={110} height={110} style={{ width: 110, height: 110 }} />
             </div>
@@ -70,7 +70,7 @@ const RadsScoring: React.FC<RadsScoringProps> = ({ result, history }) => {
                 </Tag>
               </Title>
               <Text type="secondary">{result.description}</Text>
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <Progress
                   percent={Math.round(result.confidence * 100)}
                   size="small"
@@ -85,7 +85,7 @@ const RadsScoring: React.FC<RadsScoringProps> = ({ result, history }) => {
             header={<Text strong>{t('findings')}</Text>}
             dataSource={result.findings}
             renderItem={(item) => <List.Item>{item}</List.Item>}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           />
           <Text strong>{t('recommendations')}: </Text>
           <Text>{result.recommendations}</Text>

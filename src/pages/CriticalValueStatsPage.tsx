@@ -112,14 +112,14 @@ export default function CriticalValueStatsPage() {
   const recentEvents = [...events].sort((a, b) => b.reportedAt.localeCompare(a.reportedAt));
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <BarChart3 size={20} color="#7c2d12" /> 危急值统计大屏
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R5</span>
           </Title>
@@ -127,7 +127,7 @@ export default function CriticalValueStatsPage() {
             10 分钟通报率 · 按病种/设备/医生分桶 · 闭环可视化
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={() => navigate('/critical-value-rule')}
             style={{
@@ -152,7 +152,7 @@ export default function CriticalValueStatsPage() {
       <CriticalValueStatsExtended />
 
       {/* 大字 KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <BigKpi icon={AlertOctagon} label={liveStats ? '危急值总数' : '本月危急值'} value={totalThisMonth} color="var(--color-error-600)" />
         <BigKpi icon={Zap} label="10分钟通报率" value={`${onTimeRate}%`} color={onTimeRate >= 90 ? '#10b981' : 'var(--color-warning-500)'} trend={onTimeRate >= 90 ? 'up' : 'down'} trendValue="3.2%" />
         <BigKpi icon={Activity} label="平均响应时间" value={`${avgResponseTimeMinutes}m`} color="#7c3aed" trend="down" trendValue="1.5m" />
@@ -160,17 +160,17 @@ export default function CriticalValueStatsPage() {
         <BigKpi icon={AlertCircle} label="未超时/超时" value={`${onTimeCount}/${overdueCount}`} color="var(--color-warning-500)" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
         {/* 按病种分桶 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Tag size={13} /> 按病种分桶（7 类别）
           </div>
           {byCategory.map(c => {
             const maxCount = Math.max(...byCategory.map(x => x.count));
             const pct = (c.count / maxCount) * 100;
             return (
-              <div key={c.category} style={{ marginBottom: 8 }}>
+              <div key={c.category} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{c.label}</span>
                   <span style={{ color: c.color, fontWeight: 700 }}>{c.count} 例</span>
@@ -188,8 +188,8 @@ export default function CriticalValueStatsPage() {
         </div>
 
         {/* 按设备分桶 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Layers size={13} /> 按检查设备分桶
           </div>
           {byModality.map(m => {
@@ -213,17 +213,17 @@ export default function CriticalValueStatsPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
         {/* Top 5 规则 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <ListOrdered size={13} /> Top 5 危急值规则（本月）
           </div>
           {kpi.topRules.map((r, i) => {
             const maxCount = kpi.topRules[0]?.count ?? 0;
             return (
-              <div key={r.ruleCode} style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={r.ruleCode} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <div style={{
                     width: 24, height: 24, borderRadius: '50%',
                     background: i === 0 ? 'var(--color-warning-bg)' : 'var(--bg-card)',
@@ -248,8 +248,8 @@ export default function CriticalValueStatsPage() {
         </div>
 
         {/* 医生排行 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Stethoscope size={13} /> 报告医生排行
           </div>
           {byDoctor.map((d, i) => (
@@ -277,8 +277,8 @@ export default function CriticalValueStatsPage() {
       </div>
 
       {/* 最近事件 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={13} /> 最近危急值事件（{events.length} 条）
         </div>
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
@@ -340,10 +340,10 @@ export default function CriticalValueStatsPage() {
 // ============================================================
 const BigKpi: React.FC<{ icon: any; label: string; value: number | string; color: string; trend?: 'up' | 'down'; trendValue?: string }> = ({ icon: Icon, label, value, color, trend, trendValue }) => (
   <div style={{
-    background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)',
+    background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color)',
   }}>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <div style={{
           width: 32, height: 32, borderRadius: 8,
           background: `${color}15`, color: color,

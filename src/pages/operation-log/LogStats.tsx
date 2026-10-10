@@ -24,11 +24,11 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
   const isPositive = todayCount >= yesterdayCount
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ background: `${ACCENT}20`, padding: 8, borderRadius: 8 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+            <div style={{ background: `${ACCENT}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
               <Activity size={18} color={ACCENT} />
             </div>
             <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.todayOps')}</span>
@@ -42,13 +42,13 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
           </span>
         </div>
         <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{todayCount}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>
           {t('logStats.yesterday')} {yesterdayCount}，{isPositive ? '↑' : '↓'}{Math.abs(parseFloat(trendPercent))}%
         </div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 16 }}>{t('logStats.trend24h')}</div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', fontSize: 16 }}>{t('logStats.trend24h')}</div>
         <ChartContainer type="area" height={140} state={todayTrend.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <AreaChart data={todayTrend.map((v, i) => ({ hour: `${String(i).padStart(2, '0')}:00`, value: v }))}>
             <defs>
@@ -68,15 +68,15 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
         </ChartContainer>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${WARNING}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <Flame size={18} color={WARNING} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.peakHour')}</span>
         </div>
         <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{peakHour}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>
           <Users size={10} style={{ verticalAlign: 'middle' }} /> {t('logStats.mostActiveUser')}: {topUser}
         </div>
       </div>
@@ -89,10 +89,10 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
 // ============================================================
 function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${PRIMARY}20`, padding: 8, borderRadius: 8 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${PRIMARY}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <Activity size={18} color={PRIMARY} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.todayTotal')}</span>
@@ -100,9 +100,9 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
         <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{stats.todayTotal}</div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: `1px solid ${stats.abnormalCount > 0 ? DANGER : 'var(--border-color)'}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: `1px solid ${stats.abnormalCount > 0 ? DANGER : 'var(--border-color)'}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${DANGER}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <AlertTriangle size={18} color={DANGER} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.abnormalCount')}</span>
@@ -110,9 +110,9 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
         <div style={{ fontSize: 30, fontWeight: 700, color: stats.abnormalCount > 0 ? DANGER : SUCCESS }}>{stats.abnormalCount}</div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${SUCCESS}20`, padding: 8, borderRadius: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${SUCCESS}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <User size={18} color={SUCCESS} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.mostActiveUser')}</span>
@@ -120,9 +120,9 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
         <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{stats.mostActiveUser}</div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${WARNING}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <Shield size={18} color={WARNING} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.highestRisk')}</span>
@@ -144,7 +144,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
           background: `${DANGER}20`,
           color: DANGER,
           padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-          display: 'inline-flex', alignItems: 'center', gap: 4,
+          display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
         }}>
           <AlertTriangle size={12} /> {t('logStats.violation')}
         </span>
@@ -156,7 +156,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
           background: `${WARNING}20`,
           color: WARNING,
           padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-          display: 'inline-flex', alignItems: 'center', gap: 4,
+          display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
         }}>
           <AlertCircle size={12} /> {t('logStats.warning')}
         </span>
@@ -167,7 +167,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
         background: `${SUCCESS}20`,
         color: SUCCESS,
         padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-        display: 'inline-flex', alignItems: 'center', gap: 4,
+        display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
       }}>
         <CheckCircle size={12} /> {t('logStats.compliant')}
       </span>
@@ -247,7 +247,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
               <button
                 onClick={() => onViewDetail(log)}
                 style={{
-                  marginTop: 4,
+                  marginTop: 'var(--space-1, 4px)',
                   padding: '2px 6px', borderRadius: 4, border: '1px solid var(--border-color)',
                   background: 'var(--bg-card)', color: ACCENT, fontSize: 12, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 2,
@@ -283,49 +283,49 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
   }, [logs])
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-error-border)', borderLeft: `4px solid ${DANGER}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-error-border)', borderLeft: `4px solid ${DANGER}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${DANGER}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <Clock size={18} color={DANGER} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.nonWorkHours')}</span>
         </div>
         <div style={{ fontSize: 30, fontWeight: 700, color: DANGER }}>{alertStats.nonWorkHours}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>22:00 - 06:00</div>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>22:00 - 06:00</div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-error-border)', borderLeft: `4px solid ${DANGER}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-error-border)', borderLeft: `4px solid ${DANGER}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${DANGER}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <Users size={18} color={DANGER} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.crossDepartment')}</span>
         </div>
         <div style={{ fontSize: 30, fontWeight: 700, color: DANGER }}>{alertStats.crossDepartment}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.outOfScope')}</div>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>{t('logStats.outOfScope')}</div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${WARNING}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <Download size={18} color={WARNING} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.batchExport')}</span>
         </div>
         <div style={{ fontSize: 30, fontWeight: 700, color: WARNING }}>{alertStats.batchExport}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.overFrequency')}</div>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>{t('logStats.overFrequency')}</div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
+          <div style={{ background: `${WARNING}20`, padding: 'var(--space-2, 8px)', borderRadius: 8 }}>
             <Activity size={18} color={WARNING} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.highFrequency')}</span>
         </div>
         <div style={{ fontSize: 30, fontWeight: 700, color: WARNING }}>{alertStats.highFrequency}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.samePatientMulti')}</div>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 'var(--space-1, 4px)' }}>{t('logStats.samePatientMulti')}</div>
       </div>
     </div>
   )
@@ -364,10 +364,10 @@ function HipaaExportPanel({
 
   return (
     <div style={{
-      background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)',
-      marginBottom: 16, display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap'
+      background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
+      marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'flex-end', flexWrap: 'wrap'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginRight: 'var(--space-2, 8px)' }}>
         <FileCheck size={18} color={PRIMARY} />
         <span style={{ fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t('logStats.exportPanel')}</span>
       </div>
@@ -395,7 +395,7 @@ function HipaaExportPanel({
         </select>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginLeft: 'auto' }}>
         <button onClick={onExportCSV} style={{
           padding: '6px 14px', borderRadius: 6, border: `1px solid ${SUCCESS}`,
           background: `${SUCCESS}10`, color: SUCCESS,
@@ -488,15 +488,15 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Timer size={16} />{t('logStats.durationRanking')}
         </div>
         <div style={{ maxHeight: 300, overflow: 'auto' }}>
           {durationByAction.map((item, index) => (
             <div key={item.action} style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 0',
               borderBottom: index < durationByAction.length - 1 ? '1px solid var(--border-light)' : 'none',
             }}>
               <div style={{
@@ -519,11 +519,11 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
         </div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <PieChartIcon size={16} />{t('logStats.durationDistribution')}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
           <div>
             <ChartContainer height={180} state={durationDistribution.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
               <PieChart>
@@ -539,9 +539,9 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
               </PieChart>
             </ChartContainer>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
             {durationDistribution.map(item => (
-              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
                 <span style={{ fontSize: 12, color: GRAY, flex: 1 }}>{item.label}</span>
                 <span style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{item.count}{t('logStats.timesUnit')}</span>
@@ -551,8 +551,8 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
         </div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={16} />{t('logStats.durationTrend24h')}
         </div>
         <ChartContainer height={200} state={durationTrend.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
@@ -605,7 +605,7 @@ function UserActivityHeatmap({  }: { logs: OperationLog[] }) {
   return (
     <div>
       <div style={{ overflow: 'auto' }}>
-        <div style={{ display: 'flex', marginLeft: 50, marginBottom: 4 }}>
+        <div style={{ display: 'flex', marginLeft: 50, marginBottom: 'var(--space-1, 4px)' }}>
           {Array.from({ length: 24 }, (_, i) => (
             <div key={i} style={{ width: 20, fontSize: 12, color: GRAY, textAlign: 'center' }}>
               {i % 4 === 0 ? `${i}` : ''}
@@ -627,7 +627,7 @@ function UserActivityHeatmap({  }: { logs: OperationLog[] }) {
           </div>
         ))}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8, alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-1, 4px)', marginTop: 'var(--space-2, 8px)', alignItems: 'center' }}>
         <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.low')}</span>
         {[5, 15, 25, 35, 45, 55].map((val) => (
           <div key={val} style={{ width: 14, height: 14, background: getHeatColor(val), borderRadius: 2 }} />
@@ -684,9 +684,9 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <PieChartIcon size={16} />{t('logStats.actionDistribution')}
         </div>
         <ChartContainer height={220} state={actionStats.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
@@ -700,8 +700,8 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
         </ChartContainer>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={16} />{t('logStats.userTop10')}
         </div>
         <ChartContainer height={220} state={userStats.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
@@ -715,8 +715,8 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
         </ChartContainer>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={16} />{t('logStats.opTrend24h')}
         </div>
         <ChartContainer height={180} state={hourStats.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
@@ -730,12 +730,12 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
         </ChartContainer>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Clock size={16} />{t('logStats.peakHeatmap')}
         </div>
         <div style={{ overflow: 'auto' }}>
-          <div style={{ display: 'flex', marginLeft: 50, marginBottom: 4 }}>
+          <div style={{ display: 'flex', marginLeft: 50, marginBottom: 'var(--space-1, 4px)' }}>
             {Array.from({ length: 24 }, (_, i) => (
               <div key={i} style={{ width: 20, fontSize: 12, color: GRAY, textAlign: 'center' }}>{i % 4 === 0 ? `${i}` : ''}</div>
             ))}
@@ -752,7 +752,7 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-1, 4px)', marginTop: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.low')}</span>
           {[5, 15, 25, 35, 45, 55].map((val) => (
             <div key={val} style={{ width: 14, height: 14, background: getHeatColor(val), borderRadius: 2 }} />

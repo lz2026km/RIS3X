@@ -211,7 +211,7 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
   }, [preview, onInsert, onClose, studyUid, selectedSeries, direction, thickness, source])
 
   const controls: React.CSSProperties = {
-    display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap',
+    display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10, flexWrap: 'wrap',
   }
   const labelStyle: React.CSSProperties = { fontSize: 12, color: '#64748b', whiteSpace: 'nowrap' }
 
@@ -267,28 +267,28 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
 
         <div style={{ background: '#0f172a', borderRadius: 8, border: '1px solid #1e293b', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 280 }}>
           {generating ? (
-            <div style={{ color: '#94a3b8', textAlign: 'center', padding: 24 }}>
+            <div style={{ color: '#94a3b8', textAlign: 'center', padding: 'var(--space-6, 24px)' }}>
               <Spin size="large" />
-              <div style={{ fontSize: 12, marginTop: 12 }}>{t('w9e.mipScreenshot.computing')}</div>
+              <div style={{ fontSize: 12, marginTop: 'var(--space-3, 12px)' }}>{t('w9e.mipScreenshot.computing')}</div>
             </div>
           ) : preview ? (
             <canvas ref={previewRef} style={{ width: '100%', imageRendering: 'pixelated' }} data-testid="mip-preview-canvas" />
           ) : (
-            <div style={{ color: '#64748b', textAlign: 'center', padding: 24 }}>
-              <ScanLine size={40} style={{ opacity: 0.4, marginBottom: 8 }} />
+            <div style={{ color: '#64748b', textAlign: 'center', padding: 'var(--space-6, 24px)' }}>
+              <ScanLine size={40} style={{ opacity: 0.4, marginBottom: 'var(--space-2, 8px)' }} />
               <div style={{ fontSize: 12 }}>{t('w9e.mipScreenshot.pickHint')}</div>
             </div>
           )}
         </div>
 
-        {error && <Alert type="error" showIcon style={{ marginTop: 8 }} message={error} />}
+        {error && <Alert type="error" showIcon style={{ marginTop: 'var(--space-2, 8px)' }} message={error} />}
         {preview && (
-          <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Tag color={source === 'real' ? 'green' : 'orange'}>{source === 'real' ? t('w9e.mipScreenshot.realDicom') : t('w9e.mipScreenshot.syntheticDataTag')}</Tag>
             <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace' }}>{seriesInfo}</span>
           </div>
         )}
-        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>
+        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>
           {t('w9e.mipScreenshot.footerNote')}
         </div>
       </div>

@@ -14,7 +14,7 @@ const bannerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 8,
+  gap: 'var(--space-2, 8px)',
 }
 
 export function NetworkOfflineBanner() {

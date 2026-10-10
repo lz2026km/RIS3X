@@ -170,7 +170,7 @@ const ApplicationList: React.FC = () => {
               >
                 {t('regionalImaging.cancel')}
               </button>
-              <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleSubmit}>
+              <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={handleSubmit}>
                 <Send size={14} />{t('regionalImaging.submitApp')}
               </button>
             </div>
@@ -391,7 +391,7 @@ const ConsultationRequests: React.FC = () => {
               >
                 {t('regionalImaging.cancel')}
               </button>
-              <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleSubmit}>
+              <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={handleSubmit}>
                 <Send size={14} />{t('regionalImaging.submit')}
               </button>
             </div>
@@ -569,8 +569,8 @@ const CrossInstitutionQuery: React.FC = () => {
       </div>
       <div
         style={{
-          marginBottom: 20,
-          padding: 16,
+          marginBottom: 'var(--space-5, 20px)',
+          padding: 'var(--space-4, 16px)',
           background: "var(--bg-primary)",
           borderRadius: 8,
           border: "1px solid var(--border-default)",
@@ -579,8 +579,8 @@ const CrossInstitutionQuery: React.FC = () => {
         <div
           style={{
             display: "flex",
-            gap: 12,
-            marginBottom: 12,
+            gap: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-3, 12px)',
             flexWrap: "wrap",
           }}
         >
@@ -590,7 +590,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 display: "block",
                 fontSize: 12,
                 color: "var(--text-secondary)",
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
               }}
             >
                 {t('regionalImaging.targetPacs')}
@@ -622,7 +622,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 display: "block",
                 fontSize: 12,
                 color: "var(--text-secondary)",
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
               }}
             >
                 {t('regionalImaging.queryType')}
@@ -650,7 +650,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 display: "block",
                 fontSize: 12,
                 color: "var(--text-secondary)",
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
               }}
             >
                 {t('regionalImaging.queryValue')}
@@ -691,7 +691,7 @@ const CrossInstitutionQuery: React.FC = () => {
       </div>
       {queried && (
         <div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-2, 8px)' }}>
             查询结果: {results.length} 条检查记录 (来自{" "}
             {institutions.find((i) => i.id === selectedInstitution)?.name})
           </div>
@@ -720,7 +720,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 title: t('regionalImaging.actions'), key: 'actions',
                 render: (_v, r) => (
                   retrieving ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                       <div style={{ width: 80, height: 6, background: "var(--bg-card)", borderRadius: 3, overflow: "hidden" }}>
                         <div style={{ height: "100%", width: `${retrieveProgress}%`, background: "var(--color-primary)", borderRadius: 3, transition: "width 0.3s" }} />
                       </div>
@@ -830,8 +830,8 @@ const XDSIntegration: React.FC = () => {
       </div>
       <div
         style={{
-          marginBottom: 20,
-          padding: 16,
+          marginBottom: 'var(--space-5, 20px)',
+          padding: 'var(--space-4, 16px)',
           background: "var(--bg-primary)",
           borderRadius: 8,
           border: "1px solid var(--border-default)",
@@ -842,7 +842,7 @@ const XDSIntegration: React.FC = () => {
             fontSize: 12,
             fontWeight: 600,
             color: "var(--text-primary)",
-            marginBottom: 12,
+            marginBottom: 'var(--space-3, 12px)',
           }}
         >
             {t('regionalImaging.registryQuery')}
@@ -850,7 +850,7 @@ const XDSIntegration: React.FC = () => {
         <div
           style={{
             display: "flex",
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
             alignItems: "flex-end",
             flexWrap: "wrap",
           }}
@@ -861,7 +861,7 @@ const XDSIntegration: React.FC = () => {
                 display: "block",
                 fontSize: 12,
                 color: "var(--text-secondary)",
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
               }}
             >
                 {t('regionalImaging.patientId')}
@@ -914,14 +914,14 @@ const XDSIntegration: React.FC = () => {
         {pixResult && (
           <div
             style={{
-              marginTop: 12,
-              padding: 12,
+              marginTop: 'var(--space-3, 12px)',
+              padding: 'var(--space-3, 12px)',
               background: "var(--bg-card)",
               borderRadius: 6,
               border: "1px solid var(--color-primary)",
             }}
           >
-            <div style={{ fontSize: 12, color: "var(--color-primary)", marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: "var(--color-primary)", marginBottom: 'var(--space-2, 8px)' }}>
               {t('regionalImaging.pixResultTitle')}
             </div>
             <div style={{ fontSize: 12 }}>
@@ -932,8 +932,8 @@ const XDSIntegration: React.FC = () => {
         )}
       </div>
       {queried && (
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
+        <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-2, 8px)' }}>
             文档条目: {docs.length} 条
           </div>
           <DataTable
@@ -970,7 +970,7 @@ const XDSIntegration: React.FC = () => {
           background: "var(--bg-primary)",
           borderRadius: 8,
           border: "1px solid var(--border-default)",
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
         }}
       >
         <div
@@ -978,7 +978,7 @@ const XDSIntegration: React.FC = () => {
             fontSize: 12,
             fontWeight: 600,
             color: "var(--text-primary)",
-            marginBottom: 12,
+            marginBottom: 'var(--space-3, 12px)',
           }}
         >
             {t('regionalImaging.auditLog')}
@@ -1005,21 +1005,21 @@ const XDSIntegration: React.FC = () => {
       {retrieveOpen && (
         <div
           onClick={() => setRetrieveOpen(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+          style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 'var(--space-5, 20px)' }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "var(--bg-primary)", border: "1px solid var(--border-default)", borderRadius: 10, width: "100%", maxWidth: 720, maxHeight: "85vh", overflow: "auto", padding: 20, color: "var(--text-primary)" }}
+            style={{ background: "var(--bg-primary)", border: "1px solid var(--border-default)", borderRadius: 10, width: "100%", maxWidth: 720, maxHeight: "85vh", overflow: "auto", padding: 'var(--space-5, 20px)', color: "var(--text-primary)" }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 14, fontWeight: 700 }}>{t('w1Controls.regional.retrieveTitle')}</div>
               <button onClick={() => setRetrieveOpen(false)} style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--border-default)", background: "transparent", color: "var(--text-muted)", cursor: "pointer", fontSize: 12 }}>{t('w1Controls.regional.close')}</button>
             </div>
             {retrieving ? (
-              <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>{t('w1Controls.regional.retrieving')}</div>
+              <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "var(--text-muted)" }}>{t('w1Controls.regional.retrieving')}</div>
             ) : retrievedDoc ? (
               <div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--color-primary-300)" }}>{retrievedDoc.title}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-3, 12px)', color: "var(--color-primary-300)" }}>{retrievedDoc.title}</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, fontSize: 12, marginBottom: 14 }}>
                   <div><span style={{ color: "var(--text-muted)" }}>{t('w1Controls.regional.patient')}: </span>{retrievedDoc.patientName} ({retrievedDoc.patientId})</div>
                   <div><span style={{ color: "var(--text-muted)" }}>{t('w1Controls.regional.institution')}: </span>{retrievedDoc.institution}</div>
@@ -1029,12 +1029,12 @@ const XDSIntegration: React.FC = () => {
                 </div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 6 }}>{t('w1Controls.regional.content')}</div>
                 <pre style={{ whiteSpace: "pre-wrap", background: "var(--bg-card)", border: "1px solid var(--border-default)", borderRadius: 8, padding: 14, fontSize: 12, lineHeight: 1.7, margin: 0 }}>{retrievedDoc.content}</pre>
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 'var(--space-4, 16px)' }}>
                   <button onClick={handleDownloadDoc} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "var(--color-success)", color: "var(--text-inverse)", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>{t('w1Controls.regional.download')}</button>
                 </div>
               </div>
             ) : (
-              <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)" }}>{t('w1Controls.regional.retrieveFailed')}</div>
+              <div style={{ padding: 'var(--space-6, 24px)', textAlign: "center", color: "var(--text-muted)" }}>{t('w1Controls.regional.retrieveFailed')}</div>
             )}
           </div>
         </div>
@@ -1393,7 +1393,7 @@ const IntegrationStatus: React.FC = () => {
           FHIR / IHE XDS-I / HL7 MLLP 通道健康检查{loading ? " (加载中...)" : ""}
         </span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 'var(--space-4, 16px)' }}>
         {defs.map((d) => {
           const st = statuses[d.key];
           return (
@@ -1403,13 +1403,13 @@ const IntegrationStatus: React.FC = () => {
                 background: "var(--bg-primary)",
                 border: `1px solid ${statusColor(st?.status)}`,
                 borderRadius: 10,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-3, 12px)' }}>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)" }}>{d.name}</div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>{d.desc}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>{d.desc}</div>
                 </div>
                 <StatusTag status={statusToneKey(st?.status)}>
                   {statusLabel(st?.status)}

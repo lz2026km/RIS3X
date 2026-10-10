@@ -6,7 +6,7 @@ import { t } from '../../i18n/appI18n'
 const PRIMARY = 'var(--color-primary-800)'
 
 const s = {
-  leftToolbar: { width: 60, background: `linear-gradient(180deg, ${PRIMARY} 0%, var(--color-primary-600) 100%)`, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', paddingTop: 12, paddingBottom: 12, gap: 4, borderRight: `1px solid ${PRIMARY}`, flexShrink: 0, boxShadow: '2px 0 8px rgba(30,58,95,0.3)' },
+  leftToolbar: { width: 60, background: `linear-gradient(180deg, ${PRIMARY} 0%, var(--color-primary-600) 100%)`, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', paddingTop: 'var(--space-3, 12px)', paddingBottom: 'var(--space-3, 12px)', gap: 'var(--space-1, 4px)', borderRight: `1px solid ${PRIMARY}`, flexShrink: 0, boxShadow: '2px 0 8px rgba(30,58,95,0.3)' },
   toolBtn: { width: 44, height: 44, borderRadius: 10, border: 'none', background: 'transparent', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', marginBottom: 2, fontSize: 11 } as React.CSSProperties,
   toolBtnActive: { background: 'rgba(255,255,255,0.2)', color: '#fff', boxShadow: '0 0 12px rgba(255,255,255,0.15)' },
   toolDivider: { width: 36, height: 1, background: 'rgba(255,255,255,0.15)', margin: '4px auto' },
@@ -45,20 +45,20 @@ export default function ToolbarSection(props: Props) {
         </div>
       ))}
       {activeTool === 'zoom' && (
-        <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setZoom(z => Math.min(500, z + 20))}><Plus size={14} color="#fff" /></button>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{zoom}%</span>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setZoom(z => Math.max(10, z - 20))}><Minus size={14} color="#fff" /></button>
         </div>
       )}
       {activeTool === 'rotate' && (
-        <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setRotation(r => (r + 90) % 360)}><RotateCw size={14} color="#fff" /></button>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{rotation}°</span>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setRotation(r => (r - 90 + 360) % 360)}><RotateCcw size={14} color="#fff" /></button>
         </div>
       )}
-      <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+      <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Tooltip title={t('w9d.toolbar.pseudoColor')}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(pseudoColorMode !== 'none' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => setShowPseudoColorPanel(!showPseudoColorPanel)}>
             {pseudoColorMode === 'none' ? <EyeOff size={14} /> : pseudoColorMode === 'hotIron' ? <Flame size={14} /> : pseudoColorMode === 'coolBlue' ? <Droplets size={14} /> : pseudoColorMode === 'pet' ? <Activity size={14} /> : <Wind size={14} />}
@@ -68,7 +68,7 @@ export default function ToolbarSection(props: Props) {
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: pseudoColorMode === 'hotIron' ? '#ff4400' : pseudoColorMode === 'coolBlue' ? '#0088ff' : pseudoColorMode === 'pet' ? '#ff00ff' : '#00cc88' }} />
         )}
       </div>
-      <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+      <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Tooltip title={invert ? t('w9d.toolbar.cancelInvert') : t('w9d.toolbar.invertDisplay')}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(invert ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => setInvert(!invert)}>
             {invert ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -76,7 +76,7 @@ export default function ToolbarSection(props: Props) {
         </Tooltip>
         {invert && <span style={{ fontSize: 10, color: 'var(--color-warning-400)' }}>{t('w9d.toolbar.inverted')}</span>}
       </div>
-      <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+      <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Tooltip title={t('w9d.annotation.panelTitle')}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(activeTool === 'annotate' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => { handleToolClick('annotate'); setShowAnnotationPanel(!showAnnotationPanel) }}>
             <PenTool size={14} />

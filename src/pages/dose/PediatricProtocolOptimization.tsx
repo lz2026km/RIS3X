@@ -102,7 +102,7 @@ export default function PediatricProtocolOptimization() {
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
       {dataSource === "demo" && (
@@ -115,7 +115,7 @@ export default function PediatricProtocolOptimization() {
           fontSize: 12,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <Info size={14} /> {t("w8Dose.pediatricProtocolDemo")}
@@ -125,7 +125,7 @@ export default function PediatricProtocolOptimization() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -134,12 +134,12 @@ export default function PediatricProtocolOptimization() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           儿科协议优化建议
         </div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           {AGE_GROUPS.map((ag) => (
             <button
               key={ag}
@@ -190,7 +190,7 @@ export default function PediatricProtocolOptimization() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -199,7 +199,7 @@ export default function PediatricProtocolOptimization() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           成人 vs 儿童剂量对比（CT头部）

@@ -107,7 +107,7 @@ const MODAL_STACK_FALLBACK: Array<Record<string, string | number>> = [
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-card)',
   borderRadius: 12,
-  padding: 20,
+  padding: 'var(--space-5, 20px)',
   boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))',
   border: `1px solid ${COLORS.border}`,
 }
@@ -117,8 +117,8 @@ const headerStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: 16,
-  paddingBottom: 12,
+  marginBottom: 'var(--space-4, 16px)',
+  paddingBottom: 'var(--space-3, 12px)',
   borderBottom: `1px solid ${COLORS.border}`,
 }
 
@@ -129,7 +129,7 @@ const cardTitleStyle: React.CSSProperties = {
   color: COLORS.primary,
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
+  gap: 'var(--space-2, 8px)',
 }
 
 // 徽章样式
@@ -140,7 +140,7 @@ const badgeStyle: React.CSSProperties = {
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 4,
+  gap: 'var(--space-1, 4px)',
 }
 
 // ============================================================
@@ -177,7 +177,7 @@ const QuickActionButton: React.FC<QuickActionProps> = ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         cursor: 'pointer',
         transition: 'all 0.25s ease',
         border: `1px solid ${hovered ? color : COLORS.border}`,
@@ -797,7 +797,7 @@ const HomePage: FC = () => {
   const renderGreetingSection = () => (
     <div style={{
       ...cardStyle,
-      marginBottom: 24,
+      marginBottom: 'var(--space-6, 24px)',
       background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-600) 100%)',
       border: 'none',
       padding: 0,
@@ -833,7 +833,7 @@ const HomePage: FC = () => {
         zIndex: 1,
       }}>
         {/* 左侧：logo和标题 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-5, 20px)' }}>
           {/* 放射科Logo */}
           <div style={{
             width: 64,
@@ -854,7 +854,7 @@ const HomePage: FC = () => {
               fontSize: 20,
               fontWeight: 700,
               color: COLORS.white,
-              marginBottom: 4,
+              marginBottom: 'var(--space-1, 4px)',
               letterSpacing: '0.5px',
             }}>
               {t('homePage.systemName')}
@@ -864,7 +864,7 @@ const HomePage: FC = () => {
               color: 'rgba(255,255,255,0.8)',
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
             }}>
               <span>{HOSPITAL_NAME}</span>
               <span style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>
@@ -879,7 +879,7 @@ const HomePage: FC = () => {
             fontSize: 24,
             fontWeight: 700,
             color: COLORS.white,
-            marginBottom: 4,
+            marginBottom: 'var(--space-1, 4px)',
           }}>
               {t('homePage.greeting', { name: currentUser?.name ?? t('w9a.homePage.userFallback'), title: currentUser?.title ? ` ${currentUser.title}` : '' })}
           </div>
@@ -889,12 +889,12 @@ const HomePage: FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
           }}>
             <span style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}>
               <Calendar size={14} />
               {dateString}
@@ -903,7 +903,7 @@ const HomePage: FC = () => {
             <span style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}>
               <Clock size={14} />
               {currentTime}
@@ -914,7 +914,7 @@ const HomePage: FC = () => {
         {/* 右侧：快捷统计 */}
         <div style={{
           display: 'flex',
-          gap: 16,
+          gap: 'var(--space-4, 16px)',
         }}>
           <div style={{
             background: 'rgba(255,255,255,0.12)',
@@ -996,13 +996,13 @@ const HomePage: FC = () => {
   const renderPersonalWorkload = () => (
     <div style={{
       ...cardStyle,
-      marginBottom: 24,
-      padding: 16,
+      marginBottom: 'var(--space-6, 24px)',
+      padding: 'var(--space-4, 16px)',
     }}>
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 24,
+        gap: 'var(--space-6, 24px)',
       }}>
         <div style={{
           display: 'flex',
@@ -1082,8 +1082,8 @@ const HomePage: FC = () => {
   const renderQuickActions = () => (
     <div style={{
       ...cardStyle,
-      marginBottom: 24,
-      padding: 20,
+      marginBottom: 'var(--space-6, 24px)',
+      padding: 'var(--space-5, 20px)',
     }}>
       <div style={headerStyle}>
         <span style={cardTitleStyle}>
@@ -1101,7 +1101,7 @@ const HomePage: FC = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(8, 1fr)',
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
       }}>
         <QuickActionButton
           icon={<ListChecks size={24} />}
@@ -1176,8 +1176,8 @@ const HomePage: FC = () => {
     <div aria-live="polite" style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-      gap: 16,
-      marginBottom: 24,
+      gap: 'var(--space-4, 16px)',
+      marginBottom: 'var(--space-6, 24px)',
     }}>
       <KpiCard
         title={t('homePage.kpiMorningExams')}
@@ -1266,8 +1266,8 @@ const HomePage: FC = () => {
     <div style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-      gap: 20,
-      marginBottom: 24,
+      gap: 'var(--space-5, 20px)',
+      marginBottom: 'var(--space-6, 24px)',
     }}>
       {/* 4a: 今日每小时趋势双折线图 */}
       <div style={cardStyle}>
@@ -1276,11 +1276,11 @@ const HomePage: FC = () => {
             <TrendingUp size={16} color={COLORS.primary} />
             {t('homePage.trendToday')}
           </span>
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
             <span style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
               fontSize: 12,
               color: COLORS.textMuted,
             }}>
@@ -1295,7 +1295,7 @@ const HomePage: FC = () => {
             <span style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
               fontSize: 12,
               color: COLORS.textMuted,
             }}>
@@ -1414,7 +1414,7 @@ const HomePage: FC = () => {
           <Monitor size={16} color={COLORS.primary} />
           {t('homePage.deviceMonitor')}
         </span>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
           <span style={{
             ...badgeStyle,
             background: '#3b82f622',
@@ -1461,8 +1461,8 @@ const HomePage: FC = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 12,
-        marginBottom: 16,
+        gap: 'var(--space-3, 12px)',
+        marginBottom: 'var(--space-4, 16px)',
       }}>
         <div style={{
           background: 'var(--bg-deep)',
@@ -1470,7 +1470,7 @@ const HomePage: FC = () => {
           padding: '14px 16px',
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}>
           <div style={{
             width: 44,
@@ -1506,7 +1506,7 @@ const HomePage: FC = () => {
           padding: '14px 16px',
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}>
           <div style={{
             width: 44,
@@ -1542,7 +1542,7 @@ const HomePage: FC = () => {
           padding: '14px 16px',
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}>
           <div style={{
             width: 44,
@@ -1593,8 +1593,8 @@ const HomePage: FC = () => {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
-                marginBottom: 4,
+                gap: 'var(--space-2, 8px)',
+                marginBottom: 'var(--space-1, 4px)',
               }}>
                 <span style={{
                   fontSize: 12,
@@ -1617,7 +1617,7 @@ const HomePage: FC = () => {
                 color: COLORS.textMuted,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}>
                 <span>{device.manufacturer}</span>
                 <span>|</span>
@@ -1649,7 +1649,7 @@ const HomePage: FC = () => {
           <ClipboardList size={16} color={COLORS.primary} />
           {t('homePage.pendingExamTitle')}
         </span>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <span style={{
             ...badgeStyle,
             background: COLORS.dangerBg,
@@ -1693,7 +1693,7 @@ const HomePage: FC = () => {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 marginBottom: 6,
               }}>
                 {exam.priority === '危重' && (
@@ -1725,7 +1725,7 @@ const HomePage: FC = () => {
                 color: COLORS.textMuted,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}>
                 <span>{exam.examItemName}</span>
                 <span>|</span>
@@ -1766,7 +1766,7 @@ const HomePage: FC = () => {
               textAlign: 'right',
               display: 'flex',
               alignItems: 'center',
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
             }}>
               <div>
                 <div style={{
@@ -1820,8 +1820,8 @@ const HomePage: FC = () => {
       <div style={{
         ...headerStyle,
         borderBottom: `2px solid rgba(239, 68, 68, 0.15)`,
-        marginBottom: 16,
-        paddingBottom: 12,
+        marginBottom: 'var(--space-4, 16px)',
+        paddingBottom: 'var(--space-3, 12px)',
       }}>
         <span style={{
           ...cardTitleStyle,
@@ -1833,7 +1833,7 @@ const HomePage: FC = () => {
             ...badgeStyle,
             background: COLORS.danger,
             color: COLORS.white,
-            marginLeft: 4,
+            marginLeft: 'var(--space-1, 4px)',
             fontSize: 12,
             padding: '2px 8px',
           }}>
@@ -1845,7 +1845,7 @@ const HomePage: FC = () => {
           color: COLORS.textMuted,
           display: 'flex',
           alignItems: 'center',
-          gap: 4,
+          gap: 'var(--space-1, 4px)',
         }}>
           <Timer size={12} />
           {t('homePage.processPrompt')}
@@ -1858,9 +1858,9 @@ const HomePage: FC = () => {
           padding: '40px 0',
           color: COLORS.success,
         }}>
-          <CheckCircle size={48} style={{ marginBottom: 12 }} />
+          <CheckCircle size={48} style={{ marginBottom: 'var(--space-3, 12px)' }} />
           <div style={{ fontSize: 14, fontWeight: 600 }}>{t('homePage.noCritical')}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>
             {t('homePage.allCriticalDone')}
           </div>
         </div>
@@ -1895,14 +1895,14 @@ const HomePage: FC = () => {
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
                 marginBottom: 10,
-                paddingLeft: 8,
+                paddingLeft: 'var(--space-2, 8px)',
               }}>
                 <div>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
-                    marginBottom: 4,
+                    gap: 'var(--space-2, 8px)',
+                    marginBottom: 'var(--space-1, 4px)',
                   }}>
                     <span style={{
                       fontSize: 14,
@@ -1954,7 +1954,7 @@ const HomePage: FC = () => {
                 borderRadius: 6,
                 marginBottom: 10,
                 border: `1px solid ${COLORS.border}`,
-                paddingLeft: 8,
+                paddingLeft: 'var(--space-2, 8px)',
               }}>
                 {cv.findingDetails}
               </div>
@@ -1966,7 +1966,7 @@ const HomePage: FC = () => {
                 alignItems: 'center',
                 fontSize: 12,
                 color: COLORS.textMuted,
-                paddingLeft: 8,
+                paddingLeft: 'var(--space-2, 8px)',
               }}>
                 <span>
                   {t('homePage.reportDoctor', { name: cv.reportedByName, time: cv.reportedTime })}
@@ -1982,12 +1982,12 @@ const HomePage: FC = () => {
 
       {/* 底部操作按钮 */}
       <div style={{
-        marginTop: 16,
-        paddingTop: 16,
+        marginTop: 'var(--space-4, 16px)',
+        paddingTop: 'var(--space-4, 16px)',
         borderTop: `1px solid ${COLORS.border}`,
         display: 'flex',
         justifyContent: 'center',
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
       }}>
         <button
           onClick={() => navigate('/critical-value')}
@@ -2069,14 +2069,14 @@ const HomePage: FC = () => {
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: 20 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-5, 20px)' }}>
           {/* 上午班 */}
           <div style={{ flex: 1 }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              marginBottom: 12,
+              marginBottom: 'var(--space-3, 12px)',
               padding: '8px 12px',
               background: '#f59e0b22',
               borderRadius: 8,
@@ -2090,7 +2090,7 @@ const HomePage: FC = () => {
                 {t('homePage.morningShift')}
               </span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
               {morningShift.map((schedule) => (
                 <div
                   key={schedule.id}
@@ -2153,7 +2153,7 @@ const HomePage: FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              marginBottom: 12,
+              marginBottom: 'var(--space-3, 12px)',
               padding: '8px 12px',
               background: '#3b82f622',
               borderRadius: 8,
@@ -2167,7 +2167,7 @@ const HomePage: FC = () => {
                 {t('homePage.afternoonShift')}
               </span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
               {afternoonShift.map((schedule) => (
                 <div
                   key={schedule.id}
@@ -2257,7 +2257,7 @@ const HomePage: FC = () => {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 24,
+          gap: 'var(--space-6, 24px)',
         }}>
           {/* 饼图 */}
           <div style={{ position: 'relative', width: 160, height: 160, flexShrink: 0 }}>
@@ -2326,7 +2326,7 @@ const HomePage: FC = () => {
                     : 'none',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <div style={{
                     width: 12,
                     height: 12,
@@ -2341,7 +2341,7 @@ const HomePage: FC = () => {
                     {item.name}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                   <div style={{
                     width: 100,
                     height: 6,
@@ -2384,7 +2384,7 @@ const HomePage: FC = () => {
           <DollarSign size={16} color={COLORS.primary} />
           {t('homePage.revenueStats')}
         </span>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           {revenueData.map((item) => (
             <span
               key={item.period}
@@ -2409,8 +2409,8 @@ const HomePage: FC = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 12,
-        marginBottom: 20,
+        gap: 'var(--space-3, 12px)',
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         {revenueData.map((item) => (
           <div
@@ -2433,7 +2433,7 @@ const HomePage: FC = () => {
               fontSize: 30,
               fontWeight: 700,
               color: COLORS.primary,
-              marginBottom: 4,
+              marginBottom: 'var(--space-1, 4px)',
             }}>
               ¥{(item.value / 10000).toFixed(1)}{t('homePage.tenThousandUnit')}
             </div>
@@ -2444,7 +2444,7 @@ const HomePage: FC = () => {
               {t('homePage.targetAmount', { count: (item.target / 10000).toFixed(0) })}
             </div>
             <div style={{
-              marginTop: 8,
+              marginTop: 'var(--space-2, 8px)',
               height: 4,
               background: COLORS.border,
               borderRadius: 2,
@@ -2468,7 +2468,7 @@ const HomePage: FC = () => {
         fontSize: 12,
         fontWeight: 600,
         color: COLORS.textMuted,
-        marginBottom: 12,
+        marginBottom: 'var(--space-3, 12px)',
       }}>
         {t('homePage.weekRevenueTrend')}
       </div>
@@ -2558,7 +2558,7 @@ const HomePage: FC = () => {
               ...badgeStyle,
               background: workSource === 'real' ? COLORS.successBg : COLORS.warningBg,
               color: workSource === 'real' ? COLORS.success : COLORS.warning,
-              marginLeft: 4,
+              marginLeft: 'var(--space-1, 4px)',
             }}>
               {workSource === 'real' ? t('homePage.apiReal') : t('homePage.localFallback')}
             </span>
@@ -2569,7 +2569,7 @@ const HomePage: FC = () => {
           <button
             onClick={() => void loadMyTodos()}
             style={{
-              display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', cursor: 'pointer',
               border: `1px solid ${COLORS.border}`, background: 'var(--bg-card)',
               color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
             }}
@@ -2587,7 +2587,7 @@ const HomePage: FC = () => {
               padding: 14,
             }}>
               <div style={{
-                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)',
                 paddingBottom: 10, borderBottom: `1px solid ${COLORS.border}`,
               }}>
                 <div style={{
@@ -2610,7 +2610,7 @@ const HomePage: FC = () => {
                   <EmptyState
                     type="nodata"
                     description={t('homePage.noTodoItems', { title: col.title })}
-                    style={{ padding: '12px 0', gap: 4 }}
+                    style={{ padding: '12px 0', gap: 'var(--space-1, 4px)' }}
                   />
                 ) : col.items.slice(0, 6).map((item) => (
                   <div
@@ -2618,7 +2618,7 @@ const HomePage: FC = () => {
                     onClick={() => navigate(col.href)}
                     style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      gap: 8, padding: '9px 10px', marginBottom: 6,
+                      gap: 'var(--space-2, 8px)', padding: '9px 10px', marginBottom: 6,
                       background: 'var(--bg-card)', borderRadius: 8,
                       border: `1px solid ${COLORS.border}`, cursor: 'pointer',
                       transition: 'all 0.15s',
@@ -2653,7 +2653,7 @@ const HomePage: FC = () => {
           ))}
         </div>
         {myTodoError && (
-          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <AlertTriangle size={11} /> {myTodoError}
           </div>
         )}
@@ -2683,7 +2683,7 @@ const HomePage: FC = () => {
               ...badgeStyle,
               background: deptSource === 'real' ? COLORS.successBg : COLORS.warningBg,
               color: deptSource === 'real' ? COLORS.success : COLORS.warning,
-              marginLeft: 4,
+              marginLeft: 'var(--space-1, 4px)',
             }}>
               {deptSource === 'real' ? t('homePage.apiReal') : t('homePage.localFallback')}
             </span>
@@ -2691,12 +2691,12 @@ const HomePage: FC = () => {
               <span style={{ fontSize: 11, color: COLORS.textLight }}>{t('homePage.syncing')}</span>
             )}
           </span>
-          <span style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <Calendar size={12} /> {dateString}
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 'var(--space-5, 20px)' }}>
           {/* 左侧: 科室公告 */}
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -2706,17 +2706,17 @@ const HomePage: FC = () => {
               {deptAnnouncements.length === 0 ? (
                 <div style={{
                   textAlign: 'center', padding: '30px 0', color: COLORS.textMuted, fontSize: 12,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2, 8px)',
                 }}>
                   <Megaphone size={30} />
                   {t('homePage.noAnnouncements')}
                 </div>
               ) : deptAnnouncements.slice(0, 5).map(a => (
                 <div key={a.id} style={{
-                  padding: '10px 12px', marginBottom: 8, background: 'var(--bg-deep)',
+                  padding: '10px 12px', marginBottom: 'var(--space-2, 8px)', background: 'var(--bg-deep)',
                   borderRadius: 8, border: `1px solid ${a.pinned ? `${COLORS.warning}66` : COLORS.border}`,
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{
                       ...badgeStyle, fontSize: 10, padding: '0 8px',
                       background: `${CATEGORY_COLOR[a.category] ?? COLORS.textMuted}1a`,
@@ -2751,7 +2751,7 @@ const HomePage: FC = () => {
               {todayOnCall.length === 0 ? (
                 <div style={{
                   textAlign: 'center', padding: '30px 0', color: COLORS.textMuted, fontSize: 12,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2, 8px)',
                 }}>
                   <CalendarClock size={30} />
                   {t('homePage.noOnCall')}
@@ -2759,7 +2759,7 @@ const HomePage: FC = () => {
               ) : todayOnCall.map(s => (
                 <div key={s.id} style={{
                   display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-                  marginBottom: 8, background: 'var(--bg-deep)', borderRadius: 8,
+                  marginBottom: 'var(--space-2, 8px)', background: 'var(--bg-deep)', borderRadius: 8,
                   border: `1px solid ${COLORS.border}`,
                 }}>
                   <div style={{
@@ -2788,7 +2788,7 @@ const HomePage: FC = () => {
           </div>
         </div>
         {deptError && (
-          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <AlertTriangle size={11} /> {deptError}
           </div>
         )}
@@ -2813,7 +2813,7 @@ const HomePage: FC = () => {
     ]
     return (
       <Card
-        style={{ marginBottom: 24 }}
+        style={{ marginBottom: 'var(--space-6, 24px)' }}
         title={t('homePage.moreActions')}
         icon={<LayoutDashboard size={16} color={COLORS.primary} />}
         extra={<span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.moreActionsHint')}</span>}
@@ -2845,7 +2845,7 @@ const HomePage: FC = () => {
       keys.reduce((s, k) => s + (Number(row[k]) || 0), 0)
     const maxTotal = Math.max(...modalStackData.map(r => totalOfDay(r)), 1)
     return (
-      <div style={{ ...cardStyle, marginBottom: 24 }}>
+      <div style={{ ...cardStyle, marginBottom: 'var(--space-6, 24px)' }}>
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <BarChart3 size={16} color={COLORS.primary} />
@@ -2865,7 +2865,7 @@ const HomePage: FC = () => {
             <button
               onClick={() => void loadModalTrend()}
               style={{
-                display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', cursor: 'pointer',
                 border: `1px solid ${COLORS.border}`, background: 'var(--bg-card)',
                 color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
               }}
@@ -2895,7 +2895,7 @@ const HomePage: FC = () => {
         </ChartContainer>
 
         {/* 每日合计摘要条 */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, marginTop: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
           {modalStackData.slice(-7).map(row => (
             <div key={String(row.day)} style={{
               flex: 1, minWidth: 90, textAlign: 'center', padding: '8px 4px',
@@ -2918,7 +2918,7 @@ const HomePage: FC = () => {
           ))}
         </div>
         {trendError && (
-          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <AlertTriangle size={11} /> {trendError}
           </div>
         )}
@@ -2966,19 +2966,19 @@ const HomePage: FC = () => {
       },
     ]
     return (
-      <div style={{ ...cardStyle, marginBottom: 24 }}>
+      <div style={{ ...cardStyle, marginBottom: 'var(--space-6, 24px)' }}>
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <Gauge size={16} color={COLORS.primary} />
             {t('homePage.perfTitle')}
-            <span style={{ fontSize: 12, fontWeight: 500, color: COLORS.textMuted, marginLeft: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 500, color: COLORS.textMuted, marginLeft: 'var(--space-1, 4px)' }}>
               {perfCard.doctorName}
             </span>
             <span style={{
               ...badgeStyle,
               background: perfSource === 'real' ? COLORS.successBg : COLORS.warningBg,
               color: perfSource === 'real' ? COLORS.success : COLORS.warning,
-              marginLeft: 4,
+              marginLeft: 'var(--space-1, 4px)',
             }}>
               {perfSource === 'real' ? t('homePage.apiReal') : t('homePage.localEstimate')}
             </span>
@@ -2989,7 +2989,7 @@ const HomePage: FC = () => {
           <button
             onClick={() => void loadPerfCard()}
             style={{
-              display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', cursor: 'pointer',
               border: `1px solid ${COLORS.border}`, background: 'var(--bg-card)',
               color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
             }}
@@ -2998,10 +2998,10 @@ const HomePage: FC = () => {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
           {perfItems.map(item => (
             <div key={item.label} style={{
-              display: 'flex', alignItems: 'center', gap: 12,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)',
               background: 'var(--bg-deep)', borderRadius: 10,
               padding: '14px 16px', border: `1px solid ${COLORS.border}`,
             }}>
@@ -3022,7 +3022,7 @@ const HomePage: FC = () => {
           ))}
         </div>
         {perfError && (
-          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <AlertTriangle size={11} /> {perfError}
           </div>
         )}
@@ -3035,7 +3035,7 @@ const HomePage: FC = () => {
   // ============================================================
   const renderDataSourceBadges = () => (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16,
+      display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)',
       padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8,
       border: `1px solid ${COLORS.border}`, flexWrap: 'wrap',
     }}>
@@ -3081,12 +3081,12 @@ const HomePage: FC = () => {
         title={t('homePage.pageTitle')}
         subtitle={`${HOSPITAL_NAME} · ${t('homePage.deptName')} · ${dateString}`}
         breadcrumb={[{ label: t('homePage.breadcrumbHome') }]}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
       {loading && <LoadingBanner message={t('homePage.loadingStats')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {loadError && !loading && (
-        <div style={{ marginTop: 8, padding: '8px 14px', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)', fontSize: 12, color: '#b45309', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ marginTop: 'var(--space-2, 8px)', padding: '8px 14px', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)', fontSize: 12, color: '#b45309', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={14} />
           <span><b>{t('w9a.homePage.demoData')}</b>：{t('homePage.demoNotice')}</span>
         </div>
@@ -3118,8 +3118,8 @@ const HomePage: FC = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-        gap: 20,
-        marginBottom: 24,
+        gap: 'var(--space-5, 20px)',
+        marginBottom: 'var(--space-6, 24px)',
       }}>
         {renderDeviceStatus()}
         {renderPendingExams()}
@@ -3132,8 +3132,8 @@ const HomePage: FC = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-        gap: 20,
-        marginBottom: 24,
+        gap: 'var(--space-5, 20px)',
+        marginBottom: 'var(--space-6, 24px)',
       }}>
         {renderDoctorSchedule()}
         {renderImageQuality()}

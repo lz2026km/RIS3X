@@ -415,7 +415,7 @@ export const DentalImplant3DPage: React.FC = () => {
   if (mode === "list") {
     return (
       <PageContainer padding={24}>
-        <Space style={{ marginBottom: 16 }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Box size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             {t('dentalImplant3d.title')}
@@ -424,7 +424,7 @@ export const DentalImplant3DPage: React.FC = () => {
           <Tag color="blue">{t('dentalImplant3d.benchmark')}</Tag>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('dentalImplant3d.statTotalPlans')} value={plans.length} icon={<Box size={16} />} />
           <StatCard title={t('dentalImplant3d.statPendingApproval')} value={plans.filter((p: any) => p.status === "planning").length} color="warning" />
           <StatCard title={t('dentalImplant3d.statApproved')} value={plans.filter((p: any) => p.status === "approved").length} icon={<CheckCircle2 size={16} />} color="success" />
@@ -488,7 +488,7 @@ export const DentalImplant3DPage: React.FC = () => {
               </Form>
             </Card>
             {/* [G005 Wave1B] 种植体登记库 (dentalApi.listImplants / updateImplant) */}
-            <Card title={<Space><Tag color="cyan">{t('dentalImplant3d.implantRegister')}</Tag>{t('dentalImplant3d.recordsCount', { count: implants.length })}</Space>} size="small" style={{ marginTop: 12 }}
+            <Card title={<Space><Tag color="cyan">{t('dentalImplant3d.implantRegister')}</Tag>{t('dentalImplant3d.recordsCount', { count: implants.length })}</Space>} size="small" style={{ marginTop: 'var(--space-3, 12px)' }}
               extra={<Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => setCreateImplantOpen(true)}>{t("w3b.implantRegister")}</Button>}>
               <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                 {implants.map((im: any) => (
@@ -506,7 +506,7 @@ export const DentalImplant3DPage: React.FC = () => {
                     <Button size="small" type="link" onClick={() => setImplantModal({ open: true, data: { ...im }, saving: false })}>{t('dentalImplant3d.update')}</Button>
                   </div>
                 ))}
-                {implants.length === 0 && <div style={{ padding: 12, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('dentalImplant3d.noImplants')}</div>}
+                {implants.length === 0 && <div style={{ padding: 'var(--space-3, 12px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('dentalImplant3d.noImplants')}</div>}
               </div>
             </Card>
           </Col>
@@ -519,7 +519,7 @@ export const DentalImplant3DPage: React.FC = () => {
                   hoverable
                   onClick={() => handleSelectPlan(p)}
                   style={{
-                    marginBottom: 8,
+                    marginBottom: 'var(--space-2, 8px)',
                     cursor: "pointer",
                     borderColor:
                       p.status === "approved"
@@ -550,7 +550,7 @@ export const DentalImplant3DPage: React.FC = () => {
                       text={t(STATUS_META[p.status]?.labelKey ?? p.status)}
                     />
                   </Space>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
                     {p.model} | {t('dentalImplant3d.nerveDistance')} {p.distanceToNerve}mm | {t('dentalImplant3d.boneDensity')}{" "}
                     {p.boneDensityAtApex}HU | {p.createdAt?.slice(0, 10)}
                   </div>
@@ -570,7 +570,7 @@ export const DentalImplant3DPage: React.FC = () => {
           width={440}
         >
           {implantModal.data && (
-            <Form layout="vertical" size="small" style={{ marginTop: 8 }}>
+            <Form layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Form.Item label={t('dentalImplant3d.brand')}>
                 <Input value={implantModal.data.implantBrand ?? ''} onChange={e => setImplantModal({ ...implantModal, data: { ...implantModal.data, implantBrand: e.target.value } })} />
               </Form.Item>
@@ -593,7 +593,7 @@ export const DentalImplant3DPage: React.FC = () => {
           confirmLoading={createImplantSaving}
           width={440}
         >
-          <Form layout="vertical" size="small" style={{ marginTop: 8 }}>
+          <Form layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Form.Item label={t("w3b.implantTooth")}> <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>(FDI)</span>
               <InputNumber min={11} max={48} value={createImplantForm.toothNumber} style={{ width: '100%' }}
                 onChange={(v) => setCreateImplantForm({ ...createImplantForm, toothNumber: v ?? 36 })} />
@@ -631,7 +631,7 @@ export const DentalImplant3DPage: React.FC = () => {
 
   return (
     <PageContainer padding={16}>
-      <Space style={{ marginBottom: 12 }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           {t('dentalImplant3d.backToList')}
         </Button>
@@ -702,7 +702,7 @@ export const DentalImplant3DPage: React.FC = () => {
               height={360}
               style={{ width: "100%", height: 300, borderRadius: 8 }}
             />
-            <Row gutter={8} style={{ marginTop: 8 }}>
+            <Row gutter={8} style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Col span={12}>
                 <Form.Item label={t('dentalImplant3d.windowWidth')}>
                   <InputNumber
@@ -737,7 +737,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 {t('dentalImplant3d.implantParams')}
               </Space>
             }
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             <Row gutter={12}>
               <Col span={12}>
@@ -809,7 +809,7 @@ export const DentalImplant3DPage: React.FC = () => {
               type="primary"
               block
               icon={<Save size={14} />}
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
               loading={busy}
               onClick={() => void handleSavePlanEdit()}
             >
@@ -839,9 +839,9 @@ export const DentalImplant3DPage: React.FC = () => {
                   percent={Math.min(100, (safeDist / 4) * 100)}
                   size="small"
                   strokeColor={safe ? "#52c41a" : "#ff4d4f"}
-                  style={{ marginTop: 8 }}
+                  style={{ marginTop: 'var(--space-2, 8px)' }}
                 />
-                <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
                   {t('dentalImplant3d.safetyThreshold')}
                 </div>
                 <Divider style={{ margin: "6px 0" }} />
@@ -869,7 +869,7 @@ export const DentalImplant3DPage: React.FC = () => {
                   value={boneData?.overallQuality || "D2/D3"}
                   styles={{ content: {  color: "var(--color-primary-600)", fontSize: 12  } }}
                 />
-                <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
+                <div style={{ display: "flex", gap: 'var(--space-1, 4px)', marginTop: 'var(--space-2, 8px)' }}>
                   {boneData?.measurements
                     ?.slice(0, 3)
                     .map((m: any, i: number) => (
@@ -878,7 +878,7 @@ export const DentalImplant3DPage: React.FC = () => {
                         style={{
                           flex: 1,
                           textAlign: "center",
-                          padding: 4,
+                          padding: 'var(--space-1, 4px)',
                           background: "var(--color-info-bg)",
                           borderRadius: 4,
                         }}
@@ -899,7 +899,7 @@ export const DentalImplant3DPage: React.FC = () => {
                   )}
                   size="small"
                   strokeColor="#722ed1"
-                  style={{ marginTop: 4 }}
+                  style={{ marginTop: 'var(--space-1, 4px)' }}
                 />
                 <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
                   {t('dentalImplant3d.averageHu', { hu: boneData?.averageHU || 750 })}
@@ -915,7 +915,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 {t('dentalImplant3d.planValidation')}
               </Space>
             }
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             <Button
               type="primary"
@@ -926,7 +926,7 @@ export const DentalImplant3DPage: React.FC = () => {
               {t('dentalImplant3d.runValidation')}
             </Button>
             {validation && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <Alert
                   type={validation.data?.valid ? "success" : "error"}
                   title={
@@ -944,7 +944,7 @@ export const DentalImplant3DPage: React.FC = () => {
                           ? "red"
                           : "orange"
                     }
-                    style={{ marginTop: 4 }}
+                    style={{ marginTop: 'var(--space-1, 4px)' }}
                   >
                     {d.action}
                   </Tag>
@@ -989,7 +989,7 @@ export const DentalImplant3DPage: React.FC = () => {
           </Card>
           {current.guideDesigned && (
             <Alert
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
               title={
                 <Space>
                   <CheckCircle2 size={14} color="#52c41a" />

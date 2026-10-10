@@ -164,26 +164,26 @@ export default function CvQcPage() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={4} style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <Title level={4} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', margin: '0 0 16px' }}>
         <Shield size={24} /> {t('cvQc.title')}
         <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', padding: '2px 8px', borderRadius: 10 }}>
           {source === 'api' ? t('cvQc.dataSourceApi') : t('cvQc.demoData')}
         </span>
       </Title>
 
-      {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
+      {error && <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24, opacity: loading ? 0.6 : 1 }}>
-        <div style={{ padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', opacity: loading ? 0.6 : 1 }}>
+        <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
           <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, textTransform: 'uppercase' }}>{t('cvQc.overallPassRate')}</div>
-          <div style={{ fontSize: 30, fontWeight: 'bold', marginTop: 4 }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
+          <div style={{ fontSize: 30, fontWeight: 'bold', marginTop: 'var(--space-1, 4px)' }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
           <div style={{ fontSize: 12, color: '#64748b' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
         </div>
         {MODALITY_QC.map((m, i) => (
-          <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid var(--color-primary-800)' : '1px solid var(--border-color)', cursor: 'pointer' }}>
+          <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 'var(--space-4, 16px)', background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid var(--color-primary-800)' : '1px solid var(--border-color)', cursor: 'pointer' }}>
             <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{m.modalityKey ? t(m.modalityKey) : m.modality}</div>
-            <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 4 }}>{Math.round(m.metrics.filter(x => x.status !== 'fail').length / m.metrics.length * 100)}%</div>
+            <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 'var(--space-1, 4px)' }}>{Math.round(m.metrics.filter(x => x.status !== 'fail').length / m.metrics.length * 100)}%</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{m.metrics.filter(x => x.status === 'pass').length} {t('cvQc.statusPass')}, {m.metrics.filter(x => x.status === 'fail').length} {t('cvQc.statusFail')}</div>
           </div>
         ))}
@@ -192,7 +192,7 @@ export default function CvQcPage() {
       <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>
           {MODALITY_QC[activeModality]?.modalityKey ? t(MODALITY_QC[activeModality].modalityKey!) : (MODALITY_QC[activeModality]?.modality ?? '')} — {t('cvQc.detailMetrics')}
-          <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 8 }}>{t('cvQc.demoDataLabel')}</span>
+          <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{t('cvQc.demoDataLabel')}</span>
         </div>
         <DataTable
           dataSource={MODALITY_QC[activeModality]?.metrics ?? []}
@@ -202,7 +202,7 @@ export default function CvQcPage() {
             {
               title: t('cvQc.colMetric'), dataIndex: 'labelKey',
               render: (v: string) => (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <ClipboardCheck size={16} color="#64748b" /> {t(v)}
                 </span>
               ),
@@ -215,7 +215,7 @@ export default function CvQcPage() {
                 const s = STATUS_CONFIG[v]
                 const Icon = s.icon
                 return (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', background: s.bg, color: s.color, padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
                     <Icon size={14} /> {v === 'pass' ? t('cvQc.statusPass') : v === 'warning' ? t('cvQc.statusWarning') : t('cvQc.statusFail')}
                   </span>
                 )
@@ -225,7 +225,7 @@ export default function CvQcPage() {
         />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)' }}>
         <button onClick={handleGenerateReport} disabled={generating} style={{ padding: '8px 16px', background: generating ? '#94a3b8' : 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 6, cursor: generating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={16} /> {generating ? t('cvQc.generating') : t('cvQc.generateReport')}
         </button>

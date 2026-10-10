@@ -164,7 +164,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         background: 'rgba(0,0,0,0.55)', zIndex: 1100,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-6, 24px)',
       }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
@@ -199,10 +199,10 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: 'var(--space-5, 20px)' }}>
           {phase === 'config' && (
             <div>
-              <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
                 <div style={{ flex: 1, padding: 14, background: COLORS.bg, borderRadius: 10, textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{cases.length}</div>
                   <div style={{ fontSize: 12, color: COLORS.textMuted }}>病例总数</div>
@@ -219,9 +219,9 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                 </div>
               </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 8 }}>题目数量</div>
-                <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 'var(--space-2, 8px)' }}>题目数量</div>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   {[5, 10, 15, 20].map((n) => (
                     <button
                       key={n}
@@ -239,9 +239,9 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                 </div>
               </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 8 }}>选题范围</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 'var(--space-2, 8px)' }}>选题范围</div>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => setCategory('all')}
                     style={{
@@ -297,7 +297,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
           {phase === 'quiz' && q && (
             <div>
               {/* 进度 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ height: 8, borderRadius: 4, background: COLORS.bg, overflow: 'hidden' }}>
                     <div
@@ -314,19 +314,19 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
               </div>
 
               {/* 病例信息 */}
-              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: 'var(--color-info-bg)', color: COLORS.info }}>
                   {q.modality}
                 </span>
                 <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: COLORS.bg, color: COLORS.textMuted }}>
                   {q.bodyPart}
                 </span>
-                <span style={{ marginLeft: 'auto', fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ marginLeft: 'auto', fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   <Clock size={13} />请选择最可能的诊断
                 </span>
               </div>
 
-              <div style={{ background: COLORS.bg, borderRadius: 10, padding: 14, marginBottom: 16, fontSize: 12, lineHeight: 1.8, color: COLORS.text }}>
+              <div style={{ background: COLORS.bg, borderRadius: 10, padding: 14, marginBottom: 'var(--space-4, 16px)', fontSize: 12, lineHeight: 1.8, color: COLORS.text }}>
                 {q.description}
               </div>
 
@@ -368,7 +368,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                 })}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-5, 20px)' }}>
                 {locked ? (
                   <button
                     onClick={handleNext}
@@ -410,14 +410,14 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                       <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.text }}>
                         {pass ? '通过' : '未通过'}
                       </div>
-                      <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 'var(--space-1, 4px)' }}>
                         答对 {correctCount} / {questions.length} 题 · 通过线 60 分 · 成绩已记录
                       </div>
                     </div>
 
-                    <div style={{ marginBottom: 16 }}>
+                    <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 10 }}>答题回顾</div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                         {questions.map((qq, idx) => {
                           const chosen = answers[qq.caseId]
                           const ok = chosen === qq.correct
@@ -426,7 +426,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                               padding: '10px 12px', borderRadius: 8, background: COLORS.bg,
                               border: `1px solid ${ok ? 'var(--color-success-bg)' : 'var(--color-error-bg)'}`,
                             }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                                 {ok ? <CheckCircle2 size={14} color={COLORS.success} /> : <XCircle size={14} color={COLORS.danger} />}
                                 <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.text }}>第 {idx + 1} 题 ({qq.modality} · {qq.bodyPart})</span>
                               </div>
@@ -443,7 +443,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-3, 12px)' }}>
                       <button
                         onClick={resetAll}
                         style={{

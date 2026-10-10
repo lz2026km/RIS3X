@@ -306,7 +306,7 @@ export const DentalCadPage: React.FC = () => {
   if (mode === "list") {
     return (
       <PageContainer padding={24}>
-        <Space style={{ marginBottom: 16 }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Pen size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             {t('dentalCad.title')}
@@ -316,7 +316,7 @@ export const DentalCadPage: React.FC = () => {
           <Tag color="purple">{t('dentalCad.tag3Shape')}</Tag>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('dentalCad.statDesigns')} value={designs.length} icon={<Pen size={16} />} />
           <StatCard title={t('dentalCad.statPendingMill')} value={designs.filter((d: any) => d.status === "designed").length} />
           <StatCard title={t('dentalCad.statCemented')} value={designs.filter((d: any) => d.status === "cemented").length} color="success" />
@@ -406,7 +406,7 @@ export const DentalCadPage: React.FC = () => {
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(2, 1fr)",
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}
               >
                 {designs.map((d: any) => (
@@ -438,7 +438,7 @@ export const DentalCadPage: React.FC = () => {
                         text={STATUS_META[d.status]?.label ?? d.status}
                       />
                     </Space>
-                    <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
+                    <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: "var(--text-secondary)" }}>
                       {d.patientName} - FDI {d.toothNo} | {d.designer} |{" "}
                       {d.createdAt?.slice(0, 10)}
                     </div>
@@ -454,7 +454,7 @@ export const DentalCadPage: React.FC = () => {
 
   return (
     <PageContainer padding={16}>
-      <Space style={{ marginBottom: 12 }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           {t('dentalCad.backToList')}
         </Button>
@@ -530,7 +530,7 @@ export const DentalCadPage: React.FC = () => {
                 cursor: drawing ? "crosshair" : "default",
               }}
             />
-            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4 }}>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
               {t('dentalCad.marginHint')} ({marginPoints.length} {t('dentalCad.controlPoints')})
             </div>
           </Card>
@@ -542,7 +542,7 @@ export const DentalCadPage: React.FC = () => {
                 {t('dentalCad.designParams')}
               </Space>
             }
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             <Row gutter={12}>
               <Col span={8}>
@@ -622,7 +622,7 @@ export const DentalCadPage: React.FC = () => {
               </Col>
             </Row>
             {current?.colorShade && shades[current.colorShade] && (
-              <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: "var(--text-secondary)" }}>
                 CIELab: L*={shades[current.colorShade].L} a*=
                 {shades[current.colorShade].a} b*={shades[current.colorShade].b}
               </div>
@@ -664,8 +664,8 @@ export const DentalCadPage: React.FC = () => {
             {preview && (
               <div
                 style={{
-                  marginTop: 12,
-                  padding: 8,
+                  marginTop: 'var(--space-3, 12px)',
+                  padding: 'var(--space-2, 8px)',
                   background: "#1a1a2e",
                   borderRadius: 6,
                   textAlign: "center",
@@ -681,14 +681,14 @@ export const DentalCadPage: React.FC = () => {
                   percent={65}
                   size="small"
                   strokeColor="var(--color-primary-600)"
-                  style={{ marginTop: 4 }}
+                  style={{ marginTop: 'var(--space-1, 4px)' }}
                 />
                 <Tag color="green">{t('dentalCad.previewDone')}</Tag>
               </div>
             )}
             {current?.status === "milling" && (
               <Alert
-                style={{ marginTop: 8 }}
+                style={{ marginTop: 'var(--space-2, 8px)' }}
                 title={
                   <Space>
                     <Spin size="small" />
@@ -700,8 +700,8 @@ export const DentalCadPage: React.FC = () => {
               />
             )}
           </Card>
-          <Card size="small" title={t('dentalCad.designFlow')} style={{ marginTop: 8 }}>
-            <div style={{ display: "flex", gap: 4 }}>
+          <Card size="small" title={t('dentalCad.designFlow')} style={{ marginTop: 'var(--space-2, 8px)' }}>
+            <div style={{ display: "flex", gap: 'var(--space-1, 4px)' }}>
               {[
                 "draft",
                 "designed",

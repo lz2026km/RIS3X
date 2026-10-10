@@ -278,7 +278,7 @@ export default function DeviceOpsCenterPage() {
 
   const workOrderTab = (
     <>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w11Device.wo.total')} value={woStats?.total ?? 0} loading={loading} color="primary" icon={<ClipboardList size={18} />} />
         <StatCard title={t('w11Device.wo.active')} value={woStats?.active ?? 0} loading={loading} color="primary" icon={<Activity size={18} />} />
         <StatCard title={t('w11Device.wo.overdue')} value={woStats?.overdue ?? 0} loading={loading} color="error" icon={<AlertTriangle size={18} />} />
@@ -286,7 +286,7 @@ export default function DeviceOpsCenterPage() {
         <StatCard title={t('w11Device.wo.avgResolution')} value={woStats?.avgResolutionHours ?? 0} suffix="h" loading={loading} color="primary" />
         <StatCard title={t('w11Device.wo.partsCost')} value={woStats?.partsCost ?? 0} prefix="¥" loading={loading} color="warning" icon={<DollarSign size={18} />} />
       </StatCardGrid>
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Button type="primary" icon={<ClipboardList size={14} />} onClick={() => setCreateOpen(true)}>{t('w11Device.wo.newWorkOrder')}</Button>
       </div>
       <DataTable
@@ -310,7 +310,7 @@ export default function DeviceOpsCenterPage() {
 
   const calibrationTab = (
     <>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w11Device.cal.total')} value={calStats?.total ?? 0} loading={loading} color="primary" icon={<ShieldCheck size={18} />} />
         <StatCard title={t('w11Device.cal.overdue')} value={calStats?.overdue ?? 0} loading={loading} color="error" icon={<AlertTriangle size={18} />} />
         <StatCard title={t('w11Device.cal.dueSoon')} value={calStats?.dueSoon ?? 0} loading={loading} color="warning" />
@@ -319,7 +319,7 @@ export default function DeviceOpsCenterPage() {
       </StatCardGrid>
       {calDue.length > 0 && (
         <Alert
-          type="warning" showIcon style={{ marginBottom: 12 }}
+          type="warning" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }}
           message={`${t('w11Device.cal.due')}: ${calDue.length}`}
           description={calDue.slice(0, 4).map((c) => `${c.deviceName} · ${c.standard}`).join('；')}
         />
@@ -330,7 +330,7 @@ export default function DeviceOpsCenterPage() {
 
   const assetTab = (
     <>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w11Device.asset.total')} value={assets.length} loading={loading} color="primary" icon={<Package size={18} />} />
         <StatCard title={t('w11Device.asset.procurement')} value={assets.reduce((s, a) => s + a.procurementCost, 0)} prefix="¥" loading={loading} color="primary" icon={<DollarSign size={18} />} />
         <StatCard title={t('w11Device.asset.bookValue')} value={assets.reduce((s, a) => s + a.bookValue, 0)} prefix="¥" loading={loading} color="success" icon={<DollarSign size={18} />} />
@@ -343,7 +343,7 @@ export default function DeviceOpsCenterPage() {
 
   const oeeTab = (
     <>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w11Device.oee.avgOee')} value={oeeOverview?.avgOee ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
         <StatCard title={t('w11Device.oee.availability')} value={oeeOverview?.avgAvailability ?? 0} suffix="%" loading={loading} color="primary" icon={<Activity size={18} />} />
         <StatCard title={t('w11Device.oee.performance')} value={oeeOverview?.avgPerformance ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
@@ -351,7 +351,7 @@ export default function DeviceOpsCenterPage() {
         <StatCard title={t('w11Device.oee.downtimeHours')} value={oeeOverview?.totalDowntimeHours ?? 0} suffix="h" loading={loading} color="error" icon={<AlertTriangle size={18} />} />
         <StatCard title={t('w11Device.oee.best')} value={oeeOverview?.bestDevice?.name ?? t('w11Device.dash')} loading={loading} color="success" />
       </StatCardGrid>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={12}>
           <Card size="small" title={t('w11Device.oee.trend')}>
             {trendData.length > 0 ? (
@@ -398,13 +398,13 @@ export default function DeviceOpsCenterPage() {
 
   const costTab = (
     <>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w11Device.cost.totalRevenue')} value={costSummary?.totalRevenue ?? 0} prefix="¥" loading={loading} color="primary" icon={<DollarSign size={18} />} />
         <StatCard title={t('w11Device.cost.totalCost')} value={costSummary?.totalCost ?? 0} prefix="¥" loading={loading} color="warning" icon={<DollarSign size={18} />} />
         <StatCard title={t('w11Device.cost.totalMargin')} value={costSummary?.margin.margin ?? 0} prefix="¥" loading={loading} color="success" icon={<DollarSign size={18} />} />
         <StatCard title={t('w11Device.cost.marginPct')} value={costSummary?.margin.marginPct ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
       </StatCardGrid>
-      <Card size="small" title={t('w11Device.cost.byModality')} style={{ marginBottom: 16 }}>
+      <Card size="small" title={t('w11Device.cost.byModality')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DataTable rowKey="modality" loading={loading} dataSource={costSummary?.byModality ?? []} columns={costColumns} pagination={false} scroll={{ x: 'max-content' }} />
       </Card>
       <Card size="small" title={t('w11Device.drg.title')} extra={<Text type="secondary">{t('w11Device.drg.baseRate')}: ¥{drg?.baseRate ?? 0}</Text>}>
@@ -414,14 +414,14 @@ export default function DeviceOpsCenterPage() {
   )
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <Card style={{ background: 'linear-gradient(135deg,#0f766e 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+      <Card style={{ background: 'linear-gradient(135deg,#0f766e 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space size={16}>
             <Wrench size={34} color="#fff" />
             <div>
               <div style={{ fontSize: 20, fontWeight: 800 }}>{t('w11Device.title')}</div>
-              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>{t('w11Device.subtitle')}</div>
+              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 'var(--space-1, 4px)' }}>{t('w11Device.subtitle')}</div>
             </div>
           </Space>
           <Space>
@@ -432,7 +432,7 @@ export default function DeviceOpsCenterPage() {
         </div>
       </Card>
 
-      {error && <Alert type="warning" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void loadAll()}>{t('w11Device.retry')}</Button>} />}
+      {error && <Alert type="warning" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void loadAll()}>{t('w11Device.retry')}</Button>} />}
 
       <Card>
         <Tabs
@@ -470,7 +470,7 @@ export default function DeviceOpsCenterPage() {
       </Modal>
 
       <Modal title={`${t('w11Device.wo.advance')} · ${advanceWo?.id ?? ''}`} open={!!advanceWo} onOk={() => void handleAdvance()} onCancel={() => { setAdvanceWo(null); setAdvanceTo('') }} okText={t('w11Device.wo.advance')} cancelText={t('w11Device.wo.cancel')}>
-        <Descriptions column={1} size="small" style={{ marginBottom: 12 }}>
+        <Descriptions column={1} size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Descriptions.Item label={t('w11Device.wo.titleCol')}>{advanceWo?.title}</Descriptions.Item>
           <Descriptions.Item label={t('w11Device.wo.status')}>{advanceWo ? t(WO_STATUS_LABEL[advanceWo.status] ?? advanceWo.status) : ''}</Descriptions.Item>
         </Descriptions>
@@ -482,14 +482,14 @@ export default function DeviceOpsCenterPage() {
       <Drawer title={t('w11Device.asset.scheduleTitle', { name: scheduleAsset?.deviceName ?? '' })} open={!!scheduleAsset} onClose={() => { setScheduleAsset(null); setSchedule(null) }} width={720}>
         {schedule && (
           <>
-            <Row gutter={16} style={{ marginBottom: 12 }}>
+            <Row gutter={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Col span={8}><Statistic title={t('w11Device.asset.cost')} value={schedule.cost} prefix="¥" /></Col>
               <Col span={8}><Statistic title={t('w11Device.asset.currentBookValue')} value={schedule.currentBookValue} prefix="¥" styles={{ content: { color: 'var(--color-success-600)' } }} /></Col>
               <Col span={8}><Statistic title={t('w11Device.asset.residual')} value={schedule.residualValue} prefix="¥" /></Col>
             </Row>
             <Text type="secondary">{t('w11Device.asset.method')}: {t(schedule.method === 'declining' ? 'w11Device.asset.declining' : 'w11Device.asset.straightLine')} · {schedule.usefulLifeMonths} 月 · 首月 {fmtMoney(schedule.firstMonthDepreciation)}</Text>
             <DataTable
-              rowKey="month" style={{ marginTop: 12 }} pagination={{ pageSize: 12, showSizeChanger: false }}
+              rowKey="month" style={{ marginTop: 'var(--space-3, 12px)' }} pagination={{ pageSize: 12, showSizeChanger: false }}
               dataSource={schedule.schedule}
               columns={[
                 { title: t('w11Device.asset.month'), dataIndex: 'month', key: 'month', width: 90 },
@@ -501,7 +501,7 @@ export default function DeviceOpsCenterPage() {
             />
           </>
         )}
-        {!schedule && <div style={{ textAlign: 'center', padding: 24 }}><Activity className="spin" /><Text type="secondary"> {t('w11Device.loading')}</Text></div>}
+        {!schedule && <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Activity className="spin" /><Text type="secondary"> {t('w11Device.loading')}</Text></div>}
       </Drawer>
 
       <Modal title={`${t('w11Device.asset.requestRetire')} · ${retireAsset?.deviceName ?? ''}`} open={!!retireAsset} onOk={() => void handleRetire()} onCancel={() => setRetireAsset(null)} okText={t('w11Device.asset.submitRetire')} cancelText={t('w11Device.wo.cancel')} destroyOnHidden>
@@ -515,9 +515,9 @@ export default function DeviceOpsCenterPage() {
         </Form>
       </Modal>
 
-      <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>
+      <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: '#94a3b8' }}>
         <Space><CheckCircle size={12} />{t('w11Device.subtitle')}</Space>
-        <span style={{ marginLeft: 16 }}><AlertTriangle size={12} /> {t('w11Device.wo.slaBreached')}: {workOrders.filter((w) => w.slaState === 'breached').length}</span>
+        <span style={{ marginLeft: 'var(--space-4, 16px)' }}><AlertTriangle size={12} /> {t('w11Device.wo.slaBreached')}: {workOrders.filter((w) => w.slaState === 'breached').length}</span>
       </div>
     </div>
   )

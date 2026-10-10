@@ -117,7 +117,7 @@ export default function TimeoutVerifyModal({ open, examId, onCancel, onVerified 
       confirmLoading={submitting}
     >
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 24 }}><Spin /> <div style={{ marginTop: 8 }}>{t('w6Workflow.timeout.loading')}</div></div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin /> <div style={{ marginTop: 'var(--space-2, 8px)' }}>{t('w6Workflow.timeout.loading')}</div></div>
       ) : data ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <Alert type="warning" showIcon message={t('w6Workflow.timeout.subtitle')} />
@@ -125,7 +125,7 @@ export default function TimeoutVerifyModal({ open, examId, onCancel, onVerified 
             <div><b>{t('w6Workflow.timeout.patient')}</b>: {data.patient.name} · {data.patient.identitySecondary ?? '--'}</div>
             <div><b>{t('w6Workflow.timeout.exam')}</b>: {data.exam.modality} · {data.exam.bodyPart ?? '--'} · {data.exam.accessionNumber ?? '--'}</div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
             {data.items.map((item) => (
               <Checkbox
                 key={item.key}
@@ -136,7 +136,7 @@ export default function TimeoutVerifyModal({ open, examId, onCancel, onVerified 
                 <span style={{ color: item.required ? 'var(--color-error-600)' : 'var(--text-muted)', marginLeft: 6, fontSize: 11 }}>
                   {item.required ? t('w6Workflow.timeout.required') : t('w6Workflow.timeout.optional')}
                 </span>
-                <span style={{ color: 'var(--text-secondary)', marginLeft: 8 }}>{itemDetail(item.key)}</span>
+                <span style={{ color: 'var(--text-secondary)', marginLeft: 'var(--space-2, 8px)' }}>{itemDetail(item.key)}</span>
               </Checkbox>
             ))}
           </div>

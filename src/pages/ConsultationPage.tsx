@@ -329,7 +329,7 @@ export default function ConsultationPage() {
   }
 
   const renderRegResultRow = (c: ConsultationDto) => (
-    <div key={c.id} role="button" tabIndex={0} onClick={() => { setSelectedId(c.id); setActiveTab('会诊列表') }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(c.id); setActiveTab('会诊列表') } }} style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, background: 'var(--bg-card)' }}>
+    <div key={c.id} role="button" tabIndex={0} onClick={() => { setSelectedId(c.id); setActiveTab('会诊列表') }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(c.id); setActiveTab('会诊列表') } }} style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{c.patientName || '—'} <span style={{ fontWeight: 400, color: GRAY, fontSize: 12 }}>#{c.id}</span></div>
         <div style={{ fontSize: 12, color: GRAY }}>{c.modality} · {c.bodyPart} · {c.consultationType || c.type}</div>
@@ -623,7 +623,7 @@ export default function ConsultationPage() {
 
   const renderStars = (score: number, onChange?: (s: number) => void) => {
     return (
-      <div style={{ display: 'flex', gap: 4 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
         {[1, 2, 3, 4, 5].map(star => (
           <Star
             key={star}
@@ -684,26 +684,26 @@ export default function ConsultationPage() {
   ]
 
   return (
-    <div data-testid="consultation-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)',}}>
+    <div data-testid="consultation-page" style={{ padding: 'var(--space-6, 24px)', maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)',}}>
       {/* [v3.0.6.11-88] 已接入真实 API: 后端 consultations.controller 全端点已实现 */}
-      <div style={{ background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #a7f3d0', marginBottom: 12 }}>
+      <div style={{ background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #a7f3d0', marginBottom: 'var(--space-3, 12px)' }}>
         {t('consultation.realApiBanner')}</div>
       {loading && <LoadingBanner message={t('consultation.loadingData')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <Title level={4} style={{ margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+        <Title level={4} style={{ margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Radio size={18} color='#fff' />
           </div>
           {t('consultation.title')}
-          <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>{t('consultation.title')}</span>
+          <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 'var(--space-2, 8px)' }}>{t('consultation.title')}</span>
         </Title>
         <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>{t('consultation.subtitle')}</p>
       </div>
 
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <button
           onClick={() => setActiveTab('会诊列表')}
           style={{
@@ -717,7 +717,7 @@ export default function ConsultationPage() {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <FileText size={16} />
@@ -736,7 +736,7 @@ export default function ConsultationPage() {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <Video size={16} />
@@ -763,7 +763,7 @@ export default function ConsultationPage() {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <Users size={16} />
@@ -775,9 +775,9 @@ export default function ConsultationPage() {
       {activeTab === '会诊列表' && (
         <>
           {/* Stat Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
             {statCards.map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
@@ -790,12 +790,12 @@ export default function ConsultationPage() {
           </div>
 
           {/* Main Layout */}
-          <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 16, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 'var(--space-4, 16px)', alignItems: 'start' }}>
             {/* Left Panel - Consultation List */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: `1px solid ${BORDER}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               {/* Search */}
               <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}`, background: LIGHT_BG }}>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${BORDER}`, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${BORDER}`, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <Search size={14} color={GRAY} />
                   <input
                     value={search}
@@ -845,8 +845,8 @@ export default function ConsultationPage() {
               {/* List */}
               <div style={{ maxHeight: 600, overflowY: 'auto' }}>
                 {filtered.length === 0 ? (
-                  <div style={{ padding: 40, textAlign: 'center', color: GRAY }}>
-                    <AlertCircle size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
+                  <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: GRAY }}>
+                    <AlertCircle size={32} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.5 }} />
                     <div style={{ fontSize: 12 }}>{t('consultation.noConsultations')}</div>
                   </div>
                 ) : filtered.map((c, idx) => {
@@ -872,7 +872,7 @@ export default function ConsultationPage() {
                       onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'var(--color-info-bg)' }}
                       onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-card)' }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontWeight: 700, fontSize: 14, color: PRIMARY }}>{c.patientName}</span>
                           {c.isRemote && (
@@ -901,11 +901,11 @@ export default function ConsultationPage() {
                           {sc.label}
                         </StatusTag>
                       </div>
-                      <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                         <span style={{ padding: '1px 8px', background: 'var(--color-info-bg)', color: ACCENT, borderRadius: 4, fontSize: 12 }}>{c.modality}</span>
                         <span style={{ padding: '1px 8px', background: tc.bg, color: tc.color, borderRadius: 4, fontSize: 12 }}>{c.consultationType}</span>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-1, 4px)' }}>
                         <div>
                           <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.requestingDept')}</div>
                           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{c.requestingDepartment}</div>
@@ -923,7 +923,7 @@ export default function ConsultationPage() {
                           <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{c.requestTime.split(' ')[0]}</div>
                         </div>
                       </div>
-                      <div style={{ marginTop: 8, fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                         <FileText size={11} /> {c.requestReason.length > 30 ? c.requestReason.slice(0, 30) + '…' : c.requestReason}
                       </div>
                     </div>
@@ -933,17 +933,17 @@ export default function ConsultationPage() {
             </div>
 
             {/* Right Panel - Consultation Detail */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {!selected ? (
                 <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 60, textAlign: 'center', border: `1px solid ${BORDER}` }}>
-                  <AlertCircle size={48} color={GRAY} style={{ marginBottom: 12, opacity: 0.4 }} />
+                  <AlertCircle size={48} color={GRAY} style={{ marginBottom: 'var(--space-3, 12px)', opacity: 0.4 }} />
                   <div style={{ fontSize: 14, color: GRAY }}>{t('consultation.selectHint')}</div>
                 </div>
               ) : (
                 <>
                   {/* Header Info Card */}
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4, 16px)' }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                           <Title level={5} style={{ margin: 0 }}>{selected.patientName}</Title>
@@ -951,7 +951,7 @@ export default function ConsultationPage() {
                             {STATUS_CONFIG[selected.status]?.label}
                           </StatusTag>
                           {selected.isRemote && (
-                            <span style={{ padding: '2px 8px', background: '#8b5cf622', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ padding: '2px 8px', background: '#8b5cf622', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                               <Video size={11} />{t('consultation.remoteConsultation')}
                             </span>
                           )}
@@ -960,7 +960,7 @@ export default function ConsultationPage() {
                               role="button"
                               tabIndex={0}
                               aria-label={t('consultation.playRecording')}
-                              style={{ padding: '2px 8px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
+                              style={{ padding: '2px 8px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', cursor: 'pointer' }}
                               onClick={() => openConsultationRecording(selected.id)}
                               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openConsultationRecording(selected.id) } }}
                             >
@@ -970,7 +970,7 @@ export default function ConsultationPage() {
                         </div>
                         <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.consultNo')}：{selected.id}</div>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                         <button onClick={handleUpload} style={{ padding: '6px 14px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
                           <Upload size={13} />{t('consultation.uploadMaterials')}
                         </button>
@@ -983,7 +983,7 @@ export default function ConsultationPage() {
                         </button>
                       </div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
                       {[
                         { label: t('consultation.consultNo'), value: selected.id, icon: <FileText size={14} color={GRAY} /> },
                         { label: t('consultation.requestTime'), value: selected.requestTime, icon: <Calendar size={14} color={GRAY} /> },
@@ -991,7 +991,7 @@ export default function ConsultationPage() {
                         { label: t('consultation.consultDept'), value: selected.consultedDepartment || t('consultation.assignPending'), icon: <MapPin size={14} color={GRAY} /> },
                       ].map(item => (
                         <div key={item.label} style={{ background: LIGHT_BG, borderRadius: 8, padding: '10px 12px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 'var(--space-1, 4px)' }}>
                             {item.icon}
                             <span style={{ fontSize: 12, color: GRAY }}>{item.label}</span>
                           </div>
@@ -1000,7 +1000,7 @@ export default function ConsultationPage() {
                       ))}
                     </div>
                     {/* Action Buttons */}
-                    <div style={{ display: 'flex', gap: 10, marginTop: 16, paddingTop: 16, borderTop: `1px solid ${BORDER}` }}>
+                    <div style={{ display: 'flex', gap: 10, marginTop: 'var(--space-4, 16px)', paddingTop: 'var(--space-4, 16px)', borderTop: `1px solid ${BORDER}` }}>
                       {selected.status === '待回复' && (
                         <>
                           <button onClick={() => void handleAccept()} disabled={acceptingId === selected.id} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: acceptingId === selected.id ? 0.6 : 1 }}>
@@ -1028,18 +1028,18 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Patient & Exam Info */}
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <User size={16} color={ACCENT} />{t('consultation.patientExamInfo')}
                     </h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
                       {/* Patient Info */}
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{t('consultation.patientBasicInfo')}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 'var(--space-2, 8px)', textTransform: 'uppercase', letterSpacing: 1 }}>{t('consultation.patientBasicInfo')}</div>
                         {(() => {
                           const patient = getPatientForConsultation(selected)
                           return patient ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                               {[
                                 { label: t('consultation.patientName'), value: patient.name },
                                 { label: t('consultation.gender'), value: patient.gender },
@@ -1059,11 +1059,11 @@ export default function ConsultationPage() {
                       </div>
                       {/* Exam Info */}
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{t('consultation.examInfo')}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 'var(--space-2, 8px)', textTransform: 'uppercase', letterSpacing: 1 }}>{t('consultation.examInfo')}</div>
                         {(() => {
                           const exam = getExamForConsultation(selected)
                           return exam ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                               {[
                                 { label: t('consultation.examItem'), value: exam.examItemName },
                                 { label: t('consultation.examDate'), value: exam.examDate },
@@ -1085,11 +1085,11 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Consultation Purpose & Clinical Info */}
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Stethoscope size={16} color={ACCENT} />{t('consultation.purposeClinicalInfo')}
                     </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                       {[
                         { label: t('consultation.purposeDesc'), value: selected.requestReason, icon: <MessageSquare size={14} color={ACCENT} /> },
                         { label: t('consultation.clinicalDiagnosis'), value: getExamForConsultation(selected)?.clinicalDiagnosis || '—', icon: <Activity size={14} color={ACCENT} /> },
@@ -1107,7 +1107,7 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Timeline */}
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Clock3 size={16} color={ACCENT} />{t('consultation.timelineTitle')}
                     </h3>
@@ -1152,11 +1152,11 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Consultation Conclusion */}
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <MessageSquare size={16} color={ACCENT} />{t('consultation.conclusionSection')}
                     </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                       <div>
                         <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>
                           {t('consultation.doctorOpinion')} <span style={{ color: DANGER }}>*</span>
@@ -1203,30 +1203,30 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Consultation Evaluation */}
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                       <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <ThumbsUp size={16} color={ACCENT} />{t('consultation.evaluation')}
                       </h3>
                       <button
                         onClick={() => setShowRatingModal(true)}
-                        style={{ padding: '4px 12px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        style={{ padding: '4px 12px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                         <Edit3 size={14} />{t('consultation.detailedRating')}
                       </button>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
                       <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '14px 16px' }}>
-                        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                           <Shield size={14} />{t('consultation.qualityScore')}
                         </div>
-                        <div style={{ marginBottom: 8 }}>{renderStars(qualityScore)}</div>
+                        <div style={{ marginBottom: 'var(--space-2, 8px)' }}>{renderStars(qualityScore)}</div>
                         <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.overallScore')}：<span style={{ fontWeight: 700, color: PRIMARY }}>{qualityScore}.0/5.0</span></div>
                       </div>
                       <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '14px 16px' }}>
-                        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                           <Heart size={14} />{t('consultation.satisfaction')}
                         </div>
-                        <div style={{ marginBottom: 8 }}>{renderStars(satisfactionScore, setSatisfactionScore)}</div>
+                        <div style={{ marginBottom: 'var(--space-2, 8px)' }}>{renderStars(satisfactionScore, setSatisfactionScore)}</div>
                         <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.satisfactionLabel')}：<span style={{ fontWeight: 700, color: PRIMARY }}>{satisfactionScore}.0/5.0</span></div>
                       </div>
                     </div>
@@ -1240,15 +1240,15 @@ export default function ConsultationPage() {
 
       {/* 录音录像会诊 Tab */}
       {activeTab === '录音录像会诊' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* [G005 W2-B P2] 后端暂无录像/存档端点, 列表为演示数据 */}
           <div style={{ background: '#fffbeb', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d' }}>
             {t('consultation.recordingDemoBanner')}
           </div>
           {/* Stat Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {recordingStatCards.map(card => (
-              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
@@ -1260,17 +1260,17 @@ export default function ConsultationPage() {
             ))}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
             {/* 会诊录音录像控制面板 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Video size={16} color={ACCENT} />{t('consultation.recordingPanel')}
               </h3>
 
               {/* 当前会诊信息 */}
-              <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
+              <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px', marginBottom: 'var(--space-4, 16px)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 10 }}>{t('consultation.currentConsultInfo')}</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                   <div>
                     <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.consultId')}</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{selected?.id || 'CST2026050101'}</div>
@@ -1291,9 +1291,9 @@ export default function ConsultationPage() {
               </div>
 
               {/* 录制控制 */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 12 }}>{t('consultation.recordingControl')}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 'var(--space-3, 12px)' }}>{t('consultation.recordingControl')}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
                   {/* 录制按钮 */}
                   {recordingStatus === '准备中' && (
                     <button
@@ -1418,7 +1418,7 @@ export default function ConsultationPage() {
               </div>
 
               {/* 当前状态标签 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 12, color: GRAY }}>{t('consultation.currentStatus')}：</span>
                 <span style={{
                   padding: '4px 12px',
@@ -1434,7 +1434,7 @@ export default function ConsultationPage() {
             </div>
 
             {/* 录像预览区 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Film size={16} color={ACCENT} />{t('consultation.videoPreview')}
               </h3>
@@ -1443,8 +1443,8 @@ export default function ConsultationPage() {
               <div style={{
                 background: '#1a1a2e',
                 borderRadius: 8,
-                padding: 16,
-                marginBottom: 12,
+                padding: 'var(--space-4, 16px)',
+                marginBottom: 'var(--space-3, 12px)',
                 position: 'relative',
               }}>
                 <div style={{
@@ -1460,19 +1460,19 @@ export default function ConsultationPage() {
                   {isPlaying ? (
                     <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
                       <Play size={48} />
-                      <div style={{ marginTop: 8 }}>{t('consultation.playing')}</div>
+                      <div style={{ marginTop: 'var(--space-2, 8px)' }}>{t('consultation.playing')}</div>
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
                       <Video size={48} />
-                      <div style={{ marginTop: 8 }}>{t('consultation.clickToPlay')}</div>
+                      <div style={{ marginTop: 'var(--space-2, 8px)' }}>{t('consultation.clickToPlay')}</div>
                     </div>
                   )}
                 </div>
 
                 {/* 视频播放控制条 */}
-                <div style={{ marginTop: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                     <button
                       onClick={handlePlayPause}
                       style={{
@@ -1523,7 +1523,7 @@ export default function ConsultationPage() {
                         border: 'none',
                         cursor: 'pointer',
                         color: 'rgba(255,255,255,0.6)',
-                        padding: 4,
+                        padding: 'var(--space-1, 4px)',
                       }}
                     >
                       {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -1541,7 +1541,7 @@ export default function ConsultationPage() {
                     height: 32,
                     background: '#0f0f1a',
                     borderRadius: 4,
-                    padding: 4,
+                    padding: 'var(--space-1, 4px)',
                     overflow: 'hidden',
                   }}>
                     {Array.from({ length: 24 }).map((_, i) => (
@@ -1596,7 +1596,7 @@ export default function ConsultationPage() {
           </div>
 
           {/* 录音录像存档列表 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Film size={16} color={ACCENT} />{t('consultation.archiveList')}
               <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>{t('consultation.demoData')}</span>
@@ -1649,7 +1649,7 @@ export default function ConsultationPage() {
                             cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 4,
+                            gap: 'var(--space-1, 4px)',
                           }}
                         >
                           <Play size={11} />{t('consultation.play')}
@@ -1668,7 +1668,7 @@ export default function ConsultationPage() {
                             cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 4,
+                            gap: 'var(--space-1, 4px)',
                           }}
                         >
                           <Download size={11} />{t('consultation.download')}
@@ -1686,7 +1686,7 @@ export default function ConsultationPage() {
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 4,
+                            gap: 'var(--space-1, 4px)',
                           }}
                         >
                           <X size={11} />{t('consultation.delete')}
@@ -1703,8 +1703,8 @@ export default function ConsultationPage() {
 
       {/* 登记与查询 Tab [G005 Wave1A]: create / pending / by-patient / by-doctor */}
       {activeTab === '登记与查询' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
             {([
               { key: 'create', label: t('consultation.registration.create'), color: ACCENT },
               { key: 'pending', label: t('consultation.registration.pending'), color: WARNING },
@@ -1736,7 +1736,7 @@ export default function ConsultationPage() {
           </div>
 
           {regSection === 'create' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={16} color={ACCENT} />{t('consultation.registration.createTitle')}
               </h3>
@@ -1762,7 +1762,7 @@ export default function ConsultationPage() {
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-4, 16px)' }}>
                 <button onClick={() => void handleCreateConsultation()} disabled={creating} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: creating ? 0.6 : 1 }}>
                   <Send size={14} />{creating ? t('consultation.submitting') : t('consultation.registration.submit')}
                 </button>
@@ -1771,7 +1771,7 @@ export default function ConsultationPage() {
           )}
 
           {regSection === 'pending' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Clock size={16} color={WARNING} />{t('consultation.registration.pending')}
@@ -1785,7 +1785,7 @@ export default function ConsultationPage() {
                 <LoadingBanner message={t('consultation.loadingPending')} />
               ) : pendingConsults.length === 0 ? (
                 <div style={{ padding: 36, textAlign: 'center', color: GRAY }}>
-                  <CheckCircle size={32} style={{ marginBottom: 8, opacity: 0.4 }} />
+                  <CheckCircle size={32} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.4 }} />
                   <div style={{ fontSize: 12 }}>{t('consultation.registration.pendingEmpty')}</div>
                 </div>
               ) : (
@@ -1797,14 +1797,14 @@ export default function ConsultationPage() {
           )}
 
           {regSection === 'query' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Search size={16} color={SUCCESS} />{t('consultation.registration.title')}
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('consultation.registration.byPatient')}</label>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                     <input
                       value={queryByPatientId}
                       onChange={e => setQueryByPatientId(e.target.value)}
@@ -1818,7 +1818,7 @@ export default function ConsultationPage() {
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('consultation.registration.byDoctor')}</label>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                     <input
                       value={queryByDoctorId}
                       onChange={e => setQueryByDoctorId(e.target.value)}
@@ -1837,7 +1837,7 @@ export default function ConsultationPage() {
                     {t('consultation.registration.results')} · {queryResultType === 'patient' ? t('consultation.registration.byPatient') : t('consultation.registration.byDoctor')} · {t('consultation.registration.resultCount', { count: queryResults.length })}
                   </div>
                   {queryResults.length === 0 ? (
-                    <div style={{ padding: 32, textAlign: 'center', color: GRAY, fontSize: 12 }}>{t('consultation.registration.noResult')}</div>
+                    <div style={{ padding: 'var(--space-8, 32px)', textAlign: 'center', color: GRAY, fontSize: 12 }}>{t('consultation.registration.noResult')}</div>
                   ) : queryResults.map(c => renderRegResultRow(c))}
                 </div>
               )}
@@ -1849,21 +1849,21 @@ export default function ConsultationPage() {
       {/* Rating Modal */}
       {showRatingModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.detailRatingTitle')}</h3>
-              <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+              <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {ratingModalData.map((item, idx) => (
                 <div key={item.dimension} style={{ background: LIGHT_BG, borderRadius: 10, padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{item.dimension}</span>
                     <span style={{ fontSize: 14, fontWeight: 800, color: ACCENT }}>{item.score}{t('consultation.points')}</span>
                   </div>
-                  <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
                     {[1, 2, 3, 4, 5].map(s => (
                       <button
                         key={s}
@@ -1892,7 +1892,7 @@ export default function ConsultationPage() {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <div style={{ marginTop: 'var(--space-5, 20px)', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowRatingModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
@@ -1907,8 +1907,8 @@ export default function ConsultationPage() {
       {/* Video Playback Modal */}
       {videoModalOpen && selectedArchive && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 800, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 800, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 4px' }}>{t('consultation.videoPlayback')} - {selectedArchive.patientName}</h3>
                 <div style={{ fontSize: 12, color: GRAY }}>{selectedArchive.consultationId} | {selectedArchive.duration} | {selectedArchive.fileSize}</div>
@@ -1922,7 +1922,7 @@ export default function ConsultationPage() {
                     videoProgressRef.current = null
                   }
                 }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}
               >
                 <X size={24} />
               </button>
@@ -1932,8 +1932,8 @@ export default function ConsultationPage() {
             <div style={{
               background: '#1a1a2e',
               borderRadius: 8,
-              padding: 16,
-              marginBottom: 16,
+              padding: 'var(--space-4, 16px)',
+              marginBottom: 'var(--space-4, 16px)',
             }}>
               <div style={{
                 aspectRatio: '16/9',
@@ -1947,20 +1947,20 @@ export default function ConsultationPage() {
                 {isPlaying ? (
                   <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
                     <Play size={64} />
-                    <div style={{ marginTop: 12, fontSize: 16 }}>{t('consultation.playing')}</div>
-                    <div style={{ fontSize: 12, marginTop: 8, fontFamily: 'monospace' }}>{formatTime(Math.floor(videoProgress * 2.7))}</div>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 16 }}>{t('consultation.playing')}</div>
+                    <div style={{ fontSize: 12, marginTop: 'var(--space-2, 8px)', fontFamily: 'monospace' }}>{formatTime(Math.floor(videoProgress * 2.7))}</div>
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
                     <Video size={64} />
-                    <div style={{ marginTop: 12, fontSize: 16 }}>{t('consultation.clickToPlay')}</div>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 16 }}>{t('consultation.clickToPlay')}</div>
                   </div>
                 )}
               </div>
 
               {/* Controls */}
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
                   <button
                     onClick={handlePlayPause}
                     style={{
@@ -2051,7 +2051,7 @@ export default function ConsultationPage() {
                   height: 40,
                   background: '#0f0f1a',
                   borderRadius: 4,
-                  padding: 4,
+                  padding: 'var(--space-1, 4px)',
                   overflow: 'hidden',
                 }}>
                   {Array.from({ length: 30 }).map((_, i) => (
@@ -2148,7 +2148,7 @@ export default function ConsultationPage() {
           boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           maxWidth: 360,
         }}>
           {toast.type === 'success' && <CheckCircle size={16} />}
@@ -2161,16 +2161,16 @@ export default function ConsultationPage() {
       {/* Upload Modal */}
       {showUploadModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.uploadTitle')}</h3>
-              <button onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+              <button onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
-            <div role="button" tabIndex={0} style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }} onClick={() => uploadInputRef.current?.click()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); uploadInputRef.current?.click() } }}>
-              <Upload size={32} color={GRAY} style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('consultation.dragDropHint')}</div>
+            <div role="button" tabIndex={0} style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 'var(--space-4, 16px)', cursor: 'pointer' }} onClick={() => uploadInputRef.current?.click()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); uploadInputRef.current?.click() } }}>
+              <Upload size={32} color={GRAY} style={{ marginBottom: 'var(--space-2, 8px)' }} />
+              <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)' }}>{t('consultation.dragDropHint')}</div>
               <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.supportedFormats')}</div>
               <input
                 ref={uploadInputRef}
@@ -2182,11 +2182,11 @@ export default function ConsultationPage() {
               />
             </div>
             {uploadFiles.length > 0 && (
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6 }}>{t('consultation.selectedFiles', { count: uploadFiles.length })}</div>
-                <div style={{ display: 'grid', gap: 4, maxHeight: 120, overflowY: 'auto' }}>
+                <div style={{ display: 'grid', gap: 'var(--space-1, 4px)', maxHeight: 120, overflowY: 'auto' }}>
                   {uploadFiles.map(f => (
-                    <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, background: LIGHT_BG, padding: '6px 10px', borderRadius: 6, fontSize: 12 }}>
+                    <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', background: LIGHT_BG, padding: '6px 10px', borderRadius: 6, fontSize: 12 }}>
                       <FileText size={14} color={ACCENT} />
                       <span style={{ flex: 1, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
                       <span style={{ color: GRAY }}>{(f.size / 1024).toFixed(0)}KB</span>
@@ -2211,14 +2211,14 @@ export default function ConsultationPage() {
       {/* [G005 2B] Invite Expert Modal (POST /consultations/:id/invite) */}
       {showInviteModal && selected && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.inviteTitle')}</h3>
-              <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+              <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ fontSize: 12, color: GRAY, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-3, 12px)' }}>
               {t('consultation.invitePrefix')} <strong style={{ color: PRIMARY }}>{selected.id}</strong> · {selected.patientName} · {t('consultation.currentExpert')}: {selected.consultedDoctorName || t('consultation.assignPending')}
             </div>
             <input
@@ -2228,7 +2228,7 @@ export default function ConsultationPage() {
               placeholder={t('consultation.invitePlaceholder')}
               style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, boxSizing: 'border-box' }}
             />
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 'var(--space-5, 20px)' }}>
               <button onClick={() => setShowInviteModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
@@ -2243,14 +2243,14 @@ export default function ConsultationPage() {
       {/* [G005 Wave1A] Edit Consultation Modal (PUT /consultations/:id) */}
       {showEditModal && selected && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 560, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 560, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.registration.editTitle')} #{selected.id}</h3>
-              <button onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+              <button onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               {([
                 { label: t('consultation.registration.patientName'), key: 'patientName' as const },
                 { label: t('consultation.registration.modality'), key: 'modality' as const },
@@ -2279,7 +2279,7 @@ export default function ConsultationPage() {
                 />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 'var(--space-5, 20px)' }}>
               <button onClick={() => setShowEditModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
@@ -2294,24 +2294,24 @@ export default function ConsultationPage() {
       {/* Conclusion Modal */}
       {showConclusionModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.confirmConclusionTitle')}</h3>
-              <button onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+              <button onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{t('consultation.doctorOpinion')}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 'var(--space-1, 4px)' }}>{t('consultation.doctorOpinion')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{conclusionText || t('consultation.notFilled')}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{t('consultation.diagnosisAdvice')}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 'var(--space-1, 4px)' }}>{t('consultation.diagnosisAdvice')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{diagnosisAdvice || t('consultation.notFilled')}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{t('consultation.referenceInfo')}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 'var(--space-1, 4px)' }}>{t('consultation.referenceInfo')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{referenceInfo || t('consultation.notFilled')}</div>
               </div>
             </div>
@@ -2330,14 +2330,14 @@ export default function ConsultationPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && deleteTarget && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: DANGER, margin: 0 }}>{t('consultation.confirmDeleteArchive')}</h3>
-              <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+              <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 'var(--space-5, 20px)' }}>
               {t('consultation.deleteArchiveMsg', { id: deleteTarget.id })}
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>

@@ -168,14 +168,14 @@ export const DentalStudiesPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalStudies.title')}</span>
         <Tag color="cyan">v3.0.6.8-54</Tag>
         <Tag color="purple">{t('dentalStudies.benchmark')}</Tag>
       </Space>
       {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
-      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalStudies.statAll')} value={stats.total} icon={<Activity size={16} />} />
         <StatCard title="CBCT" value={stats.cbct} color="#722ed1" />
         <StatCard title={t('dentalStudies.statPanoramic')} value={stats.panoramic} color="primary" />
@@ -183,7 +183,7 @@ export const DentalStudiesPage: React.FC = () => {
         <StatCard title={t('dentalStudies.statScan')} value={stats.scan} color="info" />
         <StatCard title={t('dentalStudies.statToday')} value={studies.filter(s => s.acquisitionDate === new Date().toISOString().slice(0,10)).length} />
       </StatCardGrid>
-      <Card size="small" style={{ marginBottom: 12 }} title={<Space size={8}><GitCompareArrows size={14} />{t('dentalStudies.compareTitle')}</Space>}>
+      <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }} title={<Space size={8}><GitCompareArrows size={14} />{t('dentalStudies.compareTitle')}</Space>}>
         <Space wrap>
           <Select size="small" style={{ width: 220 }} placeholder={t('dentalStudies.imageA')} value={cmpA} onChange={setCmpA} options={studyOptions} showSearch optionFilterProp="label" />
           <Select size="small" style={{ width: 220 }} placeholder={t('dentalStudies.imageB')} value={cmpB} onChange={setCmpB} options={studyOptions} showSearch optionFilterProp="label" />
@@ -266,7 +266,7 @@ export const DentalStudiesPage: React.FC = () => {
         confirmLoading={saving}
         width={480}
       >
-        <Form form={regForm} layout="vertical" size="small" style={{ marginTop: 8 }}>
+        <Form form={regForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Row gutter={12}>
             <Col span={12}>
               <Form.Item label={t('dentalStudies.patientId')} name="patientId" rules={[{ required: true, message: t('dentalStudies.patientIdRequired') }]}>
@@ -326,7 +326,7 @@ export const DentalStudiesPage: React.FC = () => {
       >
         {cmpResult && (
           <>
-            <Row gutter={12} style={{ marginBottom: 12 }}>
+            <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Col span={8}><Card size="small"><Statistic title={t('dentalStudies.imageA')} value={cmpResult.modalityA} /></Card></Col>
               <Col span={8}><Card size="small"><Statistic title={t('dentalStudies.imageB')} value={cmpResult.modalityB} /></Card></Col>
               {/* [G005 Wave2B P2] MSW compare 返回 {studyA, studyB, differences} 无 differenceScore → 由差异条目数派生兜底 */}

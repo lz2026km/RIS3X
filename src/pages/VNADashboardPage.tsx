@@ -542,13 +542,13 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#a855f7 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+      <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#a855f7 100%)', color: '#fff', border: 'none', marginBottom: 'var(--space-4, 16px)' }}>
         <Space size={16}>
           <Archive size={36} color="#fff" />
           <div>
             <div style={{ fontSize: 20, fontWeight: 800 }}>{t('vnaPage.pageTitle')}</div>
-            <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+            <div style={{ fontSize: 12, opacity: 0.9, marginTop: 'var(--space-1, 4px)' }}>
               {t('vnaPage.pageDesc')}
             </div>
           </div>
@@ -562,7 +562,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
       </Card>
 
       {/* 归档统计卡 */}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard loading={statsLoading} title={t('vnaPage.totalObjects')} value={stats?.totalObjects ?? 0} icon={<FileText size={16} />} color="#7c3aed" />
         <StatCard loading={statsLoading} title={t('vnaPage.totalCapacity')} value={stats ? formatSize(stats.totalSizeBytes) : '-'} icon={<HardDrive size={16} />} color="error" />
         <StatCard loading={statsLoading} title={t('vnaPage.dicomInstances')} value={stats?.dicomCount ?? 0} icon={<DatabaseIcon size={16} />} color="var(--color-info-600)" />
@@ -579,7 +579,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               label: t('vnaPage.objectsTab', { count: objects.length }),
               children: (
                 <>
-                  <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
+                  <Space style={{ marginBottom: 'var(--space-4, 16px)', width: '100%', justifyContent: 'space-between' }} wrap>
                     <Space>
                       <Select
                         style={{ width: 140 }}
@@ -644,7 +644,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               label: t('vnaPage.patientArchiveView'),
               children: (
                 <div data-testid="vna-patient-archive">
-                  <Space style={{ marginBottom: 16 }}>
+                  <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <Input
                       style={{ width: 260 }}
                       prefix={<User size={14} />}
@@ -656,11 +656,11 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     <Button type="primary" loading={patientLoading} onClick={() => void handleQueryPatient()}>{t('vnaPage.viewFullLifecycle')}</Button>
                   </Space>
                   {!patientArchive ? (
-                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('vnaPage.patientArchiveEmpty')} style={{ padding: 32 }} />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('vnaPage.patientArchiveEmpty')} style={{ padding: 'var(--space-8, 32px)' }} />
                   ) : (
                     <>
                       <Alert
-                        style={{ marginBottom: 16 }}
+                        style={{ marginBottom: 'var(--space-4, 16px)' }}
                         type="info"
                         showIcon
                         title={`患者 ${patientArchive.patientId} 归档汇总`}
@@ -696,7 +696,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.description}</div>
                                     <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{formatDate(item.time)}</div>
                                     {item.object && (
-                                      <Space size={4} style={{ marginTop: 4 }}>
+                                      <Space size={4} style={{ marginTop: 'var(--space-1, 4px)' }}>
                                         <Button size="small" type="link" onClick={() => void openDetail(item.object!)}>{t('vnaPage.view')}</Button>
                                         <Button size="small" type="link" onClick={() => void handleDownload(item.object!)}>{t('vnaPage.download')}</Button>
                                       </Space>
@@ -719,18 +719,18 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               children: (
                 <div data-testid="vna-lifecycle-panel">
                   <Alert
-                    style={{ marginBottom: 16 }}
+                    style={{ marginBottom: 'var(--space-4, 16px)' }}
                     type="info"
                     showIcon
                     title={t('vnaPage.lifecycleAlertTitle')}
                     description={t('vnaPage.lifecycleAlertDesc')}
                   />
-                  <Space style={{ marginBottom: 12 }} wrap>
+                  <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
                     <Button type="primary" icon={<Plus size={14} />} onClick={() => openPolicyModal(null)}>{t('vnaPage.newPolicy')}</Button>
                     <Button icon={<RefreshCw size={14} />} loading={lifecycleLoading} onClick={() => void loadLifecycle()}>{t('vnaPage.refresh')}</Button>
                     <Text type="secondary">{t('vnaPage.policyEventCount', { policies: policies.length, events: events.length })}</Text>
                   </Space>
-                  <Card size="small" title={t('vnaPage.tierPolicies')} style={{ marginBottom: 16 }}>
+                  <Card size="small" title={t('vnaPage.tierPolicies')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <DataTable
                       data-testid="vna-lifecycle-policies"
                       rowKey="id"
@@ -790,13 +790,13 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               children: (
                 <div data-testid="vna-analytics-panel">
                   <Alert
-                    style={{ marginBottom: 16 }}
+                    style={{ marginBottom: 'var(--space-4, 16px)' }}
                     type="info"
                     showIcon
                     title={t('vnaOps.analyticsTitle')}
                     description={t('vnaOps.analyticsDesc')}
                   />
-                  <Space style={{ marginBottom: 12 }} wrap>
+                  <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
                     <Button icon={<RefreshCw size={14} />} loading={analyticsLoading} onClick={() => void loadAnalytics()}>{t('vnaOps.refresh')}</Button>
                     <Select
                       style={{ width: 140 }}
@@ -810,7 +810,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     />
                   </Space>
 
-                  <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+                  <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <StatCard loading={analyticsLoading} title={t('vnaOps.totalObjects')} value={overview?.totalObjects ?? 0} icon={<FileText size={16} />} />
                     <StatCard loading={analyticsLoading} title={t('vnaOps.totalCapacity')} value={overview ? formatSize(overview.totalSizeBytes) : '-'} icon={<HardDrive size={16} />} />
                     <StatCard loading={analyticsLoading} title={t('vnaOps.wormLocked')} value={overview?.wormLockedCount ?? 0} icon={<ShieldCheck size={16} />} />
@@ -819,7 +819,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     <StatCard loading={analyticsLoading} title={t('vnaOps.studies')} value={overview?.studyCount ?? 0} icon={<DatabaseIcon size={16} />} />
                   </StatCardGrid>
 
-                  <Row gutter={16} style={{ marginBottom: 16 }}>
+                  <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <Col span={14}>
                       <Card size="small" title={t('vnaOps.trendTitle')}>
                         {trend.length > 0 ? (
@@ -836,7 +836,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                             </LineChart>
                           </ChartContainer>
                         ) : (
-                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vnaOps.noTrendData')} style={{ padding: 24 }} />
+                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vnaOps.noTrendData')} style={{ padding: 'var(--space-6, 24px)' }} />
                         )}
                       </Card>
                     </Col>
@@ -876,7 +876,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                         ]}
                       />
                     ) : (
-                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vnaOps.noDuplicates')} style={{ padding: 16 }} />
+                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vnaOps.noDuplicates')} style={{ padding: 'var(--space-4, 16px)' }} />
                     )}
                   </Card>
                 </div>
@@ -975,11 +975,11 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               </Descriptions.Item>
             </Descriptions>
 
-            <div style={{ marginTop: 16 }}>
+            <div style={{ marginTop: 'var(--space-4, 16px)' }}>
               <Text strong>{t('vnaPage.contentPreview')}</Text>
               <div
                 style={{
-                  marginTop: 8, border: '1px dashed var(--border-color)', borderRadius: 8, padding: 12,
+                  marginTop: 'var(--space-2, 8px)', border: '1px dashed var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)',
                   minHeight: 160, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: 'var(--bg-card)',
                 }}
@@ -1065,7 +1065,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
         {verifyResult && (
           <>
             <Alert
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 'var(--space-4, 16px)' }}
               type={verifyResult.status === 'integrity-ok' ? 'success' : verifyResult.status === 'size-mismatch' ? 'warning' : 'error'}
               showIcon
               message={verifyResult.status === 'integrity-ok' ? t('vnaOps.verifyOk') : verifyResult.status === 'size-mismatch' ? t('vnaOps.verifyMismatch') : t('vnaOps.verifyMissing')}

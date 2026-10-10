@@ -1245,7 +1245,7 @@ export default function ExamPage() {
         padding: "12px 20px",
         display: "flex",
         flexWrap: "wrap",
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
         alignItems: "center",
       }}
     >
@@ -1254,8 +1254,8 @@ export default function ExamPage() {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 8,
-          marginRight: 8,
+          gap: 'var(--space-2, 8px)',
+          marginRight: 'var(--space-2, 8px)',
         }}
       >
         <div
@@ -1384,7 +1384,7 @@ export default function ExamPage() {
       )}
 
       {/* [W4-A] 批量导入导出 */}
-      <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+      <div style={{ marginLeft: "auto", display: "flex", gap: 'var(--space-2, 8px)' }}>
         {/* [Wave1B P2] 新建检查: examApi.create */}
         <ActionButton
           action="create"
@@ -1510,7 +1510,7 @@ export default function ExamPage() {
         key: "patientName",
         width: 220,
         render: (_value, exam) => (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <div
               style={{
                 width: 32,
@@ -1555,7 +1555,7 @@ export default function ExamPage() {
         width: 160,
         render: (_value, exam) => (
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
               <Monitor size={14} style={{ color: "var(--text-secondary)" }} />
               <span style={{ color: "var(--text-secondary)" }}>{exam.deviceName?.split("（")[0] || "-"}</span>
             </div>
@@ -1761,12 +1761,12 @@ export default function ExamPage() {
 
   // 技师执行Tab内容
   const TechnicianExecutionTab = () => (
-    <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
+    <div style={{ flex: 1, overflow: "auto", padding: 'var(--space-5, 20px)' }}>
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-          gap: 16,
+          gap: 'var(--space-4, 16px)',
         }}
       >
         {techExecutions.map((execution) => (
@@ -1775,7 +1775,7 @@ export default function ExamPage() {
             style={{
               backgroundColor: "var(--bg-card)",
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               border: execution.completed
                 ? "2px solid var(--color-success-border)"
@@ -1788,7 +1788,7 @@ export default function ExamPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginBottom: 16,
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <div>
@@ -1797,7 +1797,7 @@ export default function ExamPage() {
                     fontSize: 16,
                     fontWeight: 700,
                     color: "var(--text-primary)",
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                   }}
                 >
                   {execution.patientName}
@@ -1825,8 +1825,8 @@ export default function ExamPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 12,
-                marginBottom: 16,
+                gap: 'var(--space-3, 12px)',
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <div
@@ -1872,8 +1872,8 @@ export default function ExamPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
-                marginBottom: 12,
+                gap: 'var(--space-2, 8px)',
+                marginBottom: 'var(--space-3, 12px)',
                 padding: "8px 12px",
                 backgroundColor: PRIMARY_BG,
                 borderRadius: 8,
@@ -1892,8 +1892,8 @@ export default function ExamPage() {
             <div
               style={{
                 display: "flex",
-                gap: 16,
-                marginBottom: 16,
+                gap: 'var(--space-4, 16px)',
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <div>
@@ -1915,13 +1915,13 @@ export default function ExamPage() {
             </div>
 
             {/* 图像采集数量 */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginBottom: 8,
+                  marginBottom: 'var(--space-2, 8px)',
                 }}
               >
                 <span
@@ -1933,7 +1933,7 @@ export default function ExamPage() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 8,
+                    gap: 'var(--space-2, 8px)',
                   }}
                 >
                   <Camera size={14} style={{ color: "var(--text-secondary)" }} />
@@ -2002,7 +2002,7 @@ export default function ExamPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                   padding: "10px 16px",
                   backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
@@ -2047,14 +2047,14 @@ export default function ExamPage() {
 
   // 转科追踪Tab内容
   const TransferTrackingTab = () => (
-    <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
+    <div style={{ flex: 1, overflow: "auto", padding: 'var(--space-5, 20px)' }}>
       {/* 统计卡片 */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 16,
-          marginBottom: 24,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-6, 24px)',
         }}
       >
         {[
@@ -2090,12 +2090,12 @@ export default function ExamPage() {
             style={{
               backgroundColor: "var(--bg-card)",
               borderRadius: 12,
-              padding: 16,
+              padding: 'var(--space-4, 16px)',
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               borderLeft: `4px solid ${stat.color}`,
             }}
           >
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>
               {stat.label}
             </div>
             <div style={{ fontSize: 30, fontWeight: 700, color: stat.color }}>
@@ -2106,14 +2106,14 @@ export default function ExamPage() {
       </div>
 
       {/* 转科记录列表 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
         {transferRecords.map((record) => (
           <div
             key={record.id}
             style={{
               backgroundColor: "var(--bg-card)",
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               border: record.examCompleted
                 ? "2px solid var(--color-success-border)"
@@ -2126,10 +2126,10 @@ export default function ExamPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginBottom: 16,
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
                 <div
                   style={{
                     width: 48,
@@ -2159,7 +2159,7 @@ export default function ExamPage() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-end",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <div
@@ -2206,15 +2206,15 @@ export default function ExamPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(2, 1fr)",
-                gap: 12,
-                marginBottom: 16,
+                gap: 'var(--space-3, 12px)',
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                   padding: "10px 14px",
                   backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
@@ -2234,7 +2234,7 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                   padding: "10px 14px",
                   backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
@@ -2256,8 +2256,8 @@ export default function ExamPage() {
             <div
               style={{
                 display: "flex",
-                gap: 24,
-                marginBottom: 12,
+                gap: 'var(--space-6, 24px)',
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -2292,7 +2292,7 @@ export default function ExamPage() {
                   backgroundColor: "var(--color-warning-bg)",
                   borderRadius: 8,
                   borderLeft: "3px solid var(--color-warning)",
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                 }}
               >
                 <div
@@ -2300,7 +2300,7 @@ export default function ExamPage() {
                     fontSize: 12,
                     fontWeight: 600,
                     color: "var(--color-warning)",
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                   }}
                 >
                   {t("examPage.transferNote")}
@@ -2317,7 +2317,7 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                   padding: "10px 14px",
                   backgroundColor: record.examCompleted ? "var(--color-success-bg)" : "var(--color-warning-bg)",
                   borderRadius: 8,
@@ -2365,7 +2365,7 @@ export default function ExamPage() {
     const maxRetake = Math.max(1, ...retakeStats.rows.map(r => r.rate))
     const totalDist = modalityDist.reduce((s, d) => s + d.count, 0)
     return (
-      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
         {/* 数据源徽标 */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
@@ -2401,13 +2401,13 @@ export default function ExamPage() {
         )}
 
         {/* 1. 模态分布卡 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
             <PieChartIcon size={16} color={PRIMARY} />
             <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.modalityDistCard")}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.totalPrefix")} {totalDist} {t("examPage.examCases")}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6, 24px)' }}>
             {/* 简易环形图 */}
             <div style={{ position: 'relative', width: 130, height: 130, flexShrink: 0 }}>
               <svg viewBox="0 0 120 120" width={130} height={130}>
@@ -2444,7 +2444,7 @@ export default function ExamPage() {
               </svg>
             </div>
             {/* 图例 */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
               {modalityDist.slice(0, 7).map((d, i) => {
                 const colors = ['var(--color-primary)', 'var(--color-modality-mr)', 'var(--color-success)', 'var(--color-warning)', '#ec4899', '#14b8a6', 'var(--text-muted)']
                 const pct = totalDist > 0 ? Math.round((d.count / totalDist) * 1000) / 10 : 0
@@ -2469,17 +2469,17 @@ export default function ExamPage() {
         </div>
 
         {/* 2. 检查耗时分析 (按模态平均时长) */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
             <Timer size={16} color="var(--color-warning)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.durationAnalysis")}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
               {analyticsSource === 'real' ? t("examPage.durationDerivedFrom") : t("examPage.localEstimate")}
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, height: 160, padding: '0 8px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-5, 20px)', height: 160, padding: '0 8px' }}>
             {durationByModality.map(d => (
-              <div key={d.modality} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div key={d.modality} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.avgMin}{t("examPage.minUnit")}</span>
                 <div style={{
                   width: '55%', height: `${(d.avgMin / maxDur) * 120}px`, minHeight: 8, borderRadius: '4px 4px 0 0',
@@ -2492,7 +2492,7 @@ export default function ExamPage() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--color-success)' }} /> {t("examPage.durationFast")}
             </span>
@@ -2506,8 +2506,8 @@ export default function ExamPage() {
         </div>
 
         {/* 3. 重拍率统计 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14, flexWrap: 'wrap' }}>
             <TrendingUp size={16} color="var(--color-error)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.retakeStats")}</span>
             <span style={{
@@ -2521,7 +2521,7 @@ export default function ExamPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {retakeStats.rows.map(r => (
               <div key={r.modality}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>
                     {r.modality} <span style={{ color: 'var(--text-muted)' }}>({r.retakes} {t("examPage.timesPer")} {r.total} {t("examPage.casesSuffix")}</span>
                   </span>
@@ -2541,19 +2541,19 @@ export default function ExamPage() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 6, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', padding: '10px 12px', borderRadius: 6, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             {t("examPage.retakeNote")}
           </div>
         </div>
 
         {/* 4. 检查时间线视图 (按患者) */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
             <Layers size={16} color="var(--color-modality-mr)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.examTimeline")}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.lastPrefix")} {patientTimeline.length} {t("examPage.multiExamPatients")}</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 480, overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', maxHeight: 480, overflowY: 'auto' }}>
             {patientTimeline.length === 0 && (
               <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 12 }}>{t("examPage.noExamData")}</div>
             )}
@@ -2572,7 +2572,7 @@ export default function ExamPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{g.patientName}</span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 8 }}>{g.patientId}</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'var(--space-2, 8px)' }}>{g.patientId}</span>
                   </div>
                   <span style={{
                     fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 999,
@@ -2589,7 +2589,7 @@ export default function ExamPage() {
                   }} />
                   {g.items.slice(0, 6).map((ex, idx) => (
                     <div key={String(ex.id) + idx} style={{
-                      display: 'flex', alignItems: 'flex-start', gap: 12, padding: '6px 0', position: 'relative',
+                      display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3, 12px)', padding: '6px 0', position: 'relative',
                     }}>
                       <div style={{
                         width: 12, height: 12, borderRadius: '50%', flexShrink: 0, marginTop: 3, zIndex: 1,
@@ -2598,7 +2598,7 @@ export default function ExamPage() {
                         boxShadow: `0 0 0 3px ${ex.status === '已报告' || ex.status === '已发布' ? 'var(--color-success)22' : ex.status === '检查中' ? 'var(--color-warning)22' : 'var(--color-primary)22'}`,
                       }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
                             {ex.examItemName}
                           </span>
@@ -2646,10 +2646,10 @@ export default function ExamPage() {
         </div>
 
         {/* 5. 日检查量趋势 + 状态/患者类型/优先级分布 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           {/* 日检查量趋势 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <TrendingUp size={16} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.examTrend14d")}</span>
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.derivedFromExamDate")}</span>
@@ -2681,7 +2681,7 @@ export default function ExamPage() {
                 </div>
               )
             })()}
-            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)' }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-muted)' }}>
               {t("examPage.dailyAvg")} <strong style={{ color: PRIMARY }}>
                 {Math.round(allExams.length / Math.max(1, new Set(allExams.map(e => String(e.examDate || '').slice(0, 10))).size))}
               </strong> {t("examPage.casesUnit")}
@@ -2689,8 +2689,8 @@ export default function ExamPage() {
           </div>
 
           {/* 状态/患者类型/优先级 分布 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <PieChartIcon size={16} color="var(--color-modality-mr)" />
               <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.distTitle")}</span>
             </div>
@@ -2713,7 +2713,7 @@ export default function ExamPage() {
                   <div style={{ marginBottom: 10 }}>
                     <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{title}</div>
                     {rows.slice(0, 5).map(([k, v]) => (
-                      <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                         <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 62, flexShrink: 0 }}>{k}</span>
                         <div style={{ flex: 1, height: 6, background: 'var(--content-bg)', borderRadius: 3, overflow: 'hidden' }}>
                           <div style={{
@@ -2760,7 +2760,7 @@ export default function ExamPage() {
         backgroundColor: PRIMARY,
         padding: "12px 20px",
         display: "flex",
-        gap: 24,
+        gap: 'var(--space-6, 24px)',
       }}
     >
       {[
@@ -2800,7 +2800,7 @@ export default function ExamPage() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <item.icon size={16} style={{ color: item.color, opacity: 0.9 }} />
@@ -2898,7 +2898,7 @@ export default function ExamPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 color: "var(--text-inverse)",
               }}
             >
@@ -2915,7 +2915,7 @@ export default function ExamPage() {
                 border: "none",
                 color: "rgba(255,255,255,0.8)",
                 cursor: "pointer",
-                padding: 4,
+                padding: 'var(--space-1, 4px)',
               }}
             >
               <X size={18} />
@@ -2923,21 +2923,21 @@ export default function ExamPage() {
           </div>
 
           {/* Body */}
-          <div style={{ padding: 20 }}>
+          <div style={{ padding: 'var(--space-5, 20px)' }}>
             {/* 患者信息 */}
             <div
               style={{
                 backgroundColor: "var(--bg-card)",
                 borderRadius: 8,
-                padding: 12,
-                marginBottom: 16,
+                padding: 'var(--space-3, 12px)',
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: 8,
+                  marginBottom: 'var(--space-2, 8px)',
                 }}
               >
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.patientName")}</span>
@@ -2949,7 +2949,7 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: 8,
+                  marginBottom: 'var(--space-2, 8px)',
                 }}
               >
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.examItem")}</span>
@@ -2961,7 +2961,7 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: 8,
+                  marginBottom: 'var(--space-2, 8px)',
                 }}
               >
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.accessionNo2")}</span>
@@ -2979,19 +2979,19 @@ export default function ExamPage() {
 
             {/* 操作特定内容 */}
             {modal.action === "quality" && (
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <label
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
                     color: "var(--text-primary)",
                     display: "block",
-                    marginBottom: 8,
+                    marginBottom: 'var(--space-2, 8px)',
                   }}
                 >
                   {t("examPage.qualityRating")}
                 </label>
-                <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                   {["优", t("examPage.good"), "差"].map((q) => (
                     <button
                       key={q}
@@ -3044,7 +3044,7 @@ export default function ExamPage() {
                   fontWeight: 600,
                   color: "var(--text-primary)",
                   display: "block",
-                  marginBottom: 8,
+                  marginBottom: 'var(--space-2, 8px)',
                 }}
               >
                 {t("examPage.opNote")}
@@ -3078,7 +3078,7 @@ export default function ExamPage() {
               borderTop: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "flex-end",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
             }}
           >
             <ActionButton action="cancel" onClick={closeModal}>
@@ -3113,7 +3113,7 @@ export default function ExamPage() {
       },
     ]
     return (
-      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
         {/* 数据源徽标 */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
@@ -3149,7 +3149,7 @@ export default function ExamPage() {
 
         {/* 1. 检查概览 KPI */}
         <DashboardCard title={t("examPage.examOverview")} icon={<Activity size={14} />} loading={statLoading} skeletonRows={2} testId="exam-stats-overview">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-3, 12px)' }}>
             <StatCard title={t("examPage.overviewTotal")} value={statOverview.total} icon={<Layers size={20} />} color="primary" />
             <StatCard title={t("examPage.overviewTodayScheduled")} value={statOverview.todayScheduled} icon={<ClipboardList size={20} />} color="info" />
             <StatCard title={t("examPage.overviewTodayCompleted")} value={statOverview.todayCompleted} icon={<CheckCircle2 size={20} />} color="success" />
@@ -3171,7 +3171,7 @@ export default function ExamPage() {
 
         {/* 3. 每日趋势 */}
         <DashboardCard title={t("examPage.dailyTrendStat")} icon={<TrendingUp size={14} />} loading={statLoading} skeletonRows={6} testId="exam-stats-daily-trend">
-          <div style={{ marginBottom: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+          <div style={{ marginBottom: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>
             {t("examPage.last30Days")} · {statTrend.length} {t("examPage.casesUnit")}
           </div>
           <TrendChart
@@ -3229,7 +3229,7 @@ export default function ExamPage() {
         okText={t("examPage.confirmAssign2")}
         cancelText={t("examPage.cancel")}
       >
-        <div style={{ padding: "8px 0 4px", fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
+        <div style={{ padding: "8px 0 4px", fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-2, 8px)' }}>
           {t("examPage.forSelected")} {selectedIds.size} {t("examPage.assignDeviceFor")}
         </div>
         <Select
@@ -3280,7 +3280,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowMergeModal(false);
@@ -3331,11 +3331,11 @@ export default function ExamPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-3, 12px)' }}>
                 {t("examPage.selected")} {selectedIds.size} {t("examPage.mergeNote")}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
                 {allExams
                   .filter((e) => selectedIds.has(e.id))
                   .map((e) => (
@@ -3375,7 +3375,7 @@ export default function ExamPage() {
               {mergeResult && (
                 <div
                   style={{
-                    marginTop: 12,
+                    marginTop: 'var(--space-3, 12px)',
                     padding: "10px 12px",
                     borderRadius: 6,
                     fontSize: 12,
@@ -3398,7 +3398,7 @@ export default function ExamPage() {
                 borderTop: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "flex-end",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}
             >
               <ActionButton action="cancel" onClick={() => setShowMergeModal(false)}>
@@ -3432,7 +3432,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setSplitExam(null);
@@ -3483,8 +3483,8 @@ export default function ExamPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-3, 12px)' }}>
                 {t("examPage.exam2")} {splitExam.accessionNumber}（{splitExam.patientName} ·{" "}
                 {splitExam.examItemName}{t("examPage.splitNote")}
               </div>
@@ -3506,7 +3506,7 @@ export default function ExamPage() {
               {splitResult && (
                 <div
                   style={{
-                    marginTop: 12,
+                    marginTop: 'var(--space-3, 12px)',
                     padding: "10px 12px",
                     borderRadius: 6,
                     fontSize: 12,
@@ -3529,7 +3529,7 @@ export default function ExamPage() {
                 borderTop: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "flex-end",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}
             >
               <ActionButton action="cancel" onClick={() => setSplitExam(null)}>
@@ -3566,7 +3566,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowImportModal(false);
@@ -3617,7 +3617,7 @@ export default function ExamPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
+            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
               <div
                 style={{
                   fontSize: 12,
@@ -3674,7 +3674,7 @@ export default function ExamPage() {
               {importResult && (
                 <div
                   style={{
-                    marginTop: 12,
+                    marginTop: 'var(--space-3, 12px)',
                     borderRadius: 8,
                     padding: "12px 14px",
                     border: "1px solid",
@@ -3733,7 +3733,7 @@ export default function ExamPage() {
         cancelText={t("examPage.cancel")}
         width={480}
       >
-        <Form form={createExamForm} layout="vertical" size="small" style={{ marginTop: 12 }} initialValues={{ modality: "CT", bodyPart: t("examPage.chest") }}>
+        <Form form={createExamForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }} initialValues={{ modality: "CT", bodyPart: t("examPage.chest") }}>
           <Form.Item name="patientId" label={t("examPage.patient")} rules={[{ required: true, message: t("examPage.selectPatientRequired") }]}>
             <Select
               showSearch

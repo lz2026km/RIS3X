@@ -23,7 +23,7 @@ export const STAT_CARDS = [
 
 export default function DepartmentStats() {
   return (
-    <div style={{ display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)', flexWrap: "wrap" }}>
       {STAT_CARDS.map((card, i) => <StatCard key={i} {...card} />)}
     </div>
   );

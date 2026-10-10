@@ -177,7 +177,7 @@ export function ContextMenu({
         border: "1px solid var(--border-default, rgba(0,0,0,0.1))",
         borderRadius: 8,
         boxShadow: "var(--shadow-lg, 0 8px 16px rgba(0,0,0,0.12))",
-        padding: 4,
+        padding: 'var(--space-1, 4px)',
       }}
     >
       {visibleItems.map((item, idx) => {
@@ -208,7 +208,7 @@ export function ContextMenu({
                 width: "100%",
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 padding: "7px 10px",
                 borderRadius: 6,
                 border: "none",

@@ -8,7 +8,7 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
 }) => (
   <Card
     size="small"
-    style={{ marginBottom: 8, borderLeft: "4px solid var(--color-primary-600)" }}
+    style={{ marginBottom: 'var(--space-2, 8px)', borderLeft: "4px solid var(--color-primary-600)" }}
     title={
       <Space>
         <Brain size={16} />
@@ -32,7 +32,7 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
       )
     }
   >
-    <div style={{ fontSize: 12, marginBottom: 8 }}>
+    <div style={{ fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>
       <Badge
         status={
           diagnosis.severity === "severe"
@@ -43,16 +43,16 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
         }
       />
       <strong>{diagnosis.primaryDiagnosis}</strong>
-      <span style={{ marginLeft: 8, color: "#64748b" }}>
+      <span style={{ marginLeft: 'var(--space-2, 8px)', color: "#64748b" }}>
         ({Math.round(diagnosis.primaryConfidence * 100)}%)
       </span>
       {diagnosis.alerts.map((a, i) => (
-        <Tag key={i} color="error" style={{ marginLeft: 8 }}>
+        <Tag key={i} color="error" style={{ marginLeft: 'var(--space-2, 8px)' }}>
           {a}
         </Tag>
       ))}
     </div>
-    <div style={{ marginBottom: 8 }}>
+    <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
       {diagnosis.findings.map((f, i) => (
         <div
           key={i}
@@ -62,14 +62,14 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
         </div>
       ))}
     </div>
-    <div style={{ marginBottom: 8 }}>
+    <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
       {diagnosis.classificationCards.map((c, i) => (
         <div
           key={i}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             padding: "4px 0",
             borderTop: "1px solid #f1f5f9",
             fontSize: 12,

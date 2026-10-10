@@ -172,7 +172,7 @@ export const DentalAIPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Brain size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalAi.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
@@ -180,9 +180,9 @@ export const DentalAIPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadFindings()} loading={listLoading}>{t('dentalAi.refreshRecords')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalAi.records')} value={findings.length} icon={<History size={14} />} />
         <StatCard title={t('dentalAi.confirmed')} value={confirmedCount} icon={<CheckCircle2 size={14} />} color="success" />
         <StatCard title={t('dentalAi.pendingReview')} value={findings.filter((f) => f.status !== 'confirmed').length} color="warning" />
@@ -196,7 +196,7 @@ export const DentalAIPage: React.FC = () => {
           { key: 'detect', label: t('dentalAi.detectTab') },
           { key: 'records', label: t('w9d.dentalAi.recordsTab', { count: findings.length }) },
         ]}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
 
       {activeTab === 'detect' && (
@@ -205,7 +205,7 @@ export const DentalAIPage: React.FC = () => {
             const meta = TYPE_META[key] ?? { color: 'default' };
             const result = results[key];
             return (
-              <Col span={8} key={key} style={{ marginBottom: 16 }}>
+              <Col span={8} key={key} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <Card
                   size="small"
                   title={<Space><Scan size={12} color={meta.color} />{typeLabel(key)}</Space>}
@@ -213,7 +213,7 @@ export const DentalAIPage: React.FC = () => {
                 >
                   {result ? (
                     <>
-                      <div style={{ marginBottom: 8 }}>{result.tags}</div>
+                      <div style={{ marginBottom: 'var(--space-2, 8px)' }}>{result.tags}</div>
                       <Alert type="success" showIcon message={result.summary} style={{ fontSize: 12 }} />
                     </>
                   ) : (

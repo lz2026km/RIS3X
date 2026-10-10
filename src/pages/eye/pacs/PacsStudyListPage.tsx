@@ -271,7 +271,7 @@ const PacsStudyListPage: React.FC = () => {
         cancelText={t('eyePacs.cancel')}
         destroyOnClose
       >
-        <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
+        <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="patientId" label={t('eyePacs.patientId')} rules={[{ required: true, message: t('eyePacs.patientIdRequired') }]}>
             <Input placeholder={t('eyePacs.patientIdPlaceholder')} />
           </Form.Item>

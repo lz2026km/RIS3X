@@ -252,7 +252,7 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
 
   return (
     <div data-testid="report-export-center-panel-v2" role="region" aria-label={t('reportExport.panelAria')}>
-      <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #1e1b4b 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #1e1b4b 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 'var(--space-3, 12px)' }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <FileDown size={18} />
@@ -268,7 +268,7 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
             </Tooltip>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           {headerItems.map((s) => (
             <Col span={compact ? 6 : 24 / headerItems.length} key={s.title}>
               <Statistic title={<span style={{ color: '#fff' }}>{s.title}</span>} value={s.value} prefix={s.prefix} styles={{ content: { color: '#fff', fontSize: 18 } }} />
@@ -284,14 +284,14 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
           { label: t('reportExport.tab.export'), value: 'export' },
           { label: t('reportExport.tab.history'), value: 'history' },
         ]}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
       {tab === 'export' && (
         <Row gutter={12}>
           <Col span={compact ? 24 : 11}>
             <Card size="small" title={<Space><FileText size={14} color="#7c3aed" />{t('reportExport.reportSelection', { count: selectedReportIds.length })}</Space>} extra={<Tag color="blue">{t('reportExport.reportCountSuffix', { count: filteredReports.length })}</Tag>}>
-              <Space wrap style={{ marginBottom: 12 }}>
+              <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <Input.Search allowClear placeholder={t('reportExport.searchPlaceholder')} style={{ width: 180 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
                 <Select allowClear placeholder={t('reportExport.examTypePlaceholder')} style={{ width: 110 }} value={examFilter} onChange={(v) => setExamFilter(v)} options={Array.from(new Set(reports.map((r) => r.examType))).map((m) => ({ value: m, label: m }))} />
               </Space>
@@ -329,11 +329,11 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
                 }))}
                 optionType="button"
                 buttonStyle="solid"
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               />
               <div style={{ fontSize: 12, marginBottom: 6 }}>{t('reportExport.currentRole')}</div>
               <Select
-                style={{ width: 220, marginBottom: 12 }}
+                style={{ width: 220, marginBottom: 'var(--space-3, 12px)' }}
                 value={role}
                 onChange={(v) => setRole(v)}
                 options={[
@@ -343,7 +343,7 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
                   { value: 'TECH', label: t('reportExport.role.tech') },
                 ]}
               />
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-3, 12px)' }}>
                 <ShieldCheck size={12} style={{ verticalAlign: -2 }} /> {t('reportExport.roleNote')}
               </div>
               <Space wrap>
@@ -363,7 +363,7 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
                 <Button onClick={() => setSelectedReportIds([])}>{t('reportExport.clear')}</Button>
               </Space>
             </Card>
-            <Card size="small" title={<Space><Play size={14} color="#7c3aed" />{t('reportExport.taskList', { count: tasks.length })}</Space>} style={{ marginTop: 12 }}>
+            <Card size="small" title={<Space><Play size={14} color="#7c3aed" />{t('reportExport.taskList', { count: tasks.length })}</Space>} style={{ marginTop: 'var(--space-3, 12px)' }}>
               <Table
                 rowKey="id" size="small" loading={loading} dataSource={tasks} columns={taskColumns}
                 pagination={{ pageSize: 5, showSizeChanger: false }}
@@ -387,7 +387,7 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
       )}
 
       {detail && (
-        <div style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, padding: 12, marginTop: 12, background: 'var(--bg-secondary, #f8fafc)' }}>
+        <div style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, padding: 'var(--space-3, 12px)', marginTop: 'var(--space-3, 12px)', background: 'var(--bg-secondary, #f8fafc)' }}>
           <Space style={{ width: '100%', justifyContent: 'space-between' }} >
             <Space>
               {FORMAT_ICON[detail.format]}
@@ -397,11 +397,11 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
             </Space>
             <Button size="small" onClick={() => setDetail(null)}>{t('reportExport.close')}</Button>
           </Space>
-          <div style={{ fontSize: 12, color: '#475569', marginTop: 8, whiteSpace: 'pre-wrap', maxHeight: 200, overflowY: 'auto', fontFamily: 'monospace' }}>
+          <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-2, 8px)', whiteSpace: 'pre-wrap', maxHeight: 200, overflowY: 'auto', fontFamily: 'monospace' }}>
             {detail.content ?? t('reportExport.noContent')}
           </div>
           {detail.state === 'COMPLETED' && (
-            <Button size="small" type="primary" style={{ marginTop: 8 }} icon={<Download size={11} />} onClick={() => void handleDownload(detail.id)}>
+            <Button size="small" type="primary" style={{ marginTop: 'var(--space-2, 8px)' }} icon={<Download size={11} />} onClick={() => void handleDownload(detail.id)}>
               {t('reportExport.downloadFile', { name: detail.fileName })}
             </Button>
           )}

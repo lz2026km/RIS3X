@@ -227,7 +227,7 @@ const CardiacSpecialtyPage = () => {
     <div style={{ padding: 0 }}>
       <div
         style={{
-          marginBottom: 24,
+          marginBottom: 'var(--space-6, 24px)',
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -240,18 +240,18 @@ const CardiacSpecialtyPage = () => {
               margin: 0,
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
             }}
           >
             <Heart size={24} color="var(--color-primary-800)" /> {t('cardiacSpec.title')} <span style={{           fontSize: 11,
           padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
           color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
           </Title>
-          <p style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+          <p style={{ fontSize: 12, color: "#64748b", marginTop: 'var(--space-1, 4px)' }}>
             {t('cardiacSpec.subtitle')}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
           <Button
             size="small"
             icon={<RefreshCw size={14} />}
@@ -281,7 +281,7 @@ const CardiacSpecialtyPage = () => {
           <Alert
             type="error"
             showIcon
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 'var(--space-4, 16px)' }}
             title={error}
             action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
                 {t('cardiacSpec.retry')}
@@ -294,8 +294,8 @@ const CardiacSpecialtyPage = () => {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(5, 1fr)",
-            gap: 12,
-            marginBottom: 20,
+            gap: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-5, 20px)',
           }}
         >
           {[
@@ -368,14 +368,14 @@ const CardiacSpecialtyPage = () => {
                 <div style={{ fontSize: 24, fontWeight: 700, color: "var(--color-primary-800)" }}>
                 {k.value}
               </div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 'var(--space-1, 4px)' }}>
                 {t(k.label)}
               </div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)' }}>
           {tabs.map((tb) => (
             <button
               key={tb.key}
@@ -401,7 +401,7 @@ const CardiacSpecialtyPage = () => {
             style={{
               background: "var(--bg-card)",
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
             }}
           >
@@ -410,7 +410,7 @@ const CardiacSpecialtyPage = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               <div
@@ -420,12 +420,12 @@ const CardiacSpecialtyPage = () => {
                   color: "var(--color-primary-800)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}
               >
                 <Activity size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.coronaryList')}
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                 <div
                   style={{
                     display: "flex",
@@ -442,7 +442,7 @@ const CardiacSpecialtyPage = () => {
                     onChange={(e) => setSearch(e.target.value)}
                     style={{
                       border: "none",
-                      background: "transparent", marginLeft: 8,
+                      background: "transparent", marginLeft: 'var(--space-2, 8px)',
                       fontSize: 12,
                       width: 160,
                     }}
@@ -617,13 +617,13 @@ const CardiacSpecialtyPage = () => {
 
         {tab === "function" && (
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-5, 20px)' }}
           >
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -632,7 +632,7 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 16,
+                  marginBottom: 'var(--space-4, 16px)',
                 }}
               >
                 <Gauge size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.functionOverview')}
@@ -646,7 +646,7 @@ const CardiacSpecialtyPage = () => {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 12,
+                      gap: 'var(--space-3, 12px)',
                       padding: "10px 0",
                       borderBottom: "1px solid var(--border-light)",
                     }}
@@ -702,7 +702,7 @@ const CardiacSpecialtyPage = () => {
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -711,7 +711,7 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 16,
+                  marginBottom: 'var(--space-4, 16px)',
                 }}
               >
                 <Zap size={16} color="#ca8a04" /> {t('cardiacSpec.functionParams')}
@@ -756,13 +756,13 @@ const CardiacSpecialtyPage = () => {
 
         {tab === "analysis" && (
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-5, 20px)' }}
           >
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -771,7 +771,7 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 16,
+                  marginBottom: 'var(--space-4, 16px)',
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
@@ -811,7 +811,7 @@ const CardiacSpecialtyPage = () => {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 8,
+                        gap: 'var(--space-2, 8px)',
                         padding: "8px 0",
                         borderBottom: "1px solid var(--border-light)",
                       }}
@@ -860,7 +860,7 @@ const CardiacSpecialtyPage = () => {
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -869,7 +869,7 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 16,
+                  marginBottom: 'var(--space-4, 16px)',
                 }}
               >
                 <Heart size={16} color="var(--color-error-600)" /> {t('cardiacSpec.calciumDistribution')}
@@ -891,7 +891,7 @@ const CardiacSpecialtyPage = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             fontSize: 12,
-                            marginBottom: 4,
+                            marginBottom: 'var(--space-1, 4px)',
                           }}
                         >
                           <span>{t(c.label)}</span>
@@ -921,8 +921,8 @@ const CardiacSpecialtyPage = () => {
                   })}
                   <div
                     style={{
-                      marginTop: 16,
-                      padding: 12,
+                      marginTop: 'var(--space-4, 16px)',
+                      padding: 'var(--space-3, 12px)',
                       background: "var(--color-warning-bg)",
                       borderRadius: 8,
                       border: "1px solid var(--color-warning-border)",
@@ -933,7 +933,7 @@ const CardiacSpecialtyPage = () => {
                         fontSize: 12,
                         fontWeight: 600,
                         color: "#ea580c",
-                        marginBottom: 4,
+                        marginBottom: 'var(--space-1, 4px)',
                       }}
                     >
                       {t('cardiacSpec.agatstonTotal', { score: selected.calciumScore.totalAgatston })}
@@ -952,13 +952,13 @@ const CardiacSpecialtyPage = () => {
 
         {tab === "stats" && (
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-5, 20px)' }}
           >
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -967,7 +967,7 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 16,
+                  marginBottom: 'var(--space-4, 16px)',
                 }}
               >
                 <BarChart3 size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.cadRadsDistribution')}
@@ -987,8 +987,8 @@ const CardiacSpecialtyPage = () => {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 12,
-                        marginBottom: 8,
+                        gap: 'var(--space-3, 12px)',
+                        marginBottom: 'var(--space-2, 8px)',
                       }}
                     >
                       <span
@@ -1037,7 +1037,7 @@ const CardiacSpecialtyPage = () => {
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -1046,7 +1046,7 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 16,
+                  marginBottom: 'var(--space-4, 16px)',
                 }}
               >
                 <TrendingUp size={16} color="var(--color-success-600)" /> {t('cardiacSpec.efTrend')}
@@ -1060,7 +1060,7 @@ const CardiacSpecialtyPage = () => {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 12,
+                      gap: 'var(--space-3, 12px)',
                       marginBottom: 10,
                     }}
                   >

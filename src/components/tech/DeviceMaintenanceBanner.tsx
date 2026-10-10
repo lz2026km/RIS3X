@@ -90,7 +90,7 @@ export default function DeviceMaintenanceBanner({ deviceId, deviceName }: Device
   }
 
   if (loading) {
-    return <div style={{ marginBottom: 12 }}><Spin size="small" /> <span style={{ fontSize: 12, color: '#94a3b8' }}>维护信息加载中...</span></div>
+    return <div style={{ marginBottom: 'var(--space-3, 12px)' }}><Spin size="small" /> <span style={{ fontSize: 12, color: '#94a3b8' }}>维护信息加载中...</span></div>
   }
   if (!item) return null
 
@@ -101,7 +101,7 @@ export default function DeviceMaintenanceBanner({ deviceId, deviceName }: Device
     <>
       <div
         style={{
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
           padding: '10px 14px',
           borderRadius: 8,
           display: 'flex',

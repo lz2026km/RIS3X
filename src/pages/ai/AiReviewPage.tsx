@@ -81,8 +81,8 @@ const AiReviewPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Card style={{ marginBottom: 16 }}>
-        <Space style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Shield size={24} color="var(--color-primary-600)" />
           <Title level={4} style={{ margin: 0 }}>{t('aiReviewPage.title')}</Title>
           <Tag color="blue">{t('aiReviewPage.qualityControl')}</Tag>
@@ -105,10 +105,10 @@ const AiReviewPage: React.FC = () => {
               onChange={e => setReportText(e.target.value)}
               rows={12}
               placeholder={t('aiReviewPage.placeholder')}
-              style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, marginBottom: 12 }}
+              style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, marginBottom: 'var(--space-3, 12px)' }}
             />
             {/* [G005 W1-Controls P1-9] 检查所见 / 诊断意见 (独立输入, 参与 AI 审核) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
               <div>
                 <Text strong style={{ fontSize: 12 }}>{t('w1Controls.aiReview.findings')}</Text>
                 <TextArea
@@ -116,7 +116,7 @@ const AiReviewPage: React.FC = () => {
                   onChange={e => setFindings(e.target.value)}
                   rows={4}
                   placeholder={t('w1Controls.aiReview.findingsPlaceholder')}
-                  style={{ marginTop: 4, fontSize: 12 }}
+                  style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12 }}
                 />
               </div>
               <div>
@@ -126,7 +126,7 @@ const AiReviewPage: React.FC = () => {
                   onChange={e => setConclusion(e.target.value)}
                   rows={4}
                   placeholder={t('w1Controls.aiReview.conclusionPlaceholder')}
-                  style={{ marginTop: 4, fontSize: 12 }}
+                  style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12 }}
                 />
               </div>
             </div>
@@ -145,11 +145,11 @@ const AiReviewPage: React.FC = () => {
           {loading ? (
             <Card style={{ textAlign: 'center', padding: 60 }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, color: 'var(--color-primary-600)', fontWeight: 600 }}>{t('aiReviewPage.reviewingReport')}</div>
+              <div style={{ marginTop: 'var(--space-3, 12px)', color: 'var(--color-primary-600)', fontWeight: 600 }}>{t('aiReviewPage.reviewingReport')}</div>
             </Card>
           ) : result ? (
             <>
-              <Card title={<Space><Brain size={16} color="var(--color-primary-600)" />{t('aiReviewPage.result')}</Space>} style={{ marginBottom: 16 }}>
+              <Card title={<Space><Brain size={16} color="var(--color-primary-600)" />{t('aiReviewPage.result')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <Row gutter={16}>
                   <Col span={12}>
                     <Statistic
@@ -161,29 +161,29 @@ const AiReviewPage: React.FC = () => {
                     <Progress
                       percent={result.overallScore}
                       strokeColor={scoreColor(result.overallScore)}
-                      style={{ marginTop: 8 }}
+                      style={{ marginTop: 'var(--space-2, 8px)' }}
                       showInfo={false}
                     />
                   </Col>
                   <Col span={12}>
                     <Statistic title={t('aiReviewPage.issueCount')} value={result.issues.length} styles={{ content: {  color: result.issues.length > 0 ? '#ff4d4f' : '#52c41a'  } }} />
-                    <Statistic title={t('aiReviewPage.suggestionCount')} value={result.suggestions.length} style={{ marginTop: 8 }} />
+                    <Statistic title={t('aiReviewPage.suggestionCount')} value={result.suggestions.length} style={{ marginTop: 'var(--space-2, 8px)' }} />
                   </Col>
                 </Row>
                 <Divider />
                 <Text strong>{t('aiReviewPage.summary')}</Text>
-                <Text style={{ display: 'block', marginTop: 8 }}>{result.summary}</Text>
+                <Text style={{ display: 'block', marginTop: 'var(--space-2, 8px)' }}>{result.summary}</Text>
               </Card>
 
               {result.issues.length > 0 && (
-                <Card title={<Space><AlertTriangle size={14} color="#faad14" />{t('aiReviewPage.foundIssues')}</Space>} size="small" style={{ marginBottom: 16 }}>
+                <Card title={<Space><AlertTriangle size={14} color="#faad14" />{t('aiReviewPage.foundIssues')}</Space>} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   {result.issues.map((issue, idx) => (
                     <div key={idx} style={{ padding: '8px 0', borderBottom: idx < result.issues.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
                       <Space>
                         <Tag color={severityColor(issue.severity)}>{severityLabel(issue.severity)}</Tag>
                         <Tag>{issue.category}</Tag>
                       </Space>
-                      <div style={{ marginTop: 4, fontSize: 12 }}>{issue.message}</div>
+                      <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12 }}>{issue.message}</div>
                       <div style={{ marginTop: 2, fontSize: 12, color: '#52c41a' }}>{t('aiReviewPage.suggestion')}：{issue.suggestion}</div>
                     </div>
                   ))}

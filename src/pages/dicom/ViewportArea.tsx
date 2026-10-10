@@ -13,15 +13,15 @@ import { GSOF_MODE_LABELS, GSOF_DOC_TEXT, type GsofMode } from '../../utils/gsdf
 
 const s = {
   centerArea: { flex: 1, display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', background: '#0f172a', position: 'relative' as const },
-  roiToolbar: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', flexShrink: 0, flexWrap: 'wrap' as const },
-  roiToolBtn: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s' },
+  roiToolbar: { display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '6px 12px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', flexShrink: 0, flexWrap: 'wrap' as const },
+  roiToolBtn: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', transition: 'all 0.15s' },
   roiToolBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   roiToolDivider: { width: 1, height: 24, background: 'var(--border-color)', margin: '0 4px' },
-  roiLabel: { fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, marginRight: 4, whiteSpace: 'nowrap' as const },
-  exportBtn: { padding: '6px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' },
+  roiLabel: { fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, marginRight: 'var(--space-1, 4px)', whiteSpace: 'nowrap' as const },
+  exportBtn: { padding: '6px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginLeft: 'auto' },
   topToolbar: { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', flexShrink: 0, flexWrap: 'wrap' as const },
-  topToolbarSection: { display: 'flex', alignItems: 'center', gap: 4, paddingRight: 8, borderRight: '1px solid var(--border-color)' },
-  topToolbarSectionLast: { display: 'flex', alignItems: 'center', gap: 4 },
+  topToolbarSection: { display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', paddingRight: 'var(--space-2, 8px)', borderRight: '1px solid var(--border-color)' },
+  topToolbarSectionLast: { display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' },
   label: { fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' as const },
   select: { padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer',},
   slider: { width: 80, accentColor: PRIMARY } as React.CSSProperties,
@@ -45,7 +45,7 @@ const s = {
   compareDividerHandle: { width: 12, height: 40, background: PRIMARY, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'col-resize', color: '#fff' },
   compareLabel: { position: 'absolute' as const, top: 8, left: 8, background: 'rgba(30,58,95,0.9)', color: '#fff', padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, zIndex: 10 },
   compareLabelRight: { left: 'auto', right: 8 },
-  compareToolbarBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s' },
+  compareToolbarBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', transition: 'all 0.15s' },
   compareToolbarBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   fullscreenBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } as React.CSSProperties,
   mipCanvasContainer: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', position: 'relative' as const, overflow: 'hidden' },
@@ -59,35 +59,35 @@ const s = {
   wlLabel: { fontSize: 12, color: '#64748b', flexShrink: 0, minWidth: 24 },
   wlSlider: { flex: 1, accentColor: PRIMARY } as React.CSSProperties,
   wlVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 32, textAlign: 'right' as const },
-  reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
+  reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', justifyContent: 'center' } as React.CSSProperties,
   measureMenu: { position: 'absolute' as const, left: 60, top: 300, width: 160, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 6 },
   measureMenuItem: { width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'transparent', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s' } as React.CSSProperties,
   pseudoColorPanel: { position: 'absolute' as const, left: 60, top: 320, width: 180, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 },
-  pseudoColorPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 },
-  pseudoColorBtn: { width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-secondary)', transition: 'all 0.15s', marginBottom: 4 },
+  pseudoColorPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 },
+  pseudoColorBtn: { width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)', transition: 'all 0.15s', marginBottom: 'var(--space-1, 4px)' },
   pseudoColorBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   pseudoColorPreview: { width: 24, height: 24, borderRadius: 4, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 },
-  gsofPanel: { position: 'absolute' as const, left: 60, top: 260, width: 240, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 12 },
-  gsofPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 },
-  gsofDoc: { fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, marginTop: 8, padding: '8px 10px', background: 'var(--bg-primary)', borderRadius: 6, border: '1px solid var(--border-color)' },
+  gsofPanel: { position: 'absolute' as const, left: 60, top: 260, width: 240, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 'var(--space-3, 12px)' },
+  gsofPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 },
+  gsofDoc: { fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, marginTop: 'var(--space-2, 8px)', padding: '8px 10px', background: 'var(--bg-primary)', borderRadius: 6, border: '1px solid var(--border-color)' },
   annotationPanel: { position: 'absolute' as const, left: 60, top: 200, width: 200, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 },
-  annotationPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  annotationTypeRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 },
-  annotationTypeBtn: { height: 36, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4 },
+  annotationPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  annotationTypeRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-2, 8px)' },
+  annotationTypeBtn: { height: 36, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 'var(--space-1, 4px)' },
   annotationTypeBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   annotationTypeBtnLabel: { fontSize: 10, color: 'var(--text-muted)', textAlign: 'center' as const },
-  annotationColorPicker: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 },
+  annotationColorPicker: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-2, 8px)' },
   annotationColorBtn: { width: 24, height: 24, borderRadius: 4, border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.15s' },
   annotationColorBtnActive: { border: '2px solid var(--color-primary-800)', transform: 'scale(1.1)' },
-  annotationFontSizeRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 },
+  annotationFontSizeRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' },
   annotationFontSizeLabel: { fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 },
   annotationFontSizeInput: { flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, width: 50 },
-  annotationListItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.15s' },
+  annotationListItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 'var(--space-1, 4px)', border: '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.15s' },
   annotationListItemSelected: { border: '2px solid var(--color-pending-border)', background: 'var(--color-pending-bg)' },
   annotationListItemLocked: { opacity: 0.7 },
-  annotationListItemActions: { display: 'flex', gap: 4, marginLeft: 'auto' },
+  annotationListItemActions: { display: 'flex', gap: 'var(--space-1, 4px)', marginLeft: 'auto' },
   annotationActionBtn: { width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2, transition: 'all 0.15s' } as React.CSSProperties,
-  seriesStrip: { display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: '#1e293b', borderTop: '1px solid #334155', flexShrink: 0, overflowX: 'auto' as const },
+  seriesStrip: { display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 12px', background: '#1e293b', borderTop: '1px solid #334155', flexShrink: 0, overflowX: 'auto' as const },
   seriesThumb: { display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2, cursor: 'pointer', padding: '4px 6px', borderRadius: 6, transition: 'all 0.15s', border: '2px solid transparent' },
   seriesThumbActive: { borderColor: PRIMARY, background: 'rgba(30,58,95,0.3)' },
   seriesThumbInner: { width: 40, height: 40, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10 },
@@ -287,10 +287,10 @@ export default function ViewportArea(props: Props) {
             <button key={vm} style={{ ...s.presetBtn, ...(viewMode === vm ? s.presetBtnActive : {}), padding: '4px 8px' }} onClick={() => setViewMode(vm)}>{vm}</button>
           ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginLeft: 'var(--space-2, 8px)' }}>
           <button style={{ ...s.compareToolbarBtn, ...(selectedHistoryExams.length > 0 ? s.compareToolbarBtnActive : {}) }} onClick={enterCompareMode}><History size={14} />{t('dcm.historyTab')}</button>
         </div>
-        <button style={{ ...s.layoutBtn, ...(showGrid ? s.layoutBtnActive : {}), marginLeft: 8 }} onClick={() => setShowGrid(g => !g)}><Grid3x3 size={14} color={showGrid ? '#fff' : 'var(--text-muted)'} /></button>
+        <button style={{ ...s.layoutBtn, ...(showGrid ? s.layoutBtnActive : {}), marginLeft: 'var(--space-2, 8px)' }} onClick={() => setShowGrid(g => !g)}><Grid3x3 size={14} color={showGrid ? '#fff' : 'var(--text-muted)'} /></button>
         {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 校准开关 */}
         <button
           style={{
@@ -370,8 +370,8 @@ export default function ViewportArea(props: Props) {
               <span style={{ color: '#f87171' }}>Ser:{activeSeries.seriesNumber} Img:{currentImage?.imageNumber || 1}</span>
               <span style={{ color: '#a5f3fc' }}>{activeSeries.seriesDescription}</span>
             </div>
-            <div style={{ ...s.overlayBL, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ ...s.overlayBL, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <span style={{ color: '#60a5fa', fontWeight: 700 }}>WW:{Math.round(ww)}</span>
                 <span style={{ color: '#f87171', fontWeight: 700 }}>WL:{Math.round(wl)}</span>
               </div>
@@ -384,12 +384,12 @@ export default function ViewportArea(props: Props) {
               <span style={{ color: '#86efac', fontSize: 12 }}>{t('dcmView.scrollHint')}</span>
             </div>
             <div style={s.overlayBR}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                 <span style={{ color: '#60a5fa', fontSize: 12 }}>WW</span>
                 <input type="range" min={50} max={4000} value={ww} onChange={e => { setWw(Number(e.target.value)); setActivePresetIdx(null) }} style={{ width: 80, accentColor: '#60a5fa' }} />
                 <input type="number" value={Math.round(ww)} onChange={e => { setWw(Number(e.target.value)); setActivePresetIdx(null) }} style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#60a5fa' }} />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                 <span style={{ color: '#f87171', fontSize: 12 }}>WL</span>
                 <input type="range" min={-1000} max={1000} value={wl} onChange={e => { setWl(Number(e.target.value)); setActivePresetIdx(null) }} style={{ width: 80, accentColor: '#f87171' }} />
                 <input type="number" value={Math.round(wl)} onChange={e => { setWl(Number(e.target.value)); setActivePresetIdx(null) }} style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }} />
@@ -503,12 +503,12 @@ export default function ViewportArea(props: Props) {
               <input type="range" min={-1000} max={1000} value={wl} aria-label={t('dcm.wlLabel')} onChange={e => { setWl(+e.target.value); setActivePresetIdx(null) }} style={s.wlSlider} />
               <span style={s.wlVal}>{wl}</span>
             </div>
-            <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }} role="group" aria-label={t('dcmView.windowPresetsAria')}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-1, 4px)' }} role="group" aria-label={t('dcmView.windowPresetsAria')}>
               {currentPresets.map((p, i) => (
                 <button key={p.name} style={{ ...s.presetBtn, fontSize: 12, padding: '3px 6px', ...(activePresetIdx === i ? s.presetBtnActive : {}) }} onClick={() => handlePresetClick(p, i)} title={`WW:${p.ww} WL:${p.wl}`}>{p.name}</button>
               ))}
             </div>
-            <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 6 }}>
               <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(CT_DEFAULT_WW); setWl(CT_DEFAULT_WL); setActivePresetIdx(null) }}>{t('dcmView.reset')}</button>
               <button style={{ ...s.reportBtn, background: 'var(--border-color)', color: 'var(--text-secondary)', flex: 1 }} onClick={closeWlPopup}>{t('dcmView.closeEsc')}</button>
             </div>
@@ -522,7 +522,7 @@ export default function ViewportArea(props: Props) {
                 {type === 'length' ? t('dcmView.measureMenu.length') : type === 'angle' ? t('dcmView.measureMenu.angle') : type === 'ellipse' ? t('dcmView.measureMenu.ellipse') : type === 'rectangle' ? t('dcmView.measureMenu.rectangle') : type === 'circle' ? t('dcmView.measureMenu.circle') : type === 'cobb' ? t('dcmView.measureMenu.cobb') : type === 'polygon' ? t('dcmView.measureMenu.polygon') : t('dcmView.measureMenu.ctvalue')}
               </button>
             ))}
-            <div style={{ borderTop: '1px solid var(--border-color)', marginTop: 4, paddingTop: 4 }}>
+            <div style={{ borderTop: '1px solid var(--border-color)', marginTop: 'var(--space-1, 4px)', paddingTop: 'var(--space-1, 4px)' }}>
               <button style={{ ...s.measureMenuItem, color: 'var(--color-error-500)' }} onClick={clearAllMeasures}>{t('dcmView.clearMeasures')}</button>
             </div>
             <button style={{ ...s.measureMenuItem, color: 'var(--text-muted)', justifyContent: 'center' }} onClick={closeMeasureMenu}>{t('dcmView.closeEsc')}</button>
@@ -540,7 +540,7 @@ export default function ViewportArea(props: Props) {
                 {pseudoColorMode === mode && <CheckCircle size={12} />}
               </button>
             ))}
-            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 4 }} onClick={closePseudoColor}>{t('dcmView.closeEsc')}</button>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }} onClick={closePseudoColor}>{t('dcmView.closeEsc')}</button>
           </div>
         )}
 
@@ -549,7 +549,7 @@ export default function ViewportArea(props: Props) {
           <div ref={gsofPanelRef} role="dialog" aria-modal="true" aria-label={t('dcmView.gsofSettingsAria')} style={s.gsofPanel} onClick={e => e.stopPropagation()} data-testid="gsof-panel">
             <div style={s.gsofPanelTitle}><Gauge size={14} color={PRIMARY} />{t('dcmView.gsofTitle')}</div>
             <button
-              style={{ ...s.reportBtn, width: '100%', background: gsofEnabled ? PRIMARY : 'var(--border-color)', color: gsofEnabled ? '#fff' : 'var(--text-secondary)', marginBottom: 8 }}
+              style={{ ...s.reportBtn, width: '100%', background: gsofEnabled ? PRIMARY : 'var(--border-color)', color: gsofEnabled ? '#fff' : 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}
               onClick={() => setGsofEnabled(!gsofEnabled)}
               aria-pressed={gsofEnabled}
               data-testid="gsof-enable-toggle"
@@ -557,7 +557,7 @@ export default function ViewportArea(props: Props) {
               <MonitorCheck size={14} />{gsofEnabled ? t('dcmView.gsofEnabled') : t('dcmView.gsofEnable')}
             </button>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6 }}>{t('dcmView.contrastLevel')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }} role="group" aria-label={t('dcmView.contrastLevelAria')}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-1, 4px)' }} role="group" aria-label={t('dcmView.contrastLevelAria')}>
               {(Object.keys(GSOF_MODE_LABELS) as GsofMode[]).map(mode => (
                 <button
                   key={mode}
@@ -576,7 +576,7 @@ export default function ViewportArea(props: Props) {
               ))}
             </div>
             <div style={s.gsofDoc}>{GSOF_DOC_TEXT}</div>
-            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 8, width: '100%' }} onClick={() => setShowGsofPanel(false)}>{t('dcmView.closeEsc')}</button>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 'var(--space-2, 8px)', width: '100%' }} onClick={() => setShowGsofPanel(false)}>{t('dcmView.closeEsc')}</button>
           </div>
         )}
       </div>
@@ -594,7 +594,7 @@ export default function ViewportArea(props: Props) {
             <span style={{ fontSize: 10, color: '#6b7280' }}>{t('dcmView.framesUnit', { count: sItem.imageCount })}</span>
           </div>
         ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <span style={{ fontSize: 12, color: '#6b7280' }}>{exam.modality} · {exam.bodyPart}</span>
           <button style={{ ...s.layoutBtn, background: PRIMARY, borderColor: PRIMARY }} onClick={() => setImageIndex(i => Math.max(0, i - 1))}><ChevronLeft size={14} color="#fff" /></button>
           <button style={{ ...s.layoutBtn, background: PRIMARY, borderColor: PRIMARY }} onClick={() => setImageIndex(i => Math.min(images.length - 1, i + 1))}><ChevronRight size={14} color="#fff" /></button>

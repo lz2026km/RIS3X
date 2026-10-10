@@ -249,7 +249,7 @@ const EyeAiPage: React.FC = () => {
 
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
-      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <StatCard
           title={t('eyeAi.modelCount')}
           value={aiModels.length}
@@ -584,14 +584,14 @@ const EyeAiPage: React.FC = () => {
         confirmLoading={inferModal.running}
         width={420}
       >
-        <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t('eyeAi.studyIdLabel')}</div>
+        <div style={{ marginTop: 'var(--space-2, 8px)' }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t('eyeAi.studyIdLabel')}</div>
           <Input
             value={inferModal.studyId}
             onChange={e => setInferModal(prev => ({ ...prev, studyId: e.target.value }))}
             placeholder={t('eyeAi.studyIdPlaceholder')}
           />
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-2, 8px)' }}>
             {t('eyeAi.modelPrefix')} <Tag color="purple">{inferModal.modelId}</Tag> · {t('eyeAi.inferenceResultHint')}
           </div>
         </div>

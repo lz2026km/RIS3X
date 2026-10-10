@@ -96,8 +96,8 @@ export const CommandCenterPage: React.FC = () => {
   const maxTrend = Math.max(1, ...trend.map((tr) => tr.count));
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <BarChart3 size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('commandCenter.title')}</span>
         <Tag color="cyan">{t('commandCenter.realtime')}</Tag>
@@ -111,12 +111,12 @@ export const CommandCenterPage: React.FC = () => {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
+        <Alert type="error" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={error}
           action={<Button size="small" onClick={() => void load(notifPage)}><RefreshCw size={14} /> {t('commandCenter.retry')}</Button>} />
       )}
 
       <Spin spinning={loading && !dash}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard
             title={t('commandCenter.todayExams')}
             value={dash?.today?.exams ?? 0}
@@ -148,7 +148,7 @@ export const CommandCenterPage: React.FC = () => {
           />
         </StatCardGrid>
 
-        <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Col span={12}><Card size="small" title={<Space><Bell size={14} />{t('commandCenter.recentEvents')}</Space>}>
             {notifications.length === 0 ? (
               <Empty description={t('commandCenter.noEvents')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -171,11 +171,11 @@ export const CommandCenterPage: React.FC = () => {
             )}
           </Card></Col>
           <Col span={12}><Card size="small" title={<Space><TrendingUp size={14} />{t('commandCenter.examTrend')}</Space>}>
-            <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 4, paddingTop: 16 }}>
+            <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 'var(--space-1, 4px)', paddingTop: 'var(--space-4, 16px)' }}>
               {trend.length === 0 ? (
                 <Empty description={t('commandCenter.noTrend')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ margin: 'auto' }} />
               ) : trend.map((tr, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{tr.count}</div>
                   <div style={{
                     width: '70%', height: `${Math.max(6, (tr.count / maxTrend) * 150)}px`,

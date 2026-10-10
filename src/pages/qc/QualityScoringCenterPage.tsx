@@ -221,7 +221,7 @@ function RubricTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo' | 
   }
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       <StatCardGrid columns={4}>
         <StatCard title={t('w9Qc.rubric.name')} value={rubric?.name ?? '-'} icon={<SlidersHorizontal size={18} />} color="primary" />
         <StatCard title={t('w9Qc.rubric.version')} value={`v${rubric?.version ?? 0}`} icon={<RefreshCw size={18} />} color="info" />
@@ -236,14 +236,14 @@ function RubricTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo' | 
 
       <DataTable rowKey="key" columns={dimColumns} dataSource={rubric?.dimensions ?? []} pagination={false} />
 
-      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
-        <Space style={{ marginBottom: 12 }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <strong>{t('w9Qc.rubric.evaluate')}</strong>
           <Button size="small" onClick={fillDemo}>{t('w9Qc.rubric.fillDemo')}</Button>
           <Button type="primary" icon={<Play size={14} />} loading={evaluating} onClick={runEvaluate}>{t('w9Qc.rubric.runEvaluate')}</Button>
         </Space>
         <Form form={form} layout="vertical" size="small">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             <Form.Item name="reportId" label={t('w9Qc.rubric.reportId')}><Input placeholder="RPT-QC-DEMO" /></Form.Item>
             <Form.Item name="modality" label={t('w9Qc.rubric.modality')}><Input placeholder="CT" /></Form.Item>
             <Form.Item name="structuredFieldsComplete" label={t('w9Qc.rubric.structured')}><InputNumber min={0} max={1} step={0.05} style={{ width: '100%' }} /></Form.Item>
@@ -274,7 +274,7 @@ function RubricTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo' | 
 
 function EvaluationResultView({ result }: { result: RubricEvaluationResult }) {
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, display: 'grid', gap: 16 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)', display: 'grid', gap: 'var(--space-4, 16px)' }}>
       <Space size="large" wrap>
         <div>
           <Progress type="circle" size={96} percent={result.totalScore} strokeColor={GRADE_COLORS[result.grade] ?? 'var(--color-primary-800)'} format={(p) => <span style={{ fontSize: 20, fontWeight: 700 }}>{p}</span>} />
@@ -293,9 +293,9 @@ function EvaluationResultView({ result }: { result: RubricEvaluationResult }) {
         </div>
       </Space>
 
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(result.dimensions.length, 3)}, 1fr)`, gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(result.dimensions.length, 3)}, 1fr)`, gap: 'var(--space-3, 12px)' }}>
         {result.dimensions.map((d) => (
-          <div key={d.key} style={{ border: '1px solid var(--border-color)', borderRadius: 10, padding: 12 }}>
+          <div key={d.key} style={{ border: '1px solid var(--border-color)', borderRadius: 10, padding: 'var(--space-3, 12px)' }}>
             <Space direction="vertical" style={{ width: '100%' }} size={6}>
               <Space><strong>{d.name}</strong><Tag>{Math.round(d.weight * 100)}%</Tag><Tag color="blue">{d.score}</Tag></Space>
               {d.subItems.map((s) => (
@@ -374,7 +374,7 @@ function IndicatorsTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo
   ]
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       <StatCardGrid columns={5}>
         <StatCard title={t('w9Qc.indicators.total')} value={summary.total} icon={<ListChecks size={18} />} color="primary" />
         <StatCard title={t('w9Qc.indicators.computable')} value={summary.computable} icon={<Database size={18} />} color="info" />
@@ -455,7 +455,7 @@ function PdcaTab() {
   ]
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       {metrics && (
         <StatCardGrid columns={4}>
           <StatCard title={t('w9Qc.pdca.cycleCount')} value={metrics.cycleCount} icon={<GitBranch size={18} />} color="primary" />
@@ -540,7 +540,7 @@ function SamplingTab() {
   ]
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       {stats && (
         <StatCardGrid columns={4}>
           <StatCard title={t('w9Qc.sampling.batchCount')} value={stats.batchCount} icon={<EyeOff size={18} />} color="primary" />
@@ -573,7 +573,7 @@ function SamplingTab() {
       <Drawer title={detail?.name ?? t('w9Qc.sampling.detail')} open={drawerOpen} onClose={() => setDrawerOpen(false)} width={720}>
         {detail && (
           <>
-            <Space style={{ marginBottom: 12 }}>
+            <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Tag color={detail.blind ? 'purple' : 'default'}>{detail.blind ? t('w9Qc.sampling.blindOn') : t('w9Qc.sampling.blindOff')}</Tag>
               <Tag>{METHOD_LABELS[detail.method]}</Tag>
               <Tag>{detail.items.length} {t('w9Qc.sampling.items')}</Tag>
@@ -668,7 +668,7 @@ function PeerReviewTab() {
   ]
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       {aggregation && (
         <StatCardGrid columns={4}>
           <StatCard title={t('w9Qc.peerReview.totalItems')} value={aggregation.total} icon={<ListChecks size={18} />} color="primary" />
@@ -745,7 +745,7 @@ function ReportQcTasksTab() {
   ]
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       <StatCardGrid columns={4}>
         <StatCard title={t('w4a.qcTask.thId')} value={summary.total} icon={<ListChecks size={18} />} color="primary" />
         <StatCard title={t('w4a.qcTask.status.closed')} value={summary.closed} icon={<CheckCircle2 size={18} />} color="success" />
@@ -835,7 +835,7 @@ function EquipmentTab() {
   ]
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
       {stats && (
         <StatCardGrid columns={4}>
           <StatCard title={t('w9Qc.equipment.total')} value={stats.total} icon={<Stethoscope size={18} />} color="primary" />
@@ -873,7 +873,7 @@ function EquipmentTab() {
       {/* [G005 W4B] 质控项详情抽屉 (GET /equipment-qc/items/:id) */}
       <Drawer title={itemDetail ? `${t('w4b.eqc.detailTitle')} · ${itemDetail.id}` : t('w4b.eqc.detailTitle')} open={itemDetailOpen} onClose={() => setItemDetailOpen(false)} width={520}>
         {itemDetailLoading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
         ) : itemDetail ? (
           <DataTable
             rowKey="k"

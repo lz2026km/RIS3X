@@ -91,14 +91,14 @@ const LeaveRow = ({ leave, onApprove, onReject }: { leave: LeaveRequest; onAppro
   const statusStyles = { pending: { bg: C.warningBg, color: C.warning }, approved: { bg: C.successBg, color: C.success }, rejected: { bg: C.dangerBg, color: C.danger } };
   const s = statusStyles[leave.status] || statusStyles.pending;
   return (
-    <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", borderBottom: `1px solid ${C.borderLight}`, gap: 16, fontSize: 12 }}>
+    <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", borderBottom: `1px solid ${C.borderLight}`, gap: 'var(--space-4, 16px)', fontSize: 12 }}>
       <div style={{ flex: 1, fontWeight: 500, color: C.textDark }}>{leave.name}</div>
       <div style={{ flex: 1, color: C.primary }}>{leave.type}</div>
       <div style={{ flex: 1, color: C.textDark }}>{leave.startDate} ~ {leave.endDate}</div>
       <div style={{ flex: 1, color: C.textMid }}>{leave.days}{t("deptSched.days")}</div>
       <div style={{ flex: 1 }}><span style={{ padding: "2px 8px", borderRadius: 4, background: s.bg, color: s.color, fontSize: 12 }}>{leave.status === "pending" ? t("deptSched.leavePending") : leave.status === "approved" ? t("deptSched.leaveApproved") : t("deptSched.leaveRejected")}</span></div>
       {leave.status === "pending" && (
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
           <button onClick={onApprove} style={{ padding: "4px 12px", background: C.success, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.approve")}</button>
           <button onClick={onReject} style={{ padding: "4px 12px", background: C.danger, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.reject")}</button>
         </div>
@@ -168,11 +168,11 @@ export default function DepartmentSchedule() {
   const panelHeaderStyle = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-primary)" };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
       <div style={panelStyle}>
         <div style={panelHeaderStyle}>
           <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
             <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
@@ -212,8 +212,8 @@ export default function DepartmentSchedule() {
             ]}
           />
         </div>
-        <div style={{ padding: 16, borderTop: `1px solid ${C.borderLight}` }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptSched.monthlyTrend")}</div>
+        <div style={{ padding: 'var(--space-4, 16px)', borderTop: `1px solid ${C.borderLight}` }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)' }}>{t("deptSched.monthlyTrend")}</div>
           <ChartContainer type="area" height={160}>
             <AreaChart data={ATTENDANCE_MONTHLY} margin={chartDefaults.margin}>
               <CartesianGrid {...chartDefaults.grid} stroke={C.borderLight} />
@@ -224,26 +224,26 @@ export default function DepartmentSchedule() {
           </ChartContainer>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
         <div style={panelStyle}>
-          <div style={panelHeaderStyle}><span>{t("deptSched.leaveRequests")}</span><button onClick={() => setShowLeaveForm(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus style={{ width: 12, height: 12 }} /> {t("deptSched.newRequest")}</button></div>
+          <div style={panelHeaderStyle}><span>{t("deptSched.leaveRequests")}</span><button onClick={() => setShowLeaveForm(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Plus style={{ width: 12, height: 12 }} /> {t("deptSched.newRequest")}</button></div>
           {showLeaveForm && (
-            <div style={{ padding: 12, borderBottom: `1px solid ${C.borderLight}`, display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ padding: 'var(--space-3, 12px)', borderBottom: `1px solid ${C.borderLight}`, display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
+              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                 <input placeholder={t("deptSched.namePlaceholder")} value={newLeave.name} onChange={e => setNewLeave({ ...newLeave, name: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
                 <select value={newLeave.type} onChange={e => setNewLeave({ ...newLeave, type: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}>
                   <option>年假</option><option>病假</option><option>事假</option><option>调休</option>
                 </select>
               </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
                 <input type="date" value={newLeave.startDate} onChange={e => setNewLeave({ ...newLeave, startDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
                 <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
                 <input type="date" value={newLeave.endDate} onChange={e => setNewLeave({ ...newLeave, endDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               </div>
               <input placeholder={t("deptSched.reasonPlaceholder")} value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowLeaveForm(false)} style={{ padding: "4px 10px", background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.cancel")}</button>
-                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Send size={11} />{t("deptSched.submit")}</button>
+                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Send size={11} />{t("deptSched.submit")}</button>
               </div>
             </div>
           )}
@@ -253,14 +253,14 @@ export default function DepartmentSchedule() {
         </div>
         <div style={panelStyle}>
           <div style={panelHeaderStyle}><span>{t("deptSched.lateEarlyStats")}</span><span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.thisMonth")}</span></div>
-          <div style={{ padding: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <div style={{ textAlign: "center", padding: 16, background: C.warningBg, borderRadius: 8 }}>
+          <div style={{ padding: 'var(--space-4, 16px)' }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)' }}>
+              <div style={{ textAlign: "center", padding: 'var(--space-4, 16px)', background: C.warningBg, borderRadius: 8 }}>
                 <AlertTriangle style={{ width: 24, height: 24, color: C.warning, margin: "0 auto 8px" }} />
                 <div style={{ fontSize: 24, fontWeight: 700, color: C.warning }}>8</div>
                 <div style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.lateCount")}</div>
               </div>
-              <div style={{ textAlign: "center", padding: 16, background: C.infoBg, borderRadius: 8 }}>
+              <div style={{ textAlign: "center", padding: 'var(--space-4, 16px)', background: C.infoBg, borderRadius: 8 }}>
                 <Clock style={{ width: 24, height: 24, color: C.info, margin: "0 auto 8px" }} />
                 <div style={{ fontSize: 24, fontWeight: 700, color: C.info }}>4</div>
                 <div style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.earlyCount")}</div>

@@ -38,12 +38,12 @@ export default function UserManagementPage() {
     }).catch(() => setError('API 不可用')).finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div role="status" data-testid="user-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
-  if (error) return <div role="alert" data-testid="user-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
+  if (loading) return <div role="status" data-testid="user-loading" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
+  if (error) return <div role="alert" data-testid="user-error" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (users.length === 0) {
     return (
-      <div data-testid="user-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无用户</div>
+      <div data-testid="user-empty" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>暂无用户</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请联系系统管理员开通账号</div>
       </div>
     );
@@ -91,7 +91,7 @@ export default function UserManagementPage() {
         title: fromApi ? '密码已重置 (后端真实生成)' : '密码已重置 (本地记录)',
         content: (
           <div>
-            <p style={{ marginBottom: 8 }}>
+            <p style={{ marginBottom: 'var(--space-2, 8px)' }}>
               用户 <strong>{user?.username ?? id}</strong> 的临时密码为:
             </p>
             <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: 2, padding: '8px 0', color: fromApi ? 'var(--color-success-600)' : 'var(--color-warning-600)', fontFamily: 'monospace' }}>
@@ -140,8 +140,8 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}} data-testid="user-management-page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}} data-testid="user-management-page">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
         <Title level={4} style={{ margin: 0 }}>用户权限管理</Title>
         <button
           type="button"
@@ -159,7 +159,7 @@ export default function UserManagementPage() {
           <div
             data-testid="user-management-denied"
             style={{
-              padding: 24,
+              padding: 'var(--space-6, 24px)',
               background: 'var(--color-error-bg)',
               border: '1px solid #fca5a5',
               color: '#7f1d1d',

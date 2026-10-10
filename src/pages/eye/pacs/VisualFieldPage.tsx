@@ -50,9 +50,9 @@ const VisualFieldPage: React.FC = () => {
     return () => { cancelled = true; };
   }, [reloadTick]);
 
-  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('visualField.loading')} /></div>;
+  if (loading) return <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center' }}><Spin tip={t('visualField.loading')} /></div>;
   if (!study) return (
-    <div style={{ padding: 16, textAlign: 'center' }}>
+    <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {t('visualField.noData')}
     </div>
@@ -60,12 +60,12 @@ const VisualFieldPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RefreshCw size={16} />} onClick={() => setReloadTick((n) => n + 1)}>{t('w1tables.viewer.refresh')}</Button>
         <Button type="primary" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.viewer.export')}</Button>
       </div>
@@ -91,7 +91,7 @@ const VisualFieldPage: React.FC = () => {
                     gridTemplateColumns: "repeat(8,1fr)",
                     gap: 1,
                     background: "#1e293b",
-                    padding: 8,
+                    padding: 'var(--space-2, 8px)',
                     borderRadius: 6,
                   }}
                 >
@@ -134,7 +134,7 @@ const VisualFieldPage: React.FC = () => {
                   style={{
                     fontSize: 12,
                     color: "var(--text-secondary)",
-                    marginTop: 4,
+                    marginTop: 'var(--space-1, 4px)',
                     textAlign: "center",
                   }}
                 >
@@ -148,7 +148,7 @@ const VisualFieldPage: React.FC = () => {
                     gridTemplateColumns: "repeat(8,1fr)",
                     gap: 1,
                     background: "#1e293b",
-                    padding: 8,
+                    padding: 'var(--space-2, 8px)',
                     borderRadius: 6,
                   }}
                 >
@@ -188,7 +188,7 @@ const VisualFieldPage: React.FC = () => {
                   style={{
                     fontSize: 12,
                     color: "var(--text-secondary)",
-                    marginTop: 4,
+                    marginTop: 'var(--space-1, 4px)',
                     textAlign: "center",
                   }}
                 >
@@ -209,7 +209,7 @@ const VisualFieldPage: React.FC = () => {
                   }}
                 >
                   <Target size={24} />
-                  <span style={{ fontSize: 12, marginTop: 4 }}>{t('visualField.tdCurve')}</span>
+                  <span style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{t('visualField.tdCurve')}</span>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                     {t('visualField.tdCurveDesc')}
                   </div>
@@ -217,7 +217,7 @@ const VisualFieldPage: React.FC = () => {
               </Col>
             </Row>
           </Card>
-          <Card size="small" title={t('visualField.indices')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('visualField.indices')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Row gutter={16}>
               {[
                 {
@@ -245,7 +245,7 @@ const VisualFieldPage: React.FC = () => {
                   suffix: "dB",
                 },
               ].map((s) => (
-                <Col span={8} key={s.title} style={{ marginBottom: 8 }}>
+                <Col span={8} key={s.title} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <Statistic
                     title={t(s.title)}
                     value={s.value}
@@ -256,7 +256,7 @@ const VisualFieldPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title={t('visualField.reliability')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('visualField.reliability')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Row gutter={16}>
               {[
                 { title: "visualField.fixationLosses", value: vf?.fixationLosses, suffix: "%" },
@@ -290,14 +290,14 @@ const VisualFieldPage: React.FC = () => {
               {t('visualField.diagnosis')} <Tag color="orange">{t('visualField.poag')}</Tag>
             </div>
           </Card>
-          <Card size="small" title={t('visualField.interpretation')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('visualField.interpretation')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, lineHeight: 1.8 }}>
               <div>
                 GHT: <Tag color="red">{t('visualField.outsideNormal')}</Tag>
               </div>
               <div>{t('visualField.defectPattern')}</div>
               <div>{t('visualField.defectDepth')} {vf?.defectDepth}dB</div>
-              <div style={{ marginTop: 8, color: "var(--text-secondary)" }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', color: "var(--text-secondary)" }}>
                 • {t('visualField.note1')}
               </div>
               <div style={{ color: "var(--text-secondary)" }}>• {t('visualField.note2')}</div>

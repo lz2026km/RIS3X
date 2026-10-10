@@ -115,7 +115,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (loading && devices.length === 0) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" description={t('oeePage.loading')} />
       </div>
     );
@@ -123,8 +123,8 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (error) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-        <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
+      <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)', width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
             <span style={{ fontSize: 18, fontWeight: 600 }}>{t('oeePage.title')}</span>
@@ -139,8 +139,8 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (devices.length === 0) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-        <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
+      <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)', width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
             <span style={{ fontSize: 18, fontWeight: 600 }}>{t('oeePage.title')}</span>
@@ -148,7 +148,7 @@ export const OEEDashboardPage: React.FC = () => {
           </Space>
           <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('oeePage.refresh')}</Button>
         </Space>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', textAlign: 'center' }}>
           <Empty description={t('oeePage.noData')} image={<Inbox size={48} color="var(--text-secondary)" />} />
         </div>
       </div>
@@ -156,8 +156,8 @@ export const OEEDashboardPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)', width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <Gauge size={20} color={COLORS.blue} />
           <span style={{ fontSize: 18, fontWeight: 600 }}>{t('oeePage.title')}</span>
@@ -176,22 +176,22 @@ export const OEEDashboardPage: React.FC = () => {
         </Space>
       </Space>
 
-      {error && <Alert type="warning" showIcon style={{ marginBottom: 16 }} message={t('oeePage.partialFailed')} description={error} closable onClose={() => setError(null)} />}
+      {error && <Alert type="warning" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={t('oeePage.partialFailed')} description={error} closable onClose={() => setError(null)} />}
 
       <OeeOverviewSection />
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard title={t('oeePage.kpiOee')} value={avgOEE} icon={<Gauge size={16} />} color={oeeColor(avgOEE)} />
         <KpiCard title={t('oeePage.kpiAvailability')} value={avgAvail} icon={<Clock size={16} />} color={COLORS.blue} />
         <KpiCard title={t('oeePage.kpiPerformance')} value={avgPerf} icon={<Zap size={16} />} color={COLORS.blue} />
         <KpiCard title={t('oeePage.kpiQuality')} value={avgQual} icon={<ShieldCheck size={16} />} color={COLORS.blue} />
       </StatCardGrid>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={16}>
           <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />{t('oeePage.trendTitle')}{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
             {trendData.length === 0 ? (
-              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description={t('oeePage.noTrend')} style={{ padding: 40 }} />
+              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description={t('oeePage.noTrend')} style={{ padding: 'var(--space-10, 40px)' }} />
             ) : (
               <ChartContainer height={260}>
                 <LineChart data={trendData}>
@@ -211,7 +211,7 @@ export const OEEDashboardPage: React.FC = () => {
         <Col span={8}>
           <Card size="small" title={<Space><Activity size={14} color={COLORS.blue} />{t('oeePage.causeTitle')}{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
             {causeData.length === 0 ? (
-              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description={t('oeePage.noCause')} style={{ padding: 40 }} />
+              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description={t('oeePage.noCause')} style={{ padding: 'var(--space-10, 40px)' }} />
             ) : (
               <ChartContainer height={260}>
                 <PieChart>

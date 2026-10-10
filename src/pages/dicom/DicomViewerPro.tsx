@@ -530,7 +530,7 @@ const DicomViewerProPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ margin: 12 }}
+          style={{ margin: 'var(--space-3, 12px)' }}
           message={error}
           action={<Button size="small" onClick={() => void loadStudies()}><RefreshCw size={14} /> {t('dicomViewer.retry')}</Button>}
         />
@@ -540,7 +540,7 @@ const DicomViewerProPage: React.FC = () => {
         <Alert type="warning" showIcon style={{ margin: '8px 16px 0' }} message={aiError} />
       )}
 
-      <div style={{ padding: 8 }}>
+      <div style={{ padding: 'var(--space-2, 8px)' }}>
         <Spin spinning={loading && studies.length === 0}>
           {studies.length === 0 && !loading ? (
             <Empty image={<Inbox size={56} style={{opacity:0.4}}/>} description={t('dicomViewer.noStudyData')} style={{ padding: 60, color: '#64748b' }} />
@@ -551,7 +551,7 @@ const DicomViewerProPage: React.FC = () => {
                   data-testid="hanging-grid"
                   style={{
                     display: 'grid',
-                    gap: 8,
+                    gap: 'var(--space-2, 8px)',
                     gridTemplateColumns: `repeat(${hanging!.cols}, 1fr)`,
                     gridTemplateRows: `repeat(${hanging!.rows}, 1fr)`,
                     height: viewerHeight,
@@ -633,7 +633,7 @@ const DicomViewerProPage: React.FC = () => {
                     zIndex: 25,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
+                    gap: 'var(--space-2, 8px)',
                     background: 'rgba(15,23,42,0.92)',
                     border: '1px solid #334155',
                     borderRadius: 8,

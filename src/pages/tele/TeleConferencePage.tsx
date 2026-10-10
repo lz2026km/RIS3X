@@ -245,9 +245,9 @@ export const TeleConferencePage: React.FC = () => {
 
   if (!conferenceStarted) {
     return (
-      <div style={{ padding: 24, height: '100%', background: '#0f172a', color: '#e2e8f0' }}>
-        <Title level={4} style={{ color: '#e2e8f0', marginBottom: 8 }}>{t('conferenceRoom', '远程会议室')}</Title>
-        <Text style={{ color: '#94a3b8', display: 'block', marginBottom: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)', height: '100%', background: '#0f172a', color: '#e2e8f0' }}>
+        <Title level={4} style={{ color: '#e2e8f0', marginBottom: 'var(--space-2, 8px)' }}>{t('conferenceRoom', '远程会议室')}</Title>
+        <Text style={{ color: '#94a3b8', display: 'block', marginBottom: 'var(--space-6, 24px)' }}>
           {t('conferenceDesc', '搜索患者，选择检查，开始实时协同阅片。')}
         </Text>
 
@@ -270,7 +270,7 @@ export const TeleConferencePage: React.FC = () => {
                 placeholder={t('searchPlaceholder', '按患者姓名/ID 搜索...')}
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
-                style={{ marginBottom: 12, background: '#0f172a', borderColor: '#334155', color: '#e2e8f0' }}
+                style={{ marginBottom: 'var(--space-3, 12px)', background: '#0f172a', borderColor: '#334155', color: '#e2e8f0' }}
               />
               <div style={{ maxHeight: 400, overflowY: 'auto' }}>
                 {filteredStudies.length === 0 ? (
@@ -282,7 +282,7 @@ export const TeleConferencePage: React.FC = () => {
                       onClick={() => setSelectedStudies(prev => prev.includes(s.uid) ? prev.filter(u => u !== s.uid) : [...prev, s.uid])}
                       style={{
                         padding: '8px 12px',
-                        marginBottom: 4,
+                        marginBottom: 'var(--space-1, 4px)',
                         borderRadius: 4,
                         cursor: 'pointer',
                         background: selectedStudies.includes(s.uid) ? '#334155' : 'transparent',
@@ -308,20 +308,20 @@ export const TeleConferencePage: React.FC = () => {
               headStyle={{ borderBottom: '1px solid #334155' }}
             >
               {sessionError && (
-                <div style={{ marginBottom: 12, padding: '8px 12px', background: '#450a0a', border: '1px solid #7f1d1d', color: '#fecaca', borderRadius: 4, fontSize: 12 }}>
+                <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: '#450a0a', border: '1px solid #7f1d1d', color: '#fecaca', borderRadius: 4, fontSize: 12 }}>
                   {sessionError}
                 </div>
               )}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
                 <div>
-                  <Text style={{ color: '#94a3b8', fontSize: 12, display: 'block', marginBottom: 4 }}>{t('selectedStudies', '已选检查')}</Text>
+                  <Text style={{ color: '#94a3b8', fontSize: 12, display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('selectedStudies', '已选检查')}</Text>
                   {selectedStudies.length === 0 ? (
                     <Text style={{ color: '#64748b', fontSize: 12 }}>{t('noSelection', '请从左侧选择检查')}</Text>
                   ) : (
                     selectedStudies.map(uid => {
                       const s = studies.find(st => st.uid === uid)
                       return s ? (
-                        <div key={uid} style={{ padding: '4px 8px', background: '#0f172a', borderRadius: 4, marginBottom: 4, fontSize: 12, color: '#cbd5e1' }}>
+                        <div key={uid} style={{ padding: '4px 8px', background: '#0f172a', borderRadius: 4, marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#cbd5e1' }}>
                           {s.patientName} - {s.description} ({s.modality})
                         </div>
                       ) : null
@@ -339,8 +339,8 @@ export const TeleConferencePage: React.FC = () => {
                   {t('startConference', '开始会议')}
                 </Button>
 
-                <div style={{ borderTop: '1px solid #334155', paddingTop: 16 }}>
-                  <Text style={{ color: '#94a3b8', fontSize: 12, display: 'block', marginBottom: 4 }}>{t('joinDesc', '作为受邀嘉宾加入已有会议')}</Text>
+                <div style={{ borderTop: '1px solid #334155', paddingTop: 'var(--space-4, 16px)' }}>
+                  <Text style={{ color: '#94a3b8', fontSize: 12, display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('joinDesc', '作为受邀嘉宾加入已有会议')}</Text>
                   <Space.Compact style={{ width: '100%' }}>
                     <Input
                       placeholder={t('sessionId', '会话 ID')}
@@ -374,8 +374,8 @@ export const TeleConferencePage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 12, height: '100%', display: 'flex', flexDirection: 'column', background: '#0f172a' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+    <div style={{ padding: 'var(--space-3, 12px)', height: '100%', display: 'flex', flexDirection: 'column', background: '#0f172a' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
         <Space size={12}>
           <Title level={5} style={{ color: '#e2e8f0', margin: 0 }}>{t('activeConference', '进行中会议')}</Title>
           {(() => {
@@ -422,7 +422,7 @@ export const TeleConferencePage: React.FC = () => {
       {!sessionId ? (
         <Spin spinning style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
       ) : (
-        <div style={{ flex: 1, display: 'flex', gap: 12, minHeight: 0 }}>
+        <div style={{ flex: 1, display: 'flex', gap: 'var(--space-3, 12px)', minHeight: 0 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <RemoteViewer
               sessionId={sessionId}

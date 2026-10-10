@@ -153,7 +153,7 @@ function useToast() {
     setTimeout(() => { setToasts(prev => prev.filter(x => x.id !== id)) }, 3000)
   }
   const ToastContainer = () => (
-    <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
       {toasts.map(toast => (
         <div key={toast.id} style={{ padding: '12px 20px', borderRadius: 8, background: toast.type === 'success' ? 'var(--color-success)' : toast.type === 'error' ? 'var(--color-error)' : 'var(--color-primary)', color: 'var(--text-inverse)', fontSize: 14, fontWeight: 500, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', minWidth: 240, animation: 'slideIn 0.3s ease-out' }}>{toast.message}</div>
       ))}
@@ -174,15 +174,15 @@ function ProgressModal({ open, title, message, progress, onClose }: ProgressModa
   if (!open) return null
   return (
     <div role="dialog" aria-modal="true" aria-label={title} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={onClose}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 32, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>{title}</div>
-        <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>{message}</div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-8, 32px)', width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-4, 16px)' }}>{title}</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 'var(--space-5, 20px)' }}>{message}</div>
         {progress !== undefined && (
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, height: 8, overflow: 'hidden' }}>
             <div style={{ background: 'var(--color-primary)', height: '100%', width: `${progress}%`, transition: 'width 0.3s' }} />
           </div>
         )}
-        <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{progress !== undefined ? `${progress}%` : t('researchPage.pleaseWait')}</div>
+        <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{progress !== undefined ? `${progress}%` : t('researchPage.pleaseWait')}</div>
       </div>
     </div>
   )
@@ -192,7 +192,7 @@ function ProgressModal({ open, title, message, progress, onClose }: ProgressModa
 interface TabButtonProps { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }
 function TabButton({ active, onClick, icon, label }: TabButtonProps) {
   return (
-    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: active ? COLORS.primary : 'transparent', color: active ? 'var(--text-inverse)' : COLORS.textSecondary, border: 'none', borderBottom: active ? '2px solid ' + COLORS.primary : '2px solid transparent', cursor: 'pointer', fontSize: 14, fontWeight: 600, transition: 'all 0.2s' }}>
+    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '10px 20px', background: active ? COLORS.primary : 'transparent', color: active ? 'var(--text-inverse)' : COLORS.textSecondary, border: 'none', borderBottom: active ? '2px solid ' + COLORS.primary : '2px solid transparent', cursor: 'pointer', fontSize: 14, fontWeight: 600, transition: 'all 0.2s' }}>
       {icon}
       {label}
     </button>
@@ -207,9 +207,9 @@ function Modal({ open, onClose, title, children, width = 600 }: ModalProps) {
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, width: width, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid ' + COLORS.border }}>
           <span style={{ fontSize: 16, fontWeight: 700, color: COLORS.textPrimary }}>{title}</span>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: COLORS.textSecondary }}><X size={20} /></button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)', color: COLORS.textSecondary }}><X size={20} /></button>
         </div>
-        <div style={{ padding: 20 }}>{children}</div>
+        <div style={{ padding: 'var(--space-5, 20px)' }}>{children}</div>
       </div>
     </div>
   )
@@ -259,9 +259,9 @@ function ProjectsTab() {
   const handleShowDetail = (project: Project) => { setDetailProject(project); setShowDetailModal(true) }
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 'var(--space-2, 8px)' }}>
             <Search size={16} color={COLORS.textSecondary} />
             <input placeholder={t('researchPage.searchProjects')} style={{ border: 'none', fontSize: 14, width: 240, background: 'transparent' }} />
           </div>
@@ -286,8 +286,8 @@ function ProjectsTab() {
             {
               title: t('researchPage.thActions'), key: 'actions',
               render: (_v, project) => (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  <button onClick={() => handleShowDetail(project)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Eye size={14} /> {t('researchPage.detail')}</button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
+                  <button onClick={() => handleShowDetail(project)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Eye size={14} /> {t('researchPage.detail')}</button>
                   <button onClick={() => { setEditingProject(project); setNewProject({ code: project.code, name: project.name, leader: project.leader, startDate: project.startDate, description: project.description, members: project.members }); setShowEditModal(true) }} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.textSecondary }}><Edit2 size={14} /></button>
                 </div>
               ),
@@ -296,42 +296,42 @@ function ProjectsTab() {
         />
       </div>
       <Modal open={showModal} onClose={() => setShowModal(false)} title={t('researchPage.newProject')} width={560}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.projectCode')}</label><input type="text" value={newProject.code} onChange={e => setNewProject({ ...newProject, code: e.target.value })} placeholder={t('researchPage.codePlaceholder')} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.projectName')}</label><input type="text" value={newProject.name} onChange={e => setNewProject({ ...newProject, name: e.target.value })} placeholder={t('researchPage.namePlaceholder')} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.leader')}</label><input type="text" value={newProject.leader} onChange={e => setNewProject({ ...newProject, leader: e.target.value })} placeholder={t('researchPage.leaderPlaceholder')} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.startDate')}</label><input type="date" value={newProject.startDate} onChange={e => setNewProject({ ...newProject, startDate: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.projectDesc')}</label><textarea value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} placeholder={t('researchPage.descPlaceholder')} rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} /></div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}>
             <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button>
                 <button onClick={handleCreateProject} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><Plus size={14} />{t('researchPage.createProject')}</button>
           </div>
         </div>
       </Modal>
       <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title={t('researchPage.projectDetail')} width={640}>        {detailProject && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div style={{ background: COLORS.bgGray, padding: 16, borderRadius: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}><span style={{ fontSize: 18, fontWeight: 700, color: COLORS.textPrimary }}>{detailProject.name}</span><StatusTag status={projectStatusKey(detailProject.status)}>{detailProject.status}</StatusTag></div>
-              <div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 8 }}>{detailProject.description}</div>
-              <div style={{ display: 'flex', gap: 24, fontSize: 12, color: COLORS.textSecondary }}><span>{t('researchPage.detailCodeLabel')}<strong style={{ color: COLORS.primary }}>{detailProject.code}</strong></span><span>{t('researchPage.detailDataLabel')}<strong style={{ color: COLORS.textPrimary }}>{detailProject.dataCount}</strong></span></div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
+            <div style={{ background: COLORS.bgGray, padding: 'var(--space-4, 16px)', borderRadius: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}><span style={{ fontSize: 18, fontWeight: 700, color: COLORS.textPrimary }}>{detailProject.name}</span><StatusTag status={projectStatusKey(detailProject.status)}>{detailProject.status}</StatusTag></div>
+              <div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-2, 8px)' }}>{detailProject.description}</div>
+              <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', fontSize: 12, color: COLORS.textSecondary }}><span>{t('researchPage.detailCodeLabel')}<strong style={{ color: COLORS.primary }}>{detailProject.code}</strong></span><span>{t('researchPage.detailDataLabel')}<strong style={{ color: COLORS.textPrimary }}>{detailProject.dataCount}</strong></span></div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>{t('researchPage.leader')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{detailProject.leader}</div></div>
-              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>{t('researchPage.startDate')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{detailProject.startDate}</div></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('researchPage.leader')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{detailProject.leader}</div></div>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('researchPage.startDate')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{detailProject.startDate}</div></div>
             </div>
-            <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 8 }}>{t('researchPage.members')}</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{detailProject.members.map((member, idx) => (<span key={idx} style={{ padding: '4px 12px', background: COLORS.primaryLighter, color: COLORS.primary, borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{member}</span>))}</div></div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowDetailModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.close')}</button></div>
+            <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.members')}</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>{detailProject.members.map((member, idx) => (<span key={idx} style={{ padding: '4px 12px', background: COLORS.primaryLighter, color: COLORS.primary, borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{member}</span>))}</div></div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}><button onClick={() => setShowDetailModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.close')}</button></div>
           </div>
         )}
       </Modal>
       <Modal open={showEditModal} onClose={() => { setShowEditModal(false); setEditingProject(null) }} title={t('researchPage.editProject')} width={560}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.projectCode')}</label><input type="text" value={newProject.code} onChange={e => setNewProject({ ...newProject, code: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.projectName')}</label><input type="text" value={newProject.name} onChange={e => setNewProject({ ...newProject, name: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.leader')}</label><input type="text" value={newProject.leader} onChange={e => setNewProject({ ...newProject, leader: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.startDate')}</label><input type="date" value={newProject.startDate} onChange={e => setNewProject({ ...newProject, startDate: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.projectDesc')}</label><textarea value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} /></div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}>
             <button onClick={() => { setShowEditModal(false); setEditingProject(null) }} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button>
             <button onClick={handleEditProject} disabled={!newProject.name?.trim()} style={{ padding: '10px 20px', background: newProject.name?.trim() ? COLORS.primary : COLORS.bgGray, color: newProject.name?.trim() ? 'var(--text-inverse)' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: newProject.name?.trim() ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><Save size={14} />{t('researchPage.saveChanges')}</button>
           </div>
@@ -373,18 +373,18 @@ function ExtractTab() {
   return (
     <div>
       {showExtractModal && <ProgressModal open={showExtractModal} title={t('researchPage.extracting')} message={t('researchPage.extractingMsg')} progress={extractProgress} />}
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Filter size={16} /> {t('researchPage.filterConditions')}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 8 }}>{t('researchPage.examType')}</label><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{examTypeOptions.map(type => (<button key={type} onClick={() => toggleExamType(type)} style={{ padding: '6px 12px', background: selectedExamTypes.includes(type) ? COLORS.primary : COLORS.bgGray, color: selectedExamTypes.includes(type) ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (selectedExamTypes.includes(type) ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'all 0.2s' }}>{type}</button>))}</div></div>
-          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 8 }}>{t('researchPage.dateRange')}</label><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="date" value={filter.startDate} onChange={e => setFilter({ ...filter, startDate: e.target.value })} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12 }} /><span style={{ color: COLORS.textSecondary }}>{t('researchPage.to')}</span><input type="date" value={filter.endDate} onChange={e => setFilter({ ...filter, endDate: e.target.value })} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12 }} /></div></div>
-          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 8 }}>{t('researchPage.patientAgeRange')}</label><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="number" value={filter.minAge} onChange={e => setFilter({ ...filter, minAge: Number(e.target.value) })} min={0} max={120} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12, width: 80 }} /><span style={{ color: COLORS.textSecondary }}>{t('researchPage.to')}</span><input type="number" value={filter.maxAge} onChange={e => setFilter({ ...filter, maxAge: Number(e.target.value) })} min={0} max={120} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12, width: 80 }} /><span style={{ color: COLORS.textSecondary }}>{t('researchPage.yearsOld')}</span></div></div>
-          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 8 }}>{t('researchPage.examResult')}</label><div style={{ display: 'flex', gap: 8 }}>{['', '阳性', '阴性'].map(result => (<button key={result || 'all'} onClick={() => setFilter({ ...filter, result: result as ResultType | '' })} style={{ padding: '6px 16px', background: filter.result === result ? COLORS.primary : COLORS.bgGray, color: filter.result === result ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (filter.result === result ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{result || t('researchPage.resultAll')}</button>))}</div></div>
-          <div style={{ gridColumn: '1 / -1' }}><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 8 }}>{t('researchPage.diagnosisKeyword')}</label><input type="text" value={filter.keyword} onChange={e => setFilter({ ...filter, keyword: e.target.value })} placeholder={t('researchPage.diagnosisPlaceholder')} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Filter size={16} /> {t('researchPage.filterConditions')}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-4, 16px)' }}>
+          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.examType')}</label><div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>{examTypeOptions.map(type => (<button key={type} onClick={() => toggleExamType(type)} style={{ padding: '6px 12px', background: selectedExamTypes.includes(type) ? COLORS.primary : COLORS.bgGray, color: selectedExamTypes.includes(type) ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (selectedExamTypes.includes(type) ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'all 0.2s' }}>{type}</button>))}</div></div>
+          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.dateRange')}</label><div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><input type="date" value={filter.startDate} onChange={e => setFilter({ ...filter, startDate: e.target.value })} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12 }} /><span style={{ color: COLORS.textSecondary }}>{t('researchPage.to')}</span><input type="date" value={filter.endDate} onChange={e => setFilter({ ...filter, endDate: e.target.value })} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12 }} /></div></div>
+          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.patientAgeRange')}</label><div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><input type="number" value={filter.minAge} onChange={e => setFilter({ ...filter, minAge: Number(e.target.value) })} min={0} max={120} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12, width: 80 }} /><span style={{ color: COLORS.textSecondary }}>{t('researchPage.to')}</span><input type="number" value={filter.maxAge} onChange={e => setFilter({ ...filter, maxAge: Number(e.target.value) })} min={0} max={120} style={{ padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12, width: 80 }} /><span style={{ color: COLORS.textSecondary }}>{t('researchPage.yearsOld')}</span></div></div>
+          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.examResult')}</label><div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{['', '阳性', '阴性'].map(result => (<button key={result || 'all'} onClick={() => setFilter({ ...filter, result: result as ResultType | '' })} style={{ padding: '6px 16px', background: filter.result === result ? COLORS.primary : COLORS.bgGray, color: filter.result === result ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (filter.result === result ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{result || t('researchPage.resultAll')}</button>))}</div></div>
+          <div style={{ gridColumn: '1 / -1' }}><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.diagnosisKeyword')}</label><input type="text" value={filter.keyword} onChange={e => setFilter({ ...filter, keyword: e.target.value })} placeholder={t('researchPage.diagnosisPlaceholder')} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
         </div>
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Database size={16} /> {t('researchPage.extractPreview')}</div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Database size={16} /> {t('researchPage.extractPreview')}</div>
         <DataTable
           dataSource={examRecords}
           rowKey={(record) => record.id}
@@ -408,16 +408,16 @@ function ExtractTab() {
           ]}
         />
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={16} /> {t('researchPage.maskingRules')} <button onClick={() => setShowDesensitization(!showDesensitization)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: showDesensitization ? COLORS.primary : COLORS.bgGray, color: showDesensitization ? 'var(--text-inverse)' : COLORS.textSecondary, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{showDesensitization ? <EyeOff size={14} /> : <Eye size={14} />}{showDesensitization ? t('researchPage.maskingEnabled') : t('researchPage.maskingDisabled')}</button></div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-          <div style={{ padding: 16, background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.primary }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thName')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>王*** → {maskName('王建国')}</div></div>
-          <div style={{ padding: 16, background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.warning }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thIdCard')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>110***2345 → {maskIdCard('110101195806121234')}</div></div>
-          <div style={{ padding: 16, background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.success }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thPhone')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>138****5678 → {maskPhone('13812345678')}</div></div>
-          <div style={{ padding: 16, background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.danger }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thAddress')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>北京市*** → {maskAddress('北京市朝阳区建国路88号')}</div></div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><ShieldCheck size={16} /> {t('researchPage.maskingRules')} <button onClick={() => setShowDesensitization(!showDesensitization)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: showDesensitization ? COLORS.primary : COLORS.bgGray, color: showDesensitization ? 'var(--text-inverse)' : COLORS.textSecondary, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{showDesensitization ? <EyeOff size={14} /> : <Eye size={14} />}{showDesensitization ? t('researchPage.maskingEnabled') : t('researchPage.maskingDisabled')}</button></div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ padding: 'var(--space-4, 16px)', background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.primary }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thName')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>王*** → {maskName('王建国')}</div></div>
+          <div style={{ padding: 'var(--space-4, 16px)', background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.warning }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thIdCard')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>110***2345 → {maskIdCard('110101195806121234')}</div></div>
+          <div style={{ padding: 'var(--space-4, 16px)', background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.success }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thPhone')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>138****5678 → {maskPhone('13812345678')}</div></div>
+          <div style={{ padding: 'var(--space-4, 16px)', background: COLORS.bgGray, borderRadius: 8, borderLeft: '4px solid ' + COLORS.danger }}><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6 }}>{t('researchPage.thAddress')}</div><div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, fontFamily: 'monospace' }}>北京市*** → {maskAddress('北京市朝阳区建国路88号')}</div></div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center' }}><button onClick={handleExtract} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 40px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 700, boxShadow: '0 4px 12px rgba(30, 64, 175, 0.3)' }}><Download size={18} /> {t('researchPage.confirmExtract')}</button></div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}><button onClick={handleExtract} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '14px 40px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 700, boxShadow: '0 4px 12px rgba(30, 64, 175, 0.3)' }}><Download size={18} /> {t('researchPage.confirmExtract')}</button></div>
     </div>
   )
 }
@@ -479,10 +479,10 @@ function LabelsTab() {
   }
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 8 }}><Search size={16} color={COLORS.textSecondary} /><input placeholder={t('researchPage.searchLabels')} value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', fontSize: 14, width: 180, background: 'transparent' }} /></div>
-          <div style={{ display: 'flex', gap: 8 }}>{['', '诊断', '部位', '特征'].map(type => (<button key={type || 'all'} onClick={() => setFilterType(type as LabelType | '')} style={{ padding: '8px 14px', background: filterType === type ? COLORS.primary : COLORS.bgWhite, color: filterType === type ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (filterType === type ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{type || t('researchPage.resultAll')}</button>))}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 'var(--space-2, 8px)' }}><Search size={16} color={COLORS.textSecondary} /><input placeholder={t('researchPage.searchLabels')} value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', fontSize: 14, width: 180, background: 'transparent' }} /></div>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{['', '诊断', '部位', '特征'].map(type => (<button key={type || 'all'} onClick={() => setFilterType(type as LabelType | '')} style={{ padding: '8px 14px', background: filterType === type ? COLORS.primary : COLORS.bgWhite, color: filterType === type ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (filterType === type ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{type || t('researchPage.resultAll')}</button>))}</div>
         </div>
         <button onClick={() => setShowAddModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> {t('researchPage.customLabel')}</button>
       </div>
@@ -508,29 +508,29 @@ function LabelsTab() {
           {
             title: t('researchPage.thActions'), key: 'actions',
             render: (_v, label) => (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <button onClick={() => handleApplyLabel(label)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={14} /> {t('researchPage.apply')}</button>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
+                <button onClick={() => handleApplyLabel(label)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Tag size={14} /> {t('researchPage.apply')}</button>
                 <button onClick={() => handleDeleteLabel(label)} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={14} /></button>
               </div>
             ),
           },
         ]}
       />
-      <div style={{ marginTop: 20, padding: 20, background: COLORS.primaryLighter, borderRadius: 12, border: '1px solid ' + COLORS.primaryLight }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Tag size={16} /> {t('researchPage.extractedLabelMgmt')}</div>
-        <div style={{ fontSize: 12, color: COLORS.textSecondary }}><p style={{ marginBottom: 8 }}>{t('researchPage.currentExtracted')}</p><p>{t('researchPage.labelHelp')}</p><p style={{ marginTop: 8, color: COLORS.primary, fontWeight: 600 }}>{t('researchPage.annotatedPrefix')}{annotatedCount}{t('researchPage.annotatedSuffix')}{Object.entries(annotatedLabels).map(([name, cnt]) => `· ${name} ${cnt}条`).join('')}</p></div>
-        <div style={{ marginTop: 16, display: 'flex', gap: 12 }}><button onClick={() => setShowBatchModal(true)} style={{ padding: '10px 16px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{t('researchPage.batchAnnotate')}</button><button onClick={() => setShowCatalogModal(true)} style={{ padding: '10px 16px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{t('researchPage.viewAnnotatedCatalog')}</button></div>
+      <div style={{ marginTop: 'var(--space-5, 20px)', padding: 'var(--space-5, 20px)', background: COLORS.primaryLighter, borderRadius: 12, border: '1px solid ' + COLORS.primaryLight }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Tag size={16} /> {t('researchPage.extractedLabelMgmt')}</div>
+        <div style={{ fontSize: 12, color: COLORS.textSecondary }}><p style={{ marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.currentExtracted')}</p><p>{t('researchPage.labelHelp')}</p><p style={{ marginTop: 'var(--space-2, 8px)', color: COLORS.primary, fontWeight: 600 }}>{t('researchPage.annotatedPrefix')}{annotatedCount}{t('researchPage.annotatedSuffix')}{Object.entries(annotatedLabels).map(([name, cnt]) => `· ${name} ${cnt}条`).join('')}</p></div>
+        <div style={{ marginTop: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-3, 12px)' }}><button onClick={() => setShowBatchModal(true)} style={{ padding: '10px 16px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{t('researchPage.batchAnnotate')}</button><button onClick={() => setShowCatalogModal(true)} style={{ padding: '10px 16px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{t('researchPage.viewAnnotatedCatalog')}</button></div>
       </div>
       <Modal open={showBatchModal} onClose={() => setShowBatchModal(false)} title={t('researchPage.batchAnnotateTitle')} width={440}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ padding: 12, background: COLORS.primaryLighter, borderRadius: 8, fontSize: 12, color: COLORS.primary }}>{t('researchPage.batchAnnotateHint')}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ padding: 'var(--space-3, 12px)', background: COLORS.primaryLighter, borderRadius: 8, fontSize: 12, color: COLORS.primary }}>{t('researchPage.batchAnnotateHint')}</div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.selectLabel')}</label><Select style={{ width: '100%' }} value={batchLabelId} onChange={(v) => setBatchLabelId(v)} options={[{ value: '', label: t('researchPage.selectLabelPlaceholder') }, ...labels.map(l => ({ value: l.id, label: `${l.name}（${l.type}）` }))]} /></div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowBatchModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={() => void handleBatchAnnotate()} disabled={!batchLabelId} style={{ padding: '10px 20px', background: batchLabelId ? COLORS.primary : COLORS.bgGray, color: batchLabelId ? 'var(--text-inverse)' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: batchLabelId ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>{t('researchPage.confirmAnnotate')}</button></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}><button onClick={() => setShowBatchModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={() => void handleBatchAnnotate()} disabled={!batchLabelId} style={{ padding: '10px 20px', background: batchLabelId ? COLORS.primary : COLORS.bgGray, color: batchLabelId ? 'var(--text-inverse)' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: batchLabelId ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>{t('researchPage.confirmAnnotate')}</button></div>
         </div>
       </Modal>
       <Modal open={showCatalogModal} onClose={() => setShowCatalogModal(false)} title={t('researchPage.annotatedCatalog')} width={520}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {Object.keys(annotatedLabels).length === 0 ? <div style={{ padding: 24, textAlign: 'center', color: COLORS.textLight, fontSize: 12 }}>{t('researchPage.noCatalog')}</div> : Object.entries(annotatedLabels).map(([name, cnt]) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
+          {Object.keys(annotatedLabels).length === 0 ? <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: COLORS.textLight, fontSize: 12 }}>{t('researchPage.noCatalog')}</div> : Object.entries(annotatedLabels).map(([name, cnt]) => (
             <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: COLORS.bgGray, borderRadius: 8 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textPrimary }}>{name}</span>
               <span style={{ fontSize: 12, color: COLORS.primary, fontWeight: 600 }}>{cnt} {t('researchPage.recordsSuffix')}</span>
@@ -539,11 +539,11 @@ function LabelsTab() {
         </div>
       </Modal>
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title={t('researchPage.addCustomLabel')} width={440}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.labelName')}</label><input type="text" value={newLabel.name} onChange={e => setNewLabel({ ...newLabel, name: e.target.value })} placeholder={t('researchPage.labelNamePlaceholder')} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
-          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.thLabelType')}</label><div style={{ display: 'flex', gap: 8 }}>{(['诊断', '部位', '特征'] as LabelType[]).map(type => (<button key={type} onClick={() => setNewLabel({ ...newLabel, type })} style={{ padding: '8px 16px', background: newLabel.type === type ? getLabelTypeColor(type) : COLORS.bgGray, color: newLabel.type === type ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (newLabel.type === type ? getLabelTypeColor(type) : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{type}</button>))}</div></div>
-          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.labelColor')}</label><div style={{ display: 'flex', gap: 8 }}>{['var(--color-error-500)', '#f97316', '#eab308', 'var(--color-success-500)', 'var(--color-primary)', '#8b5cf6', '#ec4899', 'var(--color-info-500)'].map(color => (<button key={color} onClick={() => setNewLabel({ ...newLabel, color })} style={{ width: 32, height: 32, background: color, border: newLabel.color === color ? '3px solid ' + COLORS.textPrimary : '2px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer' }} />))}</div></div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowAddModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={handleAddLabel} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.addLabel')}</button></div>
+          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.thLabelType')}</label><div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{(['诊断', '部位', '特征'] as LabelType[]).map(type => (<button key={type} onClick={() => setNewLabel({ ...newLabel, type })} style={{ padding: '8px 16px', background: newLabel.type === type ? getLabelTypeColor(type) : COLORS.bgGray, color: newLabel.type === type ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (newLabel.type === type ? getLabelTypeColor(type) : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{type}</button>))}</div></div>
+          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.labelColor')}</label><div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{['var(--color-error-500)', '#f97316', '#eab308', 'var(--color-success-500)', 'var(--color-primary)', '#8b5cf6', '#ec4899', 'var(--color-info-500)'].map(color => (<button key={color} onClick={() => setNewLabel({ ...newLabel, color })} style={{ width: 32, height: 32, background: color, border: newLabel.color === color ? '3px solid ' + COLORS.textPrimary : '2px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer' }} />))}</div></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}><button onClick={() => setShowAddModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={handleAddLabel} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.addLabel')}</button></div>
         </div>
       </Modal>
     </div>
@@ -584,9 +584,9 @@ function ExportTab() {
   const handleDownload = (record: ExportRecord) => { showToast(`开始下载: ${record.downloadUrl}`, 'info') }
   return (
     <div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, overflow: 'hidden', marginBottom: 20 }}>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, overflow: 'hidden', marginBottom: 'var(--space-5, 20px)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid ' + COLORS.border, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}><FileText size={16} /> {t('researchPage.exportRecords')}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><FileText size={16} /> {t('researchPage.exportRecords')}</div>
           <button onClick={() => setShowPermissionModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}><Shield size={14} /> {t('researchPage.exportPermMgmt')}</button>
         </div>
         <DataTable
@@ -613,19 +613,19 @@ function ExportTab() {
             {
               title: t('researchPage.thActions'), key: 'actions',
               render: (_v, record) => (
-                <button onClick={() => handleDownload(record)} style={{ padding: '6px 12px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Download size={14} /> {t('researchPage.download')}</button>
+                <button onClick={() => handleDownload(record)} style={{ padding: '6px 12px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Download size={14} /> {t('researchPage.download')}</button>
               ),
             },
           ]}
         />
       </div>
       <Modal open={showPermissionModal} onClose={() => setShowPermissionModal(false)} title={t('researchPage.exportPermMgmt')} width={500}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ padding: 16, background: COLORS.warningLight, borderRadius: 8, border: '1px solid ' + COLORS.warning }}><div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}><AlertCircle size={16} color={COLORS.warning} /><span style={{ fontSize: 12, fontWeight: 700, color: COLORS.warning }}>{t('researchPage.permHint')}</span></div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{t('researchPage.permWarning')}</div></div>
-          <div><div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12 }}>{t('researchPage.allowedFormats')}</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{[{ key: 'allowCsv', label: t('researchPage.fmtCsv'), desc: t('researchPage.fmtCsvDesc') }, { key: 'allowJson', label: t('researchPage.fmtJson'), desc: t('researchPage.fmtJsonDesc') }, { key: 'allowDicom', label: t('researchPage.fmtDicom'), desc: t('researchPage.fmtDicomDesc') }].map(item => (<label key={item.key} style={{ display: 'flex', alignItems: 'center', padding: 12, background: COLORS.bgGray, borderRadius: 8, cursor: 'pointer' }}><Checkbox checked={exportPermissions[item.key as keyof typeof exportPermissions] as boolean} onChange={e => setExportPermissions({ ...exportPermissions, [item.key]: e.target.checked })} style={{ marginRight: 12 }} /><div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textPrimary }}>{item.label}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{item.desc}</div></div></label>))}</div></div>
-          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{t('researchPage.maxRecords')}</label><input type="number" value={exportPermissions.maxRecordsPerExport} onChange={e => setExportPermissions({ ...exportPermissions, maxRecordsPerExport: Number(e.target.value) })} min={1} max={10000} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
+          <div style={{ padding: 'var(--space-4, 16px)', background: COLORS.warningLight, borderRadius: 8, border: '1px solid ' + COLORS.warning }}><div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}><AlertCircle size={16} color={COLORS.warning} /><span style={{ fontSize: 12, fontWeight: 700, color: COLORS.warning }}>{t('researchPage.permHint')}</span></div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{t('researchPage.permWarning')}</div></div>
+          <div><div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-3, 12px)' }}>{t('researchPage.allowedFormats')}</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{[{ key: 'allowCsv', label: t('researchPage.fmtCsv'), desc: t('researchPage.fmtCsvDesc') }, { key: 'allowJson', label: t('researchPage.fmtJson'), desc: t('researchPage.fmtJsonDesc') }, { key: 'allowDicom', label: t('researchPage.fmtDicom'), desc: t('researchPage.fmtDicomDesc') }].map(item => (<label key={item.key} style={{ display: 'flex', alignItems: 'center', padding: 'var(--space-3, 12px)', background: COLORS.bgGray, borderRadius: 8, cursor: 'pointer' }}><Checkbox checked={exportPermissions[item.key as keyof typeof exportPermissions] as boolean} onChange={e => setExportPermissions({ ...exportPermissions, [item.key]: e.target.checked })} style={{ marginRight: 'var(--space-3, 12px)' }} /><div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textPrimary }}>{item.label}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{item.desc}</div></div></label>))}</div></div>
+          <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.maxRecords')}</label><input type="number" value={exportPermissions.maxRecordsPerExport} onChange={e => setExportPermissions({ ...exportPermissions, maxRecordsPerExport: Number(e.target.value) })} min={1} max={10000} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}><Checkbox checked={exportPermissions.requireApproval} onChange={e => setExportPermissions({ ...exportPermissions, requireApproval: e.target.checked })} /><span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textPrimary }}>{t('researchPage.requireApproval')}</span></label>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowPermissionModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={handleSaveExportPermissions} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.saveSettings')}</button></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}><button onClick={() => setShowPermissionModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={handleSaveExportPermissions} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.saveSettings')}</button></div>
         </div>
       </Modal>
     </div>
@@ -652,20 +652,20 @@ function DeidEngineTab() {
   ])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Shield size={16} /> {t('researchPage.deidProfile')}</div>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Shield size={16} /> {t('researchPage.deidProfile')}</div>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           {[{ id: 'hipaa', label: t('researchPage.hipaaLabel'), desc: t('researchPage.hipaaDesc') }, { id: 'expert', label: t('researchPage.expertLabel'), desc: t('researchPage.expertDesc') }].map(p => (
-            <div key={p.id} role="button" tabIndex={0} onClick={() => setDeidProfile(p.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDeidProfile(p.id) } }} style={{ flex: 1, padding: 16, borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
+            <div key={p.id} role="button" tabIndex={0} onClick={() => setDeidProfile(p.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDeidProfile(p.id) } }} style={{ flex: 1, padding: 'var(--space-4, 16px)', borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: deidProfile === p.id ? COLORS.primary : COLORS.textPrimary }}>{p.label}</div>
-              <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{p.desc}</div>
+              <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 'var(--space-1, 4px)' }}>{p.desc}</div>
             </div>
           ))}
         </div>
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Tag size={16} /> {t('researchPage.deidTagRules')}</div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Tag size={16} /> {t('researchPage.deidTagRules')}</div>
         <DataTable
           dataSource={phiTags}
           rowKey={(_pt, idx) => String(idx)}
@@ -679,32 +679,32 @@ function DeidEngineTab() {
           ]}
         />
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Eye size={16} /> {t('researchPage.pixelDeid')}</div>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: 8, padding: 20, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 12 }}>{t('researchPage.beforeDeid')}</div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Eye size={16} /> {t('researchPage.pixelDeid')}</div>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: 8, padding: 'var(--space-5, 20px)', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 'var(--space-3, 12px)' }}>{t('researchPage.beforeDeid')}</div>
             <div style={{ width: 200, height: 200, margin: '0 auto', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-              <div style={{ color: 'var(--text-inverse)', fontSize: 12, marginBottom: 4 }}>患者: 王建国</div>
-              <div style={{ color: 'var(--text-inverse)', fontSize: 12, marginBottom: 4 }}>ID: P10001</div>
+              <div style={{ color: 'var(--text-inverse)', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>患者: 王建国</div>
+              <div style={{ color: 'var(--text-inverse)', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>ID: P10001</div>
               <div style={{ color: 'var(--text-inverse)', fontSize: 12 }}>2026-05-15</div>
             </div>
           </div>
-          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: 8, padding: 20, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 12 }}>{t('researchPage.afterDeid')}</div>
+          <div style={{ flex: 1, background: '#1a1a2e', borderRadius: 8, padding: 'var(--space-5, 20px)', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 'var(--space-3, 12px)' }}>{t('researchPage.afterDeid')}</div>
             <div style={{ width: 200, height: 200, margin: '0 auto', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-              <div style={{ width: 160, height: 20, background: 'black', marginBottom: 4 }} />
-              <div style={{ width: 120, height: 20, background: 'black', marginBottom: 4 }} />
+              <div style={{ width: 160, height: 20, background: 'black', marginBottom: 'var(--space-1, 4px)' }} />
+              <div style={{ width: 120, height: 20, background: 'black', marginBottom: 'var(--space-1, 4px)' }} />
               <div style={{ width: 140, height: 20, background: 'black' }} />
             </div>
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
-        <button disabled={deidRunning} onClick={() => { showToast(t('researchPage.deidEndpointToast'), 'info'); setDeidRunning(true); setTimeout(() => { setDeidRunning(false); setDeidResult(`脱敏完成: ${deidFileCount} 个 DICOM 文件已按 ${deidProfile === 'hipaa' ? 'HIPAA 安全港' : '专家判定'} 配置处理 (本地模拟)`); showToast(t('researchPage.deidDoneLocal'), 'success') }, 1500) }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 32px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, opacity: deidRunning ? 0.6 : 1 }}><Shield size={16} /> {deidRunning ? t('researchPage.deidProcessing') : t('researchPage.runDeid')}</button>
-        <button onClick={() => setShowPreview(!showPreview)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 32px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Eye size={16} /> {t('researchPage.previewCompare')}</button>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-3, 12px)' }}>
+        <button disabled={deidRunning} onClick={() => { showToast(t('researchPage.deidEndpointToast'), 'info'); setDeidRunning(true); setTimeout(() => { setDeidRunning(false); setDeidResult(`脱敏完成: ${deidFileCount} 个 DICOM 文件已按 ${deidProfile === 'hipaa' ? 'HIPAA 安全港' : '专家判定'} 配置处理 (本地模拟)`); showToast(t('researchPage.deidDoneLocal'), 'success') }, 1500) }} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '12px 32px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, opacity: deidRunning ? 0.6 : 1 }}><Shield size={16} /> {deidRunning ? t('researchPage.deidProcessing') : t('researchPage.runDeid')}</button>
+        <button onClick={() => setShowPreview(!showPreview)} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '12px 32px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Eye size={16} /> {t('researchPage.previewCompare')}</button>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 16, fontSize: 12, color: COLORS.textSecondary }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-4, 16px)', fontSize: 12, color: COLORS.textSecondary }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>{t('researchPage.fileCount')}
           <input type="number" min={1} max={500} value={deidFileCount} onChange={e => setDeidFileCount(Number(e.target.value) || 0)} style={{ width: 70, padding: '4px 8px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12 }} />
         </label>
@@ -770,12 +770,12 @@ function CohortBuilderTab() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Users size={16} /> {t('researchPage.cohortBuilder')}</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Users size={16} /> {t('researchPage.cohortBuilder')}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {criteria.map((c, idx) => (
-            <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 12px', background: COLORS.bgGray, borderRadius: 6 }}>
+            <div key={idx} style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', padding: '8px 12px', background: COLORS.bgGray, borderRadius: 6 }}>
               {idx > 0 && <Select size="small" style={{ minWidth: 80 }} value={c.logic} onChange={(v) => updateCriterion(idx, 'logic', v)} options={[{ value: 'AND', label: t('researchPage.and') }, { value: 'OR', label: t('researchPage.or') }]} />}
               <Select size="small" style={{ minWidth: 120 }} value={c.field} onChange={(v) => updateCriterion(idx, 'field', v)} options={[
                 { value: 'age', label: t('researchPage.fieldAge') },
@@ -794,24 +794,24 @@ function CohortBuilderTab() {
                 { value: 'contains', label: t('researchPage.opContains') },
               ]} />
               <input value={c.value} onChange={e => updateCriterion(idx, 'value', e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12, flex: 1 }} placeholder={t('researchPage.valuePlaceholder')} />
-              <button onClick={() => removeCriterion(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.danger, padding: 4 }}><X size={14} /></button>
+              <button onClick={() => removeCriterion(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.danger, padding: 'var(--space-1, 4px)' }}><X size={14} /></button>
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-3, 12px)' }}>
           <button onClick={addCriterion} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}><Plus size={14} /> {t('researchPage.addCriterion')}</button>
           <button onClick={estimateSize} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: COLORS.primaryLighter, color: COLORS.primary, border: '1px solid ' + COLORS.primaryLight, borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}><Sigma size={14} /> {t('researchPage.estimateSize')}</button>
         </div>
         {estimatedSize > 0 && (
-          <div style={{ marginTop: 12, padding: 12, background: COLORS.successLight, borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: COLORS.successLight, borderRadius: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <CheckCircleIcon size={16} style={{ color: COLORS.success }} />
             <span>{t('researchPage.estimatedPatientsPrefix')}<strong style={{ fontSize: 16 }}>{estimatedSize.toLocaleString()}</strong> {t('researchPage.estimatedPatientsSuffix')}</span>
           </div>
         )}
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}><Save size={16} /> {t('researchPage.savedCohorts')}</div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Save size={16} /> {t('researchPage.savedCohorts')}</div>
           <button onClick={() => { estimateSize(); setShowSaveDialog(true) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}><Save size={14} /> {t('researchPage.saveCurrentCohort')}</button>
         </div>
         {savedCohorts.map(cohort => (
@@ -823,10 +823,10 @@ function CohortBuilderTab() {
       </div>
       {showSaveDialog && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowSaveDialog(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('researchPage.saveCohortTitle')}</div>
-            <input style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box', marginBottom: 16 }} placeholder={t('researchPage.cohortNamePlaceholder')} value={cohortName} onChange={e => setCohortName(e.target.value)} />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 400 }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-4, 16px)' }}>{t('researchPage.saveCohortTitle')}</div>
+            <input style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box', marginBottom: 'var(--space-4, 16px)' }} placeholder={t('researchPage.cohortNamePlaceholder')} value={cohortName} onChange={e => setCohortName(e.target.value)} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
               <button onClick={() => setShowSaveDialog(false)} style={{ padding: '8px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer' }}>{t('researchPage.cancel')}</button>
               <button onClick={saveCohort} style={{ padding: '8px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}><Save size={14} /> {t('researchPage.save')}</button>
             </div>
@@ -879,7 +879,7 @@ function IRBWorkflowTab() {
   const irbTone = (status: string) => (status === 'draft' ? 'draft' : status === 'submitted' ? 'submitted' : status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : status)
   const statusLabels: Record<string, string> = { draft: t('researchPage.irbStatusDraft'), submitted: t('researchPage.irbStatusSubmitted'), approved: t('researchPage.irbStatusApproved'), rejected: t('researchPage.irbStatusRejected') }
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setShowForm(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> {t('researchPage.newIrb')}</button>
       </div>
@@ -902,43 +902,43 @@ function IRBWorkflowTab() {
           ]}
         />
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><FileSignature size={16} /> {t('researchPage.consentMgmt')}</div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div style={{ flex: 1, padding: 12, background: COLORS.bgGray, borderRadius: 6, borderLeft: '4px solid ' + COLORS.primary }}>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><FileSignature size={16} /> {t('researchPage.consentMgmt')}</div>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
+          <div style={{ flex: 1, padding: 'var(--space-3, 12px)', background: COLORS.bgGray, borderRadius: 6, borderLeft: '4px solid ' + COLORS.primary }}>
             <div style={{ fontSize: 12, color: COLORS.textSecondary }}>肺癌早筛研究</div>
             <div style={{ fontWeight: 600, fontSize: 14 }}>知情同意书_v2.pdf</div>
-            <div style={{ fontSize: 12, color: COLORS.success, marginTop: 4 }}>{t('researchPage.signed')}</div>
+            <div style={{ fontSize: 12, color: COLORS.success, marginTop: 'var(--space-1, 4px)' }}>{t('researchPage.signed')}</div>
           </div>
-          <div style={{ flex: 1, padding: 12, background: COLORS.bgGray, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning }}>
+          <div style={{ flex: 1, padding: 'var(--space-3, 12px)', background: COLORS.bgGray, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning }}>
             <div style={{ fontSize: 12, color: COLORS.textSecondary }}>阿尔茨海默病研究</div>
             <div style={{ fontWeight: 600, fontSize: 14 }}>知情同意书_v1.pdf</div>
-            <div style={{ fontSize: 12, color: COLORS.warning, marginTop: 4 }}>{t('researchPage.pendingSign')}</div>
+            <div style={{ fontSize: 12, color: COLORS.warning, marginTop: 'var(--space-1, 4px)' }}>{t('researchPage.pendingSign')}</div>
           </div>
         </div>
       </div>
       <Modal open={showForm} onClose={() => setShowForm(false)} title={t('researchPage.newIrb')} width={500}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.thProjectName')}</label><input style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} value={form.projectName} onChange={e => setForm({ ...form, projectName: e.target.value })} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.thPi')}</label><input style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} value={form.pi} onChange={e => setForm({ ...form, pi: e.target.value })} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.labelConsent')}</label><input type="file" style={{ width: '100%', padding: '8px', borderRadius: 6, border: '1px solid ' + COLORS.border, fontSize: 14 }} /></div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}><button onClick={() => setShowForm(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer' }}>{t('researchPage.cancel')}</button><button onClick={submitIRB} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>{t('researchPage.submitApplication')}</button></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}><button onClick={() => setShowForm(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer' }}>{t('researchPage.cancel')}</button><button onClick={submitIRB} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>{t('researchPage.submitApplication')}</button></div>
         </div>
       </Modal>
       <Modal open={!!viewing} onClose={() => setViewing(null)} title={t('researchPage.irbDetail')} width={480}>
         {viewing && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ padding: 12, background: COLORS.bgGray, borderRadius: 8 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 4 }}>{viewing.projectName}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+            <div style={{ padding: 'var(--space-3, 12px)', background: COLORS.bgGray, borderRadius: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-1, 4px)' }}>{viewing.projectName}</div>
               <div style={{ fontSize: 12, color: COLORS.textSecondary }}>{t('researchPage.submitDatePiLabel')}{viewing.submittedDate}{t('researchPage.piLabel')}{viewing.pi}</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>{t('researchPage.thStatus')}</div><StatusTag status={irbTone(viewing.status)}>{statusLabels[viewing.status]}</StatusTag></div>
-              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>{t('researchPage.thApprovedDate')}</div><div style={{ fontSize: 12, fontWeight: 600 }}>{viewing.approvedDate || '-'}</div></div>
-              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>{t('researchPage.thExpiryDate')}</div><div style={{ fontSize: 12, fontWeight: 600 }}>{viewing.expiryDate || '-'}</div></div>
-              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>{t('researchPage.labelConsent')}</div><div style={{ fontSize: 12, fontWeight: 600 }}>{viewing.consentForm || '-'}</div></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('researchPage.thStatus')}</div><StatusTag status={irbTone(viewing.status)}>{statusLabels[viewing.status]}</StatusTag></div>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('researchPage.thApprovedDate')}</div><div style={{ fontSize: 12, fontWeight: 600 }}>{viewing.approvedDate || '-'}</div></div>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('researchPage.thExpiryDate')}</div><div style={{ fontSize: 12, fontWeight: 600 }}>{viewing.expiryDate || '-'}</div></div>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 'var(--space-1, 4px)' }}>{t('researchPage.labelConsent')}</div><div style={{ fontSize: 12, fontWeight: 600 }}>{viewing.consentForm || '-'}</div></div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}><button onClick={() => setViewing(null)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.close')}</button></div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-2, 8px)' }}><button onClick={() => setViewing(null)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.close')}</button></div>
           </div>
         )}
       </Modal>
@@ -976,21 +976,21 @@ function ExportPipelineTab() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
       {showProgress && <ProgressModal open={showProgress} title={t('researchPage.exportingData')} message={`正在生成 ${exportFormat} 文件...`} progress={progress} />}
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} /> {t('researchPage.exportConfig')}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Download size={16} /> {t('researchPage.exportConfig')}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-4, 16px)' }}>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.exportFormat')}</label><Select style={{ width: '100%' }} value={exportFormat} onChange={(v) => setExportFormat(v)} options={[{ value: 'CSV', label: 'CSV' }, { value: 'JSON', label: 'JSON' }, { value: 'FHIR', label: 'FHIR' }, { value: 'Parquet', label: 'Parquet' }]} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.dataScope')}</label><Select style={{ width: '100%' }} defaultValue={t('researchPage.scopeAll')} options={[{ value: t('researchPage.scopeAll'), label: t('researchPage.scopeAll') }, { value: t('researchPage.scopeSelected'), label: t('researchPage.scopeSelected') }, { value: t('researchPage.scopeByDate'), label: t('researchPage.scopeByDate') }]} /></div>
         </div>
-        <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-3, 12px)' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><Checkbox checked={deidentify} onChange={e => setDeidentify(e.target.checked)} /> {t('researchPage.deidOnExport')}</label>
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><Checkbox checked={includeDict} onChange={e => setIncludeDict(e.target.checked)} /> {t('researchPage.includeDict')}</label>
         </div>
         {includeDict && (
-          <div style={{ marginTop: 12, padding: 12, background: COLORS.bgGray, borderRadius: 6 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('researchPage.dictPreview')}</div>
+          <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: COLORS.bgGray, borderRadius: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.dictPreview')}</div>
             <div style={{ fontSize: 12, color: COLORS.textSecondary }}>
               <div>patient_id: 字符串, 匿名化标识</div>
               <div>age: 整数, 患者年龄</div>
@@ -1002,10 +1002,10 @@ function ExportPipelineTab() {
             </div>
           </div>
         )}
-        <div style={{ marginTop: 12 }}><button onClick={runExport} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 32px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Download size={16} /> {t('researchPage.runExport')}</button></div>
+        <div style={{ marginTop: 'var(--space-3, 12px)' }}><button onClick={runExport} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '12px 32px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Download size={16} /> {t('researchPage.runExport')}</button></div>
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><ClipboardList size={16} /> {t('researchPage.exportAuditLog')}</div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><ClipboardList size={16} /> {t('researchPage.exportAuditLog')}</div>
         <DataTable
           dataSource={auditLog}
           rowKey={(a) => a.id}
@@ -1055,27 +1055,27 @@ function DataQualityTab() {
   const overallConsistency = scores.length > 0 ? Math.round(scores.reduce((s, f) => s + f.consistency, 0) / scores.length) : 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, textAlign: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)', textAlign: 'center' }}>
           <div style={{ fontSize: 30, fontWeight: 700, color: overallCompleteness >= 80 ? COLORS.success : COLORS.warning }}>{overallCompleteness}%</div>
-          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{t('researchPage.overallCompleteness')}</div>
+          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 'var(--space-1, 4px)' }}>{t('researchPage.overallCompleteness')}</div>
         </div>
-        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, textAlign: 'center' }}>
+        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)', textAlign: 'center' }}>
           <div style={{ fontSize: 30, fontWeight: 700, color: overallConsistency >= 80 ? COLORS.success : COLORS.warning }}>{overallConsistency}%</div>
-          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{t('researchPage.overallConsistency')}</div>
+          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 'var(--space-1, 4px)' }}>{t('researchPage.overallConsistency')}</div>
         </div>
-        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, textAlign: 'center' }}>
+        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)', textAlign: 'center' }}>
           <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>6/10</div>
-          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{t('researchPage.fieldsToImprove')}</div>
+          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 'var(--space-1, 4px)' }}>{t('researchPage.fieldsToImprove')}</div>
         </div>
-        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, textAlign: 'center' }}>
+        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)', textAlign: 'center' }}>
           <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.success }}>实时</div>
-          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{t('researchPage.dataFreshness')}</div>
+          <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 'var(--space-1, 4px)' }}>{t('researchPage.dataFreshness')}</div>
         </div>
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Target size={16} /> {t('researchPage.fieldQualityScore')}</div>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Target size={16} /> {t('researchPage.fieldQualityScore')}</div>
         <DataTable
           dataSource={scores}
           rowKey={(_f, idx) => String(idx)}
@@ -1092,15 +1092,15 @@ function DataQualityTab() {
           ]}
         />
       </div>
-      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> {t('researchPage.qualitySuggestions')}</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Activity size={16} /> {t('researchPage.qualitySuggestions')}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {[
             { key: 'idcard', title: t('researchPage.sugIdcard'), desc: t('researchPage.sugIdcardDesc') },
             { key: 'icd', title: t('researchPage.sugIcd'), desc: t('researchPage.sugIcdDesc') },
             { key: 'followup', title: t('researchPage.sugFollowup'), desc: t('researchPage.sugFollowupDesc') },
           ].map(item => (
-            <div key={item.key} style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={item.key} style={{ padding: 'var(--space-3, 12px)', background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div><div style={{ fontSize: 12, fontWeight: 600 }}>{item.title}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{item.desc}</div></div>
               <button onClick={() => handleImplement(item.key)} style={{ padding: '6px 12px', background: implemented[item.key] === '已完成' ? COLORS.success : COLORS.warning, color: 'var(--text-inverse)', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, minWidth: 56 }}>
                 {implemented[item.key] === '已完成' ? t('researchPage.done') : implemented[item.key] === '进行中' ? t('researchPage.implementing') : t('researchPage.implement')}
@@ -1131,23 +1131,23 @@ export default function ResearchPage() {
   ]
 
   return (
-    <div style={{ padding: 24, background: COLORS.bgGray,}}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: COLORS.bgGray,}}>
       {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /research controller, 接口调用失败时页面展示空态/本地 fallback */}
-      <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning-700)', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--color-warning-border)', marginBottom: 16 }}>
+      <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning-700)', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--color-warning-border)', marginBottom: 'var(--space-4, 16px)' }}>
         {t('researchPage.demoBanner')}
       </div>
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+      <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-2, 8px)' }}>
           <div style={{ width: 40, height: 40, background: COLORS.primary, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FlaskConical size={20} color="var(--text-inverse)" /></div>
           <div><Typography.Title level={4} style={{ margin: 0 }}>{t('researchPage.pageTitle')}</Typography.Title><p style={{ fontSize: 12, color: COLORS.textSecondary, margin: 0 }}>{t('researchPage.pageSubtitle')}</p></div>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 4, background: COLORS.bgWhite, padding: '4px 4px 0', borderRadius: '12px 12px 0 0', border: '1px solid ' + COLORS.border, borderBottom: 'none', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: COLORS.bgWhite, padding: '4px 4px 0', borderRadius: '12px 12px 0 0', border: '1px solid ' + COLORS.border, borderBottom: 'none', flexWrap: 'wrap' }}>
         {tabs.map(tab => (
           <TabButton key={tab.key} active={activeTab === tab.key} onClick={() => setActiveTab(tab.key)} icon={tab.icon} label={tab.label} />
         ))}
       </div>
-      <div style={{ background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: '0 0 12px 12px', padding: 24, minHeight: 500 }}>
+      <div style={{ background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: '0 0 12px 12px', padding: 'var(--space-6, 24px)', minHeight: 500 }}>
         {activeTab === 'projects' && <ProjectsTab />}
         {activeTab === 'extract' && <ExtractTab />}
         {activeTab === 'labels' && <LabelsTab />}

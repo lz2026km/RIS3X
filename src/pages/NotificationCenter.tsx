@@ -260,9 +260,9 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
         </div>
 
         {/* 内容 */}
-        <div style={{ padding: 20 }}>
+        <div style={{ padding: 'var(--space-5, 20px)' }}>
           {/* 标签 */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{
               background: `${typeConfig.color}20`, color: typeConfig.color,
               padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
@@ -296,8 +296,8 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
 
           {/* 内容 */}
           <div style={{
-            background: 'var(--content-bg)', padding: 16, borderRadius: 10,
-            border: '1px solid var(--border-color)', marginBottom: 16,
+            background: 'var(--content-bg)', padding: 'var(--space-4, 16px)', borderRadius: 10,
+            border: '1px solid var(--border-color)', marginBottom: 'var(--space-4, 16px)',
           }}>
             <pre style={{
               margin: 0, fontSize: 14, color: 'var(--text-secondary)',
@@ -309,7 +309,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
           </div>
 
           {/* 元信息 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('notification.id')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{notification.id}</div>
@@ -333,11 +333,11 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
           {/* 相关操作 */}
           {notification.relatedId && (
             <div style={{
-              background: `${ACCENT}10`, padding: 12, borderRadius: 8,
-              border: `1px solid ${ACCENT}30`, marginBottom: 16,
+              background: `${ACCENT}10`, padding: 'var(--space-3, 12px)', borderRadius: 8,
+              border: `1px solid ${ACCENT}30`, marginBottom: 'var(--space-4, 16px)',
             }}>
               <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>{t('notification.relatedInfo')}</div>
-              <div style={{ fontSize: 12, color: PRIMARY, marginBottom: 8 }}>
+              <div style={{ fontSize: 12, color: PRIMARY, marginBottom: 'var(--space-2, 8px)' }}>
                 类型: {notification.relatedType} | ID: {notification.relatedId}
               </div>
               <button
@@ -387,17 +387,17 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
         }} onClick={handleCloseJumpModal}>
           <div style={{
             background: 'var(--bg-card)', borderRadius: 12, width: '90%', maxWidth: 400,
-            padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center',
+            padding: 'var(--space-6, 24px)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center',
           }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>
               跳转到{notification.relatedType}详情
             </div>
-            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 'var(--space-4, 16px)' }}>
               ID: {notification.relatedId}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('notification.jumpHint')}</div>
             <button onClick={handleCloseJumpModal} style={{
-              marginTop: 20, padding: '10px 24px', background: 'var(--color-primary-800)', color: '#fff',
+              marginTop: 'var(--space-5, 20px)', padding: '10px 24px', background: 'var(--color-primary-800)', color: '#fff',
               border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14,
             }}>{t('notification.confirm')}</button>
           </div>
@@ -458,7 +458,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
       )}
 
       {/* 头部 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
             width: 36, height: 36, borderRadius: 8,
@@ -524,7 +524,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
               style={{
                 padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)',
                 background: 'var(--bg-card)', color: ACCENT, fontSize: 12, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
               }}
               title={t('notification.markRead')}
             >
@@ -536,7 +536,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
             style={{
               padding: '4px 8px', borderRadius: 4, border: '1px solid #fee2e2',
               background: 'var(--bg-card)', color: DANGER, fontSize: 12, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
             }}
             title={t('notification.delete')}
           >
@@ -563,8 +563,8 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
 
   const SectionTitle = ({ children }: { children: React.ReactNode }) => (
     <div style={{
-      fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 12,
-      paddingBottom: 8, borderBottom: '1px solid var(--border-color)',
+      fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-3, 12px)',
+      paddingBottom: 'var(--space-2, 8px)', borderBottom: '1px solid var(--border-color)',
     }}>
       {children}
     </div>
@@ -583,9 +583,9 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
   return (
     <div style={{
       background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
-      padding: 16,
+      padding: 'var(--space-4, 16px)',
     }}>
-      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-4, 16px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Settings size={16} />
         {t('notification.settings')}
       </div>
@@ -642,8 +642,8 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
         icon={<BellRing size={16} />}
       />
 
-      <div style={{ marginTop: 16, padding: 12, background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fcd34d' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fcd34d' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
           <AlertCircle size={16} color={WARNING} style={{ flexShrink: 0, marginTop: 2 }} />
           <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.5 }}>
             {t('notification.settingsTip')}
@@ -726,30 +726,30 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
   return (
     <div style={{
       background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
-      padding: 16, marginBottom: 16,
+      padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)',
     }}>
-      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-4, 16px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <BarChart3 size={16} />
         {t('notification.stats')}
       </div>
 
       {/* 今日概览 */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('notification.todayOverview')}</div>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)' }}>{t('notification.todayOverview')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 'var(--space-3, 12px)', borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: PRIMARY }}>{todayStats.total}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.todayTotal')}</div>
           </div>
-          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 'var(--space-3, 12px)', borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: SUCCESS }}>{todayStats.total - todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.read')}</div>
           </div>
-          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 'var(--space-3, 12px)', borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: DANGER }}>{todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.unread')}</div>
           </div>
-          <div style={{ background: 'var(--color-error-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #fecaca' }}>
+          <div style={{ background: 'var(--color-error-bg)', padding: 'var(--space-3, 12px)', borderRadius: 8, textAlign: 'center', border: '1px solid #fecaca' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: DANGER }}>{todayStats.critical}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.typeCritical')}</div>
           </div>
@@ -757,8 +757,8 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
       </div>
 
       {/* 本周趋势 */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)', display: 'flex', justifyContent: 'space-between' }}>
           <span>近 7 日趋势 (今日 {todayStats.today} 条 · 7 日共 {weekSummary.total} 条 · 日均 {weekSummary.avg})</span>
           <span style={{ color: DANGER }}>{weekSummary.unread} 条未读</span>
         </div>
@@ -767,7 +767,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
             const maxCount = Math.max(...weekTrend.map(d => d.count), 1)
             const todayIdx = weekTrend.length - 1
             return (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <div style={{
                   width: '100%', background: i === todayIdx ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))',
                   borderRadius: 4, height: `${(day.count / maxCount) * 62}px`,
@@ -789,15 +789,15 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
 
       {/* 类型分布 */}
       <div>
-        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('notification.typeDistribution')}</div>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-2, 8px)' }}>{t('notification.typeDistribution')}</div>
         {typeDistribution.map(type => (
           <div key={type.key} style={{ marginBottom: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ color: type.color }}>{type.icon}</span>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{type.label}</span>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 {type.unread > 0 && (
                   <span style={{ fontSize: 12, color: DANGER, fontWeight: 600 }}>{type.unread}未读</span>
                 )}
@@ -818,7 +818,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
       </div>
 
       {/* [v3.0.6.11-99 Wave10B] 类型环形占比 + 阅读率 */}
-      <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-color)' }}>
+      <div style={{ marginTop: 'var(--space-5, 20px)', paddingTop: 'var(--space-4, 16px)', borderTop: '1px solid var(--border-color)' }}>
         <div style={{ fontSize: 12, color: GRAY, marginBottom: 10 }}>{t('notification.ratioRead')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ position: 'relative', width: 104, height: 104, flexShrink: 0 }}>
@@ -856,7 +856,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
               <text x="50" y="60" textAnchor="middle" fontSize="7" fill="#94a3b8">{t('notification.allNotifications')}</text>
             </svg>
           </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
             {typeDistribution.filter(t => t.count > 0).slice(0, 6).map((t, i) => {
               const colors = ['var(--color-primary-500)', 'var(--color-error-600)', '#8b5cf6', '#10b981', '#64748b', '#059669']
               const pct = notifications.length > 0 ? Math.round((t.count / notifications.length) * 1000) / 10 : 0
@@ -871,8 +871,8 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
           </div>
         </div>
         {/* 阅读率 */}
-        <div style={{ marginTop: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: GRAY, marginBottom: 4 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: GRAY, marginBottom: 'var(--space-1, 4px)' }}>
             <span>已读 {todayStats.total - todayStats.unread} / 未读 {todayStats.unread}</span>
             <span style={{ color: SUCCESS, fontWeight: 600 }}>
               阅读率 {todayStats.total > 0 ? Math.round(((todayStats.total - todayStats.unread) / todayStats.total) * 100) : 100}%
@@ -888,11 +888,11 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
               height: '100%', background: DANGER,
             }} />
           </div>
-          <div style={{ display: 'flex', gap: 14, marginTop: 4, fontSize: 10, color: GRAY }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 14, marginTop: 'var(--space-1, 4px)', fontSize: 10, color: GRAY }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <span style={{ width: 8, height: 8, borderRadius: 2, background: SUCCESS }} /> {t('notification.read')}
             </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <span style={{ width: 8, height: 8, borderRadius: 2, background: DANGER }} /> {t('notification.unread')}
             </span>
           </div>
@@ -926,14 +926,14 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
   return (
     <div style={{
       background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
-      padding: 16,
+      padding: 'var(--space-4, 16px)',
     }}>
-      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-3, 12px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Clock size={16} />
         {t('notification.latestActivity')}
       </div>
       {hourGroups.slice(0, 6).map(([hour, hourNotifs]) => (
-        <div key={hour} style={{ marginBottom: 12 }}>
+        <div key={hour} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ fontSize: 12, color: GRAY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Clock size={10} />
             {hour} ({hourNotifs.length}条)
@@ -948,8 +948,8 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
                 onClick={() => onViewNotification(n)}
                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewNotification(n) } }}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px',
-                  background: 'var(--content-bg)', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 8px',
+                  background: 'var(--content-bg)', borderRadius: 6, marginBottom: 'var(--space-1, 4px)', cursor: 'pointer',
                   border: '1px solid transparent',
                 }}
                 onMouseEnter={e => {
@@ -1003,31 +1003,31 @@ function DeliveryStatusBadge({ delivery }: { delivery: DeliveryStatus }) {
 function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRule[]; onToggle: (id: string) => void; onDelete: (id: string) => void }) {
   const EVENT_LABELS: Record<string, string> = { critical_value: t('notification.typeCritical'), report_ready: t('notification.eventReport'), schedule_change: t('notification.eventSchedule'), appointment: t('notification.typeAppointment'), system_alert: t('notification.eventSystemAlert') }
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16, marginBottom: 16 }}>
-      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-4, 16px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Zap size={16} />
         {t('notification.ruleEngine')}
       </div>
       {rules.map(rule => (
         <div key={rule.id} style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
               <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? 'var(--color-error-600)' : 'var(--text-secondary, #475569)' }}>
                 {rule.priority === 'high' ? t('notification.priorityHighLabel') : t('notification.priorityNormal')}
               </span>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>
               事件: {EVENT_LABELS[rule.eventType] || rule.eventType} · 渠道: {rule.actions.map(a => a.channel === 'in-app' ? '应用内' : a.channel === 'sms' ? '短信' : '邮件').join(', ')}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Switch size="small" checked={rule.enabled} onChange={() => onToggle(rule.id)} />
             <button onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><Trash2 size={14} /></button>
           </div>
         </div>
       ))}
-      <div style={{ marginTop: 12, padding: 12, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>
+      <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>
         {t('notification.ruleEngineHint')}
       </div>
     </div>
@@ -1039,15 +1039,15 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
 // ============================================================
 function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPreferences; onUpdate: (p: UserNotifyPreferences) => void }) {
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
-      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)' }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-4, 16px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Settings size={16} />
         {t('notification.preferences')}
       </div>
       {/* 免打扰 */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>{t('notification.quietHours')}</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', fontWeight: 600 }}>{t('notification.quietHours')}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
           <div
             role="button"
             tabIndex={0}
@@ -1060,7 +1060,7 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
           <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('notification.enableQuietHours')}</span>
         </div>
         {preferences.quietHoursEnabled && (
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
             <input type="time" value={preferences.quietHoursStart} onChange={e => onUpdate({ ...preferences, quietHoursStart: e.target.value })}
               style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
             <span style={{ color: 'var(--text-secondary)' }}>{t('notification.to')}</span>
@@ -1070,8 +1070,8 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
         )}
       </div>
       {/* 摘要模式 */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>{t('notification.digestMode')}</div>
+      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', fontWeight: 600 }}>{t('notification.digestMode')}</div>
         <select value={preferences.digestMode} onChange={e => onUpdate({ ...preferences, digestMode: e.target.value as any })}
           style={{ width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}>
           <option value="none">{t('notification.digestOff')}</option>
@@ -1079,14 +1079,14 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
           <option value="weekly">{t('notification.digestWeekly')}</option>
         </select>
         {preferences.digestMode !== 'none' && (
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('notification.sendTime')}</span>
             <input type="time" value={preferences.digestTime} onChange={e => onUpdate({ ...preferences, digestTime: e.target.value })}
               style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
           </div>
         )}
       </div>
-      <div style={{ padding: 8, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
+      <div style={{ padding: 'var(--space-2, 8px)', background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
         {t('notification.autoSaveHint')}
       </div>
     </div>
@@ -1137,14 +1137,14 @@ function SubscriptionPanel({
   return (
     <div style={{
       background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
-      padding: 16, marginTop: 12,
+      padding: 'var(--space-4, 16px)', marginTop: 'var(--space-3, 12px)',
     }}>
-      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-4, 16px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <BellRing size={16} />
         {t('notification.subscriptions')}
         {saving && <span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>{t('notification.saving')}</span>}
       </div>
-      <div style={{ fontSize: 12, color: GRAY, marginBottom: 12 }}>{t('notification.subscriptionHint')}</div>
+      <div style={{ fontSize: 12, color: GRAY, marginBottom: 'var(--space-3, 12px)' }}>{t('notification.subscriptionHint')}</div>
       {SUBSCRIPTION_DEFS.map(def => {
         const checked = types.includes(def.key)
         return (
@@ -1177,7 +1177,7 @@ function SubscriptionPanel({
           </div>
         )
       })}
-      <div style={{ marginTop: 12, padding: 8, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+      <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-2, 8px)', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
         {t('notification.subscriptionSyncHint')}
       </div>
     </div>
@@ -1607,7 +1607,7 @@ export default function NotificationCenter() {
       }}>
         {/* 标题 */}
         <div style={{ padding: '16px', borderBottom: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
             <div style={{
               width: 40, height: 40, borderRadius: 10, background: `${PRIMARY}15`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1648,7 +1648,7 @@ export default function NotificationCenter() {
         </div>
 
         {/* 分类标签 */}
-        <div style={{ padding: 12 }}>
+        <div style={{ padding: 'var(--space-3, 12px)' }}>
           {NOTIFICATION_TYPES.map(type => {
             const count = type.key === 'all' ? stats.total : stats.byType[type.key] || 0
             return (
@@ -1661,7 +1661,7 @@ export default function NotificationCenter() {
                   color: activeTab === type.key ? type.color : 'var(--text-secondary)',
                   fontSize: 12, fontWeight: activeTab === type.key ? 600 : 500,
                   cursor: 'pointer', display: 'flex', alignItems: 'center',
-                  justifyContent: 'space-between', marginBottom: 4, transition: 'all 0.15s',
+                  justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)', transition: 'all 0.15s',
                 }}
                 onMouseEnter={e => {
                   if (activeTab !== type.key) {
@@ -1674,7 +1674,7 @@ export default function NotificationCenter() {
                   }
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <span style={{ color: type.color }}>{type.icon}</span>
                   <span>{type.label}</span>
                 </div>
@@ -1694,9 +1694,9 @@ export default function NotificationCenter() {
         </div>
 
         {/* 底部设置入口 */}
-        <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid var(--border-color)' }}>
+        <div style={{ marginTop: 'auto', padding: 'var(--space-3, 12px)', borderTop: '1px solid var(--border-color)' }}>
           {/* 实时推送状态 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 8, borderRadius: 6, background: realtimeConnected ? '#d1fae5' : '#fef3c7' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 'var(--space-2, 8px)', borderRadius: 6, background: realtimeConnected ? '#d1fae5' : '#fef3c7' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: realtimeConnected ? '#059669' : 'var(--color-warning-600)' }} />
             <span style={{ fontSize: 12, color: realtimeConnected ? '#059669' : '#b45309', fontWeight: 500 }}>
               {realtimeConnected ? t('notification.realtimeConnected') : t('notification.pollingFallback')}
@@ -1712,12 +1712,12 @@ export default function NotificationCenter() {
           </div>
 
           {/* Web Push 管理 */}
-          <div style={{ padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ padding: '8px 12px', marginBottom: 'var(--space-2, 8px)', borderRadius: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <BellRing size={14} />
               {t('notification.pushManagement')}
             </div>
-            <div style={{ fontSize: 11, color: GRAY, marginBottom: 8, wordBreak: 'break-all' }}>
+            <div style={{ fontSize: 11, color: GRAY, marginBottom: 'var(--space-2, 8px)', wordBreak: 'break-all' }}>
               {vapidPublicKey ? `VAPID: ${vapidPublicKey.slice(0, 24)}…` : t('notification.vapidLoading')}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
@@ -1734,7 +1734,7 @@ export default function NotificationCenter() {
               )}
               {isAdmin && (
                 <button onClick={() => void handlePushSend()} disabled={pushBusy}
-                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
                   <Send size={14} />
                   {t('notification.testSend')}
                 </button>
@@ -1749,7 +1749,7 @@ export default function NotificationCenter() {
               background: showSettings ? `${PRIMARY}15` : 'transparent',
               color: showSettings ? PRIMARY : '#334155',
               fontSize: 12, fontWeight: 500, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', transition: 'all 0.15s',
             }}
           >
             <Settings size={16} />
@@ -1758,11 +1758,11 @@ export default function NotificationCenter() {
           <button
             onClick={() => { setShowPreferences(!showPreferences); setShowSettings(false) }}
             style={{
-              width: '100%', marginTop: 4, padding: '10px 12px', borderRadius: 8, border: 'none',
+              width: '100%', marginTop: 'var(--space-1, 4px)', padding: '10px 12px', borderRadius: 8, border: 'none',
               background: showPreferences ? `${PRIMARY}15` : 'transparent',
               color: showPreferences ? PRIMARY : '#334155',
               fontSize: 12, fontWeight: 500, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', transition: 'all 0.15s',
             }}
           >
             <Bell size={16} />
@@ -1792,7 +1792,7 @@ export default function NotificationCenter() {
           background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', padding: '14px 20px',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)',
               padding: '6px 14px', borderRadius: 8, border: '1px solid var(--border-color)',
@@ -1824,7 +1824,7 @@ export default function NotificationCenter() {
                 style={{
                   padding: '6px 12px', borderRadius: 6, border: `1px solid ${showBroadcast ? SUCCESS : 'var(--border-default, rgba(0,0,0,0.12))'}`,
                   background: showBroadcast ? `${SUCCESS}15` : 'var(--bg-card)', color: showBroadcast ? SUCCESS : GRAY,
-                  fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                  fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Send size={14} />
@@ -1836,7 +1836,7 @@ export default function NotificationCenter() {
               style={{
                 padding: '6px 12px', borderRadius: 6, border: `1px solid ${showDeliveryTracking ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))'}`,
                 background: showDeliveryTracking ? `${ACCENT}15` : 'var(--bg-card)', color: showDeliveryTracking ? ACCENT : GRAY,
-                fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               <BarChart3 size={14} />
@@ -1847,7 +1847,7 @@ export default function NotificationCenter() {
               style={{
                 padding: '6px 12px', borderRadius: 6, border: `1px solid ${showSettings ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))'}`,
                 background: showSettings ? `${ACCENT}15` : 'var(--bg-card)', color: showSettings ? ACCENT : GRAY,
-                fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               <Zap size={14} />
@@ -1858,7 +1858,7 @@ export default function NotificationCenter() {
               style={{
                 padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)',
                 background: 'var(--bg-card)', color: GRAY, fontSize: 12, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               <RefreshCw size={14} />
@@ -1870,13 +1870,13 @@ export default function NotificationCenter() {
         {/* 主内容区 */}
         <div style={{ display: 'flex', flex: 1 }}>
           {/* 通知列表 */}
-          <div style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
+          <div style={{ flex: 1, padding: 'var(--space-4, 16px)', overflowY: 'auto' }}>
             {/* 统计面板 */}
             <StatsPanel notifications={notifications} apiStats={apiStats} />
 
             {/* [v3.0.6.11-99 Wave10B] 已读/未读筛选 + 分组视图工具栏 */}
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap',
               padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 10,
               border: '1px solid var(--border-color)',
             }}>
@@ -1924,12 +1924,12 @@ export default function NotificationCenter() {
                 textAlign: 'center', padding: '60px 20px', background: 'var(--bg-card)',
                 borderRadius: 10, border: '1px solid var(--border-color)',
               }}>
-                <Bell size={48} color="var(--border-default, rgba(0,0,0,0.12))" style={{ marginBottom: 12 }} />
+                <Bell size={48} color="var(--border-default, rgba(0,0,0,0.12))" style={{ marginBottom: 'var(--space-3, 12px)' }} />
                 <div style={{ fontSize: 14, color: GRAY }}>{t('notification.noNotifications')}</div>
               </div>
             ) : groupByRead ? (
               /* [v3.0.6.11-99 Wave10B] 已读/未读分组视图 */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
                 {([
                   ['unread', t('notification.groupUnread'), DANGER],
                   ['read', t('notification.groupRead'), SUCCESS],
@@ -1939,7 +1939,7 @@ export default function NotificationCenter() {
                   return (
                     <div key={key}>
                       <div style={{
-                        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
+                        display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10,
                         fontSize: 12, fontWeight: 700, color,
                       }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
@@ -1957,14 +1957,14 @@ export default function NotificationCenter() {
                               marginLeft: 'auto', fontSize: 11, padding: '3px 10px', cursor: 'pointer',
                               border: '1px solid var(--border-color)', borderRadius: 6,
                               background: 'var(--bg-card)', color: ACCENT,
-                              display: 'flex', alignItems: 'center', gap: 4,
+                              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                             }}
                           >
                             <CheckCheck size={12} /> {t('notification.allRead')}
                           </button>
                         )}
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 'var(--space-3, 12px)' }}>
                         {items.map(notification => {
                           const delivery = deliveryStatuses.find(d => d.notificationId === notification.id)
                           return (
@@ -1993,7 +1993,7 @@ export default function NotificationCenter() {
                 })}
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 'var(--space-3, 12px)' }}>
                 {filteredNotifications.map(notification => {
                   const delivery = deliveryStatuses.find(d => d.notificationId === notification.id)
                   return (
@@ -2024,13 +2024,13 @@ export default function NotificationCenter() {
           {(showSettings || showDeliveryTracking || showPreferences) && (
             <div style={{
               width: 340, background: BG, borderLeft: '1px solid var(--border-color)',
-              padding: 16, overflowY: 'auto',
+              padding: 'var(--space-4, 16px)', overflowY: 'auto',
             }}>
               {showSettings && (
                 <div>
                   <SettingsPanel settings={settings} onUpdate={handleSettingUpdate} />
                   <SubscriptionPanel types={subscriptionTypes} onToggle={handleSubscriptionToggle} saving={subSaving} />
-                  <div style={{ marginTop: 12 }}>
+                  <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                     <RulesEnginePanel rules={rules} onToggle={(id) => setRules(prev => prev.map(r => r.id === id ? { ...r, enabled: !r.enabled } : r))}
                       onDelete={(id) => setRules(prev => prev.filter(r => r.id !== id))} />
                   </div>
@@ -2038,18 +2038,18 @@ export default function NotificationCenter() {
               )}
               {showDeliveryTracking && (
                 <div>
-                  <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16, marginBottom: 16 }}>
-                    <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+                    <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-4, 16px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <BarChart3 size={16} />
                       {t('notification.deliveryTracking')}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
                       {[
                         { label: t('notification.sent'), value: deliveryStatuses.filter(d => d.sent).length, color: ACCENT },
                         { label: t('notification.delivered'), value: deliveryStatuses.filter(d => d.delivered).length, color: SUCCESS },
                         { label: t('notification.readDone'), value: deliveryStatuses.filter(d => d.read).length, color: '#059669' },
                       ].map(s => (
-                        <div key={s.label} style={{ textAlign: 'center', padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
+                        <div key={s.label} style={{ textAlign: 'center', padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}>
                           <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</div>
                           <div style={{ fontSize: 12, color: GRAY }}>{s.label}</div>
                         </div>
@@ -2079,7 +2079,7 @@ export default function NotificationCenter() {
               )}
               {showPreferences && <PreferencesPanel preferences={userPreferences} onUpdate={setUserPreferences} />}
               {showPreferences && (
-                <div style={{ marginTop: 16 }}>
+                <div style={{ marginTop: 'var(--space-4, 16px)' }}>
                   <NotificationPreferencesSection />
                 </div>
               )}
@@ -2100,32 +2100,32 @@ export default function NotificationCenter() {
       {/* [W1-B] 广播通知弹窗: POST /notifications/broadcast */}
       {showBroadcast && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowBroadcast(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{t('notification.broadcast')}</div>
-              <button onClick={() => setShowBroadcast(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setShowBroadcast(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcTitle')} *</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', display: 'block' }}>{t('notification.bcTitle')} *</label>
                 <input value={bcForm.title} onChange={e => setBcForm({ ...bcForm, title: e.target.value })} placeholder={t('notification.bcTitlePlaceholder')}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcContent')} *</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', display: 'block' }}>{t('notification.bcContent')} *</label>
                 <textarea rows={3} value={bcForm.content} onChange={e => setBcForm({ ...bcForm, content: e.target.value })} placeholder={t('notification.bcContentPlaceholder')}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box', resize: 'vertical' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcType')}</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', display: 'block' }}>{t('notification.bcType')}</label>
                   <select value={bcForm.type} onChange={e => setBcForm({ ...bcForm, type: e.target.value as NotificationDto['type'] })}
                     style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, background: 'var(--bg-card)',}}>
                     {['CRITICAL', 'REPORT', 'TASK', 'SYSTEM', 'APPOINTMENT'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcSeverity')}</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', display: 'block' }}>{t('notification.bcSeverity')}</label>
                   <select value={bcForm.severity ?? 'INFO'} onChange={e => setBcForm({ ...bcForm, severity: e.target.value as NotificationDto['severity'] })}
                     style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, background: 'var(--bg-card)',}}>
                     {['INFO', 'WARN', 'ERROR', 'CRITICAL'].map(t => <option key={t} value={t}>{t}</option>)}
@@ -2133,11 +2133,11 @@ export default function NotificationCenter() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcUsers')}</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', display: 'block' }}>{t('notification.bcUsers')}</label>
                 <input value={bcForm.userIds} onChange={e => setBcForm({ ...bcForm, userIds: e.target.value })} placeholder={t('notification.bcUsersPlaceholder')}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, cursor: 'pointer' }}>{t('notification.cancel')}</button>
                 <button onClick={() => void handleBroadcast()} disabled={bcSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: SUCCESS, color: WHITE, fontSize: 12, fontWeight: 600, cursor: bcSaving ? 'wait' : 'pointer' }}>{bcSaving ? t('notification.sendingBroadcast') : t('notification.sendBroadcast')}</button>
               </div>

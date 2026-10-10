@@ -170,7 +170,7 @@ export default function KeywordCheckPage() {
     {
       title: t('w3tables.col.patient'), dataIndex: 'patientName', key: 'patientName',
       render: (_: unknown, r) => (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
           <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', borderRadius: 2 }}>{r.modality}</span>
         </div>
@@ -202,7 +202,7 @@ export default function KeywordCheckPage() {
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{v}</div>
           <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{issue.suggestion}</div>
           {issue.matched && issue.matched !== '未找到' && (
-            <div style={{ fontSize: 12, padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#78350f', borderRadius: 3, marginTop: 4, display: 'inline-block', fontFamily: 'monospace' }}>"{issue.matched}"</div>
+            <div style={{ fontSize: 12, padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#78350f', borderRadius: 3, marginTop: 'var(--space-1, 4px)', display: 'inline-block', fontFamily: 'monospace' }}>"{issue.matched}"</div>
           )}
         </div>
       ),
@@ -210,11 +210,11 @@ export default function KeywordCheckPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Search size={20} color="var(--color-primary-500)" /> {t('kwc.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
             <span style={{
@@ -229,10 +229,10 @@ export default function KeywordCheckPage() {
           </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('kwc.subtitle', { count: ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion })}
-            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-2, 8px)' }}>{apiError}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={handleScan}
             disabled={scanning}
@@ -260,7 +260,7 @@ export default function KeywordCheckPage() {
       </div>
 
       {/* 规则库统计 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <RuleStatCard icon={Activity} label={t('kwc.cat.anatomy')} count={ruleStats.anatomy} color="var(--color-primary-500)" />
         <RuleStatCard icon={ShieldAlert} label={t('kwc.cat.logic')} count={ruleStats.logic} color="var(--color-error-600)" />
         <RuleStatCard icon={XCircle} label={t('kwc.negation')} count={ruleStats.negation} color="var(--color-warning-500)" />
@@ -270,7 +270,7 @@ export default function KeywordCheckPage() {
       </div>
 
       {/* 报告选择器 + 扫描区 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：报告列表 */}
         <div style={{
           background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
@@ -297,11 +297,11 @@ export default function KeywordCheckPage() {
         </div>
 
         {/* 右：扫描结果 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           {/* 当前报告 */}
           {currentReport && (
             <div style={{
-              background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
+              background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
@@ -311,7 +311,7 @@ export default function KeywordCheckPage() {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('kwc.reportIdLabel')}{currentReport.id}</div>
                 </div>
                 {scanResult && (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
                     <div style={{
                       fontSize: 24, fontWeight: 700,
                       color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? 'var(--color-primary-500)' : scanResult.score >= 60 ? 'var(--color-warning-500)' : 'var(--color-error-600)',
@@ -328,7 +328,7 @@ export default function KeywordCheckPage() {
 
               {/* 进度条 */}
               {scanning && (
-                <div style={{ marginTop: 12 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                   <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{
                       width: `${scanProgress}%`, height: '100%',
@@ -336,7 +336,7 @@ export default function KeywordCheckPage() {
                       transition: 'width 0.1s linear',
                     }} />
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, textAlign: 'center' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)', textAlign: 'center' }}>
                     {t('kwc.scanning', { percent: scanProgress })}
                   </div>
                 </div>
@@ -347,7 +347,7 @@ export default function KeywordCheckPage() {
           {/* 扫描结果统计 */}
           {scanResult && !scanning && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)' }}>
                 <ScoreCard icon={XCircle} label={t('kwc.sev.error')} count={scanResult.errorCount} color="var(--color-error-600)" />
                 <ScoreCard icon={AlertTriangle} label={t('kwc.sev.warning')} count={scanResult.warningCount} color="var(--color-warning-500)" />
                 <ScoreCard icon={Info} label={t('kwc.sev.info')} count={scanResult.infoCount} color="var(--color-primary-500)" />
@@ -357,7 +357,7 @@ export default function KeywordCheckPage() {
               {/* 过滤器 */}
               <div style={{
                 background: 'var(--bg-card)', borderRadius: 8, padding: 10, border: '1px solid var(--border-color)',
-                display: 'flex', alignItems: 'center', gap: 8,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
               }}>
                 <Filter size={12} color="var(--text-secondary)" />
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('kwc.filterLabel')}</span>
@@ -379,7 +379,7 @@ export default function KeywordCheckPage() {
               </div>
 
               {/* 问题列表 */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-2, 8px)' }}>
                 {/* 左：问题列表 */}
                 <div style={{
                   background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
@@ -392,10 +392,10 @@ export default function KeywordCheckPage() {
                     showPagination={false}
                     scroll={{ x: 'max-content' }}
                     emptyText={(
-                      <div style={{ padding: 20, textAlign: 'center', color: '#10b981' }}>
+                      <div style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: '#10b981' }}>
                         <CheckCircle2 size={40} style={{ display: 'block', margin: '0 auto 8px' }} />
                         <div style={{ fontSize: 12, fontWeight: 700 }}>{t('kwc.noIssues')}</div>
-                        <div style={{ fontSize: 12, marginTop: 4 }}>{t('kwc.noIssuesHint')}</div>
+                        <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{t('kwc.noIssuesHint')}</div>
                       </div>
                     )}
                     onRow={(issue) => ({
@@ -407,22 +407,22 @@ export default function KeywordCheckPage() {
 
                 {/* 右：详情 + 建议 */}
                 <div style={{
-                  background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
+                  background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)',
                 }}>
                   {selectedIssue ? (
                     <>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('kwc.issueDetail')}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('kwc.issueDetail')}</div>
                       <DetailRow label={t('kwc.severity')} value={SEVERITY_CONFIG[selectedIssue.severity]!.label} color={SEVERITY_CONFIG[selectedIssue.severity]!.color} />
                       <DetailRow label={t('kwc.categoryLabel')} value={CATEGORY_LABELS[selectedIssue.category]!} />
                       <DetailRow label={t('kwc.ruleId')} value={selectedIssue.ruleId} />
                       <DetailRow label={t('kwc.position')} value={selectedIssue.position >= 0 ? t('kwc.charPosition', { pos: selectedIssue.position }) : t('kwc.fullText')} />
-                      <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
-                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('kwc.suggestionLabel')}</div>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('kwc.suggestionLabel')}</div>
                         <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedIssue.suggestion}</div>
                       </div>
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12, padding: 20 }}>
+                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12, padding: 'var(--space-5, 20px)' }}>
                       {t('kwc.clickIssue')}
                     </div>
                   )}
@@ -433,12 +433,12 @@ export default function KeywordCheckPage() {
 
           {!scanResult && !scanning && (
             <div style={{
-              background: 'var(--bg-card)', borderRadius: 8, padding: 40, textAlign: 'center',
+              background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-10, 40px)', textAlign: 'center',
               border: '1px dashed var(--border-color)',
             }}>
               <Search size={48} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 8px' }} />
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('kwc.scanPrompt')}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>
                 {t('kwc.scanPromptHint')}
               </div>
             </div>
@@ -462,7 +462,7 @@ const selectStyle: React.CSSProperties = {
 const RuleStatCard: React.FC<{ icon: any; label: string; count: number; color: string }> = ({ icon: Icon, label, count, color }) => (
   <div style={{
     background: 'var(--bg-card)', padding: 10, borderRadius: 8,
-    border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8,
+    border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
   }}>
     <div style={{
       width: 32, height: 32, borderRadius: 6,
@@ -483,7 +483,7 @@ const RuleStatCard: React.FC<{ icon: any; label: string; count: number; color: s
 // ============================================================
 const ScoreCard: React.FC<{ icon: any; label: string; count: number; color: string }> = ({ icon: Icon, label, count, color }) => (
   <div style={{
-    background: 'var(--bg-card)', padding: 12, borderRadius: 8,
+    background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8,
     border: `1px solid ${color}30`,
     textAlign: 'center',
   }}>

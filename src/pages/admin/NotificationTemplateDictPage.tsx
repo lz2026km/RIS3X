@@ -187,7 +187,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Bell size={20} color="#f5222d" />
         <FileText size={20} color="var(--color-primary-600)" />
         <BookOpen size={20} color="#52c41a" />
@@ -224,7 +224,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               </Space>
             </Col>
           </Row>
-          <Card style={{ marginTop: 16 }} size="small">
+          <Card style={{ marginTop: 'var(--space-4, 16px)' }} size="small">
             <List
               dataSource={filteredNotifs}
               renderItem={(n: any) => (
@@ -248,7 +248,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                     description={
                       <div>
                         <div>{n.content}</div>
-                        <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>
+                        <div style={{ fontSize: 11, color: '#999', marginTop: 'var(--space-1, 4px)' }}>
                           {n.patientName || '-'} | {n.doctorName || '-'} | {new Date(n.createdAt).toLocaleString('zh-CN')}
                         </div>
                       </div>

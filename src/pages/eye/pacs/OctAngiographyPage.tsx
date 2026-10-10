@@ -56,9 +56,9 @@ const OctAngiographyPage: React.FC = () => {
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
-  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
+  if (loading) return <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
   if (!study) return (
-    <div style={{ padding: 16, textAlign: 'center' }}>
+    <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {t('w9d.octa.empty')}
     </div>
@@ -66,12 +66,12 @@ const OctAngiographyPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RefreshCw size={16} />} onClick={() => setReloadTick((n) => n + 1)}>{t('w1tables.viewer.refresh')}</Button>
         <Button type="primary" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.viewer.export')}</Button>
       </div>
@@ -110,13 +110,13 @@ const OctAngiographyPage: React.FC = () => {
                     }}
                   >
                     <Droplets size={24} />
-                    <span style={{ marginTop: 4 }}>{layer}</span>
+                    <span style={{ marginTop: 'var(--space-1, 4px)' }}>{layer}</span>
                   </div>
                   <div
                     style={{
                       fontSize: 12,
                       textAlign: "center",
-                      marginTop: 4,
+                      marginTop: 'var(--space-1, 4px)',
                       color: "var(--text-secondary)",
                     }}
                   >
@@ -126,7 +126,7 @@ const OctAngiographyPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title={t('w9d.octa.quantTitle')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.octa.quantTitle')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Row gutter={16}>
               {measurements.slice(0, 6).map((m) => (
                 <Col span={8} key={m.id}>
@@ -144,7 +144,7 @@ const OctAngiographyPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title={t('w9d.octa.cnvTitle')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.octa.cnvTitle')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <div
               style={{
                 background: "#0f172a",
@@ -160,7 +160,7 @@ const OctAngiographyPage: React.FC = () => {
               <Target size={36} />
               <span>CNV 彩色血流叠加图 (面积 1.85mm², 血流面积 1.22mm²)</span>
               <div
-                style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 12 }}
+                style={{ display: "flex", gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)', fontSize: 12 }}
               >
                 <span>
                   <Tag color="red">CNV 区域</Tag> 面积 1.85mm²

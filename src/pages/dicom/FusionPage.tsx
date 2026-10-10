@@ -532,14 +532,14 @@ export default function FusionPage() {
   }
 
   return (
-    <div data-testid="fusion-page" style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+    <div data-testid="fusion-page" style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('nav.dicomFusion')}</span>
 
         <div style={{ flex: 1 }} />
 
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
           {(['pet-ct', 'mr-dwi'] as const).map(m => (
             <button key={m} style={fusionMode === m ? activeBtnStyle : btnStyle} onClick={() => setFusionMode(m)}>
               {m === 'pet-ct' ? 'PET/CT' : 'MR/DWI'}
@@ -549,7 +549,7 @@ export default function FusionPage() {
 
         <div style={{ width: 1, height: 20, background: '#334155' }} />
 
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
           {(['axial', 'coronal', 'sagittal'] as const).map(p => (
             <button key={p} style={plane === p ? activeBtnStyle : btnStyle} onClick={() => setPlane(p)}>
               <Monitor size={12} /> {p === 'axial' ? t('fusion.axial') : p === 'coronal' ? t('fusion.coronal') : t('fusion.sagittal')}
@@ -568,7 +568,7 @@ export default function FusionPage() {
         <button style={btnStyle} onClick={handleReset} aria-label={t('fusionPage.resetView')}><RotateCw size={12} /></button>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', background: PANEL_BG, borderRadius: 6, padding: '6px 12px' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center', background: PANEL_BG, borderRadius: 6, padding: '6px 12px' }}>
         <Layers size={14} color={BLUE} />
         <label htmlFor="fusion-alpha" style={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>{t('fusion.opacity')}</label>
         <input
@@ -591,7 +591,7 @@ export default function FusionPage() {
       </div>
 
       <div style={{ display: 'flex', gap: 10, height: 'calc(100vh - 160px)', minHeight: 400 }}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
           <div style={{ flex: 1, background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', position: 'relative' }}>
             <ViewportCanvas
               plane={plane}
@@ -613,7 +613,7 @@ export default function FusionPage() {
               lesionOverlay={activeLesion}
             />
           </div>
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
             <Sun size={10} color={BLUE} />
             <span style={{ fontSize: 10, color: '#94a3b8' }}>{primaryLabel}</span>
             <Minus size={8} />
@@ -627,7 +627,7 @@ export default function FusionPage() {
             <Plus size={8} />
           </div>
           {fusionAlpha > 0 && (
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
               <Sun size={10} color="#facc15" />
               <span style={{ fontSize: 10, color: '#94a3b8' }}>{fusionLabel}</span>
               <Minus size={8} />
@@ -641,7 +641,7 @@ export default function FusionPage() {
               <Plus size={8} />
             </div>
           )}
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
             <span style={{ fontSize: 10, color: '#64748b' }}>{t('fusion.slice')}</span>
             <Minus size={8} />
             <input
@@ -656,9 +656,9 @@ export default function FusionPage() {
         </div>
 
         {/* [G005 Wave4A G-06] SUV 定量面板 */}
-        <div style={{ width: 292, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
-          <div style={{ background: PANEL_BG, borderRadius: 6, padding: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <div style={{ width: 292, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', overflowY: 'auto' }}>
+          <div style={{ background: PANEL_BG, borderRadius: 6, padding: 'var(--space-3, 12px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('fusionPage.suvQuant')}</span>
               <span style={{ fontSize: 10, color: '#64748b' }}>PET-CT</span>
               <div style={{ flex: 1 }} />
@@ -676,7 +676,7 @@ export default function FusionPage() {
             {!suvLoading && (!suvResult || !suvResult.hasPet) ? (
               <div style={{ textAlign: 'center', padding: '28px 8px', color: '#475569', fontSize: 12 }}>
                 <p style={{ margin: 0, fontWeight: 600, color: '#64748b' }}>{t('fusionPage.noPetData')}</p>
-                <p style={{ margin: 0, marginTop: 4, fontSize: 11 }}>{t('fusionPage.noPetDesc')}</p>
+                <p style={{ margin: 0, marginTop: 'var(--space-1, 4px)', fontSize: 11 }}>{t('fusionPage.noPetDesc')}</p>
               </div>
             ) : suvResult && suvResult.suv ? (
               <>
@@ -705,7 +705,7 @@ export default function FusionPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 6 }}>
                   {t('fusionPage.lesionList', { count: suvResult.lesions.length })}<span style={{ fontWeight: 400 }}>{t('fusionPage.clickOverlay')}</span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                   {suvResult.lesions.length === 0 && (
                     <div style={{ fontSize: 11, color: '#475569' }}>{t('fusionPage.noLesion')}</div>
                   )}
@@ -714,7 +714,7 @@ export default function FusionPage() {
                       key={l.id}
                       onClick={() => handleSelectLesion(l)}
                       style={{
-                        display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', textAlign: 'left', cursor: 'pointer',
                         background: activeLesion?.id === l.id ? '#22d3ee22' : '#0f172a',
                         border: `1px solid ${activeLesion?.id === l.id ? '#22d3ee88' : '#334155'}`,
                         borderRadius: 6, padding: '7px 9px', color: '#cbd5e1', fontSize: 12,

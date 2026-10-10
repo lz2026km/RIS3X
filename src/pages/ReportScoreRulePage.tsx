@@ -101,11 +101,11 @@ export default function ReportScoreRulePage() {
   }
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Sliders size={20} color="#7c3aed" /> 多维评分规则配置
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
           </Typography.Title>
@@ -113,13 +113,13 @@ export default function ReportScoreRulePage() {
             5 大评分维度 · 权重配置 · 评分规则 · 等级映射 · KPI 统计
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={handleReset}
             style={{
               padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6,
               background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
             }}
           >
             <RotateCcw size={12} /> 恢复默认
@@ -129,7 +129,7 @@ export default function ReportScoreRulePage() {
             style={{
               padding: '6px 12px', border: 'none', borderRadius: 6,
               background: '#10b981', color: '#fff', fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
             }}
           >
             <Save size={12} /> 保存配置
@@ -141,7 +141,7 @@ export default function ReportScoreRulePage() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* KPI 概览 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard icon={FileText} label="累计评分" value={kpi.totalEvaluated} color="var(--color-primary-500)" />
         <KpiCard icon={TrendingUp} label="平均分" value={kpi.avgScore} color="#10b981" />
         <KpiCard icon={CheckCircle2} label="甲级率" value={`${kpi.gradeRate.甲}%`} color="#047857" />
@@ -149,9 +149,9 @@ export default function ReportScoreRulePage() {
         <KpiCard icon={AlertCircle} label="需重训" value={kpi.retrainingNeeded} color="var(--color-warning-500)" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：维度列表 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           {/* 维度列表 */}
           <div style={{
             background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden',
@@ -171,13 +171,13 @@ export default function ReportScoreRulePage() {
                 key={dim.id}
                 onClick={() => setSelectedDim(dim.id)}
                 style={{
-                  padding: 12, borderBottom: '1px solid var(--border-light)',
+                  padding: 'var(--space-3, 12px)', borderBottom: '1px solid var(--border-light)',
                   background: selectedDim === dim.id ? 'var(--color-info-bg)' : 'transparent',
                   borderLeft: selectedDim === dim.id ? `3px solid ${dim.color}` : '3px solid transparent',
                   cursor: 'pointer',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                   <span style={{ fontSize: 18 }}>{dim.icon}</span>
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{dim.name}</span>
                   <span style={{
@@ -197,7 +197,7 @@ export default function ReportScoreRulePage() {
               style={{
                 width: '100%', padding: 10, border: 'none', background: 'var(--bg-card)',
                 color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', gap: 4,
+                alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               <Plus size={12} /> 添加新维度
@@ -220,7 +220,7 @@ export default function ReportScoreRulePage() {
                 padding: 10, borderBottom: '1px solid var(--border-light)',
                 background: g.bg, borderLeft: `3px solid ${g.color}`,
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: g.color }}>
                     {g.grade} 级
                   </span>
@@ -229,7 +229,7 @@ export default function ReportScoreRulePage() {
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{g.description}</div>
-                <div style={{ fontSize: 12, color: g.color, fontWeight: 600, marginTop: 4 }}>→ {g.action}</div>
+                <div style={{ fontSize: 12, color: g.color, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>→ {g.action}</div>
               </div>
             ))}
           </div>
@@ -238,9 +238,9 @@ export default function ReportScoreRulePage() {
         {/* 右：维度详情 */}
         {currentDim ? (
           <div style={{
-            background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
+            background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 10,
                 background: `${currentDim.color}15`, color: currentDim.color,
@@ -260,7 +260,7 @@ export default function ReportScoreRulePage() {
             </div>
 
             {/* 权重滑块 */}
-            <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 6 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 6 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>
                 权重配置 (0-100%)
               </div>
@@ -271,19 +271,19 @@ export default function ReportScoreRulePage() {
                 onChange={e => updateDim(currentDim.id, { weight: Number(e.target.value) / 100 })}
                 style={{ width: '100%' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>
                 <span>0%</span><span>50%</span><span>100%</span>
               </div>
             </div>
 
             {/* 评估标准 */}
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <ListChecks size={13} /> 评估标准 ({currentDim.evaluationCriteria.length} 项)
               </div>
               {currentDim.evaluationCriteria.map((c, i) => (
                 <div key={i} style={{
-                  padding: '6px 10px', marginBottom: 4,
+                  padding: '6px 10px', marginBottom: 'var(--space-1, 4px)',
                   background: 'var(--bg-card)', borderRadius: 4,
                   border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)',
                   display: 'flex', alignItems: 'center', gap: 6,
@@ -295,16 +295,16 @@ export default function ReportScoreRulePage() {
 
             {/* 评分规则 */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Calculator size={13} /> 评分规则
               </div>
               {currentDim.scoringRules.map((rule, i) => (
                 <div key={i} style={{
-                  padding: 8, marginBottom: 4,
+                  padding: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)',
                   background: rule.score >= 90 ? 'var(--color-success-bg)' : rule.score >= 75 ? 'var(--color-info-bg)' : rule.score >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
                   border: `1px solid ${rule.score >= 90 ? '#bbf7d0' : rule.score >= 75 ? '#bfdbfe' : rule.score >= 60 ? '#fcd34d' : '#fca5a5'}`,
                   borderRadius: 4, fontSize: 12,
-                  display: 'flex', alignItems: 'center', gap: 8,
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
                 }}>
                   <span style={{
                     fontSize: 16, fontWeight: 700, minWidth: 50,

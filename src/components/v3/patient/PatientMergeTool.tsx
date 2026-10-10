@@ -125,7 +125,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
 
   return (
     <div data-testid="patient-merge-tool">
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic title={t('w9e.patientMerge.statDuplicate')} value={stats.total} />
@@ -154,7 +154,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         allowClear
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
         data-testid="merge-search"
       />
 
@@ -165,7 +165,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
           <Card
             key={idx}
             size="small"
-            style={{ marginBottom: 12, borderColor: d.score >= 80 ? 'var(--color-error-600)' : '#fcd34d' }}
+            style={{ marginBottom: 'var(--space-3, 12px)', borderColor: d.score >= 80 ? 'var(--color-error-600)' : '#fcd34d' }}
             data-testid={`merge-row-${idx}`}
             title={
               <Space>
@@ -212,7 +212,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
               </Col>
               <Col span={11}>{renderCandidate(d.match, 'match')}</Col>
             </Row>
-            <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
               {t('w9e.patientMerge.factorLine', { name: d.nameScore, idCard: d.idCardScore, phone: d.phoneScore, birth: d.birthDateScore, gender: d.genderScore, address: d.addressScore })}
             </div>
           </Card>
@@ -241,7 +241,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
             />
             <div>
               <strong>{t('w9e.patientMerge.keepArchive')}</strong>
-              <Radio.Group value={keepId} onChange={(e) => setKeepId(e.target.value)} style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+              <Radio.Group value={keepId} onChange={(e) => setKeepId(e.target.value)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', marginTop: 'var(--space-1, 4px)' }}>
                 <Radio value={confirm.source.id}>
                   {confirm.source.name} ({confirm.source.id}){t('w9e.patientMerge.visitsSuffix', { count: confirm.source.visitCount })}
                 </Radio>

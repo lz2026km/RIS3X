@@ -87,7 +87,7 @@ export default function AppointmentCalendar(props: Props) {
     <>
       {contextMenuNode}
       {statsData.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           {statsData.map(stat => (
             <div key={stat.label} style={{ background: whiteBg, borderRadius: 8, padding: '10px 12px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', border: `1px solid ${borderGray}`, textAlign: 'center' }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: stat.color }}>{stat.value}</div>
@@ -97,18 +97,18 @@ export default function AppointmentCalendar(props: Props) {
         </div>
       )}
 
-      <div style={{ background: whiteBg, borderRadius: 10, padding: '12px 16px', marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}` }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 1 }}>
+      <div style={{ background: whiteBg, borderRadius: 10, padding: '12px 16px', marginBottom: 'var(--space-3, 12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: 'var(--bg-card)', borderRadius: 6, padding: 1 }}>
             {(['calendar', 'list', 'reminders'] as const).map(mode => (
-              <button key={mode} onClick={() => setViewMode(mode)} style={{ padding: '6px 12px', background: viewMode === mode ? whiteBg : 'transparent', color: viewMode === mode ? primaryBlue : textGray, border: 'none', borderRadius: 5, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button key={mode} onClick={() => setViewMode(mode)} style={{ padding: '6px 12px', background: viewMode === mode ? whiteBg : 'transparent', color: viewMode === mode ? primaryBlue : textGray, border: 'none', borderRadius: 5, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 {mode === 'calendar' ? <CalendarDays size={13} /> : mode === 'list' ? <List size={13} /> : <Bell size={13} />}
                 {mode === 'calendar' ? '日历' : mode === 'list' ? '列表' : '提醒'}
               </button>
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <button onClick={() => setShowWaitlist(!showWaitlist)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: showWaitlist ? lightBlue : 'transparent', color: primaryBlue, display: 'flex', alignItems: 'center', gap: 4 }}>等候名单</button>
+            <button onClick={() => setShowWaitlist(!showWaitlist)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: showWaitlist ? lightBlue : 'transparent', color: primaryBlue, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>等候名单</button>
           </div>
           {viewMode === 'calendar' && (
             <div style={{ display: 'flex', background: 'var(--bg-card)', borderRadius: 6, padding: 1 }}>
@@ -117,7 +117,7 @@ export default function AppointmentCalendar(props: Props) {
               ))}
             </div>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Filter size={14} style={{ color: textGray }} />
             <select value={selectedDevice} onChange={e => setSelectedDevice(e.target.value)} style={{ padding: '5px 10px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: primaryBlue, background: whiteBg, cursor: 'pointer',}}>
               <option value="all">全部设备</option>
@@ -151,7 +151,7 @@ export default function AppointmentCalendar(props: Props) {
             {weekDates.map((d, dayIdx) => {
               const dateStr = formatDate(d)
               const dayApts = appointments.filter(a => a.examDate === dateStr && a.status !== 'cancelled')
-              return (<div key={dayIdx} style={{ minHeight: 100, borderRight: dayIdx < 6 ? `1px solid ${borderGray}` : 'none', borderBottom: `1px solid ${borderGray}`, padding: 4 }}>
+              return (<div key={dayIdx} style={{ minHeight: 100, borderRight: dayIdx < 6 ? `1px solid ${borderGray}` : 'none', borderBottom: `1px solid ${borderGray}`, padding: 'var(--space-1, 4px)' }}>
                 {dayApts.slice(0, 3).map(apt => (
                   <div key={apt.id} onClick={() => openDetail(apt)} style={{ padding: '1px 3px', borderRadius: 3, fontSize: 12, background: getStatusConfig(apt.status).bg, borderLeft: `2px solid ${getStatusConfig(apt.status).color}`, marginBottom: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}>
                     {apt.patientName} {apt.examTime}
@@ -174,7 +174,7 @@ export default function AppointmentCalendar(props: Props) {
               const slotApts = appointments.filter(a => a.examDate === formatDate(currentWeekStart) && a.examTime === slot && a.status !== 'cancelled')
               return (<div key={slot} style={{ display: 'flex', borderBottom: `1px solid ${borderGray}`, minHeight: 36 }}>
                 <div style={{ width: 60, padding: '6px 8px', fontSize: 12, fontWeight: 600, color: primaryBlue, borderRight: `1px solid ${borderGray}`, flexShrink: 0 }}>{slot}</div>
-                <div style={{ flex: 1, padding: '4px 6px', display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, padding: '4px 6px', display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                   {slotApts.map(apt => (
                     <div key={apt.id} onClick={() => openDetail(apt)} style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: getStatusConfig(apt.status).bg, color: getStatusConfig(apt.status).color, fontWeight: 600, cursor: 'pointer', border: `1px solid ${getStatusConfig(apt.status).color}` }}>
                       {apt.patientName} · {apt.examItemName}
@@ -287,7 +287,7 @@ export default function AppointmentCalendar(props: Props) {
                 {
                   title: '操作', key: 'actions',
                   render: (_: unknown, apt: Appointment) => (
-                    <div style={{ display: 'flex', gap: 4 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                       <button onClick={e => { e.stopPropagation(); openDetail(apt) }} style={{ padding: '3px 8px', borderRadius: 4, border: 'none', background: lightBlue, color: primaryBlue, fontSize: 12, cursor: 'pointer' }}>详情</button>
                     </div>
                   ),

@@ -116,7 +116,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
   const hasData = !!overview || !!trend || !!rooms || !!calendar
 
   return (
-    <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ marginTop: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       <DashboardCard
         title={t('deviceMgmtBoard.title')}
         icon={<Gauge size={16} />}
@@ -147,7 +147,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
         error={!loading && error && !hasData ? error : undefined}
         onRetry={load}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <StatCardGrid minWidth={170} gap={12}>
             <StatCard title={t('deviceMgmtBoard.total')} value={NUM(overview?.total)} icon={<Server size={18} />} color="primary" />
             <StatCard title={t('deviceMgmtBoard.online')} value={NUM(overview?.online)} icon={<Monitor size={18} />} color="success" />
@@ -157,7 +157,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
             <StatCard title={t('deviceMgmtBoard.maintenanceDue')} value={NUM(overview?.maintenanceDue)} icon={<Wrench size={18} />} color={NUM(overview?.maintenanceDue) > 0 ? 'warning' : 'success'} />
           </StatCardGrid>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 'var(--space-4, 16px)' }}>
             <DashboardCard
               title={t('deviceMgmtBoard.usageTrend')}
               icon={<TrendingUp size={15} />}
@@ -201,7 +201,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
             </DashboardCard>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 'var(--space-4, 16px)' }}>
             <DashboardCard
               title={t('deviceMgmtBoard.maintCalendar')}
               icon={<CalendarDays size={15} />}
@@ -216,7 +216,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                 ) : null
               }
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 320, overflowY: 'auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', maxHeight: 320, overflowY: 'auto' }}>
                 {(calendar?.months ?? []).map((m) => (
                   <div key={m.month}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-700, var(--color-primary-700))', marginBottom: 6 }}>
@@ -232,7 +232,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                           padding: '6px 10px',
                           borderRadius: 6,
                           background: 'var(--bg-primary)',
-                          marginBottom: 4,
+                          marginBottom: 'var(--space-1, 4px)',
                           fontSize: 12,
                         }}
                       >
@@ -244,7 +244,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                   </div>
                 ))}
                 {(calendar?.months ?? []).length === 0 && (
-                  <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-secondary, #94a3b8)' }}>
+                  <div style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: 'var(--text-secondary, #94a3b8)' }}>
                     {t('deviceMgmtBoard.noData')}
                   </div>
                 )}
@@ -261,7 +261,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               <select
                 value={selectedDeviceId}
                 onChange={(e) => setSelectedDeviceId(e.target.value)}
-                style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)', fontSize: 12, marginBottom: 12, background: 'var(--bg-card)' }}
+                style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)', fontSize: 12, marginBottom: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}
               >
                 <option value="">{t('deviceMgmtBoard.selectDevice')}</option>
                 {devices.map((d) => (
@@ -274,7 +274,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               {detailLoading && <div style={{ fontSize: 12, color: 'var(--text-secondary, #64748b)' }}>{t('deviceMgmtBoard.loading')}</div>}
 
               {!detailLoading && detail && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                   {[
                     [t('deviceMgmtBoard.fieldCode'), detail.code ?? '—'],
                     [t('deviceMgmtBoard.fieldModality'), detail.modality ?? '—'],
@@ -294,7 +294,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               )}
 
               {!detailLoading && !detail && selectedDeviceId && (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary, #94a3b8)' }}>{t('deviceMgmtBoard.noData')}</div>
+                <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center', color: 'var(--text-secondary, #94a3b8)' }}>{t('deviceMgmtBoard.noData')}</div>
               )}
             </DashboardCard>
           </div>

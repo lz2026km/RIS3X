@@ -108,7 +108,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
   return (
     <div
       data-testid={`${testIdPrefix}-indicator`}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}
     >
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {visible.slice(0, maxVisible).map((u, idx) => {
@@ -197,7 +197,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
       <div style={{ fontSize: 12, color: '#475569' }}>
         <span data-testid={`${testIdPrefix}-count`}>{summary.total} 人在线</span>
         {!compact && (
-          <span style={{ marginLeft: 8, color: '#64748b' }}>
+          <span style={{ marginLeft: 'var(--space-2, 8px)', color: '#64748b' }}>
             ({summary.editing} 编辑中 / {summary.viewing} 查看中)
           </span>
         )}

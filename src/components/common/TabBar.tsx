@@ -15,7 +15,7 @@ interface TabBarProps {
 
 export function TabBar({ tabs, activeKey, onChange }: TabBarProps) {
   return (
-    <div style={{ display: 'flex', gap: 4, borderBottom: '2px solid #e2e8f0', marginBottom: 18 }}>
+    <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', borderBottom: '2px solid #e2e8f0', marginBottom: 18 }}>
       {tabs.map((tab) => (
         <button
           key={tab.key}

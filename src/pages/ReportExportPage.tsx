@@ -228,11 +228,11 @@ export default function ReportExportPage() {
   }, []);
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Download size={20} color="var(--color-error-600)" /> {t('rex.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
@@ -241,7 +241,7 @@ export default function ReportExportPage() {
             {t('rex.subtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <Tabs
             activeKey={view}
             onChange={(k) => setView(k as 'classic' | 'v3' | 'v2')}
@@ -281,11 +281,11 @@ export default function ReportExportPage() {
 
       {view === 'v2' ? (
         // [v3.0.6.11-103 Wave 2A] 导出中心 V2: report-export-center-v2 10 端点全量 UI (报告注册表/任务/批量/历史/统计)
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)' }}>
           <ReportExportCenterPanelV2 />
         </div>
       ) : view === 'v3' ? (
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Tabs
             defaultActiveKey="cda"
             tabBarExtraContent={
@@ -307,14 +307,14 @@ export default function ReportExportPage() {
         <>
 
       {/* KPI 卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard icon={Download} label={t('rex.kpiTotal')} value={deliveryKpi.totalThisMonth} color="var(--color-primary-500)" />
         <KpiCard icon={CheckCircle2} label={t('rex.kpiSuccessRate')} value={`${deliveryKpi.successRate}%`} color="#10b981" />
         <KpiCard icon={Zap} label={t('rex.kpiAvgTime')} value={deliveryKpi.avgDeliveryTime} color="#7c3aed" />
         <KpiCard icon={Eye} label={t('rex.kpiPublishedRate')} value={`${deliveryKpi.readRate}%`} color="var(--color-warning-500)" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：模板列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
@@ -338,19 +338,19 @@ export default function ReportExportPage() {
                   key={tpl.id}
                   onClick={() => setSelectedTemplateId(tpl.id)}
                   style={{
-                    padding: 12, borderBottom: '1px solid var(--border-light)',
+                    padding: 'var(--space-3, 12px)', borderBottom: '1px solid var(--border-light)',
                     background: isSelected ? '#fef2f2' : 'transparent',
                     borderLeft: isSelected ? '3px solid var(--color-error-600)' : '3px solid transparent',
                     cursor: 'pointer',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontSize: 18 }}>{tpl.icon}</span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{tpl.name}</span>
                     {isSelected && <CheckCircle2 size={14} color="var(--color-error-600)" />}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{tpl.description}</div>
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{tpl.description}</div>
+                  <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                     {tpl.hasImages && <Tag color="var(--color-primary-500)">{t('rex.tagImage')}</Tag>}
                     {tpl.hasSignature && <Tag color="#7c3aed">{t('rex.tagSignature')}</Tag>}
                     {tpl.hasQRCode && <Tag color="#10b981">{t('rex.tagQr')}</Tag>}
@@ -363,12 +363,12 @@ export default function ReportExportPage() {
         </div>
 
         {/* 右：模板详情 + 报告选择 + 导出 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           {selectedTemplate && (
             <>
               {/* 模板详情 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: 12,
                     background: `${selectedTemplate.color}15`, color: selectedTemplate.color,
@@ -385,7 +385,7 @@ export default function ReportExportPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                   <SpecCell label={t('rex.format')} value={selectedTemplate.format.toUpperCase()} color={FORMAT_COLOR[selectedTemplate.format]} />
                   <SpecCell label={t('rex.page')} value={selectedTemplate.pageSize} />
                   <SpecCell label={t('rex.tagImage')} value={selectedTemplate.hasImages ? t('rex.included') : t('rex.notIncluded')} color={selectedTemplate.hasImages ? '#10b981' : '#94a3b8'} />
@@ -394,7 +394,7 @@ export default function ReportExportPage() {
                 </div>
 
                 {/* 报告选择 */}
-                <div style={{ marginBottom: 12 }}>
+                <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <FileText size={13} /> {t('rex.selectReports')}（{selectedReports.size}）
@@ -408,7 +408,7 @@ export default function ReportExportPage() {
                   </div>
                   <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 4 }}>
                     {reportsLoading ? (
-                      <div style={{ padding: 20, textAlign: 'center' }}><Spin size="small" /> {t('rex.loadingReports')}</div>
+                      <div style={{ padding: 'var(--space-5, 20px)', textAlign: 'center' }}><Spin size="small" /> {t('rex.loadingReports')}</div>
                     ) : reports.length === 0 ? (
                       <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('rex.noReports')} imageStyle={{ height: 48 }} />
                     ) : (
@@ -435,7 +435,7 @@ export default function ReportExportPage() {
 
                 {/* 进度条 */}
                 {exporting && (
-                  <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6 }}>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-info-bg)', borderRadius: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: 'var(--color-primary-800)' }}>
                       <Loader2 size={11} className="spin" />
                       {t('rex.generating', { name: selectedTemplate.name, percent: exportProgress })}
@@ -449,13 +449,13 @@ export default function ReportExportPage() {
 
                 {/* [W4-B] 批量导出结果: 错误提示 + 完成后下载列表 */}
                 {batchError && !exporting && (
-                  <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-error-bg)', borderRadius: 6, fontSize: 12, color: '#b91c1c' }}>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-error-bg)', borderRadius: 6, fontSize: 12, color: '#b91c1c' }}>
                     {batchError}
                   </div>
                 )}
                 {batchDownloads.length > 0 && !exporting && (
-                  <div style={{ marginBottom: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 6, border: '1px solid #bbf7d0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 700, color: '#15803d' }}>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', borderRadius: 6, border: '1px solid #bbf7d0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 700, color: '#15803d' }}>
                       <CheckCircle2 size={14} /> {t('rex.batchDone', { count: batchDownloads.length })}
                       <button
                         onClick={() => { batchDownloads.forEach(d => void downloadBatchFile(d)); }}
@@ -464,9 +464,9 @@ export default function ReportExportPage() {
                         {t('rex.downloadAll')}
                       </button>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 160, overflowY: 'auto' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', maxHeight: 160, overflowY: 'auto' }}>
                       {batchDownloads.map((d, i) => (
-                        <div key={`${d.reportId}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-primary)' }}>
+                        <div key={`${d.reportId}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-primary)' }}>
                           <FileText size={12} color="#15803d" />
                           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {d.fileName || d.reportId}
@@ -485,7 +485,7 @@ export default function ReportExportPage() {
                 )}
 
                 {/* 导出按钮 */}
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   <button
                     onClick={() => {
                       const sampleReport = reports.find(r => selectedReports.has(r.reportId || r.id)) ?? reports[0];
@@ -526,18 +526,18 @@ export default function ReportExportPage() {
               </div>
 
               {/* 模板对比 */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={13} /> {t('rex.templateQuickRef')}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-2, 8px)' }}>
                   {EXPORT_TEMPLATES.slice(0, 4).map(tpl => (
                     <div key={tpl.id} style={{
-                      padding: 8, background: tpl.id === selectedTemplateId ? `${tpl.color}15` : 'var(--bg-card)',
+                      padding: 'var(--space-2, 8px)', background: tpl.id === selectedTemplateId ? `${tpl.color}15` : 'var(--bg-card)',
                       border: `1px solid ${tpl.id === selectedTemplateId ? tpl.color : '#e2e8f0'}`,
                       borderRadius: 6, fontSize: 12,
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 2 }}>
                         <span>{tpl.icon}</span>
                         <strong style={{ color: 'var(--text-primary)' }}>{tpl.name}</strong>
                       </div>
@@ -616,5 +616,5 @@ const SpecCell: React.FC<{ label: string; value: string; color?: string }> = ({ 
 const btnOutlinePrimary: React.CSSProperties = {
   padding: '6px 12px', border: '1px solid var(--color-error-600)', borderRadius: 6,
   background: 'var(--color-error-bg)', color: 'var(--color-error-600)', fontSize: 12, cursor: 'pointer',
-  display: 'flex', alignItems: 'center', gap: 4,
+  display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
 };

@@ -9,7 +9,7 @@ const MeasurementPanel: React.FC<{
   <Card
     size="small"
     title={title || `测量数据 (${measurements.length})`}
-    style={{ marginBottom: 8 }}
+    style={{ marginBottom: 'var(--space-2, 8px)' }}
   >
     <Table
       dataSource={measurements}

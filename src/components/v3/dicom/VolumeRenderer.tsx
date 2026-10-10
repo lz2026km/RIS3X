@@ -314,7 +314,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
       }
       extra={<Space><span style={{ fontSize: 11, color: '#94a3b8' }}>{coordStr}</span></Space>}
       style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-      styles={{ body: { flex: 1, padding: 8, display: 'flex', flexDirection: 'column' } }}
+      styles={{ body: { flex: 1, padding: 'var(--space-2, 8px)', display: 'flex', flexDirection: 'column' } }}
     >
       <Segmented
         value={mode}
@@ -324,7 +324,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
           { value: 'MPR', label: <Space size={4}><Crosshair size={14} />MPR</Space> },
           { value: 'VR', label: <Space size={4}><Sun size={14} />VR</Space> },
         ]}
-        style={{ marginBottom: 8 }}
+        style={{ marginBottom: 'var(--space-2, 8px)' }}
         block
       />
       <div ref={mountRef} style={{ flex: 1, minHeight: 360, borderRadius: 6, overflow: 'hidden', position: 'relative', background: '#0f172a' }}>
@@ -334,7 +334,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
           </div>
         )}
       </div>
-      <Row gutter={8} style={{ marginTop: 8 }}>
+      <Row gutter={8} style={{ marginTop: 'var(--space-2, 8px)' }}>
         <Col span={6}>
           <Tooltip title={t('w9e.volumeRenderer.windowWidth')}><Space style={{ width: '100%' }}><small>WW</small><Slider value={ww} min={100} max={4000} step={10} onChange={setWw} /></Space></Tooltip>
         </Col>
@@ -349,13 +349,13 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
         </Col>
       </Row>
       {mode === 'MPR' && (
-        <Row gutter={8} style={{ marginTop: 4 }}>
+        <Row gutter={8} style={{ marginTop: 'var(--space-1, 4px)' }}>
           <Col span={8}><Space style={{ width: '100%' }}><Tag color="blue">A</Tag><Slider value={axialIdx} min={0} max={VOLUME_SIZE - 1} onChange={setAxialIdx} /></Space></Col>
           <Col span={8}><Space style={{ width: '100%' }}><Tag color="green">S</Tag><Slider value={sagittalIdx} min={0} max={VOLUME_SIZE - 1} onChange={setSagittalIdx} /></Space></Col>
           <Col span={8}><Space style={{ width: '100%' }}><Tag color="purple">C</Tag><Slider value={coronalIdx} min={0} max={VOLUME_SIZE - 1} onChange={setCoronalIdx} /></Space></Col>
         </Row>
       )}
-      <Space style={{ marginTop: 4 }}>
+      <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
         <Tooltip title={t('w9e.volumeRenderer.reset')}><Button size="small" icon={<RotateCcw size={12} />} onClick={handleReset} /></Tooltip>
       </Space>
     </Card>

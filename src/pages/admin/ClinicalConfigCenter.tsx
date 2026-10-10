@@ -197,7 +197,7 @@ const ClinicalConfigCenter: React.FC = () => {
             />
 
             {serverConfig === undefined ? (
-              <Spin tip={t("clinicalConfig.loadingConfig")} style={{ display: "block", padding: 24 }}>
+              <Spin tip={t("clinicalConfig.loadingConfig")} style={{ display: "block", padding: 'var(--space-6, 24px)' }}>
                 <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("clinicalConfig.loading")} />
               </Spin>
             ) : (
@@ -206,7 +206,7 @@ const ClinicalConfigCenter: React.FC = () => {
                   <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("clinicalConfig.moduleNotLoaded")} />
                 ) : sample !== null && sample !== undefined ? (
                   <Card size="small" title={t("clinicalConfig.summarySample")}>
-                    <pre style={{ background: "var(--bg-primary, #f8fafc)", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
+                    <pre style={{ background: "var(--bg-primary, #f8fafc)", padding: 'var(--space-3, 12px)', borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
                       {JSON.stringify(sample, null, 2)}
                     </pre>
                   </Card>
@@ -271,7 +271,7 @@ const ClinicalConfigCenter: React.FC = () => {
           <Space>
             {serverConfig === undefined ? <Spin size="small" /> : null}
             <Tag color={serverSynced ? "green" : "orange"}>
-              <Database size={12} style={{ marginRight: 4 }} />
+              <Database size={12} style={{ marginRight: 'var(--space-1, 4px)' }} />
               {serverSynced ? t("clinicalConfig.backendPersisted") : t("clinicalConfig.localDefault")}
             </Tag>
             <Tag color="blue">
@@ -285,7 +285,7 @@ const ClinicalConfigCenter: React.FC = () => {
         showIcon
         title={t("clinicalConfig.stage3Title")}
         description={t("clinicalConfig.stage3Desc")}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
       <Tabs activeKey={activeKey} onChange={(k) => setActiveKey(k as ModuleKey)} items={items} />
     </PageContainer>

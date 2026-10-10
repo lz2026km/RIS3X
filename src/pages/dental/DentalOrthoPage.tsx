@@ -155,11 +155,11 @@ export const DentalOrthoPage: React.FC = () => {
         ),
       }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalOrtho.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalOrtho.retry')}</Button>} />}
 
       <Spin spinning={loading}>
         {plans.length === 0 && !error ? (
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 40 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-10, 40px)' }}>
             <Empty image={<FolderOpen size={48} style={{opacity:0.4}}/>} description={t('dentalOrtho.empty')}>
               <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>{t('dentalOrtho.newCase')}</Button>
             </Empty>
@@ -241,7 +241,7 @@ export const DentalOrthoPage: React.FC = () => {
       >
         {detail && (
           <>
-            <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
+            <Descriptions bordered column={2} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Descriptions.Item label={t('dentalOrtho.diagnosis')}>{detail.diagnosis}</Descriptions.Item>
               <Descriptions.Item label={t('dentalOrtho.plan')}>{detail.plan}</Descriptions.Item>
               <Descriptions.Item label={t('dentalOrtho.cost')}>¥{detail.cost ?? 0}</Descriptions.Item>
@@ -257,7 +257,7 @@ export const DentalOrthoPage: React.FC = () => {
                 description: i === stageIndex(detail.status) ? t('dentalOrtho.currentStage') : undefined,
               }))}
             />
-            <Space style={{ marginTop: 16 }}>
+            <Space style={{ marginTop: 'var(--space-4, 16px)' }}>
               <Button onClick={() => void updateStage(detail, STAGE_NAMES[Math.min(stageIndex(detail.status) + 1, STAGE_NAMES.length - 1)]!)}>{t('dentalOrtho.nextStage')}</Button>
               <Button onClick={() => void updateStage(detail, '保持期')}>{t('dentalOrtho.enterRetention')}</Button>
             </Space>

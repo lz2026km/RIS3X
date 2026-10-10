@@ -247,10 +247,10 @@ export default function AsrDictationPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Volume2 size={20} color="var(--color-primary-500)" />} title={t('w17.asr.title')} subtitle={t('w17.asr.subtitle')} />
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadHotwords()} retryLabel={t('w9.states.retry')} />}
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
         {/* 听写控制台 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: streaming ? '#fee2e2' : '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
               {streaming ? <Square size={26} color="var(--color-error-600)" /> : <Mic size={26} color="var(--color-primary-500)" />}
             </div>
@@ -273,7 +273,7 @@ export default function AsrDictationPage() {
                 <Mic size={15} />{loading ? t('w17.asr.starting') : t('w17.asr.start')}
               </button>
             ) : (
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 {paused ? (
                   <button onClick={handleResume} style={{ padding: '10px 18px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Play size={15} />{t('w17.asr.resume')}
@@ -292,9 +292,9 @@ export default function AsrDictationPage() {
 
           {/* 实时流 + 分区 */}
           {session && (
-            <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
-              <div style={{ border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 12, background: 'var(--bg-primary, #f8fafc)', minHeight: 160 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, color: '#334155' }}>
+            <div style={{ marginTop: 'var(--space-4, 16px)', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
+              <div style={{ border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 'var(--space-3, 12px)', background: 'var(--bg-primary, #f8fafc)', minHeight: 160 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 600, color: '#334155' }}>
                   <Activity size={13} color="var(--color-primary-500)" />{t('w17.asr.realtimeText')}
                   {streaming && <span style={{ color: 'var(--color-error-600)', fontSize: 11, animation: 'pulse 1.2s infinite' }}>●</span>}
                 </div>
@@ -327,7 +327,7 @@ export default function AsrDictationPage() {
                   )
                 })}
                 {session.status === 'completed' && (
-                  <button onClick={() => void handleWriteToReport()} style={{ width: '100%', marginTop: 8, padding: '9px 0', background: '#10b981', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <button onClick={() => void handleWriteToReport()} style={{ width: '100%', marginTop: 'var(--space-2, 8px)', padding: '9px 0', background: '#10b981', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                     <Send size={14} />{t('w17.asr.writeToReport')}
                   </button>
                 )}
@@ -350,21 +350,21 @@ export default function AsrDictationPage() {
             ))}
           </div>
 
-          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
             {t('w17.asr.commandListHint')} 「下一段」·「保存」·「提交」·「暂停」·「继续」
           </div>
         </div>
 
         {/* 术语库 (热词) */}
-        <div style={{ marginTop: 16, background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
               <BookOpen size={16} color="#8b5cf6" />{t('w17.asr.hotwordBank')}
             </h3>
             <span style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('w17.asr.hotwordCount')}: {hotwords.length}</span>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12, padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', alignItems: 'center', marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
             <input
               value={hotwordForm.term}
               onChange={(e) => setHotwordForm((f) => ({ ...f, term: e.target.value }))}
@@ -420,7 +420,7 @@ export default function AsrDictationPage() {
                     <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
                       {!entry.builtin && (
                         <>
-                          <button onClick={() => { setEditingHotwordId(entry.id); setHotwordForm({ term: entry.term, category: entry.category, priority: entry.priority }) }} title={t('w17.asr.edit')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary-500)', marginRight: 8 }}><Pencil size={14} /></button>
+                          <button onClick={() => { setEditingHotwordId(entry.id); setHotwordForm({ term: entry.term, category: entry.category, priority: entry.priority }) }} title={t('w17.asr.edit')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary-500)', marginRight: 'var(--space-2, 8px)' }}><Pencil size={14} /></button>
                           <button onClick={() => void handleHotwordDelete(entry.id)} title={t('w17.asr.delete')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error-500)' }}><Trash2 size={14} /></button>
                         </>
                       )}
@@ -429,7 +429,7 @@ export default function AsrDictationPage() {
                   </tr>
                 ))}
                 {hotwords.length === 0 && (
-                  <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted, #94a3b8)' }}>{t('w17.asr.hotwordEmpty')}</td></tr>
+                  <tr><td colSpan={5} style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--text-muted, #94a3b8)' }}>{t('w17.asr.hotwordEmpty')}</td></tr>
                 )}
               </tbody>
             </table>

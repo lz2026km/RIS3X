@@ -259,8 +259,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
   const { pageData: okLensPage, pagination: okLensPagination } = usePagination(okLensRecords, 6);
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)",}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)",}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Heart size={20} color="#f5222d" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
           {t("eye.optometry.title")}
@@ -276,7 +276,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {stats && (
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t("eye.optometry.totalPatients")} value={stats.totalPatients} />
           <StatCard
             title={t("eye.optometry.okLensPatients")}
@@ -333,7 +333,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 8,
+                          marginBottom: 'var(--space-2, 8px)',
                           fontWeight: 600,
                         }}
                       >
@@ -422,7 +422,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                             style={{
                               fontSize: 12,
                               color: "var(--text-secondary)",
-                              marginBottom: 4,
+                              marginBottom: 'var(--space-1, 4px)',
                             }}
                           >
                             {t("eye.optometry.recommendation")}
@@ -438,7 +438,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                                     : "info"
                                 }
                                 showIcon
-                                style={{ marginBottom: 4 }}
+                                style={{ marginBottom: 'var(--space-1, 4px)' }}
                               />
                             ),
                           )}
@@ -601,14 +601,14 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         description={okTrial.recommendation}
                         type={okTrial.fit === "optimal" ? "success" : "warning"}
                         showIcon
-                        style={{ marginTop: 8 }}
+                        style={{ marginTop: 'var(--space-2, 8px)' }}
                       />
                     )}
                     {orthoOrder && (
                       <Card
                         size="small"
                         title={t("eye.optometry.orthoOrder")}
-                        style={{ marginTop: 8 }}
+                        style={{ marginTop: 'var(--space-2, 8px)' }}
                       >
                         <div>{t("eye.optometry.brand")}: {orthoOrder.brand}</div>
                         <div>
@@ -655,7 +655,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       <Card
                         size="small"
                         title={t("eye.optometry.defocusOrder")}
-                        style={{ marginTop: 8 }}
+                        style={{ marginTop: 'var(--space-2, 8px)' }}
                       >
                         <div>{t("eye.optometry.lens")}: {defocusOrder.brand}</div>
                         <div>{t("eye.optometry.efficacy")}: {defocusOrder.efficacy}</div>
@@ -697,7 +697,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 8,
+                          marginBottom: 'var(--space-2, 8px)',
                           fontWeight: 600,
                         }}
                       >
@@ -724,7 +724,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 8,
+                          marginBottom: 'var(--space-2, 8px)',
                           fontWeight: 600,
                         }}
                       >
@@ -761,7 +761,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                   <Card
                     title={t("eye.optometry.orderDetail")}
                     size="small"
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 'var(--space-4, 16px)' }}
                   >
                     <Space.Compact style={{ width: "100%" }}>
                       <Input
@@ -775,7 +775,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       </Button>
                     </Space.Compact>
                     {orderDetail && (
-                      <div style={{ marginTop: 12, fontSize: 12 }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12 }}>
                         <Tag color={orderDetail.type === "ortho-k" ? "blue" : "purple"}>
                           {orderDetail.type === "ortho-k" ? t("eye.optometry.orthoOrder") : t("eye.optometry.defocusOrder")}
                         </Tag>
@@ -803,7 +803,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     title={t("eye.optometry.refractionList")}
                     size="small"
                     extra={<Tag color="blue">{refractionRecords.length}</Tag>}
-                    style={{ marginBottom: 16 }}
+                    style={{ marginBottom: 'var(--space-4, 16px)' }}
                   >
                     <DataTable
                       rowKey={(r: any) => r.refractionId ?? r.id}
@@ -832,7 +832,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     title={t("eye.optometry.okLensList")}
                     size="small"
                     extra={<Tag color="blue">{okLensRecords.length}</Tag>}
-                    style={{ marginBottom: 16 }}
+                    style={{ marginBottom: 'var(--space-4, 16px)' }}
                   >
                     <DataTable
                       rowKey={(r: any) => r.okLensId ?? r.id}

@@ -406,10 +406,10 @@ export default function VoiceWorkstationPage() {
 
   // ── 渲染: 听写主面板 ────────────────────────────────────────────────────
   const renderDictation = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       {/* 录音卡片 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
           <div
             style={{
               width: 76, height: 76, borderRadius: '50%', flexShrink: 0,
@@ -422,7 +422,7 @@ export default function VoiceWorkstationPage() {
             {recording ? <Square size={30} color="var(--color-error-600)" /> : transcribing ? <RefreshCw size={28} color="var(--color-warning-600)" style={{ animation: 'spin 1s linear infinite' }} /> : <Mic size={30} color="var(--color-primary-500)" />}
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', marginBottom: 4 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', marginBottom: 'var(--space-1, 4px)' }}>
               {recording ? `${t('voiceWs.recording')} ${recordSec}s` : transcribing ? t('voiceWs.transcribing') : t('voiceWs.dictation')}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', lineHeight: 1.7 }}>
@@ -431,7 +431,7 @@ export default function VoiceWorkstationPage() {
               <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('voiceWs.noMicHint')}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
             {!recording ? (
               <Button type="primary" icon={<Mic size={14} />} onClick={() => void startRecording()} disabled={transcribing}>{t('voiceWs.startRecording')}</Button>
             ) : (
@@ -441,7 +441,7 @@ export default function VoiceWorkstationPage() {
           </div>
         </div>
         {/* 报告联动 */}
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-default, rgba(0,0,0,0.12))', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)', paddingTop: 'var(--space-3, 12px)', borderTop: '1px solid var(--border-default, rgba(0,0,0,0.12))', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
           <Tag icon={<FileText size={11} />} color="blue" style={{ margin: 0 }}>{t('voiceWs.insertReport')}</Tag>
           <Input
             value={reportId}
@@ -456,19 +456,19 @@ export default function VoiceWorkstationPage() {
 
       {/* 转写结果 */}
       {transcribing && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-6, 24px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', textAlign: 'center' }}>
           <RefreshCw size={24} color="var(--color-primary-500)" style={{ animation: 'spin 1s linear infinite' }} />
-          <div style={{ marginTop: 8, color: 'var(--text-secondary, #475569)', fontSize: 12 }}>{t('voiceWs.transcribingLex')}</div>
+          <div style={{ marginTop: 'var(--space-2, 8px)', color: 'var(--text-secondary, #475569)', fontSize: 12 }}>{t('voiceWs.transcribingLex')}</div>
         </div>
       )}
 
       {transcript && !transcribing && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={16} color="var(--color-primary-500)" />{t('voiceWs.transcriptResult')}
             </h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               {engineLabel && (
                 <Tag style={{ margin: 0, fontSize: 11, fontWeight: 600, color: (ENGINE_BADGES[engineLabel] ?? ENGINE_BADGES.mock)?.color, background: (ENGINE_BADGES[engineLabel] ?? ENGINE_BADGES.mock)?.bg, borderColor: 'transparent' }}>
                   {t(`voiceWs.engine.${engineLabel && ENGINE_BADGES[engineLabel] ? engineLabel : 'mock'}`)}
@@ -489,9 +489,9 @@ export default function VoiceWorkstationPage() {
             <Alert
               type="success"
               showIcon
-              style={{ marginBottom: 12, padding: '8px 12px', fontSize: 12 }}
+              style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', fontSize: 12 }}
               message={
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                   <span>{t('voiceWs.lexCorrectionHint')}</span>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {transcript.corrections.map((c, i) => (
@@ -499,7 +499,7 @@ export default function VoiceWorkstationPage() {
                         <s style={{ color: 'var(--color-error-600)' }}>{c.original}</s>
                         <span style={{ margin: '0 4px' }}>→</span>
                         <b style={{ color: '#059669' }}>{c.corrected}</b>
-                        <span style={{ marginLeft: 4, color: CATEGORY_COLORS[c.category] ?? '#64748b', fontWeight: 600 }}>[{c.category}]</span>
+                        <span style={{ marginLeft: 'var(--space-1, 4px)', color: CATEGORY_COLORS[c.category] ?? '#64748b', fontWeight: 600 }}>[{c.category}]</span>
                       </Tag>
                     ))}
                   </div>
@@ -512,16 +512,16 @@ export default function VoiceWorkstationPage() {
             value={editingText}
             onChange={(e) => setEditingText(e.target.value)}
             rows={7}
-            style={{ width: '100%', padding: 12, border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
+            style={{ width: '100%', padding: 'var(--space-3, 12px)', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
             placeholder={t('voiceWs.transcriptPlaceholder')}
           />
 
           {/* 分段置信度 */}
           {transcript.segments.length > 0 && (
-            <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', marginBottom: 2 }}>{t('voiceWs.segmentConfidence')}</div>
               {transcript.segments.map((seg, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#475569' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: '#475569' }}>
                   <span style={{ color: 'var(--text-muted, #94a3b8)', width: 60, flexShrink: 0 }}>{seg.start}s-{seg.end}s</span>
                   <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seg.text}</span>
                   <span style={{ color: seg.confidence > 0.9 ? '#10b981' : 'var(--color-warning-500)', fontWeight: 600, flexShrink: 0 }}>{(seg.confidence * 100).toFixed(0)}%</span>
@@ -530,7 +530,7 @@ export default function VoiceWorkstationPage() {
             </div>
           )}
 
-          <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
             <Button type="primary" icon={<Send size={14} />} onClick={handleInsertReport} disabled={inserted}>
               {inserted ? t('voiceWs.insertedReport') : t('voiceWs.insertReport')}
             </Button>
@@ -541,9 +541,9 @@ export default function VoiceWorkstationPage() {
 
       {/* 统计卡 */}
       {statsLoading && !stats ? (
-        <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin /></div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-3, 12px)' }}>
           {statCards.map((card) => (
             <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{card.icon}</div>
@@ -558,7 +558,7 @@ export default function VoiceWorkstationPage() {
 
       {/* 词库分布 */}
       {stats && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Database size={15} color="#10b981" />{t('voiceWs.lexiconDistribution')}
           </h3>
@@ -567,7 +567,7 @@ export default function VoiceWorkstationPage() {
               const pct = stats.lexiconSize > 0 ? Math.round((c.count / stats.lexiconSize) * 100) : 0
               return (
                 <div key={c.category}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontWeight: 500 }}>{c.category}</span>
                     <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{c.count} {t('voiceWs.itemsUnit')} ({pct}%)</span>
                   </div>
@@ -585,12 +585,12 @@ export default function VoiceWorkstationPage() {
 
   // ── 渲染: 医学词库 ─────────────────────────────────────────────────────
   const renderLexicon = () => (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BookOpen size={16} color="#8b5cf6" />{t('voiceWs.lexiconManage')}
         </h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <div style={{ position: 'relative' }}>
             <Search size={14} color="var(--text-muted, #94a3b8)" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
             <Input
@@ -620,12 +620,12 @@ export default function VoiceWorkstationPage() {
       <Alert
         type="info"
         showIcon
-        style={{ marginBottom: 12, padding: '6px 12px', fontSize: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)', padding: '6px 12px', fontSize: 12 }}
         message={t('voiceWs.csvFormatHint')}
       />
 
       {/* 新增/编辑表单 */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12, padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', alignItems: 'center', marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
         <Input
           value={lexForm.term}
           onChange={(e) => setLexForm((f) => ({ ...f, term: e.target.value }))}
@@ -697,7 +697,7 @@ export default function VoiceWorkstationPage() {
               </tr>
             ))}
             {filteredLexicon.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted, #94a3b8)' }}>{t('voiceWs.noEntries')}</td></tr>
+              <tr><td colSpan={5} style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--text-muted, #94a3b8)' }}>{t('voiceWs.noEntries')}</td></tr>
             )}
           </tbody>
         </table>
@@ -707,15 +707,15 @@ export default function VoiceWorkstationPage() {
 
   // ── 渲染: 听写历史 ─────────────────────────────────────────────────────
   const renderSessions = () => (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
           <History size={16} color="var(--color-primary-500)" />{t('voiceWs.dictationHistory')} ({sessions.length})
         </h3>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadSessions()}>{t('voiceWs.refresh')}</Button>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {sessions.length === 0 && <Empty description={t('voiceWs.noHistory')} style={{ padding: 32 }} />}
+        {sessions.length === 0 && <Empty description={t('voiceWs.noHistory')} style={{ padding: 'var(--space-8, 32px)' }} />}
         {sessions.map((s) => {
           const st = SESSION_STATUS[s.status] ?? SESSION_STATUS.processing!
           return (
@@ -751,13 +751,13 @@ export default function VoiceWorkstationPage() {
 
   // ── 渲染: 纠正反馈 ─────────────────────────────────────────────────────
   const renderFeedbacks = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       {/* 提交表单 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
           <MessageSquareWarning size={16} color="#f43f5e" />{t('voiceWs.submitCorrection')}
         </h3>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', alignItems: 'center' }}>
           <Input
             value={feedbackForm.original}
             onChange={(e) => setFeedbackForm((f) => ({ ...f, original: e.target.value }))}
@@ -779,20 +779,20 @@ export default function VoiceWorkstationPage() {
       </div>
 
       {/* 反馈列表 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ListChecks size={16} color="#10b981" />{t('voiceWs.correctionRecords')} ({visibleFeedbacks.length})
           </h3>
           <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadFeedbacks()}>{t('voiceWs.refresh')}</Button>
         </div>
-        {visibleFeedbacks.length === 0 && <Empty description={t('voiceWs.noCorrections')} style={{ padding: 32 }} />}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
+        {visibleFeedbacks.length === 0 && <Empty description={t('voiceWs.noCorrections')} style={{ padding: 'var(--space-8, 32px)' }} />}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 'var(--space-3, 12px)' }}>
           {visibleFeedbacks.map((fb) => {
             const auto = fb.source === 'auto'
             return (
-              <div key={fb.id} style={{ border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={fb.id} style={{ border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 'var(--space-3, 12px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <Tag color={auto ? 'geekblue' : 'gold'} style={{ margin: 0 }}>{auto ? t('voiceWs.autoCorrection') : t('voiceWs.manualFeedback')}</Tag>
                   <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{fmtTime(fb.createdAt)}</span>
                 </div>
@@ -821,7 +821,7 @@ export default function VoiceWorkstationPage() {
         title={t('voiceWs.pageTitle')}
         subtitle={t('voiceWs.pageSubtitle')}
       />
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
@@ -834,7 +834,7 @@ export default function VoiceWorkstationPage() {
         />
 
         {/* 数据源徽标 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-secondary, #475569)', padding: '12px 4px 0', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary, #475569)', padding: '12px 4px 0', flexWrap: 'wrap' }}>
           <Tag color="blue" style={{ margin: 0 }}>{t('voiceWs.dataSource')}</Tag>
           <span>{t('voiceWs.dataSourceDetail')}</span>
         </div>
@@ -849,8 +849,8 @@ export default function VoiceWorkstationPage() {
         width={640}
       >
         {viewSession && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
               <Tag color="blue" style={{ margin: 0 }}>{viewSession.doctorId}</Tag>
               <Tag color="default" style={{ margin: 0 }}>{t('voiceWs.duration')} {viewSession.duration}s</Tag>
               <Tag color={SESSION_STATUS[viewSession.status]?.color ?? 'default'} style={{ margin: 0 }}>{t(`voiceWs.sessionStatus.${SESSION_STATUS[viewSession.status] ? viewSession.status : 'processing'}`)}</Tag>
@@ -858,7 +858,7 @@ export default function VoiceWorkstationPage() {
               <Tag color="default" style={{ margin: 0 }}>{fmtTime(viewSession.createdAt)}</Tag>
             </div>
             <div style={{ background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, padding: 14, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', marginBottom: 8 }}>{t('voiceWs.transcriptContent')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-2, 8px)' }}>{t('voiceWs.transcriptContent')}</div>
               <div style={{ fontSize: 12, lineHeight: 1.8, color: '#334155', whiteSpace: 'pre-wrap' }}>
                 {sessionTranscripts[viewSession.id] ?? t('voiceWs.sessionArchived', { reportId: viewSession.reportId })}
               </div>
@@ -885,7 +885,7 @@ export default function VoiceWorkstationPage() {
         cancelText={t('voiceWs.cancel')}
         width={460}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 'var(--space-2, 8px)' }}>
           <div style={{ fontSize: 12, color: '#475569' }}>
             {t('voiceWs.insertTranscriptHint')}
           </div>

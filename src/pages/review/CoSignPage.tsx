@@ -316,17 +316,17 @@ const CoSignPage: React.FC = () => {
     <PageContainer padding={24}>
       <div
         style={{
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <Users size={20} color="#722ed1" />
         <Typography.Title level={4} style={{ margin: 0 }}>{t('coSign.title')}</Typography.Title>
         <Tag color="purple">{t('coSign.subtitle')}</Tag>
       </div>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard
           title={t('coSign.statPending')}
           value={
@@ -570,7 +570,7 @@ const CoSignPage: React.FC = () => {
         width={720}
       >
         <Alert
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 'var(--space-3, 12px)' }}
           type="info"
           showIcon
           message={t('coSign.rulesHint')}
@@ -616,7 +616,7 @@ const CoSignPage: React.FC = () => {
           form={ruleForm}
           layout="vertical"
           size="small"
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 'var(--space-3, 12px)' }}
           initialValues={{ modality: "CT", threshold: "ALL", minReviewers: 1, requireCoSign: true }}
         >
           <Form.Item name="name" label={t('coSign.ruleNameField')} rules={[{ required: true, message: t('coSign.ruleNameRequired') }]}>
@@ -651,7 +651,7 @@ const CoSignPage: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          {ruleError && <Alert type="error" showIcon message={ruleError} style={{ marginBottom: 8 }} />}
+          {ruleError && <Alert type="error" showIcon message={ruleError} style={{ marginBottom: 'var(--space-2, 8px)' }} />}
         </Form>
       </Modal>
     </PageContainer>

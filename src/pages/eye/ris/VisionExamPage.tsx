@@ -160,8 +160,8 @@ const VisionExamPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         <Eye className="v4-icon" style={{ width: 24, height: 24, color: 'var(--color-primary-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('visionExam.title')}</span>
         <EyeLateralityBadge eyeSide="OD" />
@@ -170,9 +170,9 @@ const VisionExamPage: React.FC = () => {
         <Tag color="cyan">{t('visionExam.tagNotations')}</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('visionExam.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('visionExam.retry')}</Button>} />}
 
-      <Card size="small" title={<Space><Eye size={14} />{t('visionExam.currentPatient')}</Space>} extra={<Space><Segmented size="small" value={distance} onChange={(v) => setDistance(v as string)} options={[{ label: t('visionExam.farVision'), value: 'far' }, { label: t('visionExam.nearVision'), value: 'near' }]} /><Segmented size="small" value={notation} onChange={(v) => setNotation(v as string)} options={[{ label: t('visionExam.decimal'), value: 'decimal' }, { label: 'Snellen', value: 'snellen' }]} /></Space>} style={{ marginBottom: 12 }}>
+      <Card size="small" title={<Space><Eye size={14} />{t('visionExam.currentPatient')}</Space>} extra={<Space><Segmented size="small" value={distance} onChange={(v) => setDistance(v as string)} options={[{ label: t('visionExam.farVision'), value: 'far' }, { label: t('visionExam.nearVision'), value: 'near' }]} /><Segmented size="small" value={notation} onChange={(v) => setNotation(v as string)} options={[{ label: t('visionExam.decimal'), value: 'decimal' }, { label: 'Snellen', value: 'snellen' }]} /></Space>} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Row gutter={12} align="middle">
           <Col>
             <Select value={patient} onChange={(v) => { setPatient(v); const p = PATIENT_OPTIONS.find(o => o.value === v); if (p) setPatientName(p.label); }} options={PATIENT_OPTIONS} style={{ width: 160 }} />
@@ -199,11 +199,11 @@ const VisionExamPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card size="small" title={t('visionExam.conversion')} style={{ marginTop: 12 }} extra={<Button type="primary" size="small" icon={<Save size={12} />} loading={saving} onClick={() => void handleSave()}>{t('visionExam.saveRecord')}</Button>}>
+      <Card size="small" title={t('visionExam.conversion')} style={{ marginTop: 'var(--space-3, 12px)' }} extra={<Button type="primary" size="small" icon={<Save size={12} />} loading={saving} onClick={() => void handleSave()}>{t('visionExam.saveRecord')}</Button>}>
         <DataTable rowKey="key" dataSource={data} columns={columns} pagination={false} bordered scroll={{ x: 'max-content' }}/>
       </Card>
 
-      <Card size="small" title={<Space><History size={14} />{t('visionExam.historyTitle')} <Tag>{records.length}</Tag></Space>} style={{ marginTop: 12 }}>
+      <Card size="small" title={<Space><History size={14} />{t('visionExam.historyTitle')} <Tag>{records.length}</Tag></Space>} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Spin spinning={loading}>
           <DataTable
             rowKey="id"

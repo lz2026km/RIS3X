@@ -542,7 +542,7 @@ export const RealDicomViewerPage: React.FC = () => {
               left: 8,
               display: "flex",
               flexDirection: "column",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Tooltip title={t('realDicom.histogram')}>
@@ -683,11 +683,11 @@ export const RealDicomViewerPage: React.FC = () => {
             background: "#1e1e1e",
             color: "#fff",
             borderRadius: 8,
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             zIndex: 1000,
           }}
         >
-          <Space style={{ marginBottom: 8 }}>
+          <Space style={{ marginBottom: 'var(--space-2, 8px)' }}>
             <Activity size={14} color="#52c41a" />
             <span>{t('realDicom.histogram')}</span>
             <Button size="small" onClick={() => setShowHistogram(false)}>
@@ -715,7 +715,7 @@ export const RealDicomViewerPage: React.FC = () => {
                 />
               ))}
           </div>
-          <div style={{ fontSize: 11, marginTop: 4 }}>
+          <div style={{ fontSize: 11, marginTop: 'var(--space-1, 4px)' }}>
             mean={histogram.mean} std={histogram.stdDev}
           </div>
         </div>
@@ -730,7 +730,7 @@ export const RealDicomViewerPage: React.FC = () => {
             top: 80,
             width: 280,
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             zIndex: 1000,
@@ -743,7 +743,7 @@ export const RealDicomViewerPage: React.FC = () => {
               X
             </Button>
           </Space>
-          <div style={{ marginTop: 8, fontSize: 12 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>
             <div>{t('realDicom.type')}: {colormap.type}</div>
             <div>{t('realDicom.channels')}: {colormap.channels}</div>
             <div>
@@ -791,7 +791,7 @@ export const RealDicomViewerPage: React.FC = () => {
             top: 80,
             width: 280,
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             zIndex: 1000,
@@ -804,7 +804,7 @@ export const RealDicomViewerPage: React.FC = () => {
               X
             </Button>
           </Space>
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
             <div>Laplacian: {sharpness.sharpness.laplacian}</div>
             <div>Tenengrad: {sharpness.sharpness.tenengrad}</div>
             <div>{t('realDicom.variance')}: {sharpness.sharpness.variance}</div>
@@ -824,7 +824,7 @@ export const RealDicomViewerPage: React.FC = () => {
             top: 80,
             width: 280,
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             zIndex: 1000,
@@ -838,12 +838,12 @@ export const RealDicomViewerPage: React.FC = () => {
             </Button>
           </Space>
           {mprInfo && (
-            <div style={{ marginTop: 8, fontSize: 12 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>
               <Select
                 size="small"
                 value={mprAxis}
                 onChange={setMprAxis}
-                style={{ width: "100%", marginBottom: 8 }}
+                style={{ width: "100%", marginBottom: 'var(--space-2, 8px)' }}
                 options={[
                   { value: "axial", label: t('realDicom.axial') },
                   { value: "sagittal", label: t('realDicom.sagittal') },
@@ -869,7 +869,7 @@ export const RealDicomViewerPage: React.FC = () => {
             top: 80,
             width: 300,
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             zIndex: 1000,
@@ -882,7 +882,7 @@ export const RealDicomViewerPage: React.FC = () => {
               X
             </Button>
           </Space>
-          <div style={{ marginTop: 8, fontSize: 12 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>
             <div>
               {t('w9d.realDicom.qualityScore')}: <Tag color="green">{artifacts.qualityScore}</Tag>
             </div>
@@ -897,7 +897,7 @@ export const RealDicomViewerPage: React.FC = () => {
                 key={i}
                 title={r}
                 type="warning"
-                style={{ marginTop: 4 }}
+                style={{ marginTop: 'var(--space-1, 4px)' }}
               />
             ))}
           </div>

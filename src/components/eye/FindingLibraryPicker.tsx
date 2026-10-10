@@ -23,7 +23,7 @@ const FindingLibraryPicker: React.FC<{
         style={{ marginBottom: 6 }}
         size="small"
       />
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: 4 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: 'var(--space-1, 4px)' }}>
         <Tag color="orange" style={{ fontSize: 10, marginInlineEnd: 0 }}>演示词库 {items.length} 项</Tag>
       </div>
       <div style={{ maxHeight: 200, overflow: "auto", fontSize: 12 }}>
@@ -33,7 +33,7 @@ const FindingLibraryPicker: React.FC<{
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
               padding: "2px 0",
             }}
           >

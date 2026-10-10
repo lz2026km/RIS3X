@@ -90,8 +90,8 @@ export const QualityDimensionCard: React.FC<{
     <div data-testid="quality-dimension-card" role="region" aria-label={t('reportQuality.dimensionConfig')}>
       <Card
         size="small"
-        style={{ marginBottom: 8, background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)', border: 'none' }}
-        styles={{ body: { padding: 12 } }}
+        style={{ marginBottom: 'var(--space-2, 8px)', background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)', border: 'none' }}
+        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
@@ -224,8 +224,8 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
     <div data-testid="weights-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)' }}
-        styles={{ body: { padding: 12 } }}
+        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)' }}
+        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
@@ -278,7 +278,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
         </Row>
       </Card>
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40 }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
           <Spin />
         </div>
       ) : (
@@ -313,7 +313,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                   }
                   data-testid={`dim-card-${d.key}`}
                 >
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
                     {d.description}
                   </div>
                   <Slider
@@ -326,10 +326,10 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                     trackStyle={{ background: CATEGORY_META[d.category].color }}
                     aria-label={t('w9e.qualityDimensionCard.ariaWeight', { name: d.name })}
                   />
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>
                     {t('reportQuality.subRules')} ({d.rules.length}): {d.passingRule}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)', marginTop: 6 }}>
                     {d.rules.map((r) => (
                       <Tooltip key={r.key} title={t('w9e.qualityDimensionCard.weightTooltip', { name: r.name, weight: (r.weight * 100).toFixed(0) })}>
                         <Tag color="blue" style={{ fontSize: 12 }}>
@@ -347,8 +347,8 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
       {Math.abs(totalWeight - 1) > 0.01 && (
         <div
           style={{
-            marginTop: 12,
-            padding: 8,
+            marginTop: 'var(--space-3, 12px)',
+            padding: 'var(--space-2, 8px)',
             background: 'var(--color-error-bg)',
             border: '1px solid var(--color-error-border)',
             borderRadius: 4,
@@ -409,7 +409,7 @@ const ThresholdTab: React.FC = () => {
 
   if (loading || !threshold || !draft) {
     return (
-      <div style={{ textAlign: 'center', padding: 40 }}>
+      <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
         <Spin />
       </div>
     );
@@ -419,8 +419,8 @@ const ThresholdTab: React.FC = () => {
     <div data-testid="threshold-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #1e3a8a 0%, #0e7490 100%)' }}
-        styles={{ body: { padding: 12 } }}
+        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #1e3a8a 0%, #0e7490 100%)' }}
+        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
@@ -463,7 +463,7 @@ const ThresholdTab: React.FC = () => {
       <Card size="small" title={t('reportQuality.tatThreshold')}>
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.criticalMin')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.criticalMin')}</div>
             <InputNumber
               min={1}
               max={120}
@@ -473,7 +473,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.emergencyH')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.emergencyH')}</div>
             <InputNumber
               min={0.5}
               max={24}
@@ -484,7 +484,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.routineH')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.routineH')}</div>
             <InputNumber
               min={1}
               max={96}
@@ -494,7 +494,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.inpatientH')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.inpatientH')}</div>
             <InputNumber
               min={1}
               max={72}
@@ -504,7 +504,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.publishThresholdPts')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.publishThresholdPts')}</div>
             <InputNumber
               min={0}
               max={100}
@@ -514,7 +514,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.bonusThresholdPts')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.bonusThresholdPts')}</div>
             <InputNumber
               min={0}
               max={100}
@@ -524,7 +524,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
         </Row>
-        <Space style={{ marginTop: 16 }}>
+        <Space style={{ marginTop: 'var(--space-4, 16px)' }}>
           <Button
             type="primary"
             icon={<Save size={12} />}
@@ -540,7 +540,7 @@ const ThresholdTab: React.FC = () => {
           <Tag color="cyan">{t('reportQuality.updatedByPrefix')}{threshold.updatedBy}</Tag>
         </Space>
       </Card>
-      <Card size="small" title={t('reportQuality.gradeThresholdMapping')} style={{ marginTop: 12 }}>
+      <Card size="small" title={t('reportQuality.gradeThresholdMapping')} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Row gutter={[12, 12]}>
           {thresholds.map((th) => (
             <Col xs={12} sm={6} key={th.grade}>
@@ -552,10 +552,10 @@ const ThresholdTab: React.FC = () => {
                 <div style={{ fontSize: 12, color: th.color }}>
                   {th.minScore} - {th.maxScore}
                 </div>
-                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
                   {th.description}
                 </div>
-                <Space style={{ marginTop: 4 }}>
+                <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
                   <Tag color={th.publishable ? 'green' : 'red'}>
                     {th.publishable ? t('reportQuality.publishable') : t('reportQuality.notPublishable')}
                   </Tag>
@@ -677,8 +677,8 @@ const HistoryTab: React.FC = () => {
     <div data-testid="history-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #0e7490 0%, var(--color-primary-800) 100%)' }}
-        styles={{ body: { padding: 12 } }}
+        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #0e7490 0%, var(--color-primary-800) 100%)' }}
+        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
       >
         <Row gutter={12}>
           <Col xs={24} sm={6}>
@@ -784,8 +784,8 @@ const HistoryTab: React.FC = () => {
               )}
             </Descriptions>
             {detail.result && (
-              <div style={{ marginTop: 12 }}>
-                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{t('reportQuality.dimensionDetail15')}</div>
+              <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('reportQuality.dimensionDetail15')}</div>
                 <Table
                   size="small"
                   rowKey="key"
@@ -800,7 +800,7 @@ const HistoryTab: React.FC = () => {
               </div>
             )}
             {!detail.result && !detailLoading && (
-              <Alert style={{ marginTop: 12 }} type="warning" showIcon message={t('reportQuality.noDetailArchive')} />
+              <Alert style={{ marginTop: 'var(--space-3, 12px)' }} type="warning" showIcon message={t('reportQuality.noDetailArchive')} />
             )}
           </Spin>
         )}
@@ -898,8 +898,8 @@ const ReportTab: React.FC = () => {
     <div data-testid="report-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #047857 0%, #0d9488 100%)' }}
-        styles={{ body: { padding: 12 } }}
+        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #047857 0%, #0d9488 100%)' }}
+        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
       >
         <Row gutter={12}>
           <Col xs={24} sm={8}>
@@ -916,7 +916,7 @@ const ReportTab: React.FC = () => {
       <Card size="small" title={t('reportQuality.generateReportTitle')}>
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={12}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.scoreId')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.scoreId')}</div>
             <input
               type="text"
               value={scoreId}
@@ -932,7 +932,7 @@ const ReportTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12}>
-            <div style={{ marginBottom: 4 }}>{t('reportQuality.format')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.format')}</div>
             <Select
               value={format}
               onChange={setFormat}
@@ -946,7 +946,7 @@ const ReportTab: React.FC = () => {
             />
           </Col>
         </Row>
-        <Space style={{ marginTop: 16 }}>
+        <Space style={{ marginTop: 'var(--space-4, 16px)' }}>
           <Button type="primary" icon={<FileText size={12} />} loading={generating} onClick={generate}>
             {t('reportQuality.generateReport')}
           </Button>
@@ -958,7 +958,7 @@ const ReportTab: React.FC = () => {
         </Space>
         {reportUrl && (
           <Alert
-            style={{ marginTop: 12 }}
+            style={{ marginTop: 'var(--space-3, 12px)' }}
             type="success"
             showIcon
             title={t('reportQuality.reportGenerated')}
@@ -971,7 +971,7 @@ const ReportTab: React.FC = () => {
           />
         )}
       </Card>
-      <Card size="small" title={t('reportQuality.reportPreview')} style={{ marginTop: 12 }}>
+      <Card size="small" title={t('reportQuality.reportPreview')} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Row gutter={[12, 12]}>
           {[
             { k: t('reportQuality.preview.totalScore'), v: t('reportQuality.preview.totalScoreRange'), c: 'var(--color-primary-500)' },
@@ -1033,7 +1033,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 40 }}>
+      <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
         <Spin />
       </div>
     );
@@ -1043,8 +1043,8 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
     <div data-testid="bonus-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, var(--color-warning-600) 0%, var(--color-error-600) 100%)' }}
-        styles={{ body: { padding: 12 } }}
+        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, var(--color-warning-600) 0%, var(--color-error-600) 100%)' }}
+        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
       >
         <Row gutter={12}>
           <Col xs={24} sm={6}>
@@ -1106,7 +1106,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
               }
             >
               <div style={{ fontSize: 12, color: '#475569' }}>{b.description}</div>
-              <Row gutter={8} style={{ marginTop: 8 }}>
+              <Row gutter={8} style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <Col span={8}>
                   <Statistic
                     title={t('reportQuality.threshold')}
@@ -1130,15 +1130,15 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
                   />
                 </Col>
               </Row>
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('reportQuality.benefits')}</div>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.benefits')}</div>
                 <Space wrap>
                   {b.benefits.map((ben) => (
                     <Tag key={ben} color="blue" style={{ fontSize: 12 }}>{ben}</Tag>
                   ))}
                 </Space>
               </div>
-              <Space style={{ marginTop: 8 }}>
+              <Space style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <Button size="small" icon={<Sparkles size={12} />} onClick={() => trigger(b)} disabled={!b.enabled}>
                   {t('reportQuality.manualTrigger')}
                 </Button>
@@ -1194,7 +1194,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 40 }}>
+      <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
         <Spin />
       </div>
     );
@@ -1204,8 +1204,8 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
     <div data-testid="template-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #be185d 0%, #7c3aed 100%)' }}
-        styles={{ body: { padding: 12 } }}
+        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #be185d 0%, #7c3aed 100%)' }}
+        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
@@ -1239,7 +1239,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
           </Col>
         </Row>
         {result && (
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <Row gutter={12}>
               <Col xs={12} sm={4}>
                 <Card size="small">
@@ -1283,12 +1283,12 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
             <Progress
               percent={result.finalScore}
               strokeColor={result.passed ? '#10b981' : 'var(--color-error-600)'}
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 'var(--space-3, 12px)' }}
             />
             {result.details.length > 0 && (
               <Table scroll={{ x: 'max-content' }}
                 size="small"
-                style={{ marginTop: 12 }}
+                style={{ marginTop: 'var(--space-3, 12px)' }}
                 rowKey="dimension"
                 pagination={false}
                 dataSource={result.details}
@@ -1303,9 +1303,9 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
             )}
           </div>
         )}
-        {!result && <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('reportQuality.clickToScore')} style={{ marginTop: 24 }} />}
+        {!result && <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('reportQuality.clickToScore')} style={{ marginTop: 'var(--space-6, 24px)' }} />}
       </Card>
-      <Card size="small" title={t('reportQuality.templateList')} style={{ marginTop: 12 }}>
+      <Card size="small" title={t('reportQuality.templateList')} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Row gutter={[12, 12]}>
           {templates.map((tpl) => (
             <Col xs={24} sm={12} md={8} key={tpl.templateId}>
@@ -1322,11 +1322,11 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
                   <Tag color="blue">{tpl.bodyPart}</Tag>
                   {tpl.published ? <Tag color="green">{t('reportQuality.published')}</Tag> : <Tag>{t('reportQuality.unpublished')}</Tag>}
                 </Space>
-                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{tpl.templateName}</div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>{tpl.templateName}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
                   {t('reportQuality.basePrefix')} {tpl.baseScore} / {t('reportQuality.passPrefix')} {tpl.passingScore}
                 </div>
-                <Space size={4} style={{ marginTop: 4 }}>
+                <Space size={4} style={{ marginTop: 'var(--space-1, 4px)' }}>
                   <Tag color="green">{tpl.bonusRules.length} {t('reportQuality.bonusScore')}</Tag>
                   <Tag color="red">{tpl.penaltyRules.length} {t('reportQuality.penaltyScore')}</Tag>
                 </Space>

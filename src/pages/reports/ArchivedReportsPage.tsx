@@ -75,9 +75,9 @@ export default function ArchivedReportsPage() {
   ]
 
   return (
-    <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
       <Card size="small">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
           <Space>
             <Archive size={20} color="#7c3aed" />
             <div>

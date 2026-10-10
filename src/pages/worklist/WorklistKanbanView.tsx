@@ -109,7 +109,7 @@ const KanbanCard = React.memo(function KanbanCard({
         background: 'var(--bg-card)',
         borderRadius: 8,
         padding: '10px 12px',
-        marginBottom: 8,
+        marginBottom: 'var(--space-2, 8px)',
         cursor: 'move',
         border: '1px solid var(--border-color)',
         boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
@@ -141,7 +141,7 @@ const KanbanCard = React.memo(function KanbanCard({
           fontSize: 12,
           display: 'flex',
           alignItems: 'center',
-          gap: 4,
+          gap: 'var(--space-1, 4px)',
         }}>
           {exam.patientName}
           {exam.priority === '危重' && <AlertTriangle size={10} style={{ color: 'var(--color-error-600)' }} />}
@@ -157,7 +157,7 @@ const KanbanCard = React.memo(function KanbanCard({
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         fontSize: 12,
         color: 'var(--text-secondary)',
       }}>
@@ -203,7 +203,7 @@ const KanbanCard = React.memo(function KanbanCard({
         })()}
       </div>
 
-      <div style={{ height: 2, borderRadius: 1, background: pc.color, marginTop: 8 }} />
+      <div style={{ height: 2, borderRadius: 1, background: pc.color, marginTop: 'var(--space-2, 8px)' }} />
     </div>
   )
 })
@@ -268,9 +268,9 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
     <div style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${KANBAN_COLUMNS.length}, minmax(240px, 1fr))`,
-      gap: 12,
+      gap: 'var(--space-3, 12px)',
       overflowX: 'auto',
-      paddingBottom: 8,
+      paddingBottom: 'var(--space-2, 8px)',
     }}>
       {KANBAN_COLUMNS.map(status => {
         const columnExams = getColumnExams(status)
@@ -286,7 +286,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
             style={{
               background: isOver ? 'var(--color-info-bg)' : 'var(--bg-card)',
               borderRadius: 10,
-              padding: 12,
+              padding: 'var(--space-3, 12px)',
               minHeight: 400,
               transition: 'background 0.15s',
               border: isOver ? '2px dashed var(--color-primary-800)' : '2px dashed transparent',
@@ -296,13 +296,13 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: 12,
+              marginBottom: 'var(--space-3, 12px)',
               padding: '8px 10px',
               background: 'var(--bg-card)',
               borderRadius: 8,
               border: '1px solid var(--border-color)',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: sc.color }} />
                 <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 12 }}>{status}</span>
               </div>

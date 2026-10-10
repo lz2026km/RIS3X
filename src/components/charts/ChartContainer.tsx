@@ -134,8 +134,8 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 12,
-            gap: 8,
+            marginBottom: 'var(--space-3, 12px)',
+            gap: 'var(--space-2, 8px)',
           }}
         >
           {title && (

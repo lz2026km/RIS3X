@@ -110,7 +110,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
       {/* [v3.0.6.8-86] 标题和报告选择已上移至父组件, 此处仅保留状态/操作按钮 */}
       <div
         style={{
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           background: "var(--bg-card)",
           minHeight: "calc(100vh - 56px)",
         }}
@@ -119,8 +119,8 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            marginBottom: 12,
+            gap: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-3, 12px)',
             flexWrap: "wrap",
           }}
         >
@@ -183,8 +183,8 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         </div>
         <div
           style={{
-            marginTop: 12,
-            padding: 12,
+            marginTop: 'var(--space-3, 12px)',
+            padding: 'var(--space-3, 12px)',
             background: "var(--bg-card)",
             borderRadius: 6,
             border: "1px dashed var(--border-color)",
@@ -231,7 +231,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         </div>
         <ul
           style={{
-            marginTop: 8,
+            marginTop: 'var(--space-2, 8px)',
             paddingLeft: 18,
             fontSize: 12,
             color: "var(--text-secondary)",
@@ -343,13 +343,13 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         {/* 主编辑区 */}
         <Col span={16}>
           {/* 模板选择 */}
-          <Card size="small" style={{ marginBottom: 8 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-2, 8px)' }}>
             <ReportTemplateSelector
               value={templateId}
               onChange={setTemplateId}
             />
             {template && (
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
                 {t('eyeReport.segments', { count: template.sections.length })} ·{" "}
                 {t('eyeReport.requiredCount', { count: template.sections.filter((s) => s.required).length })} · {t('eyeReport.version')}{" "}
                 {template.version}
@@ -409,7 +409,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                       </Space>
                     )}
                     {s.type === "images" && (
-                      <div style={{ display: "flex", gap: 8 }}>
+                      <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                         {["ei-001", "ei-004", "ei-008"].map((img) => (
                           <div
                             key={img}
@@ -456,7 +456,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                 {t('eyeReport.reportFullText')}
               </Space>
             }
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             <Input.TextArea
               rows={6}
@@ -468,7 +468,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: 8,
+                marginTop: 'var(--space-2, 8px)',
                 fontSize: 12,
                 color: "var(--text-secondary)",
               }}
@@ -497,7 +497,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               }
               type="error"
               showIcon
-              style={{ marginTop: 8, fontSize: 12 }}
+              style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12 }}
             />
           )}
         </Col>
@@ -536,7 +536,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           <Card
             size="small"
             title={t('eyeReport.findingsTitle', { count: findings.length })}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             {findingsData.map((f) => (
               <Tag
@@ -556,7 +556,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </Card>
 
           {/* 状态切换 */}
-          <Card size="small" title={t('eyeReport.reportStatus')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('eyeReport.reportStatus')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Radio.Group
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -571,7 +571,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </Card>
 
           {/* 印象+建议 */}
-          <Card size="small" title={t('eyeReport.impressionDiagnosis')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('eyeReport.impressionDiagnosis')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Input.TextArea
               rows={2}
               value={impression}
@@ -580,7 +580,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               placeholder={t('eyeReport.impressionPlaceholder')}
             />
           </Card>
-          <Card size="small" title={t('eyeReport.treatmentAdvice')} style={{ marginTop: 4 }}>
+          <Card size="small" title={t('eyeReport.treatmentAdvice')} style={{ marginTop: 'var(--space-1, 4px)' }}>
             <Input.TextArea
               rows={2}
               value={recommendations}
@@ -591,7 +591,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </Card>
 
           {/* 报告历史 */}
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
             <ReportDraftPanel reportId={report.id} />
           </div>
         </Col>
@@ -645,7 +645,7 @@ const EyeReportWritePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 24, textAlign: "center" }}>
+      <div style={{ padding: 'var(--space-6, 24px)', textAlign: "center" }}>
         <Spin tip={t('eyeReport.loadingData')} />
       </div>
     );
@@ -655,24 +655,24 @@ const EyeReportWritePage: React.FC = () => {
     return (
       <>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        <Alert title={t('eyeReport.noReports')} type="warning" showIcon style={{ margin: 24 }} />
+        <Alert title={t('eyeReport.noReports')} type="warning" showIcon style={{ margin: 'var(--space-6, 24px)' }} />
       </>
     );
   }
 
-  if (!report) return <Alert title={t('eyeReport.reportNotFound')} type="warning" showIcon style={{ margin: 24 }} />;
+  if (!report) return <Alert title={t('eyeReport.reportNotFound')} type="warning" showIcon style={{ margin: 'var(--space-6, 24px)' }} />;
   return (
     <>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div
         style={{
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           background: "var(--bg-card)",
           minHeight: "calc(100vh - 56px)",
           display: "flex",
           alignItems: "center",
-          gap: 12,
-          marginBottom: 12,
+          gap: 'var(--space-3, 12px)',
+          marginBottom: 'var(--space-3, 12px)',
           flexWrap: "wrap",
           borderBottom: "1px solid var(--border-color)",
         }}

@@ -228,9 +228,9 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 12,
+        marginBottom: 'var(--space-3, 12px)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Clock size={14} color="#64748b" />
           <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>{t('reportStatus.timelineTitle')}</span>
           {realEvents ? (
@@ -253,7 +253,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
           const isLast = idx === realEvents.length - 1;
           const label = ev.action || [ev.fromState, ev.toState].filter(Boolean).join(' → ') || t('reportStatus.statusChanged');
           return (
-            <div key={ev.id ?? idx} style={{ display: 'flex', gap: 12, paddingLeft: 8, paddingBottom: isLast ? 0 : 12, position: 'relative' }}>
+            <div key={ev.id ?? idx} style={{ display: 'flex', gap: 'var(--space-3, 12px)', paddingLeft: 'var(--space-2, 8px)', paddingBottom: isLast ? 0 : 12, position: 'relative' }}>
               {!isLast && (
                 <div style={{ position: 'absolute', left: 14, top: 20, bottom: -4, width: 2, background: isLast ? 'var(--color-primary-500)' : '#cbd5e1' }} />
               )}
@@ -262,7 +262,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                 background: isLast ? 'var(--color-primary-500)' : '#10b981',
                 border: isLast ? '3px solid #dbeafe' : '2px solid #fff',
                 boxShadow: isLast ? '0 0 0 2px var(--color-primary-500)' : '0 0 0 1px #cbd5e1',
-                flexShrink: 0, marginTop: 4, zIndex: 1,
+                flexShrink: 0, marginTop: 'var(--space-1, 4px)', zIndex: 1,
               }} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
@@ -280,7 +280,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                 {showAuditInfo && ev.reason && (
                   <div style={{
                     fontSize: 12, color: '#64748b', background: 'var(--bg-card)',
-                    padding: '4px 8px', borderRadius: 4, marginTop: 4,
+                    padding: '4px 8px', borderRadius: 4, marginTop: 'var(--space-1, 4px)',
                     border: '1px solid var(--border-color)',
                   }}>
                     {ev.reason}
@@ -294,8 +294,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
             key={idx}
             style={{
               display: 'flex',
-              gap: 12,
-              paddingLeft: 8,
+              gap: 'var(--space-3, 12px)',
+              paddingLeft: 'var(--space-2, 8px)',
               paddingBottom: idx < nodes.length - 1 ? 12 : 0,
               position: 'relative',
             }}
@@ -321,7 +321,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
               border: node.isCurrent ? '3px solid #dbeafe' : '2px solid #fff',
               boxShadow: node.isCurrent ? '0 0 0 2px var(--color-primary-500)' : '0 0 0 1px #cbd5e1',
               flexShrink: 0,
-              marginTop: 4,
+              marginTop: 'var(--space-1, 4px)',
               zIndex: 1,
             }} />
 
@@ -341,7 +341,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                   background: 'var(--bg-card)',
                   padding: '4px 8px',
                   borderRadius: 4,
-                  marginTop: 4,
+                  marginTop: 'var(--space-1, 4px)',
                   border: '1px solid var(--border-color)',
                 }}>
                   {node.comment}
@@ -355,7 +355,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       {/* 当前状态机位置指示 */}
       {currentStatusIndex >= 0 && (
         <div style={{
-          marginTop: 12,
+          marginTop: 'var(--space-3, 12px)',
           padding: '6px 10px',
           background: 'var(--color-info-bg)',
           border: '1px solid #bfdbfe',

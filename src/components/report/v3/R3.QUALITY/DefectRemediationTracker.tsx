@@ -184,7 +184,7 @@ export const DefectRemediationTracker: React.FC = () => {
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -196,7 +196,7 @@ export const DefectRemediationTracker: React.FC = () => {
           </Space>
           <Tag color="default">{t('defectRemediation.closedLoop')} {stats.closureRate}%</Tag>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={4}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('defectRemediation.total')}</span>}
@@ -249,7 +249,7 @@ export const DefectRemediationTracker: React.FC = () => {
         </Row>
       </div>
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={16}>
           <Card size="small" title={<Space><Activity size={14} /> {t('defectRemediation.list')}</Space>}>
             <Segmented
@@ -262,7 +262,7 @@ export const DefectRemediationTracker: React.FC = () => {
               ]}
               value={statusFilter}
               onChange={(v) => setStatusFilter(v as string)}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 'var(--space-2, 8px)' }}
             />
             <List
               loading={loading}
@@ -271,7 +271,7 @@ export const DefectRemediationTracker: React.FC = () => {
               style={{
                 background: 'var(--bg-primary)',
                 borderRadius: 6,
-                padding: 4,
+                padding: 'var(--space-1, 4px)',
                 maxHeight: 400,
                 overflowY: 'auto',
               }}
@@ -288,7 +288,7 @@ export const DefectRemediationTracker: React.FC = () => {
                     data-testid={`remediation-${r.id}`}
                     style={{
                       padding: 10,
-                      marginBottom: 4,
+                      marginBottom: 'var(--space-1, 4px)',
                       background: overdue ? 'var(--color-error-bg)' : sm.bg,
                       borderRadius: 6,
                       borderLeft: overdue
@@ -333,17 +333,17 @@ export const DefectRemediationTracker: React.FC = () => {
                       description={
                         <div>
                           <div style={{ fontSize: 12, color: '#475569' }}>{r.description}</div>
-                          <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 'var(--space-1, 4px)' }}>
                             {t('defectRemediation.suggestionPrefix')}{r.suggestedFix}
                           </div>
-                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
                             {t('defectRemediation.reportingDoctor')}{r.doctorName} · {t('defectRemediation.deadline')} {new Date(r.deadlineAt).toLocaleString()} · {t('defectRemediation.created')} {timeAgo(r.reportedAt)}
                           </div>
                           {r.rectifiedNote && (
                             <div
                               style={{
-                                marginTop: 4,
-                                padding: 4,
+                                marginTop: 'var(--space-1, 4px)',
+                                padding: 'var(--space-1, 4px)',
                                 background: '#f0fdf4',
                                 border: '1px solid #bbf7d0',
                                 borderRadius: 4,
@@ -427,7 +427,7 @@ export const DefectRemediationTracker: React.FC = () => {
                 };
               })}
             />
-            <div style={{ marginTop: 8, padding: 8, background: '#f0fdf4', borderRadius: 4 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', padding: 'var(--space-2, 8px)', background: '#f0fdf4', borderRadius: 4 }}>
               <div style={{ fontSize: 12, color: '#065f46' }}>
                 {t('defectRemediation.closureRateLabel')} {stats.closureRate}% · {t('defectRemediation.fixRateLabel')} {stats.fixRate}%
               </div>
@@ -439,7 +439,7 @@ export const DefectRemediationTracker: React.FC = () => {
               />
             </div>
           </Card>
-          <Card size="small" title={t('defectRemediation.defectRateByCategory')} style={{ marginTop: 12 }}>
+          <Card size="small" title={t('defectRemediation.defectRateByCategory')} style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Space orientation="vertical" style={{ width: '100%' }} size={6}>
               {Object.entries(defectRateByCategory)
                 .sort((a, b) => b[1].total - a[1].total)
@@ -484,15 +484,15 @@ export const DefectRemediationTracker: React.FC = () => {
       >
         <Space orientation="vertical" style={{ width: '100%' }} size={10}>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectRemediation.reportId')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectRemediation.reportId')}</div>
             <Input value={editing?.reportId} disabled />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectRemediation.suggestedFix')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectRemediation.suggestedFix')}</div>
             <Input value={editing?.suggestedFix} disabled />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectRemediation.rectifyNoteRequired')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectRemediation.rectifyNoteRequired')}</div>
             <Input.TextArea
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -549,7 +549,7 @@ export const DefectRemediationTracker: React.FC = () => {
                 </div>
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
               <div>
                 <Tag>{t('defectRemediation.reportingDoctorTag')}</Tag> <strong>{detailModal.doctorName}</strong>
               </div>

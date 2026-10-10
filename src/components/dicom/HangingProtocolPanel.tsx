@@ -55,7 +55,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
       borderRadius: 8,
       border: '1px solid #334155',
       overflow: 'hidden',
-      marginBottom: 8,
+      marginBottom: 'var(--space-2, 8px)',
     }}>
       <div
         role="button"
@@ -66,7 +66,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
           padding: '8px 12px',
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           cursor: 'pointer',
           background: '#1e293b',
         }}
@@ -126,7 +126,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}
             >
               <Star size={12} color="#4ade80" />
@@ -155,7 +155,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
+                    gap: 'var(--space-2, 8px)',
                     background: active?.id === p.id ? 'var(--color-primary-800)' : 'transparent',
                     marginBottom: 2,
                   }}

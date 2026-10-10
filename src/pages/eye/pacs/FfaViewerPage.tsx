@@ -57,10 +57,10 @@ const FfaViewerPage: React.FC = () => {
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
-  if (loading) return <div style={{ padding: 32, textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
+  if (loading) return <div style={{ padding: 'var(--space-8, 32px)', textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
   if (!study) {
     return (
-      <div style={{ padding: 32, textAlign: "center" }}>
+      <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center" }}>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
         <Alert
           type="warning"
@@ -75,12 +75,12 @@ const FfaViewerPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RefreshCw size={16} />} onClick={() => setReloadTick((n) => n + 1)}>{t('w1tables.viewer.refresh')}</Button>
         <Button type="primary" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.viewer.export')}</Button>
       </div>
@@ -120,14 +120,14 @@ const FfaViewerPage: React.FC = () => {
                     }}
                   >
                     <Image size={36} />
-                    <span style={{ marginTop: 4 }}>{p.name}</span>
+                    <span style={{ marginTop: 'var(--space-1, 4px)' }}>{p.name}</span>
                     <span style={{ color: "var(--text-secondary)" }}>{p.desc}</span>
                   </div>
                 </Col>
               ))}
             </Row>
           </Card>
-          <Card size="small" title={t('w9d.ffa.quantTitle')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.ffa.quantTitle')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Row gutter={16}>
               {[
                 { title: "AVT", value: "14", suffix: "s", note: "正常 10-15s" },
@@ -175,7 +175,7 @@ const FfaViewerPage: React.FC = () => {
                 title={t('w9d.ffa.activeCnvAlert')}
                 type="warning"
                 showIcon
-                style={{ fontSize: 12, marginTop: 8 }}
+                style={{ fontSize: 12, marginTop: 'var(--space-2, 8px)' }}
               />
             </div>
           </Card>

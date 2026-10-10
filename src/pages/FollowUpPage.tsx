@@ -987,7 +987,7 @@ export default function FollowUpPage() {
         <>
           <span style={getStatusTagStyle(item.status)}>{item.status}</span>
           {item.reason && (
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.reason}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.reason}</div>
           )}
         </>
       ),
@@ -996,40 +996,40 @@ export default function FollowUpPage() {
       title: t('followUp.actions'), key: 'actions',
       render: (_: unknown, item: FollowUpPatient) => (
         <div style={{ whiteSpace: 'nowrap' }}>
-          <button style={{ ...actionButtonStyle, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => { setSelectedPatient(item); setShowModal(true); }}>
+          <button style={{ ...actionButtonStyle, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => { setSelectedPatient(item); setShowModal(true); }}>
             <Eye size={12} /> {t('followUp.detail')}
           </button>
           {(item.status === '待随访' || item.status === '逾期') && (
-            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleRemind(item)}>
+            <button style={{ ...actionButtonStyle, marginLeft: 'var(--space-2, 8px)', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => handleRemind(item)}>
               <Bell size={12} /> {t('followUp.remind')}
             </button>
           )}
           {!isTerminal(item.status) && item.status !== '进行中' && (
-            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#722ed1', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleStart(item)}>
+            <button style={{ ...actionButtonStyle, marginLeft: 'var(--space-2, 8px)', backgroundColor: '#722ed1', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => handleStart(item)}>
               <Play size={12} /> {t('followUp.start')}
             </button>
           )}
           {!isTerminal(item.status) && (
-            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => openResultModal(item.id, item.patientName)}>
+            <button style={{ ...actionButtonStyle, marginLeft: 'var(--space-2, 8px)', backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => openResultModal(item.id, item.patientName)}>
               <CheckCircle size={12} /> {t('followUp.complete')}
             </button>
           )}
           {!isTerminal(item.status) && (
-            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#fa8c16', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleMiss(item)}>
+            <button style={{ ...actionButtonStyle, marginLeft: 'var(--space-2, 8px)', backgroundColor: '#fa8c16', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => handleMiss(item)}>
               <UserX size={12} /> {t('followUp.miss')}
             </button>
           )}
           {!isTerminal(item.status) && (
-            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => openEditPlan(item)}>
+            <button style={{ ...actionButtonStyle, marginLeft: 'var(--space-2, 8px)', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => openEditPlan(item)}>
               <Pencil size={12} /> {t('followUp.edit')}
             </button>
           )}
           {!isTerminal(item.status) && (
-            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleCancel(item)}>
+            <button style={{ ...actionButtonStyle, marginLeft: 'var(--space-2, 8px)', backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => handleCancel(item)}>
               <Ban size={12} /> {t('followUp.cancel')}
             </button>
           )}
-          <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#8c8c8c', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleDelete(item)}>
+          <button style={{ ...actionButtonStyle, marginLeft: 'var(--space-2, 8px)', backgroundColor: '#8c8c8c', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => handleDelete(item)}>
             <Trash2 size={12} /> {t('followUp.delete')}
           </button>
         </div>
@@ -1113,10 +1113,10 @@ export default function FollowUpPage() {
       </div>
 
       {/* [v3.0.6.11-99 Wave10B] 随访趋势 / 类别分布 / 到期清单 深化面板 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
         {/* 近 6 月随访趋势 */}
         <div style={{ ...statCardStyle }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Calendar size={14} /> {t('followUp.monthlyTrend')}
           </div>
           {(() => {
@@ -1137,10 +1137,10 @@ export default function FollowUpPage() {
                 })()
             const maxTotal = Math.max(1, ...byMonth.map(b => b.total))
             return byMonth.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noTrendData')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noTrendData')}</div>
             ) : (
               <div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 110 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)', height: 110 }}>
                   {byMonth.map(b => (
                     <div key={b.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                       <span style={{ fontSize: 10, color: '#52c41a', fontWeight: 600 }}>{b.completed}</span>
@@ -1153,7 +1153,7 @@ export default function FollowUpPage() {
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>
                   {byMonth.map(b => `${b.month}: ${b.total}条`).join(' · ')}
                 </div>
               </div>
@@ -1163,7 +1163,7 @@ export default function FollowUpPage() {
 
         {/* 类别分布 */}
         <div style={{ ...statCardStyle }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <LayoutTemplate size={14} /> {t('followUp.categoryDist')}
           </div>
           {(() => {
@@ -1180,9 +1180,9 @@ export default function FollowUpPage() {
             const maxCat = Math.max(1, ...cats.map(c => c.count))
             const colors = ['#1890ff', '#722ed1', '#52c41a', '#fa8c16', '#eb2f96', '#13c2c2']
             return cats.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noCategoryData')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noCategoryData')}</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {cats.slice(0, 6).map((c, i) => (
                   <div key={c.category}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
@@ -1204,11 +1204,11 @@ export default function FollowUpPage() {
 
         {/* 即将到期清单 */}
         <div style={{ ...statCardStyle }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <BellRing size={14} /> {t('followUp.dueSoon')}
           </div>
           {dueList.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: 'var(--text-secondary)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
               <CheckCircle size={26} color="#52c41a" />
               {t('followUp.noDueIn7Days')}
             </div>
@@ -1216,7 +1216,7 @@ export default function FollowUpPage() {
             <div style={{ maxHeight: 190, overflowY: 'auto' }}>
               {dueList.slice(0, 8).map(p => (
                 <div key={p.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0',
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '7px 0',
                   borderBottom: '1px solid var(--border-color)', fontSize: 12,
                 }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#fa8c16', flexShrink: 0 }} />
@@ -1236,15 +1236,15 @@ export default function FollowUpPage() {
               )}
             </div>
           )}
-          <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>
             <Bell size={11} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.dueHint')}
           </div>
         </div>
       </div>
 
       {/* [v3.0.6.11-104 Wave 2C] 催办队列面板: 逾期/今日到期/未来 N 天 (GET /followups/reminder-queue) */}
-      <div style={{ ...statCardStyle, marginBottom: 24 }} data-testid="followup-reminder-queue">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ ...statCardStyle, marginBottom: 'var(--space-6, 24px)' }} data-testid="followup-reminder-queue">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6 }}>
             <BellRing size={14} /> {t('followup.reminderQueue.title')}
             {reminderQueue && (
@@ -1253,38 +1253,38 @@ export default function FollowUpPage() {
               </span>
             )}
           </div>
-          <button style={{ ...cancelButtonStyle, padding: '4px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void loadReminderQueue()} disabled={reminderLoading}>
+          <button style={{ ...cancelButtonStyle, padding: '4px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => void loadReminderQueue()} disabled={reminderLoading}>
             <RotateCcw size={12} /> {t('followup.reminderQueue.refresh')}
           </button>
         </div>
 
         {reminderLoading && !reminderQueue ? (
-          <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: 'var(--text-secondary)', fontSize: 12 }}>
             <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followup.reminderQueue.loading')}
           </div>
         ) : reminderError ? (
           <div style={{
             padding: '12px 16px', borderRadius: 8, backgroundColor: 'var(--color-error-bg)',
             border: '1px solid #ffa39e', fontSize: 12, color: '#cf1322',
-            display: 'flex', alignItems: 'center', gap: 8,
+            display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
           }}>
             <AlertTriangle size={14} /> {reminderError}
             <button style={{ ...cancelButtonStyle, padding: '2px 10px', fontSize: 12 }} onClick={() => void loadReminderQueue()}>{t('followup.reminderQueue.retry')}</button>
           </div>
         ) : !reminderQueue || reminderQueue.total === 0 ? (
-          <div style={{ textAlign: 'center', padding: 24, color: 'var(--text-secondary)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)', color: 'var(--text-secondary)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
             <CheckCircle size={26} color="#52c41a" />
             {t('followup.reminderQueue.empty')}
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
             {([
               { key: 'overdue', label: t('followup.reminderQueue.overdue'), count: reminderQueue.overdue, color: '#ff4d4f', list: reminderGroups.overdue },
               { key: 'dueToday', label: t('followup.reminderQueue.dueToday'), count: reminderQueue.dueToday, color: '#fa8c16', list: reminderGroups.dueToday },
               { key: 'upcoming', label: t('followup.reminderQueue.upcoming', { days: reminderQueue.days }), count: reminderQueue.upcoming, color: '#1677ff', list: reminderGroups.upcoming },
             ] as Array<{ key: string; label: string; count: number; color: string; list: FollowUpPlan[] }>).map(g => (
-              <div key={g.key} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div key={g.key} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: g.color }}>{g.label}</span>
                   <span style={{ fontSize: 18, fontWeight: 700, color: g.color }}>{g.count}</span>
                 </div>
@@ -1299,7 +1299,7 @@ export default function FollowUpPage() {
                         tabIndex={0}
                         onClick={() => { setSelectedPatient(mapPlan(p)); setShowModal(true); }}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPatient(mapPlan(p)); setShowModal(true); } }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer', padding: '4px 0', borderBottom: '1px solid var(--border-color)' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, cursor: 'pointer', padding: '4px 0', borderBottom: '1px solid var(--border-color)' }}
                       >
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: g.color, flexShrink: 0 }} />
                         <span style={{ flex: 1, color: 'var(--text-secondary)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.patientName}</span>
@@ -1377,7 +1377,7 @@ export default function FollowUpPage() {
       </div>
 
       {/* [v3.0.6.11-99 Wave10B] 视图切换: 列表 / 日历 / 按患者分组 */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', alignItems: 'center', flexWrap: 'wrap' }}>
         {([
           ['list', t('followUp.viewList')],
           ['calendar', t('followUp.viewCalendar')],
@@ -1403,10 +1403,10 @@ export default function FollowUpPage() {
 
       {/* [v3.0.6.11-99 Wave10B] 日历视图 (计划日期分布) */}
       {viewMode === 'calendar' && (
-        <div style={{ ...tableStyle, padding: 16, marginBottom: 16 }}>
+        <div style={{ ...tableStyle, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{t('followUp.calendarTitle', { month: calendarMonth })}</div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
               <button
                 style={actionButtonStyle}
                 onClick={() => {
@@ -1465,7 +1465,7 @@ export default function FollowUpPage() {
                         }}>
                           {day}
                         </span>
-                        <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <div style={{ marginTop: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 3 }}>
                           {plans.slice(0, 3).map(p => (
                             <span
                               key={p.id}
@@ -1496,7 +1496,7 @@ export default function FollowUpPage() {
               })
             })()}
           </div>
-          <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {Object.entries(statusDotColor).map(([status, color]) => {
               const count = followUpList.filter(p => p.status === status).length
               return (
@@ -1512,9 +1512,9 @@ export default function FollowUpPage() {
 
       {/* [v3.0.6.11-99 Wave10B] 按患者分组视图 */}
       {viewMode === 'grouped' && (
-        <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           {groupedByPatient.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 32, color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noMatchPlans')}</div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)', color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noMatchPlans')}</div>
           )}
           {groupedByPatient.map(g => {
             const expanded = expandedPatients.has(g.patientId)
@@ -1528,7 +1528,7 @@ export default function FollowUpPage() {
                   onClick={() => togglePatient(g.patientId)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePatient(g.patientId) } }}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '14px 16px', cursor: 'pointer',
                     background: expanded ? '#e6f4ff' : 'var(--bg-card)',
                     borderBottom: expanded ? '1px solid var(--border-color)' : 'none',
                   }}
@@ -1544,7 +1544,7 @@ export default function FollowUpPage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)' }}>
                       {g.patientName}
-                      <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 8, fontWeight: 400 }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'var(--space-2, 8px)', fontWeight: 400 }}>
                         ID: {g.patientId}
                       </span>
                     </div>
@@ -1552,7 +1552,7 @@ export default function FollowUpPage() {
                       {t('followUp.groupSummary', { count: g.items.length, completed: completedCount, recent: String(latest?.nextFollowUpDate || '').slice(0, 10) })}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     {(['待随访', '逾期', '已提醒', '进行中'] as string[]).map(s => {
                       const c = g.items.filter(i => i.status === s).length
                       if (c === 0) return null
@@ -1572,16 +1572,16 @@ export default function FollowUpPage() {
                   </span>
                 </div>
                 {expanded && (
-                  <div style={{ padding: 8 }}>
+                  <div style={{ padding: 'var(--space-2, 8px)' }}>
                     {g.items.map(item => (
                       <div key={item.id} style={{
-                        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
+                        display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 14px',
                         borderBottom: '1px solid var(--border-color)',
                       }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>
                             {item.notes || item.followUpType || t('followUp.planLabel')}
-                            {item.examType && <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--text-secondary)' }}>{item.examType}</span>}
+                            {item.examType && <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>{item.examType}</span>}
                           </div>
                           <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                             {t('followUp.examToFollowUp', { examDate: item.examDate, nextDate: item.nextFollowUpDate })}{item.intervalDays ? ` · 间隔 ${item.intervalDays} 天` : ''}
@@ -1950,13 +1950,13 @@ export default function FollowUpPage() {
                         {t('followUp.templateMeta', { category: tpl.category || t('followUp.uncategorized'), intervals: (tpl.intervals ?? []).join('/'), items: (tpl.items ?? []).join('、') || '—' })}
                       </div>
                     </div>
-                    <button style={{ ...actionButtonStyle, backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => { setTplApply(tpl); setTplApplyForm(f => ({ ...f, planDate: new Date().toISOString().slice(0, 10) })); }}>
+                    <button style={{ ...actionButtonStyle, backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => { setTplApply(tpl); setTplApplyForm(f => ({ ...f, planDate: new Date().toISOString().slice(0, 10) })); }}>
                       <Play size={12} /> {t('followUp.apply')}
                     </button>
-                    <button style={{ ...actionButtonStyle, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => editTemplate(tpl)}>
+                    <button style={{ ...actionButtonStyle, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => editTemplate(tpl)}>
                       <Pencil size={12} /> {t('followUp.edit')}
                     </button>
-                    <button style={{ ...actionButtonStyle, backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void deleteTemplate(tpl)}>
+                    <button style={{ ...actionButtonStyle, backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => void deleteTemplate(tpl)}>
                       <Trash2 size={12} /> {t('followUp.delete')}
                     </button>
                   </div>

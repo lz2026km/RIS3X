@@ -281,7 +281,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
 
   return (
     <div data-testid="template-library-panel-v2" role="region" aria-label={t('templateLibrary.panelAria')}>
-      <div style={{ background: 'linear-gradient(135deg, #0e7490 0%, #164e63 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, #0e7490 0%, #164e63 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 'var(--space-3, 12px)' }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <LayoutGrid size={18} />
@@ -318,7 +318,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
             </Tooltip>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           {headerItems.map((s) => (
             <Col span={compact ? 6 : 24 / headerItems.length} key={s.title}>
               <Statistic title={<span style={{ color: '#fff' }}>{s.title}</span>} value={s.value} prefix={s.prefix} styles={{ content: { color: '#fff', fontSize: 18 } }} />
@@ -335,7 +335,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
           { label: t('templateLibrary.tab.favorites', { count: favorites.length }), value: 'favorites' },
           { label: t('templateLibrary.tab.recommend'), value: 'recommend' },
         ]}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
       {tab === 'library' && (
@@ -354,7 +354,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
           </Col>
           <Col span={19}>
             <Card size="small" title={<Space><Search size={14} color="#0e7490" />{t('templateLibrary.searchAndList', { count: displayed.length })}</Space>} extra={<Tag color="blue">{t('templateLibrary.totalCount', { count: searchResult.total || templates.length })}</Tag>}>
-              <Space wrap style={{ marginBottom: 12 }}>
+              <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <Input allowClear prefix={<Search size={12} />} placeholder={t('templateLibrary.searchPlaceholder')} style={{ width: 220 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
                 <Select allowClear placeholder={t('templateLibrary.filterTags')} style={{ width: 130 }} value={tagFilter} onChange={(v) => setTagFilter(v)} options={TAG_OPTIONS} />
                 <Select allowClear placeholder={t('templateLibrary.filterModality')} style={{ width: 100 }} value={modalityFilter} onChange={(v) => setModalityFilter(v)} options={MODALITY_OPTIONS} />
@@ -407,8 +407,8 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
                         <Button size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(r.template.id)} />
                       </Space>
                     </Space>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{t('templateLibrary.reason')} {r.reason}</div>
-                    <div style={{ fontSize: 12, color: '#475569', marginTop: 4, maxHeight: 40, overflow: 'hidden' }}>{r.template.content.slice(0, 80)}...</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>{t('templateLibrary.reason')} {r.reason}</div>
+                    <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)', maxHeight: 40, overflow: 'hidden' }}>{r.template.content.slice(0, 80)}...</div>
                   </div>
                 ))}
                 {recommendations.length === 0 && <Empty description={t('templateLibrary.noRecommend')} />}

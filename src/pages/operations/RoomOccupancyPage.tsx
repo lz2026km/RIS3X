@@ -98,15 +98,15 @@ export const RoomOccupancyPage: React.FC = () => {
 
   if (loading && rooms.length === 0) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" description={t('roomOccupancy.loading')} />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)', width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <LayoutDashboard size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>{t('roomOccupancy.title')}</span>
@@ -119,11 +119,11 @@ export const RoomOccupancyPage: React.FC = () => {
       <RoomOccupancyExtendedSection />
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 16 }} message={t('roomOccupancy.loadFailedTitle')}
+        <Alert type="error" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={t('roomOccupancy.loadFailedTitle')}
           description={error} action={<Button size="small" onClick={() => void refresh()}><RefreshCw size={14} /> {t('roomOccupancy.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('roomOccupancy.totalRooms')} value={total} suffix={`间 · 占用率 ${rate}%`} icon={<LayoutDashboard size={16} />} />
         <StatCard title={t('roomOccupancy.occupied')} value={occupied} color="primary" icon={<Users size={16} />} />
         <StatCard title={t('roomOccupancy.idle')} value={idle} color="success" icon={<Circle size={16} />} />
@@ -134,9 +134,9 @@ export const RoomOccupancyPage: React.FC = () => {
         <Col span={16}>
           <Card size="small" title={<Space><LayoutDashboard size={14} />{t('roomOccupancy.layout')}</Space>}>
             {rooms.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>{t('roomOccupancy.noRoomData')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-secondary)' }}>{t('roomOccupancy.noRoomData')}</div>
             ) : (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3, 12px)' }}>
                 {rooms.map(r => {
                   const meta = STATUS_META[r.status] ?? { color: 'var(--text-secondary)', label: r.status };
                   const isOverdue = r.overdue;
@@ -176,9 +176,9 @@ export const RoomOccupancyPage: React.FC = () => {
             )}
           </Card>
 
-          <Card size="small" title={<Space><TrendingUp size={14} />{t('roomOccupancy.trendTitle')}</Space>} style={{ marginTop: 16 }}>
+          <Card size="small" title={<Space><TrendingUp size={14} />{t('roomOccupancy.trendTitle')}</Space>} style={{ marginTop: 'var(--space-4, 16px)' }}>
             {trends.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>{t('roomOccupancy.noTrendData')}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-secondary)' }}>{t('roomOccupancy.noTrendData')}</div>
             ) : (
               <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 2, padding: '0 4px' }}>
                 {trends.map((p, i) => (
@@ -200,12 +200,12 @@ export const RoomOccupancyPage: React.FC = () => {
         <Col span={8}>
           <Card size="small" title={<Space><Clock size={14} />{t('roomOccupancy.queueTitle')} {selectedRoom ? `- ${rooms.find(r => r.id === selectedRoom)?.roomNo ?? ''}` : ''}</Space>}>
             {!selectedRoom ? (
-              <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>{t('roomOccupancy.clickRoomHint')}</div>
+              <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 'var(--space-6, 24px)' }}>{t('roomOccupancy.clickRoomHint')}</div>
             ) : (
               <>
-                <div style={{ marginBottom: 8 }}>
+                <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 500 }}>{t('roomOccupancy.waitingCount')}: {queue.length} {t('roomOccupancy.people')}</span>
-                  <span style={{ marginLeft: 16, fontSize: 12 }}>{t('roomOccupancy.estimatedWait')}: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} {t('roomOccupancy.minutes')}</span>
+                  <span style={{ marginLeft: 'var(--space-4, 16px)', fontSize: 12 }}>{t('roomOccupancy.estimatedWait')}: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} {t('roomOccupancy.minutes')}</span>
                 </div>
                 <DataTable dataSource={queue} rowKey="position" pagination={false} scroll={{ x: 'max-content' }}
                   columns={[
@@ -218,19 +218,19 @@ export const RoomOccupancyPage: React.FC = () => {
             )}
           </Card>
 
-          <Card size="small" title={<Space><AlertTriangle size={14} />{t('roomOccupancy.overdueTitle')}</Space>} style={{ marginTop: 16 }}>
+          <Card size="small" title={<Space><AlertTriangle size={14} />{t('roomOccupancy.overdueTitle')}</Space>} style={{ marginTop: 'var(--space-4, 16px)' }}>
             {rooms.filter(r => r.overdue).length === 0 ? (
-              <div style={{ color: '#52c41a', padding: 12, textAlign: 'center' }}>{t('roomOccupancy.noOverdue')}</div>
+              <div style={{ color: '#52c41a', padding: 'var(--space-3, 12px)', textAlign: 'center' }}>{t('roomOccupancy.noOverdue')}</div>
             ) : (
               rooms.filter(r => r.overdue).map(r => (
-                <Alert key={r.id} type="error" showIcon title={`${r.roomNo} 超时 >15min`} style={{ marginBottom: 8 }}
+                <Alert key={r.id} type="error" showIcon title={`${r.roomNo} 超时 >15min`} style={{ marginBottom: 'var(--space-2, 8px)' }}
                   description={`患者: ${r.currentPatient ?? '--'} | 预计结束: ${r.expectedEnd ? new Date(r.expectedEnd).toLocaleTimeString() : '--'}`}
                 />
               ))
             )}
           </Card>
 
-          <Card size="small" title={<Space><Circle size={14} />{t('roomOccupancy.manualStatusTitle')}</Space>} style={{ marginTop: 16 }}>
+          <Card size="small" title={<Space><Circle size={14} />{t('roomOccupancy.manualStatusTitle')}</Space>} style={{ marginTop: 'var(--space-4, 16px)' }}>
             <Space orientation="vertical" style={{ width: '100%' }}>
               <Select placeholder={t('roomOccupancy.selectRoom')} style={{ width: '100%' }}
                 options={rooms.map(r => ({ value: r.id, label: r.roomNo }))}

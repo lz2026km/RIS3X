@@ -306,9 +306,9 @@ const RegionalCollaborationPage: React.FC = () => {
   }, [syncEvents, sites]);
 
   return (
-    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+    <div style={{ padding: 'var(--space-4, 16px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       {/* 页头 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: "wrap" }}>
         <Network size={18} color="var(--color-info-600)" />
         <span style={{ fontSize: 16, fontWeight: 700 }}>{t('regionalCollab.title')}</span>
         <Tag color="cyan">G005 Wave 4B</Tag>
@@ -323,7 +323,7 @@ const RegionalCollaborationPage: React.FC = () => {
       <div
         data-testid="regional-collab-data-source-badge"
         style={{
-          display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 12,
+          display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', fontSize: 12,
           padding: "6px 12px", borderRadius: 8,
           background: source === "api" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
           color: source === "api" ? "#059669" : "var(--color-warning-600)",
@@ -337,7 +337,7 @@ const RegionalCollaborationPage: React.FC = () => {
       </div>
 
       {/* KPI */}
-      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <StatCard title={t('regionalCollab.statInstitutions')} value={institutions.length} suffix={t('regionalCollab.unitInstitutions')} icon={<Building2 size={15} color="var(--color-primary-800)" />} />
         <StatCard title={t('regionalCollab.statSharedStudies')} value={totalShared} suffix={t('regionalCollab.unitItems')} icon={<Share2 size={15} color="var(--color-info-600)" />} />
         <StatCard title={t('regionalCollab.statTotalAccess')} value={totalAccess} suffix={t('regionalCollab.unitTimes')} icon={<BookOpenCheck size={15} color="#7c3aed" />} />
@@ -345,7 +345,7 @@ const RegionalCollaborationPage: React.FC = () => {
       </StatCardGrid>
 
       {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: 80 }}><Spin description={t('regionalCollab.loading')} /></div>
+        <div style={{ display: "flex", justifyContent: "center", padding: 'var(--space-20, 80px)' }}><Spin description={t('regionalCollab.loading')} /></div>
       ) : (
         <>
           {/* 机构成员卡 */}
@@ -353,7 +353,7 @@ const RegionalCollaborationPage: React.FC = () => {
             size="small"
             title={<Space><Building2 size={15} color="var(--color-primary-800)" />{t('regionalCollab.memberInstitutions')}</Space>}
             extra={<Button size="small" icon={<RefreshCw size={13} />} onClick={() => void loadAll()}>{t('regionalCollab.refresh')}</Button>}
-            style={{ marginBottom: 12 }}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
           >
             <DataTable
               rowKey="id"
@@ -368,9 +368,9 @@ const RegionalCollaborationPage: React.FC = () => {
           <Card
             size="small"
             title={<Space><Search size={15} color="var(--color-primary-600)" />{t('regionalCollab.crossAccess')}</Space>}
-            style={{ marginBottom: 12 }}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
           >
-            <Space wrap style={{ marginBottom: 12 }}>
+            <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <span style={{ fontSize: 12 }}>{t('regionalCollab.institutionLabel')}</span>
               <Select
                 data-testid="regional-cross-inst"
@@ -407,9 +407,9 @@ const RegionalCollaborationPage: React.FC = () => {
               </span>
             </Space>
             {!searchRan ? (
-              <Empty description={t('regionalCollab.emptyCross')} style={{ padding: 16 }} />
+              <Empty description={t('regionalCollab.emptyCross')} style={{ padding: 'var(--space-4, 16px)' }} />
             ) : crossResults.length === 0 ? (
-              <Empty description={t('regionalCollab.emptyCrossResult')} style={{ padding: 16 }} />
+              <Empty description={t('regionalCollab.emptyCrossResult')} style={{ padding: 'var(--space-4, 16px)' }} />
             ) : (
               <DataTable
                 rowKey="id"
@@ -428,10 +428,10 @@ const RegionalCollaborationPage: React.FC = () => {
                 size="small"
                 title={<Space><MessageSquare size={15} color="#7c3aed" />{t('regionalCollab.remoteConsult')}</Space>}
                 extra={<Button size="small" type="primary" data-testid="regional-consult-create-btn" icon={<Video size={13} />} onClick={() => setApplyOpen(true)}>{t('regionalCollab.startConsult')}</Button>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
                 {consultations.length === 0 ? (
-                  <Empty description={t('regionalCollab.emptyConsult')} style={{ padding: 16 }} />
+                  <Empty description={t('regionalCollab.emptyConsult')} style={{ padding: 'var(--space-4, 16px)' }} />
                 ) : (
                   <List
                     size="small"
@@ -479,10 +479,10 @@ const RegionalCollaborationPage: React.FC = () => {
                 size="small"
                 title={<Space><Activity size={15} color="#059669" />{t('regionalCollab.shareStats')}</Space>}
                 extra={<span style={{ fontSize: 11, color: "var(--text-secondary)" }}>{t('regionalCollab.shareStatsHint')}</span>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
                 {shareStats.length === 0 ? (
-                  <Empty description={t('regionalCollab.emptyStats')} style={{ padding: 16 }} />
+                  <Empty description={t('regionalCollab.emptyStats')} style={{ padding: 'var(--space-4, 16px)' }} />
                 ) : (
                   <>
                     <ChartContainer type="bar" height={210}>
@@ -495,7 +495,7 @@ const RegionalCollaborationPage: React.FC = () => {
                         <Bar dataKey="调阅次数" fill="#7c3aed" radius={[3, 3, 0, 0]} />
                       </BarChart>
                     </ChartContainer>
-                    <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
+                    <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: "var(--text-secondary)" }}>
                       {t('regionalCollab.totalSharedLabel')} {totalShared} {t('regionalCollab.unitItems')} · {t('regionalCollab.totalAccessLabel')} {totalAccess} {t('regionalCollab.unitTimes')}
                     </div>
                   </>
@@ -510,26 +510,26 @@ const RegionalCollaborationPage: React.FC = () => {
               <Card
                 size="small"
                 title={<Space><Globe size={15} color="var(--color-info-600)" />{t('regionalCollab.syncStatus')}</Space>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
-                <Row gutter={8} style={{ marginBottom: 8 }}>
+                <Row gutter={8} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   {sites.slice(0, 4).map((s) => (
                     <Col span={6} key={s.id}>
                       <div style={{ border: "1px solid var(--border-color)", borderRadius: 8, padding: "8px 10px", fontSize: 12 }}>
                         <div style={{ fontWeight: 600 }}>{s.name}</div>
-                        <Tag color={SITE_STATUS_MAP[s.status]?.color} style={{ marginTop: 4 }}>{t(SITE_STATUS_MAP[s.status]?.label ?? s.status)}</Tag>
-                        <div style={{ color: "var(--text-secondary)", marginTop: 4 }}>{s.studies.toLocaleString()} {t('regionalCollab.studiesUnit')} · {s.latencyMs}ms · {t('regionalCollab.onlineRateLabel')} {s.uptimePct}%</div>
+                        <Tag color={SITE_STATUS_MAP[s.status]?.color} style={{ marginTop: 'var(--space-1, 4px)' }}>{t(SITE_STATUS_MAP[s.status]?.label ?? s.status)}</Tag>
+                        <div style={{ color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>{s.studies.toLocaleString()} {t('regionalCollab.studiesUnit')} · {s.latencyMs}ms · {t('regionalCollab.onlineRateLabel')} {s.uptimePct}%</div>
                         <div style={{ color: "var(--text-secondary)" }}>{t('regionalCollab.lastSyncLabel')} {String(s.lastSync).slice(11, 19)}</div>
                       </div>
                     </Col>
                   ))}
                 </Row>
                 <DividerMini />
-                <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8 }}>{t('regionalCollab.syncTimeline')}</div>
+                <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>{t('regionalCollab.syncTimeline')}</div>
                 {syncTimeline.length === 0 ? (
-                  <Empty description={t('regionalCollab.emptySyncEvents')} style={{ padding: 12 }} />
+                  <Empty description={t('regionalCollab.emptySyncEvents')} style={{ padding: 'var(--space-3, 12px)' }} />
                 ) : (
-                  <Timeline items={syncTimeline} style={{ maxHeight: 260, overflowY: "auto", paddingRight: 4 }} />
+                  <Timeline items={syncTimeline} style={{ maxHeight: 260, overflowY: "auto", paddingRight: 'var(--space-1, 4px)' }} />
                 )}
               </Card>
             </Col>
@@ -539,11 +539,11 @@ const RegionalCollaborationPage: React.FC = () => {
               <Card
                 size="small"
                 title={<Space><ShieldCheck size={15} color="var(--color-primary-700)" />{t('regionalCollab.routingAudit')}</Space>}
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
               >
-                <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8 }}>{t('regionalCollab.interSiteRouting')}</div>
+                <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>{t('regionalCollab.interSiteRouting')}</div>
                 {routingRules.length === 0 ? (
-                  <Empty description={t('regionalCollab.emptyRouting')} style={{ padding: 12 }} />
+                  <Empty description={t('regionalCollab.emptyRouting')} style={{ padding: 'var(--space-3, 12px)' }} />
                 ) : (
                   <Space direction="vertical" style={{ width: "100%" }} size={4}>
                     {routingRules.slice(0, 5).map((r) => {
@@ -562,9 +562,9 @@ const RegionalCollaborationPage: React.FC = () => {
                   </Space>
                 )}
                 <DividerMini />
-                <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8 }}>{t('regionalCollab.recentAudit')}</div>
+                <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>{t('regionalCollab.recentAudit')}</div>
                 {auditTrail.length === 0 ? (
-                  <Empty description={t('regionalCollab.emptyAudit')} style={{ padding: 12 }} />
+                  <Empty description={t('regionalCollab.emptyAudit')} style={{ padding: 'var(--space-3, 12px)' }} />
                 ) : (
                   <Space direction="vertical" style={{ width: "100%" }} size={4}>
                     {auditTrail.slice(0, 5).map((a) => (
@@ -597,7 +597,7 @@ const RegionalCollaborationPage: React.FC = () => {
         width={480}
         data-testid="regional-consult-modal"
       >
-        <Form form={applyForm} layout="vertical" size="small" style={{ marginTop: 8 }}>
+        <Form form={applyForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Form.Item name="patientName" label={t('regionalCollab.patientName')} rules={[{ required: true, message: t('regionalCollab.requiredPatientName') }]}>
             <Input placeholder={t('regionalCollab.placeholderPatientName')} />
           </Form.Item>

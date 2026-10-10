@@ -149,7 +149,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Calculator size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('clinicalCalc.title')}</span>
         <Tag color="cyan">v3.0.6.8-78</Tag>
@@ -173,8 +173,8 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
             ))}
           </Row>
           {selected && (
-            <Card size="small" title={<Space><ArrowRight size={14}/>{selected.name}</Space>} style={{marginTop:16}}>
-              <div style={{fontSize:12,color:'#666',marginBottom:12}}>{selected.description}</div>
+            <Card size="small" title={<Space><ArrowRight size={14}/>{selected.name}</Space>} style={{marginTop:'var(--space-4, 16px)'}}>
+              <div style={{fontSize:12,color:'#666',marginBottom:'var(--space-3, 12px)'}}>{selected.description}</div>
               <Form layout="vertical" size="small">
                 <Row gutter={12}>
                   {selected.inputs.map(inp => (

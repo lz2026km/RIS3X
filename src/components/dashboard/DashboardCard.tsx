@@ -84,7 +84,7 @@ export function DashboardCard({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             padding: "14px 16px",
             borderBottom: "1px solid var(--border-color)",
           }}
@@ -123,7 +123,7 @@ export function DashboardCard({
               {title}
             </h3>
           )}
-          {extra && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>{extra}</div>}
+          {extra && <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>{extra}</div>}
         </header>
       )}
 
@@ -154,7 +154,7 @@ export function DashboardCard({
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                   padding: "6px 14px",
                   borderRadius: 6,
                   border: "1px solid var(--border-color)",
@@ -176,7 +176,7 @@ export function DashboardCard({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
               padding: "28px 16px",
               textAlign: "center",
               color: "var(--text-secondary)",

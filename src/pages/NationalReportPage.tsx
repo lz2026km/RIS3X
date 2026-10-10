@@ -763,13 +763,13 @@ const FHIRReportPanel = () => {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       {/* FHIR信息头 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <FileJson size={18} color={COLORS.primary} /> {t('nationalReport.fhirTitle')}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
           <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirVersion')}</span> <span style={{ fontSize: 12, fontWeight: 600 }}>R4 (4.0.1)</span></div>
           <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>IG:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>IHE-RAD-IG v3.0</span></div>
           <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirValidation')}</span> <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}>{t('nationalReportPage.igCompliant')}</span></div>
@@ -778,7 +778,7 @@ const FHIRReportPanel = () => {
       </div>
 
       {/* Tab切换 */}
-      <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', padding: 4, borderRadius: 8, width: 'fit-content' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: 'var(--space-1, 4px)', borderRadius: 8, width: 'fit-content' }}>
         {fhirTabs.map(t => (
           <button key={t.key} onClick={() => setFhirView(t.key as any)}
             style={{ padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: fhirView === t.key ? COLORS.primary : 'transparent', color: fhirView === t.key ? '#fff' : COLORS.textMuted }}>
@@ -789,29 +789,29 @@ const FHIRReportPanel = () => {
 
       {/* FHIR内容展示 */}
       {fhirView === 'report' && (
-        <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
+        <div style={{ background: '#1e293b', borderRadius: 8, padding: 'var(--space-4, 16px)', overflow: 'auto', maxHeight: 400 }}>
           <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRReport, null, 2)}</pre>
         </div>
       )}
       {fhirView === 'observation' && (
-        <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
+        <div style={{ background: '#1e293b', borderRadius: 8, padding: 'var(--space-4, 16px)', overflow: 'auto', maxHeight: 400 }}>
           <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRObservation, null, 2)}</pre>
         </div>
       )}
       {fhirView === 'bundle' && (
-        <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
+        <div style={{ background: '#1e293b', borderRadius: 8, padding: 'var(--space-4, 16px)', overflow: 'auto', maxHeight: 400 }}>
           <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRBundle, null, 2)}</pre>
         </div>
       )}
       {fhirView === 'export' && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <FileJson size={48} color={COLORS.primary} style={{ marginBottom: 12 }} />
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{t('nationalReport.fhirExportTitle')}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 16 }}>{t('nationalReport.fhirExportDesc')}</div>
-          <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+          <FileJson size={48} color={COLORS.primary} style={{ marginBottom: 'var(--space-3, 12px)' }} />
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-2, 8px)' }}>{t('nationalReport.fhirExportTitle')}</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 'var(--space-4, 16px)' }}>{t('nationalReport.fhirExportDesc')}</div>
+          <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Download size={16} /> {t('nationalReport.fhirExportBtn')}
           </button>
-          {exportSuccess && <div style={{ marginTop: 12, color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> {t('nationalReport.fhirExportSuccess')}</div>}
+          {exportSuccess && <div style={{ marginTop: 'var(--space-3, 12px)', color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> {t('nationalReport.fhirExportSuccess')}</div>}
         </div>
       )}
     </div>
@@ -834,12 +834,12 @@ const MultiRegulatorPanel = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Globe size={18} color={COLORS.primary} /> {t('nationalReport.regConfig')}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button onClick={handleBatchSubmit} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Send size={14} /> {batchStatus === 'submitting' ? t('nationalReport.batchSubmitting') : t('nationalReport.batchSubmitAll')}
           </button>
@@ -847,12 +847,12 @@ const MultiRegulatorPanel = () => {
       </div>
 
       {/* 监管机构卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)' }}>
         {regulatorTargets.map(reg => {
           const subStatus = submissions.find(s => s.targetId === reg.id)
           return (
-            <div key={reg.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div key={reg.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.primary }}><reg.icon size={20} /></div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{reg.name}</div>
@@ -864,10 +864,10 @@ const MultiRegulatorPanel = () => {
                 color: reg.status === 'online' ? 'var(--color-success)' : reg.status === 'degraded' ? 'var(--color-warning)' : 'var(--color-error)'
                 }}>{reg.status === 'online' ? t('nationalReport.regOnline') : reg.status === 'degraded' ? t('nationalReport.regDegraded') : t('nationalReport.regOffline')}</div>
               </div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>{t('nationalReport.regEndpoint', { endpoint: reg.endpoint })}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 'var(--space-1, 4px)' }}>{t('nationalReport.regEndpoint', { endpoint: reg.endpoint })}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.regLastSubmit', { time: reg.lastSubmission })}</div>
               {subStatus && (
-                <div style={{ marginTop: 8, padding: '6px 10px', background: subStatus.status === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: subStatus.status === 'success' ? 'var(--color-success)' : 'var(--color-warning)' }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', padding: '6px 10px', background: subStatus.status === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: subStatus.status === 'success' ? 'var(--color-success)' : 'var(--color-warning)' }}>
                   {subStatus.status === 'success' ? t('nationalReport.submittedOk') : t('nationalReport.submittingShort')}
                 </div>
               )}
@@ -878,7 +878,7 @@ const MultiRegulatorPanel = () => {
 
       {/* 提交状态 */}
       {batchStatus === 'done' && (
-        <div style={{ padding: '12px 16px', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--color-success-600)' }}>
+        <div style={{ padding: '12px 16px', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--color-success-600)' }}>
           <CheckCircle size={14} /> {t('nationalReport.batchDone', { count: regulatorTargets.filter(t => t.status === 'online').length })}
         </div>
       )}
@@ -891,9 +891,9 @@ const PreSubmissionValidation = () => {
   const score = Math.round(validationChecks.filter(v => v.status === 'pass').length / validationChecks.length * 100)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       {/* 验证评分 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
         <div style={{ position: 'relative', width: 120, height: 120, margin: '0 auto 12px' }}>
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border-color)" strokeWidth="8" />
@@ -910,9 +910,9 @@ const PreSubmissionValidation = () => {
       {/* 校验明细 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>{t('nationalReport.validateDetail')}</div>
-        <div style={{ padding: 8 }}>
+        <div style={{ padding: 'var(--space-2, 8px)' }}>
           {validationChecks.map(check => (
-            <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 4, background: check.status === 'pass' ? 'var(--content-bg)' : check.status === 'warning' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' }}>
+            <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 'var(--space-1, 4px)', background: check.status === 'pass' ? 'var(--content-bg)' : check.status === 'warning' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' }}>
               {check.status === 'pass' ? <CheckCircle size={14} color={COLORS.success} /> : check.status === 'warning' ? <AlertTriangle size={14} color={COLORS.warning} /> : <XCircle size={14} color={COLORS.danger} />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{check.field}</div>
@@ -931,7 +931,7 @@ const PreSubmissionValidation = () => {
       </div>
 
       {score < 100 && (
-        <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
           <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
             <strong>{t('nationalReportPage.qualityTip')}</strong>{t('nationalReport.validateWarning', { count: validationChecks.filter(v => v.status !== 'pass').length })}
@@ -947,9 +947,9 @@ const SubmissionAuditTrail = () => {
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionRecord | null>(null)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Clock size={16} color={COLORS.primary} /> {t('nationalReport.auditHistory')}
         </div>
         <DataTable
@@ -981,9 +981,9 @@ const SubmissionAuditTrail = () => {
 
       {/* 数字签名详情 */}
       {selectedSubmission && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Fingerprint size={16} color={COLORS.primary} /> {t('nationalReport.signatureDetail')}
             </div>
             <button onClick={() => setSelectedSubmission(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted }}><X size={16} /></button>
@@ -998,20 +998,20 @@ const SubmissionAuditTrail = () => {
       )}
 
       {/* 统计 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{submissionHistory.length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.totalSubmissions')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success }}>{submissionHistory.filter(s => s.status === 'success').length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.successCount')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.danger }}>{submissionHistory.filter(s => s.status === 'failed').length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.failedCount')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>{submissionHistory.filter(s => s.amendedVersion).length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.amendedCount')}</div>
         </div>
@@ -1071,9 +1071,9 @@ const ScheduledReportsPanel = () => {
   const scheduleLabels: Record<string, string> = { daily: t('nationalReport.scheduleDaily'), weekly: t('nationalReport.scheduleWeekly'), monthly: t('nationalReport.scheduleMonthly'), quarterly: t('nationalReport.scheduleQuarterly') }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Calendar size={18} color={COLORS.primary} /> {t('nationalReport.scheduleTitle')}
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1082,8 +1082,8 @@ const ScheduledReportsPanel = () => {
       </div>
 
       {schedules.map(s => (
-        <div key={s.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div key={s.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 8,
@@ -1095,7 +1095,7 @@ const ScheduledReportsPanel = () => {
                 <div style={{ fontSize: 12, color: COLORS.textMuted }}>{s.type} · {scheduleLabels[s.schedule]} · {s.format}</div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <label style={{ position: 'relative', display: 'inline-block', width: 40, height: 22 }}>
                 <input type="checkbox" checked={s.enabled} onChange={() => toggleSchedule(s.id)} style={{ opacity: 0, width: 0, height: 0 }} />
                 <span style={{
@@ -1111,7 +1111,7 @@ const ScheduledReportsPanel = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.lastRun')}</div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.lastRun}</div>
@@ -1127,7 +1127,7 @@ const ScheduledReportsPanel = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
               {s.recipients.map((r, idx) => (
                 <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: COLORS.primary, borderRadius: 4, fontSize: 12 }}>{r}</span>
               ))}
@@ -1141,7 +1141,7 @@ const ScheduledReportsPanel = () => {
       ))}
 
       {/* 失败重试逻辑 */}
-      <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
         <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
         <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
           <strong>{t('nationalReportPage.autoRetryLabel')}</strong>{t('nationalReport.autoRetry')}
@@ -1152,10 +1152,10 @@ const ScheduledReportsPanel = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
           <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, width: 'min(460px, calc(100vw - 32px))', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> {t('nationalReport.newPlanTitle')}</div>
-              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 4 }}>×</button>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Calendar size={16} color={COLORS.primary} /> {t('nationalReport.newPlanTitle')}</div>
+              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 'var(--space-1, 4px)' }}>×</button>
             </div>
-            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planNameRequired')}</label>
                 <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder={t('nationalReport.placeholderPlanName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
@@ -1186,7 +1186,7 @@ const ScheduledReportsPanel = () => {
                   <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder={t('nationalReportPage.recipientsPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
                 <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('nationalReport.cancel')}</button>
                 <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? t('nationalReport.creating') : t('nationalReport.createPlan')}</button>
               </div>
@@ -1682,7 +1682,7 @@ export default function NationalReportPage() {
                     key: 'action',
                     render: (_v, item) => (
                       <button
-                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
                         onClick={() => void handleViewDetail('national', item.id)}
                       >
                         <Eye size={14} /> {t('nationalReport.detail')}
@@ -1713,7 +1713,7 @@ export default function NationalReportPage() {
                     title: t('nationalReport.thIssues'),
                     dataIndex: 'commonIssues',
                     render: (value: string[]) => (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                         {(value || []).slice(0, 2).map((issue, idx) => (
                           <span key={idx} style={{ padding: '2px 6px', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderRadius: 4, fontSize: 10 }}>{issue}</span>
                         ))}
@@ -1726,7 +1726,7 @@ export default function NationalReportPage() {
                     key: 'action',
                     render: (_v, item) => (
                       <button
-                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
                         onClick={() => void handleViewDetail('data', item.id)}
                       >
                         <Eye size={14} /> {t('nationalReport.detail')}
@@ -1927,11 +1927,11 @@ export default function NationalReportPage() {
               {detailLoading ? (
                 <div style={{ ...styles.emptyState }}>
                   <RefreshCw size={20} style={{ animation: 'spin 1s linear infinite' }} />
-                  <div style={{ marginTop: 8 }}>{t('nationalReport.detailLoading')}</div>
+                  <div style={{ marginTop: 'var(--space-2, 8px)' }}>{t('nationalReport.detailLoading')}</div>
                 </div>
               ) : !detailItem ? (
                 <div style={styles.emptyState}>
-                  <AlertCircle size={32} style={{ marginBottom: 8 }} />
+                  <AlertCircle size={32} style={{ marginBottom: 'var(--space-2, 8px)' }} />
                   <div>{t('nationalReport.notFound')}</div>
                 </div>
               ) : (
@@ -1967,11 +1967,11 @@ export default function NationalReportPage() {
                     )}
                   </div>
                   {(detailItem.commonIssues?.length > 0 || detailItem.improvementMeasures?.length > 0) && (
-                    <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}>
+                    <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}>
                       {detailItem.commonIssues?.length > 0 && (
-                        <div style={{ marginBottom: 8 }}>
-                          <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 4 }}>{t('nationalReport.commonIssues')}</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                          <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 'var(--space-1, 4px)' }}>{t('nationalReport.commonIssues')}</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                             {detailItem.commonIssues.map((issue: string, idx: number) => (
                               <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderRadius: 4, fontSize: 12 }}>{issue}</span>
                             ))}
@@ -1980,8 +1980,8 @@ export default function NationalReportPage() {
                       )}
                       {detailItem.improvementMeasures?.length > 0 && (
                         <div>
-                          <div style={{ fontWeight: 600, color: COLORS.success, marginBottom: 4 }}>{t('nationalReport.improvement')}</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          <div style={{ fontWeight: 600, color: COLORS.success, marginBottom: 'var(--space-1, 4px)' }}>{t('nationalReport.improvement')}</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                             {detailItem.improvementMeasures.map((m: string, idx: number) => (
                               <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-success-bg)', color: 'var(--color-success)', borderRadius: 4, fontSize: 12 }}>{m}</span>
                             ))}
@@ -2011,7 +2011,7 @@ export default function NationalReportPage() {
               <X size={18} style={{ cursor: 'pointer' }} onClick={() => setCreateOpen(false)} />
             </div>
             <div style={styles.modalBody}>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <button
                   style={{ ...styles.button, flex: 1, ...(createType === 'national' ? styles.buttonPrimary : styles.buttonOutline) }}
                   onClick={() => setCreateType('national')}
@@ -2161,7 +2161,7 @@ export default function NationalReportPage() {
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           zIndex: 2000,
           animation: 'slideIn 0.3s ease-out',
         }}>

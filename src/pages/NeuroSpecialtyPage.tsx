@@ -26,21 +26,21 @@ const TUMOR_GRADE_COLORS = ['var(--color-success-600)', '#ca8a04', '#ea580c', 'v
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
-  header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 },
-  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
-  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 },
+  header: { marginBottom: 'var(--space-6, 24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' },
+  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' },
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)' },
   statCard: { background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statValue: { fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
-  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
-  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' },
+  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' },
   btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: 'var(--color-error-600)', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   scrollBox: { maxHeight: 320, overflowY: 'auto' },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
-  grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' },
+  grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-4, 16px)' },
 };
 
 const badge = (bg: string, text: string): React.CSSProperties => ({
@@ -153,7 +153,7 @@ const NeuroSpecialtyPage = () => {
     <div style={s.root}>
       <div style={s.header}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Brain size={24} color="var(--color-error-600)" /> {t('neuro.title')}</Typography.Title>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Brain size={24} color="var(--color-error-600)" /> {t('neuro.title')}</Typography.Title>
           <p style={s.subtitle}>{t('neuro.subtitle')}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
             <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: 'var(--color-primary-800)' }}>
@@ -166,7 +166,7 @@ const NeuroSpecialtyPage = () => {
             {error && <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-error-bg)', color: 'var(--color-error-600)' }}>{error}</span>}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button style={s.btn} onClick={handleExportCSV}><Download size={14} /> {t('neuro.export')}</button>
           <button style={s.btnPrimary} onClick={() => void handleAnalyze()} disabled={analyzing}>
             {analyzing ? <Loader2 size={14} className="v4-spin" /> : <Zap size={14} />} {analyzing ? t('neuro.analyzing') : t('neuro.emergencyAnalyze')}
@@ -192,7 +192,7 @@ const NeuroSpecialtyPage = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)' }}>
         {[
           { key: 'stroke', label: t('neuro.tabStroke') },
           { key: 'tumor', label: t('neuro.tabTumor') },
@@ -207,21 +207,21 @@ const NeuroSpecialtyPage = () => {
       </div>
 
       {loading && (
-        <Card bordered={false} style={{ ...s.section, textAlign: 'center', padding: 48, color: 'var(--text-secondary)', fontSize: 12 }} styles={{ body: { padding: 0 } }}>
-          <Loader2 size={22} className="v4-spin" style={{ verticalAlign: 'middle', marginRight: 8 }} />
+        <Card bordered={false} style={{ ...s.section, textAlign: 'center', padding: 'var(--space-12, 48px)', color: 'var(--text-secondary)', fontSize: 12 }} styles={{ body: { padding: 0 } }}>
+          <Loader2 size={22} className="v4-spin" style={{ verticalAlign: 'middle', marginRight: 'var(--space-2, 8px)' }} />
           {t('neuro.loading')}
         </Card>
       )}
 
       {!loading && tab === 'stroke' && (
         <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={s.sectionTitle}><Zap size={16} color="var(--color-error-600)" /> {t('neuro.strokeAssessment')}</div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="var(--text-secondary)" />
                 <input placeholder={t('neuro.searchPatient')} value={search} onChange={e => setSearch(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 12, width: 160 }} />
+                  style={{ border: 'none', background: 'transparent', marginLeft: 'var(--space-2, 8px)', fontSize: 12, width: 160 }} />
               </div>
             </div>
           </div>
@@ -283,7 +283,7 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><Brain size={16} color="#7c3aed" /> {t('neuro.tumorList')}</div>
             {filtered.filter(r => r.type === 'tumor').map(r => (
-              <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--border-light)' }}>
+              <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 0', borderBottom: '1px solid var(--border-light)' }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#8b5cf622', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, color: '#7c3aed' }}>{r.patientName[0]}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 600 }}>{r.patientName}</div>
@@ -304,7 +304,7 @@ const NeuroSpecialtyPage = () => {
               const count = tumorGrades.find(t => t.grade === g)?.count ?? 0;
               const max = Math.max(1, ...tumorGrades.map(t => t.count));
               return (
-                <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ width: 50, fontSize: 12, fontWeight: 600 }}>分级 {g}</span>
                   <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                     <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: TUMOR_GRADE_COLORS[['I', 'II', 'III', 'IV'].indexOf(g)], borderRadius: 4 }} />
@@ -313,10 +313,10 @@ const NeuroSpecialtyPage = () => {
                 </div>
               );
             })}
-            <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('neuro.tumorTypeDist')}</div>
+            <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('neuro.tumorTypeDist')}</div>
               {tumorTypes.map(tt => (
-                <div key={tt.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <div key={tt.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                   <div style={{ width: 8, height: 8, borderRadius: 2, background: TUMOR_COLORS[tt.label] ?? '#94a3b8' }} />
                   <span style={{ fontSize: 12, flex: 1 }}>{TUMOR_LABELS[tt.label] ?? tt.label}</span>
                   <span style={{ fontSize: 12, fontWeight: 600 }}>{tt.count} ({tt.pct}%)</span>
@@ -332,12 +332,12 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><Eye size={16} color="#ca8a04" /> {t('neuro.epilepsyAssessment')}</div>
             {filtered.filter(r => r.type === 'epilepsy').map(r => (
-              <div key={r.id} style={{ padding: 14, background: 'var(--color-warning-bg)', borderRadius: 10, marginBottom: 12, border: '1px solid #fef08a' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div key={r.id} style={{ padding: 14, background: 'var(--color-warning-bg)', borderRadius: 10, marginBottom: 'var(--space-3, 12px)', border: '1px solid #fef08a' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#ca8a04', color: '#fff' }}>{r.modality}</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                   <div><span style={{ color: 'var(--text-secondary)' }}>{t('neuro.focusLabel')}</span><span style={{ fontWeight: 600 }}>{r.focus === 'mesial-temporal' ? t('neuro.focusMesialTemporal') : t('neuro.focusFrontal')}</span></div>
                   <div><span style={{ color: 'var(--text-secondary)' }}>{t('neuro.mtsLabel')}</span><span style={{ fontWeight: 600, color: r.mts ? 'var(--color-error-600)' : 'var(--color-success-600)' }}>{r.mts ? t('neuro.positive') : t('neuro.negative')}</span></div>
                   <div><span style={{ color: 'var(--text-secondary)' }}>{t('neuro.asymmetryLabel')}</span><span style={{ fontWeight: 600 }}>{r.hippocampalAsymmetry}%</span></div>
@@ -349,12 +349,12 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><AlertTriangle size={16} color="var(--color-error-600)" /> {t('neuro.aneurysmAssessment')}</div>
             {filtered.filter(r => r.type === 'aneurysm').map(r => (
-              <div key={r.id} style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 10, marginBottom: 12, border: '1px solid #fecaca' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div key={r.id} style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 10, marginBottom: 'var(--space-3, 12px)', border: '1px solid #fecaca' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: 'var(--color-error-600)', color: '#fff' }}>{r.modality}</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                   <div><span style={{ color: 'var(--text-secondary)' }}>{t('neuro.locationLabel')}</span><span style={{ fontWeight: 600 }}>{r.location}</span></div>
                   <div><span style={{ color: 'var(--text-secondary)' }}>{t('neuro.sizeLabel')}</span><span style={{ fontWeight: 600 }}>{r.sizeMm}mm</span></div>
                   <div><span style={{ color: 'var(--text-secondary)' }}>{t('neuro.neckLabel')}</span><span style={{ fontWeight: 600 }}>{r.neckMm}mm</span></div>
@@ -371,7 +371,7 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><BarChart3 size={16} color="var(--color-error-600)" /> {t('neuro.diseaseDist')}</div>
             {(stats?.diseaseDistribution ?? []).map(d => (
-              <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 10 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 3, background: { 脑卒中: 'var(--color-error-600)', 脑肿瘤: '#7c3aed', 癫痫: '#ca8a04', 动脉瘤: 'var(--color-info-600)' }[d.label] ?? '#94a3b8' }} />
                 <span style={{ width: 80, fontSize: 12, fontWeight: 500 }}>{d.label}</span>
                 <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
@@ -384,7 +384,7 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><TrendingUp size={16} color="var(--color-success-600)" /> {t('neuro.strokeWindow')}</div>
             {strokeWindows.map(sw => (
-              <div key={sw.window} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <div key={sw.window} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 10 }}>
                 <span style={{ width: 120, fontSize: 12, color: 'var(--text-secondary)' }}>{sw.window}</span>
                 <div style={{ flex: 1, height: 6, background: 'var(--bg-card)', borderRadius: 3 }}>
                   <div style={{ height: '100%', width: `${Math.min(100, (sw.count / Math.max(1, strokeWindows[0]?.count ?? 5)) * 100)}%`, background: sw.color, borderRadius: 3 }} />
@@ -404,12 +404,12 @@ const NeuroSpecialtyPage = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailStudy(null)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '82vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border-light)' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Brain size={18} color="var(--color-error-600)" />{t('neuro.caseDetail')}
               </div>
-              <button onClick={() => setDetailStudy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setDetailStudy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
-            <div style={{ padding: 20 }}>
+            <div style={{ padding: 'var(--space-5, 20px)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{detailStudy.patientName}</div>
@@ -454,7 +454,7 @@ const NeuroSpecialtyPage = () => {
                   </>
                 )}
               </div>
-              <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
                 {detailStudy.findings ?? t('neuro.noFindings')}
               </div>
             </div>

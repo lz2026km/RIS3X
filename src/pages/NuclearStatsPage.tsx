@@ -334,7 +334,7 @@ const PieChartSVG = ({ data, size = 160, unit, centerValue }: PieChartSVGProps) 
   })
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
       <svg width={size} height={size}>
         {slices.map((s, i) => (
           <path key={i} d={s.pathD} fill={s.color} stroke={C.white} strokeWidth={2}
@@ -373,7 +373,7 @@ const ProgressBar = ({ value, max = 100, color = C.accent, label, showPercent = 
   return (
     <div style={{ width: '100%' }}>
       {label && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: C.textMuted }}>{label}</span>
           {showPercent && <span style={{ fontSize: 12, color: C.text, fontWeight: 600 }}>{percent.toFixed(0)}%</span>}
         </div>
@@ -498,35 +498,35 @@ export default function NuclearStatsPage() {
     { title: t('w1tables.nuclear.utilization'), dataIndex: 'utilization', key: 'utilization', align: 'right' as const },
   ]
 
-  if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('nuclearStats.loading')}</div>;
-  if (error) return <div role="alert" data-testid="nuclear-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
+  if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>{t('nuclearStats.loading')}</div>;
+  if (error) return <div role="alert" data-testid="nuclear-error" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (!daily || daily.length === 0) {
     return (
-      <div data-testid="nuclear-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('nuclearStats.noDataTitle')}</div>
+      <div data-testid="nuclear-empty" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>{t('nuclearStats.noDataTitle')}</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('nuclearStats.noDataDesc')}</div>
       </div>
     );
   }
 
   return (
-    <div style={{ background: C.background, padding: 24 }}>
+    <div style={{ background: C.background, padding: 'var(--space-6, 24px)' }}>
       {/* 标题栏 */}
-      <div style={{ background: C.white, borderRadius: 12, padding: '20px 24px', marginBottom: 20, borderLeft: `4px solid ${C.accent}` }}>
+      <div style={{ background: C.white, borderRadius: 12, padding: '20px 24px', marginBottom: 'var(--space-5, 20px)', borderLeft: `4px solid ${C.accent}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ background: C.accentLight, padding: 12, borderRadius: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ background: C.accentLight, padding: 'var(--space-3, 12px)', borderRadius: 10 }}>
               <Radio size={28} color={C.accent} />
             </div>
             <div>
               <Typography.Title level={4} style={{ margin: '0 0 4px' }}>{t('nuclearStats.title')}
-                {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>{t('nuclearStats.demoTag')}</span>}
+                {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600, marginLeft: 'var(--space-2, 8px)', verticalAlign: 'middle' }}>{t('nuclearStats.demoTag')}</span>}
               </Typography.Title>
               <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('nuclearStats.subtitle')}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: C.accentLight, borderRadius: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 16px', background: C.accentLight, borderRadius: 8 }}>
               <Calendar size={15} color={C.accent} />
               <span style={{ fontSize: 12, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.period')}</span>
             </div>
@@ -551,7 +551,7 @@ export default function NuclearStatsPage() {
       </div>
 
       {/* 标签页 */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20, background: C.white, padding: '8px 12px', borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-5, 20px)', background: C.white, padding: '8px 12px', borderRadius: 10 }}>
         {tabs.map(tab => (
           <button
             key={tab.key}
@@ -572,9 +572,9 @@ export default function NuclearStatsPage() {
 
       {/* 总览 */}
       {activeTab === 'overview' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
           {/* 核心指标卡片 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-4, 16px)' }}>
             {[
               { label: t('nuclearStats.statTotalExams'), value: totalExams.toLocaleString(), sub: t('nuclearStats.momCompare', { value: summary?.examMoM != null ? (summary.examMoM > 0 ? '+' : '') + summary.examMoM + '%' : '-7.6%' }), icon: <Activity size={20} />, color: C.accent, bg: C.accentLight, trend: 'down' },
               { label: t('nuclearStats.statDrugConsumption'), value: (totalDrug / 1000).toFixed(1), unit: 'Ci', sub: t('nuclearStats.dailyAvg'), icon: <Droplets size={20} />, color: 'var(--color-primary-500)', bg: '#3b82f622', trend: 'up' },
@@ -582,8 +582,8 @@ export default function NuclearStatsPage() {
               { label: t('nuclearStats.statPositiveRate'), value: `${avgPositive}%`, sub: t('nuclearStats.momUp'), icon: <Target size={20} />, color: 'var(--color-warning-500)', bg: '#f59e0b22', trend: 'up' },
               { label: t('nuclearStats.statAvgSuv'), value: (suv?.avg ?? 0).toFixed(1), sub: t('nuclearStats.rangeSub', { min: suv?.min ?? 2.1, max: suv?.max ?? 12.8 }), icon: <TrendingUp size={20} />, color: '#8b5cf6', bg: '#8b5cf622', trend: 'stable' },
             ].map((card, i) => (
-              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 16, borderTop: `3px solid ${card.color}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 'var(--space-4, 16px)', borderTop: `3px solid ${card.color}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
                   <div style={{ background: card.bg, padding: 10, borderRadius: 8 }}>
                     <div style={{ color: card.color }}>{card.icon}</div>
                   </div>
@@ -592,7 +592,7 @@ export default function NuclearStatsPage() {
                   {card.trend === 'stable' && <div style={{ width: 16, height: 2, background: C.textMuted, borderRadius: 1 }} />}
                 </div>
                 <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{card.label}</p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 30, fontWeight: 700, color: C.text }}>{card.value}</span>
                   {card.unit && <span style={{ fontSize: 14, color: C.textMuted }}>{card.unit}</span>}
                 </div>
@@ -602,10 +602,10 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 12月趋势图 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('nuclearStats.dailyTrendTitle')}</h3>
-              <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
                 {[
                   { label: t('nuclearStats.legendExams'), color: C.accent },
                   { label: t('nuclearStats.legendPositive'), color: 'var(--color-warning-500)' },
@@ -635,16 +635,16 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 设备利用率排名 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>{t('nuclearStats.equipmentRankTitle')}</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               {devices.slice(0, 4).map((device, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)' }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? C.accent : C.border, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: i === 0 ? C.white : C.textMuted }}>
                     {i + 1}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                       <span style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>{device.name}</span>
                       <span style={{ fontSize: 12, color: C.accent, fontWeight: 600 }}>{device.utilization}%</span>
                     </div>
@@ -656,7 +656,7 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 统计结果明细表 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>{t('w1tables.nuclear.title')}</h3>
             <DataTable dataSource={daily} rowKey="date" columns={nuclearColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
           </div>
@@ -665,11 +665,11 @@ export default function NuclearStatsPage() {
 
       {/* 检查数量 */}
       {activeTab === 'exams' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
           {/* 设备检查分布 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.deviceExamDistTitle')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6, 24px)' }}>
               <div>
                 <BarChartSVG
                   data={[
@@ -685,14 +685,14 @@ export default function NuclearStatsPage() {
                   labelKey="label"
                 />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'var(--space-4, 16px)' }}>
                 {[
                   { name: 'PET-CT', count: 356, color: C.accent, percent: 42 },
                   { name: 'SPECT', count: 248, color: 'var(--color-primary-500)', percent: 29 },
                   { name: t('nuclearStats.boneDensity'), count: 156, color: '#8b5cf6', percent: 19 },
                   { name: t('nuclearStats.renalDynamic'), count: 98, color: 'var(--color-success-500)', percent: 12 },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
                     <span style={{ width: 60, fontSize: 12, color: C.text }}>{item.name}</span>
                     <div style={{ flex: 1 }}>
@@ -709,7 +709,7 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 月度趋势 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.monthlyExamTrendTitle')}</h3>
             <BarChartSVG
               data={monthly.map(m => ({ label: m.month, value: m.exams }))}
@@ -724,17 +724,17 @@ export default function NuclearStatsPage() {
 
       {/* 药物消耗 */}
       {activeTab === 'drug' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
           {/* 药物消耗概览 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
             {[
               { label: '¹⁸F-FDG', value: 48520, unit: 'mCi', usage: t('nuclearStats.usagePetCtImaging'), color: C.accent },
               { label: '⁹⁹mTc-MDP', value: 18250, unit: 'mCi', usage: t('nuclearStats.usageBoneScan'), color: 'var(--color-primary-500)' },
               { label: '¹³¹I', value: 5800, unit: 'mCi', usage: t('nuclearStats.usageThyroid'), color: '#8b5cf6' },
             ].map((item, i) => (
-              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderLeft: `4px solid ${item.color}` }}>
+              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)', borderLeft: `4px solid ${item.color}` }}>
                 <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 30, fontWeight: 700, color: C.text }}>{(item.value / 1000).toFixed(1)}</span>
                   <span style={{ fontSize: 14, color: C.textMuted }}>{item.unit}</span>
                 </div>
@@ -744,18 +744,18 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 消耗占比 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.drugShareTitle')}</h3>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 40 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-10, 40px)' }}>
               <PieChartSVG
                 data={drugs.map(d => ({ name: d.name, value: d.percent, color: d.color }))}
                 size={180}
                 unit="%"
                 centerValue={100}
               />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', justifyContent: 'center' }}>
                 {drugs.map((d, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: d.color }} />
                     <span style={{ width: 80, fontSize: 12, color: C.text }}>{d.name}</span>
                     <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: C.text }}>{(d.consumption / 1000).toFixed(1)}k</span>
@@ -767,7 +767,7 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 每日消耗趋势 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.dailyDrugTrendTitle')}</h3>
             <BarChartSVG
               data={daily.map(d => ({ label: d.date, value: d.drug }))}
@@ -782,12 +782,12 @@ export default function NuclearStatsPage() {
 
       {/* 设备利用率 */}
       {activeTab === 'equipment' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
           {/* 设备状态卡片 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
             {devices.map((device, i) => (
-              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderTop: `4px solid ${DEVICE_COLORS[i]}` }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
+              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)', borderTop: `4px solid ${DEVICE_COLORS[i]}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 'var(--space-4, 16px)' }}>
                   <div>
                     <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 4px' }}>{device.name}</h4>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>
@@ -800,12 +800,12 @@ export default function NuclearStatsPage() {
                     </span>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+                  <div style={{ background: C.background, padding: 'var(--space-3, 12px)', borderRadius: 8, textAlign: 'center' }}>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{t('nuclearStats.examVolume')}</p>
                     <p style={{ fontSize: 30, fontWeight: 700, color: C.text, margin: 0 }}>{device.exams || device.cycles || '-'}</p>
                   </div>
-                  <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
+                  <div style={{ background: C.background, padding: 'var(--space-3, 12px)', borderRadius: 8, textAlign: 'center' }}>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{t('nuclearStats.utilizationLabel')}</p>
                     <p style={{ fontSize: 30, fontWeight: 700, color: device.utilization >= 80 ? C.success : C.warning, margin: 0 }}>{device.utilization}%</p>
                   </div>
@@ -815,7 +815,7 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 利用率趋势 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.dailyUtilTrendTitle')}</h3>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.utilization }))}
@@ -830,18 +830,18 @@ export default function NuclearStatsPage() {
 
       {/* 阳性率 */}
       {activeTab === 'positive' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
           {/* 阳性率概览 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.positiveOverviewTitle')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
               {[
                 { label: t('nuclearStats.avgPositiveRate'), value: `${avgPositive}%`, color: C.accent },
                 { label: t('nuclearStats.maxPositiveRate'), value: '74.5%', color: C.success },
                 { label: t('nuclearStats.minPositiveRate'), value: '60.8%', color: C.warning },
                 { label: t('nuclearStats.positiveCaseCount'), value: (totalExams * parseFloat(avgPositive) / 100).toFixed(0), color: C.danger },
               ].map((item, i) => (
-                <div key={i} style={{ background: C.background, padding: 16, borderRadius: 10, textAlign: 'center' }}>
+                <div key={i} style={{ background: C.background, padding: 'var(--space-4, 16px)', borderRadius: 10, textAlign: 'center' }}>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
                   <p style={{ fontSize: 30, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
                 </div>
@@ -860,20 +860,20 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* 检查类型阳性率 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.byTypePositiveTitle')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-4, 16px)' }}>
               {[
                 { type: t('nuclearStats.typePetCtWholeBody'), positive: 71.5, exams: 356, trend: '+2.3%' },
                 { type: t('nuclearStats.typePetCtHeart'), positive: 85.2, exams: 86, trend: '+5.1%' },
                 { type: t('nuclearStats.typeSpectBoneScan'), positive: 58.3, exams: 248, trend: '-1.2%' },
                 { type: t('nuclearStats.typeRenalDynamicImaging'), positive: 42.5, exams: 98, trend: '+0.8%' },
               ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 16, background: C.background, borderRadius: 10 }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', padding: 'var(--space-4, 16px)', background: C.background, borderRadius: 10 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
                       <span style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{item.type}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         <span style={{ fontSize: 16, fontWeight: 700, color: item.positive >= 60 ? C.success : C.warning }}>{item.positive}%</span>
                         <span style={{ fontSize: 12, color: item.trend.startsWith('+') ? C.success : C.danger }}>{item.trend}</span>
                       </div>
@@ -890,17 +890,17 @@ export default function NuclearStatsPage() {
 
       {/* SUV统计 */}
       {activeTab === 'suv' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
           {/* SUV统计概览 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
             {[
               { label: t('nuclearStats.avgSuvmax'), value: (suv?.avg ?? 0).toFixed(1), icon: <TrendingUp size={20} />, color: C.accent, bg: C.accentLight },
               { label: t('nuclearStats.maxSuvmax'), value: suv?.max ?? 0, icon: <TrendingUp size={20} />, color: C.danger, bg: C.dangerBg },
               { label: t('nuclearStats.minSuvmax'), value: suv?.min ?? 0, icon: <TrendingDown size={20} />, color: C.success, bg: C.successBg },
               { label: t('nuclearStats.stdDev'), value: (suv?.std ?? 0).toFixed(1), icon: <Percent size={20} />, color: C.purple, bg: C.purpleBg },
             ].map((item, i) => (
-              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderTop: `3px solid ${item.color}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div key={i} style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)', borderTop: `3px solid ${item.color}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
                   <div style={{ background: item.bg, padding: 10, borderRadius: 8, color: item.color }}>
                     {item.icon}
                   </div>
@@ -912,14 +912,14 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* SUV分布 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.suvDistTitle')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6, 24px)' }}>
               {/* 病灶SUV分布 */}
               <div>
                 <h4 style={{ fontSize: 12, fontWeight: 600, color: C.text, margin: '0 0 12px' }}>
                   {t('nuclearStats.lesionSuvDistTitle')}
-                  <span style={{ fontSize: 12, color: C.textMuted, fontWeight: 400, marginLeft: 8 }}>
+                  <span style={{ fontSize: 12, color: C.textMuted, fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>
                     ({t('nuclearStats.unitCases')}={suvBucketTotal})
                   </span>
                 </h4>
@@ -932,25 +932,25 @@ export default function NuclearStatsPage() {
                 />
               </div>
               {/* SUV对比 */}
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
-                <div style={{ background: C.accentLight, padding: 16, borderRadius: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'var(--space-4, 16px)' }}>
+                <div style={{ background: C.accentLight, padding: 'var(--space-4, 16px)', borderRadius: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-2, 8px)' }}>
                     <Target size={18} color={C.accent} />
                     <span style={{ fontSize: 12, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.tumorUptakeAvg')}</span>
                   </div>
                   <p style={{ fontSize: 30, fontWeight: 700, color: C.accent, margin: 0 }}>{suvTumorAvg}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
-                <div style={{ background: C.successBg, padding: 16, borderRadius: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <div style={{ background: C.successBg, padding: 'var(--space-4, 16px)', borderRadius: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-2, 8px)' }}>
                     <AlertCircle size={18} color={C.success} />
                     <span style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>{t('nuclearStats.inflammationUptakeAvg')}</span>
                   </div>
                   <p style={{ fontSize: 30, fontWeight: 700, color: C.success, margin: 0 }}>{suvInflammationAvg}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
-                <div style={{ background: C.warningBg, padding: 16, borderRadius: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <div style={{ background: C.warningBg, padding: 'var(--space-4, 16px)', borderRadius: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-2, 8px)' }}>
                     <Eye size={18} color={C.warning} />
                     <span style={{ fontSize: 12, color: C.warning, fontWeight: 600 }}>{t('nuclearStats.thresholdLabel')}</span>
                   </div>
@@ -962,7 +962,7 @@ export default function NuclearStatsPage() {
           </div>
 
           {/* SUV趋势 */}
-          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 'var(--space-5, 20px)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.dailySuvTrendTitle')}</h3>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.suvAvg }))}

@@ -117,7 +117,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
   if (mode === 'list') {
     return (
       <PageContainer padding={24}>
-        <Space style={{ marginBottom: 16 }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Box size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dvv.title')}</span>
           <Tag color="cyan">v3.0.6.8-93</Tag>
@@ -127,7 +127,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
           <Tag>apply=POST</Tag>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('dvv.totalCbct')} value={studies.length} icon={<Box size={16} />} />
           <StatCard title={t('dvv.presets')} value={presets.length} icon={<Layers size={16} />} />
         </StatCardGrid>
@@ -149,7 +149,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
 
   return (
     <PageContainer padding={16}>
-      <Space style={{ marginBottom: 12 }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RotateCcw size={14}/>} onClick={()=>setMode('list')}>{t('dvv.back')}</Button>
         <span style={{fontSize:16,fontWeight:600}}>{t('dvv.viewerTitle')} - {current?.patientName}</span>
         <Tag color="cyan">v3.0.6.8-93</Tag>
@@ -160,20 +160,20 @@ export const DentalVolumeViewerPage: React.FC = () => {
           <Card size="small" title={<Space><Layers size={14}/>{t('dvv.volumeRendering')}</Space>}
             extra={<Select size="small" value={activePreset} onChange={v => {setActivePreset(v); dentalApi.applyVolumePreset(v).catch((err) => console.error('[F04]', err));}} options={presets.map((p:any)=>({value:p.id,label:p.name}))} />}>
             <canvas ref={canvasRef} width={480} height={360} style={{width:'100%',height:300,borderRadius:8}} />
-            <Row gutter={8} style={{marginTop:8}}>
+            <Row gutter={8} style={{marginTop:'var(--space-2, 8px)'}}>
               <Col span={8}><Form.Item label={t('dvv.windowWidth')}><InputNumber value={ww} onChange={v=>setWw(v||1500)} min={100} max={4000} step={100} style={{width:'100%'}} /></Form.Item></Col>
               <Col span={8}><Form.Item label={t('dvv.windowCenter')}><InputNumber value={wc} onChange={v=>setWc(v||500)} min={-1000} max={2000} step={100} style={{width:'100%'}} /></Form.Item></Col>
               <Col span={8}><Form.Item label={t('dvv.slice')}><InputNumber value={sliceIdx} onChange={v=>setSliceIdx(v||50)} min={0} max={current?.slices||400} style={{width:'100%'}} /></Form.Item></Col>
             </Row>
             <Slider value={sliceIdx} min={0} max={current?.slices||400} onChange={setSliceIdx} />
           </Card>
-          <Card size="small" title={<Space><Crosshair size={14}/>{t('dvv.curvedRecon')}</Space>} style={{marginTop:8}}
+          <Card size="small" title={<Space><Crosshair size={14}/>{t('dvv.curvedRecon')}</Space>} style={{marginTop:'var(--space-2, 8px)'}}
             extra={<Button size="small" icon={<Eye size={10}/>} onClick={()=>setShowCurved(!showCurved)}>{showCurved?t('dvv.hide'):t('dvv.show')}</Button>}>
             {showCurved ? (
               <div style={{height:120,background:'#1a1a2e',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-secondary)'}}>
-                <div style={{textAlign:'center'}}><div>{t('dvv.curveExpand')}</div><div style={{fontSize:11,marginTop:4}}>{t('dvv.curveInfo')}</div></div>
+                <div style={{textAlign:'center'}}><div>{t('dvv.curveExpand')}</div><div style={{fontSize:11,marginTop:'var(--space-1, 4px)'}}>{t('dvv.curveInfo')}</div></div>
               </div>
-            ):<div style={{textAlign:'center',padding:20,color:'var(--text-secondary)',fontSize:12}}>{t('dvv.clickShow')}</div>}
+            ):<div style={{textAlign:'center',padding:'var(--space-5, 20px)',color:'var(--text-secondary)',fontSize:12}}>{t('dvv.clickShow')}</div>}
           </Card>
         </Col>
         <Col span={12}>
@@ -192,16 +192,16 @@ export const DentalVolumeViewerPage: React.FC = () => {
                   ))}
                 </Row>
               </Card>
-              <Card size="small" title={t('dvv.mesh3d')} style={{marginTop:8}}>
+              <Card size="small" title={t('dvv.mesh3d')} style={{marginTop:'var(--space-2, 8px)'}}>
                 <Space wrap>
                   <Tag>{t('dvv.vertexTag')}</Tag>
                   <Tag>{t('dvv.faceTag')}</Tag>
                   <Tag>{t('dvv.qualityTag')}</Tag>
                   <Tag>{t('dvv.formatTag')}</Tag>
                 </Space>
-                <div style={{marginTop:8}}>
+                <div style={{marginTop:'var(--space-2, 8px)'}}>
                   <Button icon={<Download size={14}/>} size="small" onClick={() => handleExportMesh('stl')}>{t('dvv.exportStl')}</Button>
-                  <Button icon={<Download size={14}/>} size="small" style={{marginLeft:8}} onClick={() => handleExportMesh('obj')}>{t('dvv.exportObj')}</Button>
+                  <Button icon={<Download size={14}/>} size="small" style={{marginLeft:'var(--space-2, 8px)'}} onClick={() => handleExportMesh('obj')}>{t('dvv.exportObj')}</Button>
                 </div>
               </Card>
             </>},
@@ -211,7 +211,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
                   <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('dvv.loadingCurve')}</div>
                 ) : (
                 <>
-                <div style={{height:200,background:'#0a0a1a',borderRadius:6,padding:8}}>
+                <div style={{height:200,background:'#0a0a1a',borderRadius:6,padding:'var(--space-2, 8px)'}}>
                   {/* [G005 W3-B] curve-path 真实数据 (points) 绘制; 无数据回退模拟牙弓 */}
                   <svg viewBox="-60 -10 120 60" width="100%" height="180">
                     {Array.isArray(curvePath?.points) && curvePath.points.length > 0 ? (
@@ -231,7 +231,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
                     )}
                   </svg>
                 </div>
-                <Space wrap style={{marginTop:8}}>
+                <Space wrap style={{marginTop:'var(--space-2, 8px)'}}>
                   <Tag color="blue">{t('dvv.pointsPrefix')}{curvePath?.points?.length ?? 25}</Tag>
                   <Tag color="green">{t('dvv.lengthPrefix')}{curvePath?.lengthMm ?? 152}mm</Tag>
                   {curvePath?.spacingMm != null && <Tag>{t('dvv.spacingPrefix')}{curvePath.spacingMm}mm</Tag>}
@@ -239,7 +239,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
                 </>
                 )}
               </Card>
-              <Card size="small" title={t('dvv.outputParams')} style={{marginTop:8}}>
+              <Card size="small" title={t('dvv.outputParams')} style={{marginTop:'var(--space-2, 8px)'}}>
                 <Row gutter={8}>
                   <Col span={8}><Form.Item label={t('dvv.width')}><InputNumber defaultValue={256} min={128} max={1024} step={64} style={{width:'100%'}} /></Form.Item></Col>
                   <Col span={8}><Form.Item label={t('dvv.height')}><InputNumber defaultValue={80} min={40} max={320} step={20} style={{width:'100%'}} /></Form.Item></Col>

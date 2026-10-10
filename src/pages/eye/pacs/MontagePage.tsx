@@ -204,7 +204,7 @@ const MontagePage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
@@ -283,7 +283,7 @@ const MontagePage: React.FC = () => {
                     display: "grid",
                     gridTemplateColumns: "repeat(3,1fr)",
                     gap: 2,
-                    padding: 4,
+                    padding: 'var(--space-1, 4px)',
                   }}
                 >
                   {gridItems.length === 0 ? (
@@ -358,7 +358,7 @@ const MontagePage: React.FC = () => {
               </div>
             )}
           </Card>
-          <Card size="small" title={t("montage.params")} style={{ marginTop: 8 }}>
+          <Card size="small" title={t("montage.params")} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Row gutter={16}>
               <Col span={8}>
                 <div style={{ fontSize: 12 }}>
@@ -399,7 +399,7 @@ const MontagePage: React.FC = () => {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3,1fr)",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               {gridItems.map((s) => (
@@ -424,13 +424,13 @@ const MontagePage: React.FC = () => {
                 </div>
               ))}
               {gridItems.length === 0 && (
-                <div style={{ gridColumn: "1 / -1", color: "var(--text-secondary)", fontSize: 12, textAlign: "center", padding: 20 }}>
+                <div style={{ gridColumn: "1 / -1", color: "var(--text-secondary)", fontSize: 12, textAlign: "center", padding: 'var(--space-5, 20px)' }}>
                   {t("montage.emptyStudies")}
                 </div>
               )}
             </div>
           </Card>
-          <Card size="small" title={t("montage.history")} style={{ marginTop: 8 }}>
+          <Card size="small" title={t("montage.history")} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
               {gridItems.length > 0 ? (
                 <>

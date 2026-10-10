@@ -407,18 +407,18 @@ export const DicomSrPage: React.FC = () => {
   const selectedTemplate = templates.find(t => t.id === templateId)
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
     <PageHeader
       icon={<FileText size={20} color="var(--color-primary-600)" />}
       title={t('dicomSrPage.title')}
       actions={<Tag color="cyan">TID 1500 / 2000</Tag>}
     />
 
-      <Card title={t('dicomSr.templateConfig') || '模板配置'} size="small" style={{ marginBottom: 16 }}>
+      <Card title={t('dicomSr.templateConfig') || '模板配置'} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space orientation="vertical" style={{ width: '100%' }} size="middle">
           <div>
             <Text strong>{t('dicomSr.selectTemplate') || '选择 SR 模板'}:</Text>
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Segmented
                 value={templateId}
                 onChange={(v) => setTemplateId(v as string)}
@@ -432,7 +432,7 @@ export const DicomSrPage: React.FC = () => {
               />
             </div>
             {selectedTemplate && (
-              <Text type="secondary" style={{ display: 'block', marginTop: 4, fontSize: 12 }}>
+              <Text type="secondary" style={{ display: 'block', marginTop: 'var(--space-1, 4px)', fontSize: 12 }}>
                 {selectedTemplate.description}
               </Text>
             )}
@@ -441,7 +441,7 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Text strong>{t('dicomSr.reportId') || '报告 ID'}:</Text>
             <Input
-              style={{ width: 320, marginTop: 4 }}
+              style={{ width: 320, marginTop: 'var(--space-1, 4px)' }}
               placeholder={t('dicomSr.reportIdPlaceholder') || '输入报告 ID...'}
               value={reportId}
               onChange={(e) => setReportId(e.target.value)}
@@ -451,7 +451,7 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Text strong>{t('dicomSr.findings') || '影像所见'}:</Text>
             <TextArea
-              style={{ marginTop: 4 }}
+              style={{ marginTop: 'var(--space-1, 4px)' }}
               rows={3}
               placeholder={t('dicomSr.findingsPlaceholder') || '输入影像所见内容...'}
               value={findings}
@@ -462,7 +462,7 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Text strong>{t('dicomSr.impression') || '诊断印象'}:</Text>
             <TextArea
-              style={{ marginTop: 4 }}
+              style={{ marginTop: 'var(--space-1, 4px)' }}
               rows={2}
               placeholder={t('dicomSr.impressionPlaceholder') || '输入诊断印象...'}
               value={impression}
@@ -507,12 +507,12 @@ export const DicomSrPage: React.FC = () => {
         }
       >
         {generating ? (
-          <div style={{ textAlign: 'center', padding: 40 }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
             <Spin tip={t('dicomSr.generating') || '正在生成 SR...'} />
           </div>
         ) : srDoc ? (
           <div>
-            <Descriptions size="small" column={2} style={{ marginBottom: 12 }}>
+            <Descriptions size="small" column={2} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Descriptions.Item label="ID">{srDoc.id}</Descriptions.Item>
               <Descriptions.Item label={t('dicomSrPage.reportId')}>{srDoc.reportId}</Descriptions.Item>
               <Descriptions.Item label="TID">{srDoc.tid}</Descriptions.Item>
@@ -527,7 +527,7 @@ export const DicomSrPage: React.FC = () => {
             <pre style={{
               background: '#1e1e1e',
               color: '#d4d4d4',
-              padding: 16,
+              padding: 'var(--space-4, 16px)',
               borderRadius: 6,
               fontSize: 12,
               lineHeight: 1.6,
@@ -549,16 +549,16 @@ export const DicomSrPage: React.FC = () => {
         <Card
           title={<span><FileText size={14} /> {t('dicomSrPage.sessionHistory')}</span>}
           size="small"
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
                 {t('dicomSrPage.srDocuments')} ({genHistory.length})
               </div>
               {genHistory.map(h => (
                 <div key={h.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0',
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0',
                   borderBottom: '1px solid var(--border-color)', fontSize: 12,
                 }}>
                   <Tag color="purple" style={{ fontSize: 10, margin: 0 }}>{h.tid}</Tag>
@@ -573,12 +573,12 @@ export const DicomSrPage: React.FC = () => {
               ))}
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
                 {t('dicomSrPage.pdfEncapsulation')} ({pdfHistory.length})
               </div>
               {pdfHistory.map(h => (
                 <div key={h.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0',
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0',
                   borderBottom: '1px solid var(--border-color)', fontSize: 12,
                 }}>
                   <Tag color="geekblue" style={{ fontSize: 10, margin: 0 }}>PDF</Tag>
@@ -616,7 +616,7 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Text strong>{t('dicomSrPage.reportOrStudyId')}:</Text>
             <Input
-              style={{ width: 320, marginTop: 4 }}
+              style={{ width: 320, marginTop: 'var(--space-1, 4px)' }}
               placeholder={t('dicomSrPage.reportOrStudyIdPlaceholder')}
               value={pdfReportId}
               onChange={(e) => setPdfReportId(e.target.value)}
@@ -625,7 +625,7 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Text strong>PDF URL ({t('dicomSrPage.optional')}):</Text>
             <Input
-              style={{ width: 480, marginTop: 4 }}
+              style={{ width: 480, marginTop: 'var(--space-1, 4px)' }}
               placeholder={t('dicomSrPage.pdfUrlPlaceholder')}
               value={pdfUrl}
               onChange={(e) => setPdfUrl(e.target.value)}
@@ -634,7 +634,7 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Text strong>PDF Base64 ({t('dicomSrPage.optional')}):</Text>
             <TextArea
-              style={{ marginTop: 4 }}
+              style={{ marginTop: 'var(--space-1, 4px)' }}
               rows={2}
               placeholder={t('dicomSrPage.pdfBase64Placeholder')}
               value={pdfBase64}
@@ -650,7 +650,7 @@ export const DicomSrPage: React.FC = () => {
             {t('dicomSrPage.encapsulatePdf')}
           </Button>
           {pdfDoc && (
-            <Descriptions size="small" column={2} style={{ marginTop: 8 }}>
+            <Descriptions size="small" column={2} style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Descriptions.Item label="ID">{pdfDoc.id}</Descriptions.Item>
               <Descriptions.Item label="SOP Class UID">{pdfDoc.sopClassUid}</Descriptions.Item>
               <Descriptions.Item label={t('dicomSrPage.reportId')}>{pdfDoc.reportId}</Descriptions.Item>
@@ -688,7 +688,7 @@ export const DicomSrPage: React.FC = () => {
             </Button>
           </Space>
           {pdfLookupState === 'ok' && pdfLookupResult && (
-            <Descriptions size="small" column={2} style={{ marginTop: 8 }}>
+            <Descriptions size="small" column={2} style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Descriptions.Item label="ID">{pdfLookupResult.id}</Descriptions.Item>
               <Descriptions.Item label="SOP Class UID">{pdfLookupResult.sopClassUid}</Descriptions.Item>
               <Descriptions.Item label={t('dicomSrPage.reportId')}>{pdfLookupResult.reportId}</Descriptions.Item>
@@ -702,12 +702,12 @@ export const DicomSrPage: React.FC = () => {
             </Descriptions>
           )}
           {pdfLookupState === 'none' && (
-            <div style={{ marginTop: 8, fontSize: 12, color: '#92400e', background: 'var(--color-warning-bg)', padding: '8px 12px', borderRadius: 6 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#92400e', background: 'var(--color-warning-bg)', padding: '8px 12px', borderRadius: 6 }}>
               {t('dicomSr.pdfNotFound') || '未找到该封装 PDF'}
             </div>
           )}
           {pdfLookupState === 'err' && (
-            <div style={{ marginTop: 8, fontSize: 12, color: '#b91c1c', background: 'var(--color-error-bg)', padding: '8px 12px', borderRadius: 6 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#b91c1c', background: 'var(--color-error-bg)', padding: '8px 12px', borderRadius: 6 }}>
               {t('dicomSr.pdfLookupFailed') || '封装 PDF 查询失败'}
             </div>
           )}
@@ -718,7 +718,7 @@ export const DicomSrPage: React.FC = () => {
           [v3.0.6.11-99 Wave10B] 深化: SR 统计 / 模板结构树 / 报告关联
           ============================================================ */}
       {/* 数据源徽标 + 刷新 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
           padding: '3px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
@@ -738,19 +738,19 @@ export const DicomSrPage: React.FC = () => {
       <Card
         title={<span><BarChart3 size={14} /> {t('dicomSrPage.srDocStats')}</span>}
         size="small"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={<Tag color="blue">{t('dicomSrPage.totalPrefix')} {srStats.total} {t('dicomSrPage.copies')}</Tag>}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           {/* 按模板类型 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byTemplateType')} (TID)</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byTemplateType')} (TID)</div>
             {srStats.byTid.map((entry: [string, number]) => {
               const [tid, count] = entry
               const cnt = Number(count ?? 0)
               const maxTid = Math.max(1, ...srStats.byTid.map(([, c]) => Number(c)))
               return (
-                <div key={tid} style={{ marginBottom: 8 }}>
+                <div key={tid} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                     <span style={{ color: '#334155', fontWeight: 500 }}>{tid}</span>
                     <span style={{ color: 'var(--color-primary-800)', fontWeight: 700 }}>{cnt}</span>
@@ -764,14 +764,14 @@ export const DicomSrPage: React.FC = () => {
           </div>
           {/* 按模态 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byModality')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byModality')}</div>
             {srStats.byModality.map((entry: [string, number]) => {
               const [mod, count] = entry
               const cnt = Number(count ?? 0)
               const maxMod = Math.max(1, ...srStats.byModality.map(([, c]) => Number(c)))
               const colors: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#8b5cf6', DR: 'var(--color-success-500)', DSA: 'var(--color-warning-500)', MG: '#ec4899' }
               return (
-                <div key={mod} style={{ marginBottom: 8 }}>
+                <div key={mod} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                     <span style={{ color: '#334155', fontWeight: 500 }}>{mod}</span>
                     <span style={{ color: colors[mod] || '#64748b', fontWeight: 700 }}>{cnt}</span>
@@ -785,17 +785,17 @@ export const DicomSrPage: React.FC = () => {
           </div>
           {/* 按状态 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byStatus')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-              <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-warning-bg)', borderRadius: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byStatus')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)' }}>
+              <div style={{ textAlign: 'center', padding: 'var(--space-3, 12px)', background: 'var(--color-warning-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-warning-600)' }}>{srStats.draft}</div>
                 <div style={{ fontSize: 11, color: '#92400e' }}>{t('dicomSrPage.draft')}</div>
               </div>
-              <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8 }}>
+              <div style={{ textAlign: 'center', padding: 'var(--space-3, 12px)', background: 'var(--color-info-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)' }}>{srStats.finalized}</div>
                 <div style={{ fontSize: 11, color: 'var(--color-primary-800)' }}>{t('dicomSrPage.finalized')}</div>
               </div>
-              <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-success-bg)', borderRadius: 8 }}>
+              <div style={{ textAlign: 'center', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-success-600)' }}>{srStats.pushed}</div>
                 <div style={{ fontSize: 11, color: '#065f46' }}>{t('dicomSrPage.pushedOru')}</div>
               </div>
@@ -807,7 +807,7 @@ export const DicomSrPage: React.FC = () => {
         </div>
         {/* 文档明细表 */}
         {srDocs.length > 0 && (
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}>
             <DataTable
               dataSource={srDocs.slice(0, 10)}
               rowKey="id"
@@ -833,12 +833,12 @@ export const DicomSrPage: React.FC = () => {
       <Card
         title={<span><FolderTree size={14} /> {t('dicomSrPage.srTemplateTree')}</span>}
         size="small"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={<Tag color="cyan">{t('dicomSrPage.tidStandardStructure')}</Tag>}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           {(['tid1500', 'tid2000'] as const).map(tidKey => (
-            <div key={tidKey} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
+            <div key={tidKey} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GitBranch size={13} />
                 {tidKey === 'tid1500' ? t('dicomSrPage.tid1500Label') : t('dicomSrPage.tid2000Label')}
@@ -847,7 +847,7 @@ export const DicomSrPage: React.FC = () => {
                 )}
               </div>
               {(TID_TREE[tidKey] ?? []).map(node => (
-                <div key={node.code} style={{ marginBottom: 8 }}>
+                <div key={node.code} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{
                     fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 6,
                     background: '#f1f5f9', color: '#334155', borderLeft: '3px solid var(--color-primary-800)',
@@ -856,7 +856,7 @@ export const DicomSrPage: React.FC = () => {
                     <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 6, fontFamily: 'monospace' }}>{node.code}</span>
                   </div>
                   {node.children && (
-                    <div style={{ marginTop: 4, paddingLeft: 16 }}>
+                    <div style={{ marginTop: 'var(--space-1, 4px)', paddingLeft: 'var(--space-4, 16px)' }}>
                       {node.children.map(child => (
                         <div key={child.code} style={{
                           fontSize: 11, color: '#64748b', padding: '3px 8px', marginBottom: 2,
@@ -883,7 +883,7 @@ export const DicomSrPage: React.FC = () => {
       <Card
         title={<span><Link2 size={14} /> {t('dicomSrPage.srReportLink')}</span>}
         size="small"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={<Tag color="geekblue">GET /dicom-sr/by-report/:reportId</Tag>}
       >
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -928,7 +928,7 @@ export const DicomSrPage: React.FC = () => {
                 </Descriptions.Item>
               </Descriptions>
               {linkedDoc.hl7ControlId && (
-                <div style={{ marginTop: 8, fontSize: 12, color: '#065f46' }}>
+                <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#065f46' }}>
                   ORU {t('dicomSrPage.callback')}: <span style={{ fontFamily: 'monospace' }}>{linkedDoc.hl7ControlId}</span>
                   {linkedDoc.pushedAt && ` @ ${String(linkedDoc.pushedAt).slice(0, 19).replace('T', ' ')}`}
                 </div>
@@ -936,12 +936,12 @@ export const DicomSrPage: React.FC = () => {
             </div>
           )}
           {linkResult === 'none' && (
-            <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
+            <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
               {t('dicomSrPage.linkNotFound')}
             </div>
           )}
           {linkResult === 'err' && (
-            <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-error-bg)', border: '1px solid #fecaca', fontSize: 12, color: '#b91c1c' }}>
+            <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 8, background: 'var(--color-error-bg)', border: '1px solid #fecaca', fontSize: 12, color: '#b91c1c' }}>
               {t('dicomSrPage.linkQueryFailed')}
             </div>
           )}
@@ -964,7 +964,7 @@ export const DicomSrPage: React.FC = () => {
           </Space>
         }
         size="small"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={<Tag color="geekblue">GET /dicom-sr/measurement-templates*</Tag>}
       >
         <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>
@@ -972,10 +972,10 @@ export const DicomSrPage: React.FC = () => {
         </div>
 
         {/* 分类统计 */}
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
           {t('dicomSr.mtCategories') || '模板分类'}
         </div>
-        <Space wrap size={[8, 8]} style={{ marginBottom: 12 }}>
+        <Space wrap size={[8, 8]} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           {mtCategories.map((c) => (
             <Tag
               key={c.category}
@@ -989,7 +989,7 @@ export const DicomSrPage: React.FC = () => {
         </Space>
 
         {/* 过滤 + 刷新 */}
-        <Space wrap style={{ marginBottom: 12 }}>
+        <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <span style={{ fontSize: 12, color: '#64748b' }}>{t('dicomSr.mtModality') || '模态'}:</span>
           <Select
             allowClear
@@ -1005,7 +1005,7 @@ export const DicomSrPage: React.FC = () => {
         </Space>
 
         {mtLoading ? (
-          <div style={{ textAlign: 'center', padding: 24 }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}>
             <Spin size="small" />
           </div>
         ) : mtTemplates.length > 0 ? (
@@ -1046,12 +1046,12 @@ export const DicomSrPage: React.FC = () => {
         width={640}
       >
         {mtDetailLoading ? (
-          <div style={{ textAlign: 'center', padding: 32 }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)' }}>
             <Spin />
           </div>
         ) : mtDetail ? (
           <div>
-            <Descriptions size="small" column={2} bordered style={{ marginBottom: 12 }}>
+            <Descriptions size="small" column={2} bordered style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Descriptions.Item label="ID" span={2}><code style={{ fontSize: 11 }}>{mtDetail.id}</code></Descriptions.Item>
               <Descriptions.Item label="TID"><Tag color="purple">{mtDetail.templateId}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('dicomSrPage.modality')}><Tag color="blue">{mtDetail.modality}</Tag></Descriptions.Item>
@@ -1059,7 +1059,7 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label={t('dicomSrPage.category')}>{mtDetail.category}</Descriptions.Item>
               <Descriptions.Item label={t('dicomSr.mtPurpose') || '用途'} span={2}>{mtDetail.purpose}</Descriptions.Item>
             </Descriptions>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
               {t('dicomSr.mtMeasurements') || '测量项'} ({mtDetail.measurements?.length ?? 0})
             </div>
             <DataTable
@@ -1085,7 +1085,7 @@ export const DicomSrPage: React.FC = () => {
             />
             <div style={{ marginTop: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>{t('dicomSr.mtSnomed') || 'SNOMED 发现编码'}:</span>
-              <Space wrap size={4} style={{ marginTop: 4 }}>
+              <Space wrap size={4} style={{ marginTop: 'var(--space-1, 4px)' }}>
                 {(mtDetail.snomedFindings ?? []).map((c) => <Tag key={c} style={{ fontSize: 10, fontFamily: 'monospace' }}>{c}</Tag>)}
               </Space>
             </div>

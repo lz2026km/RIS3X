@@ -87,7 +87,7 @@ export function AppEmpty({
         <Button
           type="primary"
           onClick={action.onClick}
-          style={{ marginTop: 16 }}
+          style={{ marginTop: 'var(--space-4, 16px)' }}
           aria-label={action.label}
         >
           {action.label}

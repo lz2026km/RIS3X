@@ -85,7 +85,7 @@ const RealSlicePanel: React.FC<{ jobId: string; kind: 'mip' | 'mpr' | 'vr'; tota
   }, [jobId, kind, sliceIdx, ww, wl, opacity, tick])
 
   const controls = (
-    <Row gutter={8} style={{ marginTop: 8 }}>
+    <Row gutter={8} style={{ marginTop: 'var(--space-2, 8px)' }}>
       {kind === 'mpr' && (
         <Col span={8}><Space style={{ width: '100%' }}><small>{t('w9d.volumeViewer.slice')}</small><Slider min={0} max={Math.max(1, totalSlices - 1)} value={sliceIdx} onChange={setSliceIdx} /></Space></Col>
       )}
@@ -179,7 +179,7 @@ const VolumeViewerPage: React.FC = () => {
 
   return (
     <PageContainer padding={16}>
-      <Space style={{ marginBottom: 12 }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Box size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.volumeViewer.title')}</span>
         <Tag color="cyan">MIP / MPR / VR</Tag>
@@ -192,7 +192,7 @@ const VolumeViewerPage: React.FC = () => {
         <Col span={4}>
           <Card size="small" title={<Space><List size={14} /><span>{t('w9d.volumeViewer.seriesTitle')}</span></Space>} style={{ height: '100%' }} styles={{ body: { overflow: 'auto', maxHeight: 'calc(100vh - 160px)' } }}>
             <Select
-              style={{ width: '100%', marginBottom: 8 }}
+              style={{ width: '100%', marginBottom: 'var(--space-2, 8px)' }}
               placeholder={t('w9d.volumeViewer.selectSeries')}
               value={selectedUid}
               onChange={setSelectedUid}
@@ -201,17 +201,17 @@ const VolumeViewerPage: React.FC = () => {
             {selectedSeries && (
               <div style={{ fontSize: 12 }}>
                 <div><Tag color="blue">{selectedSeries.modality}</Tag></div>
-                <div style={{ color: '#666', marginTop: 4 }}>{selectedSeries.seriesDescription}</div>
+                <div style={{ color: '#666', marginTop: 'var(--space-1, 4px)' }}>{selectedSeries.seriesDescription}</div>
                 <div style={{ color: '#999' }}>{t('w9d.volumeViewer.instancesCount', { count: selectedSeries.instances })}</div>
               </div>
             )}
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)' }}>
               <Button type="primary" size="small" block loading={reconstructing} onClick={handleReconstruct} icon={<Activity size={12} />}>
                 {reconstructing ? t('w9d.volumeViewer.reconstructing', { progress }) : t('w9d.volumeViewer.reconstruct')}
               </Button>
             </div>
-            {jobId && <div style={{ marginTop: 8, fontSize: 11, color: '#999' }}>Job: {jobId}</div>}
-            <div style={{ marginTop: 16, borderTop: '1px solid #f0f0f0', paddingTop: 8 }}>
+            {jobId && <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: '#999' }}>Job: {jobId}</div>}
+            <div style={{ marginTop: 'var(--space-4, 16px)', borderTop: '1px solid #f0f0f0', paddingTop: 'var(--space-2, 8px)' }}>
               <Tabs
                 size="small"
                 activeKey={activeTab}

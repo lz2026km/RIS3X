@@ -245,7 +245,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -263,7 +263,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             </Tooltip>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={4}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('criticalValue.thisMonthTotal')}</span>}
@@ -320,7 +320,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       </div>
 
       {showStatistics && kpi && (
-        <Row gutter={12} style={{ marginBottom: 12 }}>
+        <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Col span={6}>
             <Card size="small" title={t('criticalValue.byLevel')}>
               <Space orientation="vertical" size={4} style={{ width: '100%' }}>
@@ -407,7 +407,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         </Row>
       )}
 
-      <Card size="small" style={{ marginBottom: 12 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Space wrap>
           <Input
             allowClear
@@ -450,7 +450,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         style={{
           background: 'var(--bg-card)',
           borderRadius: 8,
-          padding: 4,
+          padding: 'var(--space-1, 4px)',
           maxHeight: 600,
           overflowY: 'auto',
         }}
@@ -513,7 +513,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>
                       {e.gender} · {e.age}{t('criticalValue.yearsOld')} · {e.modality}/{e.bodyPart}
                     </span>
-                    <Tag color={lm.color} style={{ marginLeft: 4 }}>
+                    <Tag color={lm.color} style={{ marginLeft: 'var(--space-1, 4px)' }}>
                       {lm.label}
                     </Tag>
                     <Tag color={sm.color}>{sm.label}</Tag>
@@ -535,7 +535,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       <strong>{e.ruleCode}</strong> · {e.ruleName}
                     </div>
                     <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{e.detail}</div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
                       <Clock size={10} /> {t('criticalValue.report')} {timeAgo(e.reportedAt)} by {e.reportedByName}(
                       {e.reportedByTitle})
                       {e.receivingDoctorName && (
@@ -543,7 +543,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       )}
                     </div>
                     {e.channels.length > 0 && (
-                      <div style={{ marginTop: 4 }}>
+                      <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                         <Space size={4} wrap>
                           {e.channels.map((ch) => {
                             const cm = CHANNEL_META[ch];
@@ -566,7 +566,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       <div
                         style={{
                           fontSize: 12,
-                          marginTop: 4,
+                          marginTop: 'var(--space-1, 4px)',
                           color: e.onTimeNotification ? '#10b981' : 'var(--color-error-600)',
                         }}
                       >
@@ -753,7 +753,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                               {detailEvent.responseTimeMinutes !== undefined && (
                                 <Tag
                                   color={detailEvent.onTimeNotification ? 'green' : 'red'}
-                                  style={{ marginLeft: 8 }}
+                                  style={{ marginLeft: 'var(--space-2, 8px)' }}
                                 >
                                   {detailEvent.responseTimeMinutes}min
                                 </Tag>
@@ -796,7 +796,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               {detailEvent.channels.length > 0 && (
                 <>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValue.usedChannels')}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValue.usedChannels')}</div>
                   <Space wrap>
                     {detailEvent.channelAttempts.map((a, i) => {
                       const cm = CHANNEL_META[a.channel];
@@ -891,7 +891,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               <strong>{notifyModal.event.patientName}</strong> · {notifyModal.event.ruleName}
             </div>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValue.recipientDoctor')}</div>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValue.recipientDoctor')}</div>
               <Input
                 placeholder={t('criticalValue.recipientPlaceholder')}
                 value={recipient}
@@ -899,7 +899,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               />
             </div>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValue.notifyChannels')}</div>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValue.notifyChannels')}</div>
               <Select
                 mode="multiple"
                 style={{ width: '100%' }}

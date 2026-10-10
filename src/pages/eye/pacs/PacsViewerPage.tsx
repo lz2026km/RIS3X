@@ -106,9 +106,9 @@ const PacsViewerPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
+  if (loading) return <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
   if (!study) return (
-    <div style={{ padding: 16, textAlign: 'center', color: '#fff' }}>
+    <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center', color: '#fff' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {t('w9d.pacsViewer.noData')}
     </div>
@@ -117,7 +117,7 @@ const PacsViewerPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "#0f172a",
         minHeight: "calc(100vh - 56px)",
         color: "#fff",
@@ -127,8 +127,8 @@ const PacsViewerPage: React.FC = () => {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 16,
-          marginBottom: 16,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <Button
@@ -161,7 +161,7 @@ const PacsViewerPage: React.FC = () => {
         </Button>
       </div>
 
-      <div style={{ display: "flex", gap: 16, height: "calc(100vh - 140px)" }}>
+      <div style={{ display: "flex", gap: 'var(--space-4, 16px)', height: "calc(100vh - 140px)" }}>
         <div
           style={{
             flex: 1,
@@ -178,10 +178,10 @@ const PacsViewerPage: React.FC = () => {
               className="v4-icon"
               style={{ width: 64, height: 64, color: "var(--text-primary)" }}
             />
-            <div style={{ marginTop: 12, fontSize: 14 }}>{t('w9d.pacsViewer.imageArea')}</div>
+            <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 14 }}>{t('w9d.pacsViewer.imageArea')}</div>
             <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{study.device}</div>
             {study.criticalFlag && (
-              <div style={{ color: "var(--color-error-500)", marginTop: 8, fontSize: 12 }}>
+              <div style={{ color: "var(--color-error-500)", marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>
                 {t('w9d.pacsViewer.criticalWarning')}
               </div>
             )}
@@ -192,10 +192,10 @@ const PacsViewerPage: React.FC = () => {
             width: 320,
             background: "#1e293b",
             borderRadius: 8,
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             display: "flex",
             flexDirection: "column",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <div style={{ fontSize: 14, fontWeight: 600 }}>{t('w9d.pacsViewer.measurements')}</div>

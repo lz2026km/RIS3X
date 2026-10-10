@@ -57,9 +57,9 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
   const lastPoint = data[data.length - 1] as CumulativeDosePoint | undefined;
   if (!lastPoint) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 40, border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-10, 40px)', border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
           暂无累计剂量数据
         </div>
       </div>
@@ -68,13 +68,13 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
   const examCountSafe = Math.max(1, lastPoint.examCount);
   const nearLimit = annualLimit > 0 && lastPoint.cumulativeDLP > annualLimit * 0.8;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -83,11 +83,11 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           患者累计剂量时间线 - {patientInfo.name} ({patientInfo.id})
-          <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 8 }}>
+          <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 'var(--space-2, 8px)' }}>
             {source === "api" ? "· 数据源: /rdsr/patients/cumulative" : "· 演示数据"}
           </span>
         </div>
@@ -134,7 +134,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}
       >
         <div style={statBox}>
@@ -176,7 +176,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           border: `1px solid ${nearLimit ? "#fde68a" : "#bbf7d0"}`,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           fontSize: 12,
           color: lastPoint.cumulativeDLP > 4000 ? "var(--color-warning-600)" : "var(--color-success-600)",
         }}
@@ -197,7 +197,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
 const statBox: React.CSSProperties = {
   background: "var(--bg-card)",
   borderRadius: 10,
-  padding: 16,
+  padding: 'var(--space-4, 16px)',
   border: "1px solid #e2e8f0",
   textAlign: "center",
 };

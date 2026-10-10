@@ -316,7 +316,7 @@ const EyeRisPage: React.FC = () => {
       />
 
       <Row gutter={12}>
-        <Col span={24} style={{ marginBottom: 12 }}>
+        <Col span={24} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Card
             size="small"
             title={
@@ -329,7 +329,7 @@ const EyeRisPage: React.FC = () => {
               current={flowCurrent}
               size="small"
               direction={isNarrow ? "vertical" : "horizontal"}
-              style={{ marginBottom: 12 }}
+              style={{ marginBottom: 'var(--space-3, 12px)' }}
               items={[
                 { title: t('eyeRis.stepRegister'), description: isNarrow ? t('eyeRis.stepRegisterDesc') : undefined },
                 { title: t('eyeRis.stepWaiting'), description: isNarrow ? t('eyeRis.stepWaitingDesc') : undefined },
@@ -602,7 +602,7 @@ const EyeRisPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Row gutter={12} style={{ marginTop: 12 }}>
+      <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Col span={12}>
           <Card
             size="small"
@@ -702,7 +702,7 @@ const EyeRisPage: React.FC = () => {
         confirmLoading={surgeryModal.submitting}
         width={480}
       >
-        <Form form={surgeryForm} layout="vertical" size="small" style={{ marginTop: 8 }} initialValues={{ eyeSide: 'OD', orRoom: '手术室 1' }}>
+        <Form form={surgeryForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }} initialValues={{ eyeSide: 'OD', orRoom: '手术室 1' }}>
           <Form.Item label={t("eyeRis.fPatientName")} name="patientName" rules={[{ required: true, message: t("eyeRis.fPatientNameRequired") }]}>
             <Input placeholder={t("eyeRis.fPatientNamePlaceholder")} />
           </Form.Item>

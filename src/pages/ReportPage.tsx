@@ -557,7 +557,7 @@ export default function ReportPage() {
 
   return (
     <PageTemplate background="slate" maxWidth="wide" padding={0} showHeader={false} testId="report-page">
-      {accessDenied && <div style={{ padding: 24, margin: 24, background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>{t("reportPage.accessDenied")}</div>}
+      {accessDenied && <div style={{ padding: 'var(--space-6, 24px)', margin: 'var(--space-6, 24px)', background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>{t("reportPage.accessDenied")}</div>}
       {loading && <LoadingBanner message={t("reportPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } } @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }`}</style>
@@ -565,7 +565,7 @@ export default function ReportPage() {
       <ReportPageHeader selectedIds={selectedIds} allReports={allReports} setReviewReport={setReviewReport} showToast={showToast} />
 
       <div className="no-print" style={{ maxWidth: 1440, margin: "0 auto", padding: "20px 24px" }}>
-        <div className="report-stats" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 14 }}>
+        <div className="report-stats" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 'var(--space-3, 12px)', marginBottom: 14 }}>
           <StatCard label={t("reportPage.stat.todayReports")} value={stats.todayTotal} icon={<FileText size={20} />} color={ACCENT} sub={t('w9c.reportPage.weekTotalSub', { count: stats.thisWeekTotal })} />
           <StatCard label={t("reportPage.stat.pendingReview")} value={stats.pendingReview} icon={<Clock size={20} />} color={PURPLE} sub={t('w9c.reportPage.pendingShareSub', { pct: stats.pendingReview > 0 ? Math.round((stats.pendingReview / allReports.length) * 100) : 0 })} />
           <StatCard label={t("reportPage.stat.criticalReports")} value={stats.criticalCount} icon={<Zap size={20} />} color={DANGER} sub={t('w9c.reportPage.criticalPositiveSub', { count: filteredStats.critical })} />
@@ -589,8 +589,8 @@ export default function ReportPage() {
         <ReportBanners />
 
         {/* [v3.0.6.11-95 Wave2B P1] 快捷队列 + 筛选预置持久化 */}
-        <Card padding="sm" testId="report-queues-card" style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 12, color: GRAY, fontWeight: 700, marginRight: 4 }}>{t("reportPage.quickQueue")}</span>
+        <Card padding="sm" testId="report-queues-card" style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', flexWrap: "wrap" }}>
+          <span style={{ fontSize: 12, color: GRAY, fontWeight: 700, marginRight: 'var(--space-1, 4px)' }}>{t("reportPage.quickQueue")}</span>
           {QUEUE_DEFS.map(q => (
             <button key={q.key} onClick={() => toggleQueue(q.key)} style={{
               padding: "4px 10px", borderRadius: 6, border: `1px solid ${quickQueue === q.key ? q.color : "var(--border-color)"}`,
@@ -665,9 +665,9 @@ export default function ReportPage() {
       <ReportStatsModal open={statsModalOpen} onClose={() => setStatsModalOpen(false)} />
 
       {/* [v3.0.6.11-95 Wave2B P1] 保存当前筛选为快捷预置 */}
-      <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: 'var(--color-primary-800)' }} />{t("reportPage.savePresetTitle")}</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText={t("reportPage.save")} cancelText={t("reportPage.cancel")} width={400} destroyOnHidden>
-        <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder={t("reportPage.presetNamePlaceholder")} allowClear style={{ marginTop: 8 }} />
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t("reportPage.presetHelp")}</div>
+      <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Bookmark size={15} style={{ color: 'var(--color-primary-800)' }} />{t("reportPage.savePresetTitle")}</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText={t("reportPage.save")} cancelText={t("reportPage.cancel")} width={400} destroyOnHidden>
+        <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder={t("reportPage.presetNamePlaceholder")} allowClear style={{ marginTop: 'var(--space-2, 8px)' }} />
+        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>{t("reportPage.presetHelp")}</div>
       </Modal>
       <ReportExportModal show={exportModal.show} title={exportModal.title} message={exportModal.message} complete={exportModal.complete} onClose={() => setExportModal(e => ({ ...e, show: false }))} />
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />

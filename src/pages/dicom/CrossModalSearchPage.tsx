@@ -180,7 +180,7 @@ const CrossModalSearchPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <ScanSearch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('crossModal.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
@@ -191,7 +191,7 @@ const CrossModalSearchPage: React.FC = () => {
         )}
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }} title={t('crossModal.searchConditions')}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }} title={t('crossModal.searchConditions')}>
         <Row gutter={[12, 12]}>
           <Col xs={24} md={10}>
             <Input
@@ -253,16 +253,16 @@ const CrossModalSearchPage: React.FC = () => {
       </Card>
 
       {error && (
-        <Alert type="error" showIcon message={t('crossModal.searchFailedTitle')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('crossModal.searchFailedTitle')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={handleSearch}><RefreshCw size={14} /> {t('crossModal.retry')}</Button>} />
       )}
 
       {loading ? (
         <Spin size="large" style={{ display: 'block', margin: '60px auto' }} />
       ) : !searched ? (
-        <EmptyState description={t('crossModal.enterSearchHint')} style={{ marginTop: 48 }} />
+        <EmptyState description={t('crossModal.enterSearchHint')} style={{ marginTop: 'var(--space-12, 48px)' }} />
       ) : results.length === 0 ? (
-        <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('crossModal.noResults')} style={{ marginTop: 48 }} />
+        <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('crossModal.noResults')} style={{ marginTop: 'var(--space-12, 48px)' }} />
       ) : (
         <Card size="small">
           <Tabs
@@ -295,7 +295,7 @@ const CrossModalSearchPage: React.FC = () => {
                       <Button key="similar" size="small" type="link" onClick={() => handleSimilar(r.id)}>{t('crossModal.similar')}</Button>,
                     ]}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                       <Space size={4}>
                         <Tag color={modalityColors[r.modality]}>{r.modality}</Tag>
                         <Tag color={TYPE_META[type].color}>{t(TYPE_META[type].labelKey)}</Tag>
@@ -310,7 +310,7 @@ const CrossModalSearchPage: React.FC = () => {
               )
             })}
           </Row>
-          <StatCardGrid minWidth={200} gap={16} style={{ marginTop: 16 }}>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginTop: 'var(--space-4, 16px)' }}>
             <StatCard title={t('crossModal.hitResults')} value={results.length} />
             <StatCard title={t('crossModal.modalitiesInvolved')} value={new Set(results.map((r) => r.modality)).size} />
             <StatCard title={t('crossModal.patientsInvolved')} value={new Set(results.map((r) => r.patientId)).size} />

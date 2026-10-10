@@ -128,11 +128,11 @@ export default function TermSynonymGraphPage() {
   const focusTerm = terms.find(x => x.id === graphFocus) ?? terms[0] ?? FEATURED_TERMS[0];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Network size={20} color="#7c3aed" /> {t('termSyn.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             <span style={{
@@ -147,17 +147,17 @@ export default function TermSynonymGraphPage() {
           </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('termSyn.summary', { count: totalCount })}
-            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-2, 8px)' }}>{apiError}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <ActionButton action="refresh" onClick={() => void loadTerms()}>{t('w1tables.refresh')}</ActionButton>
           <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.graph.export')}</ActionButton>
         </div>
       </div>
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6, marginBottom: 'var(--space-4, 16px)' }}>
         {TERM_CATEGORIES.map(c => (
           <div
             key={c.key}
@@ -174,7 +174,7 @@ export default function TermSynonymGraphPage() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr 360px', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr 360px', gap: 'var(--space-3, 12px)' }}>
         {/* 左：词条列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
@@ -204,7 +204,7 @@ export default function TermSynonymGraphPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 2 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{x.term}</span>
                     <span style={{
                       fontSize: 12, padding: '1px 4px', borderRadius: 2,
@@ -227,12 +227,12 @@ export default function TermSynonymGraphPage() {
         </div>
 
         {/* 中：图谱 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Network size={13} /> {t('termSyn.graphTitle')}
             </div>
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 12, color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', fontSize: 12, color: 'var(--text-secondary)' }}>
               <span>{t('termSyn.focus')}</span>
               <select
                 value={graphFocus}
@@ -244,40 +244,40 @@ export default function TermSynonymGraphPage() {
             </div>
           </div>
           {focusTerm ? <SynonymGraph focusTerm={focusTerm} /> : (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('termSyn.noTerms')}</div>
+            <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('termSyn.noTerms')}</div>
           )}
         </div>
 
         {/* 右：详情 */}
         {selected && (
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>
               {t('termSyn.standardDetail')}
             </div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selected.term}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>@{selected.pinyin || '—'}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-1, 4px)' }}>{selected.term}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>@{selected.pinyin || '—'}</div>
 
             {selected.abbreviation && (
-              <div style={{ marginBottom: 8, padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12 }}>
+              <div style={{ marginBottom: 'var(--space-2, 8px)', padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12 }}>
                 <strong style={{ color: 'var(--color-primary-800)' }}>{t('termSyn.abbreviation')}：</strong>
                 <code style={{ background: 'var(--bg-card)', padding: '1px 6px', borderRadius: 3, fontWeight: 700 }}>{selected.abbreviation}</code>
               </div>
             )}
 
-            <div style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)', padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>
               <strong style={{ color: 'var(--color-primary-800)' }}>{t('termSyn.definition')}：</strong> {selected.definition || '—'}
             </div>
 
             {selected.exampleSentence && (
-              <div style={{ marginBottom: 8, padding: 8, background: 'var(--color-success-bg)', borderRadius: 6, fontSize: 12, color: '#065f46' }}>
+              <div style={{ marginBottom: 'var(--space-2, 8px)', padding: 'var(--space-2, 8px)', background: 'var(--color-success-bg)', borderRadius: 6, fontSize: 12, color: '#065f46' }}>
                 <strong>{t('termSyn.exampleSentence')}：</strong>"{selected.exampleSentence}"
               </div>
             )}
 
             {selected.synonyms.length > 0 && (
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('termSyn.synonyms')}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('termSyn.synonyms')}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                   {selected.synonyms.map(s => (
                     <span key={s} style={{ padding: '2px 8px', background: '#8b5cf622', color: '#5b21b6', fontSize: 12, borderRadius: 10, fontWeight: 600 }}>{s}</span>
                   ))}
@@ -286,9 +286,9 @@ export default function TermSynonymGraphPage() {
             )}
 
             {selected.relatedTerms.length > 0 && (
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('termSyn.relatedTerms')}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('termSyn.relatedTerms')}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                   {selected.relatedTerms.map(r => (
                     <span key={r} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', fontSize: 12, borderRadius: 10 }}>{r}</span>
                   ))}
@@ -296,7 +296,7 @@ export default function TermSynonymGraphPage() {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
               {selected.icd10 && (
                 <div style={{ padding: 6, background: 'var(--color-warning-bg)', borderRadius: 4, fontSize: 12 }}>
                   <div style={{ color: '#92400e', fontWeight: 600 }}>ICD-10</div>
@@ -352,7 +352,7 @@ const SynonymGraph: React.FC<{ focusTerm: TermEntry }> = ({ focusTerm }) => {
   });
 
   return (
-    <div style={{ background: '#8b5cf622', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)6fe' }}>
+    <div style={{ background: '#8b5cf622', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)6fe' }}>
       <svg viewBox="0 0 400 320" style={{ width: '100%', height: 320 }}>
         {/* 连线 */}
         {positions.slice(1).map((node, i) => (
@@ -403,7 +403,7 @@ const SynonymGraph: React.FC<{ focusTerm: TermEntry }> = ({ focusTerm }) => {
         </g>
       </svg>
 
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 8 }}>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 'var(--space-2, 8px)' }}>
         {t('termSyn.center')}<strong style={{ color: '#7c3aed' }}>{focusTerm.term}</strong> {t('termSyn.graphSummary', { synonyms: focusTerm.synonyms.length, related: focusTerm.relatedTerms.length })}
       </div>
     </div>

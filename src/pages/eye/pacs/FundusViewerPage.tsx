@@ -109,7 +109,7 @@ const FundusViewerPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)", textAlign: "center", paddingTop: 60 }}>
+      <div style={{ padding: 'var(--space-4, 16px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)", textAlign: "center", paddingTop: 60 }}>
         <Spin tip={t('fundusViewer.loadingData')} />
       </div>
     );
@@ -117,9 +117,9 @@ const FundusViewerPage: React.FC = () => {
 
   if (!study) {
     return (
-      <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+      <div style={{ padding: 'var(--space-4, 16px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        <Card><div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>{t('fundusViewer.noData')}</div></Card>
+        <Card><div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: "var(--text-secondary)" }}>{t('fundusViewer.noData')}</div></Card>
       </div>
     );
   }
@@ -127,7 +127,7 @@ const FundusViewerPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
@@ -169,7 +169,7 @@ const FundusViewerPage: React.FC = () => {
                 justifyContent: "center",
                 color: "var(--text-secondary)",
                 flexDirection: "column",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 transform: zoom !== 1 ? `scale(${zoom})` : undefined,
                 transition: "transform 0.2s",
               }}
@@ -178,12 +178,12 @@ const FundusViewerPage: React.FC = () => {
               <span>{t('fundusViewer.imageArea', { name: study.patientName })}</span>
               {/* [v3.0.6.11-96 Wave5A P2] 病灶标签: 接口无病灶数据时展示「示例病灶标注」灰标 + 区块标注 (第 4 个 eye 查看器) */}
               {lesions.length === 0 ? (
-                <div style={{ display: "flex", gap: 8, fontSize: 12, alignItems: "center" }}>
+                <div style={{ display: "flex", gap: 'var(--space-2, 8px)', fontSize: 12, alignItems: "center" }}>
                   <Tag style={{ background: "var(--bg-primary)", color: "#64748b", borderColor: "#cbd5e1" }}>{t('fundusViewer.sampleLesionTag')}</Tag>
                   <span style={{ color: "#94a3b8" }}>{t('fundusViewer.sampleLesionHint')}</span>
                 </div>
               ) : (
-                <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
+                <div style={{ display: "flex", gap: 'var(--space-4, 16px)', fontSize: 12 }}>
                   <Tag>{t('fundusViewer.lesionOpticDisc')}</Tag>
                   <Tag color="red">{t('fundusViewer.lesionMicroaneurysm')}</Tag>
                   <Tag color="orange">{t('fundusViewer.lesionHemorrhage')}</Tag>
@@ -192,13 +192,13 @@ const FundusViewerPage: React.FC = () => {
               )}
             </div>
           </Card>
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
             <MeasurementPanel
               measurements={measurements as any}
               title={t('fundusViewer.measurementTitle', { count: measurements.length })}
             />
           </div>
-          <Card size="small" title={t('fundusViewer.aiAnnotation')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('fundusViewer.aiAnnotation')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <DataTable
               dataSource={lesions}
               rowKey="id"
@@ -277,7 +277,7 @@ const FundusViewerPage: React.FC = () => {
           {aiDiag.map((d) => (
             <AiDiagnosisCard key={d.id} diagnosis={d as any} />
           ))}
-          <Card size="small" title={t('fundusViewer.keyImageMarkers')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('fundusViewer.keyImageMarkers')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <DataTable
               dataSource={keyImages}
               rowKey="id"

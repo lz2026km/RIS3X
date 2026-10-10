@@ -132,14 +132,14 @@ export default function BusinessContinuityPage() {
   const queuePagination = usePagination(queue, 10);
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
-      <Card style={{ background: "linear-gradient(135deg,var(--color-error-600) 0%,var(--color-warning-500) 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+      <Card style={{ background: "linear-gradient(135deg,var(--color-error-600) 0%,var(--color-warning-500) 100%)", color: "#fff", border: "none", marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Space size={16}>
             <Shield size={36} color="#fff" />
             <div>
               <div style={{ fontSize: 20, fontWeight: 800 }}>{t("businessContinuity.title")}</div>
-              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 'var(--space-1, 4px)' }}>
                 {t("businessContinuity.subtitle")}
               </div>
             </div>
@@ -159,7 +159,7 @@ export default function BusinessContinuityPage() {
 
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("businessContinuity.syncQueue")} value={status?.total ?? 0} icon={<RefreshCw size={18} />} color="#0ea5e9" />
         <StatCard title={t("businessContinuity.qPending")} value={status?.pending ?? 0} color="var(--color-warning-500)" />
         <StatCard title={t("businessContinuity.qCompleted")} value={status?.completed ?? 0} icon={<CheckCircle size={18} />} color="#10b981" />
@@ -168,9 +168,9 @@ export default function BusinessContinuityPage() {
         <StatCard title={t("businessContinuity.avgLag")} value={(replicas.reduce((s, r) => s + r.lagMs, 0) / replicas.length).toFixed(0)} suffix="ms" color="var(--color-primary-800)" />
       </StatCardGrid>
 
-      {deviceError && <Alert type="warning" showIcon message={t("businessContinuity.deviceLoadFailedAlert")} description={deviceError} style={{ marginBottom: 16 }} />}
+      {deviceError && <Alert type="warning" showIcon message={t("businessContinuity.deviceLoadFailedAlert")} description={deviceError} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={12}>
           <Card title={<Space><Database size={16} />{t("businessContinuity.dbReplicas")} ({replicas.length})<Badge count={replicas.filter(r => r.status === "healthy").length} status="success" /><Tag color="orange">{t("businessContinuity.staticDemoData")}</Tag></Space>}>
             <DataTable scroll={{ x: 'max-content' }}
@@ -219,7 +219,7 @@ export default function BusinessContinuityPage() {
         </Col>
       </Row>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("businessContinuity.deviceTotal")} value={deviceStats?.total ?? 0} icon={<Monitor size={18} />} color="var(--color-primary-800)" />
         <StatCard title={t("businessContinuity.devRunning")} value={deviceStats?.inUse ?? 0} icon={<CheckCircle size={18} />} color="#10b981" />
         <StatCard title={t("businessContinuity.devIdle")} value={deviceStats?.idle ?? 0} color="var(--text-secondary)" />
@@ -227,7 +227,7 @@ export default function BusinessContinuityPage() {
         <StatCard title={t("businessContinuity.devFault")} value={deviceStats?.broken ?? 0} icon={<XCircle size={18} />} color="error" />
       </StatCardGrid>
 
-      <Card title={<Space><Monitor size={16} />{t("businessContinuity.imagingDeviceStatus")} ({devices.length})<Tag color="green">{t("businessContinuity.realDataSource")}</Tag></Space>} style={{ marginBottom: 16 }}>
+      <Card title={<Space><Monitor size={16} />{t("businessContinuity.imagingDeviceStatus")} ({devices.length})<Tag color="green">{t("businessContinuity.realDataSource")}</Tag></Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DataTable scroll={{ x: 'max-content' }}
           dataSource={devicePagination.pageData}
           rowKey="id"

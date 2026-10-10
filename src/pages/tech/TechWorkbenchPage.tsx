@@ -657,12 +657,12 @@ export default function TechWorkbenchPage() {
         </div>
 
         {!execExamId || (!execution && !execLoading) ? (
-          <Empty description={t('w7exec.selectExamHint')} style={{ padding: 40 }} />
+          <Empty description={t('w7exec.selectExamHint')} style={{ padding: 'var(--space-10, 40px)' }} />
         ) : execLoading ? (
           <div style={{ padding: 60, textAlign: 'center' }}><Spin tip={t('w7exec.loading')} /></div>
         ) : execution && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 16 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {/* 协议 + 曝光参数 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-protocol-panel">
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
@@ -680,7 +680,7 @@ export default function TechWorkbenchPage() {
                   </Button>
                 </div>
                 {execution.protocol ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                     <div>{t('w7exec.protocolCode')}: <b>{execution.protocol.code}</b></div>
                     <div>{t('w7exec.contrast')}: <Tag color={execution.protocol.contrast ? 'volcano' : 'default'}>{execution.protocol.contrast ? t('w7exec.contrastYes') : t('w7exec.contrastNo')}</Tag></div>
                     <div>{t('w7exec.exposureParams')}: <b>{(() => {
@@ -711,7 +711,7 @@ export default function TechWorkbenchPage() {
                   <div
                     data-testid="exec-image-mismatch"
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, padding: '6px 10px', borderRadius: 8,
+                      display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10, padding: '6px 10px', borderRadius: 8,
                       background: validation.imageCountMismatch ? '#fef2f2' : '#f0fdf4',
                       border: `1px solid ${validation.imageCountMismatch ? '#fecaca' : '#bbf7d0'}`,
                       color: validation.imageCountMismatch ? 'var(--color-error-600)' : '#059669', fontSize: 12, fontWeight: 600,
@@ -723,7 +723,7 @@ export default function TechWorkbenchPage() {
                   </div>
                 )}
                 {execution.series.length === 0 ? (
-                  <Empty description={t('w7exec.empty')} style={{ padding: 16 }} />
+                  <Empty description={t('w7exec.empty')} style={{ padding: 'var(--space-4, 16px)' }} />
                 ) : (
                   <div data-testid="exec-series-table">
                     <DataTable<any>
@@ -739,7 +739,7 @@ export default function TechWorkbenchPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {/* MWL 队列 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-mwl-panel">
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
@@ -750,7 +750,7 @@ export default function TechWorkbenchPage() {
                   {mwlItems.length === 0 ? (
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w7exec.empty')}</span>
                   ) : mwlItems.slice(0, 12).map(item => (
-                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '6px 8px', background: 'var(--content-bg)', borderRadius: 6 }}>
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, padding: '6px 8px', background: 'var(--content-bg)', borderRadius: 6 }}>
                       <Tag color={item.priority === 'STAT' ? 'red' : item.priority === 'URGENT' ? 'orange' : 'default'}>{item.modality}</Tag>
                       <b>{item.patientName}</b>
                       <span style={{ color: 'var(--text-secondary)' }}>{item.requestedProcedureDescription}</span>
@@ -768,7 +768,7 @@ export default function TechWorkbenchPage() {
                   <Activity size={14} /> {t('w7exec.dose')}
                 </div>
                 {execution.dose ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, fontSize: 12, marginBottom: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)', fontSize: 12, marginBottom: 10 }}>
                     <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseDlp')}</div><b>{execution.dose.dlp}</b></div>
                     <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseCtdiVol')}</div><b>{execution.dose.ctdiVol}</b></div>
                     <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseSsde')}</div><b>{execution.dose.ssde ?? '--'}</b></div>
@@ -954,7 +954,7 @@ export default function TechWorkbenchPage() {
   const renderToday = () => (
     <div>
       {/* 概览卡 */}
-      <StatCardGrid minWidth={200} gap={14} style={{ marginBottom: 16 }} testId="tech-workbench-stats">
+      <StatCardGrid minWidth={200} gap={14} style={{ marginBottom: 'var(--space-4, 16px)' }} testId="tech-workbench-stats">
         <StatCard title={t('techWorkbench.statWaiting')} value={todayStats.waiting} icon={<ListOrdered size={18} />} color="info" sub={t('techWorkbench.statTotal') + ` ${todayStats.total}`} />
         <StatCard title={t('techWorkbench.statInProgress')} value={todayStats.inProgress} icon={<Activity size={18} />} color="warning" sub={overview ? `${t('techWorkbench.statCompleted')} ${overview.completedToday}` : undefined} />
         <StatCard title={t('techWorkbench.statCompleted')} value={overview?.completedToday ?? todayStats.completed} icon={<CheckCircle2 size={18} />} color="success" sub={overview ? `${overview.completedRate}%` : undefined} />
@@ -963,7 +963,7 @@ export default function TechWorkbenchPage() {
 
       {exams.some(isCritical) && (
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 14px', borderRadius: 8,
+          display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', padding: '8px 14px', borderRadius: 8,
           background: '#fef2f2', border: '1px solid #fecaca', fontSize: 12, color: 'var(--color-error-600)', fontWeight: 600,
         }} data-testid="critical-pinned-banner">
           <Siren size={13} /> {t('techWorkbench.emergencyAlert')} ({exams.filter(isCritical).length})
@@ -971,7 +971,7 @@ export default function TechWorkbenchPage() {
       )}
 
       {/* [v3.0.6.11-104 Wave 3D] 检查流程模板 (登记核对/妊娠询问/摆位/质控) */}
-      <WorkflowTemplatePanel style={{ marginBottom: 16 }} />
+      <WorkflowTemplatePanel style={{ marginBottom: 'var(--space-4, 16px)' }} />
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
         <div style={{
@@ -980,7 +980,7 @@ export default function TechWorkbenchPage() {
         }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <ClipboardList size={14} /> {t('techWorkbench.tabToday')}
-            <Tag color="blue" style={{ marginLeft: 4 }}>{exams.length}</Tag>
+            <Tag color="blue" style={{ marginLeft: 'var(--space-1, 4px)' }}>{exams.length}</Tag>
           </span>
           <Button size="small" icon={<RefreshCw size={12} />} loading={loading} onClick={() => void refresh()}>
             {t('techWorkbench.refresh')}
@@ -989,9 +989,9 @@ export default function TechWorkbenchPage() {
         {loading ? (
           <div style={{ padding: 60, textAlign: 'center' }}><Spin tip={t('techWorkbench.loading')} /></div>
         ) : loadError && exams.length === 0 ? (
-          <Empty description={`${loadError} · ${t('techWorkbench.emptyToday')}`} style={{ padding: 40 }} />
+          <Empty description={`${loadError} · ${t('techWorkbench.emptyToday')}`} style={{ padding: 'var(--space-10, 40px)' }} />
         ) : orderedExams.length === 0 ? (
-          <Empty description={t('techWorkbench.emptyToday')} style={{ padding: 40 }} />
+          <Empty description={t('techWorkbench.emptyToday')} style={{ padding: 'var(--space-10, 40px)' }} />
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <DataTable<WorklistItemDto>
@@ -1046,7 +1046,7 @@ export default function TechWorkbenchPage() {
     <div>
       <div style={{
         background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
-        padding: '14px 18px', marginBottom: 16,
+        padding: '14px 18px', marginBottom: 'var(--space-4, 16px)',
       }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <ArrowRightLeft size={14} /> {t('techWorkbench.handoverTitle')}
@@ -1054,7 +1054,7 @@ export default function TechWorkbenchPage() {
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('techWorkbench.handoverDesc')}</div>
       </div>
       {inProgressExams.length === 0 ? (
-        <Empty description={t('techWorkbench.handoverNoExam')} style={{ padding: 40 }} />
+        <Empty description={t('techWorkbench.handoverNoExam')} style={{ padding: 'var(--space-10, 40px)' }} />
       ) : (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
@@ -1082,12 +1082,12 @@ export default function TechWorkbenchPage() {
     <div>
       <div style={{
         background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
-        padding: '14px 18px', marginBottom: 16,
+        padding: '14px 18px', marginBottom: 'var(--space-4, 16px)',
       }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <Siren size={14} /> {t('techWorkbench.emergencyTitle')}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('techWorkbench.emergencyDesc')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('techWorkbench.emergencyDesc')}</div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <Select
             size="small" style={{ width: 90 }} value={emgForm.modality}
@@ -1110,19 +1110,19 @@ export default function TechWorkbenchPage() {
       </div>
 
       {suggestions !== null && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>
             {t('techOps.suggestionTitle')}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 'var(--space-3, 12px)' }}>
             {suggestions.length === 0 ? (
               <Empty description={t('techOps.noSlot')} />
             ) : suggestions.map(s => (
               <div key={s.id} style={{
                 background: 'var(--bg-card)', border: `1px solid ${s.conflictCount > 0 ? 'var(--color-warning-500)' : 'var(--border-color)'}`,
-                borderRadius: 10, padding: 12,
+                borderRadius: 10, padding: 'var(--space-3, 12px)',
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                   <Tag color={s.strategy === 'INSERT_NOW' ? 'red' : s.strategy === 'NEXT_FREE' ? 'green' : 'blue'}>{s.strategyLabel}</Tag>
                   {s.conflictCount > 0
                     ? <Tag color="orange" icon={<AlertTriangle size={10} />}>{t('techOps.conflicts', { count: s.conflictCount })}</Tag>
@@ -1131,11 +1131,11 @@ export default function TechWorkbenchPage() {
                 <div style={{ fontSize: 12, marginBottom: 6 }}>
                   <b>{s.deviceName}</b> <Tag color="geekblue">{s.modality}</Tag>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>
                   {t('techOps.start')} <b style={{ color: s.startInMin <= 10 ? '#059669' : undefined }}>{fmtTime(s.startAt)}</b> ·
                   {t('techOps.wait')} <b style={{ color: 'var(--color-warning-600)' }}>{t('techOps.waitMin', { count: s.startInMin })}</b>
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8, minHeight: 28 }}>{s.note}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', minHeight: 28 }}>{s.note}</div>
                 <Button size="small" type="primary" block icon={<Siren size={12} />} onClick={() => setEmgTarget(s)}>
                   {t('techOps.insertNow')}
                 </Button>
@@ -1151,7 +1151,7 @@ export default function TechWorkbenchPage() {
           <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>({emgRecords.length})</span>
         </div>
         {emgRecords.length === 0 ? (
-          <Empty description={t('techWorkbench.emergencyEmpty')} style={{ padding: 20 }} />
+          <Empty description={t('techWorkbench.emergencyEmpty')} style={{ padding: 'var(--space-5, 20px)' }} />
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <DataTable<EmergencyRecord>
@@ -1167,14 +1167,14 @@ export default function TechWorkbenchPage() {
 
   return (
     <PageContainer background="slate" maxWidth="full" testId="tech-workbench-page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4, 16px)' }}>
         <PageHeader
           variant="flex"
           icon={<Zap size={22} />}
           title={t('techWorkbench.title')}
           subtitle={<span style={{ color: 'var(--text-secondary)' }}>{t('techWorkbench.subtitle')}</span>}
         />
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <Button icon={<ClipboardList size={13} />} onClick={() => { window.location.href = '/worklist' }}>
             {t('techWorkbench.openWorklist')}
           </Button>
@@ -1237,8 +1237,8 @@ export default function TechWorkbenchPage() {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px' }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <StickyNote size={11} /> 技师备注
               </div>
               <div style={{ fontSize: 12, whiteSpace: 'pre-wrap', maxHeight: 120, overflow: 'auto', color: 'var(--text-secondary)' }}>
@@ -1267,7 +1267,7 @@ export default function TechWorkbenchPage() {
       >
         {transitionModal && (
           <div>
-            <div style={{ marginBottom: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>
               {t(transitionModal.action === 'checkin' ? 'techWorkbench.confirmCheckin' : 'techWorkbench.confirmStart', {
                 name: transitionModal.exam.patientName,
                 item: transitionModal.exam.examName,
@@ -1297,12 +1297,12 @@ export default function TechWorkbenchPage() {
         destroyOnClose
       >
         {timeoutModal?.loading ? (
-          <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)' }}><Spin /></div>
         ) : timeoutModal?.data ? (
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('techWorkbench.timeoutDesc')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('techWorkbench.timeoutDesc')}</div>
             <div style={{
-              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14, fontSize: 12,
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', marginBottom: 14, fontSize: 12,
               background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px',
             }}>
               <div><b>{t('techWorkbench.timeoutIdentityName')}</b>: {timeoutModal.data.patient.name}</div>
@@ -1312,15 +1312,15 @@ export default function TechWorkbenchPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {timeoutModal.data.items.map(item => (
-                <label key={item.key} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12, cursor: 'pointer' }}>
+                <label key={item.key} style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'flex-start', fontSize: 12, cursor: 'pointer' }}>
                   <Checkbox
                     checked={timeoutModal.checks[item.key] === true}
                     onChange={e => setTimeoutModal(s => s ? { ...s, checks: { ...s.checks, [item.key]: e.target.checked } } : s)}
                   />
                   <span>
                     <b>{t(TIMEOUT_ITEM_LABEL[item.key])}</b>
-                    {item.required && <span style={{ color: 'var(--color-error-600)', marginLeft: 4 }}>*</span>}
-                    <span style={{ color: 'var(--text-secondary)', marginLeft: 8 }}>{timeoutItemDetail(timeoutModal.data!, item.key)}</span>
+                    {item.required && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-1, 4px)' }}>*</span>}
+                    <span style={{ color: 'var(--text-secondary)', marginLeft: 'var(--space-2, 8px)' }}>{timeoutItemDetail(timeoutModal.data!, item.key)}</span>
                   </span>
                 </label>
               ))}
@@ -1343,12 +1343,12 @@ export default function TechWorkbenchPage() {
       >
         {completeModal && (
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>
               {t('techWorkbench.completeDesc')}
             </div>
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
-                <CheckCircle2 size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t('techWorkbench.qualityLabel')}
+                <CheckCircle2 size={12} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} /> {t('techWorkbench.qualityLabel')}
               </div>
               <Radio.Group
                 value={completeModal.quality}
@@ -1361,19 +1361,19 @@ export default function TechWorkbenchPage() {
             </div>
             {completeModal.quality === 'ok' && (
               <>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
-                  <Activity size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t('techWorkbench.doseSection')}
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>
+                  <Activity size={12} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} /> {t('techWorkbench.doseSection')}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
                   <div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('techWorkbench.dlp')}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('techWorkbench.dlp')}</div>
                     <InputNumber
                       style={{ width: '100%' }} min={0} max={100000} value={completeModal.dlp ? Number(completeModal.dlp) : undefined}
                       onChange={v => setCompleteModal(s => s ? { ...s, dlp: v !== null && v !== undefined ? String(v) : '' } : s)}
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('techWorkbench.ctdivol')}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('techWorkbench.ctdivol')}</div>
                     <InputNumber
                       style={{ width: '100%' }} min={0} max={10000} value={completeModal.ctdivol ? Number(completeModal.ctdivol) : undefined}
                       onChange={v => setCompleteModal(s => s ? { ...s, ctdivol: v !== null && v !== undefined ? String(v) : '' } : s)}
@@ -1384,7 +1384,7 @@ export default function TechWorkbenchPage() {
             )}
             {completeModal.quality === 'retake' && (
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('techWorkbench.retakeReason')}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('techWorkbench.retakeReason')}</div>
                 <Select
                   style={{ width: '100%' }} placeholder={t('techWorkbench.retakeReason')} value={completeModal.retakeReason || undefined}
                   onChange={v => setCompleteModal(s => s ? { ...s, retakeReason: v } : s)}
@@ -1393,8 +1393,8 @@ export default function TechWorkbenchPage() {
               </div>
             )}
             <div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                <StickyNote size={11} style={{ verticalAlign: -2, marginRight: 4 }} /> {t('techWorkbench.handoverNote')} *
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>
+                <StickyNote size={11} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} /> {t('techWorkbench.handoverNote')} *
               </div>
               <Input.TextArea
                 rows={2}
@@ -1421,11 +1421,11 @@ export default function TechWorkbenchPage() {
       >
         {retakeModal && (
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>
               {t('techWorkbench.retakeNote')}
             </div>
             <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('techWorkbench.retakeReason')}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('techWorkbench.retakeReason')}</div>
               <Select
                 style={{ width: '100%' }} placeholder={t('techWorkbench.retakeReason')} value={retakeModal.reason || undefined}
                 onChange={v => setRetakeModal(s => s ? { ...s, reason: v } : s)}
@@ -1460,7 +1460,7 @@ export default function TechWorkbenchPage() {
               {t('techWorkbench.handoverSelectExam')}: <b>{handoverModal.exam.patientName} · {handoverModal.exam.examName}</b>
             </div>
             <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('techWorkbench.handoverTo')}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('techWorkbench.handoverTo')}</div>
               <Select
                 style={{ width: '100%' }} placeholder={t('techWorkbench.techSelect')} value={handoverModal.toId || undefined}
                 onChange={v => setHandoverModal(s => s ? { ...s, toId: v } : s)}
@@ -1492,13 +1492,13 @@ export default function TechWorkbenchPage() {
       >
         {emgTarget && (
           <div style={{ fontSize: 12 }}>
-            <div style={{ marginBottom: 8 }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
               {t('techOps.device')} <b>{emgTarget.deviceName}</b>
             </div>
-            <div style={{ marginBottom: 8 }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
               {t('techOps.start')} <b style={{ color: '#059669' }}>{fmtMin(emgTarget.startMin)}</b> · {t('techOps.end')} <b>{fmtMin(emgTarget.endMin)}</b>
               {emgTarget.conflictCount > 0 && (
-                <span style={{ color: 'var(--color-warning-600)', marginLeft: 8 }}>
+                <span style={{ color: 'var(--color-warning-600)', marginLeft: 'var(--space-2, 8px)' }}>
                   <AlertTriangle size={11} style={{ verticalAlign: -2 }} /> {t('techOps.conflicts', { count: emgTarget.conflictCount })}
                 </span>
               )}

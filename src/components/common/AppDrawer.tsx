@@ -209,7 +209,7 @@ export function AppDrawer({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
               ...headerStyle,
             }}
           >
@@ -252,7 +252,7 @@ export function AppDrawer({
           </div>
         )}
         <div
-          style={{ flex: 1, overflowY: "auto", padding: 20, ...contentStyle }}
+          style={{ flex: 1, overflowY: "auto", padding: 'var(--space-5, 20px)', ...contentStyle }}
         >
           {children}
         </div>

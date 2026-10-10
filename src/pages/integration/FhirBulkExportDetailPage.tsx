@@ -111,15 +111,15 @@ export const FhirBulkExportDetailPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirExport.title')}</span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Badge status={status.status === 'completed' ? 'success' : status.status === 'failed' ? 'error' : 'processing'} text={status.status} />
       </Space>
       {/* [W2-C] 演示端点标注 */}
-      <Alert type="info" showIcon style={{ marginBottom: 12 }}
+      <Alert type="info" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }}
         message={t('fhirExport.demoEndpoint')}
         description={t('fhirExport.demoEndpointDesc')} />
 
@@ -134,18 +134,18 @@ export const FhirBulkExportDetailPage: React.FC = () => {
           {status.startedAt && <Descriptions.Item label={t('fhirExport.startedAt')}>{status.startedAt}</Descriptions.Item>}
           {status.progress && <Descriptions.Item label={t('fhirExport.progress')}>{status.progress}</Descriptions.Item>}
         </Descriptions>
-        {status.error && <Alert type="error" title={status.error} showIcon style={{ marginTop: 8 }} />}
+        {status.error && <Alert type="error" title={status.error} showIcon style={{ marginTop: 'var(--space-2, 8px)' }} />}
       </Card>
 
       {status.files && status.files.length > 0 && (
-        <Card size="small" title={<Space><FileText size={14} />{t('fhirExport.outputFiles', { count: status.files.length })}</Space>} style={{ marginTop: 16 }}>
+        <Card size="small" title={<Space><FileText size={14} />{t('fhirExport.outputFiles', { count: status.files.length })}</Space>} style={{ marginTop: 'var(--space-4, 16px)' }}>
           <DataTable dataSource={status.files} rowKey="url" pagination={false} columns={ndjsonColumns} scroll={{ x: 'max-content' }} />
 
-          <Collapse style={{ marginTop: 12 }} items={status.files.map(f => ({
+          <Collapse style={{ marginTop: 'var(--space-3, 12px)' }} items={status.files.map(f => ({
             key: f.type,
             label: <Space><Tag color="blue">{f.type}</Tag>{t('fhirExport.ndjsonPreview')}</Space>,
             children: previews[f.type] ? (
-              <pre style={{ fontSize: 11, maxHeight: 400, overflow: 'auto', background: 'var(--bg-card)', padding: 8, borderRadius: 4, margin: 0 }}>
+              <pre style={{ fontSize: 11, maxHeight: 400, overflow: 'auto', background: 'var(--bg-card)', padding: 'var(--space-2, 8px)', borderRadius: 4, margin: 0 }}>
                 {previews[f.type]}
               </pre>
             ) : (

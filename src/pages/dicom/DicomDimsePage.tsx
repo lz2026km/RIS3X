@@ -568,7 +568,7 @@ export const DicomDimsePage: React.FC = () => {
       label: <Space><Search />C-FIND (MWL)</Space>,
       children: (
         <>
-          <Card size="small" style={{ marginBottom: 16 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Form form={mwlForm} layout="inline" onFinish={handleMwlQuery}>
               <Form.Item name="patientName" label={t('dicomDimse.labelName')}><Input placeholder={t('dicomDimse.phPatientName')} allowClear /></Form.Item>
               <Form.Item name="patientId" label={t('dicomDimse.labelId')}><Input placeholder={t('dicomDimse.phPatientId')} allowClear /></Form.Item>
@@ -601,7 +601,7 @@ export const DicomDimsePage: React.FC = () => {
               <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomDimse.fileSelectHint')}</span>
             </Space>
           }>
-          <Alert title={t('dicomDimse.fileUploadAlert')} type="info" showIcon style={{ marginBottom: 12 }} />
+          <Alert title={t('dicomDimse.fileUploadAlert')} type="info" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} />
           <DataTable scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
@@ -611,7 +611,7 @@ export const DicomDimsePage: React.FC = () => {
       label: <Space><ArrowRight />C-MOVE</Space>,
       children: (
         <>
-          <Card size="small" style={{ marginBottom: 16 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Form form={moveForm} layout="inline" onFinish={handleMove}>
               <Form.Item name="studyUid" label={t('dicomDimse.labelStudyUid')} rules={[{ required: true, message: t('dicomDimse.requiredStudyUid') }]}>
                 <Input placeholder={t('dicomDimse.phStudyUid')} style={{ width: 320 }} />
@@ -643,32 +643,32 @@ export const DicomDimsePage: React.FC = () => {
             size="small"
             title={t('dicomDimse.tlsGlobalConfig')}
             extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={tlsSaving} onClick={() => void handleSaveTls()}>{t('dicomDimse.saveConfig')}</Button>}
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 'var(--space-4, 16px)' }}
           >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 16px' }}>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.enableDicomTls')}</div>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomDimse.enableDicomTls')}</div>
                 <Switch checked={tlsConfig.enabled} onChange={(v) => setTlsConfig(prev => ({ ...prev, enabled: v }))} />
-                <span style={{ marginLeft: 8, color: '#64748b', fontSize: 12 }}>{t('dicomDimse.tlsHint')}</span>
+                <span style={{ marginLeft: 'var(--space-2, 8px)', color: '#64748b', fontSize: 12 }}>{t('dicomDimse.tlsHint')}</span>
               </div>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.tlsPort')}</div>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomDimse.tlsPort')}</div>
                 <InputNumber min={1} max={65535} value={tlsConfig.port} onChange={(v) => setTlsConfig(prev => ({ ...prev, port: v ?? 2762 }))} />
               </div>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.verifyCert')}</div>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomDimse.verifyCert')}</div>
                 <Switch checked={tlsConfig.verifyPeer} onChange={(v) => setTlsConfig(prev => ({ ...prev, verifyPeer: v }))} />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)' }}>
               <div>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}><FileKey size={12} style={{ verticalAlign: -2 }} /> {t('dicomDimse.serverCert')}</div>
+                <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}><FileKey size={12} style={{ verticalAlign: -2 }} /> {t('dicomDimse.serverCert')}</div>
                 <Upload accept=".pem,.crt,.cer" showUploadList={false} beforeUpload={(file) => { readFileText(file).then(setTlsCertFile); return false }}>
                   <Button size="small" icon={<UploadIcon size={12} />}>{tlsCertFile ? t('dicomDimse.certSelected') : t('dicomDimse.selectCert')}</Button>
                 </Upload>
               </div>
               <div>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.caCert')}</div>
+                <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomDimse.caCert')}</div>
                 <Upload accept=".pem,.crt,.cer" showUploadList={false} beforeUpload={(file) => { readFileText(file).then(setTlsCaCertFile); return false }}>
                   <Button size="small" icon={<UploadIcon size={12} />}>{tlsCaCertFile ? t('dicomDimse.caSelected') : t('dicomDimse.selectCa')}</Button>
                 </Upload>
@@ -686,7 +686,7 @@ export const DicomDimsePage: React.FC = () => {
       label: <Space><Clock3 />{t('dicomDimse.mppsProgressTitle')}</Space>,
       children: (
         <>
-          <Card size="small" style={{ marginBottom: 16 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Form form={mppsForm} layout="inline" onFinish={handleMppsSend}>
               <Form.Item name="studyUid" label={t('dicomDimse.labelStudyUid')} rules={[{ required: true, message: t('dicomDimse.requiredStudyUid') }]}>
                 <Input placeholder={t('dicomDimse.phStudyUidOrExam')} style={{ width: 320 }} />
@@ -717,7 +717,7 @@ export const DicomDimsePage: React.FC = () => {
       label: <Space><ListOrdered />{t('dicomDimse.tabTransfers')}</Space>,
       children: (
         <>
-          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {[
               { title: t('dicomDimse.statTotal'), value: transferStats?.total ?? 0, color: 'var(--color-primary-800)' },
               { title: t('dicomDimse.statActive'), value: transferStats?.activeCount ?? 0, color: 'var(--color-info-600)' },
@@ -781,14 +781,14 @@ export const DicomDimsePage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Radio size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dicomDimse.pageTitle')}</span>
         <Tag color="blue">v3.0</Tag>
         {/* [v3.0.6.11-88 Round10] C-STORE 本地文件上传为演示行为 (后端 /dicom-dimse/store 为 JSON 协议) */}
         <Tag color="orange">{t('dicomDimse.demoBadge')}</Tag>
       </Space>
-      <Alert title={t('dicomDimse.pageAlert')} type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title={t('dicomDimse.pageAlert')} type="info" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} />
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
 
       <Modal title={t('dicomDimse.addDeviceTitle')} open={deviceModal} onCancel={() => setDeviceModal(false)} onOk={handleAddDevice}>
@@ -851,7 +851,7 @@ export const DicomDimsePage: React.FC = () => {
               const tagLabel = item.status === 'success' ? t('dicomDimse.statusDone') : item.status === 'fail' ? t('dicomDimse.statusFail') : item.status === 'uploading' ? t('dicomDimse.statusUploading') : t('dicomDimse.statusPending')
               return (
                 <div key={item.uid} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
                     <span style={{ fontSize: 11, color: '#94a3b8' }}>{(item.size / 1024).toFixed(1)} KB</span>
                     <Tag color={tagColor}>{tagLabel}</Tag>
@@ -863,12 +863,12 @@ export const DicomDimsePage: React.FC = () => {
                   <Progress percent={item.progress} size="small"
                     status={item.status === 'fail' ? 'exception' : item.status === 'success' ? 'success' : item.status === 'uploading' ? 'active' : 'normal'} />
                   {item.status === 'fail' && item.error && (
-                    <div style={{ fontSize: 11, color: 'var(--color-error-600)', marginTop: 4 }}>{item.error}</div>
+                    <div style={{ fontSize: 11, color: 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)' }}>{item.error}</div>
                   )}
                 </div>
               )
             })}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', marginTop: 4 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
               <span>{t('dicomDimse.totalProgress', { done: storeItems.filter(i => i.status === 'success').length, total: storeItems.length })}</span>
               <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{storeOverallPercent}%</span>
             </div>

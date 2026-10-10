@@ -151,8 +151,8 @@ export const ToricPlannerPage: React.FC = () => {
   }, [targetPower, K1, K2, AL, ACD]);
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Calculator size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeToric.title')}</span>
         <Tag color="cyan">PR3</Tag>

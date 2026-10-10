@@ -368,7 +368,7 @@ export default function ReportRevisionsPage() {
         const r = reportMeta[rid];
         return (
           <div style={{ minWidth: 130 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r?.patientName || rid}</span>
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r?.modality}</span>
             </div>
@@ -394,11 +394,11 @@ export default function ReportRevisionsPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <History size={20} color="var(--color-warning-500)" /> {t('reportRev.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
             <span style={{
@@ -413,10 +413,10 @@ export default function ReportRevisionsPage() {
           </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportRev.subtitle')}
-            {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{error}</span>}
+            {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-2, 8px)' }}>{error}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={() => setShowAddendumModal(true)}
             disabled={currentRevisions.length === 0}
@@ -424,7 +424,7 @@ export default function ReportRevisionsPage() {
               padding: '6px 12px', border: 'none', borderRadius: 6,
               background: currentRevisions.length > 0 ? '#7c3aed' : '#cbd5e1',
               color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
             }}
           >
             <Plus size={12} /> {t('reportRev.createRevision')}
@@ -441,7 +441,7 @@ export default function ReportRevisionsPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：报告列表 */}
         <div style={{
           background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
@@ -488,13 +488,13 @@ export default function ReportRevisionsPage() {
         </div>
 
         {/* 右：详情 + 版本对比 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           {currentRevisions.length > 0 ? (
             <>
               {/* 报告信息 */}
               {report && (
                 <div style={{
-                  background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
+                  background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
@@ -536,12 +536,12 @@ export default function ReportRevisionsPage() {
 
               {/* 修订链时间线 */}
               <div style={{
-                background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
+                background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
               }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <GitBranch size={14} /> {t('reportRev.timeline')}
                 </div>
-                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', overflowX: 'auto', paddingBottom: 'var(--space-2, 8px)' }}>
                   {currentRevisions.map((rev, idx) => {
                     const aConf = ACTION_CONFIG[rev.action];
                     const Icon = aConf.icon;
@@ -555,7 +555,7 @@ export default function ReportRevisionsPage() {
                             else setRightVersion(rev.versionNumber);
                           }}
                           style={{
-                            minWidth: 200, padding: 12,
+                            minWidth: 200, padding: 'var(--space-3, 12px)',
                             background: (isLeft || isRight) ? 'var(--color-info-bg)' : 'var(--bg-card)',
                             border: `2px solid ${isLeft ? 'var(--color-warning-500)' : isRight ? '#10b981' : '#e2e8f0'}`,
                             borderRadius: 8, cursor: 'pointer',
@@ -564,22 +564,22 @@ export default function ReportRevisionsPage() {
                         >
                           {isLeft &&                     <span style={{ position: 'absolute', top: -8, left: 8, fontSize: 12, padding: '1px 5px', background: 'var(--color-warning-500)', color: '#fff', borderRadius: 3, fontWeight: 700 }}>{t('reportRev.left')}</span>}
                           {isRight && <span style={{ position: 'absolute', top: -8, right: 8, fontSize: 12, padding: '1px 5px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>{t('reportRev.right')}</span>}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 6 }}>
                             <Icon size={12} color={aConf.color} />
                             <strong style={{ fontSize: 12, color: aConf.color }}>{rev.versionLabel}</strong>
                             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{aConf.label}</span>
                           </div>
-                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4, fontWeight: 600 }}>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)', fontWeight: 600 }}>
                             {rev.authorTitle} {rev.authorName}
                           </div>
                           <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{rev.createdAt}</div>
                           {rev.publishedAt && (
-                            <div style={{ fontSize: 12, color: '#10b981', marginTop: 4 }}>{t('reportRev.published')} {rev.publishedAt}</div>
+                            <div style={{ fontSize: 12, color: '#10b981', marginTop: 'var(--space-1, 4px)' }}>{t('reportRev.published')} {rev.publishedAt}</div>
                           )}
                           {rev.patientNotified && (
                             <div style={{ fontSize: 12, color: 'var(--color-primary-500)', marginTop: 2 }}>{t('reportRev.notified')}</div>
                           )}
-                          <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginTop: 4, fontStyle: 'italic' }}>{rev.reason}</div>
+                          <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)', fontStyle: 'italic' }}>{rev.reason}</div>
                         </div>
                         {idx < currentRevisions.length - 1 && (
                           <div style={{ display: 'flex', alignItems: 'center', color: '#cbd5e1' }}>
@@ -592,7 +592,7 @@ export default function ReportRevisionsPage() {
                 </div>
 
                 {/* 对比控制栏 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', paddingTop: 'var(--space-2, 8px)', borderTop: '1px solid var(--border-color)' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.compare')}</span>
                   <select value={leftVersion} onChange={e => setLeftVersion(Number(e.target.value))} style={selectStyle}>
                     {currentRevisions.map(r => <option key={r.id} value={r.versionNumber}>{r.versionLabel} {ACTION_CONFIG[r.action].label}</option>)}
@@ -613,7 +613,7 @@ export default function ReportRevisionsPage() {
                       padding: '4px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
                       background: showDiff ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       color: showDiff ? 'var(--color-primary-800)' : '#475569',
-                      fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                      fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                     }}
                   >
                     <GitCompare size={11} /> {showDiff ? t('reportRev.hideDiff') : t('reportRev.showDiff')}
@@ -624,22 +624,22 @@ export default function ReportRevisionsPage() {
               {/* Diff 对比视图 */}
               {showDiff && leftRev && rightRev && (
                 <div style={{
-                  background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
+                  background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                    <div style={{ flex: 1, padding: 8, background: '#f9731622', border: '1px solid #fed7aa', borderRadius: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
+                    <div style={{ flex: 1, padding: 'var(--space-2, 8px)', background: '#f9731622', border: '1px solid #fed7aa', borderRadius: 4 }}>
                       <div style={{ fontSize: 12, color: '#9a3412', fontWeight: 600 }}>{t('reportRev.leftVersion')}{leftRev.versionLabel} {ACTION_CONFIG[leftRev.action].label}</div>
                       <div style={{ fontSize: 12, color: '#7c2d12' }}>{leftRev.authorName} · {leftRev.createdAt}</div>
                     </div>
                     <ArrowLeftRight size={16} color="var(--text-secondary)" />
-                    <div style={{ flex: 1, padding: 8, background: 'var(--color-success-bg)', border: '1px solid #bbf7d0', borderRadius: 4 }}>
+                    <div style={{ flex: 1, padding: 'var(--space-2, 8px)', background: 'var(--color-success-bg)', border: '1px solid #bbf7d0', borderRadius: 4 }}>
                       <div style={{ fontSize: 12, color: '#15803d', fontWeight: 600 }}>{t('reportRev.rightVersion')}{rightRev.versionLabel} {ACTION_CONFIG[rightRev.action].label}</div>
                       <div style={{ fontSize: 12, color: '#166534' }}>{rightRev.authorName} · {rightRev.createdAt}</div>
                     </div>
                   </div>
 
                   {/* Diff 内容 */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                     <DiffPanel
                       title={t('reportRev.before')}
                       text={leftRev[diffField] || ''}
@@ -653,10 +653,10 @@ export default function ReportRevisionsPage() {
                   </div>
 
                   {/* 合并视图 */}
-                  <div style={{ marginTop: 12 }}>
+                  <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>{t('reportRev.mergedView')}</div>
                     <div style={{
-                      padding: 12, background: 'var(--bg-card)', borderRadius: 6,
+                      padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 6,
                       border: '1px solid var(--border-color)', fontSize: 12, lineHeight: 1.8,
                     }}>
                       {diffText(leftRev[diffField] || '', rightRev[diffField] || '').map((seg, i) => (
@@ -677,7 +677,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
 
                   {/* 修订变更列表 */}
                   {rightRev.changes && rightRev.changes.length > 0 && (
-                    <div style={{ marginTop: 12, padding: 10, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d' }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d' }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
                         {t('reportRev.changesList', { count: rightRev.changes.length })}
                       </div>
@@ -686,8 +686,8 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                         const CIcon = cConf.icon;
                         const fieldLabel = { findings: t('reportRev.field.findings'), diagnosis: t('reportRev.field.diagnosis'), impression: t('reportRev.field.impression'), recommendation: t('reportRev.field.recommendation'), critical: t('reportRev.field.critical') }[change.field] || change.field;
                         return (
-                          <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                          <div key={i} style={{ marginBottom: 'var(--space-2, 8px)', padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 4, fontSize: 12 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
                               <span style={{
                                 fontSize: 12, padding: '1px 5px', borderRadius: 2,
                                 background: cConf.bg, color: cConf.color, fontWeight: 700,
@@ -698,12 +698,12 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{fieldLabel}</span>
                             </div>
                             {change.before && (
-                              <div style={{ padding: 4, background: 'var(--color-error-bg)', color: '#7f1d1d', textDecoration: 'line-through', borderRadius: 3, marginBottom: 2 }}>
+                              <div style={{ padding: 'var(--space-1, 4px)', background: 'var(--color-error-bg)', color: '#7f1d1d', textDecoration: 'line-through', borderRadius: 3, marginBottom: 2 }}>
                                 − {change.before}
                               </div>
                             )}
                             {change.after && (
-                              <div style={{ padding: 4, background: 'var(--color-success-bg)', color: '#065f46', borderRadius: 3 }}>
+                              <div style={{ padding: 'var(--space-1, 4px)', background: 'var(--color-success-bg)', color: '#065f46', borderRadius: 3 }}>
                                 + {change.after}
                               </div>
                             )}
@@ -716,14 +716,14 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
               )}
 
               {/* 操作按钮 */}
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
                 <button
                   onClick={() => rightRev && setPreviewFinal(true)}
                   disabled={!rightRev}
                   style={{
                     padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 4,
                     background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: rightRev ? 'pointer' : 'not-allowed',
-                    display: 'flex', alignItems: 'center', gap: 4,
+                    display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                   }}
                 >
                   <Eye size={11} /> {t('reportRev.previewFinal')}
@@ -734,7 +734,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                   style={{
                     padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 4,
                     background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: rightRev && !notifyLoading ? 'pointer' : 'not-allowed',
-                    display: 'flex', alignItems: 'center', gap: 4,
+                    display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                   }}
                 >
                   <Bell size={11} /> {notifyLoading ? t('reportRev.sending') : t('reportRev.notifyPatient')}
@@ -745,7 +745,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                   style={{
                     padding: '6px 12px', border: '1px solid var(--color-error-600)', borderRadius: 4,
                     background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, cursor: withdrawing ? 'wait' : 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 4,
+                    display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                   }}
                 >
                   <RotateCcw size={11} /> {withdrawing ? t('reportRev.withdrawing') : t('reportRev.withdrawReport')}
@@ -753,7 +753,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
               </div>
             </>
           ) : (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--bg-card)', borderRadius: 8 }}>
+            <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--bg-card)', borderRadius: 8 }}>
               {t('reportRev.selectReportHint')}
             </div>
           )}
@@ -771,20 +771,20 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
         {rightRev && (
           <div style={{ fontSize: 12, lineHeight: 1.9, color: 'var(--text-primary)' }}>
             {report && (
-              <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6, fontSize: 12 }}>
+              <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-info-bg)', borderRadius: 6, fontSize: 12 }}>
                 {t('reportRev.patient')}{report.patientName} · {report.modality} · {report.bodyPart} · {t('reportRev.reviser')}{rightRev.authorName} · {rightRev.createdAt}
               </div>
             )}
             {['findings', 'diagnosis', 'impression'].map((field) => (
               <div key={field} style={{ marginBottom: 10 }}>
                 <strong style={{ color: 'var(--color-primary-800)' }}>{field === 'findings' ? t('reportRev.findingsBracket') : field === 'diagnosis' ? t('reportRev.diagnosisBracket') : t('reportRev.impressionBracket')}</strong>
-                <div style={{ marginTop: 2, padding: 8, background: 'var(--content-bg)', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
+                <div style={{ marginTop: 2, padding: 'var(--space-2, 8px)', background: 'var(--content-bg)', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
                   {(selectedContents.find((c) => c.versionNumber === rightRev.versionNumber)?.[field as 'findings' | 'diagnosis' | 'impression']) || (rightRev as any)[field] || t('reportRev.noContent')}
                 </div>
               </div>
             ))}
             {rightRev.reason && (
-              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.revisionReason')}{rightRev.reason}</div>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.revisionReason')}{rightRev.reason}</div>
             )}
           </div>
         )}
@@ -805,7 +805,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
           <p style={{ marginBottom: 10, color: 'var(--text-secondary)' }}>
             {t('w9c.reportRev.createAddendumBody', { reportId: selectedReportId, count: currentRevisions.length })}
           </p>
-          <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportRev.addendumNoteLabel')}</label>
+          <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportRev.addendumNoteLabel')}</label>
           <Input.TextArea
             rows={4}
             value={addendumNote}

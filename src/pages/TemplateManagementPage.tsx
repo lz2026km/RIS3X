@@ -494,8 +494,8 @@ export default function TemplateManagementPage() {
     }
 
     return (
-      <div style={{ display: activeTab === 'version' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+      <div style={{ display: activeTab === 'version' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.versionMgmt')}</span>
           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t9('templateMgmt.demoDataVersion')}</span>
@@ -508,7 +508,7 @@ export default function TemplateManagementPage() {
             </button>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           {publishedVersion && (
             <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.success}` }}>
               <div style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>{t9('templateMgmt.productionVersion')}</div>
@@ -563,9 +563,9 @@ export default function TemplateManagementPage() {
           ]}
         />
         {diffView && (
-          <div style={{ marginTop: 12, background: C.bgLight, borderRadius: 8, padding: 12, border: `1px solid ${C.borderLight}` }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 8 }}>{t9('templateMgmt.versionDiff')}</div>
-            <div style={{ fontSize: 12, color: C.success, background: C.successLight, padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>{t9('templateMgmt.diffAdded')}</div>
+          <div style={{ marginTop: 'var(--space-3, 12px)', background: C.bgLight, borderRadius: 8, padding: 'var(--space-3, 12px)', border: `1px solid ${C.borderLight}` }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-2, 8px)' }}>{t9('templateMgmt.versionDiff')}</div>
+            <div style={{ fontSize: 12, color: C.success, background: C.successLight, padding: '6px 10px', borderRadius: 4, marginBottom: 'var(--space-1, 4px)' }}>{t9('templateMgmt.diffAdded')}</div>
             <div style={{ fontSize: 12, color: C.danger, background: C.dangerLight, padding: '6px 10px', borderRadius: 4 }}>{t9('templateMgmt.diffRemoved')}</div>
           </div>
         )}
@@ -579,10 +579,10 @@ export default function TemplateManagementPage() {
 
     return (
       <div style={{ display: activeTab === 'analytics' ? undefined : 'none' }}>
-        <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <TrendingUp size={18} color={C.accent} />
                 <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.usageTrend')}</span>
               </div>
@@ -596,8 +596,8 @@ export default function TemplateManagementPage() {
               </div>
             </div>
 
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <BarChart2 size={18} color={C.primary} />
                 <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.top5')}</span>
               </div>
@@ -615,8 +615,8 @@ export default function TemplateManagementPage() {
           </div>
 
           <div style={{ width: 350 }}>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <BarChart2 size={18} color={C.primary} />
                 <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.overview')}</span>
               </div>
@@ -640,8 +640,8 @@ export default function TemplateManagementPage() {
               </div>
             </div>
 
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <Star size={18} color={C.warning} />
                 <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.satisfaction')}</span>
               </div>
@@ -690,8 +690,8 @@ export default function TemplateManagementPage() {
     }
 
     return (
-      <div style={{ display: activeTab === 'share' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+      <div style={{ display: activeTab === 'share' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.shareCollab')}</span>
           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t9('templateMgmt.demoDataShare')}</span>
@@ -701,7 +701,7 @@ export default function TemplateManagementPage() {
           </select>
           <button onClick={() => setShowShareModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={14} /> {t9('templateMgmt.newShare')}</button>
         </div>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ flex: 1, background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
             <div style={{ fontSize: 30, fontWeight: 700, color: C.primary }}>{entries.length}</div>
             <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.shareTotal')}</div>
@@ -721,7 +721,7 @@ export default function TemplateManagementPage() {
           pagination={false}
           columns={[
             { title: t9('templateMgmt.shTemplate'), key: 'template', render: (_: unknown, e: ShareEntry) => <span style={{ fontWeight: 600, color: C.textDark }}>{templates.find(t => t.id === e.templateId)?.name}</span> },
-            { title: t9('templateMgmt.shSharedWith'), key: 'sharedWith', render: (_: unknown, e: ShareEntry) => <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.textDark }}><Users size={14} color={C.textMid} /> {e.sharedWith}</span> },
+            { title: t9('templateMgmt.shSharedWith'), key: 'sharedWith', render: (_: unknown, e: ShareEntry) => <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: C.textDark }}><Users size={14} color={C.textMid} /> {e.sharedWith}</span> },
             {
               title: t9('templateMgmt.shPermission'), key: 'permission',
               render: (_: unknown, e: ShareEntry) => (
@@ -740,7 +740,7 @@ export default function TemplateManagementPage() {
             { title: t9('templateMgmt.shDept'), dataIndex: 'department', render: (v: string) => <span style={{ fontSize: 12, color: C.textLight }}>{v}</span> },
           ]}
         />
-        <div style={{ marginTop: 16, padding: '12px 14px', background: C.infoLight, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', padding: '12px 14px', background: C.infoLight, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Globe size={16} color={C.info} />
           <span style={{ fontSize: 12, color: C.textDark }}>{t9('templateMgmt.shareFooter')}</span>
         </div>
@@ -748,10 +748,10 @@ export default function TemplateManagementPage() {
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowShareModal(false)}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${C.borderLight}` }}>
-                <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={16} color={C.primary} /> {t9('templateMgmt.newShare')}</div>
-                <button onClick={() => setShowShareModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, padding: 4 }}>×</button>
+                <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Share2 size={16} color={C.primary} /> {t9('templateMgmt.newShare')}</div>
+                <button onClick={() => setShowShareModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, padding: 'var(--space-1, 4px)' }}>×</button>
               </div>
-              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shTemplate')}</label>
                   <select value={shareForm.templateId} onChange={e => setShareForm({ ...shareForm, templateId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: 'var(--bg-card)' }}>
@@ -764,13 +764,13 @@ export default function TemplateManagementPage() {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shPermission')}</label>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                     {([['view', t9('templateMgmt.permView')], ['edit', t9('templateMgmt.permEdit')], ['admin', t9('templateMgmt.permManage')]] as const).map(([v, l]) => (
                       <button key={v} onClick={() => setShareForm({ ...shareForm, permission: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${shareForm.permission === v ? C.primary : C.border}`, background: shareForm.permission === v ? C.primaryLighter : 'var(--bg-card)', color: shareForm.permission === v ? C.primary : C.textMid }}>{l}</button>
                     ))}
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
                   <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}>{t9('templateMgmt.cancel')}</button>
                   <button onClick={handleCreateShare} disabled={!shareForm.sharedWith.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: shareForm.sharedWith.trim() ? C.primary : '#94a3b8', color: '#fff', fontSize: 12, fontWeight: 600, cursor: shareForm.sharedWith.trim() ? 'pointer' : 'not-allowed' }}>{t9('templateMgmt.confirmShare')}</button>
                 </div>
@@ -792,19 +792,19 @@ export default function TemplateManagementPage() {
         <ActionButton action="create" onClick={handleAdd}>{t9('templateMgmt.addTemplate')}</ActionButton>
         {/* [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 */}
         <input ref={importFileRef} type="file" accept=".json,.txt,application/json,text/plain" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleImportTemplates(f) }} />
-        <ActionButton action="import" style={{ marginLeft: 8 }} loading={importing} onClick={() => importFileRef.current?.click()}>
+        <ActionButton action="import" style={{ marginLeft: 'var(--space-2, 8px)' }} loading={importing} onClick={() => importFileRef.current?.click()}>
           {importing ? t9('templateMgmt.importing') : t9('templateMgmt.batchImport')}
         </ActionButton>
-        <ActionButton action="export" style={{ marginLeft: 8 }} loading={exporting} onClick={() => void handleExportTemplates()}>
+        <ActionButton action="export" style={{ marginLeft: 'var(--space-2, 8px)' }} loading={exporting} onClick={() => void handleExportTemplates()}>
           {exporting ? t9('templateMgmt.exporting') : t9('templateMgmt.batchExport')}
         </ActionButton>
-        <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
+        <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 'var(--space-2, 8px)', padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
           <Wand2 size={16} /><span>{t9('templateMgmt.visualDesigner')}</span>
         </button>
-        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: 'var(--color-primary-800)', border: '1px solid var(--color-primary-500)', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 'var(--space-2, 8px)', padding: '8px 14px', background: 'var(--bg-card)', color: 'var(--color-primary-800)', border: '1px solid var(--color-primary-500)', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <GitBranch size={16} /><span>{t9('templateMgmt.inheritClone')}</span>
         </button>
-        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: 'var(--color-info-600)', border: '1px solid var(--color-info-600)', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 'var(--space-2, 8px)', padding: '8px 14px', background: 'var(--bg-card)', color: 'var(--color-info-600)', border: '1px solid var(--color-info-600)', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <FolderTree size={16} /><span>{t9('templateMgmt.categoryTree')}</span>
         </button>
       </div>
@@ -866,7 +866,7 @@ export default function TemplateManagementPage() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
         {renderTab('manage', t9('templateMgmt.tabManage'), <ClipboardList size={14} />)}
         {renderTab('version', t9('templateMgmt.tabVersion'), <History size={14} />)}
         {renderTab('analytics', t9('templateMgmt.tabAnalytics'), <TrendingUp size={14} />)}
@@ -909,14 +909,14 @@ export default function TemplateManagementPage() {
                 {
                   title: t9('templateMgmt.thActions'), key: 'actions',
                   render: (_: unknown, tpl: TemplateRecord) => (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                       <div style={styles.actionsCell}>
                         <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title={t9('templateMgmt.actionPreview')}><Eye size={16} /></button>
                         <ActionButton action="edit" onClick={() => handleEdit(tpl)} />
                         <ActionButton action="delete" onClick={() => void handleDelete(tpl.id)} />
                       </div>
                       {/* [v3.0.6.11-98 Wave2A P1] 模板审批流操作 */}
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                         {(tpl.status === 'draft' || tpl.status === 'rejected') && (
                           <button onClick={() => void handleSubmitApproval(tpl)}
                             style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#f59e0b20', color: 'var(--color-warning-600)', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
@@ -973,14 +973,14 @@ export default function TemplateManagementPage() {
 
       {/* [v3.0.6.11-104 Wave 5C] 模板中心: 嵌入 ReportTemplateManagerPage (报告模板 CRUD + 智能片段) */}
       {activeTab === 'reportTemplates' && (
-        <div data-testid="template-embedded-report-templates" style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="template-embedded-report-templates" style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <ReportTemplateManagerPage />
         </div>
       )}
 
       {/* [v3.0.6.11-104 Wave 5C] 模板中心: 嵌入 EmrTemplatesPage (EMR 病历模板 + ICD-11) */}
       {activeTab === 'emrTemplates' && (
-        <div data-testid="template-embedded-emr-templates" style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 4, border: '1px solid var(--border-color)' }}>
+        <div data-testid="template-embedded-emr-templates" style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-1, 4px)', border: '1px solid var(--border-color)' }}>
           <EmrTemplatesPage />
         </div>
       )}
@@ -1050,7 +1050,7 @@ export default function TemplateManagementPage() {
         </div>
       )}
 
-      {toast && <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, background: '#059669', color: '#fff', padding: '12px 20px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Check size={16} />{toast}</div>}
+      {toast && <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, background: '#059669', color: '#fff', padding: '12px 20px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Check size={16} />{toast}</div>}
       {validationError && <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'var(--color-error-600)', color: '#fff', padding: '12px 24px', borderRadius: 8, boxShadow: '0 4px 12px rgba(220,38,38,0.3)', fontSize: 14, fontWeight: 500 }}>{validationError}</div>}
 
       {/* [v3.0.6.11-98 Wave2A P1] 驳回原因弹窗 (审批流) */}

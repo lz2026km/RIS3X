@@ -24,7 +24,7 @@ export default function ReportExportModal({ show, title, message, complete, onCl
       justifyContent: 'center', zIndex: 1000,
     }} onClick={onClose}>
       <div style={{
-        background: WHITE, borderRadius: 16, padding: 32, width: 380,
+        background: WHITE, borderRadius: 16, padding: 'var(--space-8, 32px)', width: 380,
         boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center',
       }} onClick={e => e.stopPropagation()}>
         {!complete ? (
@@ -34,13 +34,13 @@ export default function ReportExportModal({ show, title, message, complete, onCl
               borderTopColor: ACCENT, borderRadius: '50%',
               animation: 'spin 0.8s linear infinite', margin: '0 auto 16px',
             }} />
-            <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, marginBottom: 8 }}>{title}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-2, 8px)' }}>{title}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{message}</div>
           </>
         ) : (
           <>
             <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
-            <div style={{ fontSize: 16, fontWeight: 700, color: SUCCESS, marginBottom: 8 }}>{title}完成</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: SUCCESS, marginBottom: 'var(--space-2, 8px)' }}>{title}完成</div>
             <div style={{ fontSize: 12, color: GRAY }}>{message}</div>
           </>
         )}

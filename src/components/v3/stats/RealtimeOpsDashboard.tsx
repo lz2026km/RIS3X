@@ -142,7 +142,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
 
   return (
     <div data-testid="realtime-ops-dashboard">
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic
@@ -304,7 +304,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
         </Col>
       </Row>
 
-      <Row gutter={12} style={{ marginTop: 12 }}>
+      <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Col span={8}>
           <Card size="small" title={t('w9e.realtimeOps.eventDistribution')} data-testid="ops-event-distribution">
             <ChartContainer

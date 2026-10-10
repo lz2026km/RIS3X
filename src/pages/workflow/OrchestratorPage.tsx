@@ -73,7 +73,7 @@ function PaletteItem({ type }: { type: string; label: string }) {
     cursor: "grab",
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     fontSize: 12,
     color,
     fontWeight: 500,
@@ -110,7 +110,7 @@ function CanvasStep({
       ref={setNodeRef}
       style={{
         padding: "10px 14px",
-        marginBottom: 8,
+        marginBottom: 'var(--space-2, 8px)',
         borderRadius: 8,
         border: `2px solid ${isOver ? color : `${color}30`}`,
         background: isOver ? `${color}10` : "var(--bg-primary, #f8fafc)",
@@ -469,12 +469,12 @@ export default function OrchestratorPage() {
   ];
 
   const renderDesigner = () => (
-    <div style={{ display: "flex", gap: 16, height: "calc(100vh - 280px)" }}>
+    <div style={{ display: "flex", gap: 'var(--space-4, 16px)', height: "calc(100vh - 280px)" }}>
       <div style={{ width: 200, flexShrink: 0 }}>
         <Card
           size="small"
           title={t("steps")}
-          styles={{ body: { padding: 12 } }}
+          styles={{ body: { padding: 'var(--space-3, 12px)' } }}
         >
           {STEP_TYPES.map((st) => (
             <PaletteItem
@@ -486,9 +486,9 @@ export default function OrchestratorPage() {
         </Card>
       </div>
       <div
-        style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}
+        style={{ flex: 1, display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}
       >
-        <Card size="small" styles={{ body: { padding: 16 } }}>
+        <Card size="small" styles={{ body: { padding: 'var(--space-4, 16px)' } }}>
           <Space orientation="vertical" style={{ width: "100%" }}>
             <Input
               placeholder={t("flowName")}
@@ -514,7 +514,7 @@ export default function OrchestratorPage() {
               />
             </Space>
           }
-          styles={{ body: { padding: 12, minHeight: 200 } }}
+          styles={{ body: { padding: 'var(--space-3, 12px)', minHeight: 200 } }}
           extra={
             <Space>
               <Button
@@ -530,8 +530,8 @@ export default function OrchestratorPage() {
         >
           <DndContext onDragEnd={handleDragEnd}>
             {steps.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted, #94a3b8)" }}>
-                <Layers size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
+              <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: "var(--text-muted, #94a3b8)" }}>
+                <Layers size={32} style={{ opacity: 0.3, marginBottom: 'var(--space-2, 8px)' }} />
                 <div>{t("noFlows")}</div>
               </div>
             ) : (
@@ -558,7 +558,7 @@ export default function OrchestratorPage() {
         <Card
           size="small"
           title={t("slaConfig")}
-          styles={{ body: { padding: 12 } }}
+          styles={{ body: { padding: 'var(--space-3, 12px)' } }}
         >
           <Space orientation="vertical" style={{ width: "100%" }}>
             {slaConfigs.map((sc) => (
@@ -593,8 +593,8 @@ export default function OrchestratorPage() {
           <Card
             size="small"
             title={t("slaStats")}
-            style={{ marginTop: 8 }}
-            styles={{ body: { padding: 12 } }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
+            styles={{ body: { padding: 'var(--space-3, 12px)' } }}
           >
             <Statistic
               title={t("slaComplianceRate")}
@@ -608,7 +608,7 @@ export default function OrchestratorPage() {
               title={t("avgCompletionMin")}
               value={slaStats.avgCompletionMin.toFixed(1)}
               suffix="min"
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
             />
           </Card>
         )}
@@ -634,7 +634,7 @@ export default function OrchestratorPage() {
     >
       <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+          <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
             {t("stepName")}
           </div>
           <Input
@@ -645,7 +645,7 @@ export default function OrchestratorPage() {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+          <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
             {t("stepType")}
           </div>
           <Select
@@ -659,7 +659,7 @@ export default function OrchestratorPage() {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+          <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
             {t("assigneeRole")}
           </div>
           <Input
@@ -672,7 +672,7 @@ export default function OrchestratorPage() {
         </div>
         <Row gutter={12}>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
               {t("timeoutMinutes")}
             </div>
             <InputNumber
@@ -685,7 +685,7 @@ export default function OrchestratorPage() {
             />
           </Col>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
               {t("slaMinutes")}
             </div>
             <InputNumber
@@ -699,7 +699,7 @@ export default function OrchestratorPage() {
           </Col>
         </Row>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+          <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
             {t("condition")}
           </div>
           <Input
@@ -710,7 +710,7 @@ export default function OrchestratorPage() {
             placeholder="例如: ${priority} == 'URGENT'"
           />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <Switch
             checked={stepForm.autoDispatch}
             onChange={(v) => setStepForm((p) => ({ ...p, autoDispatch: v }))}
@@ -730,7 +730,7 @@ export default function OrchestratorPage() {
     >
       <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+          <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
             {t("slaName")}
           </div>
           <Input
@@ -742,7 +742,7 @@ export default function OrchestratorPage() {
         </div>
         <Row gutter={12}>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
               {t("slaTargetMinutes")}
             </div>
             <InputNumber
@@ -755,7 +755,7 @@ export default function OrchestratorPage() {
             />
           </Col>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
               {t("slaWarningMinutes")}
             </div>
             <InputNumber
@@ -769,7 +769,7 @@ export default function OrchestratorPage() {
           </Col>
         </Row>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
+          <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500, fontSize: 12 }}>
             {t("slaEscalateRole")}
           </div>
           <Input
@@ -780,7 +780,7 @@ export default function OrchestratorPage() {
             placeholder={appT("orchestratorPage.escalateRolePlaceholder")}
           />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <Switch
             checked={slaForm.autoEscalate}
             onChange={(v) => setSlaForm((p) => ({ ...p, autoEscalate: v }))}
@@ -789,7 +789,7 @@ export default function OrchestratorPage() {
             {t("slaAutoEscalate")}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <Switch
             checked={slaForm.notifyOnBreach ?? true}
             onChange={(v) => setSlaForm((p) => ({ ...p, notifyOnBreach: v }))}
@@ -804,7 +804,7 @@ export default function OrchestratorPage() {
 
   const renderExecutions = () => (
     <div>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard
           title={t("totalExecutions")}
           value={slaStats?.totalExecutions ?? 0}
@@ -851,7 +851,7 @@ export default function OrchestratorPage() {
       <Card
         size="small"
         title={t("executionHistory")}
-        style={{ marginTop: 16 }}
+        style={{ marginTop: 'var(--space-4, 16px)' }}
         styles={{ body: { padding: 0 } }}
       >
         <DataTable
@@ -870,7 +870,7 @@ export default function OrchestratorPage() {
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
       }}
     >
       {flows.map((flow) => (
@@ -901,7 +901,7 @@ export default function OrchestratorPage() {
             </Tooltip>,
           ]}
         >
-          <div style={{ fontSize: 12, color: "var(--text-secondary, #475569)", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary, #475569)", marginBottom: 'var(--space-2, 8px)' }}>
             {flow.description || t("flowDescription")}
           </div>
           <Space size={4} wrap>
@@ -915,7 +915,7 @@ export default function OrchestratorPage() {
               </Tag>
             ))}
           </Space>
-          <div style={{ marginTop: 8, fontSize: 11, color: "var(--text-muted, #94a3b8)" }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: "var(--text-muted, #94a3b8)" }}>
             v{flow.version} · {new Date(flow.updatedAt).toLocaleDateString()}
           </div>
         </Card>
@@ -962,20 +962,20 @@ export default function OrchestratorPage() {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         height: "100%",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Title
           level={4}
           style={{
             margin: 0,
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <GitBranch size={20} /> {t("title")}
@@ -984,7 +984,7 @@ export default function OrchestratorPage() {
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-secondary, #475569)",
-              marginLeft: 8,
+              marginLeft: 'var(--space-2, 8px)',
             }}
           >
             {t("subtitle")}

@@ -309,8 +309,8 @@ export const PixPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-primary)",}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-primary)",}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Fingerprint size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("pixPage.title")}</span>
         <Tag color="cyan">v3.0.6.8</Tag>
@@ -329,7 +329,7 @@ export const PixPage: React.FC = () => {
             key: "feed",
             label: (
               <span>
-                <Send size={14} style={{ marginRight: 4 }} />
+                <Send size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
                 PIX Feed
               </span>
             ),
@@ -386,7 +386,7 @@ export const PixPage: React.FC = () => {
                         type={feedResult.success ? "success" : "error"}
                         title={`ACK: ${feedResult.ack}${feedResult.storedPid ? ` | Stored PID: ${feedResult.storedPid}` : ""}${feedResult.transaction ? ` | TXN: ${feedResult.transaction}` : ""}`}
                         showIcon
-                        style={{ marginTop: 8 }}
+                        style={{ marginTop: 'var(--space-2, 8px)' }}
                       />
                     )}
                   </Card>
@@ -398,7 +398,7 @@ export const PixPage: React.FC = () => {
             key: "query",
             label: (
               <span>
-                <Search size={14} style={{ marginRight: 4 }} />
+                <Search size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
                 {t("pixPage.tabQuery")}
               </span>
             ),
@@ -458,7 +458,7 @@ export const PixPage: React.FC = () => {
                       />
                       {queryResult.transaction && (
                         <div
-                          style={{ fontSize: 11, color: "#999", marginTop: 4 }}
+                          style={{ fontSize: 11, color: "#999", marginTop: 'var(--space-1, 4px)' }}
                         >
                           {t("pixPage.transaction")}: {queryResult.transaction}
                         </div>
@@ -473,7 +473,7 @@ export const PixPage: React.FC = () => {
             key: "mapping",
             label: (
               <span>
-                <Users size={14} style={{ marginRight: 4 }} />
+                <Users size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
                 {t("pixPage.tabMapping")}
               </span>
             ),
@@ -531,7 +531,7 @@ export const PixPage: React.FC = () => {
             key: "pdq",
             label: (
               <span>
-                <Activity size={14} style={{ marginRight: 4 }} />
+                <Activity size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
                 {t("pixPage.tabPdq")}
               </span>
             ),

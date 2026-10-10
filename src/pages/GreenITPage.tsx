@@ -350,7 +350,7 @@ interface StatCardProps {
 function StatCard({ title, value, unit, icon, trend, trendValue, color = C.primary }: StatCardProps) {
   // [UI-4] 收敛至公共 StatCard (保留数值/单位/趋势文案)
   const trendNode = trend && trendValue ? (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: trend === 'up' ? C.success : 'var(--color-error-500)', fontWeight: 600 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: trend === 'up' ? C.success : 'var(--color-error-500)', fontWeight: 600 }}>
       {trend === 'up' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
       <span>{trendValue}</span>
       <span style={{ color: C.textLight, fontWeight: 400 }}>{t('greenIt.vsLastMonth')}</span>
@@ -383,7 +383,7 @@ function TabButton({ label, active, onClick, icon }: TabButtonProps) {
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         padding: '10px 20px',
         border: 'none',
         borderBottom: active ? `2px solid ${C.primary}` : '2px solid transparent',
@@ -432,16 +432,16 @@ function PaperlessTrendTab() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.trendTitle')}</h3>
           <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.trendDesc')}</p>
         </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'center' }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceApi') : t('greenIt.demoData')}</Tag>
           {loading && <Spin size="small" />}
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 12, height: 3, background: C.primary, borderRadius: 2 }} />
               <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.legendCurrent')}</span>
@@ -458,7 +458,7 @@ function PaperlessTrendTab() {
       <div style={{
         background: 'var(--bg-card)',
         borderRadius: 12,
-        padding: 24,
+        padding: 'var(--space-6, 24px)',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid var(--border-color)',
       }}>
@@ -512,8 +512,8 @@ function PaperlessTrendTab() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 16,
-        marginTop: 20,
+        gap: 'var(--space-4, 16px)',
+        marginTop: 'var(--space-5, 20px)',
       }}>
         <div style={{
           background: 'var(--bg-card)',
@@ -577,8 +577,8 @@ function CarbonTab() {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 20,
+        gap: 'var(--space-3, 12px)',
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         <div style={{
           width: 40,
@@ -596,7 +596,7 @@ function CarbonTab() {
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.carbonTitle')}</h3>
           <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.carbonDesc')}</p>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceEstimated') : t('greenIt.demoData')}</Tag>
           {loading && <Spin size="small" />}
         </div>
@@ -606,18 +606,18 @@ function CarbonTab() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: 16,
-        marginBottom: 20,
+        gap: 'var(--space-4, 16px)',
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         {/* 纸张碳折算 */}
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{
               width: 44,
               height: 44,
@@ -656,11 +656,11 @@ function CarbonTab() {
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{
               width: 44,
               height: 44,
@@ -702,11 +702,11 @@ function CarbonTab() {
         borderRadius: 12,
         padding: 28,
         color: C.white,
-        marginBottom: 20,
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 4 }}>{t('greenIt.carbonTotalTitle')}</div>
+            <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 'var(--space-1, 4px)' }}>{t('greenIt.carbonTotalTitle')}</div>
             <div style={{ fontSize: 36, fontWeight: 700 }}>
               {d.totalCarbon} <span style={{ fontSize: 16, fontWeight: 600 }}>kg CO₂</span>
             </div>
@@ -717,7 +717,7 @@ function CarbonTab() {
             padding: '20px 28px',
             textAlign: 'center',
           }}>
-            <TreePine size={32} style={{ marginBottom: 8 }} />
+            <TreePine size={32} style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <div style={{ fontSize: 30, fontWeight: 700 }}>{d.treeEquivalent}</div>
             <div style={{ fontSize: 12, opacity: 0.9 }}>{t('greenIt.treesPlanted')}</div>
           </div>
@@ -728,7 +728,7 @@ function CarbonTab() {
       <div style={{
         background: 'var(--bg-card)',
         borderRadius: 12,
-        padding: 24,
+        padding: 'var(--space-6, 24px)',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid var(--border-color)',
       }}>
@@ -792,7 +792,7 @@ function SignatureTab() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)' }}>
         <div style={{ width: 40, height: 40, borderRadius: 10, background: `${C.primary}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.primary }}>
           <CheckCircle size={20} />
         </div>
@@ -800,7 +800,7 @@ function SignatureTab() {
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.signatureTitle')}</h3>
           <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.signatureDesc')}</p>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceEstimated') : t('greenIt.demoData')}</Tag>
           {loading && <Spin size="small" />}
         </div>
@@ -809,13 +809,13 @@ function SignatureTab() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: 20,
+        gap: 'var(--space-5, 20px)',
       }}>
         {/* 饼图 */}
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
         }}>
@@ -849,8 +849,8 @@ function SignatureTab() {
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            gap: 24,
-            marginTop: 8,
+            gap: 'var(--space-6, 24px)',
+            marginTop: 'var(--space-2, 8px)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 10, height: 10, borderRadius: 2, background: C.primary }} />
@@ -867,21 +867,21 @@ function SignatureTab() {
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
         }}>
           <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>{t('greenIt.departmentRanking')}</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             {departments.map((dept, index) => (
               <div key={dept.name}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <span style={{
                       width: 18,
                       height: 18,
@@ -940,8 +940,8 @@ function CostTab() {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 20,
+        gap: 'var(--space-3, 12px)',
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         <div style={{
           width: 40,
@@ -959,7 +959,7 @@ function CostTab() {
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.costTitle')}</h3>
           <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.costDesc')}</p>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceEstimated') : t('greenIt.demoData')}</Tag>
           {loading && <Spin size="small" />}
         </div>
@@ -969,14 +969,14 @@ function CostTab() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 16,
-        marginBottom: 20,
+        gap: 'var(--space-4, 16px)',
+        marginBottom: 'var(--space-5, 20px)',
       }}>
         {/* 纸张成本 */}
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
           textAlign: 'center',
@@ -994,11 +994,11 @@ function CostTab() {
           }}>
             <FileText size={24} />
           </div>
-          <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{t('greenIt.costPaperSaved')}</div>
+          <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 'var(--space-2, 8px)' }}>{t('greenIt.costPaperSaved')}</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: C.text }}>
             ¥{costData.paperCost.toFixed(0)}
           </div>
-          <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: C.textLight, marginTop: 'var(--space-1, 4px)' }}>
             {paperSaved.toLocaleString()} {t('greenIt.unitSheets')} × ¥0.05
           </div>
         </div>
@@ -1007,7 +1007,7 @@ function CostTab() {
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
           textAlign: 'center',
@@ -1025,11 +1025,11 @@ function CostTab() {
           }}>
             <Printer size={24} />
           </div>
-          <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{t('greenIt.costInkSaved')}</div>
+          <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 'var(--space-2, 8px)' }}>{t('greenIt.costInkSaved')}</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: C.text }}>
             ¥{costData.inkCost.toFixed(0)}
           </div>
-          <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: C.textLight, marginTop: 'var(--space-1, 4px)' }}>
             {inkSaved} {t('greenIt.unitSets')} × ¥280
           </div>
         </div>
@@ -1038,7 +1038,7 @@ function CostTab() {
         <div style={{
           background: `linear-gradient(135deg, ${C.success}, #059669)`,
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           textAlign: 'center',
           color: C.white,
@@ -1055,11 +1055,11 @@ function CostTab() {
           }}>
             <Calculator size={24} />
           </div>
-          <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 8 }}>{t('greenIt.costTotal')}</div>
+          <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 'var(--space-2, 8px)' }}>{t('greenIt.costTotal')}</div>
           <div style={{ fontSize: 30, fontWeight: 700 }}>
             ¥{costData.total.toFixed(0)}
           </div>
-          <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+          <div style={{ fontSize: 12, opacity: 0.9, marginTop: 'var(--space-1, 4px)' }}>
             {t('greenIt.costMomGrowth')}
           </div>
         </div>
@@ -1069,12 +1069,12 @@ function CostTab() {
       <div style={{
         background: 'var(--bg-card)',
         borderRadius: 12,
-        padding: 24,
+        padding: 'var(--space-6, 24px)',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid var(--border-color)',
       }}>
         <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>{t('greenIt.costComposition')}</h4>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-10, 40px)' }}>
           <ChartContainer height={180} style={{ width: 200, flexShrink: 0 }}>
             <PieChart>
               <Pie
@@ -1104,21 +1104,21 @@ function CostTab() {
             </PieChart>
           </ChartContainer>
           <div style={{ flex: 1 }}>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: C.primary }} />
                 <span style={{ fontSize: 12, color: C.text }}>{t('greenIt.costPaperSavings')}</span>
               </div>
-              <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginLeft: 20 }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginLeft: 'var(--space-5, 20px)' }}>
                 ¥{costData.paperCost.toFixed(2)}
               </div>
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: C.purple }} />
                 <span style={{ fontSize: 12, color: C.text }}>{t('greenIt.costInkSavings')}</span>
               </div>
-              <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginLeft: 20 }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginLeft: 'var(--space-5, 20px)' }}>
                 ¥{costData.inkCost.toFixed(2)}
               </div>
             </div>
@@ -1170,32 +1170,32 @@ const PaperConsumptionDashboard = () => {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceStatsEstimated') : t('greenIt.demoData')}</Tag>
         <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.paperSourceEstimated')}</span>
         {loading && <Spin size="small" />}
       </div>
       {/* 统计卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.paperMonthPrinted')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalPagesPrinted.toLocaleString()}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 'var(--space-1, 4px)' }}>{totalPagesPrinted.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.paperUnitSheets')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.paperSaved')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 4 }}>{totalPagesSaved.toLocaleString()}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 'var(--space-1, 4px)' }}>{totalPagesSaved.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.paperPaperless')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.paperCost')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{(totalPaperCost + totalTonerCost).toFixed(0)}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed', marginTop: 'var(--space-1, 4px)' }}>¥{(totalPaperCost + totalTonerCost).toFixed(0)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.unitYuan')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.treesSaved')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.green, marginTop: 4 }}>{totalTreesSaved.toFixed(1)}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.green, marginTop: 'var(--space-1, 4px)' }}>{totalTreesSaved.toFixed(1)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.treesUnit')}</div>
         </div>
       </div>
@@ -1261,38 +1261,38 @@ const EnergyMonitoring = () => {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceDeviceEstimated') : t('greenIt.demoData')}</Tag>
         <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.energySourceDesc')}</span>
         {loading && <Spin size="small" />}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.energyMonthly')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalMonthlyKwh.toLocaleString()}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 'var(--space-1, 4px)' }}>{totalMonthlyKwh.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>kWh</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.energyCost')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{totalEnergyCost.toFixed(0)}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed', marginTop: 'var(--space-1, 4px)' }}>¥{totalEnergyCost.toFixed(0)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.energyUnitYuanMonth')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.carbonFootprint')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.green, marginTop: 4 }}>{(totalCarbon / 1000).toFixed(1)}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.green, marginTop: 'var(--space-1, 4px)' }}>{(totalCarbon / 1000).toFixed(1)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.carbonUnitTonsMonth')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.deviceCount')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.primary, marginTop: 4 }}>{deviceData.length}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.primary, marginTop: 'var(--space-1, 4px)' }}>{deviceData.length}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.deviceUnit')}</div>
         </div>
       </div>
 
       {/* 设备能耗对比 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 16 }}>{t('greenIt.energyCompareTitle')}</div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 'var(--space-4, 16px)' }}>{t('greenIt.energyCompareTitle')}</div>
         <ChartContainer height={240} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('greenIt.noEnergyData')}>
           <BarChart data={chartData} barCategoryGap="25%">
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -1382,36 +1382,36 @@ const DigitizationScorecard = () => {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceStatsEstimated') : t('greenIt.demoData')}</Tag>
         <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.digitizationSourceDesc')}</span>
         {loading && <Spin size="small" />}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.digitalRateWhole')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.primary, marginTop: 4 }}>{totalDigital}%</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.primary, marginTop: 'var(--space-1, 4px)' }}>{totalDigital}%</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.costSavedTotal')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 4 }}>¥{totalCostSaved.toLocaleString()}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 'var(--space-1, 4px)' }}>¥{totalCostSaved.toLocaleString()}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.highestDept')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 4 }}>{topDept?.department}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 'var(--space-1, 4px)' }}>{topDept?.department}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{topDept?.digitalRate}%</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.lowestDept')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)', marginTop: 4 }}>{bottomDept?.department}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)' }}>{bottomDept?.department}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{bottomDept?.digitalRate}%</div>
         </div>
       </div>
 
       {/* 数字化趋势 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 16 }}>{t('greenIt.digitalTrend')}</div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)' }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 'var(--space-4, 16px)' }}>{t('greenIt.digitalTrend')}</div>
         <ChartContainer height={240} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('greenIt.noDigitalTrendData')}>
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -1459,12 +1459,12 @@ const GreenRecommendations = () => {
   const categoryColors: Record<string, string> = { energy: C.primary, paper: C.success, waste: C.purple, behavior: C.warning }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Lightbulb size={18} color={C.warning} /> {t('greenIt.recommendTitle')}
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <Tag color="orange">{t('greenIt.recommendDemoTag')}</Tag>
           <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.potentialSavingLabel')}</span>
           <span style={{ fontSize: 16, fontWeight: 600, color: C.success }}>{totalPotential.toLocaleString()}</span>
@@ -1473,7 +1473,7 @@ const GreenRecommendations = () => {
       </div>
 
       {/* 分类筛选 */}
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
         {['全部', 'energy', 'paper', 'waste', 'behavior'].map(cat => (
           <button key={cat} onClick={() => setFilter(cat)}
             style={{ padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
@@ -1488,12 +1488,12 @@ const GreenRecommendations = () => {
         const catColor = categoryColors[tip.category] || C.primary
         return (
           <div key={tip.id} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: `1px solid ${tip.implemented ? '#bbf7d0' : 'var(--border-color)'}`,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: `1px solid ${tip.implemented ? '#bbf7d0' : 'var(--border-color)'}`,
             borderLeft: `4px solid ${tip.implemented ? C.success : catColor}`
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                   <span style={{ fontSize: 16, fontWeight: 600, color: C.text }}>{tip.title}</span>
                   <span style={{ padding: '2px 8px', background: `${catColor}15`, color: catColor, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                     {categoryLabels[tip.category]}
@@ -1503,8 +1503,8 @@ const GreenRecommendations = () => {
                     {tip.difficulty === 'easy' ? t('greenIt.difficultyEasy') : tip.difficulty === 'medium' ? t('greenIt.difficultyMedium') : t('greenIt.difficultyHard')}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{tip.description}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.success }}>
+                <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 'var(--space-2, 8px)' }}>{tip.description}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: C.success }}>
                   <Zap size={12} /> {t('greenIt.tipEstimated')}<strong>{tip.potentialSaving}</strong> {tip.savingUnit}
                 </div>
               </div>
@@ -1521,7 +1521,7 @@ const GreenRecommendations = () => {
                     }} />
                   </span>
                 </label>
-                <div style={{ fontSize: 12, color: tip.implemented ? C.success : C.textLight, marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: tip.implemented ? C.success : C.textLight, marginTop: 'var(--space-1, 4px)' }}>
                   {tip.implemented ? t('greenIt.tipImplemented') : t('greenIt.tipPending')}
                 </div>
               </div>
@@ -1562,36 +1562,36 @@ const ISO14001Compliance = () => {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Tag color="orange">{t('greenIt.isoDemoTag')}</Tag>
       </div>
       {/* 审核就绪评分 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.auditScore')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : 'var(--color-error-600)', marginTop: 4 }}>{score}%</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)' }}>{score}%</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.fullyCompliant')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 4 }}>{compliant}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 'var(--space-1, 4px)' }}>{compliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.itemsUnit')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.partiallyCompliant')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.warning, marginTop: 4 }}>{partial}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.warning, marginTop: 'var(--space-1, 4px)' }}>{partial}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.itemsUnit')}</div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.nonCompliant')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)', marginTop: 4 }}>{nonCompliant}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)' }}>{nonCompliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.itemsUnit')}</div>
         </div>
       </div>
 
       {/* ISO 检查表 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <ClipboardList size={16} color={C.primary} /> {t('greenIt.isoChecklistTitle')}
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1605,7 +1605,7 @@ const ISO14001Compliance = () => {
 
       {/* 不合规告警 */}
       {nonCompliant > 0 && (
-        <div style={{ padding: '12px 16px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        <div style={{ padding: '12px 16px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={14} color="var(--color-error-600)" style={{ marginTop: 2 }} />
           <div style={{ fontSize: 12, color: 'var(--color-error-600)' }}>
             {t('greenIt.isoWarning', { n: nonCompliant, clauses: isoChecklist.filter(i => i.status === 'non-compliant').map(i => i.clause).join('、') })}
@@ -1667,7 +1667,7 @@ function RunStatsTab() {
   }, [])
 
   if (loading) {
-    return <div style={{ padding: 48, textAlign: 'center' }}><Spin size="large" tip={t('greenIt.loadingRunStats')}><div style={{ height: 60 }} /></Spin></div>
+    return <div style={{ padding: 'var(--space-12, 48px)', textAlign: 'center' }}><Spin size="large" tip={t('greenIt.loadingRunStats')}><div style={{ height: 60 }} /></Spin></div>
   }
 
   if (error) {
@@ -1683,15 +1683,15 @@ function RunStatsTab() {
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
         {cards.map(c => (
-          <div key={c.label} style={{ background: c.bg, borderRadius: 12, padding: '18px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div key={c.label} style={{ background: c.bg, borderRadius: 12, padding: '18px 16px', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <div style={{ width: 44, height: 44, borderRadius: 10, background: c.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <c.icon size={22} color={c.color} />
             </div>
             <div>
               <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>
-                {c.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 4 }}>{c.unit}</span>
+                {c.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 'var(--space-1, 4px)' }}>{c.unit}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{c.label}</div>
             </div>
@@ -1699,12 +1699,12 @@ function RunStatsTab() {
         ))}
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${C.border}`, marginBottom: 16 }}>
-        <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${C.border}`, marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <BarChart2 size={16} color={C.primary} /> {t('greenIt.trend30d')}
         </div>
         {trend.length === 0 ? (
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>{t('greenIt.noTrendData')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', padding: 'var(--space-6, 24px)' }}>{t('greenIt.noTrendData')}</div>
         ) : (
           <ChartContainer height={280}>
             <LineChart data={trend}>
@@ -1721,8 +1721,8 @@ function RunStatsTab() {
       </div>
 
       {byModality.length > 0 && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${C.border}` }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <BarChart3 size={16} color={C.green} /> {t('greenIt.modalityWorkload')}
           </div>
           <ChartContainer height={260} state={byModality.length === 0 ? 'empty' : 'ready'} emptyDescription={t('greenIt.noModalityData')}>
@@ -1771,14 +1771,14 @@ export default function GreenITPage() {
       padding: '24px',
     }}>
       {/* 页面标题 */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
         <PageHeader
           as="h1"
           title={<span style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div style={{ width: 36, height: 36, borderRadius: 10, background: `${C.primary}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.primary }}><Leaf size={20} /></div>{t('greenIt.pageTitle')}</span>}
           subtitle={
             <>
               <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.pageDate', { year: new Date().getFullYear(), month: new Date().getMonth() + 1 })}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 6 }}>
                 <Tag color={source === 'api' ? 'green' : 'orange'}>
                   {source === 'api' ? t('greenIt.sourceCoreApi') : t('greenIt.sourceFallbackDemo')}
                 </Tag>
@@ -1795,8 +1795,8 @@ export default function GreenITPage() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 16,
-        marginBottom: 24,
+        gap: 'var(--space-4, 16px)',
+        marginBottom: 'var(--space-6, 24px)',
       }}>
         <StatCard
           title={t('greenIt.monthPaperlessRate')}
@@ -1842,7 +1842,7 @@ export default function GreenITPage() {
         borderRadius: 12,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid var(--border-color)',
-        marginBottom: 16,
+        marginBottom: 'var(--space-4, 16px)',
       }}>
         <div style={{
           display: 'flex',
@@ -1861,7 +1861,7 @@ export default function GreenITPage() {
         </div>
 
         {/* Tab内容 */}
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
           {activeTab === 'run' && <RunStatsTab />}
           {activeTab === 'trend' && <PaperlessTrendTab />}
           {activeTab === 'carbon' && <CarbonTab />}

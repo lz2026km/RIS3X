@@ -135,7 +135,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -148,8 +148,8 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         {task && (
           <div
             style={{
-              marginTop: 8,
-              padding: 8,
+              marginTop: 'var(--space-2, 8px)',
+              padding: 'var(--space-2, 8px)',
               background: 'rgba(255,255,255,0.15)',
               borderRadius: 4,
               fontSize: 12,
@@ -159,7 +159,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
             {task.patientName} · {task.modality} {task.bodyPart} · {t(STAGE_META[task.stage].label)}
           </div>
         )}
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={8}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportReview.assign.available')}</span>}
@@ -187,7 +187,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         </Row>
       </div>
 
-      <Card title={t('reportReview.assign.autoStrategy')} size="small" style={{ marginBottom: 12 }}>
+      <Card title={t('reportReview.assign.autoStrategy')} size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Space>
           <Button icon={<Briefcase size={12} />} onClick={() => autoAssign('workload')}>
             {t('reportReview.assign.byWorkload')}
@@ -223,7 +223,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
               style={{
                 cursor: 'pointer',
                 padding: 10,
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
                 borderRadius: 4,
                 background: selected === r.id ? '#ecfdf5' : 'transparent',
                 border: selected === r.id ? '1px solid #10b981' : '1px solid transparent',
@@ -275,9 +275,9 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
                     </div>
                     <div
                       style={{
-                        marginTop: 4,
+                        marginTop: 'var(--space-1, 4px)',
                         display: 'flex',
-                        gap: 12,
+                        gap: 'var(--space-3, 12px)',
                         fontSize: 12,
                         alignItems: 'center',
                       }}
@@ -312,7 +312,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
       </Card>
 
       {selected && task && (
-        <Card style={{ marginTop: 12 }}>
+        <Card style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Space>
             <Button
               type="primary"
@@ -327,7 +327,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         </Card>
       )}
 
-      <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
+      <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
         {t('reportReview.assign.assignStrategy')}{strategy === 'auto-workload' ? t('reportReview.assign.balancedWorkload') : strategy}
       </div>
     </div>

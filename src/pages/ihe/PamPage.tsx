@@ -90,8 +90,8 @@ export const PamPage: React.FC = () => {
   }, [messageType, patientId, visitNumber, classCode, assignedLocation]);
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('pam.title')}</span>
         <Tag color="cyan">v3.0.6.0</Tag>
@@ -103,7 +103,7 @@ export const PamPage: React.FC = () => {
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
           {
-            key: 'send', label: <span><Send size={14} style={{ marginRight: 4 }} />{t('pam.tabSend')}</span>,
+            key: 'send', label: <span><Send size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />{t('pam.tabSend')}</span>,
             children: (
               <Row gutter={16}>
                 <Col span={8}>
@@ -135,7 +135,7 @@ export const PamPage: React.FC = () => {
                 <Col span={16}>
                   <Card size="small" title={t('pam.ackResponse')}>
                     {ackResult ? (
-                      <pre style={{ fontSize: 12, maxHeight: 400, overflow: 'auto', background: 'var(--color-success-bg)', padding: 8, borderRadius: 4, border: '1px solid var(--color-success-border)' }}>
+                      <pre style={{ fontSize: 12, maxHeight: 400, overflow: 'auto', background: 'var(--color-success-bg)', padding: 'var(--space-2, 8px)', borderRadius: 4, border: '1px solid var(--color-success-border)' }}>
                         {ackResult}
                       </pre>
                     ) : (
@@ -147,7 +147,7 @@ export const PamPage: React.FC = () => {
             ),
           },
           {
-            key: 'audit', label: <span><History size={14} style={{ marginRight: 4 }} />{t('pam.tabAudit')}</span>,
+            key: 'audit', label: <span><History size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />{t('pam.tabAudit')}</span>,
             children: (
               <Card size="small" extra={<Button size="small" icon={<Activity size={12} />} onClick={loadMessages}>{t('pam.refresh')}</Button>}
                 title={t('pam.messageRecords')}>
@@ -162,7 +162,7 @@ export const PamPage: React.FC = () => {
             ),
           },
           {
-            key: 'mllp', label: <span><Wifi size={14} style={{ marginRight: 4 }} />{t('pam.tabMllp')}</span>,
+            key: 'mllp', label: <span><Wifi size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />{t('pam.tabMllp')}</span>,
             children: (
               <Card size="small" title={<Space><Server size={14} />{t('pam.mllpListener')}</Space>}>
                 {listenerStatus ? (

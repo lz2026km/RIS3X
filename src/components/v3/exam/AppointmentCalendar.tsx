@@ -137,7 +137,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
   return (
     <div data-testid="appointment-calendar">
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic title={t('appointmentCalendar.stat.total')} value={stats.total} prefix={<ListChecks size={14} />} />
@@ -160,7 +160,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         </Col>
       </Row>
 
-      <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'space-between' }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)', width: '100%', justifyContent: 'space-between' }}>
         <Space>
           <span>{t('appointmentCalendar.deviceLabel')}</span>
           <Select
@@ -225,13 +225,13 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                           <Tag color={p.color}>{p.label}</Tag>
                           <Tag color={s.color}>{s.label}</Tag>
                         </Space>
-                        <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
                           <Clock size={10} /> {dayjs(a.startAt).format('HH:mm')} - {dayjs(a.endAt).format('HH:mm')}
                         </div>
                         <div style={{ fontSize: 12, color: '#94a3b8' }}>
                           <MapPin size={10} /> {a.deviceName} {a.room ? `(${a.room})` : ''}
                         </div>
-                        <Space size={2} style={{ marginTop: 4 }}>
+                        <Space size={2} style={{ marginTop: 'var(--space-1, 4px)' }}>
                           <Tooltip title={t('appointmentCalendar.startExam')}>
                             <Button
                               size="small"

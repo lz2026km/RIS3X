@@ -131,67 +131,67 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
         </Space>
       }
     >
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3, 12px)' }}>
         <div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>眼轴 AL (mm)</span>
             <InputNumber size="small" value={input.al} onChange={(v) => update('al', v ?? 23.5)} min={18} max={35} step={0.01} style={{ width: 80 }} />
             <Tooltip title="IOL Master 测得的眼轴长度,正常 22-25mm">
               <Info className="v4-icon" style={{ width: 12, height: 12, color: '#94a3b8' }} />
             </Tooltip>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>K1 (D)</span>
             <InputNumber size="small" value={input.k1} onChange={(v) => update('k1', v ?? 43)} min={30} max={60} step={0.01} style={{ width: 80 }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>K2 (D)</span>
             <InputNumber size="small" value={input.k2} onChange={(v) => update('k2', v ?? 44.5)} min={30} max={60} step={0.01} style={{ width: 80 }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>ACD (mm)</span>
             <InputNumber size="small" value={input.acd} onChange={(v) => update('acd', v ?? 3.2)} min={1} max={6} step={0.01} style={{ width: 80 }} />
           </div>
         </div>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>LT (mm)</span>
             <InputNumber size="small" value={input.lt} onChange={(v) => update('lt', v ?? 4.5)} min={2} max={7} step={0.01} style={{ width: 80 }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>WTW (mm)</span>
             <InputNumber size="small" value={input.wtw} onChange={(v) => update('wtw', v ?? 11.8)} min={10} max={14} step={0.1} style={{ width: 80 }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>CCT (μm)</span>
             <InputNumber size="small" value={input.cct} onChange={(v) => update('cct', v ?? 540)} min={300} max={800} step={1} style={{ width: 80 }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>A 常数</span>
             <InputNumber size="small" value={input.aConstant} onChange={(v) => update('aConstant', v ?? 118.4)} min={110} max={125} step={0.1} style={{ width: 80 }} />
           </div>
         </div>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>性别</span>
             <Select size="small" value={input.gender} onChange={(v) => update('gender', v)} style={{ width: 80 }}
               options={[{ value: 'male', label: '男' }, { value: 'female', label: '女' }]} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: '4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '4px 0' }}>
             <span style={{ minWidth: 80, fontSize: 12, color: '#475569' }}>IOL 型号</span>
             <Select size="small" value={input.iolModel} onChange={(v) => update('iolModel', v)} style={{ width: 80 }}
               options={[{ value: 'SA60AT', label: 'SA60AT' }, { value: 'SN60WF', label: 'SN60WF' }, { value: 'PCB00', label: 'PCB00' }]} />
           </div>
           {input.al >= 26 && (
-            <Tag color="orange" style={{ marginTop: 4, fontSize: 12 }}>
+            <Tag color="orange" style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12 }}>
               AL ≥ 26mm, 已自动应用 Wang-Koch 校正
             </Tag>
           )}
         </div>
       </div>
 
-      <div style={{ margin: '12px 0', padding: 8, background: 'var(--bg-primary)', borderRadius: 6, fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
+      <div style={{ margin: '12px 0', padding: 'var(--space-2, 8px)', background: 'var(--bg-primary)', borderRadius: 6, fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
         <strong>智能推荐公式:</strong>{' '}
         {input.al < 22 ? 'Hoffer Q (短眼最佳)' : input.al < 24.5 ? 'Barrett II + Kane (标准眼)' : input.al < 26 ? 'Barrett II + Kane (中等长眼)' : 'Wang-Koch 校正 (长眼)'}
         &nbsp;·&nbsp;当前 AL = {input.al}mm
@@ -209,7 +209,7 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
 
       {calcSource === 'api' && (
         <Alert
-          style={{ marginTop: 8 }}
+          style={{ marginTop: 'var(--space-2, 8px)' }}
           type="success"
           showIcon
           message="Barrett II / Kane 已使用在线计算 (eyeApi.calculateIol), 其余公式为本地计算"
@@ -217,8 +217,8 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
       )}
 
       {constants.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>
             IOL 常数表 ({constantsSource === 'api' ? 'ULIB 2024 · 在线常数库' : '本地'})
             <Tag color="blue" style={{ marginLeft: 6, fontSize: 10 }}>A 常数已同步</Tag>
           </div>
@@ -242,7 +242,7 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
         </div>
       )}
 
-      <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', justifyContent: 'flex-end' }}>
         <Button size="small" onClick={() => setInput(defaultInput)}>重置</Button>
       </div>
     </Card>

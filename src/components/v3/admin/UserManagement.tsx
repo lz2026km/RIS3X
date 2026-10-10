@@ -106,7 +106,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
 
   return (
     <div data-testid="user-management">
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic title={t('userMgmt.stat.totalUsers')} value={stats.total} prefix={<User size={14} />} />
@@ -129,7 +129,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         </Col>
       </Row>
 
-      <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'space-between' }}>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)', width: '100%', justifyContent: 'space-between' }}>
         <Input
           placeholder={t('userMgmt.searchPlaceholder')}
           value={search}

@@ -172,9 +172,9 @@ export default function SlaPolicyPage() {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}} data-testid="sla-policy-page">
-      <header style={{ background: 'linear-gradient(135deg,var(--color-error-600) 0%,var(--color-warning-500) 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}} data-testid="sla-policy-page">
+      <header style={{ background: 'linear-gradient(135deg,var(--color-error-600) 0%,var(--color-warning-500) 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <Clock size={20} />
           <div>
             <div style={{ fontSize: 16, fontWeight: 800 }}>{t('sla.title')}</div>
@@ -182,14 +182,14 @@ export default function SlaPolicyPage() {
           </div>
         </div>
       </header>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
           <Input placeholder={t('sla.searchPlaceholder')} prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 300 }} allowClear />
           <ActionButton action="create" onClick={openAdd} disabled={loading}>{t('sla.addPolicy')}</ActionButton>
         </div>
         {loadError && !loading && <ErrorBanner message={loadError} />}
         <DataTable columns={columns} dataSource={pagedPolicies} rowKey="id" pagination={policiesPagination} loading={loading} emptyText={t('w9.states.empty')} scroll={{ x: 'max-content' }}/>
-        <div style={{ marginTop: 16, textAlign: 'right' }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', textAlign: 'right' }}>
           <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>{t('sla.saveAll')}</Button>
         </div>
       </div>

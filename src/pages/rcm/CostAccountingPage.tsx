@@ -188,7 +188,7 @@ export default function CostAccountingPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <DollarSign size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9e.costAccounting.title')}</span>
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 10,
@@ -201,7 +201,7 @@ export default function CostAccountingPage() {
           </span>
           {loading && <span style={{ fontSize: 12, color: '#93c5fd' }}>{t('w9e.revenueAnalysis.loading')}</span>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
           <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Download size={14} />{t('w9e.costAccounting.exportReport')}</button>
         </div>
@@ -212,37 +212,37 @@ export default function CostAccountingPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', padding: '20px 24px' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.monthTotalCost')}</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-error-500, var(--color-error-500))', marginTop: 4 }}>¥{(totalActual / 10000).toFixed(1)}万</div>
-          <div style={{ fontSize: 12, color: totalActual > totalBudget ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-success-500, var(--color-success-500))', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-error-500, var(--color-error-500))', marginTop: 'var(--space-1, 4px)' }}>¥{(totalActual / 10000).toFixed(1)}万</div>
+          <div style={{ fontSize: 12, color: totalActual > totalBudget ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-success-500, var(--color-success-500))', marginTop: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             {totalActual > totalBudget ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{t('w9e.costAccounting.overspend')} ¥{((totalActual - totalBudget) / 10000).toFixed(1)}万
           </div>
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.laborCostShare')}</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, var(--color-primary-500))', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, var(--color-primary-500))', marginTop: 'var(--space-1, 4px)' }}>
             {((categoryData.find(c => c.name === '人力成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.materialCostShare')}</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, var(--color-success-500))', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, var(--color-success-500))', marginTop: 'var(--space-1, 4px)' }}>
             {((categoryData.find(c => c.name === '耗材成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.costRevenueRatio')}</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, var(--color-warning-500))', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, var(--color-warning-500))', marginTop: 'var(--space-1, 4px)' }}>
             {costRevenueRatio != null ? (costRevenueRatio * 100).toFixed(1) : '55.2'}%
           </div>
-          <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{costRevenueRatio != null ? t('w9e.costAccounting.realtime') : t('w9e.costAccounting.momDemo')}</div>
+          <div style={{ fontSize: 12, color: '#6e7681', marginTop: 'var(--space-1, 4px)' }}>{costRevenueRatio != null ? t('w9e.costAccounting.realtime') : t('w9e.costAccounting.momDemo')}</div>
         </div>
       </div>
 
       <div style={{ padding: '0 24px 24px' }}>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           {(['overview', 'modality', 'budget'] as const).map(tabKey => (
             <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: tab === tabKey ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: tab === tabKey ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tabKey === 'overview' ? <PieChart size={14} /> : tabKey === 'modality' ? <Monitor size={14} /> : <BarChart3 size={14} />}
@@ -251,11 +251,11 @@ export default function CostAccountingPage() {
           ))}
         </div>
 
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-5, 20px)' }}>
           {tab === 'overview' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6, 24px)' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.costAccounting.compositionTitle')} {source === 'demo' && <span style={{ fontSize: 11, color: 'var(--color-warning-400)', fontWeight: 400 }}>{t('w9e.revenueAnalysis.demoData')}</span>}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('w9e.costAccounting.compositionTitle')} {source === 'demo' && <span style={{ fontSize: 11, color: 'var(--color-warning-400)', fontWeight: 400 }}>{t('w9e.revenueAnalysis.demoData')}</span>}</div>
                 <ChartContainer height={280} state={categoryData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.costAccounting.noCompositionData')}>
                   <RePie>
                     <Pie data={categoryData} dataKey="actual" nameKey="name" cx="50%" cy="50%" outerRadius={90} labelLine={false}>
@@ -266,12 +266,12 @@ export default function CostAccountingPage() {
                 </ChartContainer>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.costAccounting.budgetVsActual')}</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('w9e.costAccounting.budgetVsActual')}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                   {categoryData.map(c => {
                     const pct = c.budget ? ((c.actual - c.budget) / c.budget * 100) : 0
                     return (
-                      <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
+                      <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '8px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                         <div style={{ width: 10, height: 10, borderRadius: 2, background: c.color }} />
                         <span style={{ width: 80, fontSize: 12 }}>{c.name}</span>
                         <div style={{ flex: 1, height: 8, background: 'var(--bg-secondary, #21262d)', borderRadius: 4, overflow: 'hidden' }}>
@@ -288,9 +288,9 @@ export default function CostAccountingPage() {
           )}
           {tab === 'modality' && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>
                 {t('w9e.costAccounting.modalityTitle')}
-                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.costAccounting.modalityApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{source === 'api' ? t('w9e.costAccounting.modalityApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
               <ChartContainer height={320} state={modalityCostData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.costAccounting.noModalityData')}>
                 <BarChart data={modalityCostData}>
@@ -308,9 +308,9 @@ export default function CostAccountingPage() {
           )}
           {tab === 'budget' && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>
                 {t('w9e.costAccounting.budgetTitle')}
-                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.costAccounting.budgetApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{source === 'api' ? t('w9e.costAccounting.budgetApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
               <ChartContainer height={320} state={budgetData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.costAccounting.noBudgetData')}>
                 <BarChart data={budgetData}>
@@ -323,15 +323,15 @@ export default function CostAccountingPage() {
                   <Bar dataKey="actual" name={t('w9e.costAccounting.actual')} fill="var(--color-warning-500)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', background: 'var(--bg-primary, #0d1117)', borderRadius: 4, fontSize: 12, color: 'var(--text-muted, #8b949e)', fontWeight: 600 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 'var(--space-2, 8px)', padding: '8px 16px', background: 'var(--bg-primary, #0d1117)', borderRadius: 4, fontSize: 12, color: 'var(--text-muted, #8b949e)', fontWeight: 600 }}>
                   <span>{t('w9e.costAccounting.colMonth')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.budget')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.actual')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.colVariance')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.colVarianceRate')}</span>
                 </div>
                 {budgetData.map(b => {
                   const v = b.actual - b.budget
                   const vr = b.budget ? (v / b.budget * 100) : 0
                   return (
-                    <div key={b.month} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 12 }}>
+                    <div key={b.month} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 'var(--space-2, 8px)', padding: '8px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 12 }}>
                       <span>{b.month}</span>
                       <span style={{ textAlign: 'right' }}>¥{b.budget.toLocaleString()}</span>
                       <span style={{ textAlign: 'right' }}>¥{b.actual.toLocaleString()}</span>
@@ -345,8 +345,8 @@ export default function CostAccountingPage() {
           )}
         </div>
 
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, marginTop: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.cost.title')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.cost.title')}</div>
           <DataTable dataSource={categoryData} rowKey="name" columns={costColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </div>
       </div>

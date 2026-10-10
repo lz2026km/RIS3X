@@ -68,7 +68,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
       style={{
         position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 1100, padding: 20,
+        zIndex: 1100, padding: 'var(--space-5, 20px)',
       }}
       onClick={onCancel}
     >
@@ -81,7 +81,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
       >
         <div style={{
           padding: '20px 24px', borderBottom: '1px solid #e2e8f0',
-          display: 'flex', alignItems: 'center', gap: 12,
+          display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)',
           background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)',
         }}>
           <ShieldCheck size={22} style={{ color: '#fff' }} />
@@ -99,12 +99,12 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
           </button>
         </div>
 
-        <div style={{ padding: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 20 }}>
+        <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center' }}>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-5, 20px)' }}>
             请输入您的身份验证器应用中的 6 位数字验证码
           </div>
 
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             {token.map((digit, index) => (
               <input
                 key={index}
@@ -128,7 +128,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
           {error && (
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: 6, color: 'var(--color-error-600)', fontSize: 12, marginBottom: 16,
+              gap: 6, color: 'var(--color-error-600)', fontSize: 12, marginBottom: 'var(--space-4, 16px)',
             }}>
               <AlertTriangle size={14} /> {error}
             </div>
@@ -146,7 +146,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
             {verifying ? '验证中...' : '验证'}
           </button>
 
-          <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: '#94a3b8' }}>
             验证码有效期 5 分钟
           </div>
         </div>

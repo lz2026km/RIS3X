@@ -6,8 +6,8 @@ const containerStyle: CSSProperties = {
   position: 'sticky',
   top: 'var(--header-h, 52px)',
   zIndex: 10,
-  padding: 8,
-  marginBottom: 12,
+  padding: 'var(--space-2, 8px)',
+  marginBottom: 'var(--space-3, 12px)',
   background: 'var(--state-warning-bg, #fef3c7)',
   color: 'var(--state-warning-fg, #92400e)',
   border: '1px solid var(--state-warning-border, #fde68a)',
@@ -15,7 +15,7 @@ const containerStyle: CSSProperties = {
   fontSize: 12,
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
+  gap: 'var(--space-2, 8px)',
 }
 
 export interface ErrorBannerProps {

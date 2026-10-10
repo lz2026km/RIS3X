@@ -54,12 +54,12 @@ export default function LogFilter({
 }: LogFilterProps) {
   return (
     <div style={{
-      background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0',
-      marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      background: WHITE, borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid #e2e8f0',
+      marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: GRAY, marginRight: 4 }}>快捷筛选:</span>
+          <span style={{ fontSize: 12, color: GRAY, marginRight: 'var(--space-1, 4px)' }}>快捷筛选:</span>
           {QUICK_TIME_FILTERS.map(filter => (
             <button
               key={filter.value}
@@ -78,9 +78,9 @@ export default function LogFilter({
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
         <div style={{
-          flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 8,
+          flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
           border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', background: '#fafbfc',
         }}>
           <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
@@ -101,7 +101,7 @@ export default function LogFilter({
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>操作类型:</span>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
             {ACTION_TYPES.map(type => (
               <button
                 key={type}
@@ -116,7 +116,7 @@ export default function LogFilter({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>来源:</span>
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
             {LOG_SOURCES.map(source => (
               <button
                 key={source}
@@ -172,7 +172,7 @@ export default function LogFilter({
           onClick={onReset}
           style={{
             padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0',
-            background: WHITE, color: GRAY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            background: WHITE, color: GRAY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
           }}
         >
           <RefreshCw size={12} />

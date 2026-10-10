@@ -73,9 +73,9 @@ export default function CompliancePage() {
 
   if (loadError) {
     return (
-      <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ padding: 40, textAlign: 'center', color: COLORS.textLight }}>
-          <AlertTriangle size={32} style={{ marginBottom: 8 }} />
+      <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: COLORS.textLight }}>
+          <AlertTriangle size={32} style={{ marginBottom: 'var(--space-2, 8px)' }} />
           <div>无法加载合规数据，请稍后重试</div>
         </div>
       </div>
@@ -83,9 +83,9 @@ export default function CompliancePage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1400, margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Shield size={22} color="#fff" />
           </div>
@@ -101,7 +101,7 @@ export default function CompliancePage() {
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `1px solid ${COLORS.border}` }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-5, 20px)', borderBottom: `1px solid ${COLORS.border}` }}>
         {[
           { key: 'report' as const, label: '合规报告', icon: <Shield size={14} /> },
           { key: 'docs' as const, label: '合规文档', icon: <FileText size={14} /> },
@@ -119,7 +119,7 @@ export default function CompliancePage() {
 
       {activeTab === 'report' && report && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
             {[
               { label: '审计总数', value: reportStats?.totalAudits ?? '--', color: COLORS.primary, bg: '#3b82f622' },
               { label: '通过', value: reportStats?.passed ?? '--', color: COLORS.success, bg: '#22c55e22' },
@@ -128,7 +128,7 @@ export default function CompliancePage() {
             ].map(stat => (
               <Card bordered={false} key={stat.label} style={{ background: COLORS.white, borderRadius: 12, padding: '16px 20px', border: `1px solid ${COLORS.border}`, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
                 <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
-                <div style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>{stat.label}</div>
+                <div style={{ fontSize: 12, color: COLORS.textLight, marginTop: 'var(--space-1, 4px)' }}>{stat.label}</div>
               </Card>
             ))}
           </div>
@@ -150,7 +150,7 @@ export default function CompliancePage() {
                   {
                     title: '状态', dataIndex: 'status', key: 'status',
                     render: (v: string) => (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: v === 'PASS' ? '#ecfdf5' : v === 'FAIL' ? '#fef2f2' : '#fffbeb', color: v === 'PASS' ? COLORS.success : v === 'FAIL' ? COLORS.danger : COLORS.warning }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: v === 'PASS' ? '#ecfdf5' : v === 'FAIL' ? '#fef2f2' : '#fffbeb', color: v === 'PASS' ? COLORS.success : v === 'FAIL' ? COLORS.danger : COLORS.warning }}>
                         {v === 'PASS' ? <CheckCircle size={10} /> : v === 'FAIL' ? <XCircle size={10} /> : <AlertTriangle size={10} />}
                         {v === 'PASS' ? '通过' : v === 'FAIL' ? '未通过' : '警告'}
                       </span>
@@ -174,22 +174,22 @@ export default function CompliancePage() {
       )}
 
       {activeTab === 'docs' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 'var(--space-4, 16px)' }}>
           {docs.map(doc => (
-            <Card bordered={false} key={doc.id} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Card bordered={false} key={doc.id} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
                 <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: doc.status === 'CURRENT' ? '#ecfdf5' : doc.status === 'DRAFT' ? '#fffbeb' : '#f1f5f9', color: doc.status === 'CURRENT' ? COLORS.success : doc.status === 'DRAFT' ? COLORS.warning : COLORS.textLight }}>
                   {doc.status === 'CURRENT' ? '当前版本' : doc.status === 'DRAFT' ? '草稿' : '已归档'}
                 </span>
                 <span style={{ fontSize: 12, color: COLORS.textLight }}>v{doc.version}</span>
               </div>
               <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textDark, marginBottom: 6 }}>{doc.title}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMid, marginBottom: 12 }}>{doc.category}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMid, marginBottom: 'var(--space-3, 12px)' }}>{doc.category}</div>
               <div style={{ fontSize: 12, color: COLORS.textLight }}>更新于 {new Date(doc.updatedAt).toLocaleDateString('zh-CN')}</div>
             </Card>
           ))}
           {docs.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: COLORS.textLight }}>暂无合规文档</div>
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-10, 40px)', color: COLORS.textLight }}>暂无合规文档</div>
           )}
         </div>
       )}

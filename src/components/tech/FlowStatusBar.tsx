@@ -83,7 +83,7 @@ export default function FlowStatusBar({ status, onAction, busy = false, showActi
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
         flexWrap: 'wrap',
         background: 'var(--content-bg, #f8fafc)',
         border: '1px solid var(--border-color, #e2e8f0)',

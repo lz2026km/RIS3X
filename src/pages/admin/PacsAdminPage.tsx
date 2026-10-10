@@ -371,9 +371,9 @@ const PacsAdminPage: React.FC = () => {
         banner
         message={t('pacsAdmin.alertTitle')}
         description={t('pacsAdmin.alertDesc')}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Server size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('pacsAdmin.title')}</span>
         <Tag color="cyan">v3.0.6.11-86</Tag>
@@ -381,10 +381,10 @@ const PacsAdminPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchData()} loading={loading}>{t('pacsAdmin.refresh')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> {t('pacsAdmin.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> {t('pacsAdmin.retry')}</Button>} />}
 
       <Spin spinning={loading && servers.length === 0}>
-        <StatCardGrid style={{ marginBottom: 16 }}>
+        <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('pacsAdmin.tabServers')} value={stats?.totalServers ?? servers.length} icon={<Server size={16} />} />
           <StatCard title={t('pacsAdmin.online')} value={stats?.onlineServers ?? servers.filter((s) => s.status === 'online').length} icon={<Wifi size={16} />} color="success" />
           <StatCard title={t('pacsAdmin.statTotalStudies')} value={(stats?.totalStudies ?? 0).toLocaleString()} icon={<Activity size={16} />} />
@@ -400,7 +400,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'nodes', label: <Space size={4}><Server size={13} />{t('pacsAdmin.tabNodes')}</Space>,
               children: (
-                <Card title={`DICOM 节点 (${nodes.length})`} size="small" style={{ marginBottom: 16 }}>
+                <Card title={`DICOM 节点 (${nodes.length})`} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   <DataTable rowKey="id" dataSource={nodePage.pageData} columns={nodeColumns} pagination={nodePage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
@@ -408,13 +408,13 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'storage', label: <Space size={4}><HardDrive size={13} />{t('pacsAdmin.tabStorage')}</Space>,
               children: (
-                <Card title={t('pacsAdmin.cardStorageUsage')} size="small" extra={<Space><Button size="small" icon={<Plus size={12} />} onClick={() => { setEditingServer(null); setStorageModal(true) }}>{t('pacsAdmin.addStorageGroup')}</Button><Button size="small" icon={<Eraser size={12} />} loading={cleaning} onClick={() => void handleCleanupStorage()}>{t('pacsAdmin.cleanupExpired')}</Button></Space>} style={{ marginBottom: 16 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <Card title={t('pacsAdmin.cardStorageUsage')} size="small" extra={<Space><Button size="small" icon={<Plus size={12} />} onClick={() => { setEditingServer(null); setStorageModal(true) }}>{t('pacsAdmin.addStorageGroup')}</Button><Button size="small" icon={<Eraser size={12} />} loading={cleaning} onClick={() => void handleCleanupStorage()}>{t('pacsAdmin.cleanupExpired')}</Button></Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
                     {storage.map(g => {
                       const pct = g.totalBytes > 0 ? Math.round((g.usedBytes / g.totalBytes) * 1000) / 10 : 0
                       return (
                         <div key={g.id}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                             <Space><HardDrive size={14} color="#13c2c2" /><b>{g.name}</b><Typography.Text code style={{ fontSize: 12 }}>{g.path}</Typography.Text></Space>
                             <Space>
                               <span style={{ fontSize: 12, color: '#64748b' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} {t('pacsAdmin.studiesUnit')} · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? t('pacsAdmin.active') : g.status === 'readonly' ? t('pacsAdmin.readonly') : t('pacsAdmin.offline')}</Tag></span>
@@ -436,7 +436,7 @@ const PacsAdminPage: React.FC = () => {
               children: (
                 <Card
                   title={<Space><Server size={14} />{t('pacsAdmin.tabServers')}</Space>}
-                  style={{ marginBottom: 16 }}
+                  style={{ marginBottom: 'var(--space-4, 16px)' }}
                   extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setServerModal(true)}>{t('pacsAdmin.addServer')}</Button>}
                 >
                   <DataTable rowKey="id" dataSource={serverPage.pageData} columns={serverColumns} pagination={serverPage.pagination} scroll={{ x: 'max-content' }}/>
@@ -446,7 +446,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'worklist', label: <Space size={4}><ListChecks size={13} />{t('pacsAdmin.tabWorklist')}</Space>,
               children: (
-                <Card title={`工作列表条目 (${worklist.length})`} size="small" style={{ marginBottom: 16 }}>
+                <Card title={`工作列表条目 (${worklist.length})`} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   <DataTable rowKey="id" dataSource={worklistPage.pageData} columns={worklistColumns} pagination={worklistPage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
@@ -454,7 +454,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'archives', label: <Space size={4}><Archive size={13} />{t('pacsAdmin.tabArchives')}</Space>,
               children: (
-                <Card title={`归档记录 (${archives.length})`} size="small" style={{ marginBottom: 16 }}>
+                <Card title={`归档记录 (${archives.length})`} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   <DataTable rowKey="id" dataSource={archivePage.pageData} columns={archiveColumns} pagination={archivePage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
@@ -462,7 +462,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'logs', label: <Space size={4}><FileText size={13} />{t('pacsAdmin.tabLogs')}</Space>,
               children: (
-                <Card title={`PACS 操作日志 (${logs.length})`} size="small" style={{ marginBottom: 16 }}>
+                <Card title={`PACS 操作日志 (${logs.length})`} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   <DataTable rowKey="id" dataSource={logPage.pageData} columns={logColumns} pagination={logPage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
@@ -470,7 +470,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'configs', label: <Space size={4}><Settings2 size={13} />{t('pacsAdmin.tabConfigs')}</Space>,
               children: (
-                <Card title={`PACS 配置项 (${configs.length})`} size="small" style={{ marginBottom: 16 }}>
+                <Card title={`PACS 配置项 (${configs.length})`} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   <DataTable rowKey="key" dataSource={configPage.pageData} columns={configColumns} pagination={configPage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
@@ -486,7 +486,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'routes', label: <Space size={4}><Route size={13} />{t('pacsAdmin.tabRoutes')}</Space>,
               children: (
-                <Card title={`转发路由 (${routes.length})`} size="small" style={{ marginBottom: 16 }}>
+                <Card title={`转发路由 (${routes.length})`} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
                   <DataTable rowKey="id" dataSource={routePage.pageData} columns={routeColumns} pagination={routePage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
@@ -535,7 +535,7 @@ const PacsAdminPage: React.FC = () => {
         extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => detailServer && void handleViewServer(detailServer.id)}>{t('pacsAdmin.refresh')}</Button>}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
         ) : detailServer ? (
           <Descriptions column={1} size="small" bordered>
             <Descriptions.Item label={t('pacsAdmin.name')}>

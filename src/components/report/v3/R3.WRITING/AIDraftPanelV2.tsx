@@ -505,7 +505,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
       <div className="font-semibold mb-1" style={{ color: '#475569' }}>{t('aiDraft.traceTitle', { count: sources.length })}</div>
       {sources.map((src, i) => (
         <div key={`${src.refId}-${i}`} className="flex items-start gap-1.5" style={{ lineHeight: 1.5 }}>
-          <Tag color={SOURCE_KIND_COLOR[src.kind]} style={{ marginRight: 4 }}>{SOURCE_KIND_LABEL[src.kind]}</Tag>
+          <Tag color={SOURCE_KIND_COLOR[src.kind]} style={{ marginRight: 'var(--space-1, 4px)' }}>{SOURCE_KIND_LABEL[src.kind]}</Tag>
           <div className="flex-1 min-w-0">
             <div className="text-slate-700 truncate" title={src.description}>{src.description}</div>
             <div className="text-slate-400">refId: {src.refId} · {t('aiDraft.traceConfidence')} {(src.confidence * 100).toFixed(0)}%</div>
@@ -536,9 +536,9 @@ export const AIDraftPanelV2: React.FC<Props> = ({
       className="shadow-none"
       title={<Space size={6}><ScanSearch size={14} color="#4f46e5" /><span className="text-sm font-semibold">{t('aiDraft.extract.title')}</span><Tag color="geekblue">{t('aiDraft.extract.tag')}</Tag></Space>}
       extra={extractResult ? <Tag color="green">{(extractResult.overallConfidence * 100).toFixed(0)}% {t('aiDraft.extract.overallConfidence')}</Tag> : undefined}
-      styles={{ body: { padding: 12 } }}
+      styles={{ body: { padding: 'var(--space-3, 12px)' } }}
     >
-      <Space.Compact style={{ width: '100%', marginBottom: 8 }}>
+      <Space.Compact style={{ width: '100%', marginBottom: 'var(--space-2, 8px)' }}>
         <Input.TextArea
           value={findings}
           onChange={(e) => setFindings(e.target.value)}
@@ -566,7 +566,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
               {extractResult.fields.map((f) => (
                 <div key={f.id} className="border border-slate-100 rounded p-2">
                   <div className="flex items-center gap-1 mb-1">
-                    <Tag color={FIELD_CATEGORY_COLOR[f.category]} style={{ marginRight: 4, fontSize: 10 }}>{f.label}</Tag>
+                    <Tag color={FIELD_CATEGORY_COLOR[f.category]} style={{ marginRight: 'var(--space-1, 4px)', fontSize: 10 }}>{f.label}</Tag>
                     <Tag className="text-[9px]" color={f.source === 'dictionary' ? 'default' : 'purple'}>{f.source === 'dictionary' ? t('aiDraft.fieldSource.dictionary') : t('aiDraft.fieldSource.rule')}</Tag>
                     {editingFieldId === f.id ? null : (
                       <Tooltip title={t('aiDraft.field.editTip')}>
@@ -611,7 +611,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
           </Space>
         ) : undefined
       }
-      styles={{ body: { padding: 12 } }}
+      styles={{ body: { padding: 'var(--space-3, 12px)' } }}
     >
       <div className="flex items-center gap-2 mb-2">
         <Button type="primary" size="small" icon={<Wand2 size={13} />} onClick={handleGenerate} loading={draftLoading} disabled={disabled}>
@@ -669,7 +669,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
       className="shadow-none"
       title={<Space size={6}><ListChecks size={14} color="var(--color-info-600)" /><span className="text-sm font-semibold">{t('aiDraft.suggest.title')}</span><Tag color="cyan">{t('aiDraft.suggest.tag')}</Tag></Space>}
       extra={suggestResult ? <Tag color="blue">{t('aiDraft.suggest.score', { score: suggestResult.overallScore })}</Tag> : undefined}
-      styles={{ body: { padding: 12 } }}
+      styles={{ body: { padding: 'var(--space-3, 12px)' } }}
     >
       <Button size="small" icon={<ShieldCheck size={13} />} onClick={handleSuggest} loading={suggestLoading} disabled={disabled}>
         {t('aiDraft.suggest.analyze')}
@@ -685,7 +685,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
             return (
               <div key={s.id} className={`border rounded p-2 ${action === 'adopted' ? 'border-green-200 bg-green-50/50' : 'border-slate-100'}`}>
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Tag color={SEVERITY_COLOR[s.severity]} style={{ marginRight: 4, fontSize: 10 }}>
+                  <Tag color={SEVERITY_COLOR[s.severity]} style={{ marginRight: 'var(--space-1, 4px)', fontSize: 10 }}>
                     {s.severity === 'critical' ? t('aiDraft.severity.critical') : s.severity === 'warning' ? t('aiDraft.severity.warning') : t('aiDraft.severity.info')}
                   </Tag>
                   <span className="text-xs font-semibold text-slate-700">{s.title}</span>
@@ -734,7 +734,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
         showIcon
         icon={<ShieldCheck size={14} />}
         title={t('aiDraft.disclaimer')}
-        style={{ fontSize: 11, marginBottom: 8 }}
+        style={{ fontSize: 11, marginBottom: 'var(--space-2, 8px)' }}
       />
       {renderExtractSection()}
       <Divider style={{ margin: '8px 0' }} />

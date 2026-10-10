@@ -158,10 +158,10 @@ const VesselAnalysisPage: React.FC = () => {
   const severeCount = useMemo(() => lesions.filter((l) => (l.stenosisPercent ?? 0) >= 70).length, [lesions])
 
   return (
-    <div style={{ padding: 24, maxWidth: 1500, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1500, margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Heart size={22} color="var(--color-error-600)" /> {t('vesselAnalysis.title')}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, fontWeight: 700,
               background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
@@ -174,7 +174,7 @@ const VesselAnalysisPage: React.FC = () => {
             {t('vesselAnalysis.subtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <Select
             style={{ width: 240 }}
             placeholder={t('vesselAnalysis.selectCase')}
@@ -187,7 +187,7 @@ const VesselAnalysisPage: React.FC = () => {
       </div>
 
       {error && (
-        <Alert style={{ marginBottom: 16 }} type="warning" showIcon
+        <Alert style={{ marginBottom: 'var(--space-4, 16px)' }} type="warning" showIcon
           title={t('vesselAnalysis.realUnavailable')}
           description={error}
           action={<Button size="small" icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('vesselAnalysis.retry')}</Button>}
@@ -200,7 +200,7 @@ const VesselAnalysisPage: React.FC = () => {
         ) : (
           <>
             {/* KPI 行 */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
               {[
                 { label: t('vesselAnalysis.lesionCount'), value: String(lesions.length), color: '#ea580c', icon: AlertTriangle },
                 { label: t('vesselAnalysis.severeStenosis'), value: String(severeCount), color: 'var(--color-error-600)', icon: AlertTriangle },
@@ -209,7 +209,7 @@ const VesselAnalysisPage: React.FC = () => {
               ].map((k) => {
                 const Icon = k.icon
                 return (
-                  <div key={k.label} style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div key={k.label} style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${k.color}15`, color: k.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Icon size={18} />
                     </div>
@@ -222,7 +222,7 @@ const VesselAnalysisPage: React.FC = () => {
               })}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '5fr 7fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '5fr 7fr', gap: 'var(--space-4, 16px)' }}>
               {/* 冠脉分段图: 简化 SVG 血管树 */}
               <Card title={t('vesselAnalysis.coronarySegments')} size="small" style={{ border: '1px solid var(--border-color)' }}>
                 <svg viewBox="0 0 480 460" width="100%" style={{ background: 'var(--content-bg)', borderRadius: 10 }} data-testid="vessel-tree-svg">
@@ -248,7 +248,7 @@ const VesselAnalysisPage: React.FC = () => {
                 </svg>
                 <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
                   {Object.entries(SEVERITY_COLOR).map(([sev, color]) => (
-                    <span key={sev} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+                    <span key={sev} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: 'var(--text-secondary)' }}>
                       <span style={{ width: 10, height: 10, borderRadius: 5, background: color }} /> {SEVERITY_LABEL[sev] ?? sev}
                     </span>
                   ))}
@@ -260,12 +260,12 @@ const VesselAnalysisPage: React.FC = () => {
                 {lesions.length === 0 ? (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vesselAnalysis.noLesionCase')} />
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 420, overflow: 'auto' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', maxHeight: 420, overflow: 'auto' }}>
                     {lesions.map((l, i) => {
                       const severityColor = SEVERITY_COLOR[l.severity] ?? '#64748b'
                       return (
                         <div key={`${l.vessel}-${l.segment}-${i}`} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--border-light)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                             <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{l.vessel} {l.segment}</span>
                             <Tag color="error" style={{ margin: 0 }}>{SEVERITY_LABEL[l.severity] ?? l.severity}</Tag>
                             {l.calcified && <Tag color="purple" style={{ margin: 0 }}>{t('vesselAnalysis.calcified')}</Tag>}
@@ -279,21 +279,21 @@ const VesselAnalysisPage: React.FC = () => {
                     })}
                   </div>
                 )}
-                <div style={{ marginTop: 12, fontSize: 11, color: 'var(--text-secondary)' }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 11, color: 'var(--text-secondary)' }}>
                   {t('vesselAnalysis.calciumNote')} · {t('vesselAnalysis.dataSource')}: {dataSource === 'real' ? t('vesselAnalysis.realResult') : t('vesselAnalysis.demoFallback')}
                 </div>
               </Card>
             </div>
 
             {/* 病例总体评估 */}
-            <Card title={t('vesselAnalysis.overallAssessment')} size="small" style={{ marginTop: 16, border: '1px solid var(--border-color)' }}>
+            <Card title={t('vesselAnalysis.overallAssessment')} size="small" style={{ marginTop: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 6 }}>
                 <strong>{t('vesselAnalysis.findings')}</strong> {selected.overallAssessment || '--'}
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
                 <strong>{t('vesselAnalysis.recommendation')}</strong> {selected.recommendation || '--'}
               </div>
-              <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', flexWrap: 'wrap' }}>
                 <Tag>{t('vesselAnalysis.model')} {selected.modelVersion}</Tag>
                 <Tag color="blue">EF {selected.ejectionFraction ?? '--'}%</Tag>
                 <Tag color="geekblue">{t('vesselAnalysis.status')} {STATUS_LABEL[selected.status] ?? selected.status}</Tag>

@@ -93,8 +93,8 @@ export default function StructuredReportV3Page() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<FileCheck2 size={20} color="var(--color-primary-600)" />} title={t('w17.srPage.title')} subtitle={t('w17.srPage.subtitle')} />
-      <div style={{ padding: 24 }}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{t('w17.srPage.reportIdLabel')}</label>
           <input
             value={reportId}
@@ -114,7 +114,7 @@ export default function StructuredReportV3Page() {
             {t('w17.srPage.saveToReport')}
           </ActionButton>
           {saved && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#059669', fontWeight: 600 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: '#059669', fontWeight: 600 }}>
               <CheckCircle2 size={14} />{t('w17.srPage.savedFlag')}
             </span>
           )}
@@ -132,8 +132,8 @@ export default function StructuredReportV3Page() {
 
         {unlockLog.length > 0 && (
           <div style={{ marginTop: 14, background: 'var(--bg-card)', borderRadius: 10, padding: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('w17.srPage.unlockLogTitle')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 'var(--space-2, 8px)' }}>{t('w17.srPage.unlockLogTitle')}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
               {unlockLog.map((entry, i) => (
                 <div key={i} style={{ fontSize: 12, color: '#64748b' }}>
                   {entry.at} · 【{entry.section}】→ {t('w17.srPage.unlockRequested')}
@@ -153,7 +153,7 @@ export default function StructuredReportV3Page() {
         width={620}
       >
         {validation && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             <Alert
               type={validation.valid ? 'success' : 'error'}
               showIcon
@@ -162,7 +162,7 @@ export default function StructuredReportV3Page() {
             {validation.errors.length > 0 && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#b91c1c', marginBottom: 6 }}>{t('w4a.validate.errors')} ({validation.errors.length})</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                   {validation.errors.map((e, i) => (
                     <div key={i} style={{ fontSize: 12, color: '#7f1d1d' }}>• {e.label}: {e.message}</div>
                   ))}
@@ -172,7 +172,7 @@ export default function StructuredReportV3Page() {
             {validation.warnings.length > 0 && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#b45309', marginBottom: 6 }}>{t('w4a.validate.warnings')} ({validation.warnings.length})</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                   {validation.warnings.map((e, i) => (
                     <div key={i} style={{ fontSize: 12, color: '#92400e' }}>• {e.label}: {e.message}</div>
                   ))}

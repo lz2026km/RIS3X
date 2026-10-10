@@ -167,21 +167,21 @@ export default function CvDatabasePage() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 20,
+          marginBottom: 'var(--space-5, 20px)',
         }}
       >
         <Title level={4}
-          style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}
+          style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', margin: 0 }}
         >
           <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#eff6ff', color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}`, fontWeight: 400 }}>{dataSource === 'real' ? 'AI 接口实时' : '演示数据(回退)'}</span>
         </Title>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
           <Button
             size="small"
             icon={<RefreshCw size={16} />}
@@ -210,7 +210,7 @@ export default function CvDatabasePage() {
       </div>
 
       <div
-        style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}
+        style={{ display: "flex", gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)', flexWrap: "wrap" }}
       >
         <div
           style={{
@@ -229,7 +229,7 @@ export default function CvDatabasePage() {
             onChange={(e) => setSearch(e.target.value)}
             style={{
               border: "none",
-              background: "transparent", marginLeft: 8,
+              background: "transparent", marginLeft: 'var(--space-2, 8px)',
               flex: 1,
               fontSize: 14,
             }}
@@ -277,7 +277,7 @@ export default function CvDatabasePage() {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
@@ -369,7 +369,7 @@ export default function CvDatabasePage() {
                       fontSize: 12,
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 4,
+                      gap: 'var(--space-1, 4px)',
                     }}
                   >
                     <Eye size={14} /> 查看
@@ -398,7 +398,7 @@ export default function CvDatabasePage() {
             style={{
               background: "var(--bg-card)",
               borderRadius: 12,
-              padding: 24,
+              padding: 'var(--space-6, 24px)',
               maxWidth: 600,
               width: "90%",
               maxHeight: "80vh",
@@ -446,7 +446,7 @@ export default function CvDatabasePage() {
               </dt>
               <dd>{selectedCase.keyFindings}</dd>
             </dl>
-            <div style={{ marginTop: 20, display: "flex", gap: 8 }}>
+            <div style={{ marginTop: 'var(--space-5, 20px)', display: "flex", gap: 'var(--space-2, 8px)' }}>
               <button
                 onClick={() => {
                   const url = `/api/v1/cardiac/visualizer/${selectedCase.id}`;

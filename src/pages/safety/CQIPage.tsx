@@ -63,7 +63,7 @@ export default function CQIPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-info-600),#0e7490)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <TrendingUp size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('cqi.title')}</span>
         </div>
         <button onClick={() => {
@@ -84,7 +84,7 @@ export default function CQIPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {[
             { title: t('cqi.statProjects'), value: projects.length, icon: Target, color: 'var(--color-info-600, var(--color-info-600))' },
             { title: t('cqi.status.active'), value: projects.filter(p => p.status === 'active').length, icon: Activity, color: 'var(--color-primary-500, var(--color-primary-500))' },
@@ -92,33 +92,33 @@ export default function CQIPage() {
             { title: t('cqi.statPdsa'), value: projects.reduce((s, p) => s + p.pdsaCycles.length, 0), icon: BarChart3, color: 'var(--color-modality-mr, #8b5cf6)' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
               <div style={{ fontSize: 30, fontWeight: 700 }}>{k.value}</div>
             </div>
           ))}
         </div>
 
         {selectedProject ? (
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-5, 20px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 600 }}>{selectedProject.title}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{selectedProject.id} · {selectedProject.startDate} ~ {selectedProject.targetEndDate || t('cqi.tbd')}</div>
               </div>
               <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[selectedProject.status]}20`, color: STATUS_COLORS[selectedProject.status] }}>{t(STATUS_LABELS[selectedProject.status])}</span>
             </div>
-            <div style={{ marginBottom: 16, color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{selectedProject.description}</div>
-            <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, border: '1px solid var(--bg-secondary, #21262d)' }}>
-              <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('cqi.aim')}</div>
+            <div style={{ marginBottom: 'var(--space-4, 16px)', color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{selectedProject.description}</div>
+            <div style={{ marginBottom: 'var(--space-4, 16px)', padding: '10px 14px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, border: '1px solid var(--bg-secondary, #21262d)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{t('cqi.aim')}</div>
               <div style={{ fontSize: 14, color: 'var(--text-primary, #f0f6fc)' }}>{selectedProject.aim}</div>
             </div>
 
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t('cqi.indicators')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('cqi.indicators')}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 {selectedProject.indicators.map((ind, i) => (
-                  <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12, border: '1px solid var(--bg-secondary, #21262d)' }}>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{ind.name}</div>
+                  <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 'var(--space-3, 12px)', border: '1px solid var(--bg-secondary, #21262d)' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 'var(--space-1, 4px)' }}>{ind.name}</div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: ind.trend === 'up' ? 'var(--color-success-500)' : ind.trend === 'down' ? 'var(--color-error-500)' : 'var(--color-warning-500)' }}>
                       {ind.currentValue}{ind.unit}
                     </div>
@@ -129,14 +129,14 @@ export default function CQIPage() {
             </div>
 
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t('cqi.pdsaCycles')}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('cqi.pdsaCycles')}</div>
               {selectedProject.pdsaCycles.length > 0 ? selectedProject.pdsaCycles.map((pd, i) => (
-                <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12, border: '1px solid var(--bg-secondary, #21262d)', marginBottom: 8 }}>
+                <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 'var(--space-3, 12px)', border: '1px solid var(--bg-secondary, #21262d)', marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                     <span style={{ fontSize: 12, fontWeight: 600 }}>PDSA #{pd.cycle}</span>
                     <span style={{ fontSize: 12, color: '#6e7681' }}>{pd.startDate} ~ {pd.endDate}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                     <div><span style={{ color: 'var(--color-primary-500)' }}>{t('cqi.plan')}</span> {pd.plan}</div>
                     <div><span style={{ color: 'var(--color-success-500)' }}>{t('cqi.do')}</span> {pd.do_}</div>
                     <div><span style={{ color: 'var(--color-warning-500)' }}>{t('cqi.study')}</span> {pd.study}</div>
@@ -152,7 +152,7 @@ export default function CQIPage() {
             </div>
 
             {selectedProject.status !== 'closed' && (
-              <div style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
                 <button onClick={async () => {
                   await closeCqiProject(selectedProject.id, t('cqi.closeConclusion'), t('cqi.closeLessons'))
                   const data = await getCqiDashboard()
@@ -161,7 +161,7 @@ export default function CQIPage() {
                 }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--color-info-600)', color: '#fff', cursor: 'pointer', fontSize: 12 }}>
                   {t('cqi.closeProject')}
                 </button>
-                <button onClick={() => setSelectedProject(null)} style={{ marginLeft: 8, padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
+                <button onClick={() => setSelectedProject(null)} style={{ marginLeft: 'var(--space-2, 8px)', padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
                   {t('cqi.back')}
                 </button>
               </div>
@@ -169,9 +169,9 @@ export default function CQIPage() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <BarChart3 size={16} color="var(--color-primary-500)" />{t('cqi.statusChart')}
                 </div>
                 <ChartContainer height={200} state={statusData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('cqi.noStatusData')}>
@@ -184,8 +184,8 @@ export default function CQIPage() {
                   </BarChart>
                 </ChartContainer>
               </div>
-              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <Activity size={16} color="var(--color-success-500)" />{t('cqi.indicatorChart')}
                 </div>
                 <ChartContainer height={200} state={indicatorData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('cqi.noIndicatorData')}>
@@ -203,7 +203,7 @@ export default function CQIPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               {(['all', 'planning', 'active', 'sustaining', 'closed'] as const).map(s => (
                 <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? 'var(--color-info-600)' : 'var(--border-default, #30363d)'}`, background: filter === s ? '#0891b220' : 'transparent', color: filter === s ? 'var(--color-info-600)' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
                   {s === 'all' ? t('cqi.all') : t(STATUS_LABELS[s as CqiStatus])}

@@ -393,10 +393,10 @@ export default function DepartmentPage() {
 
   const panel = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const pH = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-card)" };
-  const pB = { padding: 16 };
+  const pB = { padding: 'var(--space-4, 16px)' };
   const tb = (a: boolean) => ({ padding: "10px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 12, fontWeight: a ? 600 : 400, color: a ? C.primary : C.textMid, borderBottom: a ? `2px solid ${C.primary}` : "2px solid transparent", marginBottom: -1 });
   // [G005 Wave3A P2] 公告/值班 tab 内嵌小按钮与表头样式
-  const miniBtn = (color: string) => ({ padding: "3px 10px", borderRadius: 4, border: `1px solid ${color}55`, background: `${color}14`, color, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 });
+  const miniBtn = (color: string) => ({ padding: "3px 10px", borderRadius: 4, border: `1px solid ${color}55`, background: `${color}14`, color, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' });
   const thStyle = { padding: "8px 10px", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 };
 
   const toggleOrg = (id: string) => setExpandedOrgs((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
@@ -407,7 +407,7 @@ export default function DepartmentPage() {
     const tColors: Record<string, string> = { hospital: C.danger, department: C.primary, section: C.accent, group: C.success };
     return (
       <div key={node.id}>
-        <div onClick={() => { setSelectedOrg(node); if (hasChildren) toggleOrg(node.id); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", marginLeft: depth * 20, cursor: "pointer", borderRadius: 6, background: selectedOrg?.id === node.id ? C.primaryLighter : "transparent", border: `1px solid ${selectedOrg?.id === node.id ? C.primary : "transparent"}`, transition: "all 0.15s" }}>
+        <div onClick={() => { setSelectedOrg(node); if (hasChildren) toggleOrg(node.id); }} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', padding: "8px 12px", marginLeft: depth * 20, cursor: "pointer", borderRadius: 6, background: selectedOrg?.id === node.id ? C.primaryLighter : "transparent", border: `1px solid ${selectedOrg?.id === node.id ? C.primary : "transparent"}`, transition: "all 0.15s" }}>
           {hasChildren ? (isExp ? <ChevronDown size={14} color={C.textMid} /> : <ChevronRight size={14} color={C.textMid} />) : <div style={{ width: 14 }} />}
           <div style={{ width: 8, height: 8, borderRadius: 2, background: tColors[node.type] }} />
           <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{node.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{node.type === "hospital" ? t("deptPage.hospital") : node.type === "department" ? t("deptPage.department") : node.type === "section" ? t("deptPage.section") : t("deptPage.group")}{node.headName && ` · ${node.headName}`}{node.staffCount && ` · ${node.staffCount}人`}</div></div>
@@ -528,7 +528,7 @@ export default function DepartmentPage() {
       {activeAnnouncements.length > 0 && (
         <div data-testid="dept-active-announcements" style={{ display: "flex", flexDirection: "column", gap: 6, margin: "0 16px 12px", padding: "10px 14px", background: "var(--color-warning-bg)", border: "1px solid var(--color-warning-border)", borderRadius: 8 }}>
           {activeAnnouncements.slice(0, 3).map((a) => (
-            <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+            <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', fontSize: 12 }}>
               {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.info} />}
               <strong style={{ color: C.textDark, whiteSpace: "nowrap" }}>{a.title}</strong>
               <span style={{ color: C.textMid, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.content}</span>
@@ -539,7 +539,7 @@ export default function DepartmentPage() {
       )}
       <DepartmentStats />
       {/* [W2-A] 数据源状态条 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 12, flexWrap: "wrap", padding: "0 16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 'var(--space-3, 12px)', fontSize: 12, flexWrap: "wrap", padding: "0 16px" }}>
         <span style={{
           display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 12px", borderRadius: 999,
           background: dataSource === "api" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
@@ -551,14 +551,14 @@ export default function DepartmentPage() {
         {apiError && (
           <span style={{ color: "var(--color-error-600)" }}>
             {apiError}
-            <button onClick={() => void loadDeptData()} style={{ marginLeft: 8, padding: "2px 10px", borderRadius: 4, border: "1px solid var(--color-error-600)", background: "transparent", color: "var(--color-error-600)", cursor: "pointer", fontSize: 12 }}>{t("deptPage.retry")}</button>
+            <button onClick={() => void loadDeptData()} style={{ marginLeft: 'var(--space-2, 8px)', padding: "2px 10px", borderRadius: 4, border: "1px solid var(--color-error-600)", background: "transparent", color: "var(--color-error-600)", cursor: "pointer", fontSize: 12 }}>{t("deptPage.retry")}</button>
           </span>
         )}
         <span style={{ color: "#9ca3af" }}>{t("deptPage.reviewBlockNote")}</span>
       </div>
-      <div style={{ display: "flex", gap: 4, padding: "0 16px", borderBottom: `1px solid ${C.borderLight}`, background: "var(--bg-card)", overflowX: "auto", whiteSpace: "nowrap" }}>
+      <div style={{ display: "flex", gap: 'var(--space-1, 4px)', padding: "0 16px", borderBottom: `1px solid ${C.borderLight}`, background: "var(--bg-card)", overflowX: "auto", whiteSpace: "nowrap" }}>
         {([["staff",t("deptPage.tabStaff"),Users],["performance",t("deptPage.tabPerformance"),BarChart3],["attendance",t("deptPage.tabAttendance"),Calendar],["config",t("deptPage.tabConfig"),Settings],["org",t("deptPage.tabOrg"),Users],["credentials",t("deptPage.tabCredentials"),Award],["kpi",t("deptPage.tabKpi"),BarChart3],["review",t("deptPage.tabReview"),Eye],["announce",t("deptPage.tabAnnounce"),Megaphone],["oncall",t("deptPage.tabOnCall"),CalendarClock]] as [string, string, typeof Users][]).map(([id,label,Icon]) => (
-          <button key={id} style={tb(activeTab === id)} onClick={() => setActiveTab(id)}><Icon style={{ width: 14, height: 14, marginRight: 4 }} />{label}</button>
+          <button key={id} style={tb(activeTab === id)} onClick={() => setActiveTab(id)}><Icon style={{ width: 14, height: 14, marginRight: 'var(--space-1, 4px)' }} />{label}</button>
         ))}
       </div>
       {activeTab === "staff" && <DepartmentStaffList selectedStaff={selectedStaff} setSelectedStaff={setSelectedStaff} roleFilter={roleFilter} setRoleFilter={setRoleFilter} searchKeyword={searchKeyword} setSearchKeyword={setSearchKeyword} onEdit={() => { if (selectedStaff) { setEditForm({ name: selectedStaff.name, role: selectedStaff.role, title: selectedStaff.title, dept: selectedStaff.dept }); setShowEditModal(true); } }} extraStaff={localStaff} />}
@@ -568,14 +568,14 @@ export default function DepartmentPage() {
 
       {/* Config tab */}
       {activeTab === "config" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
             <div style={panel}>
-              <div style={pH}><span>{t("deptPage.deptInfo")}</span><button onClick={() => setEditingConfig(!editingConfig)} style={{ padding: "4px 12px", background: editingConfig ? C.success : C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>{editingConfig ? <><Save style={{ width: 12, height: 12 }} /> {t("deptPage.save")}</> : <><Edit3 style={{ width: 12, height: 12 }} /> {t("deptPage.edit")}</>}</button></div>
+              <div style={pH}><span>{t("deptPage.deptInfo")}</span><button onClick={() => setEditingConfig(!editingConfig)} style={{ padding: "4px 12px", background: editingConfig ? C.success : C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>{editingConfig ? <><Save style={{ width: 12, height: 12 }} /> {t("deptPage.save")}</> : <><Edit3 style={{ width: 12, height: 12 }} /> {t("deptPage.edit")}</>}</button></div>
               <div style={pB}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
                   {[[t("deptPage.deptName"), deptConfig.name], [t("deptPage.deptCode"), deptConfig.code], [t("deptPage.deptDirector"), deptConfig.director], [t("deptPage.deptPhone"), deptConfig.phone], [t("deptPage.deptLocation"), deptConfig.location], [t("deptPage.deptEstablished"), deptConfig.established]].map(([l, v]) => (
-                    <div key={l}><div style={{ fontSize: 12, color: C.textMid, marginBottom: 4 }}>{l}</div><div style={{ fontSize: 14, fontWeight: 500, color: C.textDark }}>{v}</div></div>
+                    <div key={l}><div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{l}</div><div style={{ fontSize: 14, fontWeight: 500, color: C.textDark }}>{v}</div></div>
                   ))}
                 </div>
               </div>
@@ -583,13 +583,13 @@ export default function DepartmentPage() {
             <div style={panel}>
               <div style={pH}><span>{t("deptPage.shiftConfig")}</span></div>
               <div style={pB}>{SHIFTS.map((s) => (
-                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--bg-card)", borderRadius: 6, marginBottom: 8 }}>
+                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)', padding: "10px 12px", background: "var(--bg-card)", borderRadius: 6, marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{ width: 12, height: 12, borderRadius: 3, background: s.color }} /><div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 500, color: C.textDark }}>{s.name}</div><div style={{ fontSize: 12, color: C.textMid }}>{s.time}</div></div>
                 </div>
               ))}</div>
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
             <div style={panel}>
               <div style={pH}><span>{t("deptPage.qcConfig")}</span><span style={{ fontSize: 12, color: C.success }}>{dataSource === 'api' ? t("deptPage.apiLive") : t("deptPage.demoData")} · {t("deptPage.allPass")}</span></div>
               <div style={pB}>
@@ -609,7 +609,7 @@ export default function DepartmentPage() {
             <div style={panel}>
               <div style={pH}><span>{t("deptPage.criticalValueConfig")}</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? t("deptPage.criticalApiLive") : t("deptPage.demoData")}</span></div>
               <div style={pB}>{criticalValues.map((cv) => (
-                <div key={cv.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--bg-card)", borderRadius: 6, marginBottom: 8, borderLeft: `3px solid ${cv.alertLevel === "critical" ? C.danger : C.warning}` }}>
+                <div key={cv.id} style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)', padding: "10px 12px", background: "var(--bg-card)", borderRadius: 6, marginBottom: 'var(--space-2, 8px)', borderLeft: `3px solid ${cv.alertLevel === "critical" ? C.danger : C.warning}` }}>
                   <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{cv.type}</div><div style={{ fontSize: 12, color: C.textMid }}>{cv.modality ? `${cv.modality} · ` : ''}{t("deptPage.threshold")}: {cv.threshold} · {cv.description}</div></div>
                   <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: cv.alertLevel === "critical" ? C.dangerBg : C.warningBg, color: cv.alertLevel === "critical" ? C.danger : C.warning }}>{cv.alertLevel === "critical" ? t("deptPage.criticalShort") : t("deptPage.urgentShort")}</span>
                 </div>
@@ -621,24 +621,24 @@ export default function DepartmentPage() {
 
       {/* Org tab */}
       {activeTab === "org" && (
-        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, marginBottom: 16 }}>
-          <div style={panel}><div style={pH}><span>{t("deptPage.orgTree")}</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? t("deptPage.orgDeviceLive") : t("deptPage.orgTreeHint")}</span></div><div style={{ padding: 16, maxHeight: 500, overflow: "auto" }}>{renderOrgNode(orgTree)}</div></div>
+        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={panel}><div style={pH}><span>{t("deptPage.orgTree")}</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? t("deptPage.orgDeviceLive") : t("deptPage.orgTreeHint")}</span></div><div style={{ padding: 'var(--space-4, 16px)', maxHeight: 500, overflow: "auto" }}>{renderOrgNode(orgTree)}</div></div>
           <div style={panel}>
             <div style={pH}><span>{selectedOrg?.name || t("deptPage.nodeDetail")}</span></div>
             <div style={pB}>{selectedOrg ? (
               <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>{selectedOrg.name}</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: C.textDark, marginBottom: 'var(--space-2, 8px)' }}>{selectedOrg.name}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                   <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.typeLabel")}</span><span style={{ fontSize: 12, color: C.textDark }}>{selectedOrg.type === "hospital" ? t("deptPage.hospital") : selectedOrg.type === "department" ? t("deptPage.department") : selectedOrg.type === "section" ? t("deptPage.section") : t("deptPage.group")}</span></div>
                   <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.ownerLabel")}</span><span style={{ fontSize: 12, color: C.textDark }}>{selectedOrg.headName || "-"}</span></div>
                   <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.staffCountLabel")}</span><span style={{ fontSize: 12, color: C.textDark }}>{selectedOrg.staffCount || "-"}</span></div>
                   <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.nodeIdLabel")}</span><span style={{ fontSize: 12, color: C.textLight }}>{selectedOrg.id}</span></div>
                 </div>
                 {selectedOrg.children && selectedOrg.children.length > 0 && (
-                  <div style={{ padding: 12, background: C.bgLight, borderRadius: 6, border: `1px solid ${C.border}` }}>
-                    <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t("deptPage.childNodes", { count: orderedChildren.length })}</div>
+                  <div style={{ padding: 'var(--space-3, 12px)', background: C.bgLight, borderRadius: 6, border: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-2, 8px)' }}>{t("deptPage.childNodes", { count: orderedChildren.length })}</div>
                     {orderedChildren.map((child, idx) => (
-                      <div key={child.id} style={{ padding: "6px 4px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 12, color: C.textDark, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div key={child.id} style={{ padding: "6px 4px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 12, color: C.textDark, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                         <span style={{ width: 18, color: C.textLight, fontSize: 11 }}>{idx + 1}.</span>
                         <span style={{ flex: 1 }}>{child.name}</span>
                         <button onClick={() => moveChild(idx, -1)} disabled={idx === 0} title={t("deptPage.moveUp")} style={{ border: `1px solid ${C.border}`, background: idx === 0 ? C.bgLight : C.white, color: idx === 0 ? C.textLight : C.textDark, cursor: idx === 0 ? "not-allowed" : "pointer", borderRadius: 4, padding: "2px 6px" }}><ChevronUp size={12} /></button>
@@ -648,17 +648,17 @@ export default function DepartmentPage() {
                   </div>
                 )}
               </div>
-            ) : <div style={{ color: C.textLight, textAlign: "center", padding: 40 }}>{t("deptPage.selectOrgNode")}</div>}</div>
+            ) : <div style={{ color: C.textLight, textAlign: "center", padding: 'var(--space-10, 40px)' }}>{t("deptPage.selectOrgNode")}</div>}</div>
           </div>
         </div>
       )}
 
       {/* Credentials tab */}
       {activeTab === "credentials" && (
-        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={panel}>
             <div style={pH}><span>{t("deptPage.staffCredentials")}</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? t("deptPage.userApiLive") : t("deptPage.demoData")}</span></div>
-            <div style={{ padding: 12 }}><div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 400, overflow: "auto" }}>
+            <div style={{ padding: 'var(--space-3, 12px)' }}><div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', maxHeight: 400, overflow: "auto" }}>
               {(deptStaff.length > 0 ? deptStaff : [selectedStaff || { id: "S001", name: "张伟明", title: "主任医师" }]).map((s) => (
                 <div key={s.id} onClick={() => setSelectedCredStaff(s)} style={{ padding: "10px 12px", borderRadius: 6, cursor: "pointer", background: selectedCredStaff?.id === s.id ? C.primaryLighter : C.white, border: `1px solid ${selectedCredStaff?.id === s.id ? C.primary : C.borderLight}`, display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.primaryLight, color: C.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600 }}>{s.name.charAt(0)}</div>
@@ -671,26 +671,26 @@ export default function DepartmentPage() {
             <div style={pH}><span>{selectedCredStaff?.name || t("deptPage.selectStaff")} - {t("deptPage.credentials")}</span></div>
             <div style={pB}>
               {credentials.filter((c) => c.staffId === selectedCredStaff?.id).length === 0 ? (
-                <div style={{ textAlign: "center", padding: 40, color: C.textLight }}>{t("deptPage.noCredentials")}</div>
+                <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: C.textLight }}>{t("deptPage.noCredentials")}</div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
                   {credentials.filter((c) => c.staffId === selectedCredStaff?.id).map((c) => {
                     const expiry = getExpiryStatus(c.expiryDate);
                     return (
                       <div key={c.id} style={{ padding: 14, background: C.white, borderRadius: 8, border: `1px solid ${C.borderLight}`, borderLeft: `4px solid ${expiry.color}` }}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
-                          <div><div style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{c.name}</div><div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{c.type === "license" ? t("deptPage.license") : c.type === "certification" ? t("deptPage.certification") : t("deptPage.cme")} · {c.issuingAuthority}</div></div>
+                          <div><div style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{c.name}</div><div style={{ fontSize: 12, color: C.textMid, marginTop: 'var(--space-1, 4px)' }}>{c.type === "license" ? t("deptPage.license") : c.type === "certification" ? t("deptPage.certification") : t("deptPage.cme")} · {c.issuingAuthority}</div></div>
                           <span style={{ padding: "2px 10px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: expiry.bg, color: expiry.color }}>{expiry.label}</span>
                         </div>
-                        <div style={{ marginTop: 8, display: "flex", gap: 16, fontSize: 12, color: C.textMid }}><span>{t("deptPage.issued")}：{c.issueDate}</span><span>{t("deptPage.expires")}：{c.expiryDate}</span>{c.credits && <span>{t("deptPage.creditsLabel", { credits: c.credits })}</span>}</div>
+                        <div style={{ marginTop: 'var(--space-2, 8px)', display: "flex", gap: 'var(--space-4, 16px)', fontSize: 12, color: C.textMid }}><span>{t("deptPage.issued")}：{c.issueDate}</span><span>{t("deptPage.expires")}：{c.expiryDate}</span>{c.credits && <span>{t("deptPage.creditsLabel", { credits: c.credits })}</span>}</div>
                       </div>
                     );
                   })}
                 </div>
               )}
               {credentials.filter((c) => getExpiryStatus(c.expiryDate).label !== t("deptPage.valid")).length > 0 && (
-                <div style={{ marginTop: 16, padding: 12, background: C.dangerBg, borderRadius: 6, border: `1px solid ${C.danger}30` }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}><AlertTriangle size={14} color={C.danger} /><span style={{ fontSize: 12, fontWeight: 500, color: C.danger }}>{t("deptPage.expiryReminder")}</span></div>
+                <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: C.dangerBg, borderRadius: 6, border: `1px solid ${C.danger}30` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 'var(--space-2, 8px)' }}><AlertTriangle size={14} color={C.danger} /><span style={{ fontSize: 12, fontWeight: 500, color: C.danger }}>{t("deptPage.expiryReminder")}</span></div>
                   {credentials.filter((c) => getExpiryStatus(c.expiryDate).label !== t("deptPage.valid")).slice(0, 5).map((c) => (
                     <div key={c.id} style={{ fontSize: 12, color: C.textMid, padding: "4px 0", borderBottom: `1px solid ${C.danger}20` }}>{c.name}（{c.expiryDate}）</div>
                   ))}
@@ -703,19 +703,19 @@ export default function DepartmentPage() {
 
       {/* Review tab */}
       {activeTab === "review" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={panel}>
-            <div style={pH}><span>{t("deptPage.reviewTasks")}</span><span style={{ fontSize: 12, color: C.textLight }}>{t("deptPage.demoData")}</span><button onClick={() => setShowReviewModal(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus size={12} /> {t("deptPage.assignReview")}</button></div>
+            <div style={pH}><span>{t("deptPage.reviewTasks")}</span><span style={{ fontSize: 12, color: C.textLight }}>{t("deptPage.demoData")}</span><button onClick={() => setShowReviewModal(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Plus size={12} /> {t("deptPage.assignReview")}</button></div>
             <div style={{ maxHeight: 500, overflow: "auto" }}>
               {reviews.map((r) => (
                 <div key={r.id} style={{ padding: 14, borderBottom: `1px solid ${C.borderLight}`, borderLeft: `4px solid ${r.status === "completed" ? C.success : C.warning}` }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 'var(--space-1, 4px)' }}>
                     <div><div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{r.targetName}</div><div style={{ fontSize: 12, color: C.textMid }}>{r.caseType} · {r.caseId}</div></div>
                     <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: r.status === "completed" ? C.successBg : C.warningBg, color: r.status === "completed" ? C.success : C.warning }}>{r.status === "completed" ? `评分${r.score}` : t("deptPage.pendingReview")}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>{r.reviewerName} · {r.status === "completed" ? r.reviewDate : t("deptPage.notCompleted")}</div>
+                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 'var(--space-1, 4px)' }}>{r.reviewerName} · {r.status === "completed" ? r.reviewDate : t("deptPage.notCompleted")}</div>
                   {r.status === "pending" && (
-                    <div style={{ marginTop: 8, display: "flex", gap: 4 }}>
+                    <div style={{ marginTop: 'var(--space-2, 8px)', display: "flex", gap: 'var(--space-1, 4px)' }}>
                       {[1, 2, 3, 4, 5].map((s) => (
                         <button key={s} onClick={() => { setReviewScore(s); setReviewForm((prev) => ({ ...prev, comment: `评分${s}星` })); handleSubmitReview(r.id); }} style={{ width: 28, height: 28, borderRadius: "50%", border: `1px solid ${reviewScore === s ? C.warning : C.border}`, background: reviewScore === s ? C.warningBg : C.white, cursor: "pointer", fontSize: 12, color: reviewScore === s ? C.warning : C.textMid }}>{s}</button>
                       ))}
@@ -729,8 +729,8 @@ export default function DepartmentPage() {
           <div style={panel}>
             <div style={pH}><span>{t("deptPage.reviewerPerformance")}</span></div>
             <div style={pB}>{REVIEWER_METRICS.map((rm, i) => (
-              <div key={i} style={{ padding: 12, background: C.bgLight, borderRadius: 6, border: `1px solid ${C.borderLight}`, marginBottom: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{rm.name}</span><span style={{ fontSize: 12, color: C.primary }}>{t("deptPage.avgScore", { score: rm.avgScore })}</span></div>
+              <div key={i} style={{ padding: 'var(--space-3, 12px)', background: C.bgLight, borderRadius: 6, border: `1px solid ${C.borderLight}`, marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 'var(--space-1, 4px)' }}><span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{rm.name}</span><span style={{ fontSize: 12, color: C.primary }}>{t("deptPage.avgScore", { score: rm.avgScore })}</span></div>
                 <div style={{ fontSize: 12, color: C.textMid }}>{t("deptPage.completedCount", { completed: rm.completed, total: rm.totalCases })} · {t("deptPage.acceptance", { rate: rm.acceptance })}</div>
                 <div style={{ marginTop: 6, background: C.white, height: 4, borderRadius: 2, overflow: "hidden" }}><div style={{ width: `${(rm.completed / rm.totalCases) * 100}%`, height: "100%", background: C.primary, borderRadius: 2 }} /></div>
               </div>
@@ -741,21 +741,21 @@ export default function DepartmentPage() {
 
       {/* [G005 Wave3A P2] 公告管理 tab */}
       {activeTab === "announce" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={panel}>
             <div style={pH}>
               <span style={{ display: "flex", alignItems: "center", gap: 6 }}><Megaphone size={14} color={C.primary} />{t("deptPage.deptAnnouncements")}</span>
               <span style={{ fontSize: 12, color: C.textLight }}>dept-announcements API · {t("deptPage.announceCount", { count: announcements.length })}</span>
-              <button onClick={() => { setAnnounceEditId(null); setAnnounceForm({ title: "", content: "", category: "notice", pinned: false, expiresAt: "" }); setAnnounceError(""); setShowAnnounceModal(true); }} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus size={12} /> {t("deptPage.publishAnnouncement")}</button>
+              <button onClick={() => { setAnnounceEditId(null); setAnnounceForm({ title: "", content: "", category: "notice", pinned: false, expiresAt: "" }); setAnnounceError(""); setShowAnnounceModal(true); }} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Plus size={12} /> {t("deptPage.publishAnnouncement")}</button>
             </div>
             <div style={pB}>
               {announcements.length === 0 ? (
-                <div style={{ textAlign: "center", padding: 40, color: C.textLight }}>{t("deptPage.noAnnouncements")}</div>
+                <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: C.textLight }}>{t("deptPage.noAnnouncements")}</div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {announcements.map((a) => (
-                    <div key={a.id} style={{ padding: 12, background: a.pinned ? "var(--color-warning-bg)" : C.bgLight, borderRadius: 6, border: `1px solid ${a.pinned ? "var(--color-warning-border)" : C.borderLight}`, borderLeft: `4px solid ${a.pinned ? C.warning : C.primary}` }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div key={a.id} style={{ padding: 'var(--space-3, 12px)', background: a.pinned ? "var(--color-warning-bg)" : C.bgLight, borderRadius: 6, border: `1px solid ${a.pinned ? "var(--color-warning-border)" : C.borderLight}`, borderLeft: `4px solid ${a.pinned ? C.warning : C.primary}` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                         {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.primary} />}
                         <strong style={{ fontSize: 14, color: C.textDark }}>{a.title}</strong>
                         <span style={{ padding: "1px 8px", borderRadius: 4, fontSize: 11, background: a.category === "urgent" ? C.dangerBg : C.infoBg, color: a.category === "urgent" ? C.danger : C.info }}>
@@ -765,7 +765,7 @@ export default function DepartmentPage() {
                         <span style={{ fontSize: 12, color: C.textLight, marginLeft: "auto" }}>{a.author} · {String(a.createdAt).slice(0, 16).replace("T", " ")} · {t("deptPage.until")} {a.expiresAt}</span>
                       </div>
                       <div style={{ fontSize: 12, color: C.textMid, marginTop: 6 }}>{a.content}</div>
-                      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                      <div style={{ display: "flex", gap: 6, marginTop: 'var(--space-2, 8px)' }}>
                         <button onClick={() => void handleAnnounceTogglePin(a)} style={miniBtn(a.pinned ? C.warning : C.info)}><PinOff size={11} /> {a.pinned ? t("deptPage.unpin") : t("deptPage.pin")}</button>
                         <button onClick={() => openAnnounceEdit(a)} style={miniBtn(C.primary)}><Edit3 size={11} /> {t("deptPage.edit")}</button>
                         <button onClick={() => void handleAnnounceDelete(a.id)} style={miniBtn(C.danger)}><Trash2 size={11} /> {t("deptPage.delete")}</button>
@@ -781,13 +781,13 @@ export default function DepartmentPage() {
 
       {/* [G005 Wave3A P2] 值班管理 tab */}
       {activeTab === "oncall" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={panel}>
             <div style={pH}>
               <span style={{ display: "flex", alignItems: "center", gap: 6 }}><CalendarClock size={14} color={C.primary} />{t("deptPage.onCallManagement")} · {onCallCalendar.month || onCallMonth}</span>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
                 <input type="month" value={onCallMonth} onChange={(e) => setOnCallMonth(e.target.value || new Date().toISOString().slice(0, 7))} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} aria-label={t("deptPage.selectMonth")} />
-                <button onClick={() => openOnCallAdd()} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus size={12} /> {t("deptPage.addOnCall")}</button>
+                <button onClick={() => openOnCallAdd()} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Plus size={12} /> {t("deptPage.addOnCall")}</button>
               </div>
             </div>
             <div style={pB}>
@@ -814,7 +814,7 @@ export default function DepartmentPage() {
                             {list.length === 0 ? (
                               <button onClick={() => openOnCallAdd(d.date, shift)} title={`${d.date} 添加${shift}`} style={{ ...miniBtn(C.textLight), fontSize: 11 }}>+</button>
                             ) : (
-                              <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-1, 4px)', alignItems: "center" }}>
                                 {list.map((s: any) => (
                                   <span key={s.id} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "2px 8px", borderRadius: 4, background: C.primaryLighter, fontSize: 12, color: C.textDark }}>
                                     {s.doctorName} ({s.role})
@@ -833,7 +833,7 @@ export default function DepartmentPage() {
                     </tr>
                   ))}
                   {onCallCalendar.days.length === 0 && (
-                    <tr><td colSpan={5} style={{ textAlign: "center", padding: 40, color: C.textLight }}>{t("deptPage.noSchedule")}</td></tr>
+                    <tr><td colSpan={5} style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: C.textLight }}>{t("deptPage.noSchedule")}</td></tr>
                   )}
                 </tbody>
               </table>
@@ -845,13 +845,13 @@ export default function DepartmentPage() {
       {/* Modals */}
       {showAddModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.addStaff")}</div>
               <button onClick={() => setShowAddModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
-            {addError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 12 }}>{addError}</div>}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {addError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}>{addError}</div>}
+            <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
               {[
                 { label: t("deptPage.name"), key: "name", placeholder: t("deptPage.namePlaceholder") },
                 { label: t("deptPage.title"), key: "title", placeholder: t("deptPage.titlePlaceholder") },
@@ -868,10 +868,10 @@ export default function DepartmentPage() {
                   {[["physician", t("deptPage.rolePhysician")], ["technician", t("deptPage.roleTechnician")], ["nurse", t("deptPage.roleNurse")], ["director", t("deptPage.roleDirector")], ["vice_director", t("deptPage.roleViceDirector")], ["intern", t("deptPage.roleIntern")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
-              <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>{t("deptPage.addStaffHint")}</div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+              <div style={{ fontSize: 12, color: C.textLight, padding: 'var(--space-2, 8px)', background: C.bgLight, borderRadius: 6 }}>{t("deptPage.addStaffHint")}</div>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)', justifyContent: "flex-end", marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowAddModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
-                <button onClick={() => void handleAddStaff()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><UserPlus size={13} /> {t("deptPage.save")}</button>
+                <button onClick={() => void handleAddStaff()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><UserPlus size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>
@@ -879,9 +879,9 @@ export default function DepartmentPage() {
       )}
       {showExportModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 320, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: C.textDark }}>{t("deptPage.exportReport")}</div>
-            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 320, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 'var(--space-4, 16px)', color: C.textDark }}>{t("deptPage.exportReport")}</div>
+            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 'var(--space-5, 20px)' }}>
               {exportDone ? t("deptPage.exportDone") : t("deptPage.exporting")}
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -896,12 +896,12 @@ export default function DepartmentPage() {
       )}
       {showEditModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.editStaff")} — {selectedStaff?.name}</div>
               <button onClick={() => setShowEditModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
               {[
                 { label: t("deptPage.name"), key: "name", placeholder: t("deptPage.namePlaceholder") },
                 { label: t("deptPage.title"), key: "title", placeholder: t("deptPage.titlePlaceholder") },
@@ -918,9 +918,9 @@ export default function DepartmentPage() {
                   {[["physician", t("deptPage.rolePhysician")], ["technician", t("deptPage.roleTechnician")], ["nurse", t("deptPage.roleNurse")], ["director", t("deptPage.roleDirector")], ["vice_director", t("deptPage.roleViceDirector")], ["intern", t("deptPage.roleIntern")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)', justifyContent: "flex-end", marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowEditModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
-                <button onClick={handleEditStaff} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Edit3 size={13} /> {t("deptPage.save")}</button>
+                <button onClick={handleEditStaff} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Edit3 size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>
@@ -928,9 +928,9 @@ export default function DepartmentPage() {
       )}
       {showReviewModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}><div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.assignReviewTask")}</div><button onClick={() => setShowReviewModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}><div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.assignReviewTask")}</div><button onClick={() => setShowReviewModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
               <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.reviewee")}</label>
                 <select value={reviewForm.targetId} onChange={(e) => setReviewForm({ ...reviewForm, targetId: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}>
                   <option value="">{t("deptPage.selectStaff")}</option>{staffForReview.filter((s) => s.role === "physician").map((s) => <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>)}
@@ -939,7 +939,7 @@ export default function DepartmentPage() {
               <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.caseType")}</label>
                 <select value={reviewForm.caseType} onChange={(e) => setReviewForm({ ...reviewForm, caseType: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}><option value="CT">CT</option><option value="MR">MR</option><option value="DR">DR</option></select>
               </div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)', justifyContent: "flex-end", marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowReviewModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
                 <button onClick={handleAssignReview} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.assign")}</button>
               </div>
@@ -950,12 +950,12 @@ export default function DepartmentPage() {
       {/* [G005 Wave3A P2] 发布/编辑公告 Modal */}
       {showAnnounceModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 440, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 440, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{announceEditId ? t("deptPage.editAnnouncement") : t("deptPage.publishAnnouncement")}</div>
               <button onClick={() => setShowAnnounceModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
-            {announceError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 12 }}>{announceError}</div>}
+            {announceError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}>{announceError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.titleRequired")}</label>
                 <input type="text" value={announceForm.title} onChange={(e) => setAnnounceForm({ ...announceForm, title: e.target.value })} placeholder={t("deptPage.announceTitlePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
@@ -963,7 +963,7 @@ export default function DepartmentPage() {
               <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.contentRequired")}</label>
                 <textarea rows={4} value={announceForm.content} onChange={(e) => setAnnounceForm({ ...announceForm, content: e.target.value })} placeholder={t("deptPage.announceContentPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, resize: "vertical" }} />
               </div>
-              <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.category")}</label>
                   <select value={announceForm.category} onChange={(e) => setAnnounceForm({ ...announceForm, category: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}>
                     {[["notice", t("deptPage.announceNotice")], ["meeting", t("deptPage.announceMeeting")], ["policy", t("deptPage.announcePolicy")], ["urgent", t("deptPage.announceUrgent")], ["other", t("deptPage.announceOther")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -973,13 +973,13 @@ export default function DepartmentPage() {
                   <input type="date" value={announceForm.expiresAt} onChange={(e) => setAnnounceForm({ ...announceForm, expiresAt: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
                 </div>
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textMid }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', fontSize: 12, color: C.textMid }}>
                 <input type="checkbox" checked={announceForm.pinned} onChange={(e) => setAnnounceForm({ ...announceForm, pinned: e.target.checked })} style={{ width: 15, height: 15 }} />
                 {t("deptPage.pinnedDisplay")}
               </label>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)', justifyContent: "flex-end", marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowAnnounceModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
-                <button onClick={() => void handleAnnounceSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> {t("deptPage.save")}</button>
+                <button onClick={() => void handleAnnounceSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Save size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>
@@ -988,14 +988,14 @@ export default function DepartmentPage() {
       {/* [G005 Wave3A P2] 新增/编辑值班 Modal */}
       {showOnCallModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 420, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 420, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{onCallEditId ? t("deptPage.editOnCall") : t("deptPage.addOnCallTitle")}</div>
               <button onClick={() => setShowOnCallModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
-            {onCallError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 12 }}>{onCallError}</div>}
+            {onCallError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}>{onCallError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.dateRequired")}</label>
                   <input type="date" value={onCallForm.date} onChange={(e) => setOnCallForm({ ...onCallForm, date: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
                 </div>
@@ -1005,7 +1005,7 @@ export default function DepartmentPage() {
                   </select>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.doctorIdRequired")}</label>
                   <input type="text" value={onCallForm.doctorId} onChange={(e) => setOnCallForm({ ...onCallForm, doctorId: e.target.value })} placeholder={t("deptPage.doctorIdPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
@@ -1016,9 +1016,9 @@ export default function DepartmentPage() {
               <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
                 <input type="text" value={onCallForm.role} onChange={(e) => setOnCallForm({ ...onCallForm, role: e.target.value })} placeholder={t("deptPage.rolePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
               </div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-3, 12px)', justifyContent: "flex-end", marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowOnCallModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
-                <button onClick={() => void handleOnCallSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> {t("deptPage.save")}</button>
+                <button onClick={() => void handleOnCallSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Save size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>

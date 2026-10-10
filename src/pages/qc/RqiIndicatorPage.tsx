@@ -495,7 +495,7 @@ export default function RqiIndicatorPage() {
         }
       />
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
         {/* 周期选择工具栏 */}
         <div
           style={{
@@ -503,11 +503,11 @@ export default function RqiIndicatorPage() {
             border: '1px solid var(--border-color)',
             borderRadius: 12,
             padding: '12px 16px',
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
           }}
         >
           <Space size={4}>
@@ -597,7 +597,7 @@ export default function RqiIndicatorPage() {
                   title={
                     <span>
                       {ind.name}{' '}
-                      <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 4 }}>{ind.code}</span>
+                      <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{ind.code}</span>
                     </span>
                   }
                   value={ind.rate}
@@ -629,16 +629,16 @@ export default function RqiIndicatorPage() {
           </StatCardGrid>
 
           {/* 达标总览 */}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <DashboardCard title={t('rqi2024.overview')} icon={<Target size={15} />} extra={<Tag>{dashboard?.period ?? period}</Tag>}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 32 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-8, 32px)' }}>
                 <ProgressRing
                   percent={dashboard?.passRate ?? 0}
                   size={120}
                   strokeWidth={12}
                   subLabel={t('rqi2024.passRate')}
                 />
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-6, 24px)' }}>
                   <OverviewStat
                     icon={<CheckCircle2 size={18} />}
                     color="var(--color-success-600)"
@@ -669,7 +669,7 @@ export default function RqiIndicatorPage() {
           </div>
 
           {/* 明细下钻 + 趋势 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 16, marginTop: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
             <DashboardCard
               title={
                 selectedIndicator
@@ -734,7 +734,7 @@ export default function RqiIndicatorPage() {
           </div>
 
           {/* 40 条扩展指标 */}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <DashboardCard
               title={t('rqi2024.extendedTitle')}
               icon={<Activity size={15} />}
@@ -770,7 +770,7 @@ export default function RqiIndicatorPage() {
           </div>
 
           {/* [G005 W9-QC] 40 指标实时计算引擎 (可从报告/检查/危急值/设备数据派生) */}
-          <div style={{ marginTop: 16 }} data-testid="rqi-compute-engine">
+          <div style={{ marginTop: 'var(--space-4, 16px)' }} data-testid="rqi-compute-engine">
             <DashboardCard title={t('rqi2024.computeTitle')} icon={<Activity size={15} />}>
               {computedDash && (
                 <StatCardGrid columns={4}>
@@ -781,7 +781,7 @@ export default function RqiIndicatorPage() {
                 </StatCardGrid>
               )}
               {computed && (
-                <div style={{ marginTop: 12 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                   <DataTable<ComputedIndicator>
                     rowKey={(r) => r.code}
                     pageSize={10}
@@ -816,7 +816,7 @@ export default function RqiIndicatorPage() {
           </div>
 
           {/* [G005 W4B] 指标快照历史 (GET /quality-indicators/snapshots) */}
-          <div style={{ marginTop: 16 }} data-testid="rqi-snapshot-history">
+          <div style={{ marginTop: 'var(--space-4, 16px)' }} data-testid="rqi-snapshot-history">
             <DashboardCard
               title={t('w4b.qi.snapshotTitle')}
               icon={<Activity size={15} />}
@@ -865,9 +865,9 @@ export default function RqiIndicatorPage() {
           </Space>
         }
       >
-        <div style={{ color: '#64748b', fontSize: 12, marginBottom: 16 }}>{t('rqi2024.configHint')}</div>
+        <div style={{ color: '#64748b', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>{t('rqi2024.configHint')}</div>
         {configLoading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('rqi2024.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('rqi2024.loading')}</div>
         ) : (
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             {configItems.map((c) => (
@@ -877,11 +877,11 @@ export default function RqiIndicatorPage() {
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
                   borderRadius: 8,
-                  padding: 12,
+                  padding: 'var(--space-3, 12px)',
                 }}
               >
                 <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 10 }}>
-                  {c.name} <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 4 }}>{c.code}</span>
+                  {c.name} <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{c.code}</span>
                 </div>
                 <Space direction="vertical" size={10} style={{ width: '100%' }}>
                   <FormField label={`${t('rqi2024.configTarget')} (${c.unit})`} labelWidth={110}>

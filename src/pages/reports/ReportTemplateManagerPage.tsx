@@ -250,15 +250,15 @@ export const ReportTemplateManagerPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Layout size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reportTpl.title')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Tag color="blue">{t('reportTpl.snippets')}</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => { void load(); void loadSnippets(); }}>{t('reportTpl.refresh')}</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('reportTpl.retry')}</Button>} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('reportTpl.retry')}</Button>} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('reportTpl.statTemplates')} value={templates.length} icon={<FileText size={18} />} />
         <StatCard title={t('reportTpl.statSnippets')} value={snippets.length} icon={<Layers size={18} />} />
         <StatCard title={t('reportTpl.statPublished')} value={publishedCount} color="success" />
@@ -290,7 +290,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
           />
         </Spin>
       </Card>
-      <Card size="small" title={<Space><Layers size={14} />{t('reportTpl.snippets')} <Tag>{snippets.length}</Tag></Space>} style={{ marginTop: 16 }} extra={<Button icon={<Plus size={12} />} onClick={() => setSnippetModal(true)}>{t('reportTpl.createSnippet')}</Button>}>
+      <Card size="small" title={<Space><Layers size={14} />{t('reportTpl.snippets')} <Tag>{snippets.length}</Tag></Space>} style={{ marginTop: 'var(--space-4, 16px)' }} extra={<Button icon={<Plus size={12} />} onClick={() => setSnippetModal(true)}>{t('reportTpl.createSnippet')}</Button>}>
         <Spin spinning={snippetLoading}>
           <DataTable scroll={{ x: 'max-content' }}
             dataSource={snippetPageData}

@@ -165,7 +165,7 @@ export function InlineEditCell({
 
   return (
     <span style={{ display: "inline-flex", flexDirection: "column", gap: 2, width: "100%" }}>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
         {inputType === "textarea" ? (
           <textarea
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}

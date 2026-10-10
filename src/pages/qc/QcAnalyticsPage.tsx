@@ -83,9 +83,9 @@ const TrendTooltip = ({ active, payload, label }: { active?: boolean; payload?: 
   if (!active || !payload || payload.length === 0) return null
   return (
     <div style={{ background: 'rgba(15,23,42,0.92)', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: '#e2e8f0' }}>
-      <div style={{ fontWeight: 600, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
       {payload.map((p, i) => (
-        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-4, 16px)' }}>
           <span style={{ color: p.color }}>{p.name}</span>
           <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.value}{typeof p.value === 'number' ? '%' : ''}</span>
         </div>
@@ -378,7 +378,7 @@ export default function QcAnalyticsPage() {
 
       {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
         <StatCardGrid gap={12}>
           {statCards.map((s, i) => (
             <StatCard key={i} title={s.label} value={s.value} suffix={s.suffix} icon={s.icon} color={s.color} sub={s.sub} />
@@ -386,8 +386,8 @@ export default function QcAnalyticsPage() {
         </StatCardGrid>
 
         {/* 趋势面板 */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginTop: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
             <Space size={8}>
               <TrendingUp size={16} color="var(--color-primary-500)" />
               <b>{t('qcAnalytics.trendTitle')}</b>
@@ -412,9 +412,9 @@ export default function QcAnalyticsPage() {
         </div>
 
         {/* 帕累托 + 科室排名 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
-            <Space size={8} style={{ marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)' }}>
+            <Space size={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Bug size={16} color="var(--color-error-500)" />
               <b>{t('qcAnalytics.paretoTitle')}</b>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.paretoSub')}</span>
@@ -435,8 +435,8 @@ export default function QcAnalyticsPage() {
             </ChartContainer>
           </div>
 
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
-            <Space size={8} style={{ marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)' }}>
+            <Space size={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Target size={16} color="var(--color-primary-500)" />
               <b>{t('qcAnalytics.deptRankTitle')}</b>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.deptRankSub')}</span>
@@ -452,8 +452,8 @@ export default function QcAnalyticsPage() {
         </div>
 
         {/* 闭环面板 */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginTop: 16 }}>
-          <Space size={8} style={{ marginBottom: 12 }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+          <Space size={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <CheckCircle2 size={16} color="#10b981" />
             <b>{t('qcAnalytics.loopTitle')}</b>
             <span style={{ color: '#94a3b8', fontSize: 12 }}>
@@ -510,9 +510,9 @@ export default function QcAnalyticsPage() {
         destroyOnClose
       >
         {createDefect && (
-          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '10px 12px', fontSize: 12, marginBottom: 12, color: '#7f1d1d' }}>
+          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '10px 12px', fontSize: 12, marginBottom: 'var(--space-3, 12px)', color: '#7f1d1d' }}>
             <Space size={6}><Bug size={13} /> {createDefect.message}</Space>
-            <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 4 }}>{createDefect.reportId} · {createDefect.department} · {sourceLabel(createDefect.source)}</div>
+            <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{createDefect.reportId} · {createDefect.department} · {sourceLabel(createDefect.source)}</div>
           </div>
         )}
         <Form form={createForm} layout="vertical" preserve={false} initialValues={{ assigneeName: '王质控员' }}>
@@ -555,7 +555,7 @@ export default function QcAnalyticsPage() {
         destroyOnClose
       >
         {rechecking?.recheckResult === 'fail' && (
-          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: '#7f1d1d', marginBottom: 12 }}>
+          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: '#7f1d1d', marginBottom: 'var(--space-3, 12px)' }}>
             {t('qcAnalytics.lastRejected', { note: rechecking.recheckNote })}
           </div>
         )}
@@ -617,7 +617,7 @@ export default function QcAnalyticsPage() {
               </div>
             </div>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
-              <b style={{ display: 'block', marginBottom: 12 }}>{t('qcAnalytics.historyTitle')}</b>
+              <b style={{ display: 'block', marginBottom: 'var(--space-3, 12px)' }}>{t('qcAnalytics.historyTitle')}</b>
               {(detail.history ?? []).length === 0 ? (
                 <Empty description={t('qcAnalytics.noHistory')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
@@ -625,7 +625,7 @@ export default function QcAnalyticsPage() {
                   items={(detail.history ?? []).map((h) => ({
                     color: h.action === 'closed' || h.action === 'rechecked' ? (detail.recheckResult === 'fail' && h.action === 'rechecked' ? 'red' : 'green') : 'blue',
                     children: (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-2, 8px)' }}>
                         <div>
                           <div style={{ fontSize: 12 }}>{h.note}</div>
                           <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 2 }}>{h.actor}</div>

@@ -143,7 +143,7 @@ export function AppModal({
     alignItems: "center",
     justifyContent: "center",
     zIndex: zIndex ?? Z_MODAL,
-    padding: 16,
+    padding: 'var(--space-4, 16px)',
     animation: "appModalFadeIn 0.15s ease-out",
   };
 
@@ -195,7 +195,7 @@ export function AppModal({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                gap: 12,
+                gap: 'var(--space-3, 12px)',
               }}
             >
               <div
@@ -280,7 +280,7 @@ export function AppModal({
           )}
           <div
             style={{
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               overflowY: "auto",
               flex: 1,
               ...contentStyle,

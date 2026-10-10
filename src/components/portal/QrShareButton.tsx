@@ -26,7 +26,7 @@ export default function QrShareButton({
       {showQr && (
         <div style={{
           position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
-          marginTop: 8, background: 'var(--bg-card)', borderRadius: 10, padding: 14,
+          marginTop: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 10, padding: 14,
           boxShadow: '0 4px 16px rgba(0,0,0,0.15)', zIndex: 100, width: 180, textAlign: 'center',
         }}>
           <div style={{
@@ -44,7 +44,7 @@ export default function QrShareButton({
             style={{
               padding: '4px 12px', border: '1px solid #0ea5e9', borderRadius: 4,
               background: 'var(--color-info-bg)', fontSize: 12, color: 'var(--color-primary-800)', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', margin: '0 auto',
             }}
           >
             <Link2 size={10} /> 复制链接

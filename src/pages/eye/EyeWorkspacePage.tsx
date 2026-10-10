@@ -221,7 +221,7 @@ const EyeWorkspacePage: React.FC = () => {
       {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       <Spin spinning={loading}>
-        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           {KPI_CARDS.map((k) => (
             <StatCard
               key={k.key}
@@ -235,7 +235,7 @@ const EyeWorkspacePage: React.FC = () => {
         </StatCardGrid>
       </Spin>
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+      <Row gutter={[12, 12]} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         {QUICK_LINKS.map((q) => (
           <Col xs={24} sm={12} md={linkColSpan} key={q.key}>
             <Card
@@ -264,7 +264,7 @@ const EyeWorkspacePage: React.FC = () => {
       <Card
         size="small"
         title={<Space><Box size={15} color="#10b981" />{t('eyeWs.iolInventory')}</Space>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={
           <a onClick={() => navigate('/materials')} style={{ fontSize: 12 }}>
             {t('eyeWs.inventoryDetail')} <ArrowRight size={12} className="v4-icon" />
@@ -295,7 +295,7 @@ const EyeWorkspacePage: React.FC = () => {
       <Card
         size="small"
         title={<Space><FileText size={15} color="#10b981" />{t('eyeWs.iolRecords')}</Space>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={
           <a onClick={() => navigate('/eye/ris/iol-calculator')} style={{ fontSize: 12 }}>
             {t('eyeWs.iolCalculator')} <ArrowRight size={12} className="v4-icon" />

@@ -347,16 +347,16 @@ const Card: React.FC<CardProps> = ({ title, icon, children, style }) => (
   <div style={{
     background: 'var(--bg-card)',
     borderRadius: 6,
-    padding: 16,
-    marginBottom: 12,
+    padding: 'var(--space-4, 16px)',
+    marginBottom: 'var(--space-3, 12px)',
     boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
     border: `1px solid ${C.border}`,
     ...style
   }}>
     {title && (
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        marginBottom: 12, paddingBottom: 8,
+        display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
+        marginBottom: 'var(--space-3, 12px)', paddingBottom: 'var(--space-2, 8px)',
         borderBottom: `1px solid ${C.border}`
       }}>
         {icon && <span style={{ color: C.primary }}>{icon}</span>}
@@ -382,8 +382,8 @@ interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => (
   <div style={{
-    display: 'flex', gap: 4, marginBottom: 16,
-    background: C.bg, borderRadius: 6, padding: 4
+    display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)',
+    background: C.bg, borderRadius: 6, padding: 'var(--space-1, 4px)'
   }}>
     {tabs.map(tab => (
       <button
@@ -412,7 +412,7 @@ interface StatusBadgeProps {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => (
   <span style={{
-    display: 'inline-flex', alignItems: 'center', gap: 4,
+    display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
     padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500,
     background: `${getStatusColor(status)}20`,
     color: getStatusColor(status)
@@ -454,7 +454,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onChange, placeholder }) =
       onChange={onChange}
       placeholder={placeholder}
       style={{
-        width: '100%', paddingLeft: 34, paddingRight: 12, paddingTop: 8, paddingBottom: 8,
+        width: '100%', paddingLeft: 34, paddingRight: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)', paddingBottom: 'var(--space-2, 8px)',
         border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12, boxSizing: 'border-box'
       }}
     />
@@ -1357,13 +1357,13 @@ export default function PrintManagementPage() {
 
   // 渲染打印配置管理
   const renderPrintConfig = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 打印机列表 */}
       <Card title={t("printMgmt.printerList")} icon={<Printer size={16} />}>
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <SearchBar value={searchKeyword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchKeyword(e.target.value)} placeholder={t("printMgmt.searchPrinterPlaceholder")} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 320, overflowY: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', maxHeight: 320, overflowY: 'auto' }}>
           {printers.filter(p => p.name.toLowerCase().includes(searchKeyword.toLowerCase())).map(printer => (
             <div
               key={printer.id}
@@ -1378,12 +1378,12 @@ export default function PrintManagementPage() {
               }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                   {printer.type === 'network' ? <Network size={14} /> : <HardDrive size={14} />}
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{printer.name}</span>
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid }}>
-                  <span style={{ marginRight: 12 }}>{printer.location}</span>
+                  <span style={{ marginRight: 'var(--space-3, 12px)' }}>{printer.location}</span>
                   <span>{t("printMgmt.defaultLabel")} {printer.defaultCopies}{t("printMgmt.copiesUnit")}</span>
                 </div>
               </div>
@@ -1407,7 +1407,7 @@ export default function PrintManagementPage() {
         <button
           onClick={() => handleOpenPrinterModal(null)}
           style={{
-            marginTop: 12, width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
+            marginTop: 'var(--space-3, 12px)', width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}
@@ -1418,7 +1418,7 @@ export default function PrintManagementPage() {
 
       {/* 胶片规格配置 */}
       <Card title={t("printMgmt.filmSpecConfig")} icon={<Film size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {filmSpecs.map(spec => (
             <div
               key={spec.id}
@@ -1459,7 +1459,7 @@ export default function PrintManagementPage() {
 
       {/* 默认打印设置 */}
       <Card title={t("printMgmt.defaultPrintSettings")} icon={<Settings size={16} />}>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("printMgmt.defaultCopies")}</label>
             <select
@@ -1489,7 +1489,7 @@ export default function PrintManagementPage() {
 
       {/* DICOM打印参数 */}
       <Card title={t("printMgmt.dicomPrintParams")} icon={<Database size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {dicomPresets.map(preset => (
             <div
               key={preset.id}
@@ -1507,7 +1507,7 @@ export default function PrintManagementPage() {
                 <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{preset.name}</span>
                 {preset.id === selectedPreset && <CheckCircle size={16} color={C.primary} />}
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                 {[
                   { label: t("printMgmt.orientation"), value: preset.orientation },
                   { label: t("printMgmt.medium"), value: MEDIUM_TYPE_LABELS[preset.mediumType] ?? preset.mediumType },
@@ -1525,7 +1525,7 @@ export default function PrintManagementPage() {
         <button
           onClick={handleEditDicomPreset}
           style={{
-            marginTop: 12, width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
+            marginTop: 'var(--space-3, 12px)', width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.accent, color: C.white, fontSize: 12, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}
@@ -1538,10 +1538,10 @@ export default function PrintManagementPage() {
 
   // 渲染图文报告打印
   const renderReportPrint = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 报告打印模板 */}
       <Card title={t("printMgmt.reportPrintTemplate")} icon={<ScrollText size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {reportTemplates.map(template => (
             <div
               key={template.id}
@@ -1551,7 +1551,7 @@ export default function PrintManagementPage() {
               }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{template.name}</span>
                   <span style={{
                     fontSize: 12, padding: '1px 6px', borderRadius: 10,
@@ -1560,13 +1560,13 @@ export default function PrintManagementPage() {
                     {template.type}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: C.textMid, display: 'flex', gap: 8 }}>
+                <div style={{ fontSize: 12, color: C.textMid, display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   <span>{t("printMgmt.default")} {template.copies} {t("printMgmt.copiesUnit")}</span>
                   {template.includeImages && <span>{t("printMgmt.includeImage")}</span>}
                   {template.includeLogo && <span>{t("printMgmt.includeLogo")}</span>}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 <button onClick={() => handlePreviewTemplate(template)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primaryLighter, cursor: 'pointer' }}>
                   <Eye size={14} color={C.primary} />
                 </button>
@@ -1580,7 +1580,7 @@ export default function PrintManagementPage() {
         <button
           onClick={handleNewTemplate}
           style={{
-            marginTop: 12, width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
+            marginTop: 'var(--space-3, 12px)', width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}
@@ -1592,16 +1592,16 @@ export default function PrintManagementPage() {
       {/* 打印预览 */}
       <Card title={t("printMgmt.printPreview")} icon={<Eye size={16} />}>
         <div style={{
-          background: C.bg, borderRadius: 4, padding: 16, minHeight: 300,
+          background: C.bg, borderRadius: 4, padding: 'var(--space-4, 16px)', minHeight: 300,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
         }}>
-          <FileText size={48} color={C.textLight} style={{ marginBottom: 12 }} />
+          <FileText size={48} color={C.textLight} style={{ marginBottom: 'var(--space-3, 12px)' }} />
           <p style={{ fontSize: 12, color: C.textMid, margin: 0 }}>{t("printMgmt.selectReportToPreview")}</p>
           <p style={{ fontSize: 12, color: C.textLight, margin: '8px 0 0 0' }}>
             {t("printMgmt.previewHint")}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-3, 12px)' }}>
           <button onClick={handlePrintReport} style={{
             flex: 1, padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer',
@@ -1621,12 +1621,12 @@ export default function PrintManagementPage() {
 
       {/* 批量打印 */}
       <Card title={t("printMgmt.batchPrint")} icon={<Copy size={16} />}>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
             <span style={{ fontSize: 12, color: C.textMid }}>
               {t("printMgmt.selected")} <span style={{ color: C.primary, fontWeight: 600 }}>{selectedQueueItems.length}</span> {t("printMgmt.reportsUnit")}
             </span>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
               <button
                 onClick={() => setSelectedQueueItems(printHistory.map((_: any, i: number) => `batch-${i}`))}
                 style={{ fontSize: 12, color: C.accent, background: 'none', border: 'none', cursor: 'pointer' }}
@@ -1641,7 +1641,7 @@ export default function PrintManagementPage() {
               </button>
             </div>
           </div>
-          <div style={{ maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
             {printHistory.slice(0, 5).map((item, idx) => (
               <div
                 key={item.id}
@@ -1659,7 +1659,7 @@ export default function PrintManagementPage() {
                   }
                 }}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px',
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 8px',
                   borderRadius: 4, border: `1px solid ${C.border}`, cursor: 'pointer',
                   background: selectedQueueItems.includes(`batch-${idx}`) ? C.primaryLighter : 'var(--bg-card)'
                 }}
@@ -1712,7 +1712,7 @@ export default function PrintManagementPage() {
               key: 'modality',
               render: (_: unknown, record) => (
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     {getModalityIcon(record.modality)}
                     <span>{record.modality}</span>
                   </div>
@@ -1734,14 +1734,14 @@ export default function PrintManagementPage() {
 
   // 渲染胶片打印管理
   const renderFilmPrintManagement = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 胶片打印队列 */}
       <Card title={t("printMgmt.filmPrintQueue")} icon={<Layers size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
             <button onClick={handleRefreshQueue} style={{
               padding: '4px 12px', borderRadius: 4, border: 'none', fontSize: 12,
-              background: C.primary, color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+              background: C.primary, color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)'
             }}>
               <RefreshCw size={14} />
               {t("printMgmt.refresh")}
@@ -1757,17 +1757,17 @@ export default function PrintManagementPage() {
             {t("printMgmt.queueLabel")} <span style={{ color: C.primary }}>{printQueue.length}</span> {t("printMgmt.itemUnit")}
           </span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {printQueue.map(item => (
             <div
               key={item.id}
               style={{
-                padding: 12, borderRadius: 4, border: `1px solid ${C.border}`,
-                display: 'flex', alignItems: 'center', gap: 12
+                padding: 'var(--space-3, 12px)', borderRadius: 4, border: `1px solid ${C.border}`,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)'
               }}
             >
               <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                   {getModalityIcon(item.modality)}
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{item.patientName}</span>
                   <span style={{ fontSize: 12, padding: '1px 6px', background: `${C.accent}20`, color: C.accent, borderRadius: 3 }}>
@@ -1785,7 +1785,7 @@ export default function PrintManagementPage() {
                   <div style={{ fontSize: 12, color: C.danger }}>{t("printMgmt.errorLabel")} {item.errorMsg}</div>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 {item.status === 'queued' && (
                   <button onClick={() => handlePrintFilmNow(item)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primary, cursor: 'pointer' }}>
                     <Zap size={14} color={C.white} />
@@ -1805,7 +1805,7 @@ export default function PrintManagementPage() {
 
       {/* 打印状态追踪 */}
       <Card title={t("printMgmt.printStatusTrack")} icon={<Activity size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           {[
             { label: t("printMgmt.onlinePrinters"), value: activePrinters, total: printers.length, color: C.success },
             { label: t("printMgmt.queuedTasks"), value: printQueue.filter(q => q.status === 'queued').length, total: printQueue.length, color: C.warning },
@@ -1825,12 +1825,12 @@ export default function PrintManagementPage() {
 
       {/* 打印费用统计 */}
       <Card title={t("printMgmt.costStats")} icon={<DollarSign size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ textAlign: 'center', padding: 16, background: `${C.success}10`, borderRadius: 8 }}>
-            <div style={{ fontSize: 12, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.todayCost")}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', background: `${C.success}10`, borderRadius: 8 }}>
+            <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.todayCost")}</div>
             <div style={{ fontSize: 30, fontWeight: 700, color: C.success }}>¥{todayCost.toFixed(1)}</div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
             {[
               { label: t("printMgmt.sheetsPrinted"), value: todayFilms, unit: t("printMgmt.sheetsUnit") },
               { label: t("printMgmt.avgCost"), value: todayFilms > 0 ? (todayCost / todayFilms).toFixed(1) : '0', unit: t("printMgmt.yuanPerSheet") },
@@ -1862,9 +1862,9 @@ export default function PrintManagementPage() {
             </ReBarChart>
           </ChartContainer>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)' }}>
           {[{ label: '14×17', color: C.primary }, { label: '10×12', color: C.accent }, { label: '8×10', color: '#8b5cf6' }].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: C.textMid }}>
               <span style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
               {item.label}
             </div>
@@ -1890,7 +1890,7 @@ export default function PrintManagementPage() {
       title: t("printMgmt.examType"), key: 'examType',
       render: (_v, task) => (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             {getModalityIcon(task.modality)}
             <span>{task.modality}</span>
           </div>
@@ -1909,7 +1909,7 @@ export default function PrintManagementPage() {
     {
       title: t("printMgmt.actions"), key: 'actions',
       render: (_v, task) => (
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
           {task.status === 'queued' && (
             <button
               onClick={() => handleDicomPrintNow(task.id)}
@@ -1961,26 +1961,26 @@ export default function PrintManagementPage() {
   ]
 
   const renderDicomPrintQueue = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 打印服务器配置面板 */}
       <Card title={t("printMgmt.printServerConfig")} icon={<Server size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)' }}>
           {DICOM_SERVERS.map(server => (
             <div
               key={server.id}
               style={{
-                padding: 12, borderRadius: 4, border: `1px solid ${C.border}`,
+                padding: 'var(--space-3, 12px)', borderRadius: 4, border: `1px solid ${C.border}`,
                 background: server.status === 'online' ? `${C.success}05` : `${C.danger}05`
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <Server size={18} color={server.status === 'online' ? C.success : C.danger} />
                   <span style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{server.name}</span>
                 </div>
                 <StatusBadge status={server.status} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
                 <div>
                   <span style={{ color: C.textLight }}>{t("printMgmt.serverNameLabel")} </span>
                   <span style={{ color: C.textDark }}>{server.aet}</span>
@@ -1999,9 +1999,9 @@ export default function PrintManagementPage() {
         </div>
 
         {/* DICOM打印机列表 */}
-        <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>{t("printMgmt.dicomPrinterList")} {printersApi.length > 0 && <span style={{ fontSize: 11, color: C.success }}>{t("printMgmt.listPrintersLive")}</span>}</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-2, 8px)' }}>{t("printMgmt.dicomPrinterList")} {printersApi.length > 0 && <span style={{ fontSize: 11, color: C.success }}>{t("printMgmt.listPrintersLive")}</span>}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)' }}>
             {scpPrinters.map(printer => (
               <div
                 key={printer.id}
@@ -2020,7 +2020,7 @@ export default function PrintManagementPage() {
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{printer.name}</span>
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid }}>{printer.location}</div>
-                <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: C.textLight, marginTop: 'var(--space-1, 4px)' }}>
                   {t("printMgmt.todayLabel")} <span style={{ color: C.primary }}>{printer.filmsToday}</span> {t("printMgmt.sheetsUnit")}
                 </div>
               </div>
@@ -2031,7 +2031,7 @@ export default function PrintManagementPage() {
 
       {/* 胶片规格选择 */}
       <Card title={t("printMgmt.filmSpecSelect")} icon={<Film size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           <div>
             <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("printMgmt.filmSpecCol")}</label>
             <select
@@ -2049,9 +2049,9 @@ export default function PrintManagementPage() {
           </div>
 
           {selectedFilmSpec === 'CUSTOM' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.widthCm")}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.widthCm")}</label>
                 <input
                   type="text"
                   value={customFilmWidth}
@@ -2064,7 +2064,7 @@ export default function PrintManagementPage() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.heightCm")}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.heightCm")}</label>
                 <input
                   type="text"
                   value={customFilmHeight}
@@ -2115,7 +2115,7 @@ export default function PrintManagementPage() {
 
       {/* 打印状态统计 */}
       <Card title={t("printMgmt.dicomPrintStatus")} icon={<Activity size={16} />}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-2, 8px)' }}>
           {[
             { label: t("printMgmt.queued"), value: dicomQueuedCount, color: C.warning },
             { label: t("printMgmt.printing"), value: dicomPrintingCount, color: C.info },
@@ -2125,7 +2125,7 @@ export default function PrintManagementPage() {
             <div
               key={stat.label}
               style={{
-                padding: 12, borderRadius: 4, background: `${stat.color}10`,
+                padding: 'var(--space-3, 12px)', borderRadius: 4, background: `${stat.color}10`,
                 border: `1px solid ${stat.color}30`, textAlign: 'center'
               }}
             >
@@ -2134,7 +2134,7 @@ export default function PrintManagementPage() {
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 12, padding: 10, background: C.bg, borderRadius: 4 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: C.bg, borderRadius: 4 }}>
           <div style={{ fontSize: 12, color: C.textMid }}>
             {t("printMgmt.todayTotalLabel")} <span style={{ color: C.primary, fontWeight: 600 }}>{dicomTasks.length}</span> {t("printMgmt.itemUnit")}
             {' · '}{t("printMgmt.serverQueueLabel")} <span style={{ color: C.info, fontWeight: 600 }}>{serverQueues}</span> {t("printMgmt.itemUnit")}
@@ -2144,19 +2144,19 @@ export default function PrintManagementPage() {
 
       {/* 打印队列表格 */}
       <Card title={t("printMgmt.dicomPrintQueue")} icon={<FileSpreadsheet size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
           <SearchBar
             value={dicomQueueSearch}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDicomQueueSearch(e.target.value)}
             placeholder={t("printMgmt.searchQueuePlaceholder")}
           />
-          <div style={{ display: 'flex', gap: 8, marginLeft: 12 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginLeft: 'var(--space-3, 12px)' }}>
             <button
               onClick={handleRefreshQueue}
               style={{
                 padding: '6px 12px', borderRadius: 4, border: `1px solid ${C.border}`,
                 background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 4
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)'
               }}
             >
               <RefreshCw size={14} /> {t("printMgmt.refresh")}
@@ -2174,7 +2174,7 @@ export default function PrintManagementPage() {
         </div>
         {/* [G005 2B] 原生表格分页控制 */}
         {dicomQueuePagination.total > dicomQueuePagination.pageSize && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: C.textMid }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)', fontSize: 12, color: C.textMid }}>
             <span>{t("printMgmt.totalPrefix")} {dicomQueuePagination.total} {t("printMgmt.itemsUnit")}</span>
             <button
               onClick={() => dicomQueuePagination.onChange(Math.max(1, dicomQueuePagination.current - 1), dicomQueuePagination.pageSize)}
@@ -2193,7 +2193,7 @@ export default function PrintManagementPage() {
 
       {/* 打印计费 - 各规格单价 */}
       <Card title={t("printMgmt.specUnitPrice")} icon={<Receipt size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {FILM_PRICE_CONFIG.map(item => (
             <div
               key={item.spec}
@@ -2211,7 +2211,7 @@ export default function PrintManagementPage() {
 
       {/* 打印计费 - 科室计费统计 */}
       <Card title={t("printMgmt.deptBillingStats")} icon={<Building2 size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {DEPARTMENT_BILLING.map(dept => (
             <div
               key={dept.dept}
@@ -2223,7 +2223,7 @@ export default function PrintManagementPage() {
                 <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{dept.dept}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.success }}>¥{dept.amount.toFixed(1)}</span>
               </div>
-              <div style={{ display: 'flex', gap: 16, fontSize: 12, color: C.textMid }}>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', fontSize: 12, color: C.textMid }}>
                 <span>{t("printMgmt.patientLabel")} {dept.patientCount}</span>
                 <span>{t("printMgmt.filmLabel")} {dept.filmCount}{t("printMgmt.sheetsUnit")}</span>
               </div>
@@ -2244,7 +2244,7 @@ export default function PrintManagementPage() {
 
       {/* 打印计费 - 打印成本报表 */}
       <Card title={t("printMgmt.costReport")} icon={<FileBarChart size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ height: 200, marginBottom: 12 }}>
+        <div style={{ height: 200, marginBottom: 'var(--space-3, 12px)' }}>
           <ChartContainer height={200} state={costReport.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noCostData")}>
             <ReBarChart data={costReport} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
@@ -2260,13 +2260,13 @@ export default function PrintManagementPage() {
             </ReBarChart>
           </ChartContainer>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-4, 16px)' }}>
           {[
             { labelKey: 'printMgmt.filmCost', color: C.primary },
             { labelKey: 'printMgmt.paperCost', color: C.accent },
             { labelKey: 'printMgmt.inkCost', color: '#8b5cf6' },
           ].map(item => (
-            <div key={item.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+            <div key={item.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: C.textMid }}>
               <span style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
               {t(item.labelKey)}
             </div>
@@ -2280,13 +2280,13 @@ export default function PrintManagementPage() {
   // 渲染 DICOM Print SCP 集成
   // ============================================================
   const renderPrintSCP = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 打印机状态看板 */}
       <Card title={`打印机状态看板${printersApi.length > 0 ? t("printMgmt.listPrintersLive2") : ''}`} icon={<Monitor size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)' }}>
           {scpPrinters.map(p => (
             <div key={p.id} style={{
-              padding: 12, borderRadius: 8, border: `1px solid ${p.status === 'online' ? C.success + '40' : C.danger + '40'}`,
+              padding: 'var(--space-3, 12px)', borderRadius: 8, border: `1px solid ${p.status === 'online' ? C.success + '40' : C.danger + '40'}`,
               background: p.status === 'online' ? `${C.success}05` : `${C.danger}05`,
               textAlign: 'center'
             }}>
@@ -2294,9 +2294,9 @@ export default function PrintManagementPage() {
                 {p.status === 'online' ? <Wifi size={24} color={C.success} /> : <WifiOff size={24} color={C.danger} />}
               </div>
               <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{p.name}</div>
-              <div style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{p.location}</div>
+              <div style={{ fontSize: 12, color: C.textLight, marginBottom: 'var(--space-1, 4px)' }}>{p.location}</div>
               <StatusBadge status={p.status} />
-              <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t("printMgmt.todayLabel")} {p.filmsToday}{t("printMgmt.sheetsUnit")}</div>
+              <div style={{ fontSize: 12, color: C.textMid, marginTop: 'var(--space-1, 4px)' }}>{t("printMgmt.todayLabel")} {p.filmsToday}{t("printMgmt.sheetsUnit")}</div>
             </div>
           ))}
         </div>
@@ -2304,10 +2304,10 @@ export default function PrintManagementPage() {
 
       {/* 打印任务队列（按优先级） */}
       <Card title={t("printMgmt.taskQueueByPriority")} icon={<ClipboardList size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {dicomTasks.filter(t => t.status === 'printing' || t.status === 'queued').slice(0, 8).map((task, idx) => (
             <div key={task.id} style={{
-              display: 'flex', alignItems: 'center', gap: 12,
+              display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)',
               padding: '8px 12px', borderRadius: 6,
               background: idx === 0 ? `${C.info}10` : 'var(--bg-primary)',
               border: `1px solid ${idx === 0 ? C.info + '30' : C.border}`
@@ -2335,7 +2335,7 @@ export default function PrintManagementPage() {
 
       {/* 胶片/纸张规格配置 */}
       <Card title={t("printMgmt.filmPaperConfig")} icon={<Film size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {FILM_SPEC_OPTIONS.map(opt => (
             <div key={opt.value} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -2361,7 +2361,7 @@ export default function PrintManagementPage() {
 
       {/* 介质类型配置 */}
       <Card title={t("printMgmt.mediumTypeConfig")} icon={<SlidersHorizontal size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {MEDIUM_TYPES.map(mt => (
             <div key={mt.value} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -2369,7 +2369,7 @@ export default function PrintManagementPage() {
               border: `1px solid ${C.border}`
             }}>
               <span style={{ fontSize: 12, color: C.textDark }}>{mt.label}</span>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: C.textMid }}>
                 <input type="radio" name="medium" defaultChecked={mt.value === 'BLUE_FILM'} style={{ accentColor: C.primary }} />
                 {t("printMgmt.default")}
               </label>
@@ -2394,7 +2394,7 @@ export default function PrintManagementPage() {
   ]
 
   const renderCostTracking = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 打印机成本分析 */}
       <Card title={t("printMgmt.costByPrinter")} icon={<CreditCard size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ overflowX: 'auto' }}>
@@ -2407,7 +2407,7 @@ export default function PrintManagementPage() {
         </div>
         {/* [G005 2B] 原生表格分页控制 */}
         {printerCostPagination.total > printerCostPagination.pageSize && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: C.textMid }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)', fontSize: 12, color: C.textMid }}>
             <span>{t("printMgmt.totalPrefix")} {printerCostPagination.total} {t("printMgmt.itemsUnit")}</span>
             <button
               onClick={() => printerCostPagination.onChange(Math.max(1, printerCostPagination.current - 1), printerCostPagination.pageSize)}
@@ -2440,9 +2440,9 @@ export default function PrintManagementPage() {
             </ReBarChart>
           </ChartContainer>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)' }}>
           {[{ labelKey: 'printMgmt.chart.ct', color: '#7c3aed' }, { labelKey: 'printMgmt.chart.mr', color: 'var(--color-primary-600)' }, { labelKey: 'printMgmt.chart.dr', color: '#059669' }, { labelKey: 'printMgmt.chart.other', color: 'var(--color-warning-600)' }].map(item => (
-            <div key={item.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+            <div key={item.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: C.textMid }}>
               <span style={{ width: 8, height: 8, borderRadius: 2, background: item.color }} />{t(item.labelKey)}
             </div>
           ))}
@@ -2473,10 +2473,10 @@ export default function PrintManagementPage() {
   // 渲染打印布局模板
   // ============================================================
   const renderLayoutTemplates = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 预设布局 */}
       <Card title={t("printMgmt.presetLayouts")} icon={<LayoutGrid size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
           {PRINT_LAYOUT_TEMPLATES.filter(t => t.preset).map(template => (
             <div key={template.id} style={{
               borderRadius: 8, border: `1px solid ${C.border}`,
@@ -2488,7 +2488,7 @@ export default function PrintManagementPage() {
             >
               {/* 预览缩略图 */}
               <div style={{
-                background: 'var(--bg-card)', padding: 16,
+                background: 'var(--bg-card)', padding: 'var(--space-4, 16px)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 minHeight: 120
               }}>
@@ -2526,10 +2526,10 @@ export default function PrintManagementPage() {
 
       {/* 自定义布局构建器 */}
       <Card title={t("printMgmt.customLayoutBuilder")} icon={<Settings size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
             <div>
-              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.columns")}</label>
+              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.columns")}</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12,}} value={customCols} onChange={e => setCustomCols(Number(e.target.value))}>
@@ -2537,7 +2537,7 @@ export default function PrintManagementPage() {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.rows")}</label>
+              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.rows")}</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12,}} value={customRows} onChange={e => setCustomRows(Number(e.target.value))}>
@@ -2546,8 +2546,8 @@ export default function PrintManagementPage() {
             </div>
           </div>
           <div>
-            <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.orientation")}</label>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.orientation")}</label>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
               {['PORTRAIT', 'LANDSCAPE'].map(dir => (
                 <button key={dir} onClick={() => setCustomOrientation(dir)} style={{
                   flex: 1, padding: '8px 12px', borderRadius: 6, border: `1px solid ${C.border}`,
@@ -2562,7 +2562,7 @@ export default function PrintManagementPage() {
           </div>
           {/* 自定义预览 */}
           <div style={{
-            background: 'var(--bg-card)', borderRadius: 6, padding: 12,
+            background: 'var(--bg-card)', borderRadius: 6, padding: 'var(--space-3, 12px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             minHeight: 140
           }}>
@@ -2593,8 +2593,8 @@ export default function PrintManagementPage() {
       {/* 预览缩略图 */}
       <Card title={t("printMgmt.printPreview")} icon={<Eye size={16} />}>
         <div style={{
-          background: 'var(--bg-card)', borderRadius: 6, padding: 20,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12
+          background: 'var(--bg-card)', borderRadius: 6, padding: 'var(--space-5, 20px)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-3, 12px)'
         }}>
           <div style={{
             width: 200, aspectRatio: '3/4',
@@ -2604,7 +2604,7 @@ export default function PrintManagementPage() {
           }}>
             {[t("printMgmt.imageChestAP"), t("printMgmt.imageChestLat"), t("printMgmt.imageAbdCt"), t("printMgmt.imageHeadMr")].map((label, i) => (
               <div key={i} style={{
-                background: 'var(--bg-card)', borderRadius: 2, padding: 4,
+                background: 'var(--bg-card)', borderRadius: 2, padding: 'var(--space-1, 4px)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 fontSize: 10, color: C.textMid, gap: 2
               }}>
@@ -2618,7 +2618,7 @@ export default function PrintManagementPage() {
             padding: '6px 16px', borderRadius: 6, border: `1px solid ${C.border}`,
             background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer'
           }}>
-            <Download size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            <Download size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 'var(--space-1, 4px)' }} />
             {t("printMgmt.exportPreview")}
           </button>
         </div>
@@ -2630,25 +2630,25 @@ export default function PrintManagementPage() {
   // 渲染配额管理
   // ============================================================
   const renderQuotaManagement = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 科室配额状态 */}
       <Card title={t("printMgmt.deptQuotaStatus")} icon={<ShieldAlert size={16} />} style={{ gridColumn: 'span 2' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' }}>
           {DEPT_PRINT_QUOTAS.map(d => {
             const pct = Math.round((d.current / d.monthlyQuota) * 100)
             return (
               <div key={d.dept} style={{
-                padding: 12, borderRadius: 8,
+                padding: 'var(--space-3, 12px)', borderRadius: 8,
                 background: d.status === 'critical' ? `${C.danger}05` : d.status === 'warning' ? `${C.warning}05` : `${C.success}05`,
                 border: `1px solid ${d.status === 'critical' ? C.danger + '30' : d.status === 'warning' ? C.warning + '30' : C.success + '30'}`
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{d.dept}</span>
                   {d.status === 'critical' && <AlertTriangle size={14} color={C.danger} />}
                   {d.status === 'warning' && <AlertTriangle size={14} color={C.warning} />}
                   {d.status === 'normal' && <CheckCircle size={14} color={C.success} />}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ fontSize: 12, color: C.textMid }}>{d.current} / {d.monthlyQuota} {t("printMgmt.sheetsUnit")}</span>
                   <span style={{
                     fontSize: 12, fontWeight: 700,
@@ -2707,13 +2707,13 @@ export default function PrintManagementPage() {
 
       {/* 请求增加配额 */}
       <Card title={t("printMgmt.quotaIncreaseRequest")} icon={<Plus size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {quotaRequests.map(req => (
             <div key={req.id} style={{
               padding: 10, borderRadius: 6, border: `1px solid ${C.border}`,
               background: 'var(--bg-card)'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{req.dept}</span>
                 <span style={{
                   padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 600,
@@ -2735,7 +2735,7 @@ export default function PrintManagementPage() {
             borderRadius: 6, background: `${C.accent}10`, color: C.accent,
             fontSize: 12, fontWeight: 600, cursor: 'pointer'
           }}>
-            <Plus size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            <Plus size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 'var(--space-1, 4px)' }} />
             {t("printMgmt.startQuotaRequest")}
           </button>
         </div>
@@ -2744,32 +2744,32 @@ export default function PrintManagementPage() {
       {/* [v3.0.6.11-98 Wave3B P1] 新建打印额度申请 Modal: 科室/张数/用途 → localStorage + 标注 */}
       {quotaModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => !quotaSaving && setQuotaModalOpen(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 460, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Plus size={16} /> {t("printMgmt.newQuotaRequest")}
               </div>
-              <button onClick={() => !quotaSaving && setQuotaModalOpen(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: C.textLight, padding: 4 }}><X size={18} /></button>
+              <button onClick={() => !quotaSaving && setQuotaModalOpen(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: C.textLight, padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestDeptRequired")}</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.requestDeptRequired")}</label>
                 <select value={quotaForm.dept} onChange={e => setQuotaForm({ ...quotaForm, dept: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 12, background: 'var(--bg-card)' }}>
                   {DEPT_PRINT_QUOTAS.map(d => <option key={d.dept} value={d.dept}>{d.dept}{t("printMgmt.monthlyQuotaPrefix")} {d.monthlyQuota} {t("printMgmt.quotaUsedLabel")} {d.current} {t("printMgmt.sheetsSuffix")}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestCountRequired")}</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.requestCountRequired")}</label>
                 <input type="number" min={1} value={quotaForm.requestedAmount} onChange={e => setQuotaForm({ ...quotaForm, requestedAmount: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestPurposeRequired")}</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.requestPurposeRequired")}</label>
                 <textarea rows={3} value={quotaForm.reason} onChange={e => setQuotaForm({ ...quotaForm, reason: e.target.value })} placeholder={t("printMgmt.purposeExample")} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 12, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
               <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
                 {t("printMgmt.quotaSubmitNote2")}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setQuotaModalOpen(false)} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("printMgmt.cancel")}</button>
                 <button onClick={handleSubmitQuotaRequest} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: C.accent, color: '#fff', fontSize: 12, fontWeight: 600, cursor: quotaSaving ? 'wait' : 'pointer' }}>{quotaSaving ? t("printMgmt.submitting") : t("printMgmt.submitRequest")}</button>
               </div>
@@ -2780,7 +2780,7 @@ export default function PrintManagementPage() {
 
       {/* 配额使用预警 */}
       <Card title={t("printMgmt.quotaAlertRules")} icon={<AlertTriangle size={16} />}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {[
             { level: t("printMgmt.green"), threshold: '< 80%', desc: t("printMgmt.usageNormal"), color: C.success },
             { level: t("printMgmt.yellow"), threshold: '80% - 95%', desc: t("printMgmt.nearLimit"), color: C.warning },
@@ -2815,7 +2815,7 @@ export default function PrintManagementPage() {
   // 渲染打印统计
   // ============================================================
   const renderPrintStatistics = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
       {/* 打印量趋势 */}
       <Card title={t("printMgmt.printVolumeTrend")} icon={<TrendingUp size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200 }}>
@@ -2854,7 +2854,7 @@ export default function PrintManagementPage() {
 
       {/* 耗材成本分析 */}
       <Card title={t("printMgmt.consumableCostAnalysis")} icon={<Box size={16} />}>
-        <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
           <div style={{ height: 200, flex: 1 }}>
             <ChartContainer height={200} state={filmDistData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noFilmDistData")}>
               <RePieChart>
@@ -2879,7 +2879,7 @@ export default function PrintManagementPage() {
               </RePieChart>
             </ChartContainer>
           </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
             {CONSUMABLE_COSTS.map(item => (
               <div key={item.name} style={{ fontSize: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: C.textMid, marginBottom: 2 }}>
@@ -2972,10 +2972,10 @@ export default function PrintManagementPage() {
         zIndex: 1000
       }}>
         <div style={{
-          background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 480,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 480,
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
               {selectedPrinter ? t("printMgmt.editPrinter") : t("printMgmt.addPrinter2")}
             </span>
@@ -2983,10 +2983,10 @@ export default function PrintManagementPage() {
               <X size={20} color={C.textMid} />
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: '60vh', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', maxHeight: '60vh', overflowY: 'auto' }}>
             {fields.map(field => (
               <div key={field.key}>
-                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>{field.label}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{field.label}</label>
                 {field.type === 'input' ? (
                   <input
                     type="text"
@@ -3014,7 +3014,7 @@ export default function PrintManagementPage() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)' }}>
             <button
               onClick={() => setShowPrinterModal(false)}
               style={{
@@ -3057,17 +3057,17 @@ export default function PrintManagementPage() {
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
       }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 440, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 440, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.editDicomPreset")}</span>
             <button onClick={() => setPresetEditOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             {rows.map(r => (
               <div key={r.key}>
-                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>{r.label}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{r.label}</label>
                 {r.type === 'input' ? (
                   <input
                     type="text"
@@ -3087,7 +3087,7 @@ export default function PrintManagementPage() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)' }}>
             <button
               onClick={() => setPresetEditOpen(false)}
               style={{ flex: 1, padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 4, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
@@ -3123,17 +3123,17 @@ export default function PrintManagementPage() {
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
       }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 620, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 620, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.templatePreviewDash")} {tpl.name}</span>
             <button onClick={() => setTemplatePreviewOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
           </div>
-          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'flex-start' }}>
             <div style={{
               width: 340, background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)', border: '2px solid #94a3b8',
-              borderRadius: 4, padding: 14, display: 'flex', flexDirection: 'column', gap: 8
+              borderRadius: 4, padding: 14, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)'
             }}>
               <div style={{ fontSize: 10, color: '#64748b', fontFamily: 'monospace' }}>FILM SPEC: 14x17 · {tpl.type ?? 'CT'} {tpl.includeImages ? '· IMG' : ''}</div>
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 6 }}>
@@ -3152,7 +3152,7 @@ export default function PrintManagementPage() {
               </div>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>{t("printMgmt.filmLayoutNote")}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.textDark, marginBottom: 'var(--space-2, 8px)' }}>{t("printMgmt.filmLayoutNote")}</div>
               {legend.map(l => (
                 <div key={l.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.textMid }}>{l.label}</span>
@@ -3162,7 +3162,7 @@ export default function PrintManagementPage() {
               <div style={{ fontSize: 12, color: C.textLight, marginTop: 10 }}>{t("printMgmt.layoutNoteBody")}</div>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-5, 20px)' }}>
             <button
               onClick={() => setTemplatePreviewOpen(false)}
               style={{ padding: '10px 24px', border: 'none', borderRadius: 4, background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer' }}
@@ -3185,20 +3185,20 @@ export default function PrintManagementPage() {
         zIndex: 1000
       }}>
         <div style={{
-          background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 600,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 600,
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.filmPrintPreview")}</span>
             <button onClick={() => setShowPreviewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
           </div>
-          <div style={{ background: C.bg, borderRadius: 4, padding: 20, marginBottom: 16 }}>
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <div style={{ background: C.bg, borderRadius: 4, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <Film size={48} color={C.primary} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
               {[
                 { label: t("printMgmt.patientName"), value: previewItem.patientName },
                 { label: t("printMgmt.patientId"), value: previewItem.patientId },
@@ -3214,8 +3214,8 @@ export default function PrintManagementPage() {
               ))}
             </div>
             {previewItem.status === 'printing' && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                   <span style={{ color: C.textMid }}>{t("printMgmt.printProgress")}</span>
                   <span style={{ color: C.primary }}>{previewItem.progress}%</span>
                 </div>
@@ -3223,7 +3223,7 @@ export default function PrintManagementPage() {
               </div>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
             <button
               onClick={() => setShowPreviewModal(false)}
               style={{
@@ -3273,7 +3273,7 @@ export default function PrintManagementPage() {
         zIndex: 2000,
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         animation: 'fadeIn 0.3s ease-out'
       }}>
         {toastType === 'success' && <CheckCircle size={18} />}
@@ -3302,15 +3302,15 @@ export default function PrintManagementPage() {
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 8,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           width: 400,
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
-            marginBottom: 16
+            gap: 'var(--space-3, 12px)',
+            marginBottom: 'var(--space-4, 16px)'
           }}>
             {confirmModal.type === 'danger' ? (
               <AlertCircle size={24} color={C.danger} />
@@ -3321,10 +3321,10 @@ export default function PrintManagementPage() {
               {confirmModal.title}
             </span>
           </div>
-          <p style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>
+          <p style={{ fontSize: 14, color: C.textMid, marginBottom: 'var(--space-5, 20px)' }}>
             {confirmModal.message}
           </p>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
             <button
               onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
               style={{
@@ -3379,7 +3379,7 @@ export default function PrintManagementPage() {
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 8,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           width: 480,
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
@@ -3387,7 +3387,7 @@ export default function PrintManagementPage() {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 16
+            marginBottom: 'var(--space-4, 16px)'
           }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
               {isNewTemplate ? t("printMgmt.newTemplate") : t("printMgmt.editTemplate")}
@@ -3399,9 +3399,9 @@ export default function PrintManagementPage() {
               <X size={20} color={C.textMid} />
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             <div>
-              <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>
                 {t("printMgmt.templateName")}
               </label>
               <input
@@ -3419,7 +3419,7 @@ export default function PrintManagementPage() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>
                 {t("printMgmt.reportType")}
               </label>
               <select
@@ -3441,7 +3441,7 @@ export default function PrintManagementPage() {
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>
                 {t("printMgmt.defaultCopies2")}
               </label>
               <select
@@ -3461,7 +3461,7 @@ export default function PrintManagementPage() {
               </select>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)' }}>
             <button
               onClick={() => setShowTemplateEditModal(false)}
               style={{
@@ -3518,7 +3518,7 @@ export default function PrintManagementPage() {
   ]
 
   return (
-    <div style={{ background: C.bg, padding: 16 }}>
+    <div style={{ background: C.bg, padding: 'var(--space-4, 16px)' }}>
       {/* 页面标题 */}
       <PageHeader
         as="h1"
@@ -3526,12 +3526,12 @@ export default function PrintManagementPage() {
         icon={<Printer size={24} color={C.primary} />}
         title={t("printMgmt.pageTitle")}
         subtitle={<span style={{ fontSize: 12, color: C.textMid }}>{t("printMgmt.pageSubtitle")}</span>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
 
       {/* 数据来源标注 ([W2-B] 真实化) */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
+        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-4, 16px)',
         padding: '8px 14px', borderRadius: 6,
         background: dataError ? 'var(--color-error-bg)' : 'var(--color-success-bg)',
         border: `1px solid ${dataError ? '#fecaca' : '#bbf7d0'}`
@@ -3558,7 +3558,7 @@ export default function PrintManagementPage() {
       </div>
 
       {/* 统计卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         {[
           { label: t("printMgmt.todayPrints"), value: todayPrints, unit: t("printMgmt.copiesUnit"), icon: <Printer size={20} />, color: C.primary },
           { label: t("printMgmt.filmsUsed"), value: todayFilms, unit: t("printMgmt.sheetsUnit"), icon: <Film size={20} />, color: C.accent },
@@ -3568,9 +3568,9 @@ export default function PrintManagementPage() {
           <div
             key={stat.label}
             style={{
-              background: 'var(--bg-card)', borderRadius: 6, padding: 16,
+              background: 'var(--bg-card)', borderRadius: 6, padding: 'var(--space-4, 16px)',
               boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: `1px solid ${C.border}`,
-              display: 'flex', alignItems: 'center', gap: 12
+              display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)'
             }}
           >
             <div style={{ width: 44, height: 44, borderRadius: 8, background: `${stat.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -3615,13 +3615,13 @@ export default function PrintManagementPage() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setTaskDetail(null)}>
           <div
             onClick={e => e.stopPropagation()}
-            style={{ width: 520, maxHeight: '80vh', overflowY: 'auto', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+            style={{ width: 520, maxHeight: '80vh', overflowY: 'auto', background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
           >
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.textDark, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.textDark, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Monitor size={16} color={C.primary} /> {t("printMgmt.taskDetailPrefix")} {taskDetail.id}
             </div>
             {taskDetailLoading ? (
-              <div style={{ textAlign: 'center', padding: 24, color: C.textLight, fontSize: 12 }}>{t("printMgmt.loadingDetail")}</div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)', color: C.textLight, fontSize: 12 }}>{t("printMgmt.loadingDetail")}</div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: 12 }}>
                 {[
@@ -3645,7 +3645,7 @@ export default function PrintManagementPage() {
                 ))}
               </div>
             )}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-4, 16px)' }}>
               <button onClick={() => setTaskDetail(null)} style={{ padding: '6px 16px', border: `1px solid ${C.border}`, borderRadius: 4, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}>{t("printMgmt.close")}</button>
             </div>
           </div>

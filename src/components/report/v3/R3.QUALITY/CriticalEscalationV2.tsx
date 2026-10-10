@@ -335,15 +335,15 @@ export const CriticalEscalationV2: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 48 }}>
+      <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}>
         <Spin />
       </div>
     );
   }
 
   return (
-    <div data-testid="critical-escalation-v2" role="region" aria-label={t('criticalEscalation.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <Card size="small" style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 12 } }}>
+    <div data-testid="critical-escalation-v2" role="region" aria-label={t('criticalEscalation.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+      <Card size="small" style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <Siren size={18} color="#fff" />
@@ -383,7 +383,7 @@ export const CriticalEscalationV2: React.FC = () => {
               </Col>
             ))}
           </Row>
-          <Space wrap style={{ marginTop: 12 }}>
+          <Space wrap style={{ marginTop: 'var(--space-3, 12px)' }}>
             {config.rules.map((r) => (
               <Tooltip key={r.key} title={r.description}>
                 <Tag color={r.enabled ? 'green' : 'default'}>{r.name}</Tag>
@@ -451,7 +451,7 @@ export const CriticalEscalationV2: React.FC = () => {
               <Descriptions.Item label={t('criticalEscalation.col.currentLevel')}>{LEVEL_META[confirming.currentLevel]?.label} ({confirming.steps[confirming.steps.length - 1]?.role})</Descriptions.Item>
               <Descriptions.Item label={t('criticalEscalation.timeoutRemaining')}>{remainingMin(confirming.currentDeadline)} {t('criticalEscalation.minutes')}</Descriptions.Item>
             </Descriptions>
-            <div style={{ marginBottom: 4 }}>{t('criticalEscalation.confirmBy')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('criticalEscalation.confirmBy')}</div>
             <Select size="small" style={{ width: '100%' }} value={confirmBy} onChange={setConfirmBy} options={['值班医师', '值班主任医师', '科主任', '护士站'].map((v) => ({ value: v, label: v }))} />
           </Space>
         )}
@@ -497,7 +497,7 @@ const ChainStaircase: React.FC<{ chain: EscalationChain }> = ({ chain }) => {
           <span style={{ fontSize: 12, color: '#10b981' }}>{s.confirmedBy} {t('criticalEscalation.confirmedAt')} {fmt(s.confirmedAt)} {t('criticalEscalation.confirmedVerb')}</span>
         )}
         {s.status === 'TIMEOUT' && <span style={{ fontSize: 12, color: 'var(--color-error-600)' }}>{t('criticalEscalation.autoEscalated')}</span>}
-        {i < chain.steps.length - 1 && <ArrowUp size={12} style={{ color: 'var(--color-error-600)', marginTop: 4 }} />}
+        {i < chain.steps.length - 1 && <ArrowUp size={12} style={{ color: 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)' }} />}
       </Space>
     ),
     status: statusForStep(s.status),

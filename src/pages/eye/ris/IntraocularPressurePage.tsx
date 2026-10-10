@@ -143,8 +143,8 @@ const IntraocularPressurePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         <Droplets className="v4-icon" style={{ width: 24, height: 24, color: 'var(--color-info-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iop.title')}</span>
         <EyeLateralityBadge eyeSide="OD" />
@@ -153,7 +153,7 @@ const IntraocularPressurePage: React.FC = () => {
         <Tag color="orange">{t('iop.curveTag')}</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('iop.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('iop.retry')}</Button>} />}
 
       <Row gutter={12}>
         <Col span={8}>
@@ -162,32 +162,32 @@ const IntraocularPressurePage: React.FC = () => {
             title={t('iop.currentMeasurement')}
             extra={<Space><Select size="small" value={patient} onChange={(v) => { setPatient(v); const p = PATIENT_OPTIONS.find(o => o.value === v); if (p) setPatientName(p.label); }} options={PATIENT_OPTIONS} style={{ width: 100 }} /><Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /></Space>}
           >
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('iop.odLabel')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('iop.odLabel')}</div>
               <InputNumber value={iop.od} onChange={(v) => setIop((s) => ({ ...s, od: v ?? 18 }))} min={0} max={80} style={{ width: 120 }} />
-              <Tag color={odClass.color} style={{ marginLeft: 8, fontSize: 12 }}>{odClass.label}</Tag>
+              <Tag color={odClass.color} style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12 }}>{odClass.label}</Tag>
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('iop.osLabel')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('iop.osLabel')}</div>
               <InputNumber value={iop.os} onChange={(v) => setIop((s) => ({ ...s, os: v ?? 19 }))} min={0} max={80} style={{ width: 120 }} />
-              <Tag color={osClass.color} style={{ marginLeft: 8, fontSize: 12 }}>{osClass.label}</Tag>
+              <Tag color={osClass.color} style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12 }}>{osClass.label}</Tag>
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('iop.colDevice')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('iop.colDevice')}</div>
               <Select value={device} onChange={setDevice} options={DEVICE_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))} style={{ width: 160 }} />
             </div>
-            <div style={{ marginBottom: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>
               {t('iop.patient')}: <Tag color="geekblue">{patientName}</Tag>
-              {latest && <div style={{ marginTop: 4 }}>{t('iop.latest')}: OD {latest.od} / OS {latest.os} mmHg</div>}
+              {latest && <div style={{ marginTop: 'var(--space-1, 4px)' }}>{t('iop.latest')}: OD {latest.od} / OS {latest.os} mmHg</div>}
             </div>
             <Button type="primary" icon={<Save size={12} />} loading={saving} onClick={() => void handleSave()}>{t('iop.recordCurrent')}</Button>
           </Card>
-          <Card size="small" title={<Space><TrendingUp size={14} />{t('iop.avgStats')}</Space>} style={{ marginTop: 12 }}>
+          <Card size="small" title={<Space><TrendingUp size={14} />{t('iop.avgStats')}</Space>} style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Row gutter={8}>
               <Col span={12}><Statistic title={t('iop.avgOd')} value={avgOd} suffix="mmHg" valueStyle={{ fontSize: 18, color: classify(avgOd).color }} /></Col>
               <Col span={12}><Statistic title={t('iop.avgOs')} value={avgOs} suffix="mmHg" valueStyle={{ fontSize: 18, color: classify(avgOs).color }} /></Col>
             </Row>
-            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>
               <Progress percent={Math.min(100, Math.round((avgOd / 30) * 100))} size="small" strokeColor={classify(avgOd).color} format={() => t('iop.odPeakRatio')} />
               <Progress percent={Math.min(100, Math.round((avgOs / 30) * 100))} size="small" strokeColor={classify(avgOs).color} format={() => t('iop.osPeakRatio')} />
             </div>
@@ -200,7 +200,7 @@ const IntraocularPressurePage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card size="small" title={t('w9d.iop.recordTitle', { count: iopRecords.length })} style={{ marginTop: 12 }}>
+      <Card size="small" title={t('w9d.iop.recordTitle', { count: iopRecords.length })} style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Spin spinning={loading}>
           <DataTable
             rowKey="id"

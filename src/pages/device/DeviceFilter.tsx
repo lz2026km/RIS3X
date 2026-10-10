@@ -23,7 +23,7 @@ export function DeviceFilter({
   return (
     <div style={{
       background: C.white, borderRadius: 12, padding: '12px 16px', border: `1px solid ${C.border}`,
-      marginBottom: 16, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center'
+      marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center'
     }}>
       <div style={{ position: 'relative', flex: '0 0 200px' }}>
         <svg

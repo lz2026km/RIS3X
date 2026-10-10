@@ -633,7 +633,7 @@ export function ExamDetailView({
                 color: "var(--color-primary-800)",
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}
             >
               {exam.patientName}
@@ -647,8 +647,8 @@ export function ExamDetailView({
             <div
               style={{
                 display: "flex",
-                gap: 8,
-                marginTop: 8,
+                gap: 'var(--space-2, 8px)',
+                marginTop: 'var(--space-2, 8px)',
                 flexWrap: "wrap",
               }}
             >
@@ -734,7 +734,7 @@ export function ExamDetailView({
           padding: "12px 20px",
           borderBottom: "1px solid var(--border-color)",
           display: "flex",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           background: "var(--bg-card)",
         }}
       >
@@ -761,16 +761,16 @@ export function ExamDetailView({
         />
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-5, 20px)' }}>
         {activeTab === "info" && (
           <div>
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
               <div
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--color-primary-800)",
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -786,7 +786,7 @@ export function ExamDetailView({
                   padding: 14,
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}
               >
                 {[
@@ -824,13 +824,13 @@ export function ExamDetailView({
               </div>
             </div>
 
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
               <div
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--color-primary-800)",
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -882,13 +882,13 @@ export function ExamDetailView({
             </div>
 
             {/* [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师 + 交接班 */}
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
               <div
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--color-primary-800)",
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -901,7 +901,7 @@ export function ExamDetailView({
                 style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
                 data-testid="tech-collab-section"
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)', flexWrap: "wrap" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examDetail.primaryTech")}:</span>
                     {techAssignment.primary ? (
@@ -934,13 +934,13 @@ export function ExamDetailView({
                       <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examDetail.unassigned")}</span>
                     )}
                   </div>
-                  <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                  <div style={{ marginLeft: "auto", display: "flex", gap: 'var(--space-2, 8px)' }}>
                     <button
                       onClick={() => { setTechEditorMode("assign"); setTechEditorOpen(true) }}
                       style={{
                         padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
                         fontSize: 12, fontWeight: 600, background: "var(--color-primary-600)", color: "#fff",
-                        display: "flex", alignItems: "center", gap: 4,
+                        display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)',
                       }}
                       data-testid="tech-assign-btn"
                     >
@@ -951,7 +951,7 @@ export function ExamDetailView({
                       style={{
                         padding: "4px 12px", borderRadius: 6, border: "1px solid var(--color-warning-600)", cursor: "pointer",
                         fontSize: 12, fontWeight: 600, background: "#f59e0b18", color: "var(--color-warning-600)",
-                        display: "flex", alignItems: "center", gap: 4,
+                        display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)',
                       }}
                       data-testid="tech-handover-btn"
                     >
@@ -963,13 +963,13 @@ export function ExamDetailView({
             </div>
 
             {/* [v3.0.6.11-103 Wave 11] 剂量记录: DLP / CTDIvol 输入 + 保存 (PATCH /worklist/:id) */}
-            <div style={{ marginBottom: 20 }} data-testid="dose-record-section">
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }} data-testid="dose-record-section">
               <div
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--color-primary-800)",
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -983,7 +983,7 @@ export function ExamDetailView({
               >
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
                   <div>
-                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>
                       DLP (mGy·cm) {exam.modality === "CT" && <span style={{ color: "var(--color-error-600)" }}>*</span>}
                     </div>
                     <InputNumber
@@ -994,7 +994,7 @@ export function ExamDetailView({
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>
                       CTDIvol (mGy) {exam.modality === "CT" && <span style={{ color: "var(--color-error-600)" }}>*</span>}
                     </div>
                     <InputNumber
@@ -1005,7 +1005,7 @@ export function ExamDetailView({
                     />
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 'var(--space-2, 8px)', flexWrap: "wrap" }}>
                   <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                     {exam.modality === "CT" ? t("examDetail.ctDoseRequired") : t("examDetail.nonCtDoseOptional")}
                   </span>
@@ -1015,7 +1015,7 @@ export function ExamDetailView({
                     style={{
                       padding: "6px 16px", borderRadius: 6, border: "none", cursor: "pointer",
                       fontSize: 12, fontWeight: 600, background: "#0d9488", color: "#fff",
-                      display: "flex", alignItems: "center", gap: 4,
+                      display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)',
                     }}
                     data-testid="dose-save-btn"
                   >
@@ -1026,18 +1026,18 @@ export function ExamDetailView({
             </div>
 
             {/* [G005 W7-Exec] 检查执行: 协议/序列/曝光参数/序列级 QC/剂量 + 图像数校验 */}
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
               <ExecutionPanel examId={exam.id} accessionNumber={exam.accessionNumber} />
             </div>
 
             {/* [v3.0.6.11-103 Wave 1B] 技师备注: 回显 techNotes + POST /worklist/:id/notes */}
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
               <div
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--color-primary-800)",
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -1089,14 +1089,14 @@ export function ExamDetailView({
                     resize: "vertical",
                   }}
                 />
-                <div style={{ display: "flex", gap: 8, marginTop: 10, justifyContent: "flex-end" }}>
+                <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginTop: 10, justifyContent: "flex-end" }}>
                   <button
                     onClick={() => void handleSaveNotes()}
                     disabled={notesSaving}
                     style={{
                       padding: "6px 16px", borderRadius: 6, border: "none", cursor: "pointer",
                       fontSize: 12, fontWeight: 600, background: "var(--color-primary-800)", color: "#fff",
-                      display: "flex", alignItems: "center", gap: 4,
+                      display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)',
                     }}
                     data-testid="tech-notes-save-btn"
                   >
@@ -1115,7 +1115,7 @@ export function ExamDetailView({
                 fontSize: 12,
                 fontWeight: 600,
                 color: "var(--color-primary-800)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -1128,7 +1128,7 @@ export function ExamDetailView({
               style={{
                 background: "var(--content-bg)",
                 borderRadius: 10,
-                padding: 20,
+                padding: 'var(--space-5, 20px)',
                 textAlign: "center",
               }}
             >
@@ -1149,12 +1149,12 @@ export function ExamDetailView({
               <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-primary-800)" }}>
                 {exam.imagesAcquired}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
                 {t("examDetail.imageCount")}
               </div>
               <div
                 style={{
-                  marginTop: 16,
+                  marginTop: 'var(--space-4, 16px)',
                   padding: "8px 12px",
                   background: "var(--bg-card)",
                   borderRadius: 6,
@@ -1176,7 +1176,7 @@ export function ExamDetailView({
                 fontSize: 12,
                 fontWeight: 600,
                 color: "var(--color-primary-800)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -1191,11 +1191,11 @@ export function ExamDetailView({
               )}
             </div>
             {historyLoading ? (
-              <div style={{ background: "var(--content-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
+              <div style={{ background: "var(--content-bg)", borderRadius: 10, padding: 'var(--space-10, 40px)', textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
                 {t("examDetail.loadingHistory")}
               </div>
             ) : historyError ? (
-              <div style={{ background: "var(--color-error-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "var(--color-error-600)", fontSize: 12 }}>
+              <div style={{ background: "var(--color-error-bg)", borderRadius: 10, padding: 'var(--space-10, 40px)', textAlign: "center", color: "var(--color-error-600)", fontSize: 12 }}>
                 {historyError}
               </div>
             ) : historyExams.length > 0 ? (
@@ -1213,7 +1213,7 @@ export function ExamDetailView({
                       style={{
                         background: "var(--content-bg)",
                         borderRadius: 10,
-                        padding: 12,
+                        padding: 'var(--space-3, 12px)',
                         border: "1px solid var(--border-color)",
                       }}
                     >
@@ -1222,7 +1222,7 @@ export function ExamDetailView({
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "flex-start",
-                          marginBottom: 8,
+                          marginBottom: 'var(--space-2, 8px)',
                         }}
                       >
                         <div
@@ -1267,7 +1267,7 @@ export function ExamDetailView({
                 style={{
                   background: "var(--content-bg)",
                   borderRadius: 10,
-                  padding: 40,
+                  padding: 'var(--space-10, 40px)',
                   textAlign: "center",
                   color: "var(--text-secondary)",
                 }}
@@ -1289,7 +1289,7 @@ export function ExamDetailView({
                 fontSize: 12,
                 fontWeight: 600,
                 color: "var(--color-primary-800)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -1314,7 +1314,7 @@ export function ExamDetailView({
                   style={{
                     background: "var(--content-bg)",
                     borderRadius: 10,
-                    padding: 40,
+                    padding: 'var(--space-10, 40px)',
                     textAlign: "center",
                     color: "var(--text-secondary)",
                   }}
@@ -1326,7 +1326,7 @@ export function ExamDetailView({
                   style={{
                     background: "var(--content-bg)",
                     borderRadius: 10,
-                    padding: 40,
+                    padding: 'var(--space-10, 40px)',
                     textAlign: "center",
                     color: "var(--text-secondary)",
                   }}
@@ -1345,7 +1345,7 @@ export function ExamDetailView({
                     key={idx}
                     style={{
                       display: "flex",
-                      gap: 16,
+                      gap: 'var(--space-4, 16px)',
                       paddingBottom: idx < examLogs.length - 1 ? 20 : 0,
                       position: "relative",
                     }}
@@ -1382,7 +1382,7 @@ export function ExamDetailView({
                             fontWeight: 600,
                             color: "var(--text-secondary)",
                             fontSize: 12,
-                            marginBottom: 4,
+                            marginBottom: 'var(--space-1, 4px)',
                           }}
                         >
                           {log.event}
@@ -1417,7 +1417,7 @@ export function ExamDetailView({
                 fontSize: 12,
                 fontWeight: 600,
                 color: "var(--color-primary-800)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -1445,7 +1445,7 @@ export function ExamDetailView({
                   style={{
                     background: "var(--content-bg)",
                     borderRadius: 10,
-                    padding: 40,
+                    padding: 'var(--space-10, 40px)',
                     textAlign: "center",
                     color: "var(--text-secondary)",
                   }}
@@ -1457,7 +1457,7 @@ export function ExamDetailView({
                   style={{
                     background: "var(--content-bg)",
                     borderRadius: 10,
-                    padding: 40,
+                    padding: 'var(--space-10, 40px)',
                     textAlign: "center",
                     color: "var(--color-error-600)",
                   }}
@@ -1469,7 +1469,7 @@ export function ExamDetailView({
                   style={{
                     background: "var(--content-bg)",
                     borderRadius: 10,
-                    padding: 40,
+                    padding: 'var(--space-10, 40px)',
                     textAlign: "center",
                     color: "var(--text-secondary)",
                   }}
@@ -1484,7 +1484,7 @@ export function ExamDetailView({
                       key={idx}
                       style={{
                         display: "flex",
-                        gap: 16,
+                        gap: 'var(--space-4, 16px)',
                         paddingBottom: idx < timelineEvents.length - 1 ? 20 : 0,
                         position: "relative",
                       }}
@@ -1521,10 +1521,10 @@ export function ExamDetailView({
                               fontWeight: 600,
                               color: "var(--text-secondary)",
                               fontSize: 12,
-                              marginBottom: 4,
+                              marginBottom: 'var(--space-1, 4px)',
                               display: "flex",
                               justifyContent: "space-between",
-                              gap: 8,
+                              gap: 'var(--space-2, 8px)',
                             }}
                           >
                             <span>{ev.label}</span>
@@ -1566,7 +1566,7 @@ export function ExamDetailView({
         }}
       >
         {/* [G005 Wave1A W9] 状态流转: worklistApi (POST /worklist/:id/checkin|start|complete|cancel) */}
-        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)", marginBottom: 'var(--space-2, 8px)', display: "flex", alignItems: "center", gap: 6 }}>
           <ArrowLeftRight size={12} /> {t("examDetail.statusFlow")}
         </div>
         <div
@@ -1758,7 +1758,7 @@ export function ExamDetailView({
 
       <div
         style={{
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           borderTop: "1px solid var(--border-color)",
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
@@ -1966,12 +1966,12 @@ export function ExamDetailView({
       >
         {completeModal && (
           <div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-3, 12px)' }}>
               {t("examDetail.completeChecklist")}
             </div>
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
-                <CheckCircle size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.imageQualified")}
+                <CheckCircle size={12} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} /> {t("examDetail.imageQualified")}
               </div>
               <Radio.Group
                 value={completeModal.quality}
@@ -1984,12 +1984,12 @@ export function ExamDetailView({
             </div>
             {completeModal.quality === "ok" && (
               <>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
-                  <Activity size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.doseRecord")}
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>
+                  <Activity size={12} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} /> {t("examDetail.doseRecord")}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
                   <div>
-                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>DLP (mGy·cm)</div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>DLP (mGy·cm)</div>
                     <InputNumber
                       style={{ width: "100%" }} min={0} max={100000}
                       value={completeModal.dlp !== "" ? Number(completeModal.dlp) : undefined}
@@ -1997,7 +1997,7 @@ export function ExamDetailView({
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>CTDIvol (mGy)</div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>CTDIvol (mGy)</div>
                     <InputNumber
                       style={{ width: "100%" }} min={0} max={10000}
                       value={completeModal.ctdivol !== "" ? Number(completeModal.ctdivol) : undefined}
@@ -2009,7 +2009,7 @@ export function ExamDetailView({
             )}
             {completeModal.quality === "retake" && (
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>{t("examDetail.retakeReason")}</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("examDetail.retakeReason")}</div>
                 <Select
                   style={{ width: "100%" }} placeholder={t("examDetail.selectRetakeReason")} value={completeModal.retakeReason || undefined}
                   onChange={(v) => setCompleteModal(s => s ? { ...s, retakeReason: v } : s)}
@@ -2018,8 +2018,8 @@ export function ExamDetailView({
               </div>
             )}
             <div>
-              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
-                <StickyNote size={11} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.techNotes")} *
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>
+                <StickyNote size={11} style={{ verticalAlign: -2, marginRight: 'var(--space-1, 4px)' }} /> {t("examDetail.techNotes")} *
               </div>
               <Input.TextArea
                 rows={2}

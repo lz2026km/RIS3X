@@ -88,7 +88,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       background: 'rgba(0,0,0,0.5)', zIndex: 1000,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-5, 20px)'
     }}>
       <div style={{
         background: C.white, borderRadius: 16, width: '100%', maxWidth: 900,
@@ -102,7 +102,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
           position: 'sticky', top: 0, zIndex: 10
         }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Activity size={16} />
               {device.name}
             </div>
@@ -112,18 +112,18 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
           </div>
           <button onClick={onClose} style={{
             background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
-            padding: 8, cursor: 'pointer', color: '#fff', display: 'flex'
+            padding: 'var(--space-2, 8px)', cursor: 'pointer', color: '#fff', display: 'flex'
           }}>
             <X size={18} />
           </button>
         </div>
 
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
           <div style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
+            border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)'
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Settings size={13} /> {t('deviceDetail.basicInfo')}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
@@ -149,21 +149,21 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
             <div style={{
               background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`
             }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Camera size={13} /> {t('deviceDetail.devicePhoto')}
               </div>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'flex-start' }}>
                 <div style={{
                   width: 180, height: 135,
                   background: `linear-gradient(135deg, ${C.primaryLighter} 0%, ${C.border} 100%)`,
                   borderRadius: 10, border: `2px dashed ${C.border}`,
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  gap: 8, flexShrink: 0
+                  gap: 'var(--space-2, 8px)', flexShrink: 0
                 }}>
                   <Camera size={32} style={{ color: C.textLight }} />
                   <span style={{ fontSize: 12, color: C.textLight, textAlign: 'center' }}>{t('deviceDetail.photoPlaceholder')}</span>
@@ -172,7 +172,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('deviceDetail.deviceNameLabel')}{device.name}</div>
                   <div style={{ fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('deviceDetail.lastUpdatedLabel')}{extInfo.purchaseDate}</div>
-                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('deviceDetail.photoStatusLabel')}{t('deviceDetail.pendingUpload')}</div>
+                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-2, 8px)' }}>{t('deviceDetail.photoStatusLabel')}{t('deviceDetail.pendingUpload')}</div>
                   <button style={{
                     padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
                     background: `${C.accent}10`, color: C.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer'
@@ -199,7 +199,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`, minWidth: 200
             }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <QrCode size={13} /> {t('deviceDetail.qrBarcode')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
@@ -236,13 +236,13 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
 
           <div style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
+            border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)'
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Activity size={13} /> {t('deviceDetail.realtimeStats')}
             </div>
             {apiStats ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
                 {[
                   { label: 'deviceDetail.todayExams', value: `${apiStats.todayExams} 例`, color: C.accent },
                   { label: 'deviceDetail.totalExams', value: `${apiStats.totalExams} 例`, color: C.primary },
@@ -259,7 +259,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: 12, color: C.textLight, fontSize: 12 }}>
+              <div style={{ textAlign: 'center', padding: 'var(--space-3, 12px)', color: C.textLight, fontSize: 12 }}>
                 {t('deviceDetail.loadingStats')}
               </div>
             )}
@@ -267,9 +267,9 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
 
           <div style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
+            border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)'
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={13} /> {t('deviceDetail.todayTimeline')}
             </div>
             <div style={{ display: 'flex', gap: 2, height: 60, alignItems: 'flex-end' }}>
@@ -287,22 +287,22 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+            <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: C.textMid }}>
                 <span style={{ width: 10, height: 10, borderRadius: 2, background: C.success }} /> {t('deviceDetail.inUse')}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: C.textMid }}>
                 <span style={{ width: 10, height: 10, borderRadius: 2, background: '#e2e8f0' }} /> {t('deviceDetail.idle')}
               </span>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)' }}>
             <div style={{
               background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`
             }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <TrendingUp size={13} /> {t('deviceDetail.trend7d')}
               </div>
               <ChartContainer type="area" height={180}>
@@ -320,10 +320,10 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`
             }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Heart size={13} /> {t('deviceDetail.healthScore')}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 <div style={{ position: 'relative', width: 90, height: 90 }}>
                   <svg viewBox="0 0 36 36" style={{ width: 90, height: 90 }}>
                     <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3.2" />
@@ -357,12 +357,12 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
 
           <div style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
+            border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)'
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={13} /> {t('deviceDetail.lifecycle')}
             </div>
-            <div style={{ position: 'relative', paddingLeft: 20 }}>
+            <div style={{ position: 'relative', paddingLeft: 'var(--space-5, 20px)' }}>
               <div style={{ position: 'absolute', left: 8, top: 0, bottom: 0, width: 2, background: C.border, borderRadius: 1 }} />
               {[
                 { date: extInfo.purchaseDate || '2021-01', title: 'deviceDetail.event.procurement', desc: `采购金额 ¥${(extInfo.purchasePrice || 5000000).toLocaleString()}`, color: C.accent },
@@ -371,7 +371,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 { date: extInfo.warrantyExpiry || '2026-01', title: 'deviceDetail.event.warrantyExpiry', desc: 'deviceDetail.event.warrantyExpiryDesc', color: C.warning },
                 { date: new Date(Date.now() + 365 * 3 * 86400000).toISOString().slice(0, 10), title: 'deviceDetail.event.retirement', desc: 'deviceDetail.event.retirementDesc', color: C.danger },
               ].map((event, i) => (
-                <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, position: 'relative' }}>
+                <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 'var(--space-4, 16px)', position: 'relative' }}>
                   <div style={{
                     position: 'absolute', left: -16, top: 3, width: 12, height: 12, borderRadius: '50%',
                     background: event.color, border: `2px solid ${C.white}`, zIndex: 1
@@ -390,12 +390,12 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
 
           <div style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
+            border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)'
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Gauge size={13} /> {t('deviceDetail.performanceMetrics')}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' }}>
               {[
                 { label: 'deviceDetail.avgExamTime', value: `${device.avgExamTime} 分钟`, color: C.accent },
                 { label: 'deviceDetail.maxExamTime', value: `${device.maxExamTime} 分钟`, color: C.warning },
@@ -437,11 +437,11 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             background: 'var(--bg-card)', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Wrench size={13} /> {t('deviceDetail.maintHistory')}
             </div>
             {maintRecords.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {maintRecords.map(record => (
                   <div key={record.id} style={{
                     background: C.white, borderRadius: 8, padding: '10px 14px',
@@ -457,7 +457,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: 20, color: C.textLight, fontSize: 12 }}>
+              <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: C.textLight, fontSize: 12 }}>
               {t('deviceDetail.noMaintRecords')}
               </div>
             )}

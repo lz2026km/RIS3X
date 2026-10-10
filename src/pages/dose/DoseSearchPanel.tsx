@@ -51,15 +51,15 @@ export default function DoseSearchPanel({
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 16,
+        marginBottom: 'var(--space-4, 16px)',
       }}
     >
       <div
         style={{
           display: "flex",
-          gap: 4,
+          gap: 'var(--space-1, 4px)',
           background: "var(--bg-primary)",
-          padding: 4,
+          padding: 'var(--space-1, 4px)',
           borderRadius: 8,
           flexWrap: "wrap",
         }}
@@ -85,7 +85,7 @@ export default function DoseSearchPanel({
           </button>
         ))}
       </div>
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
         <div style={{ position: "relative" }}>
           <Search
             size={14}

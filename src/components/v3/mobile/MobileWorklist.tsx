@@ -89,18 +89,18 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
   }
 
   return (
-    <div data-testid="mobile-worklist" style={{ maxWidth: 480, margin: '0 auto', padding: 12, background: 'var(--bg-primary)', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+    <div data-testid="mobile-worklist" style={{ maxWidth: 480, margin: '0 auto', padding: 'var(--space-3, 12px)', background: 'var(--bg-primary)', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       {offline && (
-        <div style={{ textAlign: 'center', marginBottom: 8 }} data-testid="mob-offline-badge">
+        <div style={{ textAlign: 'center', marginBottom: 'var(--space-2, 8px)' }} data-testid="mob-offline-badge">
           <Tag icon={<WifiOff size={12} />} color="warning">{t('w9e.mobileWorklist.offline')}</Tag>
         </div>
       )}
-      <ARow gutter={8} style={{ marginBottom: 12 }}>
+      <ARow gutter={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statPending')} value={stats.pending} styles={{ content: {  fontSize: 18, color: 'var(--color-primary-500)'  } }} /></ACard></ACol>
         <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCritical')} value={stats.critical} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} /></ACard></ACol>
         <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCompleted')} value={stats.completed} styles={{ content: {  fontSize: 18, color: 'var(--color-success-600)'  } }} /></ACard></ACol>
       </ARow>
-      <Input placeholder={t('w9e.mobileWorklist.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} style={{ marginBottom: 8 }} data-testid="mob-search" allowClear />
+      <Input placeholder={t('w9e.mobileWorklist.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} style={{ marginBottom: 'var(--space-2, 8px)' }} data-testid="mob-search" allowClear />
       <ATabs activeKey={tab} onChange={(k) => setTab(k as any)}
         items={[
           { key: 'all', label: t('w9e.mobileWorklist.tabAll', { count: items.length }) },
@@ -109,13 +109,13 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
           { key: 'mine', label: t('w9e.mobileWorklist.tabMine') },
         ]}
       />
-      <AButton onClick={handleRefresh} loading={refreshing} block style={{ marginBottom: 8 }} data-testid="mob-refresh">{t('w9e.mobileWorklist.pullRefresh')}</AButton>
+      <AButton onClick={handleRefresh} loading={refreshing} block style={{ marginBottom: 'var(--space-2, 8px)' }} data-testid="mob-refresh">{t('w9e.mobileWorklist.pullRefresh')}</AButton>
       {filtered.length === 0 ? <AEmpty description={t('w9e.mobileWorklist.noTasks')} /> : (
         <List dataSource={filtered} renderItem={(i) => {
           const s = STATE_META[i.state]; const p = PRIORITY_META[i.priority]
           return (
             <ACard size="small" hoverable onClick={() => onSelect?.(i.id)} data-testid={`mob-item-${i.id}`}
-              style={{ marginBottom: 8, borderLeft: `3px solid ${i.critical ? 'var(--color-error-600)' : p.color === 'red' ? 'var(--color-error-600)' : 'var(--color-primary-500)'}` }}>
+              style={{ marginBottom: 'var(--space-2, 8px)', borderLeft: `3px solid ${i.critical ? 'var(--color-error-600)' : p.color === 'red' ? 'var(--color-error-600)' : 'var(--color-primary-500)'}` }}>
               <ASpace size={4} wrap>
                 <ATag color="blue">{i.modality}</ATag>
                 {i.bodyPart && <ATag>{i.bodyPart}</ATag>}
@@ -123,7 +123,7 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
                 <ATag color={s.color}>{s.label}</ATag>
                 {i.critical && <ABadge count={t('w9e.mobileWorklist.criticalBadge')} />}
               </ASpace>
-              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{i.patientName}</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>{i.patientName}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{i.patientId} · {i.studyDate} {i.studyTime}</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{i.author ?? t('w9e.mobileWorklist.unassigned')}</span>

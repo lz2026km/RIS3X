@@ -449,7 +449,7 @@ function OverviewCanvas({ detail, view, viewSize, onNavigate }: OverviewCanvasPr
           }}
         />
       )}
-      <div style={{ marginTop: 4, fontSize: 12, color: '#8c8c8c', textAlign: 'center' }}>
+      <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: '#8c8c8c', textAlign: 'center' }}>
         {t('w10Wsi.overview')} · {t('w10Wsi.levelLabel')} L{detail.levels - 1}
       </div>
     </div>
@@ -1043,7 +1043,7 @@ const WsiViewerPage: React.FC = () => {
 
   // ── 渲染 ──
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 'var(--space-4, 16px)' }}>
       <Row gutter={[12, 12]}>
         <Col span={24}>
           <Card size="small">
@@ -1088,10 +1088,10 @@ const WsiViewerPage: React.FC = () => {
               extra={caseFilterPatientId ? (
                 <Button size="small" type="link" onClick={() => { setCaseFilterPatientId(undefined); setDetail(null) }}>{t('w10Wsi.clearFilter')}</Button>
               ) : undefined}
-              styles={{ body: { maxHeight: 200, overflow: 'auto', padding: 8 } }}
+              styles={{ body: { maxHeight: 200, overflow: 'auto', padding: 'var(--space-2, 8px)' } }}
             >
               {casesLoading ? (
-                <div style={{ textAlign: 'center', padding: 16 }}>
+                <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)' }}>
                   <Spin size="small" />
                 </div>
               ) : cases.length > 0 ? (
@@ -1129,9 +1129,9 @@ const WsiViewerPage: React.FC = () => {
               <div style={{ fontSize: 10, color: '#b0b7c3', marginTop: 6 }}>{t('w10Wsi.caseFilterHint')}</div>
             </Card>
 
-            <Card size="small" title={<Text strong>{t('w10Wsi.slideList')}</Text>} styles={{ body: { maxHeight: 380, overflow: 'auto', padding: 8 } }}>
+            <Card size="small" title={<Text strong>{t('w10Wsi.slideList')}</Text>} styles={{ body: { maxHeight: 380, overflow: 'auto', padding: 'var(--space-2, 8px)' } }}>
               {loading ? (
-                <div style={{ textAlign: 'center', padding: 16 }}>
+                <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)' }}>
                   <Spin size="small" />
                 </div>
               ) : (
@@ -1208,7 +1208,7 @@ const WsiViewerPage: React.FC = () => {
         </Col>
 
         <Col xs={24} lg={12} xl={13}>
-          <Card size="small" styles={{ body: { padding: 8 } }}>
+          <Card size="small" styles={{ body: { padding: 'var(--space-2, 8px)' } }}>
             <Space wrap style={{ width: '100%', justifyContent: 'space-between' }} align="center">
               <Space wrap>
                 <Text strong style={{ fontSize: 12 }}>{t('w10Wsi.tools')}:</Text>
@@ -1236,7 +1236,7 @@ const WsiViewerPage: React.FC = () => {
               <div style={{ marginTop: 6, fontSize: 12, color: '#8c8c8c' }}>
                 {t('w10Wsi.annotateHintPoly')}
                 {polyPoints.length >= 6 && (
-                  <Button size="small" type="primary" style={{ marginLeft: 8 }} onClick={finishPolygon}>
+                  <Button size="small" type="primary" style={{ marginLeft: 'var(--space-2, 8px)' }} onClick={finishPolygon}>
                     {t('w10Wsi.polygonFinish')}
                   </Button>
                 )}
@@ -1261,7 +1261,7 @@ const WsiViewerPage: React.FC = () => {
                 cursor: tool === 'pan' ? 'grab' : 'crosshair',
                 userSelect: 'none',
                 touchAction: 'none',
-                marginTop: 8,
+                marginTop: 'var(--space-2, 8px)',
               }}
             >
               {!detail && (
@@ -1274,7 +1274,7 @@ const WsiViewerPage: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: '#a8adb8',
-                    gap: 8,
+                    gap: 'var(--space-2, 8px)',
                   }}
                 >
                   <Crosshair size={40} opacity={0.5} />
@@ -1347,7 +1347,7 @@ const WsiViewerPage: React.FC = () => {
             </div>
 
             {detail && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                 <OverviewCanvas detail={detail} view={view} viewSize={size} onNavigate={(cx, cy) => setView((v) => ({ ...v, cx, cy }))} />
               </div>
             )}
@@ -1403,7 +1403,7 @@ const WsiViewerPage: React.FC = () => {
                           </Popconfirm>
                         </Space>
                       </Space>
-                      <div style={{ marginTop: 4, fontSize: 11, color: '#8c8c8c' }}>
+                      <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 11, color: '#8c8c8c' }}>
                         <Tag color={a.color} style={{ fontSize: 11 }}>{t('w10Wsi.categoryName.' + a.category)}</Tag>
                         {a.kind === 'rect' && `${t('w10Wsi.rect')} ${Math.round(a.points[2]! - a.points[0]!)}×${Math.round(a.points[3]! - a.points[1]!)}px`}
                         {a.kind === 'circle' && `${t('w10Wsi.circle')} r=${Math.round(a.points[2] ?? 0)}px`}
@@ -1441,7 +1441,7 @@ const WsiViewerPage: React.FC = () => {
       >
         <Space direction="vertical" style={{ width: '100%' }} size={12}>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{t('w10Wsi.label')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#595959' }}>{t('w10Wsi.label')}</div>
             <Input
               value={annLabel}
               onChange={(e) => setAnnLabel(e.target.value)}
@@ -1450,7 +1450,7 @@ const WsiViewerPage: React.FC = () => {
             />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{t('w10Wsi.category')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#595959' }}>{t('w10Wsi.category')}</div>
             <Radio.Group
               value={annCategory}
               onChange={(e) => {
@@ -1467,7 +1467,7 @@ const WsiViewerPage: React.FC = () => {
             </Radio.Group>
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{t('w10Wsi.color')}</div>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#595959' }}>{t('w10Wsi.color')}</div>
             <Radio.Group value={annColor} onChange={(e) => setAnnColor(e.target.value)}>
               {PALETTE.map((c) => (
                 <Radio.Button key={c} value={c}>
@@ -1477,7 +1477,7 @@ const WsiViewerPage: React.FC = () => {
             </Radio.Group>
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>
+            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#595959' }}>
               {t('w10Wsi.confidence')}: {Math.round(annConfidence * 100)}%
             </div>
             <Slider min={0} max={1} step={0.01} value={annConfidence} onChange={(v) => setAnnConfidence(Number(v))} />

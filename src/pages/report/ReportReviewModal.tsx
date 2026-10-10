@@ -26,7 +26,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       background: 'rgba(15,23,42,0.5)', zIndex: 1000, display: 'flex',
-      alignItems: 'center', justifyContent: 'center', padding: 20,
+      alignItems: 'center', justifyContent: 'center', padding: 'var(--space-5, 20px)',
     }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{
         background: 'var(--bg-card)', borderRadius: 12, width: '100%', maxWidth: 520,
@@ -40,12 +40,12 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
         }}>
           <ShieldCheck size={18} style={{ color: WHITE }} />
           <span style={{ fontSize: 14, fontWeight: 700, color: WHITE, flex: 1 }}>报告审核</span>
-          <button onClick={onClose} style={{ padding: 4, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: WHITE, display: 'flex' }}>
+          <button onClick={onClose} style={{ padding: 'var(--space-1, 4px)', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: WHITE, display: 'flex' }}>
             <X size={16} />
           </button>
         </div>
 
-        <div style={{ padding: '12px 20px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <div style={{ padding: '12px 20px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <FileText size={12} style={{ color: GRAY }} />
             <span style={{ fontSize: 12, color: GRAY }}>报告: <strong style={{ color: PRIMARY }}>{report.reportId}</strong></span>
@@ -63,9 +63,9 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
           </div>
         </div>
 
-        <div style={{ padding: 20, flex: 1, overflowY: 'auto' }}>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>审核结果</div>
+        <div style={{ padding: 'var(--space-5, 20px)', flex: 1, overflowY: 'auto' }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>审核结果</div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setResult('approved')} style={{
                 flex: 1, padding: '10px 16px', borderRadius: 8, border: '2px solid',
@@ -88,7 +88,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
             </div>
           </div>
 
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6 }}>审核意见</div>
             <textarea value={suggestion} onChange={e => setSuggestion(e.target.value)}
               placeholder={result === 'approved' ? '同意发布，报告书写规范。' : '请修改诊断意见中的描述...'}
@@ -106,7 +106,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
           </div>
         </div>
 
-        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
           <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
           <button onClick={handleSubmit} disabled={submitting || !password}
             style={{

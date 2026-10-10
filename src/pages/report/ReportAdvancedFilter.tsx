@@ -27,7 +27,7 @@ export default function ReportAdvancedFilter({
         <Filter size={13} /> 高级筛选 {showAdvancedFilter ? '▲' : '▼'}
       </button>
       {showAdvancedFilter && (
-        <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>质量评分:</span>
             <input type="number" value={qualityScoreFrom} onChange={e => setQualityScoreFrom(Number(e.target.value) || 0)}

@@ -20,7 +20,7 @@ const VisionAcuityInput: React.FC<Props> = ({ label, value, onChange }) => {
   const grade = visionGrade(value);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '4px 0' }}>
       <span style={{ minWidth: 60, fontSize: 12, color: '#475569' }}>{label}</span>
       <InputNumber
         value={value}

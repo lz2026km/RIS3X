@@ -121,7 +121,7 @@ export function Hl7AnalyticsSection() {
         />
       </DashboardCard>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
         <DashboardCard title={t('hl7Ext.messageTypes')} icon={<BarChart3 size={15} />}>
           <DataTable<Hl7MessageTypeDto>
             rowKey="messageType"

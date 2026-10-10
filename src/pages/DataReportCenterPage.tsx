@@ -226,7 +226,7 @@ function ReportChart({ type, data, xKey, yKeys, height = 280, title }: ReportCha
           </RadialBarChart>
         )
       default:
-        return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>不支持的图表类型: {type}</div>
+        return <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: '#94a3b8' }}>不支持的图表类型: {type}</div>
     }
   })()
 
@@ -521,13 +521,13 @@ function CustomReportBuilder() {
   const { pageData: previewPageData, pagination: previewPagination } = usePagination(chartRows, 10)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       <Card
         size="small"
         title={<Space><SlidersHorizontal size={14} />{t('dataReportCenter.defConfig')}<Text type="secondary" style={{ fontSize: 12 }}>{t('dataReportCenter.defConfigHint')}</Text></Space>}
         style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           <div>
             <Text strong style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>{t('dataReportCenter.metricFields')}</Text>
             <Checkbox.Group
@@ -536,7 +536,7 @@ function CustomReportBuilder() {
               options={CUSTOM_FIELDS.map((f) => ({ label: f.label, value: f.key }))}
             />
           </div>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
             <Space>
               <Text strong style={{ fontSize: 12 }}>{t('dataReportCenter.period')}</Text>
               <Select value={period} onChange={setPeriod} size="small" style={{ width: 80 }} options={CUSTOM_PERIODS} />
@@ -554,7 +554,7 @@ function CustomReportBuilder() {
             </Space>
           </div>
           {savedDefs.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
               <Text strong style={{ fontSize: 12 }}>{t('dataReportCenter.savedDefs')}</Text>
               {savedDefs.map((d) => (
                 <Tag key={d.id} color="blue" style={{ cursor: 'pointer' }} onClick={() => handleLoadDef(d)}>
@@ -563,7 +563,7 @@ function CustomReportBuilder() {
                   {pushedIds.has(d.id) && (
                     <span style={{ marginLeft: 6, color: '#059669', fontWeight: 700 }}>{t('dataReportCenter.pushed')}</span>
                   )}
-                  <Trash2 size={10} style={{ marginLeft: 4, verticalAlign: -1 }} onClick={(e) => { e.stopPropagation(); handleDeleteDef(d.id) }} />
+                  <Trash2 size={10} style={{ marginLeft: 'var(--space-1, 4px)', verticalAlign: -1 }} onClick={(e) => { e.stopPropagation(); handleDeleteDef(d.id) }} />
                 </Tag>
               ))}
             </div>
@@ -973,7 +973,7 @@ function CustomReportCenter() {
   }, [result])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
       <Card
         size="small"
         style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
@@ -1013,9 +1013,9 @@ function CustomReportCenter() {
         onClose={() => setResultDef(null)}
       >
         {resultLoading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin /></div>
         ) : result ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             <Alert
               type="success"
               showIcon
@@ -1086,7 +1086,7 @@ function CustomReportCenter() {
         confirmLoading={saving}
         width={680}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <Space>
             <Text strong style={{ width: 70, display: 'inline-block' }}>{t('dataReportCenter.reportName')}</Text>
             <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t('dataReportCenter.reportNamePlaceholder')} style={{ width: 300 }} />
@@ -1124,7 +1124,7 @@ function CustomReportCenter() {
               optionFilterProp="label"
               options={fieldGroups.map((g) => ({ label: g.label, options: g.options }))}
             />
-            <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
+            <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 'var(--space-1, 4px)' }}>
               {t('dataReportCenter.dataSourceHint')}
             </Text>
           </div>
@@ -1147,7 +1147,7 @@ function CustomReportCenter() {
         width={520}
       >
         {scheduleDef && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
             <div>
               <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('dataReportCenter.scheduleRule')}</Text>
               <Select
@@ -1158,7 +1158,7 @@ function CustomReportCenter() {
                 showSearch
                 allowClear={false}
               />
-              <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 'var(--space-1, 4px)' }}>
                 {t('dataReportCenter.scheduleHint')}
               </Text>
             </div>
@@ -1512,10 +1512,10 @@ export default function DataReportCenterPage() {
           </div>
           {favoriteDefs.length > 0 && (
             <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
-              <Text strong style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Text strong style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Star size={12} /> {t('dataReportCenter.favoriteReports', { count: favoriteDefs.length })}
               </Text>
-              <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                 {favoriteDefs.slice(0, 5).map((r) => (
                   <Tag
                     key={r.id}
@@ -1585,11 +1585,11 @@ export default function DataReportCenterPage() {
             />
           </div>
         </Sider>
-        <Content style={{ padding: 16, overflow: 'auto', height: fullscreen ? 'calc(100vh - 56px)' : 'calc(100vh - 56px)' }}>
+        <Content style={{ padding: 'var(--space-4, 16px)', overflow: 'auto', height: fullscreen ? 'calc(100vh - 56px)' : 'calc(100vh - 56px)' }}>
           {viewMode === 'custom' ? (
             <CustomReportCenterRoot />
           ) : currentReport ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <Space size={8} align="center">
@@ -1624,7 +1624,7 @@ export default function DataReportCenterPage() {
                 </Space>
               </div>
               <Spin spinning={loading}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
                   <Card
                     size="small"
                     className="report-chart-area"

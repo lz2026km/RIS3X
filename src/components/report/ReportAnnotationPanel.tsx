@@ -286,7 +286,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
         </div>
       </div>
 
-      <div style={{ padding: 8, background: 'var(--bg-card)', borderBottom: '1px solid #e2e8f0' }}>
+      <div style={{ padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderBottom: '1px solid #e2e8f0' }}>
         <Input.TextArea
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
@@ -336,9 +336,9 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
 
       <div style={{ maxHeight, overflowY: 'auto' }} data-testid={`${testIdPrefix}-list`}>
         {loading ? (
-          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('reportAnnotation.loading')}</div>
+          <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('reportAnnotation.loading')}</div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
+          <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
             <MessageSquareText size={20} style={{ opacity: 0.4 }} />
             <div style={{ marginTop: 6 }}>{t('reportAnnotation.empty')}</div>
           </div>
@@ -353,7 +353,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                 borderBottom: '1px solid #f1f5f9',
               }}
             >
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <div
                   style={{
                     width: 28,
@@ -388,7 +388,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                   {a.quote ? (
                     <div
                       style={{
-                        marginTop: 4,
+                        marginTop: 'var(--space-1, 4px)',
                         padding: '4px 8px',
                         background: '#fffbeb',
                         border: '1px solid #fde68a',
@@ -403,30 +403,30 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                       title={editorSelector ? t('reportAnnotation.locateTitle') : undefined}
                       data-testid={`${testIdPrefix}-quote-${a.id}`}
                     >
-                      <Quote size={10} style={{ marginRight: 4, verticalAlign: -1 }} />
+                      <Quote size={10} style={{ marginRight: 'var(--space-1, 4px)', verticalAlign: -1 }} />
                       {a.quote}
                     </div>
                   ) : null}
                   {editId === a.id ? (
-                    <div style={{ marginTop: 4 }}>
+                    <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                       <Input.TextArea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
                         rows={2}
                         data-testid={`${testIdPrefix}-edit-input-${a.id}`}
                       />
-                      <Space style={{ marginTop: 4 }}>
+                      <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
                         <Button size="small" type="primary" onClick={() => void submitEdit(a.id)}>{t('reportAnnotation.save')}</Button>
                         <Button size="small" onClick={() => setEditId(null)}>{t('reportAnnotation.cancel')}</Button>
                       </Space>
                     </div>
                   ) : (
-                    <div style={{ fontSize: 12, color: '#334155', marginTop: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                    <div style={{ fontSize: 12, color: '#334155', marginTop: 'var(--space-1, 4px)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                       {a.content}
                     </div>
                   )}
                   {resolveId === a.id && (
-                    <div style={{ marginTop: 4 }}>
+                    <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                       <Input
                         size="small"
                         value={resolveText}
@@ -434,14 +434,14 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         placeholder={t('reportAnnotation.resolvePlaceholder')}
                         data-testid={`${testIdPrefix}-resolve-input-${a.id}`}
                       />
-                      <Space style={{ marginTop: 4 }}>
+                      <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
                         <Button size="small" type="primary" onClick={() => void submitResolve(a.id)}>{t('reportAnnotation.confirmResolve')}</Button>
                         <Button size="small" onClick={() => { setResolveId(null); setResolveText(''); }}>{t('reportAnnotation.cancel')}</Button>
                       </Space>
                     </div>
                   )}
                   {a.replies.map((r) => (
-                    <div key={r.id} style={{ marginTop: 6, marginLeft: 8, paddingLeft: 10, borderLeft: '2px solid #e2e8f0' }}>
+                    <div key={r.id} style={{ marginTop: 6, marginLeft: 'var(--space-2, 8px)', paddingLeft: 10, borderLeft: '2px solid #e2e8f0' }}>
                       <Space size={4} wrap>
                         <strong style={{ fontSize: 11, color: '#0f172a' }}>{r.authorName}</strong>
                         <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(r.createdAt)}</span>
@@ -456,7 +456,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                       {t('reportAnnotation.resolution')}: {a.resolution} ({a.resolvedBy ?? ''} · {timeAgo(a.resolvedAt ?? '')})
                     </div>
                   )}
-                  <Space size={4} style={{ marginTop: 4 }} wrap>
+                  <Space size={4} style={{ marginTop: 'var(--space-1, 4px)' }} wrap>
                     <Button
                       size="small"
                       type="text"
@@ -517,7 +517,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         placeholder={t('reportAnnotation.replyPlaceholder', { name: a.authorName })}
                         data-testid={`${testIdPrefix}-reply-input-${a.id}`}
                       />
-                      <Space style={{ marginTop: 4 }}>
+                      <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
                         <Button size="small" type="primary" icon={<Send size={11} />} onClick={() => void submitReply(a.id)}>
                           {t('reportAnnotation.send')}
                         </Button>

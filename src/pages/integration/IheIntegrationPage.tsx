@@ -81,7 +81,7 @@ const IheIntegrationPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheInt.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
@@ -90,11 +90,11 @@ const IheIntegrationPage: React.FC = () => {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon message={t('iheInt.statusFailedTitle')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('iheInt.statusFailedTitle')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void fetchStatus()}><RefreshCw size={14} /> {t('iheInt.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('iheInt.statPixRecords')} value={pixCount} loading={loading} icon={<IdCard size={18} />} color="primary" />
         <StatCard title={t('iheInt.statPdqCache')} value={pdqCount} loading={loading} icon={<FileSearch size={18} />} color="primary" />
         <StatCard title={t('iheInt.statPamLog')} value={status?.metrics.pamLogSize ?? 0} loading={loading} icon={<CalendarRange size={18} />} color="primary" />
@@ -107,7 +107,7 @@ const IheIntegrationPage: React.FC = () => {
             size="small"
             title={<Space><Server size={14} />{t('iheInt.affinityDomain')}</Space>}
             extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchStatus()} loading={loading}>{t('iheInt.refresh')}</Button>}
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 'var(--space-4, 16px)' }}
           >
             {loading ? <Spin /> : domain ? (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
@@ -151,7 +151,7 @@ const IheIntegrationPage: React.FC = () => {
         <Col xs={24} lg={14}>
           <Card size="small" title={<Space><ArrowLeftRight size={14} />{t('iheInt.supportedTxns')}</Space>}>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin /></div>
             ) : (
               <DataTable
                 dataSource={transactions.map((t, i) => ({ key: i, transaction: t }))}
@@ -170,7 +170,7 @@ const IheIntegrationPage: React.FC = () => {
       </Row>
 
       <Modal title={t('iheInt.pixQueryBtn')} open={pixModal} onCancel={() => setPixModal(false)} footer={null} width={460}>
-        <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 12 }}>
+        <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 'var(--space-3, 12px)' }}>
           <Input.Search
             placeholder={t('iheInt.pixPlaceholder')}
             enterButton={t('iheInt.query')}
@@ -178,12 +178,12 @@ const IheIntegrationPage: React.FC = () => {
             value={patientId}
             onChange={(e) => setPatientId(e.target.value)}
           />
-          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || t('iheInt.resultPlaceholder')}</pre>
+          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 'var(--space-3, 12px)', borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || t('iheInt.resultPlaceholder')}</pre>
         </Space>
       </Modal>
 
       <Modal title={t('iheInt.pdqQueryBtn')} open={pdqModal} onCancel={() => setPdqModal(false)} footer={null} width={460}>
-        <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 12 }}>
+        <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 'var(--space-3, 12px)' }}>
           <Input.Search
             placeholder={t('iheInt.pdqPlaceholder')}
             enterButton={t('iheInt.query')}
@@ -191,13 +191,13 @@ const IheIntegrationPage: React.FC = () => {
             value={patientId}
             onChange={(e) => setPatientId(e.target.value)}
           />
-          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || t('iheInt.resultPlaceholder')}</pre>
+          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 'var(--space-3, 12px)', borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || t('iheInt.resultPlaceholder')}</pre>
         </Space>
       </Modal>
 
       <Modal title={`${t('iheInt.txnDetailTitle')} - ${detailTxn ?? ''}`} open={!!detailTxn} onCancel={() => setDetailTxn(null)} footer={<Button type="primary" onClick={() => setDetailTxn(null)}>{t('iheInt.close')}</Button>} width={480}>
         {detailTxn && (
-          <Descriptions bordered column={1} size="small" style={{ marginTop: 12 }}>
+          <Descriptions bordered column={1} size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Descriptions.Item label={t('iheInt.txnName')}>{detailTxn}</Descriptions.Item>
             <Descriptions.Item label={t('iheInt.colStandard')}>{TRANSACTION_STANDARD[detailTxn] ?? 'HL7 v2.x'}</Descriptions.Item>
             <Descriptions.Item label={t('iheInt.colDescription')}>{txnDesc(detailTxn)}</Descriptions.Item>
@@ -207,7 +207,7 @@ const IheIntegrationPage: React.FC = () => {
       </Modal>
 
       <Modal title={t('iheInt.pamTitle')} open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>{t('iheInt.close')}</Button>} width={520}>
-        <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 8 }}>
+        <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 'var(--space-2, 8px)' }}>
           <Alert type="info" showIcon message={t('iheInt.pamAlert')} />
           <Descriptions bordered column={1} size="small">
             <Descriptions.Item label={t('iheInt.pamTxn')}>{t('iheInt.pamTxnValue')}</Descriptions.Item>

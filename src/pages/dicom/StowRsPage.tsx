@@ -98,7 +98,7 @@ const StowRsPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <UploadCloud size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.stowRs.title")}</span>
         <Button
@@ -110,7 +110,7 @@ const StowRsPage: React.FC = () => {
           {t("w9d.stowRs.refresh")}
         </Button>
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard
           title={t("w9d.stowRs.statStored")}
           value={instances.length}
@@ -127,7 +127,7 @@ const StowRsPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               {t("w9d.stowRs.retry")}

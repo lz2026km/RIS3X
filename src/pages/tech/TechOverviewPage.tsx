@@ -441,14 +441,14 @@ function PeriodWeekdayHeatmap({ heatmap, total }: { heatmap: Array<{ period: str
           ))}
         </tbody>
       </table>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 11, color: C.textMid }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)', fontSize: 11, color: C.textMid }}>
         {t('techOverview.heatmapLegend')} {[0.1, 0.3, 0.55, 0.8, 1].map((r) => (
-          <span key={r} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <span key={r} style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <span style={{ width: 14, height: 14, borderRadius: 3, background: `rgba(59,130,246,${r})`, display: 'inline-block' }} />
             {r === 1 ? t('techOverview.peakLabel') : `~${Math.round(max * r)}`}
           </span>
         ))}
-        <span style={{ marginLeft: 8 }}>{t('techOverview.heatmapTotal', { count: total })}</span>
+        <span style={{ marginLeft: 'var(--space-2, 8px)' }}>{t('techOverview.heatmapTotal', { count: total })}</span>
       </div>
     </div>
   )
@@ -556,14 +556,14 @@ function PeriodBars({ buckets, peaks }: { buckets: DistributionBucket[]; peaks: 
 // ============================================================
 function RoomGrid({ rooms }: { rooms: RoomStatus[] }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 'var(--space-3, 12px)' }}>
       {rooms.map((r) => (
         <div key={r.roomId} style={{
           background: C.panel, border: `1px solid ${r.state === 'IN_USE' ? C.green : r.state === 'MAINTENANCE' ? C.orange : r.state === 'OFFLINE' ? C.red : C.border}`,
           borderRadius: 10, padding: 14,
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <span style={{ fontWeight: 700, fontSize: 14 }}>{r.roomName}</span>
               <Tag color={MODALITY_COLORS[r.modality]} style={{ marginRight: 0 }}>{r.modality}</Tag>
             </div>
@@ -584,7 +584,7 @@ function RoomGrid({ rooms }: { rooms: RoomStatus[] }) {
           </div>
           {r.currentExam ? (
             <div style={{ background: 'var(--bg-primary, #0d1117)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px' }}>
-              <div style={{ fontSize: 11, color: C.textLight, marginBottom: 4 }}>{t('techOverview.inProgressExam', { time: fmtMin(r.currentExam.startedAt) })}</div>
+              <div style={{ fontSize: 11, color: C.textLight, marginBottom: 'var(--space-1, 4px)' }}>{t('techOverview.inProgressExam', { time: fmtMin(r.currentExam.startedAt) })}</div>
               <div style={{ fontSize: 12, marginBottom: 6 }}>
                 <span style={{ color: C.text, fontWeight: 600 }}>{r.currentExam.patientName}</span>
                 <span style={{ color: C.textMid, marginLeft: 6 }}>{r.currentExam.examItem}</span>
@@ -610,7 +610,7 @@ function RoomGrid({ rooms }: { rooms: RoomStatus[] }) {
 // ============================================================
 function EventStream({ events }: { events: RoomStatusEvent[] }) {
   return (
-    <div style={{ maxHeight: 460, overflowY: 'auto', paddingRight: 4 }}>
+    <div style={{ maxHeight: 460, overflowY: 'auto', paddingRight: 'var(--space-1, 4px)' }}>
       {events.length === 0 ? (
         <Empty description={t('techOverview.noEvents')} style={{ color: C.textMid }} />
       ) : (
@@ -710,7 +710,7 @@ export default function TechOverviewPage() {
   const busyWeekday = peaks?.busiestWeekday ?? '--'
 
   const renderKpiCards = () => (
-    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+    <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', marginBottom: 'var(--space-4, 16px)' }}>
       {[
         { title: t('techOverview.kpiTotalAppt'), value: dist?.total ?? 0, sub: t('techOverview.daysWindow', { days }), icon: <CalendarDays size={20} />, color: C.blue },
         { title: t('techOverview.kpiPeak'), value: busyPeriod, sub: t('techOverview.peakSub', { count: peaks?.peaks[0]?.avgCount ?? 0, day: busyWeekday }), icon: <Flame size={20} />, color: C.red },
@@ -718,7 +718,7 @@ export default function TechOverviewPage() {
         { title: t('techOverview.kpiAttRate'), value: `${att?.attendanceRate ?? 0}%`, sub: t('techOverview.cancelSub', { count: att?.cancelled ?? 0, upcoming: att?.upcoming ?? 0 }), icon: <Activity size={20} />, color: C.green },
       ].map((kpi) => (
         <div key={kpi.title} style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
             <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
             <span style={{ color: kpi.color }}>{kpi.icon}</span>
           </div>
@@ -734,12 +734,12 @@ export default function TechOverviewPage() {
     <div>
       {renderKpiCards()}
 
-      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <LayoutGrid size={16} color={C.blue} />
             <span style={{ fontWeight: 600 }}>{t('techOverview.heatmapTitle')}</span>
-            {dist?.seeded && <Tag color="orange" style={{ marginLeft: 4 }}>{t('techOverview.seed')}</Tag>}
+            {dist?.seeded && <Tag color="orange" style={{ marginLeft: 'var(--space-1, 4px)' }}>{t('techOverview.seed')}</Tag>}
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             {[14, 30, 60].map((d) => (
@@ -752,20 +752,20 @@ export default function TechOverviewPage() {
         </Spin>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(480px,1fr))', gap: 16, marginBottom: 16 }}>
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(480px,1fr))', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
             <Monitor size={15} color={C.purple} />
             <span style={{ fontWeight: 600 }}>{t('techOverview.modalityDist')}</span>
             <span style={{ fontSize: 12, color: C.textLight }}>{t('techOverview.modalityCount', { count: dist?.byModality.length ?? 0 })}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
             <div style={{ width: 220, flexShrink: 0 }}>
               <DonutChart buckets={dist?.byModality ?? []} />
             </div>
             <div style={{ flex: 1, minWidth: 220 }}>
               {(dist?.byModality ?? []).map((b) => (
-                <div key={b.key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                <div key={b.key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 7 }}>
                   <span style={{ width: 34, fontWeight: 600, color: MODALITY_COLORS[b.key] ?? C.blue }}>{b.key}</span>
                   <div style={{ flex: 1, background: C.bg, borderRadius: 4, height: 10, overflow: 'hidden' }}>
                     <div style={{ width: `${b.pct}%`, height: 10, background: MODALITY_COLORS[b.key] ?? C.blue, borderRadius: 4 }} />
@@ -777,22 +777,22 @@ export default function TechOverviewPage() {
           </div>
         </div>
 
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
             <Clock size={15} color={C.teal} />
             <span style={{ fontWeight: 600 }}>{t('techOverview.periodTitle')}</span>
             <span style={{ fontSize: 12, color: C.textLight }}>{t('techOverview.periodHint')}</span>
           </div>
           <PeriodBars buckets={peakBuckets} peaks={peaks} />
-          <div style={{ fontSize: 12, color: C.textLight, lineHeight: 1.6, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: C.textLight, lineHeight: 1.6, marginTop: 'var(--space-1, 4px)' }}>
             <span style={{ color: C.orange, fontWeight: 600 }}>{t('techOverview.peakAnalysis')}</span>
             {peaks?.recommendation ?? ''}
           </div>
         </div>
       </div>
 
-      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <Users size={15} color={C.green} />
           <span style={{ fontWeight: 600 }}>{t('techOverview.attVsShow')}</span>
           <span style={{ fontSize: 12, color: C.textLight }}>{t('techOverview.attHint')}</span>
@@ -811,7 +811,7 @@ export default function TechOverviewPage() {
               {
                 title: t('techOverview.thNoShowRate'), dataIndex: 'noShowRate',
                 render: (v: number) => (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <div style={{ flex: 1, background: C.bg, borderRadius: 4, height: 8, overflow: 'hidden', minWidth: 90 }}>
                       <div style={{ width: `${v}%`, height: 8, background: v >= 15 ? C.red : v >= 10 ? C.orange : C.green, borderRadius: 4 }} />
                     </div>
@@ -829,7 +829,7 @@ export default function TechOverviewPage() {
   // ================= Tab 2: 技师值班大屏 =================
   const renderDashboard = () => (
     <div>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', marginBottom: 'var(--space-4, 16px)' }}>
         {[
           { title: t('techOverview.kpiOnDuty'), value: overview?.onDutyCount ?? 0, sub: t('techOverview.onDutySub', { count: overview?.offDutyCount ?? 0, total: overview?.technicianTotal ?? 0 }), icon: <User size={20} />, color: C.blue },
           { title: t('techOverview.kpiInProgress'), value: overview?.inProgressCount ?? 0, sub: t('techOverview.roomSub', { inUse: overview?.inUseRooms ?? 0, idle: overview?.idleRooms ?? 0 }), icon: <Monitor size={20} />, color: C.green },
@@ -837,7 +837,7 @@ export default function TechOverviewPage() {
           { title: t('techOverview.kpiEmergency'), value: overview?.pendingEmergencyCount ?? 0, sub: t('techOverview.emgSub'), icon: <Siren size={20} />, color: C.red },
         ].map((kpi) => (
           <div key={kpi.title} style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
               <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
               <span style={{ color: kpi.color }}>{kpi.icon}</span>
             </div>
@@ -847,9 +847,9 @@ export default function TechOverviewPage() {
         ))}
       </div>
 
-      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <LayoutGrid size={16} color={C.blue} />
             <span style={{ fontWeight: 600 }}>{t('techOverview.todayDuty')}</span>
             <span style={{ fontSize: 12, color: C.textLight }}>{t('techOverview.dutyDate', { date: overview?.date ?? '' })}</span>
@@ -864,14 +864,14 @@ export default function TechOverviewPage() {
         </div>
       </div>
 
-      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Monitor size={16} color={C.teal} />
             <span style={{ fontWeight: 600 }}>{t('techOverview.roomStatus')}</span>
-            {overview?.seeded && <Tag color="orange" style={{ marginLeft: 4 }}>{t('techOverview.seed')}</Tag>}
+            {overview?.seeded && <Tag color="orange" style={{ marginLeft: 'var(--space-1, 4px)' }}>{t('techOverview.seed')}</Tag>}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             {overview?.pendingEmergencyCount ? (
               <Tag color="red" icon={<AlertTriangle size={11} />}>{t('techOverview.emgPending', { count: overview.pendingEmergencyCount })}</Tag>
             ) : null}
@@ -884,8 +884,8 @@ export default function TechOverviewPage() {
         </Spin>
       </div>
 
-      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <Zap size={15} color={C.orange} />
           <span style={{ fontWeight: 600 }}>{t('techOverview.streamTitle')}</span>
           <span style={{ fontSize: 12, color: C.textLight }}>{t('techOverview.streamHint', { count: stream?.events.length ?? 0 })}</span>
@@ -899,7 +899,7 @@ export default function TechOverviewPage() {
     <div data-testid="tech-overview-page" style={{ background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
       <div style={{ background: 'linear-gradient(135deg,#0f766e,#0f172a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <LayoutGrid size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('techOverview.title')}</span>
           <span style={{
@@ -911,7 +911,7 @@ export default function TechOverviewPage() {
             {dataSource === 'api' ? t('techOverview.apiLive') : t('techOverview.demoData')}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('techOverview.headerDesc')}</span>
           <span title={t('techOverview.refreshData')} style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => { void loadDistribution(days); void loadDashboard() }}>
             <RefreshCw size={16} />

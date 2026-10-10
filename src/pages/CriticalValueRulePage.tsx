@@ -222,7 +222,7 @@ export default function CriticalValueRulePage() {
         const cConf = CATEGORY_CONFIG[r.category];
         const sConf = SEVERITY_CONFIG[r.severity];
         return (
-          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
             <span style={{ fontSize: 12, padding: "1px 4px", borderRadius: 2, background: cConf.bg, color: cConf.color, fontWeight: 600 }}>{cConf.label}</span>
             <span style={{ fontSize: 12, padding: "1px 4px", borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700 }}>{sConf.label}</span>
           </div>
@@ -252,12 +252,12 @@ export default function CriticalValueRulePage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: "0 auto" }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: "0 auto" }}>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {/* 顶部 */}
       <div
         style={{
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -270,7 +270,7 @@ export default function CriticalValueRulePage() {
               margin: 0,
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
             }}
           >
             <Settings size={20} color="#7c2d12" /> {t("cvRule.title")}
@@ -302,10 +302,10 @@ export default function CriticalValueRulePage() {
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
             {t("cvRule.subtitle", { count: ruleList.length })}
             {loading && t("cvRule.loadingSuffix")}
-            {loadError && <span style={{ color: "var(--color-error-600)", marginLeft: 8 }}>{loadError}</span>}
+            {loadError && <span style={{ color: "var(--color-error-600)", marginLeft: 'var(--space-2, 8px)' }}>{loadError}</span>}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
           <ActionButton
             action="refresh"
             size="compact"
@@ -329,8 +329,8 @@ export default function CriticalValueRulePage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",
-          gap: 8,
-          marginBottom: 16,
+          gap: 'var(--space-2, 8px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <KpiCard
@@ -368,7 +368,7 @@ export default function CriticalValueRulePage() {
       </div>
 
       <div
-        style={{ display: "grid", gridTemplateColumns: "440px 1fr", gap: 12 }}
+        style={{ display: "grid", gridTemplateColumns: "440px 1fr", gap: 'var(--space-3, 12px)' }}
       >
         {/* 左：规则列表 */}
         <div
@@ -449,7 +449,7 @@ export default function CriticalValueRulePage() {
             style={{
               background: "var(--bg-card)",
               borderRadius: 8,
-              padding: 16,
+              padding: 'var(--space-4, 16px)',
               border: "1px solid var(--border-color)",
             }}
           >
@@ -458,8 +458,8 @@ export default function CriticalValueRulePage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                marginBottom: 16,
+                gap: 'var(--space-3, 12px)',
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <div
@@ -506,7 +506,7 @@ export default function CriticalValueRulePage() {
                 display: "grid",
                 gridTemplateColumns: "repeat(3, 1fr)",
                 gap: 10,
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               <InfoCell
@@ -526,18 +526,18 @@ export default function CriticalValueRulePage() {
             </div>
 
             {/* 适用设备 */}
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <div
                 style={{
                   fontSize: 12,
                   color: "var(--text-secondary)",
                   fontWeight: 600,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                 }}
               >
                 {t("cvRule.applicableModalities")}
               </div>
-              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
                 {selectedRule.modality.map((m) => (
                   <span
                     key={m}
@@ -557,18 +557,18 @@ export default function CriticalValueRulePage() {
             </div>
 
             {/* 关键字 */}
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <div
                 style={{
                   fontSize: 12,
                   color: "var(--text-secondary)",
                   fontWeight: 600,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                 }}
               >
                 {t("cvRule.triggerKeywords")}
               </div>
-              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
                 {selectedRule.keywords.map((k) => (
                   <span
                     key={k}
@@ -591,7 +591,7 @@ export default function CriticalValueRulePage() {
             {/* 触发所见 */}
             <div
               style={{
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
                 padding: 10,
                 background: "var(--bg-card)",
                 borderRadius: 6,
@@ -602,7 +602,7 @@ export default function CriticalValueRulePage() {
                   fontSize: 12,
                   color: "var(--text-secondary)",
                   fontWeight: 600,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                 }}
               >
                 {t("cvRule.triggerFindings")}
@@ -613,13 +613,13 @@ export default function CriticalValueRulePage() {
             </div>
 
             {/* 通报渠道 */}
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <div
                 style={{
                   fontSize: 12,
                   color: "var(--text-secondary)",
                   fontWeight: 600,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                 }}
               >
                 {t("cvRule.notifyChannels")}
@@ -637,7 +637,7 @@ export default function CriticalValueRulePage() {
                         border: "1px solid #bbf7d0",
                         display: "flex",
                         alignItems: "center",
-                        gap: 4,
+                        gap: 'var(--space-1, 4px)',
                         fontSize: 12,
                         color: "#047857",
                         fontWeight: 600,
@@ -653,7 +653,7 @@ export default function CriticalValueRulePage() {
             {/* 描述 */}
             <div
               style={{
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
                 padding: 10,
                 background: "var(--color-warning-bg)",
                 border: "1px solid #fcd34d",
@@ -665,7 +665,7 @@ export default function CriticalValueRulePage() {
                   fontSize: 12,
                   color: "#92400e",
                   fontWeight: 700,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                 }}
               >
                 {t("cvRule.clinicalSignificance")}
@@ -678,8 +678,8 @@ export default function CriticalValueRulePage() {
             {/* 参考 */}
             <div
               style={{
-                marginBottom: 12,
-                padding: 8,
+                marginBottom: 'var(--space-3, 12px)',
+                padding: 'var(--space-2, 8px)',
                 background: "var(--color-info-bg)",
                 borderRadius: 4,
                 fontSize: 12,
@@ -693,8 +693,8 @@ export default function CriticalValueRulePage() {
             <div
               style={{
                 display: "flex",
-                gap: 8,
-                paddingTop: 12,
+                gap: 'var(--space-2, 8px)',
+                paddingTop: 'var(--space-3, 12px)',
                 borderTop: "1px solid var(--border-color)",
               }}
             >
@@ -770,7 +770,7 @@ export default function CriticalValueRulePage() {
         }
       >
         {ruleEdit && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
             <div>
               <label
                 htmlFor="rule-name"
@@ -778,7 +778,7 @@ export default function CriticalValueRulePage() {
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--text-primary)",
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                   display: "block",
                 }}
               >
@@ -813,7 +813,7 @@ export default function CriticalValueRulePage() {
                     fontSize: 12,
                     fontWeight: 600,
                     color: "var(--text-primary)",
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                     display: "block",
                   }}
                 >
@@ -849,7 +849,7 @@ export default function CriticalValueRulePage() {
                     fontSize: 12,
                     fontWeight: 600,
                     color: "var(--text-primary)",
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                     display: "block",
                   }}
                 >
@@ -879,7 +879,7 @@ export default function CriticalValueRulePage() {
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--text-primary)",
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                   display: "block",
                 }}
               >
@@ -925,7 +925,7 @@ export default function CriticalValueRulePage() {
                   {ruleEdit.keywords.join(", ")}
                 </code>
               </div>
-              <div style={{ marginTop: 4 }}>
+              <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                 {t("cvRule.notifyChannelsLabel")}
                 {ruleEdit.notificationChannels
                   .map((c) => CHANNEL_LABELS[c])
@@ -953,9 +953,9 @@ export default function CriticalValueRulePage() {
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 8,
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
                 border: "1px solid var(--border-color)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>
@@ -988,7 +988,7 @@ export default function CriticalValueRulePage() {
                     {(i * 7) % 60}
                   </span>
                 </div>
-                <div style={{ color: "var(--text-secondary)", marginTop: 4 }}>
+                <div style={{ color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
                   {t("cvRule.patientTest")}{String.fromCharCode(0x41 + i)}{t("cvRule.deviceInline")}
                   {ruleTriggers.modality[i % ruleTriggers.modality.length]} ·
                   {t("cvRule.notifyChannelsLabel")}
@@ -1024,7 +1024,7 @@ export default function CriticalValueRulePage() {
         <div style={{ fontSize: 12, color: "var(--text-primary)", padding: "4px 0" }}>
           {saveDialog.message}
         </div>
-        <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
+        <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: "var(--text-secondary)" }}>
           {t("cvRule.savedNote")}
         </div>
       </AppModal>

@@ -87,31 +87,31 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
   ]
 
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 'var(--space-4, 16px)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)', borderRadius: 10, padding: 14, color: '#fff' }}>
-          <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 4 }}>{t('criticalValueStats.thisMonthNewCritical')}</div>
+          <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.thisMonthNewCritical')}</div>
           <div style={{ fontSize: 30, fontWeight: 700 }}>{thisMonthCount}</div>
           <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('criticalValueStats.unitCases')}</div>
         </div>
         <div style={{ background: 'var(--color-success-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-success-border)' }}>
-          <div style={{ fontSize: 12, color: '#059669', marginBottom: 4 }}>{t('criticalValueStats.timelyRate')}</div>
+          <div style={{ fontSize: 12, color: '#059669', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.timelyRate')}</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: '#059669' }}>{timelyRate}</div>
           <div style={{ fontSize: 12, color: '#059669', marginTop: 2 }}>{t('criticalValueStats.target85')}</div>
         </div>
         <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-info-border)' }}>
-          <div style={{ fontSize: 12, color: '#7c3aed', marginBottom: 4 }}>{t('criticalValueStats.transferredToFollowUp')}</div>
+          <div style={{ fontSize: 12, color: '#7c3aed', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.transferredToFollowUp')}</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed' }}>{transferredCount}</div>
           <div style={{ fontSize: 12, color: '#a855f7', marginTop: 2 }}>{t('criticalValueStats.unitCases')}</div>
         </div>
         <div style={{ background: overdueProcessingCount > 0 ? 'var(--color-error-bg)' : 'var(--color-success-bg)', borderRadius: 10, padding: 14, border: `1px solid ${overdueProcessingCount > 0 ? 'var(--color-error-border)' : 'var(--color-success-border)'}` }}>
-          <div style={{ fontSize: 12, color: overdueProcessingCount > 0 ? 'var(--color-error-600)' : '#059669', marginBottom: 4 }}>{t('criticalValueStats.overdueProcessingCount')}</div>
+          <div style={{ fontSize: 12, color: overdueProcessingCount > 0 ? 'var(--color-error-600)' : '#059669', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.overdueProcessingCount')}</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: overdueProcessingCount > 0 ? 'var(--color-error-600)' : '#059669' }}>{overdueProcessingCount}</div>
           <div style={{ fontSize: 12, color: overdueProcessingCount > 0 ? '#f87171' : '#4ade80', marginTop: 2 }}>{overdueProcessingCount > 0 ? t('criticalValueStats.needsAttention') : t('criticalValueStats.allNormal')}</div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         {chartTabs.map((tab) => {
           const Icon = tab.icon
           return (
@@ -125,10 +125,10 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'trend' && (
         <div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('criticalValueStats.trendTitle')}</div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 100 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t('criticalValueStats.trendTitle')}</div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)', height: 100 }}>
             {trendData.map((d, idx) => (
-              <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <div style={{ width: '100%', height: `${(d.count / maxTrend) * 80}px`, background: idx === trendData.length - 1 ? 'var(--color-error-600)' : 'var(--color-primary-800)', borderRadius: '4px 4px 0 0', transition: 'height 0.3s', minHeight: 4 }} />
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{d.day}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{d.count}</span>
@@ -139,7 +139,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
       )}
 
       {activeChart === 'modality' && (
-        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', alignItems: 'center' }}>
           <div style={{ position: 'relative', width: 120, height: 120 }}>
             <svg viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
               {modalityData.reduce((acc, d) => {
@@ -155,7 +155,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
           </div>
           <div style={{ flex: 1 }}>
             {modalityData.map((d) => (
-              <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: d.color }} />
                 <div style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{d.label}</div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{d.value}</div>
@@ -168,10 +168,10 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'time' && (
         <div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('criticalValueStats.timeDistTitle')}</div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 100 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t('criticalValueStats.timeDistTitle')}</div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-3, 12px)', height: 100 }}>
             {timeData.map((d) => (
-              <div key={d.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div key={d.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <div style={{ width: '100%', maxWidth: 48, height: `${(d.value / maxTime) * 80}px`, background: d.color, borderRadius: '4px 4px 0 0', transition: 'height 0.3s', minHeight: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{d.value}</span>
                 </div>
@@ -184,28 +184,28 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'missed' && (
         <div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('criticalValueStats.missedStatsTitle')}</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t('criticalValueStats.missedStatsTitle')}</div>
           {missedStats ? (
             <>
-              <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 10, padding: 14, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('criticalValueStats.totalExamsMonth')}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.totalExamsMonth')}</div>
                   <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-800)' }}>{missedStats.totalExams}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('criticalValueStats.unitPersonTimes')}</div>
                 </div>
                 <div style={{ flex: 1, background: 'var(--color-error-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-error-border)', textAlign: 'center' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('criticalValueStats.missedCount')}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.missedCount')}</div>
                   <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)' }}>{missedStats.missedCount}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('criticalValueStats.unitTimes')}</div>
                 </div>
                 <div style={{ flex: 1, background: 'var(--color-success-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-success-border)', textAlign: 'center' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('criticalValueStats.missedRateLabel')}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.missedRateLabel')}</div>
                   <div style={{ fontSize: 30, fontWeight: 700, color: '#059669' }}>{missedStats.missedRate}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('criticalValueStats.belowTarget1')}</div>
                 </div>
               </div>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('criticalValueStats.missedReasonTitle')}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {missedStats.topMissedReasons.map((item, idx) => {
                   const pct = Math.round((item.count / missedStats.missedCount) * 100)
                   const colors = ['var(--color-error-600)', 'var(--color-warning-600)', 'var(--color-primary-600)', '#64748b']
@@ -227,50 +227,50 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
               </div>
             </>
           ) : (
-            <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8' }}>{t('criticalValueStats.loading')}</div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: '#94a3b8' }}>{t('criticalValueStats.loading')}</div>
           )}
         </div>
       )}
 
       {activeChart === 'notification' && (
         <div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Timer size={16} style={{ color: 'var(--color-primary-800)' }} />
             {t('criticalValueStats.notificationTitle')}
             <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('criticalValueStats.guidelineTag')}</span>
           </div>
           {notificationStats ? (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <div style={{ background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`, borderRadius: 10, padding: 14, textAlign: 'center', color: '#fff' }}>
-                  <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 4 }}>{t('criticalValueStats.totalNotificationsMonth')}</div>
+                  <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.totalNotificationsMonth')}</div>
                   <div style={{ fontSize: 30, fontWeight: 700 }}>{notificationStats.totalCount}</div>
                   <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('criticalValueStats.unitCases')}</div>
                 </div>
                 <div style={{ background: 'var(--color-success-bg)', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid var(--color-success-border)' }}>
-                  <div style={{ fontSize: 12, color: '#059669', marginBottom: 4 }}>{t('criticalValueStats.completedWithin10Min')}</div>
+                  <div style={{ fontSize: 12, color: '#059669', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.completedWithin10Min')}</div>
                   <div style={{ fontSize: 30, fontWeight: 700, color: '#059669' }}>{notificationStats.completedWithin10Min}</div>
                   <div style={{ fontSize: 12, color: '#059669', marginTop: 2 }}>{t('criticalValueStats.unitCases')}</div>
                 </div>
                 <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid var(--color-info-border)' }}>
-                  <div style={{ fontSize: 12, color: 'var(--color-primary-800)', marginBottom: 4 }}>{t('criticalValueStats.completionRate')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-primary-800)', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.completionRate')}</div>
                   <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-800)' }}>{notificationStats.completionRate}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('criticalValueStats.target90')}</div>
                 </div>
                 <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid var(--color-warning-border)' }}>
-                  <div style={{ fontSize: 12, color: 'var(--color-warning-600)', marginBottom: 4 }}>{t('criticalValueStats.avgNotificationTime')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-warning-600)', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.avgNotificationTime')}</div>
                   <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-warning-600)' }}>{notificationStats.avgNotificationTime}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('criticalValueStats.unitMinutes')}</div>
                 </div>
               </div>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 14, border: '1px solid var(--border-color)', marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('criticalValueStats.todayNotificationTitle')}</div>
-                <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 14, border: '1px solid var(--border-color)', marginBottom: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t('criticalValueStats.todayNotificationTitle')}</div>
+                <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', alignItems: 'center' }}>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('criticalValueStats.todayNotifications')}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.todayNotifications')}</div>
                     <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-800)' }}>{notificationStats.todayCount}</div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b' }}>
                       <span>{t('criticalValueStats.completionProgress')}</span>
                       <span style={{ fontWeight: 700, color: '#059669' }}>{notificationStats.todayCompleted}/{notificationStats.todayCount}</span>
@@ -280,20 +280,20 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
                     </div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('criticalValueStats.completionRate')}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueStats.completionRate')}</div>
                     <div style={{ fontSize: 30, fontWeight: 700, color: parseFloat(notificationStats.todayRate) >= 90 ? '#059669' : 'var(--color-warning-600)' }}>{notificationStats.todayRate}</div>
                   </div>
                 </div>
               </div>
             </>
           ) : (
-            <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8' }}>{t('criticalValueStats.loading')}</div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: '#94a3b8' }}>{t('criticalValueStats.loading')}</div>
           )}
-          <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 12, border: '1px solid var(--color-info-border)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('criticalValueStats.guidelineDescTitle')}</div>
+          <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 'var(--space-3, 12px)', border: '1px solid var(--color-info-border)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('criticalValueStats.guidelineDescTitle')}</div>
             <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.6 }}>
-              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('criticalValueStats.guideline10minLabel')}</span>{t('criticalValueStats.guideline10minDesc')}</div>
-              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('criticalValueStats.guidelineStandardLabel')}</span>{t('criticalValueStats.guidelineStandardDesc')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)' }}>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('criticalValueStats.guideline10minLabel')}</span>{t('criticalValueStats.guideline10minDesc')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)' }}>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('criticalValueStats.guidelineStandardLabel')}</span>{t('criticalValueStats.guidelineStandardDesc')}</div>
               <div>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('criticalValueStats.guidelineOverdueLabel')}</span>{t('criticalValueStats.guidelineOverdueDesc')}</div>
             </div>
           </div>
@@ -344,13 +344,13 @@ export const CriticalValueStatsSection = ({ data }: { data: CriticalValue[] }) =
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard label={t('criticalValueStats.pendingCritical')} value={pending} icon={Bell} color="var(--color-error-600)" bgColor="var(--color-error-bg)" trend={pending > 0 ? '+' + pending : undefined} />
         <StatCard label={t('criticalValueStats.processing')} value={processing} icon={Clock} color="var(--color-warning-600)" bgColor="var(--color-warning-bg)" />
         <StatCard label={t('criticalValueStats.resolved')} value={resolved} icon={CheckCircle} color="#059669" bgColor="var(--color-success-bg)" trend="+3" />
         <StatCard label={t('criticalValueStats.overdueUnhandled')} value={overdue} icon={AlertTriangle} color="#991b1b" bgColor="var(--color-error-bg)" trend={overdue > 0 ? '+' + overdue : undefined} />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard label={apiStats ? t('criticalValueStats.todayNewCritical') : t('criticalValueStats.thisMonthNewCritical')} value={thisMonth} icon={TrendingUp} color="var(--color-primary-800)" bgColor="var(--color-info-bg)" />
         <StatCard label={t('criticalValueStats.timelyRate')} value={timelyRate} icon={Target} color="#059669" bgColor="var(--color-success-bg)" suffix="%" />
         <StatCard label={t('criticalValueStats.transferredToFollowUp')} value={transferred} icon={ArrowUpRight} color="#7c3aed" bgColor="var(--color-info-bg)" />

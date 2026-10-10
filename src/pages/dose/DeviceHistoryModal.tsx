@@ -98,7 +98,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           width: 600,
           maxHeight: "80vh",
           overflow: "auto",
@@ -110,24 +110,24 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 20,
+            marginBottom: 'var(--space-5, 20px)',
           }}
         >
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)" }}>
               {device} 历史趋势
               {dataSource === "demo" && (
-                <span style={{ marginLeft: 8, fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "var(--color-warning-600)", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
+                <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "var(--color-warning-600)", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
               )}
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 'var(--space-1, 4px)' }}>
               近7日剂量趋势分析
             </div>
           </div>
           <button
             onClick={onClose}
             style={{
-              padding: 8,
+              padding: 'var(--space-2, 8px)',
               background: "var(--bg-primary)",
               border: "none",
               borderRadius: 6,
@@ -165,10 +165,10 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
 
         <div
           style={{
-            marginTop: 16,
+            marginTop: 'var(--space-4, 16px)',
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
           }}
         >
           <ModalStat label="7日平均DLP" value={String(avgDlp)} />
@@ -185,7 +185,7 @@ const ModalStat = ({ label, value }: { label: string; value: string }) => (
     style={{
       background: "var(--bg-primary)",
       borderRadius: 8,
-      padding: 12,
+      padding: 'var(--space-3, 12px)',
       textAlign: "center",
     }}
   >

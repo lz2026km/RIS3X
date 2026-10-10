@@ -548,7 +548,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
         onCancel={() => setSignOpen(false)}
         destroyOnHidden
       >
-        <div className="space-y-3" style={{ marginTop: 8 }}>
+        <div className="space-y-3" style={{ marginTop: 'var(--space-2, 8px)' }}>
           <div>
             <div className="text-xs text-slate-500 mb-1">{t('w1Controls.structured.signerLabel')}</div>
             <Input value={signerName} onChange={(e) => setSignerName(e.target.value)} placeholder={t('w1Controls.structured.signerPlaceholder')} />

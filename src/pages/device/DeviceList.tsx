@@ -83,7 +83,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
         {isInUse && room?.currentPatient && (
           <div style={{
             background: `${C.success}0d`, border: `1px solid ${C.success}25`,
-            borderRadius: 8, padding: '8px 10px', marginBottom: 12
+            borderRadius: 8, padding: '8px 10px', marginBottom: 'var(--space-3, 12px)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
               <User size={11} color={C.success} />
@@ -98,7 +98,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 'var(--space-3, 12px)' }}>
           {[
             ['检查室', room?.name || '-'],
             ['今日检查', `${todayExams} 例`],
@@ -113,7 +113,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
             <span style={{ fontSize: 12, color: C.textMid }}>今日工作量</span>
             <span style={{
               fontSize: 12, fontWeight: 800,
@@ -136,7 +136,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
           <span style={{ fontSize: 12, fontWeight: 800, color: C.accent }}>{device.utilization}%</span>
         </div>
 
-        <div style={{ fontSize: 12, color: C.textLight, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 12, color: C.textLight, paddingTop: 'var(--space-2, 8px)', borderTop: `1px solid ${C.border}` }}>
           <span>最后维保：2026-04-{10 + Math.floor(Math.random() * 20)}</span>
         </div>
       </div>

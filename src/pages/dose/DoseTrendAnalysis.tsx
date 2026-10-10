@@ -102,7 +102,7 @@ export default function DoseTrendAnalysis() {
         <div
           style={{
             background: "var(--bg-card)",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
@@ -113,7 +113,7 @@ export default function DoseTrendAnalysis() {
               fontSize: 12,
               fontWeight: 700,
               color: "var(--color-primary-800)",
-              marginBottom: 8,
+              marginBottom: 'var(--space-2, 8px)',
             }}
           >
             {label}
@@ -145,14 +145,14 @@ export default function DoseTrendAnalysis() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {/* 月度剂量趋势折线图 */}
       <div
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -161,7 +161,7 @@ export default function DoseTrendAnalysis() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <div>
@@ -172,8 +172,8 @@ export default function DoseTrendAnalysis() {
               {source === 'api' ? '数据源: /rdsr/stats (按日趋势月度聚合)' : '2025年7月 - 2026年4月 CT剂量DLP趋势分析 (演示数据)'}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
               <div
                 style={{
                   width: 10,
@@ -184,7 +184,7 @@ export default function DoseTrendAnalysis() {
               />
               <span style={{ fontSize: 12, color: "#64748b" }}>CT平均DLP</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
               <div
                 style={{
                   width: 10,
@@ -195,7 +195,7 @@ export default function DoseTrendAnalysis() {
               />
               <span style={{ fontSize: 12, color: "#64748b" }}>胸部CT</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
               <div
                 style={{
                   width: 10,
@@ -260,9 +260,9 @@ export default function DoseTrendAnalysis() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: 12,
-            marginTop: 16,
-            padding: 12,
+            gap: 'var(--space-3, 12px)',
+            marginTop: 'var(--space-4, 16px)',
+            padding: 'var(--space-3, 12px)',
             background: "var(--bg-primary)",
             borderRadius: 8,
           }}
@@ -299,7 +299,7 @@ export default function DoseTrendAnalysis() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -308,7 +308,7 @@ export default function DoseTrendAnalysis() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <div>
@@ -329,7 +329,7 @@ export default function DoseTrendAnalysis() {
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <TrendingDown size={12} />
@@ -338,12 +338,12 @@ export default function DoseTrendAnalysis() {
         </div>
 
         <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}
         >
           {/* 换装前 */}
           <div
             style={{
-              padding: 16,
+              padding: 'var(--space-4, 16px)',
               background: "#fef2f2",
               borderRadius: 8,
               border: "1px solid #fecaca",
@@ -354,7 +354,7 @@ export default function DoseTrendAnalysis() {
                 fontSize: 12,
                 fontWeight: 700,
                 color: "var(--color-error-600)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               换装前 (2025-Q1)
@@ -397,7 +397,7 @@ export default function DoseTrendAnalysis() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  paddingTop: 8,
+                  paddingTop: 'var(--space-2, 8px)',
                   borderTop: "1px solid #fecaca",
                 }}
               >
@@ -416,7 +416,7 @@ export default function DoseTrendAnalysis() {
           {/* 换装后 */}
           <div
             style={{
-              padding: 16,
+              padding: 'var(--space-4, 16px)',
               background: "#ecfdf5",
               borderRadius: 8,
               border: "1px solid #bbf7d0",
@@ -427,7 +427,7 @@ export default function DoseTrendAnalysis() {
                 fontSize: 12,
                 fontWeight: 700,
                 color: "var(--color-success-600)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               换装后 (2026-Q1)
@@ -470,7 +470,7 @@ export default function DoseTrendAnalysis() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  paddingTop: 8,
+                  paddingTop: 'var(--space-2, 8px)',
                   borderTop: "1px solid #bbf7d0",
                 }}
               >
@@ -489,13 +489,13 @@ export default function DoseTrendAnalysis() {
 
         <div
           style={{
-            marginTop: 16,
+            marginTop: 'var(--space-4, 16px)',
             padding: "10px 12px",
             background: "#eff6ff",
             borderRadius: 6,
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           <TrendingUpCircle size={14} color="var(--color-primary-800)" />

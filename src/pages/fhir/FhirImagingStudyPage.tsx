@@ -132,14 +132,14 @@ export const FhirImagingStudyPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fis.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
           <Form.Item name="patient" label={t('fis.patientId')}>
             <Input placeholder={t('fis.patientIdPlaceholder')} allowClear style={{ width: 200 }} />
@@ -203,7 +203,7 @@ export const FhirImagingStudyPage: React.FC = () => {
                     <div key={i} style={{ padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
                       <Tag color="blue">{s.modality?.coding?.[0]?.code || '—'}</Tag>
                       <span style={{ fontSize: 12 }}>#{s.number || i + 1} - {s.description || t('fis.noDescription')}</span>
-                      <span style={{ color: '#999', marginLeft: 8 }}>({s.numberOfInstances || 0}{t('fis.instanceSuffix')})</span>
+                      <span style={{ color: '#999', marginLeft: 'var(--space-2, 8px)' }}>({s.numberOfInstances || 0}{t('fis.instanceSuffix')})</span>
                     </div>
                   ))}
                 </div>

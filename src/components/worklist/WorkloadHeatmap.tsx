@@ -28,21 +28,21 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
   for (const c of cells) cellMap.set(`${c.siteId}|${c.hour}`, c);
 
   return (
-    <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 10, border: '1px solid var(--border-color)', overflowX: 'auto' }}>
-      <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 14, marginBottom: 12 }}>24h × 院区 工作负载热力图</div>
+    <div style={{ background: 'var(--bg-card)', padding: 'var(--space-4, 16px)', borderRadius: 10, border: '1px solid var(--border-color)', overflowX: 'auto' }}>
+      <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>24h × 院区 工作负载热力图</div>
       <table style={{ borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr>
-            <th style={{ padding: 4, background: 'var(--bg-primary)', color: '#475569', fontWeight: 700, minWidth: 100 }}>院区</th>
+            <th style={{ padding: 'var(--space-1, 4px)', background: 'var(--bg-primary)', color: '#475569', fontWeight: 700, minWidth: 100 }}>院区</th>
             {HOURS.map((h) => (
-              <th key={h} style={{ padding: 4, background: 'var(--bg-primary)', color: '#475569', fontWeight: 600, minWidth: 28, textAlign: 'center' }}>{h}</th>
+              <th key={h} style={{ padding: 'var(--space-1, 4px)', background: 'var(--bg-primary)', color: '#475569', fontWeight: 600, minWidth: 28, textAlign: 'center' }}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {sites.map((site) => (
             <tr key={site.siteId}>
-              <td style={{ padding: 4, color: 'var(--color-primary-800)', fontWeight: 600 }}>
+              <td style={{ padding: 'var(--space-1, 4px)', color: 'var(--color-primary-800)', fontWeight: 600 }}>
                 <div>{site.siteName}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>利用率 {site.utilizationPct}%</div>
               </td>
@@ -71,7 +71,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
           ))}
         </tbody>
       </table>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, fontSize: 12, color: '#475569' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', marginTop: 'var(--space-3, 12px)', fontSize: 12, color: '#475569' }}>
         <span>低</span>
         {[0, 0.25, 0.5, 0.75, 1].map((v) => (
           <span key={v} style={{ width: 24, height: 12, background: intensityColor(v), display: 'inline-block', borderRadius: 2 }} />

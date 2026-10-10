@@ -163,13 +163,13 @@ const RadPathPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
       <div
         style={{
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <Activity size={20} color="#8b5cf6" />
@@ -177,7 +177,7 @@ const RadPathPage: React.FC = () => {
         <Tag color="purple">{t('radPath.radPathTag')}</Tag>
       </div>
       {loadError && !loading && <ErrorBanner message={loadError} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('radPath.totalComparisons')} value={stats?.total ?? records.length} icon={<FileText size={16} />} />
         <StatCard title={t('radPath.concordant')} value={stats?.concordant ?? 0} color="success" icon={<CheckCircle2 size={16} />} />
         <StatCard title={t('radPath.discordant')} value={stats?.discordant ?? 0} color="error" icon={<XCircle size={16} />} />
@@ -237,7 +237,7 @@ const RadPathPage: React.FC = () => {
               bordered
               column={2}
               size="small"
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 'var(--space-4, 16px)' }}
             >
               <Descriptions.Item label={t('radPath.colReportId')}>
                 {selectedRecord.reportId}
@@ -258,14 +258,14 @@ const RadPathPage: React.FC = () => {
               <Col span={12}>
                 <Card size="small" title={t('radPath.imagingReport')}>
                   <div
-                    style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}
+                    style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}
                   >
                     {t('radPath.findings')}
                   </div>
                   <div
                     style={{
                       fontSize: 12,
-                      padding: 8,
+                      padding: 'var(--space-2, 8px)',
                       background: "var(--bg-primary)",
                       borderRadius: 4,
                       minHeight: 60,
@@ -286,7 +286,7 @@ const RadPathPage: React.FC = () => {
                   <div
                     style={{
                       fontSize: 12,
-                      padding: 8,
+                      padding: 'var(--space-2, 8px)',
                       background: "var(--bg-primary)",
                       borderRadius: 4,
                     }}
@@ -298,14 +298,14 @@ const RadPathPage: React.FC = () => {
               <Col span={12}>
                 <Card size="small" title={t('radPath.pathologyReport')}>
                   <div
-                    style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}
+                    style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}
                   >
                     {t('radPath.pathResult')}
                   </div>
                   <div
                     style={{
                       fontSize: 12,
-                      padding: 8,
+                      padding: 'var(--space-2, 8px)',
                       background: "#f0fdf4",
                       borderRadius: 4,
                       minHeight: 100,
@@ -329,8 +329,8 @@ const RadPathPage: React.FC = () => {
           setMatchPathologyId("");
         }}
       >
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ marginBottom: 8 }}>{t('radPath.colReportId')}</div>
+        <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>{t('radPath.colReportId')}</div>
           <Input
             value={matchReportId}
             onChange={(e) => setMatchReportId(e.target.value)}
@@ -338,7 +338,7 @@ const RadPathPage: React.FC = () => {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 8 }}>{t('radPath.colPathologyId')}</div>
+          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>{t('radPath.colPathologyId')}</div>
           <Input
             value={matchPathologyId}
             onChange={(e) => setMatchPathologyId(e.target.value)}

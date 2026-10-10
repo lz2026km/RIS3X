@@ -309,10 +309,10 @@ export default function CASignaturePage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Stamp size={20} color="#7c3aed" /> {t('caSignature.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
           </Title>
@@ -320,7 +320,7 @@ export default function CASignaturePage() {
             {t('caSignature.subtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
           <PermissionGate permission="report.sign">
             <ActionButton action="import" size="compact" icon={<FileUp size={12} />} onClick={() => setShowUploadModal(true)}>
               {t('caSignature.uploadCert')}
@@ -328,19 +328,19 @@ export default function CASignaturePage() {
           </PermissionGate>
           <button
             onClick={() => void openSignatures()}
-            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
           >
             <FileSearch size={12} /> {t('caSignature.signatureHistory')}
           </button>
           <button
             onClick={() => void openHistory()}
-            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
           >
             <HistoryIcon size={12} /> {t('caSignature.caHistory')}
           </button>
           <button
             onClick={() => { setVerifyResult(null); setVerifyForm({ reportId: '', verificationCode: '' }); setShowVerifyModal(true); }}
-            style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
           >
             <ShieldX size={12} /> {t('caSignature.signVerify')}
           </button>
@@ -354,23 +354,23 @@ export default function CASignaturePage() {
       </div>
 
       {listError && (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertTriangle size={12} /> {listError}
         </div>
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)', fontSize: 14 }}>{t('caSignature.loadingCerts')}</div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-secondary)', fontSize: 14 }}>{t('caSignature.loadingCerts')}</div>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
             <KpiCard icon={ShieldCheck} label={t('caSignature.kpiValid')} value={certs.filter(c => c.status === 'valid').length} color="#10b981" />
             <KpiCard icon={AlertTriangle} label={t('caSignature.kpiExpiring')} value={certs.filter(c => c.status === 'expiring').length} color="var(--color-warning-500)" alert />
             <KpiCard icon={XCircle} label={t('caSignature.kpiExpired')} value={certs.filter(c => c.status === 'expired').length} color="var(--color-error-600)" />
             <KpiCard icon={Activity} label={t('caSignature.kpiMonthSignatures')} value={totalUsage} color="var(--color-primary-500)" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 'var(--space-3, 12px)' }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
               <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
@@ -385,7 +385,7 @@ export default function CASignaturePage() {
                     />
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 4 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                   <Select
                     size="small"
                     style={{ flex: 1 }}
@@ -427,7 +427,7 @@ export default function CASignaturePage() {
                         cursor: 'pointer',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                         <div style={{
                           width: 24, height: 24, borderRadius: '50%',
                           background: aConf.color, color: '#fff',
@@ -437,7 +437,7 @@ export default function CASignaturePage() {
                         <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{c.holderName}</span>
                         <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>· {c.holderTitle}</span>
                       </div>
-                      <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 4 }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' }}>
                         <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: aConf.bg, color: aConf.color, fontWeight: 600 }}>{aConf.label}</span>
                         <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
                           <sConf.icon size={9} /> {sConf.label}
@@ -452,9 +452,9 @@ export default function CASignaturePage() {
             </div>
 
             {selectedCert && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>{t('caSignature.reportIdToSign')}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-2, 8px)' }}>{t('caSignature.reportIdToSign')}</div>
                   <input
                     value={reportId}
                     onChange={(e) => setReportId(e.target.value)}
@@ -462,8 +462,8 @@ export default function CASignaturePage() {
                     style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, boxSizing: 'border-box' }}
                   />
                 </div>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
                     <div style={{
                       width: 56, height: 56, borderRadius: 12,
                       background: 'linear-gradient(135deg, #7c3aed, #5b21b6)', color: '#fff',
@@ -481,7 +481,7 @@ export default function CASignaturePage() {
                     }}>{STATUS_CONFIG[selectedCert.status].label}</span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                     <InfoCell label={t('caSignature.certIdLabel')} value={selectedCert.certId} />
                     <InfoCell label={t('caSignature.serialNumber')} value={selectedCert.serialNumber.slice(0, 16) + '...'} />
                     <InfoCell label={t('caSignature.issuer')} value={selectedCert.issuer} />
@@ -490,14 +490,14 @@ export default function CASignaturePage() {
                     <InfoCell label={t('caSignature.usageCount')} value={String(selectedCert.usageCount)} color="#10b981" />
                   </div>
 
-                  <div style={{ marginBottom: 12, padding: 10, background: '#8b5cf622', border: '1px solid var(--border-color)6fe', borderRadius: 6 }}>
-                    <div style={{ fontSize: 12, color: '#5b21b6', fontWeight: 600, marginBottom: 4 }}>{t('caSignature.fingerprint')}</div>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 10, background: '#8b5cf622', border: '1px solid var(--border-color)6fe', borderRadius: 6 }}>
+                    <div style={{ fontSize: 12, color: '#5b21b6', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('caSignature.fingerprint')}</div>
                     <div style={{ fontSize: 12, color: '#5b21b6', fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: 1.4 }}>
                       {selectedCert.fingerprint}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: 8, paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', paddingTop: 'var(--space-3, 12px)', borderTop: '1px solid var(--border-color)' }}>
                     <PermissionGate permission="report.sign">
                       <button
                         onClick={handleSign}
@@ -562,7 +562,7 @@ export default function CASignaturePage() {
                   </div>
 
                   {isSigning && (
-                    <div style={{ marginTop: 12, padding: 10, background: 'var(--color-success-bg)', borderRadius: 6 }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-success-bg)', borderRadius: 6 }}>
                       <div style={{ fontSize: 12, color: '#047857', fontWeight: 600, marginBottom: 6 }}>
                         {t('caSignature.signingWithPrefix')} {ALGO_CONFIG[selectedCert.algorithm].label} {t('caSignature.signingWithSuffix')}
                       </div>
@@ -573,7 +573,7 @@ export default function CASignaturePage() {
                   )}
 
                   {showSignResult && !isSigning && (
-                    <div style={{ marginTop: 12, padding: 12, background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
                         <CheckCircle2 size={14} /> {t('caSignature.signSuccess')}
                       </div>
@@ -588,11 +588,11 @@ export default function CASignaturePage() {
                   )}
                 </div>
 
-                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Key size={13} /> {t('caSignature.certChainVerify')}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     {[
                       { name: t('caSignature.chain.rootName'), desc: t('caSignature.chain.rootDesc'), color: 'var(--color-error-600)' },
                       { name: t('caSignature.chain.midName'), desc: 'CFCA / GMCA', color: 'var(--color-warning-500)' },
@@ -605,7 +605,7 @@ export default function CASignaturePage() {
                         }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.name}</div>
                           <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{c.desc}</div>
-                          <div style={{ marginTop: 4, fontSize: 12, color: '#10b981' }}>{t('caSignature.verified')}</div>
+                          <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: '#10b981' }}>{t('caSignature.verified')}</div>
                         </div>
                         {i < 2 && <ChevronRight size={14} color="var(--text-secondary)" />}
                       </React.Fragment>
@@ -620,7 +620,7 @@ export default function CASignaturePage() {
 
       {/* ===== 上传证书 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileUp size={14} color="#7c3aed" /> {t('caSignature.uploadCertTitle')}</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><FileUp size={14} color="#7c3aed" /> {t('caSignature.uploadCertTitle')}</span>}
         open={showUploadModal}
         onCancel={() => setShowUploadModal(false)}
         onOk={() => void handleUpload()}
@@ -629,12 +629,12 @@ export default function CASignaturePage() {
         confirmLoading={uploading}
         width={480}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 'var(--space-2, 8px)' }}>
           <div>
             <div style={fieldLabelStyle}>{t('caSignature.certFileLabel')}</div>
             <label
               style={{
-                display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
+                display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 12px',
                 border: '1px dashed var(--border-color)', borderRadius: 6, cursor: 'pointer', background: 'var(--bg-card)',
               }}
             >
@@ -692,7 +692,7 @@ export default function CASignaturePage() {
 
       {/* ===== 吊销证书 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Ban size={14} color="var(--color-error-600)" /> {t('caSignature.revokeCert')}</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Ban size={14} color="var(--color-error-600)" /> {t('caSignature.revokeCert')}</span>}
         open={showRevokeModal}
         onCancel={() => setShowRevokeModal(false)}
         onOk={() => void handleRevoke()}
@@ -702,7 +702,7 @@ export default function CASignaturePage() {
         confirmLoading={revoking}
         width={440}
       >
-        <div style={{ paddingTop: 8 }}>
+        <div style={{ paddingTop: 'var(--space-2, 8px)' }}>
           {selectedCert && (
             <div style={{ marginBottom: 10, padding: 10, background: '#8b5cf622', border: '1px solid var(--border-color)6fe', borderRadius: 6, fontSize: 12 }}>
               <div><b>{t('caSignature.holderLabel')}</b>{selectedCert.holderName}（{selectedCert.holderTitle}）</div>
@@ -724,7 +724,7 @@ export default function CASignaturePage() {
 
       {/* ===== 验签 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><ShieldX size={14} color="#7c3aed" /> {t('caSignature.verifyTitle')}</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><ShieldX size={14} color="#7c3aed" /> {t('caSignature.verifyTitle')}</span>}
         open={showVerifyModal}
         onCancel={() => setShowVerifyModal(false)}
         onOk={() => void handleVerify()}
@@ -733,7 +733,7 @@ export default function CASignaturePage() {
         confirmLoading={verifying}
         width={460}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 'var(--space-2, 8px)' }}>
           <div>
             <div style={fieldLabelStyle}>{t('caSignature.reportIdLabelStar')}</div>
             <Input size="small" value={verifyForm.reportId} placeholder={t('caSignature.placeholderReportId')} onChange={e => setVerifyForm(f => ({ ...f, reportId: e.target.value }))} />
@@ -744,7 +744,7 @@ export default function CASignaturePage() {
           </div>
           {verifyResult && (
             <div style={{
-              padding: 12, borderRadius: 6, fontSize: 12, lineHeight: 1.8,
+              padding: 'var(--space-3, 12px)', borderRadius: 6, fontSize: 12, lineHeight: 1.8,
               background: verifyResult.valid ? 'var(--color-success-bg)' : 'var(--color-error-bg)',
               border: `1px solid ${verifyResult.valid ? '#6ee7b7' : '#fecaca'}`,
             }}>
@@ -767,13 +767,13 @@ export default function CASignaturePage() {
 
       {/* ===== 签名历史 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileSearch size={14} color="#7c3aed" /> {t('caSignature.signatureHistory')}</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><FileSearch size={14} color="#7c3aed" /> {t('caSignature.signatureHistory')}</span>}
         open={showSignaturesModal}
         onCancel={() => setShowSignaturesModal(false)}
         footer={null}
         width={720}
       >
-        <div style={{ maxHeight: 480, overflow: 'auto', paddingTop: 8 }}>
+        <div style={{ maxHeight: 480, overflow: 'auto', paddingTop: 'var(--space-2, 8px)' }}>
           {signaturesLoading ? (
             <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('caSignature.loadingSignatures')}</div>
           ) : signatures.length === 0 ? (
@@ -792,13 +792,13 @@ export default function CASignaturePage() {
 
       {/* ===== 操作历史 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><HistoryIcon size={14} color="#7c3aed" /> {t('caSignature.caHistoryTitle')}</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><HistoryIcon size={14} color="#7c3aed" /> {t('caSignature.caHistoryTitle')}</span>}
         open={showHistoryModal}
         onCancel={() => setShowHistoryModal(false)}
         footer={null}
         width={680}
       >
-        <div style={{ maxHeight: 460, overflow: 'auto', paddingTop: 8 }}>
+        <div style={{ maxHeight: 460, overflow: 'auto', paddingTop: 'var(--space-2, 8px)' }}>
           {historyLoading ? (
             <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('caSignature.loadingHistory')}</div>
           ) : history.length === 0 ? (
@@ -826,7 +826,7 @@ export default function CASignaturePage() {
 }
 
 const fieldLabelStyle: React.CSSProperties = {
-  fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4,
+  fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)',
 };
 
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string; alert?: boolean }> = ({ icon: Icon, label, value, color, alert }) => {

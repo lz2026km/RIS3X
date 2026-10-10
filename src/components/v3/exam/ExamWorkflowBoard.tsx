@@ -89,7 +89,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
 
   return (
     <div data-testid="exam-workflow-board" style={{ overflow: 'auto' }}>
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic title={t('w9e.examWorkflow.statTotal')} value={stats.total} prefix={<ListTodo size={14} />} />
@@ -112,7 +112,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
         </Col>
       </Row>
 
-      <Space style={{ marginBottom: 12, width: '100%' }} wrap>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)', width: '100%' }} wrap>
         <span>{t('w9e.examWorkflow.priorityLabel')}</span>
         {['ALL', 'STAT', 'URGENT', 'ROUTINE'].map((p) => (
           <Tag.CheckableTag
@@ -126,7 +126,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
         ))}
       </Space>
 
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', overflowX: 'auto', paddingBottom: 'var(--space-2, 8px)' }}>
         {STAGES.map((s) => {
           const list = byStage[s.key] ?? []
           return (
@@ -137,11 +137,11 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
                 flex: '0 0 240px',
                 background: 'var(--bg-primary)',
                 borderRadius: 6,
-                padding: 8,
+                padding: 'var(--space-2, 8px)',
                 minHeight: 200,
               }}
             >
-              <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Space size={4}>
                   {s.icon}
                   <span style={{ fontWeight: 600, fontSize: 12 }}>{s.title}</span>
@@ -149,7 +149,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
                 </Space>
               </div>
               {list.length === 0 ? (
-                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 12 }}>{t('w9e.examWorkflow.empty')}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 'var(--space-3, 12px)' }}>{t('w9e.examWorkflow.empty')}</div>
               ) : (
                 list.map((i) => {
                   const p = PRIORITY_META[i.priority]
@@ -168,14 +168,14 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
                         <Tag color={p.color}>{p.label}</Tag>
                         {i.critical && <Tag color="red" icon={<AlertCircle size={10} />}>{t('w9e.examWorkflow.critical')}</Tag>}
                       </Space>
-                      <div style={{ fontWeight: 500, fontSize: 12, marginTop: 4 }}>{i.patientName}</div>
+                      <div style={{ fontWeight: 500, fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{i.patientName}</div>
                       <div style={{ fontSize: 12, color: '#94a3b8' }}>{i.patientId}</div>
                       {i.device && (
                         <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                           {t('w9e.examWorkflow.devicePrefix')}{i.device}
                         </div>
                       )}
-                      <div style={{ fontSize: 12, color: '#475569', marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)', display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
                         {i.technician && <span>{t('w9e.examWorkflow.roleTech', { name: i.technician })}</span>}
                         {i.radiologist && <span>{t('w9e.examWorkflow.roleRadio', { name: i.radiologist })}</span>}
                         {i.reviewer && <span>{t('w9e.examWorkflow.roleReview', { name: i.reviewer })}</span>}

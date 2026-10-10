@@ -270,7 +270,7 @@ export function ExportButton({
             border: "1px solid var(--border-color)",
             borderRadius: 8,
             boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-            padding: 4,
+            padding: 'var(--space-1, 4px)',
             minWidth: 140,
             zIndex: 200,
           }}
@@ -285,7 +285,7 @@ export function ExportButton({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                   width: "100%",
                   padding: "8px 12px",
                   background: "transparent",

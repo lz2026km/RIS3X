@@ -122,7 +122,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
         showIcon
         icon={<AlertTriangle size={14} />}
         message={t('w9e.rejectTemplate.alertMsg')}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
       <Form layout="vertical">
@@ -142,7 +142,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
               overflowY: 'auto',
               border: '1px solid #e2e8f0',
               borderRadius: 6,
-              padding: 4,
+              padding: 'var(--space-1, 4px)',
             }}
             renderItem={(t) => (
               <List.Item
@@ -200,13 +200,13 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
         <div
           style={{
             background: 'var(--bg-primary)',
-            padding: 8,
+            padding: 'var(--space-2, 8px)',
             borderRadius: 4,
             fontSize: 12,
             color: '#64748b',
           }}
         >
-          <FileText size={12} style={{ marginRight: 4 }} />
+          <FileText size={12} style={{ marginRight: 'var(--space-1, 4px)' }} />
           {t('w9e.rejectTemplate.footer', { name: reviewerName, id: reviewerId })}
         </div>
       </Form>

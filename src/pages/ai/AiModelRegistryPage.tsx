@@ -459,7 +459,7 @@ const AiModelRegistryPage: React.FC = () => {
       </StatCardGrid>
 
       <Card size="small">
-        <Space wrap style={{ marginBottom: 12 }}>
+        <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Input.Search
             allowClear
             style={{ width: 260 }}
@@ -636,7 +636,7 @@ const AiModelRegistryPage: React.FC = () => {
             </Descriptions>
 
             <div>
-              <Space size={6} style={{ marginBottom: 8 }}>
+              <Space size={6} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <ShieldCheck size={15} color="var(--color-primary-600)" />
                 <Text strong>{t("w4ai.detail.metrics")}</Text>
               </Space>
@@ -656,7 +656,7 @@ const AiModelRegistryPage: React.FC = () => {
             </div>
 
             <div>
-              <Space size={6} style={{ marginBottom: 8 }}>
+              <Space size={6} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <Cpu size={15} color="var(--color-primary-600)" />
                 <Text strong>{t("w4ai.detail.versionHistory")}</Text>
               </Space>

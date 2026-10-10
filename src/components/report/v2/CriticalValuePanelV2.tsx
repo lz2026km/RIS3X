@@ -310,7 +310,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
 
   return (
     <div data-testid="critical-value-panel-v2" role="region" aria-label={t('criticalValueV2.ariaLabel')}>
-      <div style={{ background: 'linear-gradient(135deg, var(--color-error-600) 0%, #7f1d1d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, var(--color-error-600) 0%, #7f1d1d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 'var(--space-3, 12px)' }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <AlertOctagon size={18} />
@@ -324,7 +324,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
             </Button>
           </Tooltip>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           {statsItems.map((s) => (
             <Col span={compact ? 4 : 24 / statsItems.length} key={s.title}>
               <Statistic
@@ -347,12 +347,12 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
           { label: t('criticalValueV2.tab.evaluate'), value: 'evaluate' },
           { label: t('criticalValueV2.tab.triggers'), value: 'triggers' },
         ]}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
       {tab === 'rules' && (
         <Card size="small" title={<Space><FileSearch size={14} color="var(--color-error-600)" />{t('criticalValueV2.rulesTable')}</Space>} extra={<Tag color="red">{filteredRules.length} {t('criticalValueV2.itemsUnit')}</Tag>}>
-          <Space wrap style={{ marginBottom: 12 }}>
+          <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Input
               allowClear prefix={<Search size={12} />} placeholder={t('criticalValueV2.searchRules')} style={{ width: 240 }}
               value={keyword} onChange={(e) => setKeyword(e.target.value)}
@@ -379,11 +379,11 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
               <Space direction="vertical" style={{ width: '100%' }} size={8}>
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValueV2.patientName')}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.patientName')}</div>
                     <Input placeholder={t('criticalValueV2.patientPlaceholder')} value={evalForm.patientName} onChange={(e) => setEvalForm({ ...evalForm, patientName: e.target.value })} />
                   </Col>
                   <Col span={12}>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValueV2.modality')}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.modality')}</div>
                     <Select
                       allowClear placeholder={t('criticalValueV2.modalityPlaceholder')} style={{ width: '100%' }} value={evalForm.modality || undefined}
                       onChange={(v) => setEvalForm({ ...evalForm, modality: v ?? '' })}
@@ -392,7 +392,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                   </Col>
                 </Row>
                 <div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValueV2.examType')}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.examType')}</div>
                   <Select
                     showSearch allowClear placeholder={t('criticalValueV2.examTypePlaceholder')} style={{ width: '100%' }} value={evalForm.examType || undefined}
                     onChange={(v) => setEvalForm({ ...evalForm, examType: v ?? '' })}
@@ -401,7 +401,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                 </div>
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValueV2.examItem')}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.examItem')}</div>
                     <Select
                       style={{ width: '100%' }} value={evalForm.itemKey}
                       onChange={(v) => setEvalForm({ ...evalForm, itemKey: v })}
@@ -409,12 +409,12 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                     />
                   </Col>
                   <Col span={12}>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValueV2.value')}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.value')}</div>
                     <Input placeholder={t('criticalValueV2.valuePlaceholder')} value={evalForm.itemValue} onChange={(e) => setEvalForm({ ...evalForm, itemValue: e.target.value })} />
                   </Col>
                 </Row>
                 <div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValueV2.description')}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.description')}</div>
                   <TextArea rows={3} placeholder={t('criticalValueV2.descriptionPlaceholder')} value={evalForm.description} onChange={(e) => setEvalForm({ ...evalForm, description: e.target.value })} />
                 </div>
                 <Space>
@@ -445,7 +445,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                         <span style={{ fontSize: 12, color: '#64748b' }}>{pv.matchedText}</span>
                       </Space>
                       <div style={{ fontSize: 12, color: '#475569', marginTop: 6 }}>{pv.description}</div>
-                      <div style={{ fontSize: 12, color: LEVEL_META[pv.level]?.color, marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: LEVEL_META[pv.level]?.color, marginTop: 'var(--space-1, 4px)' }}>
                         <strong>{t('criticalValueV2.suggestedAction')}</strong> {pv.suggestion}
                       </div>
                     </div>
@@ -501,11 +501,11 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                         </Tag>
                       )}
                     </Space>
-                    <div style={{ marginTop: 4 }}><strong>{selectedTrigger.ruleCode}</strong> · {selectedTrigger.ruleName}</div>
-                    <div style={{ marginTop: 4 }}>{selectedTrigger.description}</div>
-                    <div style={{ color: 'var(--color-error-600)', marginTop: 4 }}><strong>{t('criticalValueV2.suggestedAction')}</strong> {selectedTrigger.suggestion}</div>
+                    <div style={{ marginTop: 'var(--space-1, 4px)' }}><strong>{selectedTrigger.ruleCode}</strong> · {selectedTrigger.ruleName}</div>
+                    <div style={{ marginTop: 'var(--space-1, 4px)' }}>{selectedTrigger.description}</div>
+                    <div style={{ color: 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)' }}><strong>{t('criticalValueV2.suggestedAction')}</strong> {selectedTrigger.suggestion}</div>
                     {selectedTrigger.confirmComment && (
-                      <div style={{ color: '#64748b', marginTop: 4 }}>{t('criticalValueV2.remark')} {selectedTrigger.confirmComment}</div>
+                      <div style={{ color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{t('criticalValueV2.remark')} {selectedTrigger.confirmComment}</div>
                     )}
                   </div>
                   <Table
@@ -552,7 +552,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
             <span style={{ color: '#64748b', fontSize: 12 }}>{t('criticalValueV2.modal.recipient')} {confirmTarget?.notification.recipientName} ({confirmTarget?.notification.recipientDept})</span>
           </div>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValueV2.modal.commentOptional')}</div>
+            <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.modal.commentOptional')}</div>
             <TextArea rows={3} placeholder={t('criticalValueV2.modal.commentPlaceholder')} value={confirmComment} onChange={(e) => setConfirmComment(e.target.value)} />
           </div>
         </Space>

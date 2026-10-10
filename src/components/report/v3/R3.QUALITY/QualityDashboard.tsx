@@ -64,7 +64,7 @@ export const QualityDashboard: React.FC = () => {
         data-testid="quality-dashboard"
         role="status"
         aria-label={t('qualityDashboard.loadingLabel')}
-        style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}
+        style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: '#94a3b8' }}
       >
         {t('qualityDashboard.loading')}
       </div>
@@ -85,7 +85,7 @@ export const QualityDashboard: React.FC = () => {
           color: '#fff',
           padding: '14px 18px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
@@ -147,7 +147,7 @@ export const QualityDashboard: React.FC = () => {
       </div>
 
       {dashboard.alerts.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
           {dashboard.alerts.map((alert) => (
             <Alert
               key={alert.id}
@@ -156,7 +156,7 @@ export const QualityDashboard: React.FC = () => {
               icon={<Bell size={14} />}
               message={alert.message}
               description={new Date(alert.timestamp).toLocaleString()}
-              style={{ marginBottom: 4, borderLeft: alert.severity === 'critical' ? '4px solid var(--color-error-600)' : undefined }}
+              style={{ marginBottom: 'var(--space-1, 4px)', borderLeft: alert.severity === 'critical' ? '4px solid var(--color-error-600)' : undefined }}
               action={
                 <Tag color={alert.severity === 'critical' ? 'red' : 'orange'}>
                   {alert.type}
@@ -167,7 +167,7 @@ export const QualityDashboard: React.FC = () => {
         </div>
       )}
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={8}>
           <Card size="small" title={<Space><BarChart3 size={14} />{t('qualityDashboard.byModality')}</Space>}>
             <ChartContainer height={220} state={dashboard.byModality.length === 0 ? 'empty' : 'ready'} emptyDescription={t('qualityDashboard.noModalityData')}>

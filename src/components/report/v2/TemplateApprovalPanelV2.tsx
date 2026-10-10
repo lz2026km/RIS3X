@@ -303,7 +303,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
 
   return (
     <div data-testid="template-approval-panel-v2" role="region" aria-label={t('templateApproval.panelAria')}>
-      <div style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 'var(--space-3, 12px)' }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <FileCheck2 size={18} />
@@ -322,7 +322,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
             </Tooltip>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           {headerItems.map((s) => (
             <Col span={compact ? 6 : 24 / headerItems.length} key={s.title}>
               <Statistic title={<span style={{ color: '#fff' }}>{s.title}</span>} value={s.value} styles={{ content: { color: s.color, fontSize: 18 } }} prefix={s.prefix} />
@@ -338,12 +338,12 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
           { label: t('templateApproval.tab.templates'), value: 'templates' },
           { label: t('templateApproval.tab.history'), value: 'history' },
         ]}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
       {tab === 'templates' && (
         <Card size="small" title={<Space><ClipboardCheck size={14} color="#4f46e5" />{t('templateApproval.templateList')}</Space>} extra={<Tag color="blue">{t('templateApproval.countSuffix', { count: filtered.length })}</Tag>}>
-          <Space wrap style={{ marginBottom: 12 }}>
+          <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Input allowClear prefix={<Search size={12} />} placeholder={t('templateApproval.searchPlaceholder')} style={{ width: 240 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
             <Select
               allowClear placeholder={t('templateApproval.filterByState')} style={{ width: 140 }} value={stateFilter}
@@ -381,7 +381,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
               <Card size="small"><Empty description={t('templateApproval.selectTemplateHint')} /></Card>
             ) : (
               <>
-                <Card size="small" title={<Space><History size={14} color="#4f46e5" />{t('templateApproval.versionHistory', { name: selected.name })}</Space>} style={{ marginBottom: 12 }}>
+                <Card size="small" title={<Space><History size={14} color="#4f46e5" />{t('templateApproval.versionHistory', { name: selected.name })}</Space>} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                   <Space direction="vertical" size={4} style={{ width: '100%', maxHeight: 260, overflowY: 'auto' }}>
                     <Timeline items={versionTimeline} />
                   </Space>
@@ -409,13 +409,13 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
       >
         <Space direction="vertical" size={8} style={{ width: '100%' }}>
           {versionTimeline.map((_, i) => (
-            <div key={i} style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 6, padding: 8 }}>
+            <div key={i} style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 6, padding: 'var(--space-2, 8px)' }}>
               <Space>
                 <Tag color="blue">v{versions[i]?.version}</Tag>
                 <strong>{versions[i]?.note}</strong>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{versions[i]?.changedBy} · {formatDateTime(versions[i]?.at)}</span>
               </Space>
-              <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{versions[i]?.content}</div>
+              <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>{versions[i]?.content}</div>
             </div>
           ))}
           {versions.length === 0 && <Empty description={t('templateApproval.noVersions')} />}
@@ -441,21 +441,21 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
         {actionModal?.kind === 'create' ? (
           <Space direction="vertical" style={{ width: '100%' }} size={8}>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.name')}</div>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('templateApproval.form.name')}</div>
               <Input placeholder={t('templateApproval.form.namePlaceholder')} value={actionName} onChange={(e) => setActionName(e.target.value)} />
             </div>
             <Row gutter={8}>
               <Col span={12}>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.category')}</div>
+                <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('templateApproval.form.category')}</div>
                 <Select style={{ width: '100%' }} value={actionCategory} onChange={(v) => setActionCategory(v)} options={['CT', 'MR', 'DR', 'MG', 'US', 'PET'].map((c) => ({ label: c, value: c }))} />
               </Col>
               <Col span={12}>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.bodyPart')}</div>
+                <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('templateApproval.form.bodyPart')}</div>
                 <Input placeholder={t('templateApproval.form.bodyPartPlaceholder')} value={actionBodyPart} onChange={(e) => setActionBodyPart(e.target.value)} />
               </Col>
             </Row>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.content')}</div>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('templateApproval.form.content')}</div>
               <TextArea rows={4} placeholder={t('templateApproval.form.contentPlaceholder')} value={actionContent} onChange={(e) => setActionContent(e.target.value)} />
             </div>
           </Space>
@@ -465,16 +465,16 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
               <Tag color={STATE_META[actionModal?.template.state as TemplateStateV2]?.color}>{STATE_META[actionModal?.template.state as TemplateStateV2]?.label}</Tag>
               v{actionModal?.template.version} · {actionModal?.template.category}/{actionModal?.template.bodyPart}
               {actionModal?.template.assignee && (
-                <div style={{ marginTop: 4, fontSize: 12, color: '#64748b' }}>
+                <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: '#64748b' }}>
                   {t('templateApproval.assigneeLabel')} {actionModal.template.assignee.approverName} ({actionModal.template.assignee.dept} · {actionModal.template.assignee.role})
                 </div>
               )}
             </div>
-            <div style={{ background: 'var(--bg-secondary, #f8fafc)', borderRadius: 6, padding: 8, fontSize: 12, color: '#475569', maxHeight: 120, overflowY: 'auto' }}>
+            <div style={{ background: 'var(--bg-secondary, #f8fafc)', borderRadius: 6, padding: 'var(--space-2, 8px)', fontSize: 12, color: '#475569', maxHeight: 120, overflowY: 'auto' }}>
               {actionModal?.template.content}
             </div>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                 {actionModal?.kind === 'reject' ? t('templateApproval.rejectReasonLabel') : t('templateApproval.commentLabel', { action: ACTION_LABEL[actionModal?.kind ?? ''] ?? t('templateApproval.comment') })}
               </div>
               <TextArea rows={3} placeholder={actionModal?.kind === 'reject' ? t('templateApproval.rejectReasonPlaceholder') : t('templateApproval.commentPlaceholder')} value={actionComment} onChange={(e) => setActionComment(e.target.value)} />

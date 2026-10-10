@@ -4,8 +4,8 @@ const containerStyle: CSSProperties = {
   position: 'sticky',
   top: 'var(--header-h, 52px)',
   zIndex: 10,
-  padding: 8,
-  marginBottom: 12,
+  padding: 'var(--space-2, 8px)',
+  marginBottom: 'var(--space-3, 12px)',
   background: 'var(--state-loading-bg, #dbeafe)',
   color: 'var(--state-loading-fg, var(--color-primary-800))',
   border: '1px solid var(--state-loading-border, #bfdbfe)',
@@ -13,7 +13,7 @@ const containerStyle: CSSProperties = {
   fontSize: 12,
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
+  gap: 'var(--space-2, 8px)',
 }
 
 const spinnerStyle: CSSProperties = {

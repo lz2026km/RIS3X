@@ -106,7 +106,7 @@ const Hl7SiuPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
     <PageHeader icon={<CalendarClock size={20} color="var(--color-primary-600)" />} title={t('hl7Siu.title')} />
       <Tabs items={[
         { key: 'generate', label: <span><Code size={14} /> {t('hl7Siu.tab.generate')}</span>, children: (
@@ -122,13 +122,13 @@ const Hl7SiuPage: React.FC = () => {
               <Button type="primary" icon={<Code size={14} />} onClick={handleGenerate}>{t('hl7Siu.generateBtn')}</Button>
             </Form>
             {siuResult && (
-              <div style={{ marginTop: 24 }}>
+              <div style={{ marginTop: 'var(--space-6, 24px)' }}>
                 <Text strong>{t('hl7Siu.controlId')} </Text><Text>{siuResult.controlId}</Text><br />
                 <Text strong>{t('hl7Siu.messageType')} </Text><Text>{siuResult.messageType}</Text><br />
                 <Text strong>{t('hl7Siu.bytes')} </Text><Text>{siuResult.bytes}</Text><br />
                 <Text strong>{t('hl7Siu.messageContent')}</Text>
-                <TextArea rows={8} value={siuResult.message} readOnly style={{ marginTop: 8, fontFamily: 'monospace' }} />
-                <Space style={{ marginTop: 16 }}>
+                <TextArea rows={8} value={siuResult.message} readOnly style={{ marginTop: 'var(--space-2, 8px)', fontFamily: 'monospace' }} />
+                <Space style={{ marginTop: 'var(--space-4, 16px)' }}>
                   <Button icon={<Eye size={14} />} onClick={() => setPreviewOpen(true)}>{t('hl7Siu.preview')}</Button>
                   <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={() => void handleSend()}>{t('hl7Siu.send')}</Button>
                 </Space>
@@ -138,10 +138,10 @@ const Hl7SiuPage: React.FC = () => {
         )},
         { key: 'parse', label: <span><Eye size={14} /> {t('hl7Siu.tab.parse')}</span>, children: (
           <Card>
-            <TextArea rows={6} value={parseRaw} onChange={e => setParseRaw(e.target.value)} placeholder={t('hl7Siu.ph.parse')} style={{ fontFamily: 'monospace', marginBottom: 16 }} />
+            <TextArea rows={6} value={parseRaw} onChange={e => setParseRaw(e.target.value)} placeholder={t('hl7Siu.ph.parse')} style={{ fontFamily: 'monospace', marginBottom: 'var(--space-4, 16px)' }} />
             <Button type="primary" loading={parsing} onClick={() => void handleParse()}>{t('hl7Siu.parse')}</Button>
             {parsedResult && (
-              <div style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
                 <Text strong>{t('hl7Siu.parseResult')}</Text>
                 {Object.entries(parsedResult).map(([k, v]) => v ? <p key={k}><Text strong>{k}: </Text><Text>{v}</Text></p> : null)}
               </div>
@@ -158,7 +158,7 @@ const Hl7SiuPage: React.FC = () => {
       >
         {siuResult && (
           <>
-            <Descriptions bordered size="small" column={1} style={{ marginBottom: 16 }}>
+            <Descriptions bordered size="small" column={1} style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Descriptions.Item label={t('hl7Siu.controlId')}>{siuResult.controlId}</Descriptions.Item>
               <Descriptions.Item label={t('hl7Siu.messageType')}>{siuResult.messageType}</Descriptions.Item>
               <Descriptions.Item label={t('hl7Siu.bytes')}>{siuResult.bytes}</Descriptions.Item>
@@ -173,7 +173,7 @@ const Hl7SiuPage: React.FC = () => {
               )}
             </Descriptions>
             <Text strong>{t('hl7Siu.fullMessage')}</Text>
-            <pre style={{ background: '#f6f8fa', padding: 12, borderRadius: 6, fontSize: 12, overflow: 'auto', marginTop: 8 }}>
+            <pre style={{ background: '#f6f8fa', padding: 'var(--space-3, 12px)', borderRadius: 6, fontSize: 12, overflow: 'auto', marginTop: 'var(--space-2, 8px)' }}>
               {siuResult.message}
             </pre>
           </>

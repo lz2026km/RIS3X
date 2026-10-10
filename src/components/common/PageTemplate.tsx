@@ -128,7 +128,7 @@ export function PageTemplate({
       {toolbar !== undefined && (
         <div
           className="page-template-toolbar no-print"
-          style={{ marginBottom: 16, ...toolbarStyle }}
+          style={{ marginBottom: 'var(--space-4, 16px)', ...toolbarStyle }}
         >
           {toolbar}
         </div>

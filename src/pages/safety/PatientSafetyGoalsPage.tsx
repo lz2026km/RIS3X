@@ -89,7 +89,7 @@ export default function PatientSafetyGoalsPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-600),var(--color-primary-700))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <Target size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('safetyGoals.title')}</span>
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -98,7 +98,7 @@ export default function PatientSafetyGoalsPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {[
             { title: t('safetyGoals.totalGoals'), value: goals.length, icon: Target, color: 'var(--color-primary-500, var(--color-primary-500))' },
             { title: t('safetyGoals.onTrack'), value: goals.filter(g => g.status === 'on-track').length, icon: CheckCircle, color: 'var(--color-success-500, var(--color-success-500))' },
@@ -106,7 +106,7 @@ export default function PatientSafetyGoalsPage() {
             { title: t('safetyGoals.achieved'), value: goals.filter(g => g.status === 'achieved').length, icon: CheckCircle, color: 'var(--color-primary-500, var(--color-primary-500))' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
@@ -115,12 +115,12 @@ export default function PatientSafetyGoalsPage() {
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <TrendingUp size={16} color="var(--color-primary-500)" />{t('safetyGoals.progressOverview')}
             </div>
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 24, fontWeight: 700, color: overallProgress >= 80 ? 'var(--color-success-500)' : overallProgress >= 60 ? 'var(--color-warning-500)' : 'var(--color-error-500)' }}>{overallProgress}%</div>
               <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('safetyGoals.overallRate')}</div>
             </div>
@@ -134,8 +134,8 @@ export default function PatientSafetyGoalsPage() {
               </BarChart>
             </ChartContainer>
           </div>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BarChart3 size={16} color="var(--color-success-500)" />{t('safetyGoals.categoryStatus')}
             </div>
             <ChartContainer height={240} state={categoryCompData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('safetyGoals.noCategoryData')}>
@@ -152,7 +152,7 @@ export default function PatientSafetyGoalsPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <button onClick={() => setCategoryFilter('all')} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${categoryFilter === 'all' ? 'var(--color-primary-600)' : 'var(--border-default, #30363d)'}`, background: categoryFilter === 'all' ? '#2563eb20' : 'transparent', color: categoryFilter === 'all' ? 'var(--color-primary-600)' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('safetyGoals.all')}</button>
           {CATEGORIES.map(c => (
             <button key={c} onClick={() => setCategoryFilter(c)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${categoryFilter === c ? 'var(--color-primary-600)' : 'var(--border-default, #30363d)'}`, background: categoryFilter === c ? '#2563eb20' : 'transparent', color: categoryFilter === c ? 'var(--color-primary-600)' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{c}</button>
@@ -205,10 +205,10 @@ export default function PatientSafetyGoalsPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 12, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-default, #30363d)' }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}><Target size={16} color="var(--color-primary-500)" /> {t('safetyGoals.newGoalTitle')}</div>
-              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted, #8b949e)', fontSize: 18, padding: 4 }}>×</button>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Target size={16} color="var(--color-primary-500)" /> {t('safetyGoals.newGoalTitle')}</div>
+              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted, #8b949e)', fontSize: 18, padding: 'var(--space-1, 4px)' }}>×</button>
             </div>
-            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('safetyGoals.goalName')}</label>
                 <input value={newGoal.title} onChange={e => setNewGoal({ ...newGoal, title: e.target.value })} placeholder={t('safetyGoals.goalNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', background: 'var(--bg-primary, #0d1117)', border: '1px solid var(--border-default, #30363d)', borderRadius: 6, color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }} />
@@ -253,7 +253,7 @@ export default function PatientSafetyGoalsPage() {
                 <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('safetyGoals.description')}</label>
                 <textarea value={newGoal.description} onChange={e => setNewGoal({ ...newGoal, description: e.target.value })} rows={2} placeholder={t('safetyGoals.descriptionPlaceholder')} style={{ width: '100%', padding: '8px 12px', background: 'var(--bg-primary, #0d1117)', border: '1px solid var(--border-default, #30363d)', borderRadius: 6, color: 'var(--text-primary, #f0f6fc)', fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
                 <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', background: 'var(--bg-secondary, #21262d)', border: '1px solid var(--border-default, #30363d)', borderRadius: 6, color: 'var(--text-muted, #8b949e)', fontSize: 12, cursor: 'pointer' }}>{t('safetyGoals.cancel')}</button>
                 <button onClick={() => void handleCreateGoal()} disabled={!newGoal.title?.trim() || !newGoal.deadline} style={{ padding: '8px 20px', background: newGoal.title?.trim() && newGoal.deadline ? 'var(--color-primary-600)' : 'var(--bg-secondary, #21262d)', border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 600, cursor: newGoal.title?.trim() && newGoal.deadline ? 'pointer' : 'not-allowed' }}>{t('safetyGoals.createGoal')}</button>
               </div>

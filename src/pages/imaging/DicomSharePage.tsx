@@ -197,11 +197,11 @@ const DicomSharePage: React.FC = () => {
       />
 
       {error && (
-        <Alert type="error" showIcon message={t('dicomShare.loadFailed')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('dicomShare.loadFailed')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dicomShare.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dicomShare.statTotal')} value={stats?.total ?? shares.length} icon={<Share2 size={16} />} color="primary" loading={loading} />
         <StatCard title={t('dicomShare.statPending')} value={stats?.pendingCount ?? 0} icon={<Eye size={16} />} color="warning" loading={loading} />
         <StatCard title={t('dicomShare.statReceived')} value={stats?.receivedCount ?? 0} icon={<Download size={16} />} color="success" loading={loading} />
@@ -210,7 +210,7 @@ const DicomSharePage: React.FC = () => {
 
       <Card size="small" title={t('dicomShare.transferRecords')} extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('dicomShare.refresh')}</Button>}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin size="large" /></div>
         ) : (
           <VirtualTable<ShareRecord>
             columns={columns}
@@ -226,7 +226,7 @@ const DicomSharePage: React.FC = () => {
 
       <Modal title={t('dicomShare.shareModalTitle')} open={shareModal} onCancel={() => setShareModal(false)} onOk={handleShareOk}
         okText={t('dicomShare.createShare')} confirmLoading={creating} width={480}>
-        <Form form={shareForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
+        <Form form={shareForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="studyId" label={t('dicomShare.colStudy')} rules={[{ required: true, message: t('dicomShare.selectStudyRequired') }]}>
             <Select options={STUDY_OPTIONS} placeholder={t('dicomShare.selectStudyPlaceholder')} />
           </Form.Item>
@@ -249,7 +249,7 @@ const DicomSharePage: React.FC = () => {
       {/* [W1-B] 共享详情: GET /dicom-share/shares/:id */}
       <Modal title={`${t('dicomShare.detailTitle')} - ${detailShare?.id ?? ''}`} open={detailOpen} onCancel={() => setDetailOpen(false)} footer={<Button onClick={() => setDetailOpen(false)}>{t('dicomShare.close')}</Button>} width={560}>
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin size="large" /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin size="large" /></div>
         ) : detailShare ? (
           <Descriptions bordered column={2} size="small">
             <Descriptions.Item label={t('dicomShare.colNo')} span={2}><AppText size="xs" as="span" style={{ fontFamily: 'monospace' }}>{detailShare.id}</AppText></Descriptions.Item>

@@ -124,7 +124,7 @@ export const TerminologyServerPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <BookOpen size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('terminology.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
@@ -135,10 +135,10 @@ export const TerminologyServerPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadMeta()} loading={loading}>{t('terminology.refresh')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void loadMeta()}><RefreshCw size={14} /> {t('terminology.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void loadMeta()}><RefreshCw size={14} /> {t('terminology.retry')}</Button>} />}
 
       <Spin spinning={loading}>
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('terminology.statTotalConcepts')} value={stats?.totalConcepts?.toLocaleString() ?? '-'} icon={<Code size={14} />} />
           <StatCard title={t('terminology.statMappings')} value={stats?.totalMappings ?? mappings.length} icon={<Layers size={14} />} />
           <StatCard title={t('terminology.statSystems')} value={stats?.systems ?? systems.length} icon={<Globe size={14} />} />
@@ -148,8 +148,8 @@ export const TerminologyServerPage: React.FC = () => {
         </StatCardGrid>
       </Spin>
 
-      <Card size="small" title={<Space><Search size={14} />{t('terminology.searchCardTitle')}</Space>} style={{ marginBottom: 16 }}>
-        <Space.Compact style={{ width: '100%', maxWidth: 640, marginBottom: 12 }}>
+      <Card size="small" title={<Space><Search size={14} />{t('terminology.searchCardTitle')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space.Compact style={{ width: '100%', maxWidth: 640, marginBottom: 'var(--space-3, 12px)' }}>
           <Input.Search
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -159,7 +159,7 @@ export const TerminologyServerPage: React.FC = () => {
             enterButton={t('terminology.search')}
           />
         </Space.Compact>
-        <Space style={{ marginBottom: 12 }}>
+        <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Button size="small" icon={<BookMarked size={12} />} loading={searching} onClick={() => void doEncode()}>{t('terminology.encodeSnomed')}</Button>
           <Button size="small" onClick={() => { setResults([]); setQuery('') }}>{t('terminology.clear')}</Button>
         </Space>
@@ -182,7 +182,7 @@ export const TerminologyServerPage: React.FC = () => {
 
       {/* [v3.0.6.11-99 W10C] 本地征象词典（离线兜底检索） */}
       {query.trim() && (
-        <Card size="small" title={<Space><Stethoscope size={14} />{t('terminology.localDictTitle')}</Space>} style={{ marginBottom: 16 }}>
+        <Card size="small" title={<Space><Stethoscope size={14} />{t('terminology.localDictTitle')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           {localSigns.length === 0 ? (
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('terminology.localDictEmpty')} />
           ) : (
@@ -247,7 +247,7 @@ export const TerminologyServerPage: React.FC = () => {
                 },
               ]}
             />
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)' }}>
               <Alert type="warning" showIcon message={t('terminology.syncDelayTitle')} description={t('terminology.syncDelayDesc')} />
             </div>
           </Card>

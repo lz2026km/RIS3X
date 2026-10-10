@@ -694,15 +694,15 @@ const BookingRateChart: React.FC = () => {
       {/* 每日满员次数统计 */}
       <div
         style={{
-          marginTop: 20,
-          paddingTop: 16,
+          marginTop: 'var(--space-5, 20px)',
+          paddingTop: 'var(--space-4, 16px)',
           borderTop: `1px solid ${C.border}`,
         }}
       >
         <h4 style={{ margin: '0 0 12px', color: C.textDark, fontSize: 16, fontWeight: 600 }}>
           {t('equipEfficiency.dailyFullStats')}
         </h4>
-        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {sortedData.map(item => (
             <div key={item.deviceId} style={{ textAlign: 'center' }}>
               <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>{item.deviceName}</p>
@@ -738,9 +738,9 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 32,
-          marginBottom: 24,
-          padding: 20,
+          gap: 'var(--space-8, 32px)',
+          marginBottom: 'var(--space-6, 24px)',
+          padding: 'var(--space-5, 20px)',
           backgroundColor: C.bgLight,
           borderRadius: 12,
         }}
@@ -802,7 +802,7 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
                 />
                 <span style={{ color: C.textMid, fontSize: 12 }}>{segment.label}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <span style={{ color: C.textDark, fontSize: 14, fontWeight: 600 }}>
                   {segment.value} {t('equipEfficiency.units')}
                 </span>
@@ -817,7 +817,7 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
 
       {/* 故障记录列表 */}
       <div>
-        <h4 style={{ margin: '0 0 16px', color: C.textDark, fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h4 style={{ margin: '0 0 16px', color: C.textDark, fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={16} color={C.warning} />
           {t('equipEfficiency.failureRecords')}
         </h4>
@@ -1058,19 +1058,19 @@ export default function EquipmentEfficiencyPage() {
       style={{ backgroundColor: C.bg,
         color: C.textDark,
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        padding: 24,
+        padding: 'var(--space-6, 24px)',
       }}
     >
       {/* 页面标题 */}
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: 'var(--space-6, 24px)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
         <div>
           <Title
             level={4}
             style={{
-              marginBottom: 8,
+              marginBottom: 'var(--space-2, 8px)',
               display: 'flex',
               alignItems: 'center',
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
             }}
           >
             <Activity size={28} color={C.primary} />
@@ -1103,9 +1103,9 @@ export default function EquipmentEfficiencyPage() {
       </div>
 
       {error && (
-        <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: '#ef444420', border: `1px solid ${C.danger}`, color: C.dangerLight, fontSize: 12 }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)', padding: '10px 16px', borderRadius: 8, background: '#ef444420', border: `1px solid ${C.danger}`, color: C.dangerLight, fontSize: 12 }}>
           {error}
-          <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.danger}`, background: 'transparent', color: C.dangerLight, cursor: 'pointer', fontSize: 12 }}>重试</button>
+          <button onClick={() => void load()} style={{ marginLeft: 'var(--space-3, 12px)', padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.danger}`, background: 'transparent', color: C.dangerLight, cursor: 'pointer', fontSize: 12 }}>重试</button>
         </div>
       )}
 
@@ -1114,8 +1114,8 @@ export default function EquipmentEfficiencyPage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 16,
-          marginBottom: 24,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-6, 24px)',
         }}
       >
         {DEVICES.slice(0, 4).map((device) => (
@@ -1124,7 +1124,7 @@ export default function EquipmentEfficiencyPage() {
             style={{
               backgroundColor: C.bgCard,
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               border: `1px solid ${C.border}`,
               position: 'relative',
               overflow: 'hidden',
@@ -1143,7 +1143,7 @@ export default function EquipmentEfficiencyPage() {
             />
 
             {/* 设备名称和状态 */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
                 <p style={{ fontSize: 12, color: C.textLight }}>{device.model}</p>
@@ -1163,8 +1163,8 @@ export default function EquipmentEfficiencyPage() {
             </div>
 
             {/* 使用率 */}
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                 <span style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.usage')}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{device.utilization}%</span>
               </div>
@@ -1194,7 +1194,7 @@ export default function EquipmentEfficiencyPage() {
                 fontSize: 12,
                 color: C.textLight,
                 fontFamily: 'monospace',
-                marginTop: 12,
+                marginTop: 'var(--space-3, 12px)',
               }}
             >
               {device.id}
@@ -1208,8 +1208,8 @@ export default function EquipmentEfficiencyPage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 16,
-          marginBottom: 24,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-6, 24px)',
         }}
       >
         {DEVICES.slice(4).map((device) => (
@@ -1218,7 +1218,7 @@ export default function EquipmentEfficiencyPage() {
             style={{
               backgroundColor: C.bgCard,
               borderRadius: 12,
-              padding: 20,
+              padding: 'var(--space-5, 20px)',
               border: `1px solid ${C.border}`,
               position: 'relative',
               overflow: 'hidden',
@@ -1237,7 +1237,7 @@ export default function EquipmentEfficiencyPage() {
             />
 
             {/* 设备名称和状态 */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
                 <p style={{ fontSize: 12, color: C.textLight }}>{device.model}</p>
@@ -1257,8 +1257,8 @@ export default function EquipmentEfficiencyPage() {
             </div>
 
             {/* 使用率 */}
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                 <span style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.usage')}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{device.utilization}%</span>
               </div>
@@ -1288,7 +1288,7 @@ export default function EquipmentEfficiencyPage() {
                 fontSize: 12,
                 color: C.textLight,
                 fontFamily: 'monospace',
-                marginTop: 12,
+                marginTop: 'var(--space-3, 12px)',
               }}
             >
               {device.id}
@@ -1302,19 +1302,19 @@ export default function EquipmentEfficiencyPage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 16,
-          marginBottom: 24,
+          gap: 'var(--space-4, 16px)',
+          marginBottom: 'var(--space-6, 24px)',
         }}
       >
         <div
           style={{
             backgroundColor: C.bgCard,
             borderRadius: 12,
-            padding: 20,
+            padding: 'var(--space-5, 20px)',
             border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            gap: 16,
+            gap: 'var(--space-4, 16px)',
           }}
         >
           <div
@@ -1331,10 +1331,10 @@ export default function EquipmentEfficiencyPage() {
             <Timer size={24} color={C.primary} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.avgOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.avgOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.avgExamTime}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 'var(--space-1, 4px)' }}>%</span>
             </p>
           </div>
         </div>
@@ -1343,11 +1343,11 @@ export default function EquipmentEfficiencyPage() {
           style={{
             backgroundColor: C.bgCard,
             borderRadius: 12,
-            padding: 20,
+            padding: 'var(--space-5, 20px)',
             border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            gap: 16,
+            gap: 'var(--space-4, 16px)',
           }}
         >
           <div
@@ -1364,10 +1364,10 @@ export default function EquipmentEfficiencyPage() {
             <Zap size={24} color={C.success} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.maxOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.maxOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.dailyMax}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 'var(--space-1, 4px)' }}>%</span>
             </p>
           </div>
         </div>
@@ -1376,11 +1376,11 @@ export default function EquipmentEfficiencyPage() {
           style={{
             backgroundColor: C.bgCard,
             borderRadius: 12,
-            padding: 20,
+            padding: 'var(--space-5, 20px)',
             border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            gap: 16,
+            gap: 'var(--space-4, 16px)',
           }}
         >
           <div
@@ -1397,10 +1397,10 @@ export default function EquipmentEfficiencyPage() {
             <TrendingUp size={24} color={C.warning} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.minOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.minOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.bedTurnover}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 'var(--space-1, 4px)' }}>%</span>
             </p>
           </div>
         </div>
@@ -1409,11 +1409,11 @@ export default function EquipmentEfficiencyPage() {
           style={{
             backgroundColor: C.bgCard,
             borderRadius: 12,
-            padding: 20,
+            padding: 'var(--space-5, 20px)',
             border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            gap: 16,
+            gap: 'var(--space-4, 16px)',
           }}
         >
           <div
@@ -1430,10 +1430,10 @@ export default function EquipmentEfficiencyPage() {
             <Clock size={24} color={C.info} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.monitoredDevices')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.monitoredDevices')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.standbyHours}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>{t('equipEfficiency.unitsShort')}</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 'var(--space-1, 4px)' }}>{t('equipEfficiency.unitsShort')}</span>
             </p>
           </div>
         </div>
@@ -1443,10 +1443,10 @@ export default function EquipmentEfficiencyPage() {
       <div
         style={{
           display: 'flex',
-          gap: 8,
-          marginBottom: 16,
+          gap: 'var(--space-2, 8px)',
+          marginBottom: 'var(--space-4, 16px)',
           borderBottom: `1px solid ${C.border}`,
-          paddingBottom: 12,
+          paddingBottom: 'var(--space-3, 12px)',
         }}
       >
         {tabs.map((tab) => {
@@ -1459,7 +1459,7 @@ export default function EquipmentEfficiencyPage() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 padding: '10px 18px',
                 borderRadius: 8,
                 border: 'none',
@@ -1486,8 +1486,8 @@ export default function EquipmentEfficiencyPage() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1.5fr 1fr',
-              gap: 16,
-              marginBottom: 24,
+              gap: 'var(--space-4, 16px)',
+              marginBottom: 'var(--space-6, 24px)',
             }}
           >
             {/* 使用率趋势折线图 */}
@@ -1495,7 +1495,7 @@ export default function EquipmentEfficiencyPage() {
               style={{
                 backgroundColor: C.bgCard,
                 borderRadius: 12,
-                padding: 24,
+                padding: 'var(--space-6, 24px)',
                 border: `1px solid ${C.border}`,
               }}
             >
@@ -1504,16 +1504,16 @@ export default function EquipmentEfficiencyPage() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: 20,
+                  marginBottom: 'var(--space-5, 20px)',
                 }}
               >
                 <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.utilizationTrend')}</h3>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.utilizationTrend')}</h3>
                   <p style={{ fontSize: 12, color: C.textLight }}>
                     {t('equipEfficiency.trendDescPrefix')}{selectedPeriod === '7d' ? '7' : selectedPeriod === '14d' ? '14' : '30'}{t('equipEfficiency.trendDescSuffix')} {isLive && <span style={{ color: C.success }}>{t('equipEfficiency.realtime')}</span>}
                   </p>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   {['7d', '14d', '30d'].map((period) => (
                     <button
                       key={period}
@@ -1544,12 +1544,12 @@ export default function EquipmentEfficiencyPage() {
               style={{
                 backgroundColor: C.bgCard,
                 borderRadius: 12,
-                padding: 24,
+                padding: 'var(--space-6, 24px)',
                 border: `1px solid ${C.border}`,
               }}
             >
-              <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.timeSegment')}</h3>
+              <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.timeSegment')}</h3>
                 <p style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.timeSegmentDesc')}</p>
               </div>
               <TimeSegmentChart data={TIME_SEGMENT_DATA} />
@@ -1559,15 +1559,15 @@ export default function EquipmentEfficiencyPage() {
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 12,
-                  marginTop: 16,
-                  paddingTop: 16,
+                  gap: 'var(--space-3, 12px)',
+                  marginTop: 'var(--space-4, 16px)',
+                  paddingTop: 'var(--space-4, 16px)',
                   borderTop: `1px solid ${C.border}`,
                 }}
               >
                 {TIME_SEGMENT_DATA.map((item) => (
                   <div key={item.period} style={{ textAlign: 'center' }}>
-                    <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{item.period}</p>
+                    <p style={{ fontSize: 12, color: C.textLight, marginBottom: 'var(--space-1, 4px)' }}>{item.period}</p>
                     <p style={{ fontSize: 18, fontWeight: 600, color: C.primary }}>{item.total}</p>
                     <p style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.cases')}</p>
                   </div>
@@ -1581,7 +1581,7 @@ export default function EquipmentEfficiencyPage() {
             style={{
               backgroundColor: C.bgCard,
               borderRadius: 12,
-              padding: 24,
+              padding: 'var(--space-6, 24px)',
               border: `1px solid ${C.border}`,
             }}
           >
@@ -1590,11 +1590,11 @@ export default function EquipmentEfficiencyPage() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 20,
+                marginBottom: 'var(--space-5, 20px)',
               }}
             >
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.loadRanking')}</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.loadRanking')}</h3>
                 <p style={{ fontSize: 12, color: C.textLight }}>
                   {t('equipEfficiency.loadRankingDesc')} {isLive && <span style={{ color: C.success }}>{t('equipEfficiency.realtime')}</span>}
                 </p>
@@ -1676,7 +1676,7 @@ export default function EquipmentEfficiencyPage() {
                   {
                     title: t('equipEfficiency.overallScore'), dataIndex: 'score', align: 'center',
                     render: (v: number) => (
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         <div
                           style={{
                             width: 100,
@@ -1720,8 +1720,8 @@ export default function EquipmentEfficiencyPage() {
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                marginTop: 20,
-                paddingTop: 16,
+                marginTop: 'var(--space-5, 20px)',
+                paddingTop: 'var(--space-4, 16px)',
                 borderTop: `1px solid ${C.border}`,
                 fontSize: 12,
                 color: C.textLight,
@@ -1739,12 +1739,12 @@ export default function EquipmentEfficiencyPage() {
           style={{
             backgroundColor: C.bgCard,
             borderRadius: 12,
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
             border: `1px solid ${C.border}`,
           }}
         >
-          <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.heatmapTitle')}</h3>
+          <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.heatmapTitle')}</h3>
             <p style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.heatmapDesc')}</p>
           </div>
           <div style={{ overflowX: 'auto' }}>
@@ -1758,12 +1758,12 @@ export default function EquipmentEfficiencyPage() {
           style={{
             backgroundColor: C.bgCard,
             borderRadius: 12,
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
             border: `1px solid ${C.border}`,
           }}
         >
-          <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.bookingTitle')}</h3>
+          <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.bookingTitle')}</h3>
             <p style={{ fontSize: 12, color: C.textLight }}>
               {t('equipEfficiency.bookingDesc')}
             </p>
@@ -1777,12 +1777,12 @@ export default function EquipmentEfficiencyPage() {
           style={{
             backgroundColor: C.bgCard,
             borderRadius: 12,
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
             border: `1px solid ${C.border}`,
           }}
         >
-          <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.failureTitle')}</h3>
+          <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-1, 4px)' }}>{t('equipEfficiency.failureTitle')}</h3>
             <p style={{ fontSize: 12, color: C.textLight }}>
               {t('equipEfficiency.failureDesc')} {isLive && <span style={{ color: C.success }}>{t('equipEfficiency.realtime')}</span>}
             </p>

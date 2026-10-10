@@ -194,7 +194,7 @@ export default function FileManagementPage() {
       />
 
       {/* 统计卡片 */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
         <StatCard icon={<FolderOpen size={20} color={C.primaryLighter} />} label="文件数量" value={`${stats.count} 个`} />
         <StatCard icon={<HardDrive size={20} color={C.primaryLighter} />} label="总大小" value={formatSize(stats.totalSize)} />
         <StatCard
@@ -209,11 +209,11 @@ export default function FileManagementPage() {
         <div style={sectionTitle}>
           <UploadCloud size={18} color={C.primary} /> 上传文件
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
           <label style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
             padding: '8px 16px',
             borderRadius: 8,
             border: `1px dashed ${C.primaryLighter}`,
@@ -246,19 +246,19 @@ export default function FileManagementPage() {
         {/* 进度 */}
         {task.status !== 'pending' && (
           <div style={{ marginTop: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: C.textMid, marginBottom: 4 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} />
                 {task.fileName} ({formatSize(task.size)})
               </span>
               <span>
                 {task.status === 'done' && (
-                  <span style={{ color: C.success, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ color: C.success, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <CheckCircle2 size={14} /> 上传成功
                   </span>
                 )}
                 {task.status === 'error' && (
-                  <span style={{ color: C.danger, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ color: C.danger, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <XCircle size={14} /> {task.error}
                   </span>
                 )}
@@ -288,7 +288,7 @@ export default function FileManagementPage() {
       {/* 已上传文件列表 */}
       <div style={cardStyle}>
         <div style={{ ...sectionTitle, justifyContent: 'space-between' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <FileText size={18} color={C.primary} /> 本次会话已上传文件 ({files.length})
           </span>
           <button
@@ -300,7 +300,7 @@ export default function FileManagementPage() {
         </div>
         {files.length === 0 ? (
           <div style={{ padding: '40px 20px', textAlign: 'center', color: C.textLight }}>
-            <FolderOpen size={36} style={{ marginBottom: 8, opacity: 0.5 }} />
+            <FolderOpen size={36} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.5 }} />
             <div>暂无上传记录，请选择文件上传</div>
           </div>
         ) : (
@@ -367,7 +367,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
       border: `1px solid ${C.border}`,
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
+      gap: 'var(--space-3, 12px)',
     }}>
       <div style={{
         width: 40,
@@ -392,22 +392,22 @@ const cardStyle: React.CSSProperties = {
   background: C.white,
   border: `1px solid ${C.border}`,
   borderRadius: 10,
-  padding: 16,
-  marginBottom: 16,
+  padding: 'var(--space-4, 16px)',
+  marginBottom: 'var(--space-4, 16px)',
 }
 
 const sectionTitle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
+  gap: 'var(--space-2, 8px)',
   fontSize: 14,
   fontWeight: 700,
   color: C.textDark,
-  marginBottom: 12,
+  marginBottom: 'var(--space-3, 12px)',
 }
 
 const errorBanner: React.CSSProperties = {
-  marginTop: 12,
+  marginTop: 'var(--space-3, 12px)',
   padding: '10px 14px',
   borderRadius: 8,
   background: 'var(--color-error-bg)',
@@ -416,7 +416,7 @@ const errorBanner: React.CSSProperties = {
   fontSize: 12,
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
+  gap: 'var(--space-2, 8px)',
 }
 
 function btnPrimary(disabled: boolean): React.CSSProperties {

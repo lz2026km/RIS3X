@@ -123,7 +123,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
       }}
     >
       <style>{`@keyframes cvCardPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.45); } 50% { box-shadow: 0 0 0 7px rgba(220,38,38,0); } }`}</style>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
         {/* 呼吸灯 */}
         <div
           aria-hidden
@@ -132,7 +132,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
             height: 14,
             borderRadius: '50%',
             background: 'var(--color-error-600)',
-            marginTop: 4,
+            marginTop: 'var(--space-1, 4px)',
             animation: 'cvBreathLight 1.2s ease-in-out infinite',
             flexShrink: 0,
           }}
@@ -140,7 +140,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         <style>{`@keyframes cvBreathLight { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }`}</style>
 
         <div style={{ flex: 1, minWidth: 240 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
             <AlertOctagon size={16} color="var(--color-error-600)" />
             <strong style={{ color: '#7f1d1d', fontSize: 14 }}>{t('criticalValueCard.alertTitle')}</strong>
             <Tag color={sev.color} style={{ marginRight: 0 }}>{sev.label}</Tag>
@@ -154,7 +154,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
             {alert.studyId ? <span style={{ color: '#94a3b8' }}> · {alert.studyId}</span> : null}
             {alert.modality ? <Tag color="blue" style={{ marginLeft: 6 }}>{alert.modality}</Tag> : null}
           </div>
-          <div style={{ marginTop: 4, color: '#b91c1c', fontWeight: 600, fontSize: 12 }}>
+          <div style={{ marginTop: 'var(--space-1, 4px)', color: '#b91c1c', fontWeight: 600, fontSize: 12 }}>
             {alert.title}
           </div>
           {alert.description && (
@@ -208,7 +208,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
       </div>
 
       {!compact && (
-        <div style={{ marginTop: 12, borderTop: '1px dashed #fecaca', paddingTop: 10 }}>
+        <div style={{ marginTop: 'var(--space-3, 12px)', borderTop: '1px dashed #fecaca', paddingTop: 10 }}>
           <AutoCallSmsLog alertId={alert.id} refreshKey={logRefresh} />
         </div>
       )}
@@ -228,7 +228,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
           <Badge color="var(--color-error-600)" /> {alert.patientName} · {alert.title}
         </div>
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValueCard.receivingPhone')}</div>
+          <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueCard.receivingPhone')}</div>
           <Input
             placeholder={t('criticalValueCard.phonePlaceholder')}
             value={smsPhone}
@@ -237,7 +237,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
           />
         </div>
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValueCard.smsContentLabel')}</div>
+          <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueCard.smsContentLabel')}</div>
           <Input.TextArea
             rows={3}
             value={smsContent}

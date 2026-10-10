@@ -246,11 +246,11 @@ export default function ExportApprovalPage() {
           {item.status === 'PENDING' && canApprove && (
             <>
               <button onClick={() => handleApprove(item.id)} disabled={actionId === item.id}
-                style={{ padding: '5px 12px', borderRadius: 5, border: 'none', background: 'var(--color-success-500)', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, opacity: actionId === item.id ? 0.6 : 1 }}>
+                style={{ padding: '5px 12px', borderRadius: 5, border: 'none', background: 'var(--color-success-500)', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', opacity: actionId === item.id ? 0.6 : 1 }}>
                 {actionId === item.id ? <Loader2 size={12} /> : <Check size={12} />}{t('w9.exportApproval.approve')}
               </button>
               <button onClick={() => handleReject(item.id)}
-                style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid var(--color-error-500)', background: 'transparent', color: '#fca5a5', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid var(--color-error-500)', background: 'transparent', color: '#fca5a5', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <X size={12} />{t('w9.exportApproval.reject')}
               </button>
             </>
@@ -267,14 +267,14 @@ export default function ExportApprovalPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <FileDown size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9.exportApproval.title')}</span>
           <span style={{ fontSize: 12, padding: '2px 8px', background: 'rgba(255,255,255,0.2)', borderRadius: 4 }}>
             {canApprove ? t('w9.exportApproval.approved') + '/' + t('w9.exportApproval.rejected') + ' 模式' : '申请模式'}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <ActionButton action="refresh" size="compact" loading={loading} onClick={() => void load()} icon={<RefreshCw size={14} />} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff' }}>
             {t('w9.exportApproval.refresh')}
           </ActionButton>
@@ -285,14 +285,14 @@ export default function ExportApprovalPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <StatCardGrid minWidth={180} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={180} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('w9.exportApproval.all')} value={counts.total} icon={<Inbox size={18} />} color="info" style={darkCard} />
           <StatCard title={t('w9.exportApproval.pending')} value={counts.pending} icon={<Hourglass size={18} />} color="warning" style={darkCard} />
           <StatCard title={t('w9.exportApproval.approved')} value={counts.approved} icon={<BadgeCheck size={18} />} color="success" style={darkCard} />
           <StatCard title={t('w9.exportApproval.rejected')} value={counts.rejected} icon={<Ban size={18} />} color="error" style={darkCard} />
         </StatCardGrid>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
           {filterTabs.map(tab => (
             <button key={tab.key} onClick={() => setFilter(tab.key)}
               style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filter === tab.key ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: filter === tab.key ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -306,9 +306,9 @@ export default function ExportApprovalPage() {
         </div>
 
         {error && (
-          <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid var(--color-error-500)', color: '#fca5a5', marginBottom: 16, fontSize: 12 }}>
+          <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 6, background: '#ef444420', border: '1px solid var(--color-error-500)', color: '#fca5a5', marginBottom: 'var(--space-4, 16px)', fontSize: 12 }}>
             {t('w9.exportApproval.loading')}:{error}
-            <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error-500)', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('w9.exportApproval.refresh')}</button>
+            <button onClick={() => void load()} style={{ marginLeft: 'var(--space-3, 12px)', padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error-500)', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('w9.exportApproval.refresh')}</button>
           </div>
         )}
 
@@ -321,9 +321,9 @@ export default function ExportApprovalPage() {
           pagination={{ pageSize: 10 }}
           scroll={{ x: 'max-content' }}
         />
-        <div style={{ marginTop: 12, fontSize: 12, color: '#6e7681', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><ShieldCheck size={13} color="var(--color-success-500)" />{t('w9.exportApproval.approverHint')}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FileText size={13} color="var(--color-primary-500)" />{t('w9.exportApproval.autoHint')}</span>
+        <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: '#6e7681', display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><ShieldCheck size={13} color="var(--color-success-500)" />{t('w9.exportApproval.approverHint')}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><FileText size={13} color="var(--color-primary-500)" />{t('w9.exportApproval.autoHint')}</span>
         </div>
       </div>
 
@@ -339,7 +339,7 @@ export default function ExportApprovalPage() {
         width={480}
         styles={modalStyle}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 'var(--space-2, 8px)' }}>
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('w9.exportApproval.resourceLabel')}</div>
             <Select
@@ -374,7 +374,7 @@ export default function ExportApprovalPage() {
         okButtonProps={{ style: { background: 'var(--color-error-500)', borderColor: 'var(--color-error-500)' } }}
         styles={modalStyle}
       >
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: 'var(--space-2, 8px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('w9.exportApproval.rejectReason')}</div>
           <Input.TextArea value={rejectReason} onChange={e => setRejectReason(e.target.value)} rows={4} placeholder={t('w9.exportApproval.rejectReason')} maxLength={200} showCount />
         </div>

@@ -90,12 +90,12 @@ export default function AiLesionAutoInjector({
           </Button>
         </Space>
       }
-      style={{ border: '1px solid #bfdbfe', marginBottom: 12 }}
+      style={{ border: '1px solid #bfdbfe', marginBottom: 'var(--space-3, 12px)' }}
     >
       <Alert
         type="info"
         showIcon
-        style={{ marginBottom: 8 }}
+        style={{ marginBottom: 'var(--space-2, 8px)' }}
         message={t('w9e.aiInjector.cacheAlert', { count: list.length })}
       />
       {visible.length === 0 ? (

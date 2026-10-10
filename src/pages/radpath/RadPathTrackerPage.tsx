@@ -14,7 +14,7 @@ const consistencyLabel: Record<string, string> = {
 
 function Badge({ consistency }: { consistency: string }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: `${consistencyColor[consistency]}20`, color: consistencyColor[consistency], border: `1px solid ${consistencyColor[consistency]}40` }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: `${consistencyColor[consistency]}20`, color: consistencyColor[consistency], border: `1px solid ${consistencyColor[consistency]}40` }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: consistencyColor[consistency] }} />
       {t(consistencyLabel[consistency] ?? consistency)}
     </span>
@@ -51,14 +51,14 @@ export default function RadPathTrackerPage() {
   const total = stats?.total ?? 0;
 
   return (
-    <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1400, margin: '0 auto' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Activity size={20} color="#8b5cf6" />
         <Typography.Title level={4} style={{ margin: 0 }}>{t('radpath.title')}</Typography.Title>
       </div>
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 'var(--space-4, 16px)' }}>
         <KpiCard icon={FileText} label={t('radpath.kpi.total')} value={stats?.total ?? '-'} color="#8b5cf6" />
         <KpiCard icon={CheckCircle2} label={t('radpath.kpi.concordant')} value={stats?.concordant ?? '-'} color="#10b981" />
         <KpiCard icon={XCircle} label={t('radpath.kpi.discordant')} value={stats?.discordant ?? '-'} color="var(--color-error-500)" />
@@ -67,18 +67,18 @@ export default function RadPathTrackerPage() {
       </div>
 
       {/* 搜索 */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <input value={reportId} onChange={e => setReportId(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
           placeholder={t('radpath.searchPlaceholder')} style={{ flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 14 }} />
         <button onClick={handleSearch} disabled={loading} style={{ padding: '8px 16px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Search size={14} /> {loading ? t('radpath.searching') : t('radpath.search')}
         </button>
       </div>
-      {error && <div style={{ padding: 10, background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, marginBottom: 12, fontSize: 12 }}>{error}</div>}
+      {error && <div style={{ padding: 10, background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, marginBottom: 'var(--space-3, 12px)', fontSize: 12 }}>{error}</div>}
 
       {/* 记录表格 */}
       {record && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden', marginBottom: 16 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden', marginBottom: 'var(--space-4, 16px)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead><tr style={{ background: 'var(--bg-card)', color: '#64748b', fontWeight: 600 }}>
               <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{t('radpath.colReportId')}</th>
@@ -106,19 +106,19 @@ export default function RadPathTrackerPage() {
         </div>
       )}
 
-      {!record && !error && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 14 }}>
-        <Microscope size={32} style={{ marginBottom: 8, opacity: 0.3 }} />
+      {!record && !error && <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8', fontSize: 14 }}>
+        <Microscope size={32} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.3 }} />
         <div>{t('radpath.emptyHint')}</div>
       </div>}
 
       {/* 统计仪表盘 */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <TrendingUp size={13} /> {t('radpath.trendTitle')}
             </div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 120, padding: '0 4px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-1, 4px)', height: 120, padding: '0 4px' }}>
               {stats.trend.map(tr => (
                 <div key={tr.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                   <div style={{ width: '100%', background: 'var(--bg-card)', borderRadius: '4px 4px 0 0', position: 'relative', height: 100 }}>
@@ -131,11 +131,11 @@ export default function RadPathTrackerPage() {
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <PieChart size={13} /> {t('radpath.distributionTitle')}
             </div>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'center' }}>
               <div style={{ position: 'relative', width: 120, height: 120 }}>
                 <svg viewBox="0 0 32 32" style={{ width: 120, height: 120 }}>
                   {total > 0 && (

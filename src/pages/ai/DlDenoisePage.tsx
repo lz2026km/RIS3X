@@ -327,8 +327,8 @@ const DlDenoisePage: React.FC = () => {
   const activeKernelLabel = KERNEL_LABELS[kernel]
 
   return (
-    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
         <Sparkles size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('dlDenoisePage.title')}</span>
         <Tag color="cyan">{t('dlDenoisePage.title')} · {activeKernelLabel}</Tag>
@@ -343,13 +343,13 @@ const DlDenoisePage: React.FC = () => {
         <Button size="small" type="primary" icon={<PlayCircle size={12} />} loading={executing} onClick={() => void handleExecute()}>{t('dlDenoisePage.execute')}</Button>
         <button onClick={handleSaveResult} style={btnStyle}><Save size={12} /> {t('dlDenoisePage.saveResult')}</button>
       </div>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <StatCard title="PSNR (dB)" value={displayPsnr} icon={<Zap size={18} />} color="primary" />
         <StatCard title="SSIM" value={displaySsim} icon={<Sparkles size={18} />} color="info" />
         <StatCard title={t('dlDenoisePage.processSpeed')} value={displaySpeed} icon={<RefreshCw size={18} />} color="primary" />
         <StatCard title={t('dlDenoisePage.denoiseRate')} value={`${serverResult ? Math.round((serverResult.noiseReduction ?? 0) * 100) : Math.round((1 - noiseLevel / 100) * 100)}%`} icon={<Save size={18} />} color="success" />
       </StatCardGrid>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.model')}</span>
         {(Object.keys(MODELS) as ModelType[]).map(m => (
           <button key={m} style={model === m ? activeBtnStyle : btnStyle} onClick={() => setModel(m)}>
@@ -381,7 +381,7 @@ const DlDenoisePage: React.FC = () => {
         <Slider min={0} max={100} value={noiseLevel} onChange={setNoiseLevel} style={{ width: 160 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{noiseLevel}%</span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, height: 'calc(100vh - 260px)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', height: 'calc(100vh - 260px)' }}>
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 1, fontSize: 12, color: '#facc15', background: 'rgba(0,0,0,0.7)', padding: '2px 8px', borderRadius: 4 }}>
             {t('dlDenoisePage.originalNoisy')} {localEstimate ? `· σ=${localEstimate.sigma}` : ''}

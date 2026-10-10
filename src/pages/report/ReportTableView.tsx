@@ -56,7 +56,7 @@ function QualityBadge({ score }: { score?: number }) {
   return (
     <span style={{ position: 'relative', display: 'inline-block' }} onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
       <span style={{ padding: '2px 7px', borderRadius: 4, fontSize: 12, fontWeight: 700, background, color, cursor: 'help' }}>{score}</span>
-      {showTooltip && <span style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 4, background: '#1e293b', color: '#fff', fontSize: 12, borderRadius: 4, padding: '4px 8px', whiteSpace: 'nowrap', zIndex: 10 }}>{t('rptTable.qualityTooltip', { label, score })}</span>}
+      {showTooltip && <span style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 'var(--space-1, 4px)', background: '#1e293b', color: '#fff', fontSize: 12, borderRadius: 4, padding: '4px 8px', whiteSpace: 'nowrap', zIndex: 10 }}>{t('rptTable.qualityTooltip', { label, score })}</span>}
     </span>
   )
 }
@@ -169,7 +169,7 @@ export default function ReportTableView({
       searchable: true,
       sorter: (a, b) => a.patientName.localeCompare(b.patientName, 'zh-CN'),
       render: (value, report) => (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-info-bg)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color={PRIMARY} /></span>
           <span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'var(--text-primary)' }}>{String(value)} {report.criticalFinding && <Zap size={11} color={DANGER} />}</span>
@@ -196,7 +196,7 @@ export default function ReportTableView({
       onFilter: (value, report) => normalizeReportStatus(report.status) === value,
       sorter: (a, b) => String(a.status).localeCompare(String(b.status), 'zh-CN'),
       render: (value, report) => (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
           <StatusBadge status={String(value)} size="sm" />
           {/* [v3.0.6.11-95 Wave2B P1] 草稿超时角标: DRAFT/WRITING 且 updatedTime 超 24h */}
           {isDraftOverdue(report.status, report.updatedTime) && (
@@ -237,7 +237,7 @@ export default function ReportTableView({
           ...(onEscalate && CAN_ESCALATE.includes(toEnState(report.status)) ? [{ key: 'escalate', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowUp size={12} /> {t('rptTable.menu.escalate')}</span> }] : []),
         ]
         return (
-          <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <span style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center' }}>
             <Button size="small" icon={<Eye size={12} />} onClick={(event) => { event.stopPropagation(); onView(report) }} title={t('rptTable.tip.view')} />
             <Button size="small" icon={<Printer size={12} />} onClick={(event) => { event.stopPropagation(); onPrint(report) }} title={t('rptTable.tip.print')} />
             <Button size="small" icon={<Download size={12} />} onClick={(event) => { event.stopPropagation(); onExportPDF(report) }} title={t('rptTable.tip.exportPdf')} />
@@ -305,7 +305,7 @@ export default function ReportTableView({
       columns={columns as unknown as TableColumnsType<RadiologyReport>}
       dataSource={listPagination.pageData}
       rowKey="id"
-      loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
+      loading={{ spinning: loading, indicator: <div style={{ padding: 'var(--space-6, 24px)' }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
       pagination={listPagination.pagination}
       scroll={{ x: 1250 }}
       columnConfigKey="report-table"
@@ -324,18 +324,18 @@ export default function ReportTableView({
           if (expanded !== (expandedId === report.id)) onToggleExpand(report.id)
         },
         expandedRowRender: (report) => (
-          <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 10 }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 10 }}>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>{t('rptTable.findings')}</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('rptTable.findings')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.examFindings) || t('rptTable.notFilled')}</div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>{t('rptTable.diagnosis')}</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('rptTable.diagnosis')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.diagnosis) || t('rptTable.notFilled')}</div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: 12, color: '#64748b' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', fontSize: 12, color: '#64748b' }}>
               <StatusTimeline report={report} />
               <span style={{ marginLeft: 'auto' }}>{t('rptTable.reportLabel')} {report.reportDoctorName || '-'}</span>
               {report.auditorName && <span>{t('rptTable.auditorLabel')} {report.auditorName}</span>}

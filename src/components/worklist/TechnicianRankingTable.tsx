@@ -46,7 +46,7 @@ export default function TechnicianRankingTable({ technicians, loading }: Props) 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
         <Trophy size={13} color="var(--color-warning-500)" />
         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>技师排行 Top10</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-1, 4px)' }}>
           {(Object.keys(KIND_DEFS) as RankKind[]).map((k) => (
             <button
               key={k}
@@ -57,7 +57,7 @@ export default function TechnicianRankingTable({ technicians, loading }: Props) 
                 fontWeight: 600,
                 background: kind === k ? KIND_DEFS[k].color : 'var(--bg-deep)',
                 color: kind === k ? '#fff' : 'var(--text-secondary)',
-                display: 'flex', alignItems: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
               }}
             >
               {KIND_DEFS[k].icon}

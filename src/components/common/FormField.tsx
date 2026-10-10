@@ -63,8 +63,8 @@ export function FormField({
 }: FormFieldProps) {
   const isHorizontal = layout === "horizontal";
   const fieldStyle: CSSProperties = isHorizontal
-    ? { display: "flex", alignItems: "flex-start", gap: 12 }
-    : { display: "flex", flexDirection: "column", gap: 4 };
+    ? { display: "flex", alignItems: "flex-start", gap: 'var(--space-3, 12px)' }
+    : { display: "flex", flexDirection: "column", gap: 'var(--space-1, 4px)' };
 
   return (
     <div style={{ ...fieldStyle, ...style }} data-testid={testId}>
@@ -90,7 +90,7 @@ export function FormField({
       <div style={{ flex: 1, minWidth: 0 }}>
         {children}
         {hint && !error && (
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 'var(--space-1, 4px)' }}>
             {hint}
           </div>
         )}
@@ -100,8 +100,8 @@ export function FormField({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 4,
-              marginTop: 4,
+              gap: 'var(--space-1, 4px)',
+              marginTop: 'var(--space-1, 4px)',
               color: "var(--color-error-500)",
               fontSize: 12,
               lineHeight: 1.5,

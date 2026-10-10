@@ -194,13 +194,13 @@ const SmartRoutePage: React.FC = () => {
   const byDoctor = stats?.byDoctor ?? {}
 
   return (
-    <div style={{ padding: 24 }}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('smartRoute.title')}</span>
       </Space>
-      {error && <Alert type="warning" showIcon message={t('smartRoute.loadFailed')} description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartRoute.retry')}</Button>} style={{ marginBottom: 16 }} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && <Alert type="warning" showIcon message={t('smartRoute.loadFailed')} description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartRoute.retry')}</Button>} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('smartRoute.statTotalAssign')} value={totalAssign} icon={<History size={16} />} loading={loading} />
         <StatCard title={t('smartRoute.statRuleCount')} value={rules.length} icon={<GitBranch size={16} />} loading={loading} />
         {Object.entries(byModality).slice(0, 2).map(([k, v]) => (
@@ -210,7 +210,7 @@ const SmartRoutePage: React.FC = () => {
       <Tabs items={[
         { key: 'recommend', label: <span><UserCheck size={14} /> {t('smartRoute.tabRecommend')}</span>, children: (
           <Card>
-            <Form form={recommendForm} layout="inline" initialValues={{ modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient' }} style={{ marginBottom: 16 }}>
+            <Form form={recommendForm} layout="inline" initialValues={{ modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient' }} style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Form.Item name="studyId" label={t('smartRoute.formStudyId')} rules={[{ required: true, message: t('smartRoute.required') }]}><Input placeholder={t('smartRoute.studyIdPlaceholder')} style={{ width: 180 }} /></Form.Item>
               <Form.Item name="patientName" label={t('smartRoute.formPatientName')} rules={[{ required: true, message: t('smartRoute.required') }]}><Input placeholder={t('smartRoute.patientNamePlaceholder')} style={{ width: 140 }} /></Form.Item>
               <Form.Item name="modality" label={t('smartRoute.formModality')}><Select options={[{ value: 'CT', label: 'CT' }, { value: 'MR', label: 'MR' }, { value: 'DX', label: 'DX' }]} style={{ width: 100 }} /></Form.Item>
@@ -223,7 +223,7 @@ const SmartRoutePage: React.FC = () => {
                 <Button icon={<Zap size={14} />} disabled={recommendations.length === 0} onClick={() => handleAssign()}>{t('smartRoute.oneClickAssignTop')}</Button>
               </Form.Item>
             </Form>
-            <Alert type="info" showIcon style={{ marginBottom: 16 }}
+            <Alert type="info" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }}
               message={t('smartRoute.routingInfo')} />
             <Row gutter={[16, 16]}>
               {recommendations.map((rec) => (
@@ -240,16 +240,16 @@ const SmartRoutePage: React.FC = () => {
                     extra={<span style={{ fontSize: 16, fontWeight: 800, color: rec.qualified ? 'var(--color-primary-600)' : '#94a3b8' }}>{t('smartRoute.scoreSuffix', { score: (rec.composite * 100).toFixed(0) })}</span>}
                     style={{ borderColor: rec.qualified ? '#93c5fd' : '#e2e8f0', height: '100%' }}
                   >
-                    <div style={{ marginBottom: 8 }}>
-                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('smartRoute.matchScore')} <b style={{ color: 'var(--color-primary-800)' }}>{Math.round(rec.matchScore * 100)}%</b></div>
+                    <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('smartRoute.matchScore')} <b style={{ color: 'var(--color-primary-800)' }}>{Math.round(rec.matchScore * 100)}%</b></div>
                       <Progress percent={Math.round(rec.matchScore * 100)} showInfo={false} size="small" strokeColor={rec.matchScore >= 1 ? 'var(--color-success-600)' : rec.matchScore >= 0.5 ? 'var(--color-warning-600)' : '#94a3b8'} />
                     </div>
-                    <div style={{ marginBottom: 8 }}>
-                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('smartRoute.currentLoad')} <b style={{ color: 'var(--color-primary-800)' }}>{rec.currentLoad}/{rec.maxLoad}</b></div>
+                    <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('smartRoute.currentLoad')} <b style={{ color: 'var(--color-primary-800)' }}>{rec.currentLoad}/{rec.maxLoad}</b></div>
                       <Progress percent={Math.min(100, Math.round((rec.currentLoad / Math.max(1, rec.maxLoad)) * 100))} showInfo={false} size="small" strokeColor={rec.currentLoad < rec.maxLoad ? 'var(--color-primary-600)' : 'var(--color-error-600)'} />
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{t('smartRoute.accuracy')} <b style={{ color: 'var(--color-success-600)' }}>{t('smartRoute.accuracyScore', { score: Math.round(rec.accuracy * 100) })}</b></div>
-                    <ul style={{ margin: '0 0 12px', paddingLeft: 16, fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('smartRoute.accuracy')} <b style={{ color: 'var(--color-success-600)' }}>{t('smartRoute.accuracyScore', { score: Math.round(rec.accuracy * 100) })}</b></div>
+                    <ul style={{ margin: '0 0 12px', paddingLeft: 'var(--space-4, 16px)', fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
                       {rec.reasons.map((r, i) => <li key={i}>{r}</li>)}
                     </ul>
                     <Button type="primary" block size="small" icon={<Zap size={13} />} disabled={!rec.qualified} loading={assigningId === rec.doctorId} onClick={() => handleAssign(rec.doctorId)}>{t('smartRoute.oneClickAssign')}</Button>
@@ -257,7 +257,7 @@ const SmartRoutePage: React.FC = () => {
                 </Col>
               ))}
               {recommendations.length === 0 && !recommending && (
-                <Col span={24}><div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('smartRoute.emptyRecommend')}</div></Col>
+                <Col span={24}><div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('smartRoute.emptyRecommend')}</div></Col>
               )}
             </Row>
           </Card>

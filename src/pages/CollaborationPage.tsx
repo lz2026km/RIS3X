@@ -273,12 +273,12 @@ export default function CollaborationPage() {
     setComments(comments.map(c => c.id === id ? { ...c, resolved: !c.resolved } : c));
   };
 
-  if (loading) return <div role="status" data-testid="collab-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('collab.loading')}</div>;
-  if (error && source === 'demo') return <div role="alert" data-testid="collab-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
+  if (loading) return <div role="status" data-testid="collab-loading" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>{t('collab.loading')}</div>;
+  if (error && source === 'demo') return <div role="alert" data-testid="collab-error" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (users.length === 0) {
     return (
-      <div data-testid="collab-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('collab.noOnlineUsers')}</div>
+      <div data-testid="collab-empty" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>{t('collab.noOnlineUsers')}</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('collab.wsConnecting')}</div>
       </div>
     );
@@ -293,7 +293,7 @@ export default function CollaborationPage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Users size={20} />
               {t('collab.title')}
               <span style={{
@@ -305,7 +305,7 @@ export default function CollaborationPage() {
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>
               {t('collab.subtitle')}
               <span style={{
-                fontSize: 11, padding: '1px 8px', borderRadius: 10, marginLeft: 8,
+                fontSize: 11, padding: '1px 8px', borderRadius: 10, marginLeft: 'var(--space-2, 8px)',
                 background: source === 'api' ? 'rgba(34,197,94,0.35)' : 'rgba(245,158,11,0.35)',
                 color: '#fff', border: `1px solid ${source === 'api' ? 'var(--color-success-500)' : 'var(--color-warning-500)'}`,
               }}>
@@ -313,7 +313,7 @@ export default function CollaborationPage() {
               </span>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <select
               value={selectedReportId}
               onChange={e => setSelectedReportId(e.target.value)}
@@ -331,7 +331,7 @@ export default function CollaborationPage() {
                 </>
               )}
             </select>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12 }}>
               <Wifi size={12} />
               <span>{t('collab.wsConnected')}</span>
             </div>
@@ -339,13 +339,13 @@ export default function CollaborationPage() {
         </div>
 
         {/* 在线用户 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, opacity: 0.85, marginRight: 4 }}>{t('collab.onlineCount', { count: reportOnlineUsers.filter(u => u.status === 'online').length })}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, opacity: 0.85, marginRight: 'var(--space-1, 4px)' }}>{t('collab.onlineCount', { count: reportOnlineUsers.filter(u => u.status === 'online').length })}</span>
           {reportOnlineUsers.map(u => {
             const conf = STATUS_CONFIG[u.status];
             return (
               <div key={u.id} style={{
-                display: 'flex', alignItems: 'center', gap: 4,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                 padding: '2px 8px', background: 'rgba(255,255,255,0.2)', borderRadius: 12,
                 position: 'relative',
               }}>
@@ -368,16 +368,16 @@ export default function CollaborationPage() {
       {/* 主体三栏 */}
       <div style={{ flex: 1, display: 'flex', overflowX: 'auto', overflowY: 'hidden', minHeight: 0 }}>
         {/* 左：协同报告内容 */}
-        <div style={{ flex: '1 1 480px', minWidth: 380, minHeight: 0, display: 'flex', flexDirection: 'column', padding: 12, overflowY: 'auto' }}>
+        <div style={{ flex: '1 1 480px', minWidth: 380, minHeight: 0, display: 'flex', flexDirection: 'column', padding: 'var(--space-3, 12px)', overflowY: 'auto' }}>
           <div style={{
-            background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
+            background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)',
             position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 8, columnGap: 8, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 'var(--space-2, 8px)', columnGap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} /> {t('collab.reportBody')} <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{t('collab.demoTag')}</span>
               </div>
-              <div style={{ display: 'flex', gap: 4, flexShrink: 0, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexShrink: 0, flexWrap: 'wrap' }}>
                 {(['findings', 'diagnosis', 'impression'] as const).map(f => (
                   <button
                     key={f}
@@ -398,7 +398,7 @@ export default function CollaborationPage() {
 
             {/* 协作编辑区 */}
             <div style={{
-              position: 'relative', padding: 16, flex: 1, minHeight: 160, overflow: 'hidden',
+              position: 'relative', padding: 'var(--space-4, 16px)', flex: 1, minHeight: 160, overflow: 'hidden',
               background: 'var(--bg-card)', borderRadius: 6,
               border: '1px solid var(--border-color)',
               fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)',
@@ -439,17 +439,17 @@ export default function CollaborationPage() {
             </div>
 
             {/* 实时状态 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Save size={11} /> <span style={{ color: '#10b981' }}>{t('collab.autoSaved')}</span>
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Clock size={11} /> {t('collab.lastSync', { seconds: 2 })}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Edit2 size={11} /> {t('collab.userEditing', { name: '李慧敏' })}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--color-warning-500)' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', color: 'var(--color-warning-500)' }}>
                 <MousePointer size={11} /> {t('collab.cursorCount', { count: 2 })}
               </span>
             </div>
@@ -473,7 +473,7 @@ export default function CollaborationPage() {
                 color: '#fff', fontWeight: 700,
               }}>{reportComments.length}</span>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: 'var(--text-secondary)' }}>
               <input
                 type="checkbox"
                 checked={showResolved}
@@ -484,7 +484,7 @@ export default function CollaborationPage() {
           </div>
 
           {/* 评论列表 */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-2, 8px)' }}>
             {reportComments.map(comment => {
               const replies = comments.filter(c => c.parentId === comment.id);
               return (
@@ -494,7 +494,7 @@ export default function CollaborationPage() {
                   border: `1px solid ${comment.resolved ? '#bbf7d0' : '#e2e8f0'}`,
                   borderRadius: 6, opacity: comment.resolved ? 0.7 : 1,
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 6 }}>
                     <div style={{
                       width: 22, height: 22, borderRadius: '50%',
                       background: comment.authorColor, color: '#fff',
@@ -528,7 +528,7 @@ export default function CollaborationPage() {
 
                   {comment.selectionRef && (
                     <div style={{
-                      padding: 4, marginBottom: 6,
+                      padding: 'var(--space-1, 4px)', marginBottom: 6,
                       background: 'rgba(124, 58, 237, 0.1)',
                       border: '1px solid #c4b5fd', borderRadius: 3,
                       fontSize: 12, color: '#5b21b6', fontStyle: 'italic',
@@ -538,16 +538,16 @@ export default function CollaborationPage() {
                   )}
 
                   {replies.length > 0 && (
-                    <div style={{ marginTop: 6, paddingLeft: 12, borderLeft: '2px solid #c4b5fd' }}>
+                    <div style={{ marginTop: 6, paddingLeft: 'var(--space-3, 12px)', borderLeft: '2px solid #c4b5fd' }}>
                       {replies.map(reply => (
-                        <div key={reply.id} style={{ marginBottom: 4, fontSize: 12, color: 'var(--text-primary)' }}>
+                        <div key={reply.id} style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: 'var(--text-primary)' }}>
                           <strong>{reply.authorName}:</strong> {reply.content}
                         </div>
                       ))}
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginTop: 6 }}>
                     <button
                       onClick={() => handleResolve(comment.id)}
                       style={{
@@ -577,7 +577,7 @@ export default function CollaborationPage() {
                   </div>
 
                   {replyTo === comment.id && (
-                    <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginTop: 6 }}>
                       <input
                         value={replyText}
                         onChange={e => setReplyText(e.target.value)}
@@ -611,7 +611,7 @@ export default function CollaborationPage() {
           </div>
 
           {/* 评论输入 */}
-          <div style={{ padding: 8, borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
+          <div style={{ padding: 'var(--space-2, 8px)', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
             <textarea
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
@@ -620,7 +620,7 @@ export default function CollaborationPage() {
               style={{
                 width: '100%', padding: 6, border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, resize: 'none', fontFamily: 'inherit',
-                marginBottom: 4,
+                marginBottom: 'var(--space-1, 4px)',
               }}
             />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -647,7 +647,7 @@ export default function CollaborationPage() {
                   background: newComment.trim() ? '#7c3aed' : '#cbd5e1',
                   color: '#fff', fontSize: 12, fontWeight: 600,
                   cursor: newComment.trim() ? 'pointer' : 'not-allowed',
-                  display: 'flex', alignItems: 'center', gap: 4,
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Send size={11} /> {t('collab.send')}
@@ -666,14 +666,14 @@ export default function CollaborationPage() {
           }}>
             <Activity size={13} /> {t('collab.realtimeActivity')}
           </div>
-          <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-2, 8px)' }}>
             {reportActivities.map(act => {
               const conf = ACTIVITY_CONFIG[act.action];
               const Icon = conf.icon;
               const user = users.find(u => u.id === act.userId);
               return (
                 <div key={act.id} style={{
-                  display: 'flex', gap: 6, padding: 6, marginBottom: 4,
+                  display: 'flex', gap: 6, padding: 6, marginBottom: 'var(--space-1, 4px)',
                   background: 'var(--bg-card)', borderRadius: 4,
                   fontSize: 12,
                 }}>
@@ -684,7 +684,7 @@ export default function CollaborationPage() {
                     fontSize: 12, fontWeight: 700, flexShrink: 0,
                   }}>{act.userName[0]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                       <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{act.userName}</span>
                       <span style={{
                         fontSize: 12, padding: '0 4px', borderRadius: 2,
@@ -708,7 +708,7 @@ export default function CollaborationPage() {
           </div>
 
           <div style={{ padding: 6, borderTop: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
               <input
                 type="checkbox"
                 checked={autoScroll}

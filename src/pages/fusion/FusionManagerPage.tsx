@@ -115,14 +115,14 @@ export const FusionManagerPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fusionMgr.title')}</span>
         <Tag color="blue">PET-CT / MR</Tag>
         <Tag color="purple">{t('fusionMgr.tagMultimodal')}</Tag>
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space>
           <Input
             placeholder={t('fusionMgr.phPatientId')}
@@ -137,7 +137,7 @@ export const FusionManagerPage: React.FC = () => {
 
       {series.length > 0 && (
         <>
-          <Card size="small" title={t('fusionMgr.availableSeries')} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('fusionMgr.availableSeries')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <DataTable
               dataSource={series}
               rowKey={(_, i) => `${i}`}
@@ -155,7 +155,7 @@ export const FusionManagerPage: React.FC = () => {
             />
           </Card>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
             <Card size="small" title={t('fusionMgr.seriesSelection')}>
               <Form layout="vertical" size="small">
                 <Form.Item label={t('fusionMgr.fixedSeries')}>
@@ -196,7 +196,7 @@ export const FusionManagerPage: React.FC = () => {
               {renderResult && (
                 <div>
                   <Tag color="green">{t('fusionMgr.renderComplete')}</Tag>
-                  <span style={{ fontSize: 12, color: '#666', marginLeft: 8 }}>
+                  <span style={{ fontSize: 12, color: '#666', marginLeft: 'var(--space-2, 8px)' }}>
                     {renderResult.width}x{renderResult.height} | Slice {renderResult.sliceIndex}
                   </span>
                 </div>
@@ -205,7 +205,7 @@ export const FusionManagerPage: React.FC = () => {
           </div>
 
           {registrationResult && (
-            <Card size="small" title={t('fusionMgr.registerResult')} style={{ marginTop: 16 }}>
+            <Card size="small" title={t('fusionMgr.registerResult')} style={{ marginTop: 'var(--space-4, 16px)' }}>
               <Descriptions column={3} size="small" bordered>
                 <Descriptions.Item label={t('fusionMgr.regId')}>{registrationResult.registrationId}</Descriptions.Item>
                 <Descriptions.Item label={t('fusionMgr.regType')}><Tag color="blue">{registrationResult.transformType}</Tag></Descriptions.Item>

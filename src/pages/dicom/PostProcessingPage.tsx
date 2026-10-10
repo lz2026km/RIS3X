@@ -114,8 +114,8 @@ const PostProcessingPage: React.FC = () => {
   const activeBtnStyle: React.CSSProperties = { ...btnStyle, background: BLUE, borderColor: BLUE, color: '#fff' }
 
   return (
-    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('w9d.postproc.title')}</span>
         <Tag color="cyan">{t('w9d.postproc.tag')}</Tag>
@@ -134,9 +134,9 @@ const PostProcessingPage: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card size="small" title={t('w9d.postproc.params')} style={{ background: PANEL_BG, border: '1px solid #334155' }}>
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{t('w9d.postproc.type')}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                 {(Object.keys(PROCESSING_OPTIONS) as ProcessingType[]).map(p => (
                   <button key={p} style={processingType === p ? activeBtnStyle : { ...btnStyle, width: '100%', justifyContent: 'flex-start' }}
                     onClick={() => setProcessingType(p)}>
@@ -145,20 +145,20 @@ const PostProcessingPage: React.FC = () => {
                 ))}
               </div>
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>
                 <span>{t('w9d.postproc.intensity')}</span><span style={{ color: '#facc15' }}>{intensity}%</span>
               </div>
               <Slider min={0} max={100} value={intensity} onChange={setIntensity} />
             </div>
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-3, 12px)' }}>
               {procDesc(processingType)}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               <Button type="primary" size="small" icon={<Save size={12} />} style={{ flex: 1 }} loading={processing} onClick={handleApply}>{processing ? t('w9d.postproc.processing') : t('w9d.postproc.apply')}</Button>
               <Button size="small" icon={<Download size={12} />} style={{ flex: 1 }} onClick={handleExport}>{t('w9d.postproc.export')}</Button>
             </div>
-            {appliedAt && <div style={{ marginTop: 8, fontSize: 11, color: '#4ade80' }}>{t('w9d.postproc.appliedAt', { at: appliedAt, label: procLabel(processingType), intensity })}</div>}
+            {appliedAt && <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: '#4ade80' }}>{t('w9d.postproc.appliedAt', { at: appliedAt, label: procLabel(processingType), intensity })}</div>}
           </Card>
         </Col>
       </Row>

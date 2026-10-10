@@ -124,7 +124,7 @@ export default function RoutingRulePage() {
   return (
     <div style={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', background: 'var(--bg-card)' }}>
       <header style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#ec4899 100%)', color: '#fff', padding: '14px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <GitBranch size={20} />
           <div>
             <div style={{ fontSize: 16, fontWeight: 800 }}>{t('w9.routing.title')}</div>
@@ -152,7 +152,7 @@ export default function RoutingRulePage() {
         </div>
       )}
       <div style={{ padding: '12px 24px 0' }}>
-        <StatCardGrid minWidth={180} style={{ marginBottom: 12 }}>
+        <StatCardGrid minWidth={180} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <StatCard title={t('w9.routing.statsTotal')} value={rules.length} color="primary" size="sm" />
           <StatCard title={t('w9.routing.statsActive')} value={activeCount} color="success" size="sm" />
           <StatCard title={t('w9.routing.statsInactive')} value={inactiveCount} color="warning" size="sm" />
@@ -163,8 +163,8 @@ export default function RoutingRulePage() {
         <div style={{ borderRight: '1px solid var(--border-color)' }}>
           <RoutingRuleBuilder rules={rules} onChange={handleRulesChange} />
         </div>
-        <aside style={{ background: 'var(--bg-card)', padding: 12, overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <aside style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
             <Eye size={14} color="var(--color-primary-800)" />
             <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('w9.routing.simResult')}</span>
           </div>
@@ -172,7 +172,7 @@ export default function RoutingRulePage() {
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w9.routing.simHint')}</div>
           ) : (
             results.map((r) => (
-              <div key={r.studyId} style={{ background: 'var(--bg-primary)', padding: 8, borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}>
+              <div key={r.studyId} style={{ background: 'var(--bg-primary)', padding: 'var(--space-2, 8px)', borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 }}>{r.studyId}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   {t('w9.routing.hit')}: {r.matched.length === 0 ? t('w9.routing.noHit') : r.matched.join(', ')}
@@ -181,7 +181,7 @@ export default function RoutingRulePage() {
               </div>
             ))
           )}
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Space wrap>
               <Tag color="purple">{t('w9.routing.statsTotal')}: {rules.length}</Tag>
               <Tag color="green">{t('w9.routing.statsActive')}: {activeCount}</Tag>

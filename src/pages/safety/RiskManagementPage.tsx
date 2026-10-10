@@ -115,7 +115,7 @@ export default function RiskManagementPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#e11d48,#be123c)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <ShieldAlert size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('riskMgmt.title')}</span>
         </div>
         <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -125,33 +125,33 @@ export default function RiskManagementPage() {
 
       <div style={{ padding: '20px 24px' }}>
         {showForm && (
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20, marginBottom: 20 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('riskMgmt.identifyNewRisk')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('riskMgmt.identifyNewRisk')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
               <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('riskMgmt.riskTitle')} value={formData.title ?? ''} onChange={e => setFormData({ ...formData, title: e.target.value })} />
               <select style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} value={formData.category ?? ''} onChange={e => setFormData({ ...formData, category: e.target.value as RiskCategory })}>
                 <option value="">{t('riskMgmt.selectCategory')}</option>
                 {CATEGORY_KEYS.map((k) => <option key={k} value={k}>{categoryLabel(k)}</option>)}
               </select>
               <div>
-                <label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', display: 'block', marginBottom: 4 }}>{t('riskMgmt.likelihood')}</label>
+                <label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('riskMgmt.likelihood')}</label>
                 <input type="number" min={1} max={5} style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%' }} value={formData.likelihood ?? ''} onChange={e => setFormData({ ...formData, likelihood: parseInt(e.target.value) || 0 })} />
               </div>
               <div>
-                <label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', display: 'block', marginBottom: 4 }}>{t('riskMgmt.severity')}</label>
+                <label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('riskMgmt.severity')}</label>
                 <input type="number" min={1} max={5} style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%' }} value={formData.severity ?? ''} onChange={e => setFormData({ ...formData, severity: parseInt(e.target.value) || 0 })} />
               </div>
               <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('riskMgmt.identifier')} value={formData.identifiedBy ?? ''} onChange={e => setFormData({ ...formData, identifiedBy: e.target.value })} />
             </div>
-            <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 60, marginBottom: 12 }} placeholder={t('riskMgmt.riskDescription')} value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#e11d48', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('riskMgmt.submit')}</button>
+            <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 60, marginBottom: 'var(--space-3, 12px)' }} placeholder={t('riskMgmt.riskDescription')} value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
+              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#e11d48', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Send size={13} />{t('riskMgmt.submit')}</button>
               <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer' }}>{t('riskMgmt.cancel')}</button>
             </div>
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {[
             { title: t('riskMgmt.statTotal'), value: risks.length, icon: ShieldAlert, color: '#e11d48' },
             { title: t('riskMgmt.statHigh'), value: risks.filter(r => r.riskLevel === 'high' || r.riskLevel === 'very-high').length, icon: AlertTriangle, color: 'var(--color-error-600, var(--color-error-600))' },
@@ -159,15 +159,15 @@ export default function RiskManagementPage() {
             { title: t('riskMgmt.statMonitoring'), value: risks.filter(r => r.status === 'monitoring').length, icon: Target, color: 'var(--color-primary-500, var(--color-primary-500))' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
               <div style={{ fontSize: 30, fontWeight: 700 }}>{k.value}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BarChart3 size={16} color="var(--color-primary-500)" />{t('riskMgmt.levelDistribution')}
             </div>
             <ChartContainer height={200} state={levelData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('riskMgmt.noLevelData')}>
@@ -180,8 +180,8 @@ export default function RiskManagementPage() {
               </BarChart>
             </ChartContainer>
           </div>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <BarChart3 size={16} color="var(--color-success-500)" />{t('riskMgmt.categoryDistribution')}
             </div>
             <ChartContainer height={200} state={categoryData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('riskMgmt.noCategoryData')}>
@@ -196,7 +196,7 @@ export default function RiskManagementPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           {(['all', 'very-low', 'low', 'medium', 'high', 'very-high'] as const).map(s => (
             <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#e11d48' : 'var(--border-default, #30363d)'}`, background: filter === s ? '#e11d4820' : 'transparent', color: filter === s ? '#e11d48' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
               {s === 'all' ? t('riskMgmt.filterAll') : levelLabel(s as RiskLevel)}
@@ -252,12 +252,12 @@ export default function RiskManagementPage() {
 
         {showMitigate && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 24, width: 400 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('riskMgmt.mitigationPlanTitle')}</div>
-              <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 60, marginBottom: 12 }} placeholder={t('riskMgmt.mitigationPlan')} value={mitigateData.plan} onChange={e => setMitigateData({ ...mitigateData, plan: e.target.value })} />
-              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 12 }} placeholder={t('riskMgmt.owner')} value={mitigateData.owner} onChange={e => setMitigateData({ ...mitigateData, owner: e.target.value })} />
-              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 12 }} type="date" value={mitigateData.deadline} onChange={e => setMitigateData({ ...mitigateData, deadline: e.target.value })} />
-              <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 400 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('riskMgmt.mitigationPlanTitle')}</div>
+              <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 60, marginBottom: 'var(--space-3, 12px)' }} placeholder={t('riskMgmt.mitigationPlan')} value={mitigateData.plan} onChange={e => setMitigateData({ ...mitigateData, plan: e.target.value })} />
+              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 'var(--space-3, 12px)' }} placeholder={t('riskMgmt.owner')} value={mitigateData.owner} onChange={e => setMitigateData({ ...mitigateData, owner: e.target.value })} />
+              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 'var(--space-3, 12px)' }} type="date" value={mitigateData.deadline} onChange={e => setMitigateData({ ...mitigateData, deadline: e.target.value })} />
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <button onClick={() => handleMitigate(showMitigate)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#e11d48', color: '#fff', cursor: 'pointer' }}>{t('riskMgmt.submit')}</button>
                 <button onClick={() => setShowMitigate(null)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer' }}>{t('riskMgmt.cancel')}</button>
               </div>

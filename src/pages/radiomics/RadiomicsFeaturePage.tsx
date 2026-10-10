@@ -124,13 +124,13 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <BarChart3 size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('radiomics.title')}</span>
         <Tag color="blue">{t('radiomics.tag')}</Tag>
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space wrap>
           <Input
             placeholder={t('radiomics.instanceIdPlaceholder')}
@@ -144,7 +144,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
         </Space>
       </Card>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
         <Card size="small" title={t('radiomics.roiExtract')}>
           <Form layout="inline" size="small">
             <Form.Item label={t('radiomics.roiType')}>
@@ -193,8 +193,8 @@ export const RadiomicsFeaturePage: React.FC = () => {
           message.success(t('radiomics.exportedCsv'))
         }}>{t('radiomics.exportCsv')}</Button>}>
           {Object.entries(groupedFeatures).map(([category, feats]) => (
-            <div key={category} style={{ marginBottom: 16 }}>
-              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 12, color: 'var(--color-primary-600)' }}>{category}</div>
+            <div key={category} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontWeight: 600, marginBottom: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--color-primary-600)' }}>{category}</div>
               <DataTable dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} scroll={{ x: 'max-content' }} />
             </div>
           ))}
@@ -202,7 +202,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
       )}
 
       {compareResults.length > 0 && (
-        <Card size="small" title={t('radiomics.compareResults')} style={{ marginTop: 16 }}>
+        <Card size="small" title={t('radiomics.compareResults')} style={{ marginTop: 'var(--space-4, 16px)' }}>
           <DataTable
             dataSource={compareResults}
             rowKey="instanceId"

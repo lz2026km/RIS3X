@@ -62,7 +62,7 @@ const cardTitle: React.CSSProperties = {
   marginBottom: 14,
   display: "flex",
   alignItems: "center",
-  gap: 8,
+  gap: 'var(--space-2, 8px)',
 };
 
 const btn: React.CSSProperties = {
@@ -112,7 +112,7 @@ function StatCard({
     <div style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
       <div>
         <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 4, lineHeight: 1.2 }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 'var(--space-1, 4px)', lineHeight: 1.2 }}>
           {value}
           {sub && <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}> {sub}</span>}
         </div>
@@ -338,11 +338,11 @@ export default function DoseLiveMonitor() {
     {
       title: t('doseLive.colStatus'), dataIndex: 'acknowledged', key: 'status',
       render: (v: boolean) => v ? (
-        <span style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: 4 }}>
+        <span style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
           <CheckCircle2 size={13} /> {t('doseLive.acknowledged')}
         </span>
       ) : (
-        <span style={{ color: "#b45309", display: "inline-flex", alignItems: "center", gap: 4 }}>
+        <span style={{ color: "#b45309", display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
           <AlertTriangle size={13} /> {t('doseLive.pending')}
         </span>
       ),
@@ -403,15 +403,15 @@ export default function DoseLiveMonitor() {
 
   if (loading) {
     return (
-      <div style={{ ...card, textAlign: "center", padding: 40, color: "#94a3b8", fontSize: 12 }}>
+      <div style={{ ...card, textAlign: "center", padding: 'var(--space-10, 40px)', color: "#94a3b8", fontSize: 12 }}>
         {t('doseLive.loadingRealtime')}
       </div>
     );
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)", display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)", display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
         <Activity size={18} /> {t('doseLive.title')}
       </div>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
@@ -421,20 +421,20 @@ export default function DoseLiveMonitor() {
         </ActionButton>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 'var(--space-3, 12px)' }}>
         <StatCard label={t('doseLive.todayExams')} value={String(today?.totalExams ?? 0)} sub={t('doseLive.timesUnit')} icon={<Activity size={18} />} color="var(--color-primary-500)" />
         <StatCard label={t('doseLive.avgDlp')} value={fmt(today?.avgDlp)} sub="mGy·cm" icon={<TrendingUp size={18} />} color="#8b5cf6" />
         <StatCard label={t('doseLive.avgCtdiVol')} value={fmt(today?.avgCtdiVol)} sub="mGy" icon={<Activity size={18} />} color="#059669" />
         <StatCard label={t('doseLive.overDrl')} value={String(today?.overDrlCount ?? 0)} sub={`${today?.warningCount ?? 0}警 / ${today?.criticalCount ?? 0}危`} icon={<ShieldAlert size={18} />} color="var(--color-error-600)" />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
         <div style={card}>
           <div style={cardTitle}>
             <BarChart3 size={14} /> {t('doseLive.distributionTitle')}
           </div>
           {distributionData.length === 0 ? (
-            <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noExamToday')}</div>
+            <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.noExamToday')}</div>
           ) : (
           <ChartContainer height={240} state={distributionData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noDistribution')}>
             <BarChart data={distributionData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
@@ -454,7 +454,7 @@ export default function DoseLiveMonitor() {
           <div style={cardTitle}>
             <Users size={14} /> {t('doseLive.patientSearchTitle')}
           </div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
             <input
               style={{ ...input, flex: 1 }}
               placeholder={t('doseLive.searchPlaceholder')}
@@ -505,13 +505,13 @@ export default function DoseLiveMonitor() {
       </div>
 
       {selectedPatient && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
           <div style={card}>
           <div style={cardTitle}>
             <TrendingUp size={14} /> {cumulative?.patientName ?? selectedPatient.patientName} {t('doseLive.annualTrend')}
           </div>
             {cumLoading ? (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.loading')}</div>
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.loading')}</div>
             ) : cumulative ? (
               <>
           <ChartContainer height={220} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noTrend')}>
@@ -524,7 +524,7 @@ export default function DoseLiveMonitor() {
                     <Line type="monotone" dataKey="totalDlp" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} name={t('doseLive.monthlyDlp')} />
                   </LineChart>
                 </ChartContainer>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8, marginTop: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 'var(--space-2, 8px)', marginTop: 10 }}>
                   <MiniInfo label={t('doseLive.cum30dDlp')} value={`${fmt(cumulative.totalDlp30d)} mGy·cm`} />
                   <MiniInfo label={t('doseLive.cumYearDlp')} value={`${fmt(cumulative.totalDlp1y)} mGy·cm`} />
                   <MiniInfo label={t('doseLive.annualLimitPercent')} value={`${fmt(cumulative.percentOfLimit1y)}%`} warn={cumulative.percentOfLimit1y >= 80} />
@@ -539,7 +539,7 @@ export default function DoseLiveMonitor() {
             <Users size={14} /> {t('doseLive.doseDetail')}
           </div>
             {cumLoading ? (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.loading')}</div>
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.loading')}</div>
             ) : cumulative && cumulative.exams.length > 0 ? (
               <DataTable<DoseExamRow>
                 rowKey="id"
@@ -549,7 +549,7 @@ export default function DoseLiveMonitor() {
                 scroll={{ x: "max-content", y: 280 }}
               />
             ) : (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noRecords')}</div>
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.noRecords')}</div>
             )}
           </div>
         </div>
@@ -557,7 +557,7 @@ export default function DoseLiveMonitor() {
 
       <div style={card}>
         <div style={{ ...cardTitle, justifyContent: "space-between" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Bell size={14} /> {t('doseLive.alertList')}
             <span style={{ background: "#fee2e2", color: "var(--color-error-600)", padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700 }}>
               {alerts.filter((a) => !a.acknowledged).length} {t('doseLive.pendingCount')}
@@ -586,10 +586,10 @@ export default function DoseLiveMonitor() {
 
       <div style={card}>
         <div style={{ ...cardTitle, justifyContent: "space-between" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <BarChart3 size={14} /> {t('doseLive.statsTitle')}
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 400 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', fontWeight: 400 }}>
             <input
               type="date"
               style={{ ...input, width: 150 }}
@@ -611,7 +611,7 @@ export default function DoseLiveMonitor() {
         {statsError && <div style={{ color: "var(--color-error-600)", fontSize: 12, marginBottom: 10 }}>{statsError}</div>}
         {stats ? (
           <>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginBottom: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
               <MiniInfo label={t('doseLive.totalExamCount')} value={`${stats.totalExams} 次`} />
               <MiniInfo label={t('doseLive.avgCtdiVolLabel')} value={`${fmt(stats.avgCtdivol)} mGy`} />
               <MiniInfo label={t('doseLive.avgDlpLabel')} value={`${fmt(stats.avgDlp)} mGy·cm`} />
@@ -633,13 +633,13 @@ export default function DoseLiveMonitor() {
                 </LineChart>
               </ChartContainer>
             ) : (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 20 }}>
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-5, 20px)' }}>
                 {statsLoading ? t('doseLive.calculating') : t('doseLive.noRecordsInRange')}
               </div>
             )}
           </>
         ) : (
-          <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>
+          <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>
             {statsLoading ? t('doseLive.calculating') : t('doseLive.noStatsData')}
           </div>
         )}
@@ -647,7 +647,7 @@ export default function DoseLiveMonitor() {
 
       <div style={card}>
         <div style={{ ...cardTitle, justifyContent: "space-between" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <ShieldAlert size={14} /> {t('doseLive.drlConfigTitle')}
           </span>
           <span style={{ fontSize: 11, color: "#94a3b8" }}>{t('doseLive.drlConfigHint')}</span>

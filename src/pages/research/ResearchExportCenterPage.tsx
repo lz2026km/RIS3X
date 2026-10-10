@@ -234,11 +234,11 @@ export default function ResearchExportCenterPage() {
   )
 
   return (
-    <div style={{ padding: 16, maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-4, 16px)', maxWidth: 1400, margin: '0 auto' }}>
       {/* 头部 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Database size={20} color="#1677ff" />
             {t('title', '科研数据导出中心')}
           </div>
@@ -250,7 +250,7 @@ export default function ResearchExportCenterPage() {
       </div>
 
       {/* 统计 */}
-      <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+      <Row gutter={[12, 12]} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         {[
           { icon: <FileText size={18} />, label: t('statTotal', '导出任务'), value: stats?.totalTasks ?? 0, color: '#1677ff', bg: '#e6f4ff' },
           { icon: <BarChart3 size={18} />, label: t('statRecords', '累计导出记录'), value: stats?.totalRecords ?? 0, color: '#52c41a', bg: '#f6ffed' },
@@ -269,8 +269,8 @@ export default function ResearchExportCenterPage() {
         ))}
       </Row>
 
-      <Card size="small" styles={{ body: { padding: 12 } }}>
-        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))', marginBottom: 12 }}>
+      <Card size="small" styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))', marginBottom: 'var(--space-3, 12px)' }}>
           {tabButton('build', t('tabBuild', '数据集构建'), <Settings2 size={14} />)}
           {tabButton('tasks', t('tabTasks', '导出任务'), <History size={14} />)}
           {tabButton('stats', t('tabStats', '统计'), <BarChart3 size={14} />)}
@@ -283,7 +283,7 @@ export default function ResearchExportCenterPage() {
               <Card size="small" title={<span style={{ fontSize: 12 }}>{t('criteria', '筛选条件')}</span>}>
                 <Space direction="vertical" style={{ width: '100%' }} size={10}>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 4 }}>{t('modality', '检查模态')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('modality', '检查模态')}</div>
                     <Select
                       style={{ width: '100%' }}
                       value={criteria.modality}
@@ -292,7 +292,7 @@ export default function ResearchExportCenterPage() {
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 4 }}>{t('disease', '病种')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('disease', '病种')}</div>
                     <Input
                       placeholder={t('diseasePlaceholder', '如: 肺结节 / 脑梗死')}
                       value={criteria.disease}
@@ -300,7 +300,7 @@ export default function ResearchExportCenterPage() {
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 4 }}>{t('dateRange', '检查时间范围')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('dateRange', '检查时间范围')}</div>
                     <RangePicker
                       style={{ width: '100%' }}
                       value={criteria.dateFrom && criteria.dateTo ? [dayjs(criteria.dateFrom), dayjs(criteria.dateTo)] : null}
@@ -314,7 +314,7 @@ export default function ResearchExportCenterPage() {
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 4 }}>{t('doctor', '检查医生')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('doctor', '检查医生')}</div>
                     <Input
                       placeholder={t('doctorPlaceholder', '如: 李明辉')}
                       value={criteria.doctor}
@@ -322,7 +322,7 @@ export default function ResearchExportCenterPage() {
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 4 }}>{t('result', '检查结果')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('result', '检查结果')}</div>
                     <Radio.Group
                       value={criteria.result ?? '全部'}
                       onChange={(e) => setCriteria((prev) => ({ ...prev, result: e.target.value }))}
@@ -334,7 +334,7 @@ export default function ResearchExportCenterPage() {
                   </Button>
                 </Space>
                 {datasets.length > 0 && (
-                  <div style={{ marginTop: 12 }}>
+                  <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 6 }}>{t('recentDatasets', '历史数据集')}</div>
                     <Space direction="vertical" style={{ width: '100%' }} size={4}>
                       {datasets.slice(0, 5).map((d) => (
@@ -383,7 +383,7 @@ export default function ResearchExportCenterPage() {
                     <Row gutter={[12, 8]}>
                       {groupedFields.map((g) => (
                         <Col xs={24} md={12} key={g.group}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: GROUP_COLORS[g.group] ?? '#334155', marginBottom: 4 }}>{g.group}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: GROUP_COLORS[g.group] ?? '#334155', marginBottom: 'var(--space-1, 4px)' }}>{g.group}</div>
                           <Checkbox.Group
                             value={selectedFields}
                             onChange={(vals) => setSelectedFields(vals as string[])}
@@ -393,7 +393,7 @@ export default function ResearchExportCenterPage() {
                       ))}
                     </Row>
                     <Divider style={{ margin: '12px 0' }} />
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', alignItems: 'center' }}>
                       <span style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('format', '导出格式')}</span>
                       <Radio.Group value={format} onChange={(e) => setFormat(e.target.value as ExportFormat)}>
                         {FORMATS.map((f) => (
@@ -480,7 +480,7 @@ export default function ResearchExportCenterPage() {
         {/* ═══ 统计 ═══ */}
         {activeTab === 'stats' && (
           <div>
-            <StatCardGrid style={{ marginBottom: 12 }}>
+            <StatCardGrid style={{ marginBottom: 'var(--space-3, 12px)' }}>
               {stats && (
                 <>
                   <StatCard title={t('statTotal', '导出任务')} value={stats.totalTasks} />
@@ -498,7 +498,7 @@ export default function ResearchExportCenterPage() {
                     const max = Math.max(1, stats?.byFormat.CSV ?? 0, stats?.byFormat.JSON ?? 0, stats?.byFormat.EXCEL ?? 0)
                     return (
                       <div key={f} style={{ marginBottom: 10 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                           <span>{f === 'EXCEL' ? 'Excel' : f}</span>
                           <span style={{ color: 'var(--text-secondary, #475569)' }}>{count}</span>
                         </div>
@@ -510,11 +510,11 @@ export default function ResearchExportCenterPage() {
               </Col>
               <Col xs={24} md={14}>
                 <Card size="small" title={<span style={{ fontSize: 12 }}>{t('last7Days', '近 7 天导出趋势')}</span>}>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 120 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)', height: 120 }}>
                     {stats?.last7Days.map((d) => {
                       const max = Math.max(1, ...stats.last7Days.map((x) => x.count))
                       return (
-                        <div key={d.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                        <div key={d.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                           <span style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{d.count}</span>
                           <div style={{ width: '70%', background: d.count > 0 ? '#1677ff' : 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: '4px 4px 0 0', height: `${(d.count / max) * 90}px` }} />
                           <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{d.date.slice(5)}</span>
@@ -522,7 +522,7 @@ export default function ResearchExportCenterPage() {
                       )
                     })}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 8 }}>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>
                     {t('last7DaysRecords', '近 7 天共导出记录数')}: <b>{stats?.last7Days.reduce((s, d) => s + d.records, 0) ?? 0}</b>
                   </div>
                 </Card>
@@ -542,10 +542,10 @@ export default function ResearchExportCenterPage() {
       >
         {preview && (
           <div>
-            <div style={{ marginBottom: 8, fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
               {t('previewHint', '内容预览 (前 100 条, 实际下载将包含全部')} {preview.task.recordCount} {t('recordsUnit', '条记录)')}
             </div>
-            <pre style={{ maxHeight: 380, overflow: 'auto', background: 'var(--bg-primary, #f8fafc)', padding: 12, borderRadius: 6, fontSize: 11, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+            <pre style={{ maxHeight: 380, overflow: 'auto', background: 'var(--bg-primary, #f8fafc)', padding: 'var(--space-3, 12px)', borderRadius: 6, fontSize: 11, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
               {preview.content.slice(0, 4000)}
             </pre>
           </div>

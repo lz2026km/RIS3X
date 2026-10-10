@@ -57,7 +57,7 @@ export function SectionDivider({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
           margin: "16px 0",
           ...style,
         }}

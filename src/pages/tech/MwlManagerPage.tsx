@@ -104,7 +104,7 @@ export default function MwlManagerPage() {
 
   return (
     <PageContainer background="slate" maxWidth="full" testId="mwl-manager-page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4, 16px)' }}>
         <PageHeader
           variant="flex"
           icon={<RadioTower size={22} />}
@@ -116,14 +116,14 @@ export default function MwlManagerPage() {
         </Button>
       </div>
 
-      <StatCardGrid minWidth={200} gap={14} style={{ marginBottom: 16 }} testId="mwl-stats">
+      <StatCardGrid minWidth={200} gap={14} style={{ marginBottom: 'var(--space-4, 16px)' }} testId="mwl-stats">
         <StatCard title={t('w7exec.total')} value={stats.total} icon={<ClipboardList size={18} />} color="info" />
         <StatCard title={t('w7exec.stateScheduled')} value={stats.scheduled} icon={<Activity size={18} />} color="warning" />
         <StatCard title={t('w7exec.stateInProgress')} value={stats.inProgress} icon={<Activity size={18} />} color="warning" />
         <StatCard title={t('w7exec.stateCompleted')} value={stats.completed} icon={<Activity size={18} />} color="success" />
       </StatCardGrid>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '12px 16px', marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '12px 16px', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <Select
             size="small" style={{ width: 160 }} placeholder={t('w7exec.queryStation')} allowClear
@@ -149,9 +149,9 @@ export default function MwlManagerPage() {
         {loading ? (
           <div style={{ padding: 60, textAlign: 'center' }}><Spin tip={t('w7exec.loading')} /></div>
         ) : error ? (
-          <Empty description={`${error}`} style={{ padding: 40 }} />
+          <Empty description={`${error}`} style={{ padding: 'var(--space-10, 40px)' }} />
         ) : items.length === 0 ? (
-          <Empty description={t('w7exec.empty')} style={{ padding: 40 }} />
+          <Empty description={t('w7exec.empty')} style={{ padding: 'var(--space-10, 40px)' }} />
         ) : (
           <DataTable
             rowKey="id"

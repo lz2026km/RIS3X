@@ -71,7 +71,7 @@ export function SmartSortPanel({
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid #e2e8f0",
-        marginBottom: 16,
+        marginBottom: 'var(--space-4, 16px)',
         overflow: "hidden",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
@@ -81,11 +81,11 @@ export function SmartSortPanel({
           padding: "12px 16px",
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
           flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <Brain size={18} color={enabled ? "#7c3aed" : "#94a3b8"} />
           <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             智能排序
@@ -126,7 +126,7 @@ export function SmartSortPanel({
               background: "var(--bg-card)",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Info size={12} />
@@ -151,7 +151,7 @@ export function SmartSortPanel({
             background: "var(--bg-card)",
             display: "flex",
             alignItems: "center",
-            gap: 4,
+            gap: 'var(--space-1, 4px)',
           }}
         >
           <ArrowUpDown size={12} />
@@ -171,7 +171,7 @@ export function SmartSortPanel({
               background: "var(--bg-card)",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Sliders size={12} />
@@ -196,12 +196,12 @@ export function SmartSortPanel({
               fontSize: 12,
               fontWeight: 600,
               color: "#7c3aed",
-              marginBottom: 8,
+              marginBottom: 'var(--space-2, 8px)',
             }}
           >
             排序理由
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-1, 4px)' }}>
             {explanations.slice(0, 10).map((exp) => (
               <div
                 key={exp.id}
@@ -247,7 +247,7 @@ export function SmartSortPanel({
               fontSize: 12,
               fontWeight: 700,
               color: "var(--color-primary-800)",
-              marginBottom: 12,
+              marginBottom: 'var(--space-3, 12px)',
               display: "flex",
               alignItems: "center",
               gap: 6,
@@ -266,7 +266,7 @@ export function SmartSortPanel({
               (key) => (
                 <div
                   key={key}
-                  style={{ display: "flex", alignItems: "center", gap: 12 }}
+                  style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}
                 >
                   <span
                     style={{
@@ -315,7 +315,7 @@ export function SmartSortPanel({
             onClick={handleSaveWeights}
             disabled={saving || Math.abs(totalWeight - 1) > 0.01}
             style={{
-              marginTop: 12,
+              marginTop: 'var(--space-3, 12px)',
               padding: "6px 16px",
               borderRadius: 6,
               border: "none",

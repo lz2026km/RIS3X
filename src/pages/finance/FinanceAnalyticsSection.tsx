@@ -103,7 +103,7 @@ export function FinanceAnalyticsSection() {
         <StatCard title={t('finExt.invoiceCount')} value={overview.invoiceCount} color="info" sub={`${t('finExt.paidCount')}: ${overview.paidCount} · ${t('finExt.unpaidCount')}: ${overview.unpaidCount}`} />
       </StatCardGrid>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
         <DashboardCard title={t('finExt.dailyTrend')} icon={<TrendingUp size={15} />}>
           <TrendChart
             data={trendItems as unknown as Array<Record<string, string | number>>}
@@ -128,7 +128,7 @@ export function FinanceAnalyticsSection() {
       </div>
 
       <DashboardCard title={t('finExt.ar')} icon={<AlertTriangle size={15} />} extra={ar ? <Tag color={ar.totalReceivable > 0 ? 'error' : 'success'}>{t('finExt.totalReceivable')}: {money(ar.totalReceivable)}</Tag> : null}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           <DataTable<ArAgingBucket>
             rowKey="label"
             dataSource={ar?.aging ?? []}

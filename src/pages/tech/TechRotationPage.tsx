@@ -362,7 +362,7 @@ export default function TechRotationPage() {
   )
 
   return (
-    <div data-testid="tech-rotation-page" style={{ padding: 20, maxWidth: 1320, margin: '0 auto' }}>
+    <div data-testid="tech-rotation-page" style={{ padding: 'var(--space-5, 20px)', maxWidth: 1320, margin: '0 auto' }}>
       {/* ================= 头部 ================= */}
       <PageHeader
         icon={<Repeat2 size={18} color="var(--color-primary-800)" />}
@@ -392,7 +392,7 @@ export default function TechRotationPage() {
       />
 
       {/* ================= KPI ================= */}
-      <StatCardGrid minWidth={170} gap={14} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={170} gap={14} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('techRotation.kpiPlanDays')} value={plan?.days ?? 0} icon={<CalendarRange size={18} />} color="var(--color-primary-800)" />
         <StatCard title={t('techRotation.kpiAssignments')} value={plan?.assignments.length ?? 0} icon={<Repeat2 size={18} />} color="success" />
         <StatCard title={t('techRotation.kpiMaxMinDiff')} value={balance?.maxMinDiff ?? 0} color={balance?.balanced ? 'success' : 'error'} icon={<Scale size={18} />} />
@@ -410,8 +410,8 @@ export default function TechRotationPage() {
 
       <Spin spinning={loading}>
         {/* ================= 轮转计划甘特图 ================= */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
             <Repeat2 size={16} color="var(--color-primary-800)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.ganttTitle')}</span>
             <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)' }}>
@@ -466,10 +466,10 @@ export default function TechRotationPage() {
                 </tbody>
               </table>
               {/* 图例 */}
-              <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ marginTop: 10, display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', alignItems: 'center' }}>
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('techRotation.legendTech')}</span>
                 {TECH_DEMO.map((tech) => (
-                  <span key={tech.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: techColor(tech.id) }}>
+                  <span key={tech.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: techColor(tech.id) }}>
                     <span style={{ width: 8, height: 8, borderRadius: 2, background: techColor(tech.id), display: 'inline-block' }} />
                     {tech.name}
                   </span>
@@ -483,10 +483,10 @@ export default function TechRotationPage() {
         </div>
 
         {/* ================= 工作量均衡 + 预测 ================= */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           {/* 均衡条形图 */}
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <Scale size={16} color="#059669" />
               <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.balancePanel')}</span>
             </div>
@@ -512,8 +512,8 @@ export default function TechRotationPage() {
           </div>
 
           {/* 技师预测排行 */}
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
               <TrendingUp size={16} color="#7c3aed" />
               <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.techForecastTitle', { label: forecast?.daily[0]?.label ?? '-' })}</span>
               <Select
@@ -523,12 +523,12 @@ export default function TechRotationPage() {
               />
             </div>
             {techForecastRows.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                 {techForecastRows.map((t) => {
                   const total = forecast?.daily[0]?.value ?? 1
                   const pct = Math.round((t.value / total) * 100)
                   return (
-                    <div key={t.technicianId} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div key={t.technicianId} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                       <span style={{ width: 56, fontSize: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{t.technicianName}</span>
                       <div style={{ flex: 1, height: 10, borderRadius: 5, background: 'var(--border-color)', overflow: 'hidden' }}>
                         <div style={{ width: `${pct}%`, height: 10, borderRadius: 5, background: techColor(t.technicianId) }} />
@@ -547,8 +547,8 @@ export default function TechRotationPage() {
         </div>
 
         {/* ================= 预测面板: 实际 vs 预测 + 置信带 ================= */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
             <TrendingUp size={16} color="var(--color-primary-800)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.forecastTitle', { days })}</span>
             <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)' }}>
@@ -576,7 +576,7 @@ export default function TechRotationPage() {
           {/* 每时段预测 */}
           {periodData.length > 0 && (
             <div style={{ marginTop: 14 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-2, 8px)' }}>
                 {t('techRotation.periodTitle', { date: startDate, count: periodData.length })}
               </div>
               <ChartContainer type="bar" height={200}>
@@ -593,8 +593,8 @@ export default function TechRotationPage() {
         </div>
 
         {/* ================= 执行记录 ================= */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
             <HistoryIcon size={16} color="#7c3aed" />
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.execTitle', { count: executions.length })}</span>
           </div>
@@ -636,7 +636,7 @@ export default function TechRotationPage() {
         destroyOnClose
       >
         {execModal && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)', fontSize: 12 }}>
             <div>{t('techRotation.execTech')} <b>{execModal.techName}</b></div>
             <div>{t('techRotation.execDate')} {execModal.date} · {shiftLabel(execModal.shift)}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('techRotation.execConfirmHint')}</div>

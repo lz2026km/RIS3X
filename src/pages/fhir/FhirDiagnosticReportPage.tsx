@@ -126,14 +126,14 @@ export const FhirDiagnosticReportPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirReport.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
           <Form.Item name="patient" label={t('fhirReport.form.patientId')}>
             <Input placeholder={t('fhirReport.ph.patientId')} allowClear style={{ width: 200 }} />

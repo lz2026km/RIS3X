@@ -211,7 +211,7 @@ export const QualityScorePanel: React.FC<{
     return (
       <Card>
         <div style={{ textAlign: 'center', padding: 60 }}>
-          <Spin /> <div style={{ marginTop: 12, color: '#64748b' }}>{t('qualityScore.loading')}</div>
+          <Spin /> <div style={{ marginTop: 'var(--space-3, 12px)', color: '#64748b' }}>{t('qualityScore.loading')}</div>
         </div>
       </Card>
     );
@@ -276,7 +276,7 @@ export const QualityScorePanel: React.FC<{
             <div
               style={{
                 background: 'rgba(255,255,255,0.18)',
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
                 borderRadius: 8,
                 textAlign: 'center',
               }}
@@ -295,7 +295,7 @@ export const QualityScorePanel: React.FC<{
               >
                 {gradeMeta.label}
               </Tag>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 'var(--space-1, 4px)' }}>
                 {t('qualityScore.fullScore100')}
               </div>
             </div>
@@ -331,7 +331,7 @@ export const QualityScorePanel: React.FC<{
             />
           </Col>
         </Row>
-        <Row gutter={12} style={{ marginTop: 8 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Col xs={8}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('qualityScore.publishable')}</span>}
@@ -370,7 +370,7 @@ export const QualityScorePanel: React.FC<{
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 'var(--space-3, 12px)' }}
           title={`${t('qualityScore.hardFailTriggered')} ${score.hardFailTriggered.join(', ')}`}
           description={t('qualityScore.hardFailDescription')}
         />
@@ -515,12 +515,12 @@ export const QualityScorePanel: React.FC<{
                           <Progress
                             percent={s}
                             strokeColor={CATEGORY_META[d.category].color}
-                            style={{ marginTop: 8 }}
+                            style={{ marginTop: 'var(--space-2, 8px)' }}
                           />
-                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
                             {t('qualityScore.weight')} {(d.weight * 100).toFixed(1)}% · {t('qualityScore.score')} {s.toFixed(1)}/100
                           </div>
-                          <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 'var(--space-1, 4px)' }}>
                             {t('qualityScore.rule')} {d.passingRule}
                           </div>
                         </Card>
@@ -543,8 +543,8 @@ export const QualityScorePanel: React.FC<{
                     <div
                       key={i}
                       style={{
-                        padding: 8,
-                        marginBottom: 4,
+                        padding: 'var(--space-2, 8px)',
+                        marginBottom: 'var(--space-1, 4px)',
                         background: e.score >= 90 ? '#d1fae5' : e.score >= 75 ? '#dbeafe' : '#fef3c7',
                         borderRadius: 4,
                         fontSize: 12,
@@ -555,7 +555,7 @@ export const QualityScorePanel: React.FC<{
                         <Tag color="cyan">{e.rule}</Tag>
                         <strong>{e.score} {t('qualityScore.pointsUnit')}</strong>
                       </Space>
-                      <div style={{ color: '#475569', marginTop: 4 }}>{e.explanation}</div>
+                      <div style={{ color: '#475569', marginTop: 'var(--space-1, 4px)' }}>{e.explanation}</div>
                     </div>
                   ))
                 )}
@@ -583,7 +583,7 @@ export const QualityScorePanel: React.FC<{
                         <div style={{ fontSize: 12, color: th.color }}>
                           {th.minScore} - {th.maxScore} {t('qualityScore.pointsUnit')}
                         </div>
-                        <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
                           {th.description}
                         </div>
                         <Space style={{ marginTop: 6 }}>
@@ -612,7 +612,7 @@ export const QualityScorePanel: React.FC<{
               <Activity size={14} /> {t('qualityScore.trendPreview')}
             </Space>
           }
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 'var(--space-3, 12px)' }}
         >
           <ChartContainer type="line" height={160}>
             <LineChart

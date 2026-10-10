@@ -146,16 +146,16 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>
           <GanttChartSquare size={15} /> {t('w5Appt.ganttTitle')}
         </div>
-        <div style={{ display: 'flex', gap: 4 }}>{dimBtn('DEVICE', t('w5Appt.ganttByDevice'))}{dimBtn('ROOM', t('w5Appt.ganttByRoom'))}{dimBtn('TECH', t('w5Appt.ganttByTech'))}</div>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>{dimBtn('DEVICE', t('w5Appt.ganttByDevice'))}{dimBtn('ROOM', t('w5Appt.ganttByRoom'))}{dimBtn('TECH', t('w5Appt.ganttByTech'))}</div>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: '4px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: 'var(--color-primary-800)' }} />
-        <button onClick={() => void loadResources()} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: '#64748b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => void loadResources()} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: '#64748b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <RefreshCw size={12} /> {loading ? '...' : t('w5Appt.opsRefresh')}
         </button>
       </div>
 
       <div style={{ padding: '8px 12px', display: 'flex', gap: 14, fontSize: 11, color: '#64748b', borderBottom: `1px solid ${borderGray}` }}>
-        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-primary-500)', borderRadius: 2, marginRight: 4 }} />{t('w5Appt.ganttLegendBusy')}</span>
-        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-error-500)', borderRadius: 2, marginRight: 4 }} />{t('w5Appt.ganttLegendConflict')}</span>
+        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-primary-500)', borderRadius: 2, marginRight: 'var(--space-1, 4px)' }} />{t('w5Appt.ganttLegendBusy')}</span>
+        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-error-500)', borderRadius: 2, marginRight: 'var(--space-1, 4px)' }} />{t('w5Appt.ganttLegendConflict')}</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><AlertTriangle size={11} /> {t('w5Appt.ganttClickCreate')}</span>
       </div>
 
@@ -173,13 +173,13 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
             </div>
           </div>
 
-          {rows.length === 0 && <div style={{ padding: 24, textAlign: 'center', color: '#64748b', fontSize: 12 }}>{t('w5Appt.ganttEmpty')}</div>}
+          {rows.length === 0 && <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: '#64748b', fontSize: 12 }}>{t('w5Appt.ganttEmpty')}</div>}
 
           {rows.map((row) => {
             const rowBlocks = blocks.filter((b) => b.rowId === row.id)
             return (
               <div key={row.id} data-testid={`gantt-row-${row.id}`} style={{ display: 'flex', borderBottom: `1px solid ${borderGray}`, background: rowConflict.has(row.id) ? '#fef2f2' : 'transparent' }}>
-                <div style={{ flex: '0 0 130px', padding: '8px 10px', fontSize: 11, fontWeight: 700, color: rowConflict.has(row.id) ? 'var(--color-error-600)' : 'var(--color-primary-800)', borderRight: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ flex: '0 0 130px', padding: '8px 10px', fontSize: 11, fontWeight: 700, color: rowConflict.has(row.id) ? 'var(--color-error-600)' : 'var(--color-primary-800)', borderRight: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   {row.name}
                   {rowConflict.has(row.id) && <AlertTriangle size={11} />}
                 </div>

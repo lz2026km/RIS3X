@@ -14,66 +14,66 @@ const s = {
   rightTab: { flex: 1, padding: '6px 4px', border: 'none', background: 'transparent', color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2, transition: 'all 0.15s', borderBottom: '2px solid transparent' } as React.CSSProperties,
   rightTabActive: { color: PRIMARY, borderBottomColor: PRIMARY, background: 'rgba(30,58,95,0.05)' },
   rightPanelContent: { flex: 1, overflow: 'auto', padding: 10 },
-  infoSection: { marginBottom: 12 },
-  infoSectionTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 },
-  infoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 },
+  infoSection: { marginBottom: 'var(--space-3, 12px)' },
+  infoSectionTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' },
+  infoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-1, 4px)' },
   infoItem: { display: 'flex', flexDirection: 'column' as const, gap: 1 },
   infoLabel: { fontSize: 12, color: 'var(--text-muted)' },
   infoValue: { fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' },
   infoValueFull: { fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginTop: 2 },
-  reportStatusCard: { padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 8 },
+  reportStatusCard: { padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 'var(--space-2, 8px)' },
   reportStatusBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700 },
-  reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
+  reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', justifyContent: 'center' } as React.CSSProperties,
   select: { padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
-  mprTabs: { display: 'flex', gap: 4, marginBottom: 4 },
+  mprTabs: { display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' },
   mprTab: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' } as React.CSSProperties,
   mprTabActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
-  mipControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid var(--border-color)' },
-  mipControlTitle: { fontSize: 12, color: 'var(--text-muted)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 },
-  mipDirRow: { display: 'flex', gap: 4, marginBottom: 8 },
+  mipControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 'var(--space-2, 8px)', border: '1px solid var(--border-color)' },
+  mipControlTitle: { fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' },
+  mipDirRow: { display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-2, 8px)' },
   mipDirBtn: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const },
   mipDirBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   mipFrameRow: { display: 'flex', alignItems: 'center', gap: 6 },
   mipFrameLabel: { fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 },
   mipFrameVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 50 },
-  vrControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid var(--border-color)' },
+  vrControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 'var(--space-2, 8px)', border: '1px solid var(--border-color)' },
   vrSliderRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 },
   vrSliderLabel: { fontSize: 12, color: 'var(--text-muted)', flexShrink: 0, minWidth: 24 },
   vrSlider: { flex: 1, accentColor: PRIMARY } as React.CSSProperties,
   vrSliderVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 30, textAlign: 'right' as const },
-  vrResetBtn: { width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
+  vrResetBtn: { width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', justifyContent: 'center' } as React.CSSProperties,
   historySearchRow: { display: 'flex', gap: 6, marginBottom: 10 },
   historySearchInput: { flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, fontFamily: 'inherit' },
   historySearchBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
+  historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
   historyListItemSelected: { border: '2px solid var(--color-primary-500)', background: 'var(--color-info-bg)' },
   historyListItemChecked: { border: '2px solid var(--color-success-500)', background: 'var(--color-success-bg)' },
   historyCheckbox: { width: 16, height: 16, borderRadius: 4, border: '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, cursor: 'pointer' },
   historyCheckboxChecked: { background: 'var(--color-success-500)', borderColor: 'var(--color-success-500)' },
   historyListItemContent: { flex: 1, minWidth: 0 },
-  historyListItemHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  historyListItemHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' },
   historyListItemTitle: { fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const },
   historyListItemDate: { fontSize: 12, color: 'var(--text-muted)' },
   historyListItemMeta: { fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.4 },
-  historyListItemStatus: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700, marginTop: 4 },
+  historyListItemStatus: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700, marginTop: 'var(--space-1, 4px)' },
   historyListEmpty: { textAlign: 'center' as const, padding: '24px 12px', color: 'var(--text-muted)', fontSize: 12 },
-  historyListEmptyIcon: { marginBottom: 8, opacity: 0.5 },
+  historyListEmptyIcon: { marginBottom: 'var(--space-2, 8px)', opacity: 0.5 },
   historyActionBar: { display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' as const },
   historyActionBtn: { flex: 1, minWidth: 60, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, transition: 'all 0.15s' } as React.CSSProperties,
   historyActionBtnDisabled: { opacity: 0.5, cursor: 'not-allowed' },
   syncScrollBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700 } as React.CSSProperties,
   syncScrollBadgeOn: { background: 'var(--color-success-bg)', color: 'var(--color-success-600)' },
   syncScrollBadgeOff: { background: 'var(--content-bg)', color: 'var(--text-muted)' },
-  compareInfoCard: { background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 10, marginBottom: 8 },
-  compareInfoCardTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 },
+  compareInfoCard: { background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 10, marginBottom: 'var(--space-2, 8px)' },
+  compareInfoCardTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' },
   compareInfoRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: '1px solid var(--border-color)' },
   compareInfoLabel: { fontSize: 12, color: 'var(--text-muted)' },
   compareInfoValue: { fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' },
-  compareControlBadge: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', border: 'none' } as React.CSSProperties,
+  compareControlBadge: { display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', border: 'none' } as React.CSSProperties,
   compareControlBadgeOn: { background: PRIMARY, color: '#fff' },
   compareControlBadgeOff: { background: 'var(--border-color)', color: 'var(--text-muted)' },
-  diffSummaryCard: { background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)', borderRadius: 8, padding: 10, marginBottom: 8 },
-  diffSummaryTitle: { fontSize: 12, fontWeight: 700, color: 'var(--color-warning)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 },
+  diffSummaryCard: { background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)', borderRadius: 8, padding: 10, marginBottom: 'var(--space-2, 8px)' },
+  diffSummaryTitle: { fontSize: 12, fontWeight: 700, color: 'var(--color-warning)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' },
   diffSummaryItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', fontSize: 12, color: 'var(--color-warning)' },
   diffSummaryDot: { width: 6, height: 6, borderRadius: '50%', flexShrink: 0 },
 }
@@ -308,9 +308,9 @@ export default function SidebarPanel(props: Props) {
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><AlertCircle size={12} />{t('dcm.clinicalInfo')}</div>
-              <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('dcm.clinicalDiagnosis')}</span><div style={{ ...s.infoValueFull, color: 'var(--color-error-600)' }}>{exam.clinicalDiagnosis}</div></div>
-              <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('w9d.sidebar.historyLabel')}</span><div style={s.infoValueFull}>{exam.clinicalHistory}</div></div>
-              <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('dcm.examIndications')}</span><div style={s.infoValueFull}>{exam.examIndications}</div></div>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}><span style={s.infoLabel}>{t('dcm.clinicalDiagnosis')}</span><div style={{ ...s.infoValueFull, color: 'var(--color-error-600)' }}>{exam.clinicalDiagnosis}</div></div>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}><span style={s.infoLabel}>{t('w9d.sidebar.historyLabel')}</span><div style={s.infoValueFull}>{exam.clinicalHistory}</div></div>
+              <div style={{ marginBottom: 'var(--space-2, 8px)' }}><span style={s.infoLabel}>{t('dcm.examIndications')}</span><div style={s.infoValueFull}>{exam.examIndications}</div></div>
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><Layers3 size={12} />{t('dcm.mpr')}</div>
@@ -335,7 +335,7 @@ export default function SidebarPanel(props: Props) {
                 <button style={s.vrResetBtn} onClick={() => { setVrRotX(30); setVrRotY(45); setVrRotZ(0); setVrOpacity(0.8) }}><RefreshCw size={12} />{t('dcm.resetView')}</button>
               </Card>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 'var(--space-2, 8px)' }}>
               <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={exportPng}><Camera size={14} />{t('dcmexp.exportPng')}</button>
                   <button style={{ ...s.reportBtn, background: 'var(--bg-card)', color: PRIMARY }} onClick={exportDicom}><Download size={14} />{t('dcmexp.exportDicom')}</button>
             </div>
@@ -403,7 +403,7 @@ export default function SidebarPanel(props: Props) {
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><FileSearch size={12} />{t('dcm.reportStatus')}</div>
               <Card bordered={false} style={s.reportStatusCard} styles={{ body: { padding: 0 } }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItemName}</span>
                   <span style={{ ...s.reportStatusBadge, background: reportStatus === '已报告' ? 'var(--color-success-bg)' : reportStatus === '待书写' ? 'var(--color-warning-bg)' : 'var(--border-light)', color: reportStatus === '已报告' ? 'var(--color-success-600)' : reportStatus === '待书写' ? 'var(--color-warning-600)' : '#64748b' }}>
                     {reportStatus === '已报告' && <CheckCircle size={10} />}{reportStatus === '待书写' && <Clock size={10} />}{reportStatus}
@@ -412,8 +412,8 @@ export default function SidebarPanel(props: Props) {
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('w9d.sidebar.patientLabel')} {exam.patientName} | {exam.age}{t('w9d.common.ageSuffix')}{exam.gender}<br />{t('w9d.sidebar.examDateLabel')} {exam.examDate} {exam.examTime}</div>
               </Card>
               {reportStatus === '已报告' && (
-                <><div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>李明辉</div></div>
-                <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('w9d.sidebar.reportTime')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
+                <><div style={{ marginBottom: 'var(--space-2, 8px)', padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>李明辉</div></div>
+                <div style={{ marginBottom: 'var(--space-2, 8px)', padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)' }}>{t('w9d.sidebar.reportTime')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
               )}
             </div>
             <div style={s.infoSection}>
@@ -443,8 +443,8 @@ export default function SidebarPanel(props: Props) {
               </div>
             </div>
             {(exam.priority === '紧急' || exam.priority === '危重') && (
-              <div style={{ padding: 10, background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)', marginTop: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}><AlertCircle size={14} color="var(--color-error-600)" /><span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)' }}>{exam.priority === '危重' ? t('w9d.sidebar.priorityCritical') : t('w9d.sidebar.priorityUrgent')}{t('w9d.sidebar.examWord')}</span></div>
+              <div style={{ padding: 10, background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)', marginTop: 'var(--space-2, 8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}><AlertCircle size={14} color="var(--color-error-600)" /><span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)' }}>{exam.priority === '危重' ? t('w9d.sidebar.priorityCritical') : t('w9d.sidebar.priorityUrgent')}{t('w9d.sidebar.examWord')}</span></div>
                 <div style={{ fontSize: 12, color: 'var(--color-error)', lineHeight: 1.5 }}>{exam.clinicalDiagnosis}</div>
               </div>
             )}
@@ -462,7 +462,7 @@ export default function SidebarPanel(props: Props) {
                 <button style={{ ...s.historyActionBtn, ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}) }} disabled={selectedHistoryExams.length === 0} onClick={enterCompareMode}><GitCompare size={12} />{t('dcm.compare')}</button>
                 <button style={{ ...s.historyActionBtn, ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}) }} disabled={selectedHistoryExams.length === 0} onClick={() => setSelectedHistoryExams([])}><X size={12} />{t('dcm.clear')}</button>
               </div>
-              {selectedHistoryExams.length > 0 && <div style={{ fontSize: 12, color: 'var(--color-primary-500)', marginBottom: 8, fontWeight: 600 }}>{t('w9d.sidebar.selectedCount', { count: selectedHistoryExams.length })}</div>}
+              {selectedHistoryExams.length > 0 && <div style={{ fontSize: 12, color: 'var(--color-primary-500)', marginBottom: 'var(--space-2, 8px)', fontWeight: 600 }}>{t('w9d.sidebar.selectedCount', { count: selectedHistoryExams.length })}</div>}
               {filteredHistoryExams.length === 0 ? (
                 <div style={s.historyListEmpty}><div style={s.historyListEmptyIcon}><ScrollText size={32} /></div><div>{t('dcm.noHistory')}</div></div>
               ) : (
@@ -475,7 +475,7 @@ export default function SidebarPanel(props: Props) {
                         <div style={s.historyListItemHeader}><span style={s.historyListItemTitle}>{historyExam.examItemName}</span><span style={s.historyListItemDate}>{historyExam.examDate}</span></div>
                         <div style={s.historyListItemMeta}>{historyExam.modality} | {historyExam.deviceName?.split('（')[0]}</div>
                         <div style={{ ...s.historyListItemStatus, background: historyExam.status === '已完成' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: historyExam.status === '已完成' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>{historyExam.status === '已完成' && <CheckCircle size={9} />}{historyExam.status}</div>
-                        {historyExam.conclusion && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.4 }}>{historyExam.conclusion.length > 60 ? historyExam.conclusion.substring(0, 60) + '...' : historyExam.conclusion}</div>}
+                        {historyExam.conclusion && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)', lineHeight: 1.4 }}>{historyExam.conclusion.length > 60 ? historyExam.conclusion.substring(0, 60) + '...' : historyExam.conclusion}</div>}
                       </div>
                     </div>
                   )
@@ -486,9 +486,9 @@ export default function SidebarPanel(props: Props) {
               <>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><GitCompare size={12} />{t('dcm.compareMode')}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dcm.syncScroll')}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}><span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dcm.syncScroll')}</span>
                     <button style={{ ...s.syncScrollBadge, ...(syncScroll ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setSyncScroll(!syncScroll)}>{syncScroll ? <CheckCircle size={10} /> : <X size={10} />}{syncScroll ? t('w9d.sidebar.on') : t('w9d.sidebar.off')}</button></div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}><span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
                     <button style={{ ...s.syncScrollBadge, ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setShowDiffHighlight(!showDiffHighlight)}>{showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}{showDiffHighlight ? t('w9d.sidebar.on') : t('w9d.sidebar.off')}</button></div>
                   <button style={{ ...s.reportBtn, background: 'var(--color-error-500)', color: '#fff' }} onClick={exitCompareMode}><X size={14} />{t('dcm.exitCompareMode')}</button>
                 </div>
@@ -526,7 +526,7 @@ export default function SidebarPanel(props: Props) {
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><GitCompare size={12} />{t('dcm.crossInst')}</div>
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4, textTransform: 'uppercase' }}>{t('dcm.selectInst')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-1, 4px)', textTransform: 'uppercase' }}>{t('dcm.selectInst')}</div>
                 <select value={externalInstitution} onChange={e => { setExternalInstitution(e.target.value); setSelectedExternalExam(null) }} style={{ ...s.select, width: '100%', minWidth: 'unset' }}>
                   <option value="">-- {t('dcm.selectInst')} --</option>
                   {EXTERNAL_INSTITUTIONS.filter((inst: any) => inst.status === 'online').map((inst: any) => (
@@ -534,7 +534,7 @@ export default function SidebarPanel(props: Props) {
                   ))}
                 </select>
               </div>
-              <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 10 }}>
                 <button style={{ ...s.mprTab, flex: 1, ...(externalSearchType === 'patientId' ? s.mprTabActive : {}) }} onClick={() => setExternalSearchType('patientId')}>{t('dcm.patientId')}</button>
                 <button style={{ ...s.mprTab, flex: 1, ...(externalSearchType === 'patientName' ? s.mprTabActive : {}) }} onClick={() => setExternalSearchType('patientName')}>{t('dc.patientName')}</button>
               </div>
@@ -584,7 +584,7 @@ export default function SidebarPanel(props: Props) {
                 )}
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><GitCompare size={12} />{t('w9d.sidebar.imageCompare')}</div>
-                  <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 10 }}>
                     <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'leftRight' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('leftRight')}>{t('w9d.sidebar.layoutLeftRight')}</button>
                     <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'topBottom' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('topBottom')}>{t('w9d.sidebar.layoutTopBottom')}</button>
                   </div>
@@ -592,9 +592,9 @@ export default function SidebarPanel(props: Props) {
                 </div>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><Upload size={12} />{t('w9d.sidebar.archiveRequest')}</div>
-                  <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('w9d.sidebar.archiveRequestDesc')}</div></div>
+                  <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 'var(--space-2, 8px)', border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('w9d.sidebar.archiveRequestDesc')}</div></div>
                   {archiveRequestStatus && (
-                    <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: archiveRequestStatus === 'success' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
+                    <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: archiveRequestStatus === 'success' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
                       {archiveRequestStatus === 'success' ? <><CheckCircle size={12} /> {t('w9d.sidebar.archiveSubmitted')}</> : <><Clock size={12} /> {t('w9d.sidebar.archiveProcessing')}</>}
                     </div>
                   )}

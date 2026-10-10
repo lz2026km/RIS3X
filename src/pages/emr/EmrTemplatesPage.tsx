@@ -172,7 +172,7 @@ export const EmrTemplatesPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9.emrTpl.title')}</span>
         <Tag color="cyan">v3.0.6.11-103</Tag>
@@ -185,7 +185,7 @@ export const EmrTemplatesPage: React.FC = () => {
         </ActionButton>
       </Space>
 
-      <StatCardGrid style={{ marginBottom: 16 }}>
+      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w9.emrTpl.statsTemplates')} value={templates.length} icon={<FileText size={18} />} color="primary" />
         <StatCard title={t('w9.emrTpl.statsDental')} value={dentalTplCount} icon={<FileText size={18} />} color="warning" />
         <StatCard title={t('w9.emrTpl.statsIcd')} value={icdResults.length} icon={<Plus size={18} />} color="info" />
@@ -225,7 +225,7 @@ export const EmrTemplatesPage: React.FC = () => {
                   {title:t('w9.common.actions'),render:(_,r)=><Button size="small" icon={<Plus size={10}/>} onClick={()=>handleAddDiagnosis(r)}>{t('w9.emrTpl.addDiagnosis')}</Button>},
                 ]} scroll={{ x: 'max-content' }} />
               {diagnoses.length > 0 && (
-                <Card size="small" style={{ marginTop: 12 }} title={`${t('w9.emrTpl.statsDiagnoses')} (${diagnoses.length})`}>
+                <Card size="small" style={{ marginTop: 'var(--space-3, 12px)' }} title={`${t('w9.emrTpl.statsDiagnoses')} (${diagnoses.length})`}>
                   <Space wrap>
                     {diagnoses.map(d => (
                       <Tag key={d.code} color="green" closable onClose={()=>setDiagnoses(prev=>prev.filter(x=>x.code!==d.code))}>{d.code} {d.name}</Tag>
@@ -238,7 +238,7 @@ export const EmrTemplatesPage: React.FC = () => {
         ]}
       />
       <Modal title={templateModal?.type === 'create' ? t('w9.emrTpl.create') : t('w9.emrTpl.edit')} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={handleSaveTemplate} width={500}>
-        <Form form={form} layout="vertical" size="small" style={{ marginTop: 12 }}>
+        <Form form={form} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="name" label={t('w9.emrTpl.templateName')} rules={[{ required: true, message: t('w9.emrTpl.templateName') }]}><Input /></Form.Item>
           <Form.Item name="category" label={t('w9.emrTpl.category')}><Select options={['Dental','General','Surgery','Ortho','Pediatric'].map(c=>({value:c,label:CATEGORY_LABELS[c] ?? c}))} /></Form.Item>
           <Form.Item name="sections" label={t('w9.emrTpl.sections')}><Input placeholder="主诉,现病史,检查所见,诊断,治疗计划" /></Form.Item>

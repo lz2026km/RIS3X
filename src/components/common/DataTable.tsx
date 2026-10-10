@@ -270,7 +270,7 @@ export function DataTable<RecordType extends object>({
   const toolbarStyle: CSSProperties = {
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: "8px 12px",
     borderBottom: "1px solid var(--border-color, #e2e8f0)",
     background: "var(--bg-card)",
@@ -311,7 +311,7 @@ export function DataTable<RecordType extends object>({
                   {
                     value: "compact",
                     label: (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
                         <Rows3 size={14} />
                         {t("ui4Tables.density.compact")}
                       </span>
@@ -320,7 +320,7 @@ export function DataTable<RecordType extends object>({
                   {
                     value: "comfortable",
                     label: (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
                         <Rows4 size={14} />
                         {t("ui4Tables.density.comfortable")}
                       </span>
@@ -355,7 +355,7 @@ export function DataTable<RecordType extends object>({
             ? {
                 spinning: true,
                 indicator: (
-                  <div style={{ padding: 24, maxWidth: 720 }}>
+                  <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 720 }}>
                     <Skeleton active title={false} paragraph={{ rows: 8 }} />
                   </div>
                 ),

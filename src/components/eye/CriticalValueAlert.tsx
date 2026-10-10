@@ -19,7 +19,7 @@ const CriticalValueAlert: React.FC<{ items: CriticalValue[] }> = ({
           <span>危急值 ({openItems.length})</span>
         </Space>
       }
-      style={{ borderLeft: "4px solid var(--color-error-500)", marginBottom: 8 }}
+      style={{ borderLeft: "4px solid var(--color-error-500)", marginBottom: 'var(--space-2, 8px)' }}
     >
       <Timeline
         items={items.slice(0, 5).map((cv) => ({
@@ -54,7 +54,7 @@ const CriticalValueAlert: React.FC<{ items: CriticalValue[] }> = ({
                   color: "#94a3b8",
                   fontSize: 12,
                   display: "flex",
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}
               >
                 <span>{new Date(cv.createdAt).toLocaleString()}</span>

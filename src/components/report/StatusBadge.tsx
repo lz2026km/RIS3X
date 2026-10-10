@@ -36,7 +36,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 4,
+        gap: 'var(--space-1, 4px)',
         padding: sizeMeta.padding,
         fontSize: sizeMeta.fontSize,
         fontWeight: 600,

@@ -41,9 +41,9 @@ const TopographyPage: React.FC = () => {
     return () => { cancelled = true; };
   }, [reloadTick]);
 
-  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('topography.loading')} /></div>;
+  if (loading) return <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center' }}><Spin tip={t('topography.loading')} /></div>;
   if (!study) return (
-    <div style={{ padding: 16, textAlign: 'center' }}>
+    <div style={{ padding: 'var(--space-4, 16px)', textAlign: 'center' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {t('topography.noData')}
     </div>
@@ -51,12 +51,12 @@ const TopographyPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 'var(--space-4, 16px)',
         background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Button icon={<RefreshCw size={16} />} onClick={() => setReloadTick((n) => n + 1)}>{t('w1tables.viewer.refresh')}</Button>
         <Button type="primary" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.viewer.export')}</Button>
       </div>
@@ -94,9 +94,9 @@ const TopographyPage: React.FC = () => {
                     }}
                   >
                     <Map size={32} />
-                    <span style={{ fontSize: 12, marginTop: 4 }}>{m.label}</span>
+                    <span style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{m.label}</span>
                     <div
-                      style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}
+                      style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}
                     >
                       {m.value}
                     </div>
@@ -105,7 +105,7 @@ const TopographyPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title={t('topography.cornealParams')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('topography.cornealParams')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Row gutter={16}>
               {[
                 { title: "SimK1", value: "43.1", suffix: "D @178°" },
@@ -131,7 +131,7 @@ const TopographyPage: React.FC = () => {
           <Card
             size="small"
             title={t('topography.keratoconusScreening')}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 'var(--space-2, 8px)' }}
           >
             <Row gutter={16}>
               {[
@@ -184,7 +184,7 @@ const TopographyPage: React.FC = () => {
               {t('topography.cornealStatus')}: <Tag color="green">{t('topography.normal')}</Tag>
             </div>
           </Card>
-          <Card size="small" title={t('topography.interpretation')} style={{ marginTop: 8 }}>
+          <Card size="small" title={t('topography.interpretation')} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, lineHeight: 1.8, color: "var(--text-secondary)" }}>
               • {t('topography.interp1')}
               <br />• {t('topography.interp2')}

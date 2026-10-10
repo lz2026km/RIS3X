@@ -35,7 +35,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
 
   return (
     <div
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-5, 20px)' }}
       onClick={onClose}
     >
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: 14, width: '100%', maxWidth: 540, boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
@@ -47,15 +47,15 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
               {report.reportId} · {report.patientName} · {report.examItemName}
             </div>
           </div>
-          <button onClick={onClose} style={{ padding: 4, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#fff', display: 'flex' }}>
+          <button onClick={onClose} style={{ padding: 'var(--space-1, 4px)', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#fff', display: 'flex' }}>
             <X size={16} />
           </button>
         </div>
 
-        <div style={{ padding: 20 }}>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>危急等级</div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ padding: 'var(--space-5, 20px)' }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>危急等级</div>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
               {SEVERITY_OPTIONS.map(s => (
                 <button
                   key={s.value}
@@ -72,9 +72,9 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
             </div>
           </div>
 
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>通知方式</div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>通知方式</div>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
               {METHOD_OPTIONS.map(m => (
                 <button
                   key={m.value}
@@ -109,7 +109,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
           )}
         </div>
 
-        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
           <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
           <button
             onClick={() => onSubmit(severity, description.trim() || (report.diagnosis || report.examFindings || '危急值报告'), method)}

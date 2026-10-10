@@ -186,22 +186,22 @@ export default function ClinicalFeedbackPage() {
         banner
         message={t('feedback.title', '临床反馈闭环')}
         description={t('feedback.subtitle', '临床医生对报告提异议/补充/更正 → 放射科回应 → 关闭')}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <MessageSquare size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('feedback.title', '临床反馈闭环')}</span>
         <Tag color="geekblue">v3.0.6.11-104</Tag>
       </Space>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={statusText.SUBMITTED} value={stats.submitted} />
         <StatCard title={statusText.RESPONDED} value={stats.responded} color="warning" />
         <StatCard title={statusText.RESOLVED} value={stats.resolved} color="success" />
         <StatCard title={statusText.REJECTED} value={stats.rejected} color="error" />
       </StatCardGrid>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchList()}>{t('feedback.refresh', '刷新')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={() => void fetchList()}>{t('feedback.refresh', '刷新')}</Button>} />}
 
       <Card
         size="small"
@@ -398,7 +398,7 @@ export default function ClinicalFeedbackPage() {
       >
         {detail && (
           <>
-            <Descriptions bordered column={2} size="small" style={{ marginBottom: 12 }}>
+            <Descriptions bordered column={2} size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Descriptions.Item label={t('feedback.reportId', '报告ID')}>{detail.reportId}</Descriptions.Item>
               <Descriptions.Item label={t('feedback.examId', '检查号')}>{detail.examId ?? '-'}</Descriptions.Item>
               <Descriptions.Item label={t('feedback.patientName', '患者姓名')}>{detail.patientName ?? '-'}</Descriptions.Item>
@@ -414,7 +414,7 @@ export default function ClinicalFeedbackPage() {
               <Alert
                 type="warning"
                 showIcon
-                style={{ marginBottom: 12 }}
+                style={{ marginBottom: 'var(--space-3, 12px)' }}
                 message={`${t('feedback.response', '放射科回应')} - ${detail.response.responder}`}
                 description={<Space direction="vertical" size={2}><span>{detail.response.content}</span><span style={{ fontSize: 11, color: '#999' }}>{new Date(detail.response.respondedAt).toLocaleString('zh-CN')}</span></Space>}
               />

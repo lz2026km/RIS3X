@@ -291,7 +291,7 @@ export default function ReportWatermarkPage() {
             color: '#4f46e5',
             fontSize: 11,
             textAlign: 'center',
-            padding: 4,
+            padding: 'var(--space-1, 4px)',
           }}
         >
           {img.logoName}
@@ -394,7 +394,7 @@ export default function ReportWatermarkPage() {
                       borderRadius: 8,
                       border: '1px solid #e5e7eb',
                       background: 'linear-gradient(180deg, #ffffff, #f3f4f6)',
-                      padding: 16,
+                      padding: 'var(--space-4, 16px)',
                     }}
                   >
                     <div style={{ whiteSpace: 'pre-wrap', fontSize: 12, color: '#1f2937', lineHeight: 1.9, maxWidth: 620 }}>
@@ -403,7 +403,7 @@ export default function ReportWatermarkPage() {
                     {watermarkLayer}
                     {logoLayer}
                   </div>
-                  <div style={{ marginTop: 8, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
                     <Space>
                       <Lock size={14} color="#10b981" />
                       <span style={{ fontSize: 12, color: '#666' }}>{t('reportWatermark.tamperCode')}</span>
@@ -598,7 +598,7 @@ export default function ReportWatermarkPage() {
                         {rec.action === 'sign' && t('reportWatermark.tlSign')}
                         {rec.action === 'reject' && t('reportWatermark.tlReject')}
                         {rec.action === 'cancel' && t('reportWatermark.tlCancel')}
-                        <span style={{ fontWeight: 400, color: '#666', marginLeft: 8 }}>{rec.actorName}</span>
+                        <span style={{ fontWeight: 400, color: '#666', marginLeft: 'var(--space-2, 8px)' }}>{rec.actorName}</span>
                       </div>
                       <div style={{ fontSize: 12, color: '#888' }}>{rec.note}</div>
                       <div style={{ fontSize: 12, color: '#aaa' }}>{fmtTime(rec.at)}</div>

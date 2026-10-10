@@ -118,7 +118,7 @@ export const AuditCompliancePage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Shield size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('auditComp.title')}</span>
         <Tag color="red" icon={<AlertTriangle size={10} />}>HIPAA</Tag>
@@ -126,11 +126,11 @@ export const AuditCompliancePage: React.FC = () => {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
+        <Alert type="error" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} message={error}
           action={<Button size="small" onClick={() => void load(page)}><RefreshCw size={14} /> {t('auditComp.retry')}</Button>} />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('auditComp.statTotal')} value={agg?.total ?? total} />
         <StatCard title={t('auditComp.stat24h')} value={agg?.last24h ?? '-'} color="primary" />
         <StatCard title={t('auditComp.statDenied')} value={agg?.byAction?.['DENIED'] ?? (events.filter(e => e.status === 'DENIED').length)} color="error" />
@@ -165,7 +165,7 @@ export const AuditCompliancePage: React.FC = () => {
           }
         }}>{t('auditComp.export')}</Button>}
       >
-        <Form form={form} layout="inline" size="small" style={{ marginBottom: 12 }}>
+        <Form form={form} layout="inline" size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Form.Item name="user" label={t('auditComp.formUser')}><Input placeholder={t('auditComp.userIdPlaceholder')} allowClear /></Form.Item>
           <Form.Item name="action" label={t('auditComp.formAction')}>
             <Select allowClear placeholder={t('auditComp.all')} style={{ width: 120 }}

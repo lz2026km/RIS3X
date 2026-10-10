@@ -108,7 +108,7 @@ export function StickyActionBar({
         padding: "8px 16px",
         display: "flex",
         alignItems: "center",
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
         flexWrap: "wrap",
         minHeight: 48,
       }}
@@ -119,7 +119,7 @@ export function StickyActionBar({
             fontSize: 14,
             fontWeight: 700,
             color: s.text,
-            marginRight: 8,
+            marginRight: 'var(--space-2, 8px)',
             display: "flex",
             alignItems: "center",
             gap: 6,
@@ -128,7 +128,7 @@ export function StickyActionBar({
           {title}
         </div>
       )}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", flex: 1 }}>
+      <div style={{ display: "flex", gap: 'var(--space-2, 8px)', flexWrap: "wrap", flex: 1 }}>
         {actions.map((a) => (
           <button
             key={a.key}

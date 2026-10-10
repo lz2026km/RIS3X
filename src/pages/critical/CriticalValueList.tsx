@@ -60,9 +60,9 @@ export const FilterBar = ({
   severityFilter, setSeverityFilter, timeRangeFilter, setTimeRangeFilter,
   dateRange, setDateRange, onBatchNotify, onBatchProcess, selectedCount, onOpenSettings,
 }: FilterBarProps) => (
-  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 20px', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-    <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '8px 14px', border: '1px solid var(--border-color)' }}>
+  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 20px', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 'var(--space-4, 16px)' }}>
+    <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '8px 14px', border: '1px solid var(--border-color)' }}>
         <Search size={16} style={{ color: '#94a3b8' }} />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('cvList.searchPlaceholder')} style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }} />
         {search && <X size={14} style={{ color: '#94a3b8', cursor: 'pointer' }} onClick={() => setSearch('')} />}
@@ -76,8 +76,8 @@ export const FilterBar = ({
         {t('cvList.rulesSettings')}
       </button>
     </div>
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10, flexWrap: 'wrap' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 8 }}>
+    <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 'var(--space-2, 8px)' }}>
         <Filter size={14} style={{ color: '#64748b' }} />
         <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.statusLabel')}</span>
       </div>
@@ -87,7 +87,7 @@ export const FilterBar = ({
         </button>
       ))}
     </div>
-    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', alignItems: 'center' }}>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
         <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.modalityLabel')}</span>
         {MODALITY_LIST.map(m => (
@@ -108,7 +108,7 @@ export const FilterBar = ({
       </div>
     </div>
     {selectedCount > 0 && (
-      <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', gap: 10, marginTop: 'var(--space-3, 12px)', paddingTop: 'var(--space-3, 12px)', borderTop: '1px solid var(--border-color)' }}>
         <span style={{ fontSize: 12, color: 'var(--color-primary-800)', fontWeight: 700 }}>{t('cvList.selectedCount', { count: selectedCount })}</span>
         <button onClick={onBatchNotify} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid var(--color-warning-600)', background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
           <Send size={13} />{t('cvList.batchNotify')}
@@ -182,7 +182,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       </div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingTime ? (cv.processingTime || '').split(' ')[1] || cv.processingTime : '-'}</div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
-      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
         {(cv.status === '待处理' || cv.status === 'pending' || cv.status === 'notified' || cv.status === 'voice_called' || cv.status === 'acknowledged' || cv.status === 'receipted') && (
           <button onClick={onProcess} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #059669', background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Edit3 size={10} />{t('cvList.process')}
@@ -230,11 +230,11 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       </div>
       <div>
         {cv.transferredToFollowUp ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: '#059669', border: '1px solid var(--color-success-border)' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '4px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: '#059669', border: '1px solid var(--color-success-border)' }}>
             <CheckCircle size={11} />{t('cvList.transferred')}
           </span>
         ) : (
-          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--color-info-bg)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} title={t('cvList.transferToFollowUp')}>
+          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--color-info-bg)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} title={t('cvList.transferToFollowUp')}>
             <ArrowUpRight size={12} />
           </button>
         )}
@@ -327,9 +327,9 @@ export const CriticalValueList = ({
         ))
       ) : (
         <div style={{ padding: '48px 24px', textAlign: 'center' }}>
-          <ShieldAlert size={40} style={{ color: '#cbd5e1', marginBottom: 12 }} />
+          <ShieldAlert size={40} style={{ color: '#cbd5e1', marginBottom: 'var(--space-3, 12px)' }} />
           <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>{t('cvList.emptyTitle')}</div>
-          <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>{t('cvList.emptyDesc')}</div>
+          <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 'var(--space-1, 4px)' }}>{t('cvList.emptyDesc')}</div>
         </div>
       )}
 
@@ -338,17 +338,17 @@ export const CriticalValueList = ({
           {t('cvList.totalRecordsPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{filtered.length}</span> {t('cvList.totalRecordsMid')}
           {t('cvList.selectedPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{selectedIds.size}</span> {t('cvList.selectedSuffix')}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           {/* v3.0.6.11: STATUS_CONFIG 中英文键(pending/...)优先显示 machine-derived counts */}
           {Object.entries(STATUS_CONFIG).filter(([key]) => !CN_STATUS_TO_STORE[key] && key !== '待处理' && key !== '处理中' && key !== '已处理' && key !== '超时').map(([key, cfg]) => (
-            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />
               <span style={{ fontSize: 12, color: '#64748b' }}>
                 {t(STATUS_LABEL[key] ?? key)}: {machineStatusCounts[key] ?? criticalValues.filter(c => c.status === key).length}
               </span>
             </div>
           ))}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginLeft: 'var(--space-2, 8px)' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#7c3aed' }} />
             <span style={{ fontSize: 12, color: '#64748b' }}>{t('cvList.transferredLabel')} {criticalValues.filter(c => c.transferredToFollowUp).length}</span>
           </div>

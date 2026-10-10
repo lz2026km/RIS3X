@@ -268,8 +268,8 @@ const SmartMwlPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <BarChart3 size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('smartMwl.title')}</Title>
         <Tag color="blue">{t('smartMwl.tagMultiFactor')}</Tag>
@@ -281,14 +281,14 @@ const SmartMwlPage: React.FC = () => {
         type="info"
         showIcon
         icon={<Info size={16} />}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         message={t('smartMwl.aiTriageAlertTitle')}
         description={t('smartMwl.aiTriageAlertDesc')}
       />
 
-      {error && <Alert type="error" showIcon message={t('smartMwl.loadFailed')} description={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartMwl.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={t('smartMwl.loadFailed')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartMwl.retry')}</Button>} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('smartMwl.statTotal')} value={total} icon={<FileText size={16} />} />
         {(Object.keys(groupMeta) as Array<keyof SmartPriorityCounts>).map((k) => (
           <StatCard
@@ -330,7 +330,7 @@ const SmartMwlPage: React.FC = () => {
       >
         {detail?.result && (
           <>
-            <Card size="small" style={{ marginBottom: 16 }}>
+            <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Row gutter={16}>
                 <Col span={8}>
                   <Statistic title={t('smartMwl.colScore')} value={detail.result.score} styles={{ content: { color: detail.result.score >= 70 ? '#cf1322' : 'var(--color-primary-600)' } }} />
@@ -343,10 +343,10 @@ const SmartMwlPage: React.FC = () => {
                 </Col>
               </Row>
             </Card>
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <h4 style={{ margin: '0 0 12px' }}>{t('smartMwl.factorFormula')}</h4>
               {detail.result.factors.map((f) => (
-                <div key={f.key} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div key={f.key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 10 }}>
                   <Tooltip title={f.label}>
                     <span style={{ width: 80 }}>{f.label}</span>
                   </Tooltip>
@@ -375,7 +375,7 @@ const SmartMwlPage: React.FC = () => {
         okText={t('smartMwl.saveRecompute')}
       >
         <Alert
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           type={weights?.persisted === false ? 'warning' : 'success'}
           showIcon
           message={weights?.persisted === false ? t('smartMwl.runtimeOnly') : t('smartMwl.persisted')}

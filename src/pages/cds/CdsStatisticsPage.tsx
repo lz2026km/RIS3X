@@ -20,15 +20,15 @@ function StatCard({ title, value, unit, icon: Icon, trend, trendValue, color }: 
 }) {
   return (
     <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 200 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3, 12px)' }}>
         <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{title}</span>
         <Icon size={20} style={{ color }} />
       </div>
-      <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 4 }}>
-        {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{unit}</span>}
+      <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 'var(--space-1, 4px)' }}>
+        {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 'var(--space-1, 4px)' }}>{unit}</span>}
       </div>
       {trend && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: trend === 'up' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))' }}>
           {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
           <span>{trendValue}</span>
         </div>
@@ -98,10 +98,10 @@ export default function CdsStatisticsPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('cdsStats.title')}</span>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           {PERIOD_OPTIONS.map(opt => (
             <button key={opt.value} onClick={() => setPeriod(opt.value)} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: period === opt.value ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: '#fff' }}>
               {t(opt.label)}
@@ -115,7 +115,7 @@ export default function CdsStatisticsPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           <StatCard title={t('cdsStats.activeRules')} value={overview.activeRules} unit={`/ ${overview.totalRules}`} icon={CheckCircle} trend="up" trendValue={t('cdsStats.trendActive')} color="var(--color-success-500, var(--color-success-500))" />
           <StatCard title={t('cdsStats.ruleCoverage')} value={overrideRatePct} unit="%" icon={Activity} trend="down" trendValue={t('cdsStats.trendCoverage')} color="var(--color-primary-500, var(--color-primary-500))" />
           <StatCard title={t('cdsStats.suggestionAcceptance')} value={acceptanceRate} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendAcceptance')} color="var(--color-success-500, var(--color-success-500))" />
@@ -123,9 +123,9 @@ export default function CdsStatisticsPage() {
           <StatCard title={t('cdsStats.contrastAlerts')} value={overview.contrastAlertsThisMonth} unit={t('cdsStats.thisMonth')} icon={AlertTriangle} trend="down" trendValue={t('cdsStats.trendContrast')} color="var(--color-error-500, var(--color-error-500))" />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.suggestionCoverageTrend')}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.suggestionCoverageTrend')}</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 160, position: 'relative' }}>
               {chartData.map((d, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: barWidth, position: 'relative', height: 160, justifyContent: 'flex-end' }}>
@@ -134,16 +134,16 @@ export default function CdsStatisticsPage() {
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 12, color: '#6e7681' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-primary-500)', display: 'inline-block' }}></span>{t('cdsStats.suggestionCount')}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-error-500)', display: 'inline-block' }}></span>{t('cdsStats.overrideCount')}</span>
+            <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#6e7681' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-primary-500)', display: 'inline-block' }}></span>{t('cdsStats.suggestionCount')}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-error-500)', display: 'inline-block' }}></span>{t('cdsStats.overrideCount')}</span>
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topOverriddenRules')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topOverriddenRules')}</div>
             {overview.topOverriddenRules?.map((r, i) => (
-              <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 2 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
+              <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 0', borderBottom: i < 2 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? 'var(--color-error-500)' : i === 1 ? 'var(--color-warning-500)' : 'var(--color-primary-500)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{r.ruleName}</div>
@@ -155,11 +155,11 @@ export default function CdsStatisticsPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topPathways')}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topPathways')}</div>
             {overview.topPathways?.map((p, i) => (
-              <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
+              <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 0', borderBottom: i < 1 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <RouteIcon color="var(--color-success-500, var(--color-success-500))" />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{p.pathwayName}</div>
@@ -171,9 +171,9 @@ export default function CdsStatisticsPage() {
             ))}
           </div>
 
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.summaryMetrics')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.summaryMetrics')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               {[
                 { label: 'cdsStats.totalRules', value: overview.totalRules, color: 'var(--color-primary-500)' },
                 { label: 'cdsStats.totalOverrides', value: overview.totalOverrides, color: 'var(--color-error-500)' },
@@ -182,14 +182,14 @@ export default function CdsStatisticsPage() {
               ].map(item => (
                 <div key={item.label} style={{ padding: '12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 700, color: item.color }}>{item.value}</div>
-                  <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{t(item.label)}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681', marginTop: 'var(--space-1, 4px)' }}>{t(item.label)}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, marginTop: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.cds.title')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.cds.title')}</div>
             <DataTable dataSource={chartData} rowKey="date" columns={detailColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
           </div>
         </div>

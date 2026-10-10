@@ -203,7 +203,7 @@ export default function ImageQualityControlPage() {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
       <PageHeader
         icon={<Camera size={20} color="var(--color-primary-500)" />}
         title={t('imageQualityControl.title')}
@@ -218,11 +218,11 @@ export default function ImageQualityControlPage() {
       />
 
       {error && (
-        <Alert type="error" showIcon message={t('imageQualityControl.loadFailed')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('imageQualityControl.loadFailed')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('imageQualityControl.retry')}</Button>} />
       )}
 
-      <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
         {['all', 'CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => (
           <button key={m} onClick={() => setModality(m)}
             style={{ padding: '6px 14px', background: modality === m ? 'var(--color-primary-800)' : 'var(--bg-card)', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? 'var(--color-primary-800)' : 'var(--border-color)'), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
@@ -231,7 +231,7 @@ export default function ImageQualityControlPage() {
         ))}
       </div>
 
-      <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('imageQualityControl.statGradeA')} value={deviceStats.a} icon={<CheckCircle size={16} />} color="success" loading={loading} />
         <StatCard title={t('imageQualityControl.statGradeB')} value={deviceStats.b} icon={<Activity size={16} />} color="info" loading={loading} />
         <StatCard title={t('imageQualityControl.statGradeC')} value={deviceStats.c} icon={<AlertTriangle size={16} />} color="warning" loading={loading} />
@@ -242,7 +242,7 @@ export default function ImageQualityControlPage() {
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={8}>
-          <Card size="small" title={<Space><ScanLine size={14} />{t('imageQualityControl.aiScoreCard')}</Space>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><ScanLine size={14} />{t('imageQualityControl.aiScoreCard')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Space direction="vertical" size={8} style={{ width: '100%' }}>
               <Input placeholder={t('imageQualityControl.instanceIdPlaceholder')} value={instanceId} onChange={(e) => setInstanceId(e.target.value)} />
               <Select style={{ width: '100%' }} options={MODALITY_OPTIONS} value={scoreModality} onChange={setScoreModality} />
@@ -275,7 +275,7 @@ export default function ImageQualityControlPage() {
         <Col xs={24} lg={16}>
           <Card size="small" title={t('imageQualityControl.scoreRecordsCard')} extra={<Tag>{t('imageQualityControl.recordsCount', { count: results.length })}</Tag>}>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: 40 }}><Spin size="large" /></div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin size="large" /></div>
             ) : results.length === 0 ? (
               <EmptyState description={t('imageQualityControl.noScoreRecords')} />
             ) : (
@@ -285,7 +285,7 @@ export default function ImageQualityControlPage() {
         </Col>
       </Row>
 
-      <Card size="small" title={t('imageQualityControl.deviceDetailCard')} style={{ marginTop: 16 }}>
+      <Card size="small" title={t('imageQualityControl.deviceDetailCard')} style={{ marginTop: 'var(--space-4, 16px)' }}>
         <DataTable
           rowKey="id"
           dataSource={DEVICE_MASTER.slice(0, 30)}
@@ -307,7 +307,7 @@ export default function ImageQualityControlPage() {
             {
               title: t('imageQualityControl.thDoseCompliance'), dataIndex: 'doseComplianceRate', key: 'doseComplianceRate',
               render: (v: number) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                   <div style={{ width: 60, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ width: `${v}%`, height: '100%', background: v >= 90 ? '#10b981' : v >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }} />
                   </div>
@@ -331,7 +331,7 @@ export default function ImageQualityControlPage() {
         okButtonProps={{ loading: qcBusy === `${retakeTarget?.id}:retake`, danger: true }}
         cancelText={t('imageQualityControl.cancel')}
       >
-        <AppText size="sm" color="secondary" style={{ marginBottom: 12, display: 'block' }}>
+        <AppText size="sm" color="secondary" style={{ marginBottom: 'var(--space-3, 12px)', display: 'block' }}>
           {t('imageQualityControl.retakeHint')}
         </AppText>
         <AppText size="xs" color="muted" style={{ marginBottom: 6, display: 'block' }}>{t('imageQualityControl.retakeReasonLabel')}</AppText>

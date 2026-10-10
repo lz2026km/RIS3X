@@ -138,7 +138,7 @@ export const DentalPhotoPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <Camera size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalPhoto.title')}</span>
         <Tag color="cyan">v3.0.6.8-102</Tag>
@@ -158,7 +158,7 @@ export const DentalPhotoPage: React.FC = () => {
         </Button>
       </Space>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalPhoto.statTotal')} value={photos.length} icon={<Camera size={16} />} />
         <StatCard title={t('dentalPhoto.catIntraoral')} value={intraoral} />
         <StatCard title={t('dentalPhoto.catExtraoral')} value={extraoral} />
@@ -234,7 +234,7 @@ export const DentalPhotoPage: React.FC = () => {
                     )}
                   </Card>
                 </Col>
-                <Col span={24} style={{ marginTop: 12 }}>
+                <Col span={24} style={{ marginTop: 'var(--space-3, 12px)' }}>
                   <Space>
                     <Button icon={<ZoomIn size={14} />} onClick={() => setZoom(Math.min(2, zoom + 0.2))}>{t('dentalPhoto.zoomIn')}</Button>
                     <Button icon={<ZoomOut size={14} />} onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}>{t('dentalPhoto.zoomOut')}</Button>
@@ -255,7 +255,7 @@ export const DentalPhotoPage: React.FC = () => {
                     title={t('dentalPhoto.shareGenerated')}
                     description={
                       <Space orientation="vertical" style={{ width: '100%' }}>
-                        <code style={{ background: 'var(--bg-card)', padding: 4, borderRadius: 4, display: 'block' }}>
+                        <code style={{ background: 'var(--bg-card)', padding: 'var(--space-1, 4px)', borderRadius: 4, display: 'block' }}>
                           {shareLink}
                         </code>
                         <Space>
@@ -292,12 +292,12 @@ export const DentalPhotoPage: React.FC = () => {
       >
         <Space orientation="vertical" style={{ width: '100%' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>{t('dentalPhoto.categoryLabel')}</label>
+            <label style={{ display: 'block', marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('dentalPhoto.categoryLabel')}</label>
             <Select value={uploadCategory} onChange={setUploadCategory} style={{ width: '100%' }}
               options={PHOTO_CATEGORIES.map(c => ({ value: c.value, label: t(c.labelKey) }))} />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>{t('dentalPhoto.tagLabel')}</label>
+            <label style={{ display: 'block', marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('dentalPhoto.tagLabel')}</label>
             <input
               value={uploadLabel}
               onChange={e => setUploadLabel(e.target.value)}
@@ -306,7 +306,7 @@ export const DentalPhotoPage: React.FC = () => {
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>{t('dentalPhoto.imageFileLabel')}</label>
+            <label style={{ display: 'block', marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('dentalPhoto.imageFileLabel')}</label>
             <Upload {...uploadProps} listType="picture">
               <Button icon={<Camera size={14} />}>{t('dentalPhoto.chooseImage')}</Button>
             </Upload>
@@ -338,7 +338,7 @@ export const DentalPhotoPage: React.FC = () => {
                 style={{ position: 'absolute', top: 8, right: 8, color: '#fff' }}
               />
             </div>
-            <Space style={{ marginTop: 12 }}>
+            <Space style={{ marginTop: 'var(--space-3, 12px)' }}>
               <Tag color={CAT_COLORS[preview.category]}>{t(CAT_LABEL[preview.category] ?? preview.category)}</Tag>
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{preview.takenAt}</span>
             </Space>

@@ -184,7 +184,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
                 title={
                   <span>
                     <strong>IVR 菜单:{menu.name}</strong>
-                    <div style={{ fontSize: 12, marginTop: 4 }}>"{menu.greeting}"</div>
+                    <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>"{menu.greeting}"</div>
                     <div style={{ fontSize: 12, marginTop: 6 }}>
                       {menu.items.map((it: { digit: string | number; label: string }) => (
                         <Tag key={it.digit} color="blue">{it.digit}. {it.label}</Tag>
@@ -194,7 +194,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
                 }
               />
             )}
-            <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 12 }}>
+            <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 'var(--space-3, 12px)' }}>
               <Button onClick={() => setOpen(false)}>取消</Button>
               <Button type="primary" icon={<PhoneCall size={12} />} onClick={trigger} loading={calling}>
                 发起呼叫

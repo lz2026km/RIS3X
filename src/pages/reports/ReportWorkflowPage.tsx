@@ -180,7 +180,7 @@ export const ReportWorkflowPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reportWf.title')}</span>
         <Tag color="cyan">PR1 (v3.0.6.8-45)</Tag>
@@ -190,7 +190,7 @@ export const ReportWorkflowPage: React.FC = () => {
 
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadReports()} retryLabel={t('w9.states.retry')} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         {Object.entries(stateStats).map(([s, n]) => (
           <StatCard
             key={s}
@@ -435,7 +435,7 @@ export const ReportWorkflowPage: React.FC = () => {
 
                   <Tabs
                     size="small"
-                    style={{ marginTop: 12 }}
+                    style={{ marginTop: 'var(--space-3, 12px)' }}
                     items={[
                       {
                         key: "diff",
@@ -449,7 +449,7 @@ export const ReportWorkflowPage: React.FC = () => {
                             <pre
                               style={{
                                 background: "var(--bg-card)",
-                                padding: 12,
+                                padding: 'var(--space-3, 12px)',
                                 borderRadius: 4,
                                 fontSize: 12,
                               }}
@@ -595,7 +595,7 @@ export const ReportWorkflowPage: React.FC = () => {
               title={t('reportWf.rejectReasonTitle')}
               type="warning"
               showIcon
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 'var(--space-2, 8px)' }}
             />
             <TextArea
               rows={3}
@@ -611,7 +611,7 @@ export const ReportWorkflowPage: React.FC = () => {
               title={t('reportWf.qualityScoreTitle')}
               type="info"
               showIcon
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 'var(--space-2, 8px)' }}
             />
             <InputNumber
               min={0}
@@ -628,7 +628,7 @@ export const ReportWorkflowPage: React.FC = () => {
               title={t('reportWf.selectCosignerTitle')}
               type="info"
               showIcon
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 'var(--space-2, 8px)' }}
             />
             <Input
               value={cosignerId}

@@ -17,7 +17,7 @@ export default function DoseTrackingTable({
 }: DoseTrackingTableProps) {
   // [v3.0.6.8-31] t() from appI18n
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
       <div
         style={{
           background: "var(--bg-card)",
@@ -41,7 +41,7 @@ export default function DoseTrackingTable({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
               fontSize: 12,
               color: "#94a3b8",
             }}
@@ -109,12 +109,12 @@ export default function DoseTrackingTable({
               background: "var(--bg-card)",
               borderRadius: 12,
               border: "1px solid #e2e8f0",
-              padding: 40,
+              padding: 'var(--space-10, 40px)',
               textAlign: "center",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 12,
+              gap: 'var(--space-3, 12px)',
             }}
           >
             <User size={48} color="#e2e8f0" />
@@ -147,37 +147,37 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
         <span style={{ padding: "4px 10px", background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
           {badge.label}级预?        </span>
       </div>
-      <div style={{ padding: 16 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ padding: 'var(--space-4, 16px)' }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>设备:</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{patient.device}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>日期:</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{patient.examDate}</span>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
-          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>本次剂量</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 'var(--space-3, 12px)', textAlign: "center" }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>本次剂量</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: badge.color }}>{patient.doseValue}</div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
-          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>法规阈值</div>
+          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 'var(--space-3, 12px)', textAlign: "center" }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>法规阈值</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-primary-800)" }}>{patient.threshold}</div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
-          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>占比</div>
+          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 'var(--space-3, 12px)', textAlign: "center" }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>占比</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: doseRatio > 1 ? "var(--color-error-600)" : "var(--color-success-600)" }}>
               {Math.round(doseRatio * 100)}%
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>阈值比</div>
           </div>
         </div>
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>剂量安全指标</span>
             <span style={{ fontSize: 12, color: doseRatio > 1 ? "var(--color-error-600)" : "var(--color-success-600)", fontWeight: 600 }}>

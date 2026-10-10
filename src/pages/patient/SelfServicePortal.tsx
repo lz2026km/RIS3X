@@ -64,13 +64,13 @@ const REPORT_STATE_LABEL: Record<string, string> = {
 
 // ===== Styles =====
 const styles = {
-  container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
-  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  container: { maxWidth: 1000, margin: '0 auto', padding: 'var(--space-6, 24px)', fontFamily: '-apple-system, sans-serif' },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', marginBottom: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' },
   title: { margin: 0 },
-  subTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
-  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 },
+  subTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginBottom: 'var(--space-4, 16px)' },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' },
+  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' },
   value: { fontSize: 14, color: 'var(--text-primary)' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
   th: { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#64748b', textAlign: 'left' as const, borderBottom: '2px solid var(--border-color)' },
@@ -82,13 +82,13 @@ const styles = {
   }),
   btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--color-primary-800)', color: '#fff' },
   btnGreen: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#0d9488', color: '#fff' },
-  imageGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 },
-  imageCard: { background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' },
-  imagePlaceholder: { width: '100%', aspectRatio: '1', background: 'var(--bg-elevated)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, marginBottom: 8 },
+  imageGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)' },
+  imageCard: { background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' },
+  imagePlaceholder: { width: '100%', aspectRatio: '1', background: 'var(--bg-elevated)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, marginBottom: 'var(--space-2, 8px)' },
   slider: { width: '100%', margin: '4px 0' },
   voucherBtn: { padding: '12px 24px', borderRadius: 8, border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', background: '#059669', color: '#fff' },
-  voucherCode: { marginTop: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, fontSize: 16, fontWeight: 600, color: 'var(--color-success)', fontFamily: 'monospace', textAlign: 'center' as const, letterSpacing: 2 },
-  statRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 },
+  voucherCode: { marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', borderRadius: 8, fontSize: 16, fontWeight: 600, color: 'var(--color-success)', fontFamily: 'monospace', textAlign: 'center' as const, letterSpacing: 2 },
+  statRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' },
   todoItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)' },
 }
 
@@ -141,12 +141,12 @@ function MiniCalendar(props: {
           style={{ ...styles.btn, background: 'var(--bg-card)', color: 'var(--text-secondary)' }}
         >{t('selfService.booking.nextMonth')}</button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
         {weekdayHeaders.map(w => (
           <div key={w} style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>{w}</div>
         ))}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 'var(--space-1, 4px)' }}>
         {cells.map((cell, i) => {
           if (!cell) return <div key={`e-${i}`} />
           const disabled = cell < todayStr
@@ -693,20 +693,20 @@ export default function SelfServicePortal() {
     return (
       <div style={styles.container}>
         <Card bordered={false} style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-          <Title level={5} style={{ marginBottom: 8 }}>{t('selfService.login.title')}</Title>
-          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 24 }}>{t('selfService.login.hint')}</p>
+          <Title level={5} style={{ marginBottom: 'var(--space-2, 8px)' }}>{t('selfService.login.title')}</Title>
+          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-6, 24px)' }}>{t('selfService.login.hint')}</p>
           <input
             placeholder={t('selfService.login.placeholder')}
             value={loginId}
             onChange={e => setLoginId(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !loginLoading && void handleLogin()}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, marginBottom: 16, boxSizing: 'border-box' as const }}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, marginBottom: 'var(--space-4, 16px)', boxSizing: 'border-box' as const }}
           />
           <button style={{ ...styles.btn, width: '100%', padding: '12px', fontSize: 14 }} onClick={() => void handleLogin()} disabled={loginLoading}>
             {loginLoading ? t('selfService.login.searching') : t('selfService.login.search')}
           </button>
-          {loginError && <Alert type="error" showIcon message={loginError} style={{ marginTop: 16, textAlign: 'left' }} />}
-          <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>{t('selfService.login.demo')}</div>
+          {loginError && <Alert type="error" showIcon message={loginError} style={{ marginTop: 'var(--space-4, 16px)', textAlign: 'left' }} />}
+          <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: '#94a3b8' }}>{t('selfService.login.demo')}</div>
         </Card>
       </div>
     )
@@ -715,7 +715,7 @@ export default function SelfServicePortal() {
   if (loading) {
     return (
       <div style={styles.container}>
-        <div style={{ padding: 80, textAlign: 'center' }}>
+        <div style={{ padding: 'var(--space-20, 80px)', textAlign: 'center' }}>
           <Spin size="large" tip={t('selfService.loading')}>
             <div style={{ height: 60 }} />
           </Spin>
@@ -812,7 +812,7 @@ export default function SelfServicePortal() {
           <button style={styles.btn} onClick={() => setSelectedExam(selectedExam?.id === exam.id ? null : exam)}>
             {selectedExam?.id === exam.id ? t('selfService.images.collapse') : t('selfService.images.viewImage')}
           </button>
-          <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(exam)}>{t('selfService.images.openViewer')}</button>
+          <button style={{ ...styles.btnGreen, marginLeft: 'var(--space-2, 8px)' }} onClick={() => openViewer(exam)}>{t('selfService.images.openViewer')}</button>
         </>
       ),
     },
@@ -839,7 +839,7 @@ export default function SelfServicePortal() {
       label: t('selfService.tab.home'),
       children: (
         <div>
-          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 20 }}>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-5, 20px)' }}>
             <StatCard title={t('selfService.home.examRecords')} value={exams.length} suffix={t('selfService.home.examRecordsSuffix')} />
             <StatCard title={t('selfService.home.pendingAppointments')} value={upcomingAppointments.length} suffix={t('selfService.home.pendingAppointmentsSuffix')} />
             <StatCard title={t('selfService.home.reports')} value={reports.length} suffix={t('selfService.home.reportsSuffix')} />
@@ -871,7 +871,7 @@ export default function SelfServicePortal() {
                     </div>
                     <div>
                       <Tag color="success">{t('selfService.home.reportNotice')}</Tag>
-                      <button style={{ ...styles.btn, marginLeft: 8 }} onClick={() => { setActiveTab('reports') }}>{t('selfService.home.viewReport')}</button>
+                      <button style={{ ...styles.btn, marginLeft: 'var(--space-2, 8px)' }} onClick={() => { setActiveTab('reports') }}>{t('selfService.home.viewReport')}</button>
                     </div>
                   </div>
                 )}
@@ -884,7 +884,7 @@ export default function SelfServicePortal() {
               {upcomingAppointments.slice(0, 3).map(a => (
                 <div key={a.id} style={styles.todoItem}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.modality} · {a.bodyPart ?? '-'}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <span style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)}</span>
                     <Tag color={stateColor(a.state)}>{APPOINTMENT_STATE_LABEL[a.state] ?? a.state}</Tag>
                   </div>
@@ -909,12 +909,12 @@ export default function SelfServicePortal() {
                 <div><div style={styles.label}>{t('selfService.booking.appointmentId')}</div><div style={styles.value}>{bookingDone.id}</div></div>
                 <div><div style={styles.label}>{t('selfService.booking.status')}</div><div style={styles.value}>{APPOINTMENT_STATE_LABEL[bookingDone.state] ?? bookingDone.state}</div></div>
               </div>
-              <p style={{ fontSize: 12, color: '#059669', marginTop: 12 }}>{t('ssp.booking.arrivalNotice')}</p>
+              <p style={{ fontSize: 12, color: '#059669', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.booking.arrivalNotice')}</p>
             </Card>
           )}
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>{t('selfService.booking.selectType')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
               {MODALITIES.map(m => (
                 <button
                   key={m.value}
@@ -929,7 +929,7 @@ export default function SelfServicePortal() {
                   }}
                 >
                   <div style={{ fontSize: 16, fontWeight: 600 }}>{m.value}</div>
-                  <div style={{ fontSize: 11, marginTop: 4, color: '#94a3b8' }}>{m.label}</div>
+                  <div style={{ fontSize: 11, marginTop: 'var(--space-1, 4px)', color: '#94a3b8' }}>{m.label}</div>
                 </button>
               ))}
             </div>
@@ -969,7 +969,7 @@ export default function SelfServicePortal() {
           {booking.modality && booking.date && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>{t('selfService.booking.selectSlot')} — {booking.date}</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
                 {TIME_SLOTS.map(s => (
                   <button
                     key={s}
@@ -993,7 +993,7 @@ export default function SelfServicePortal() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {booking.modality} · {booking.bodyPart} · {booking.date} {booking.slot}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{t('selfService.booking.confirmHint')}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{t('selfService.booking.confirmHint')}</div>
               </div>
               <button style={{ ...styles.btn, padding: '12px 28px', fontSize: 14 }} onClick={() => void submitBooking()} disabled={bookingLoading}>
                 {bookingLoading ? t('selfService.booking.submitting') : t('selfService.booking.confirm')}
@@ -1041,17 +1041,17 @@ export default function SelfServicePortal() {
                   { key: 'conclusion', label: t('ssp.reports.conclusion'), children: selectedReport.conclusion || '-' },
                 ]}
               />
-              <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <button style={{ ...styles.btn, background: '#059669', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => downloadReportText(selectedReport)}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', gap: 'var(--space-2, 8px)' }}>
+                <button style={{ ...styles.btn, background: '#059669', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => downloadReportText(selectedReport)}>
                   <Download size={13} />
                   {t('ssp.reports.download')}
                 </button>
-                <button style={{ ...styles.btnGreen, background: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => window.print()}>
+                <button style={{ ...styles.btnGreen, background: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => window.print()}>
                   <Printer size={13} />
                   {t('ssp.reports.print')}
                 </button>
               </div>
-              <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
+              <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-4, 16px)' }}>
                 {t('ssp.reports.legalNote')}
               </p>
             </Card>
@@ -1065,7 +1065,7 @@ export default function SelfServicePortal() {
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItem}</div>
                     <div style={{ fontSize: 12, color: '#64748b' }}>{exam.examDate} · {exam.bodyPart}</div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                     <button style={{ ...styles.btnGreen }} onClick={() => setExpandedReport(expandedReport === exam.id ? null : exam.id)}>
                       {expandedReport === exam.id ? t('selfService.reports.collapse') : t('selfService.reports.view')}
                     </button>
@@ -1079,10 +1079,10 @@ export default function SelfServicePortal() {
                 const exam = exams.find(e => e.id === expandedReport)
                 if (!exam?.reportContent) return null
                 return (
-                  <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                  <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                     {exam.reportContent}
-                    {exam.diagnosis && <div style={{ marginTop: 12 }}><div style={styles.label}>{t('selfService.reports.diagnosisLabel')}</div><div style={styles.value}>{exam.diagnosis}</div></div>}
-                    {exam.recommendations && <div style={{ marginTop: 8 }}><div style={styles.label}>{t('selfService.reports.recommendationsLabel')}</div><div style={styles.value}>{exam.recommendations}</div></div>}
+                    {exam.diagnosis && <div style={{ marginTop: 'var(--space-3, 12px)' }}><div style={styles.label}>{t('selfService.reports.diagnosisLabel')}</div><div style={styles.value}>{exam.diagnosis}</div></div>}
+                    {exam.recommendations && <div style={{ marginTop: 'var(--space-2, 8px)' }}><div style={styles.label}>{t('selfService.reports.recommendationsLabel')}</div><div style={styles.value}>{exam.recommendations}</div></div>}
                   </div>
                 )
               })()}
@@ -1112,14 +1112,14 @@ export default function SelfServicePortal() {
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>{t('selfService.images.electronicFilm')} — {selectedExam.examItem}</h3>
               {study && study.series.length > 0 && (
-                <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
+                <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
                     {t('ssp.images.dicomExamNo')}{study.studyInstanceUid} · WADO-RS：<code style={{ fontSize: 11 }}>{study.wadoRs.study}</code>
                   </div>
                   {study.series.map(s => (
-                    <div key={s.seriesInstanceUid} style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
+                    <div key={s.seriesInstanceUid} style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>
                       {t('ssp.images.seriesPrefix')}{s.seriesNumber ?? '-'}（{s.modality}）：{s.instanceCount}{t('ssp.images.framesSuffix')}
-                      <span style={{ color: '#94a3b8', marginLeft: 8 }}>{s.wadoRs.instances}</span>
+                      <span style={{ color: '#94a3b8', marginLeft: 'var(--space-2, 8px)' }}>{s.wadoRs.instances}</span>
                     </div>
                   ))}
                 </div>
@@ -1127,21 +1127,21 @@ export default function SelfServicePortal() {
               <div style={styles.imageGrid}>
                 {images.map(img => (
                   <div key={img.id} style={styles.imageCard}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{img.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-2, 8px)' }}>{img.label}</div>
                     <div style={{ ...styles.imagePlaceholder, filter: getImageFilter(img), background: '#1e293b' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 1, padding: 8, width: '100%', height: '100%', boxSizing: 'border-box' as const }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 1, padding: 'var(--space-2, 8px)', width: '100%', height: '100%', boxSizing: 'border-box' as const }}>
                         {Array.from({ length: 64 }).map((_, i) => (
                           <div key={i} style={{ background: `hsl(200,10%,${20 + Math.random() * 20}%)`, borderRadius: 1 }} />
                         ))}
                       </div>
                     </div>
-                    <div style={{ marginTop: 8 }}>
+                    <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                       <div><label style={styles.label}>{t('ssp.images.windowWidth')}</label><input type="range" min={100} max={2000} value={img.windowWidth} onChange={e => handleWindowChange(img.id, 'width', +e.target.value)} style={styles.slider} /></div>
                       <div><label style={styles.label}>{t('ssp.images.windowCenter')}</label><input type="range" min={-100} max={500} value={img.windowCenter} onChange={e => handleWindowChange(img.id, 'center', +e.target.value)} style={styles.slider} /></div>
                       <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, cursor: 'pointer', background: img.invert ? 'var(--color-primary-500)' : 'var(--bg-card)', color: img.invert ? '#fff' : '#64748b' }}>
                         {img.invert ? t('selfService.images.cancelInvert') : t('selfService.images.invert')}
                       </button>
-                      <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(selectedExam)}>{t('selfService.images.fullView')}</button>
+                      <button style={{ ...styles.btnGreen, marginLeft: 'var(--space-2, 8px)' }} onClick={() => openViewer(selectedExam)}>{t('selfService.images.fullView')}</button>
                     </div>
                   </div>
                 ))}
@@ -1150,14 +1150,14 @@ export default function SelfServicePortal() {
           )}
           <Card bordered={false} style={{ ...styles.card, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
             <h3 style={{ ...styles.subTitle, textAlign: 'left' }}>{t('selfService.voucher.title')}</h3>
-            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>{t('selfService.voucher.hint')}</p>
+            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-4, 16px)' }}>{t('selfService.voucher.hint')}</p>
             {!voucherCode ? (
               <button style={styles.voucherBtn} onClick={generateVoucher}>{t('selfService.voucher.generate')}</button>
             ) : (
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{t('selfService.voucher.yourVoucher')}：</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('selfService.voucher.yourVoucher')}：</div>
                 <div style={styles.voucherCode}>{voucherCode}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t('selfService.voucher.validity')}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>{t('selfService.voucher.validity')}</div>
               </div>
             )}
           </Card>
@@ -1185,7 +1185,7 @@ export default function SelfServicePortal() {
                   <div key={id} style={{ padding: '14px 0', borderBottom: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                           {title}
                           {contentType === 'video' && <Tag color="blue">{t('selfService.education.video')}</Tag>}
                           {contentType === 'audio' && <Tag color="purple">{t('selfService.education.audio')}</Tag>}
@@ -1202,9 +1202,9 @@ export default function SelfServicePortal() {
                       )}
                     </div>
                     {isOpen && body && (
-                      <div style={{ marginTop: 12, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                         {body}
-                        {edu.duration && <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>{t('ssp.education.readTimePrefix')}{edu.duration}{t('ssp.education.readTimeSuffix')}</div>}
+                        {edu.duration && <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>{t('ssp.education.readTimePrefix')}{edu.duration}{t('ssp.education.readTimeSuffix')}</div>}
                       </div>
                     )}
                   </div>
@@ -1248,13 +1248,13 @@ export default function SelfServicePortal() {
               </button>
             </h3>
             {contactsLoading ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
                 <Spin size="small" tip={t('selfService.contacts.loadContacts')} />
               </div>
             ) : doctorContacts.length === 0 && nurseContacts.length === 0 && techContacts.length === 0 ? (
               <Empty description={t('selfService.contacts.emptyHint')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' }}>
                 {[
                   { title: t('selfService.contacts.doctor'), color: 'var(--color-primary-800)', users: doctorContacts },
                   { title: t('selfService.contacts.nurse'), color: '#0d9488', users: nurseContacts },
@@ -1277,7 +1277,7 @@ export default function SelfServicePortal() {
                 ))}
               </div>
             )}
-            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>{t('ssp.contacts.notice')}</p>
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.contacts.notice')}</p>
           </Card>
         </div>
       ),
@@ -1295,27 +1295,27 @@ export default function SelfServicePortal() {
                 : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('ssp.followup.demoFallback')}</span>}
             </h3>
             {followupLoading ? (
-              <div style={{ textAlign: 'center', padding: 40 }}><Spin tip={t('ssp.followup.loading')} /></div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin tip={t('ssp.followup.loading')} /></div>
             ) : followups.length === 0 ? (
               <Empty description={t('ssp.followup.empty')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               // [v3.0.6.11-99 Wave7B] 移动卡片化: 响应式 grid (桌面 2 列 / 手机 1 列) + 提醒展示
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-3, 12px)' }}>
                 {followups.map(p => (
                   <div key={p.id} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14, borderLeft: `4px solid ${p.status === 'COMPLETED' ? '#059669' : p.status === 'OVERDUE' ? 'var(--color-error-600)' : p.status === 'IN_PROGRESS' ? '#0d9488' : 'var(--color-warning-600)'}` }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{p.note || t('ssp.followup.defaultPlan')}</div>
                       <Tag color={p.status === 'COMPLETED' ? 'success' : p.status === 'OVERDUE' ? 'error' : p.status === 'IN_PROGRESS' ? 'processing' : 'warning'}>
                         {FOLLOWUP_STATE_LABEL[p.status] ?? p.status}
                       </Tag>
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', marginBottom: 'var(--space-1, 4px)' }}>
                       <span>{t('ssp.followup.planPrefix')}{p.planDate ? fmtDateTime(p.planDate) : '-'}</span>
                       <span>{t('ssp.followup.nextPrefix')}{p.nextDate ? fmtDateTime(p.nextDate) : '-'}</span>
                       {p.intervalDays ? <span>{t('ssp.followup.everyPrefix')}{p.intervalDays}{t('ssp.followup.daySuffix')}</span> : null}
                     </div>
                     {/* 提醒展示 */}
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-2, 8px)' }}>
                       <Tag color={p.reminderEnabled ? 'green' : 'default'} style={{ margin: 0 }}>
                         {p.reminderEnabled ? t('ssp.followup.reminderOn') : t('ssp.followup.reminderOff')}
                       </Tag>
@@ -1359,12 +1359,12 @@ export default function SelfServicePortal() {
               <div style={styles.label}>{t('selfService.followup.noteLabel')}</div>
               <Input.TextArea rows={2} maxLength={200} showCount value={followupForm.note} onChange={e => setFollowupForm({ ...followupForm, note: e.target.value })} placeholder={t('selfService.followup.notePlaceholder')} />
             </div>
-            <div style={{ marginTop: 16 }}>
+            <div style={{ marginTop: 'var(--space-4, 16px)' }}>
               <button style={{ ...styles.btn, padding: '10px 28px', fontSize: 12 }} onClick={() => void submitFollowup()} disabled={followupCreating}>
                 {followupCreating ? t('selfService.followup.submitting') : t('selfService.followup.submit')}
               </button>
             </div>
-            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>{t('ssp.followup.submitNotice')}</p>
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.followup.submitNotice')}</p>
           </Card>
         </div>
       ),
@@ -1375,8 +1375,8 @@ export default function SelfServicePortal() {
       children: (
         <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
           <h3 style={styles.subTitle}>{t('selfService.feedback.title')}</h3>
-          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 20 }}>{t('ssp.feedback.intro')}</p>
-          <div style={{ marginBottom: 24 }}>
+          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-5, 20px)' }}>{t('ssp.feedback.intro')}</p>
+          <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
             <div style={styles.label}>{t('selfService.feedback.overallSatisfaction')}</div>
             <Rate
               value={rating}
@@ -1389,7 +1389,7 @@ export default function SelfServicePortal() {
               </div>
             )}
           </div>
-          <div style={{ marginBottom: 24, maxWidth: 360 }}>
+          <div style={{ marginBottom: 'var(--space-6, 24px)', maxWidth: 360 }}>
             <div style={styles.label}>{t('selfService.feedback.category')}</div>
             <Select
               placeholder={t('selfService.feedback.selectCategory')}
@@ -1399,7 +1399,7 @@ export default function SelfServicePortal() {
               options={FEEDBACK_CATEGORIES.map(c => ({ value: c, label: c }))}
             />
           </div>
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
             <div style={styles.label}>{t('selfService.feedback.suggestion')}</div>
             <Input.TextArea
               rows={4}
@@ -1424,7 +1424,7 @@ export default function SelfServicePortal() {
         <div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>{t('w12Patient.sr.identify')}</h3>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12, maxWidth: 480 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', maxWidth: 480 }}>
               <Input
                 value={srQuery}
                 onChange={e => setSrQuery(e.target.value)}
@@ -1449,14 +1449,14 @@ export default function SelfServicePortal() {
               />
             )}
             {srIdentify && srIdentify.candidates.length > 1 && (
-              <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b' }}>
                 {t('w12Patient.sr.candidates')}: {srIdentify.candidates.map(c => c.name).join('、')}
               </div>
             )}
           </Card>
           {srPatient && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button style={{ ...styles.btnGreen, padding: '6px 24px' }} disabled={srBusy} onClick={() => void doCheckIn()}>
                   {t('w12Patient.sr.checkInBtn')}
                 </button>
@@ -1470,12 +1470,12 @@ export default function SelfServicePortal() {
                 )}
               </div>
               {srCheckIn && srCheckIn.blockers.length > 0 && (
-                <div style={{ marginTop: 12, color: 'var(--color-error-600)', fontSize: 12 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', color: 'var(--color-error-600)', fontSize: 12 }}>
                   {t('w12Patient.sr.blockers')}: {srCheckIn.blockers.join('、')}
                 </div>
               )}
               {srQueue && (
-                <div style={{ marginTop: 16, display: 'flex', gap: 32, alignItems: 'center' }}>
+                <div style={{ marginTop: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-8, 32px)', alignItems: 'center' }}>
                   <Statistic title={t('w12Patient.sr.ticket')} value={srQueue.ticket} />
                   <Statistic title={t('w12Patient.sr.position')} value={srQueue.position} />
                   <Statistic title={t('w12Patient.sr.waitMinutes')} value={srQueue.estimatedWaitMinutes} />
@@ -1491,14 +1491,14 @@ export default function SelfServicePortal() {
 
   return (
     <div style={styles.container}>
-      {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 16 }} />}
+      {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
       {/* 患者身份卡 */}
       <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
         <div style={styles.header}>
           <Title level={5} style={styles.title}>{t('selfService.login.title')}</Title>
           <button style={{ ...styles.btn, background: '#64748b' }} onClick={handleLogout}>{t('selfService.patientCard.logout')}</button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{
             width: 56, height: 56, borderRadius: '50%', background: 'var(--color-primary-800)', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700,
@@ -1522,7 +1522,7 @@ export default function SelfServicePortal() {
         activeKey={activeTab}
         onChange={setActiveTab}
         items={tabItems}
-        tabBarStyle={{ marginBottom: 20 }}
+        tabBarStyle={{ marginBottom: 'var(--space-5, 20px)' }}
       />
 
       {/* [W2-B] 临床数据详情 Drawer */}
@@ -1551,7 +1551,7 @@ export default function SelfServicePortal() {
               ]}
             />
             {(clinicalDetail as any).labValues && (
-              <div style={{ marginTop: 16, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
                 <div style={styles.label}>{t('selfService.clinicalDrawer.labValues')}</div>
                 <div style={{ ...styles.value, fontSize: 12, lineHeight: 1.7 }}>{(clinicalDetail as any).labValues}</div>
               </div>

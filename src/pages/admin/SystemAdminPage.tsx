@@ -186,20 +186,20 @@ export const SystemAdminPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Settings size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sysAdmin.title')}</span>
         <Tag color="cyan">v3.0.6.11-35</Tag>
       </Space>
 
-      <StatCardGrid style={{ marginBottom: 16 }}>
+      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('sysAdmin.statUsers')} value={users.length} />
         <StatCard title={t('sysAdmin.statRoles')} value={roles.length} />
         <StatCard title={t('sysAdmin.statOnline')} value="2" color="success" />
       </StatCardGrid>
 
       {loading ? (
-        <Card><div style={{ textAlign: 'center', padding: 40 }}><Spin tip={t('sysAdmin.loading')} /></div></Card>
+        <Card><div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin tip={t('sysAdmin.loading')} /></div></Card>
       ) : (
         <Tabs activeKey={tab} onChange={setTab} type="card"
           items={[
@@ -246,7 +246,7 @@ export const SystemAdminPage: React.FC = () => {
           ]}
         />
       )}
-      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} loading={savingConfig} onClick={handleSaveAllConfigs}>{t('sysAdmin.saveAllConfigs')}</Button>
+      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:'var(--space-4, 16px)'}} loading={savingConfig} onClick={handleSaveAllConfigs}>{t('sysAdmin.saveAllConfigs')}</Button>
       <Modal title={t('sysAdmin.addUser')} open={userModal} onOk={handleCreateUser} onCancel={() => setUserModal(false)}>
         <Form layout="vertical">
           <Form.Item label={t('sysAdmin.formName')}><Input value={newUserName} onChange={e => setNewUserName(e.target.value)} placeholder={t('sysAdmin.namePlaceholder')} /></Form.Item>

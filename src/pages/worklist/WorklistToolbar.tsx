@@ -118,7 +118,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         color: active ? '#fff' : '#64748b',
         display: 'flex',
         alignItems: 'center',
-        gap: 4,
+        gap: 'var(--space-1, 4px)',
       }}
     >
       {active && <Check size={14} />}
@@ -134,21 +134,21 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
       background: 'var(--bg-card)',
       borderRadius: 12,
       border: '1px solid var(--border-color)',
-      marginBottom: 16,
+      marginBottom: 'var(--space-4, 16px)',
       overflow: 'hidden',
       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }}>
       <div style={{
         padding: '14px 16px',
         display: 'flex',
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
         alignItems: 'center',
         flexWrap: 'wrap',
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
           flex: 1,
           minWidth: 240,
           background: 'var(--bg-card)',
@@ -178,8 +178,8 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <Calendar size={14} style={{ color: 'var(--text-secondary)' }} />
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('worklistToolbar.date')}</span>
           </div>
@@ -224,7 +224,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: 4,
+            gap: 'var(--space-1, 4px)',
           }}
         >
           <Filter size={14} />
@@ -244,7 +244,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: 4,
+            gap: 'var(--space-1, 4px)',
           }}
         >
           <RefreshCw size={14} />
@@ -258,11 +258,11 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           borderTop: '1px solid var(--border-light)',
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 16,
-          paddingTop: 16,
+          gap: 'var(--space-4, 16px)',
+          paddingTop: 'var(--space-4, 16px)',
         }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <Monitor size={14} />
               {t('worklistToolbar.modalityType')}
             </div>
@@ -273,7 +273,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <User size={14} />
               {t('worklistToolbar.patientType')}
             </div>
@@ -284,7 +284,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <Zap size={14} />
               {t('worklistToolbar.priority')}
             </div>
@@ -295,7 +295,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <Activity size={14} />
               {t('worklistToolbar.status')}
             </div>
@@ -306,7 +306,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <Stethoscope size={14} />
               {t('worklistToolbar.examDoctor')}
             </div>
@@ -344,7 +344,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                   zIndex: 50,
                   maxHeight: 200,
                   overflowY: 'auto',
-                  marginTop: 4,
+                  marginTop: 'var(--space-1, 4px)',
                 }}>
                   <div
                     role="button"
@@ -397,15 +397,15 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
       )}
 
       {expanded && showSavePreset && (
-        <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-light)', paddingTop: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-light)', paddingTop: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
             <BookmarkCheck size={14} color="var(--color-primary-800)" />
             <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistToolbar.filterPresets')}</span>
           </div>
           {presets && presets.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
               {presets.map((p, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '4px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                   <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>
                     {p.name}
                   </button>
@@ -416,9 +416,9 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
               ))}
             </div>
           )}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder={t('worklistToolbar.presetNamePlaceholder')} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={14} />{t('worklistToolbar.saveCurrent')}</button>
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Save size={14} />{t('worklistToolbar.saveCurrent')}</button>
           </div>
         </div>
       )}
@@ -448,16 +448,16 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
       background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-600) 100%)',
       borderRadius: 10,
       padding: '12px 16px',
-      marginBottom: 12,
+      marginBottom: 'var(--space-3, 12px)',
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
+      gap: 'var(--space-3, 12px)',
       boxShadow: '0 4px 12px rgba(30,58,95,0.3)',
     }}>
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 'var(--space-2, 8px)',
         color: '#fff',
         fontSize: 12,
         fontWeight: 600,
@@ -520,7 +520,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
                   background: batch.priorityValue === p ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}
                 onMouseEnter={e => { if (batch.priorityValue !== p) e.currentTarget.style.background = 'var(--bg-hover)' }}
                 onMouseLeave={e => { if (batch.priorityValue !== p) e.currentTarget.style.background = 'var(--bg-card)' }}
@@ -716,7 +716,7 @@ export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
             onClick={() => onApply(qv.filter)}
             style={{
               padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', transition: 'all 0.15s',
               borderColor: isActive ? 'var(--color-primary-800)' : '#e2e8f0',
               background: isActive ? 'var(--color-primary-800)' : 'var(--bg-card)',
               color: isActive ? '#fff' : '#64748b',
@@ -754,7 +754,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
   return (
     <div style={{
       background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '12px 16px',
-      marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }}>
       <Barcode size={18} color="var(--color-primary-800)" />
       <input
@@ -792,7 +792,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         {t('worklistToolbar.printLabel')}
       </button>
       {lastScanned && (
-        <div style={{ fontSize: 12, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ fontSize: 12, color: '#059669', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <CheckCircle size={14} />
           {t('worklistToolbar.lastCheckIn')} {lastScanned}
         </div>

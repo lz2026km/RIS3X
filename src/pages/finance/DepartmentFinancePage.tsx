@@ -318,9 +318,9 @@ export default function DepartmentFinancePage() {
         const inv = invOf(r)
         return (
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-            <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Eye size={12} />{t('deptFinance.detail')}</button>
+            <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12 }}><Eye size={12} />{t('deptFinance.detail')}</button>
             {inv.status === 'UNPAID' || inv.status === 'PENDING' ? (
-              <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: 'var(--color-success)', color: 'var(--text-inverse)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />{t('deptFinance.pay')}</button>
+              <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: 'var(--color-success)', color: 'var(--text-inverse)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />{t('deptFinance.pay')}</button>
             ) : (
               <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>—</span>
             )}
@@ -358,8 +358,8 @@ export default function DepartmentFinancePage() {
   return (
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-900))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><DollarSign size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deptFinance.title')}</span></div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}><DollarSign size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deptFinance.title')}</span></div>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           {(['monthly', 'quarterly', 'yearly'] as const).map(p => (
             <button key={p} onClick={() => setPeriod(p)}
               style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: period === p ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: 'var(--text-inverse)' }}>
@@ -373,7 +373,7 @@ export default function DepartmentFinancePage() {
       </div>
 
       {/* Tab 切换 */}
-      <div style={{ display: 'flex', gap: 4, padding: '0 24px', marginTop: 12 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', padding: '0 24px', marginTop: 'var(--space-3, 12px)' }}>
         {([
           { key: 'overview', label: t('deptFinance.tabOverview'), icon: PieIcon },
           { key: 'invoices', label: t('deptFinance.tabInvoices'), icon: Receipt },
@@ -390,7 +390,7 @@ export default function DepartmentFinancePage() {
       {tab === 'overview' && (
         <div style={{ padding: '20px 24px' }}>
           <FinanceAnalyticsSection />
-          <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
             {[
               { title: t('deptFinance.totalRevenue'), value: totalRev.toLocaleString(), unit: '¥', icon: TrendingUp, trend: 'up', color: 'var(--color-success)' },
               { title: t('deptFinance.totalCost'), value: totalCost.toLocaleString(), unit: '¥', icon: TrendingDown, trend: 'up', color: 'var(--color-error)' },
@@ -398,7 +398,7 @@ export default function DepartmentFinancePage() {
               { title: t('deptFinance.profitMargin'), value: margin, unit: '%', icon: PieIcon, trend: 'up', color: 'var(--color-modality-mr)' },
             ].map((k, i) => (
               <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{k.title}</span>
                   <k.icon size={20} style={{ color: k.color }} />
                 </div>
@@ -408,19 +408,19 @@ export default function DepartmentFinancePage() {
           </div>
 
           {/* [G005 W1-Controls P1-6] 真实接口数据 (revenue-analysis / cost-accounting) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('w1Controls.deptFinance.apiSource')}</span>
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>· {t('w1Controls.deptFinance.periodLabel')}: {apiRevenue?.period ?? costData?.period ?? period}</span>
             {!hasApiRevenue && !hasApiCost && <DemoBadge />}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <TrendingUp size={16} color="var(--color-success)" />{t('w1Controls.deptFinance.revenueProfit')}
               </div>
               {apiRevenue ? (
                 <>
-                  <div style={{ display: 'flex', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
                     <div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.revenue')}</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-success)' }}>{fmtMoney(apiRevenue.totalRevenue)}</div></div>
                     <div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.cost')}</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-error)' }}>{fmtMoney(apiRevenue.totalCost)}</div></div>
                     <div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.profit')}</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-primary)' }}>{fmtMoney(apiRevenue.totalProfit)}</div></div>
@@ -441,17 +441,17 @@ export default function DepartmentFinancePage() {
                   )}
                 </>
               ) : (
-                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+                <div style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('w1Controls.deptFinance.noApiData')}</div>
               )}
             </div>
 
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <PieIcon size={16} color="var(--color-error)" />{t('w1Controls.deptFinance.costByItem')}
               </div>
               {costData ? (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-5, 20px)' }}>
                     <ChartContainer type="pie" height={160} style={{ width: 200, flexShrink: 0 }}>
                       <PieChart>
                         <Pie data={apiCostItems} cx="50%" cy="50%" outerRadius={70} dataKey="value" nameKey="label">
@@ -462,13 +462,13 @@ export default function DepartmentFinancePage() {
                     </ChartContainer>
                     <div style={{ flex: 1 }}>
                       {apiCostItems.map((c) => (
-                        <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
+                        <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', fontSize: 12 }}>
                           <span style={{ width: 10, height: 10, borderRadius: 2, background: c.color, display: 'inline-block' }} />
                           <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{c.label}</span>
                           <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{fmtMoney(c.value)}</span>
                         </div>
                       ))}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-default)', paddingTop: 6, marginTop: 4, fontSize: 12, fontWeight: 700 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-default)', paddingTop: 6, marginTop: 'var(--space-1, 4px)', fontSize: 12, fontWeight: 700 }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.costTotal')}</span>
                         <span>{fmtMoney(apiCostTotal)}</span>
                       </div>
@@ -476,14 +476,14 @@ export default function DepartmentFinancePage() {
                   </div>
                 </>
               ) : (
-                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+                <div style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('w1Controls.deptFinance.noApiData')}</div>
               )}
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <TrendingUp size={16} color="var(--color-primary)" />{t('deptFinance.monthlyTrend')}
                 {monthlyTrendIsDemo && <DemoBadge />}
               </div>
@@ -501,8 +501,8 @@ export default function DepartmentFinancePage() {
               </ChartContainer>
             </div>
 
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BarChart3 size={16} color="var(--color-warning)" />{t('deptFinance.revenueByModality')}
                 {modalityIsDemo && <DemoBadge />}
               </div>
@@ -522,13 +522,13 @@ export default function DepartmentFinancePage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <PieIcon size={16} color="var(--color-modality-mr)" />{t('deptFinance.costStructure')}
                 {costPieIsDemo && <DemoBadge />}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6, 24px)' }}>
                 <ChartContainer type="pie" height={180} style={{ width: 220, flexShrink: 0 }}>
                   <PieChart>
                     <Pie data={costPieData} cx="50%" cy="50%" outerRadius={58} dataKey="amount" nameKey="category" labelLine={false} label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}>
@@ -541,7 +541,7 @@ export default function DepartmentFinancePage() {
                   {costPieData.map((c, i) => {
                     const pct = apiCostTotal > 0 ? (c.amount / apiCostTotal) * 100 : 0
                     return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', fontSize: 12 }}>
                         <span style={{ width: 10, height: 10, borderRadius: 2, background: c.color, display: 'inline-block' }} />
                         <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{c.category}</span>
                         <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{pct.toFixed(0)}%</span>
@@ -552,14 +552,14 @@ export default function DepartmentFinancePage() {
               </div>
             </div>
 
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BarChart3 size={16} color="var(--color-success)" />{t('deptFinance.paymentMix')}
                 <DemoBadge />
               </div>
               {INSURANCE_MIX.map((im, i) => (
-                <div key={i} style={{ marginBottom: 16 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                <div key={i} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{im.type}</span>
                     <span style={{ color: 'var(--text-primary)' }}>{im.percent}%</span>
                   </div>
@@ -576,8 +576,8 @@ export default function DepartmentFinancePage() {
 
       {tab === 'invoices' && (
         <div style={{ padding: '20px 24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 14, fontWeight: 600 }}>
               <Receipt size={16} color="var(--color-primary)" />{t('deptFinance.invoiceList')}
               <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 400 }}>{t('deptFinance.totalCount')} {invoices.length} {t('deptFinance.units')}</span>
             </div>
@@ -585,9 +585,9 @@ export default function DepartmentFinancePage() {
           </div>
 
           {invError && (
-            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 12 }}>
+            <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 'var(--space-4, 16px)', fontSize: 12 }}>
               {t('deptFinance.loadFailed')}:{invError}
-              <button onClick={() => void loadInvoices()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
+              <button onClick={() => void loadInvoices()} style={{ marginLeft: 'var(--space-3, 12px)', padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
           )}
 
@@ -605,10 +605,10 @@ export default function DepartmentFinancePage() {
             styles={modalStyle}
           >
             {detailLoading ? (
-              <div style={{ padding: 40, textAlign: 'center' }}><Spin /></div>
+              <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center' }}><Spin /></div>
             ) : detail ? (
-              <div style={{ marginTop: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 700 }}>{detail.patientName}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('deptFinance.invoiceNo')}:{detail.id} · {fmtDate(detail.issuedAt)}</div>
@@ -619,12 +619,12 @@ export default function DepartmentFinancePage() {
                 </div>
 
                 {Array.isArray(detail.items) && detail.items.length > 0 && (
-                  <div style={{ marginBottom: 12, border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 600 }}>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)', border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 'var(--space-2, 8px)', padding: '8px 12px', background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 600 }}>
                       <span>{t('deptFinance.colItem')}</span><span>{t('deptFinance.quantity')}</span><span style={{ textAlign: 'right' }}>{t('deptFinance.unitPrice')}</span><span style={{ textAlign: 'right' }}>{t('deptFinance.subtotal')}</span>
                     </div>
                     {detail.items.map((it: any, i: number) => (
-                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', borderTop: '1px solid var(--border-default)', fontSize: 12 }}>
+                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 'var(--space-2, 8px)', padding: '8px 12px', borderTop: '1px solid var(--border-default)', fontSize: 12 }}>
                         <span>{it.itemName ?? it.name}</span>
                         <span style={{ color: 'var(--text-secondary)' }}>{it.quantity ?? 1}</span>
                         <span style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>¥{Number(it.unitPrice ?? 0).toLocaleString()}</span>
@@ -644,7 +644,7 @@ export default function DepartmentFinancePage() {
                 </div>
               </div>
             ) : (
-              <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)' }}>{t('deptFinance.invoiceDetailNotFound')}</div>
+              <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--text-muted)' }}>{t('deptFinance.invoiceDetailNotFound')}</div>
             )}
           </Modal>
 
@@ -661,11 +661,11 @@ export default function DepartmentFinancePage() {
             styles={modalStyle}
           >
             {payInvoice && (
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
+                <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
                   {t('deptFinance.invoice')} <span style={{ color: 'var(--color-primary-300)', fontFamily: 'monospace' }}>{payInvoice.id}</span> · {payInvoice.patientName}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-4, 16px)' }}>
                   {payInvoice.examItem} · {t('deptFinance.colTotal')} {fmtMoney(payInvoice.totalAmount)} · {t('deptFinance.colPaid')} {fmtMoney(payInvoice.paidAmount)}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -693,8 +693,8 @@ export default function DepartmentFinancePage() {
 
       {tab === 'reports' && (
         <div style={{ padding: '20px 24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 14, fontWeight: 600 }}>
               <FileText size={16} color="var(--color-primary)" />{t('deptFinance.tabReports')}
               <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 400 }}>getFinancialReports · {t('deptFinance.flowRecords')} {summary.total} {t('deptFinance.records')}</span>
             </div>
@@ -702,23 +702,23 @@ export default function DepartmentFinancePage() {
           </div>
 
           {repError && (
-            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 12 }}>
+            <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 'var(--space-4, 16px)', fontSize: 12 }}>
               {t('deptFinance.loadFailed')}:{repError}
-              <button onClick={() => void loadReports()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
+              <button onClick={() => void loadReports()} style={{ marginLeft: 'var(--space-3, 12px)', padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
           )}
 
           {repLoading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, fontSize: 12 }}>{t('deptFinance.loadingReports')}</div>
+              <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12 }}>{t('deptFinance.loadingReports')}</div>
             </div>
           ) : summary.total === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('deptFinance.noReportsData')}</div>
+            <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('deptFinance.noReportsData')}</div>
           ) : (
             <>
               {/* 汇总 KPI */}
-              <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)', flexWrap: 'wrap' }}>
                 {[
                   { title: t('deptFinance.statTotalRecords'), value: String(summary.total), color: 'var(--color-primary)' },
                   { title: t('deptFinance.statTotalReceivable'), value: fmtMoney(summary.totalAmount), color: 'var(--color-warning)' },
@@ -733,16 +733,16 @@ export default function DepartmentFinancePage() {
               </div>
 
               {/* 汇总表 */}
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)' }}>{t('deptFinance.statusSummary')}</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)' }}>{t('deptFinance.statusSummary')}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                   {Object.entries(summary.byStatus).map(([st, count]) => {
                     const meta = statusMeta(st)
                     const tone = statusTone(meta.tone)
                     return (
                       <div key={st} style={{ border: `1px solid ${tone.border}`, borderRadius: 6, padding: '10px 14px', background: tone.bg }}>
                         <div style={{ fontSize: 12, color: tone.color }}>{meta.label} ({st})</div>
-                        <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4 }}>{count}<span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 400, marginLeft: 4 }}>{t('deptFinance.units')}</span></div>
+                        <div style={{ fontSize: 20, fontWeight: 700, marginTop: 'var(--space-1, 4px)' }}>{count}<span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 400, marginLeft: 'var(--space-1, 4px)' }}>{t('deptFinance.units')}</span></div>
                       </div>
                     )
                   })}
@@ -753,12 +753,12 @@ export default function DepartmentFinancePage() {
               </div>
 
               {/* 趋势 */}
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <TrendingUp size={16} color="var(--color-success)" />{t('deptFinance.monthlyRevenueTrend')}
                 </div>
                 {trendData.length === 0 ? (
-                  <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('deptFinance.noTrendData')}</div>
+                  <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('deptFinance.noTrendData')}</div>
                 ) : (
                   <ChartContainer height={260}>
                     <LineChart data={trendData}>

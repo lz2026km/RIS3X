@@ -155,17 +155,17 @@ export default function CvOperationsPage() {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={4} style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <Title level={4} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', margin: '0 0 16px' }}>
         <Activity size={24} /> {t('cvOps.title')}
         <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', padding: '2px 8px', borderRadius: 10 }}>
           {source === 'api' ? t('cvOps.dataSourceApi') : t('cvOps.demoDataUnavailable')}
         </span>
       </Title>
 
-      {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
+      {error && <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-5, 20px)' }}>
         <button style={tabStyle('overview')} onClick={() => setSelectedTab('overview')}>{t('cvOps.tabOverview')}</button>
         <button style={tabStyle('protocols')} onClick={() => setSelectedTab('protocols')}>{t('cvOps.tabProtocols')}</button>
         <button style={tabStyle('workload')} onClick={() => setSelectedTab('workload')}>{t('cvOps.tabWorkload')}</button>
@@ -174,24 +174,24 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'overview' && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24, opacity: loading ? 0.6 : 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', opacity: loading ? 0.6 : 1 }}>
             {kpi.map(k => (
-              <div key={k.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div key={k.label} style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{k.label}</span>
                   <span style={{ color: '#64748b' }}>{k.icon}</span>
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 'bold' }}>{k.value}</div>
-                <div style={{ fontSize: 12, color: k.changeType === 'up' ? 'var(--color-success-600)' : k.changeType === 'down' ? 'var(--color-error-600)' : '#64748b', marginTop: 4 }}>{k.change}</div>
+                <div style={{ fontSize: 12, color: k.changeType === 'up' ? 'var(--color-success-600)' : k.changeType === 'down' ? 'var(--color-error-600)' : '#64748b', marginTop: 'var(--space-1, 4px)' }}>{k.change}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 16 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>{t('cvOps.timelineToday')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
             <div style={{ fontSize: 14, color: '#64748b' }}>
               {['08:00 — CCTA: 三联排除 (患者 #P1023)', '08:30 — CMR: 心肌病 (患者 #P1045)', '09:00 — 导管室: STEMI急诊PCI (患者 #P1067)', '10:00 — 超声: 负荷超声 (患者 #P1082)', '11:30 — 血管超声: 颈动脉超声 (患者 #P1095)', '13:00 — CMR: 心肌存活 (患者 #P1101)', '14:00 — CCTA: TAVR规划 (患者 #P1118)', '15:00 — 导管室: 分期PCI (患者 #P1132)'].map((e, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 7 ? '1px solid var(--border-color)' : 'none' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0', borderBottom: i < 7 ? '1px solid var(--border-color)' : 'none' }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary-800)', flexShrink: 0 }} />
                   <span>{e}</span>
                 </div>
@@ -213,7 +213,7 @@ export default function CvOperationsPage() {
       )}
 
       {selectedTab === 'workload' && (
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 16, background: 'var(--bg-card)' }}>
+        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-4, 16px)', background: 'var(--bg-card)' }}>
           <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>{t('cvOps.workloadToday')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
           <DataTable<WorkloadRow>
             columns={workloadColumns}
@@ -231,8 +231,8 @@ export default function CvOperationsPage() {
       )}
 
       {selectedTab === 'inventory' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 16, background: 'var(--bg-card)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-4, 16px)', background: 'var(--bg-card)' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
               <FlaskConical size={16} /> {t('cvOps.contrastInventory')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
             </h3>
@@ -247,7 +247,7 @@ export default function CvOperationsPage() {
               rowKey="agent"
             />
           </div>
-          <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 16, background: 'var(--bg-card)' }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-4, 16px)', background: 'var(--bg-card)' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Package size={16} /> {t('cvOps.stressDrugInventory')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
             </h3>

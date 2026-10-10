@@ -113,13 +113,13 @@ export default function ReportHeader({
       {doctorError && !loadingDoctors && <ErrorBanner message={doctorError} />}
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 220, border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 12px', background: 'var(--bg-card)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flex: 1, minWidth: 220, border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 12px', background: 'var(--bg-card)' }}>
           <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名 / 检查号 / 报告ID / 检查号..."
             style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }} />
           {search && <X size={13} style={{ color: '#94a3b8', cursor: 'pointer', flexShrink: 0 }} onClick={() => setSearch('')} />}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600, marginRight: 2 }}>设备:</span>
           {MODALITIES.map(m => (
             <button key={m} onClick={() => setModalityFilter(m)} style={btnStyle(modalityFilter === m, ACCENT)}>{m}</button>
@@ -128,20 +128,20 @@ export default function ReportHeader({
       </div>
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600, marginRight: 2 }}>状态:</span>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={dropStyle}>
             {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600, marginRight: 2 }}>报告医生:</span>
           <select value={reportDoctorFilter} onChange={e => setReportDoctorFilter(e.target.value)} style={dropStyle}>
             <option value="">全部</option>
             {doctors.map(d => <option key={d.id} value={d.id}>{d.name}{d.title ? ` (${d.title})` : ''}</option>)}
           </select>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600, marginRight: 2 }}>审核医生:</span>
           <select value={auditorFilter} onChange={e => setAuditorFilter(e.target.value)} style={dropStyle}>
             <option value="">全部</option>
@@ -155,7 +155,7 @@ export default function ReportHeader({
       )}
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>日期:</span>
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
             style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12,}} />
@@ -172,16 +172,16 @@ export default function ReportHeader({
         <button onClick={onReset} style={{ ...btnStyle(false, GRAY), color: GRAY }}>
           <X size={12} /> 清空
         </button>
-        <button onClick={onExport} style={{ ...btnStyle(false, ACCENT), marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={onExport} style={{ ...btnStyle(false, ACCENT), marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <Download size={12} /> 导出
         </button>
-        <button onClick={onPrint} style={{ ...btnStyle(false, GRAY), display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={onPrint} style={{ ...btnStyle(false, GRAY), display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <Printer size={12} /> 打印
         </button>
       </div>
 
-      <div style={{ fontSize: 12, color: '#94a3b8', borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
-        <Filter size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+      <div style={{ fontSize: 12, color: '#94a3b8', borderTop: '1px solid var(--border-color)', paddingTop: 'var(--space-2, 8px)' }}>
+        <Filter size={11} style={{ verticalAlign: 'middle', marginRight: 'var(--space-1, 4px)' }} />
         提示: 使用高级筛选可进一步按质量评分过滤
       </div>
     </div>

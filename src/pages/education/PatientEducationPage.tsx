@@ -11,15 +11,15 @@ const { Title } = Typography
 
 // ===== Styles =====
 const s = {
-  container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
-  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
-  title: { fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
-  grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
+  container: { maxWidth: 1000, margin: '0 auto', padding: 'var(--space-6, 24px)', fontFamily: '-apple-system, sans-serif' },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', marginBottom: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: 'var(--space-4, 16px)' },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' },
+  grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' },
   badge: (color: string, bg: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: bg, color }),
   btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--color-primary-800)', color: '#fff' },
   select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
-  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' },
+  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)', display: 'block' },
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
     background: active ? 'var(--bg-card)' : 'transparent', color: active ? 'var(--color-primary-800)' : '#64748b',
@@ -192,7 +192,7 @@ export default function PatientEducationPage() {
 
   if (loading) {
     return (
-      <div style={{ ...s.container, textAlign: 'center', padding: 80 }}>
+      <div style={{ ...s.container, textAlign: 'center', padding: 'var(--space-20, 80px)' }}>
         <Spin size="large" tip={t('patientEdu.loadingMaterials')}>
           <div style={{ height: 60 }} />
         </Spin>
@@ -202,11 +202,11 @@ export default function PatientEducationPage() {
 
   return (
     <div style={s.container}>
-      <Title level={4} style={{ margin: 0, marginBottom: 16 }}>{t('patientEdu.title')}</Title>
-      {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 16 }} />}
+      <Title level={4} style={{ margin: 0, marginBottom: 'var(--space-4, 16px)' }}>{t('patientEdu.title')}</Title>
+      {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', padding: 4, borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-5, 20px)', background: 'var(--bg-card)', padding: 'var(--space-1, 4px)', borderRadius: 10 }}>
         {(['materials', 'records', 'communication'] as const).map(tab => (
           <button key={tab} style={s.tab(activeTab === tab)} onClick={() => setActiveTab(tab)}>
             {tab === 'materials' ? t('patientEdu.tabMaterials', { count: materials.length }) : tab === 'records' ? t('patientEdu.tabRecords') : t('patientEdu.tabCommunication')}
@@ -218,10 +218,10 @@ export default function PatientEducationPage() {
       {activeTab === 'materials' && (
         <>
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>{t('patientEdu.healthLibrary')}</h3>
-            <div style={{ display: 'flex', gap: 8 }}>
-                <button style={{ ...s.btn, background: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setCreateOpen(true)}><Plus size={13} /> {t('patientEdu.newMaterial')}</button>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
+                <button style={{ ...s.btn, background: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }} onClick={() => setCreateOpen(true)}><Plus size={13} /> {t('patientEdu.newMaterial')}</button>
               <select style={{ ...s.select, width: 180 }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
                 <option value="">{t('patientEdu.allCategories')}</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -231,28 +231,28 @@ export default function PatientEducationPage() {
 
           {selectedMaterial ? (
             <div>
-              <button style={{ ...s.btn, background: '#64748b', marginBottom: 16 }} onClick={() => setSelectedMaterial(null)}>{t('patientEdu.backToList')}</button>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedMaterial.title}</div>
+              <button style={{ ...s.btn, background: '#64748b', marginBottom: 'var(--space-4, 16px)' }} onClick={() => setSelectedMaterial(null)}>{t('patientEdu.backToList')}</button>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-1, 4px)' }}>{selectedMaterial.title}</div>
               <span style={s.badge('#fff', 'var(--color-primary-800)')}>{CATEGORY_LABELS[selectedMaterial.category] || selectedMaterial.category}</span>
-              {selectedMaterial.modality && <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 8 }}>{selectedMaterial.modality}</span>}
-              <span style={{ ...s.badge(CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.text || 'var(--text-secondary)', CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.bg || 'var(--bg-card)'), marginLeft: 8 }}>
+              {selectedMaterial.modality && <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 'var(--space-2, 8px)' }}>{selectedMaterial.modality}</span>}
+              <span style={{ ...s.badge(CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.text || 'var(--text-secondary)', CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.bg || 'var(--bg-card)'), marginLeft: 'var(--space-2, 8px)' }}>
                 {CONTENT_TYPE_LABELS[selectedMaterial.contentType] || selectedMaterial.contentType}
               </span>
               {selectedMaterial.duration && (
-                <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>
+                <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
                   {Math.floor((selectedMaterial.duration || 0) / 60)}{t('patientEdu.minuteUnit')}{(selectedMaterial.duration || 0) % 60}{t('patientEdu.secondUnit')}
                 </span>
               )}
 
               {/* 播放器 */}
               {(selectedMaterial.contentType === 'video' || selectedMaterial.contentType === 'audio') && (
-                <div style={{ marginTop: 16, background: '#0f172a', borderRadius: 8, padding: 16, textAlign: 'center' }}>
-                  <div style={{ fontSize: 36, marginBottom: 8 }}>{selectedMaterial.contentType === 'video' ? '' : ''}</div>
-                  <div style={{ fontSize: 12, color: '#e2e8f0', marginBottom: 12 }}>{selectedMaterial.title}</div>
-                  <div style={{ background: '#1e293b', borderRadius: 4, height: 8, overflow: 'hidden', marginBottom: 12 }}>
+                <div style={{ marginTop: 'var(--space-4, 16px)', background: '#0f172a', borderRadius: 8, padding: 'var(--space-4, 16px)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 36, marginBottom: 'var(--space-2, 8px)' }}>{selectedMaterial.contentType === 'video' ? '' : ''}</div>
+                  <div style={{ fontSize: 12, color: '#e2e8f0', marginBottom: 'var(--space-3, 12px)' }}>{selectedMaterial.title}</div>
+                  <div style={{ background: '#1e293b', borderRadius: 4, height: 8, overflow: 'hidden', marginBottom: 'var(--space-3, 12px)' }}>
                     <div style={{ width: `${playerProgress}%`, height: '100%', background: 'var(--color-primary-500)', transition: 'width 0.3s' }} />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
                     <button style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, cursor: 'pointer' }}
                       onClick={() => setPlaying(v => !v)}>
                       {playing ? t('patientEdu.pause') : playerProgress >= 100 ? t('patientEdu.replay') : t('patientEdu.play')}
@@ -262,14 +262,14 @@ export default function PatientEducationPage() {
                       {t('patientEdu.markComplete')}
                     </button>
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>{Math.round(playerProgress)}% · {t('patientEdu.demoPlayer')}</div>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: '#64748b' }}>{Math.round(playerProgress)}% · {t('patientEdu.demoPlayer')}</div>
                 </div>
               )}
 
-              <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-card)', borderRadius: 8, fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
                 {selectedMaterial.content}
               </div>
-              <div style={{ marginTop: 12, display: 'flex', gap: 4 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 {selectedMaterial.tags.map(t => <span key={t} style={s.badge('var(--text-secondary)', 'var(--bg-card)')}>{t}</span>)}
               </div>
             </div>
@@ -278,21 +278,21 @@ export default function PatientEducationPage() {
           ) : (
             <div style={s.grid2}>
               {filtered.map(m => (
-                <div key={m.id} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer', position: 'relative' }}
+                <div key={m.id} style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer', position: 'relative' }}
                   onClick={() => handlePlay(m)}>
                   <button
                     title={t('patientEdu.deleteMaterialTitle')}
                     style={{ position: 'absolute', top: 8, right: 8, border: 'none', background: 'transparent', color: '#94a3b8', fontSize: 14, cursor: 'pointer', lineHeight: 1 }}
                     onClick={e => { e.stopPropagation(); void handleDeleteMaterial(m) }}
                   >×</button>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontSize: 20 }}>{m.contentType === 'video' ? '' : m.contentType === 'audio' ? '' : m.contentType === 'pdf' ? '' : ''}</span>
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{m.title}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{m.summary}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{m.summary}</div>
                   <span style={s.badge('#fff', 'var(--color-primary-800)')}>{CATEGORY_LABELS[m.category] || m.category}</span>
-                  <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{CONTENT_TYPE_LABELS[m.contentType] || m.contentType}</span>
-                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{Math.floor(m.duration / 60)}{t('patientEdu.minuteUnit')}{m.duration % 60}{t('patientEdu.secondUnit')}</span>}
+                  <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 'var(--space-2, 8px)' }}>{CONTENT_TYPE_LABELS[m.contentType] || m.contentType}</span>
+                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 'var(--space-2, 8px)' }}>{Math.floor(m.duration / 60)}{t('patientEdu.minuteUnit')}{m.duration % 60}{t('patientEdu.secondUnit')}</span>}
                 </div>
               ))}
             </div>
@@ -301,7 +301,7 @@ export default function PatientEducationPage() {
 
         {/* [v3.0.6.11-104 Wave 3D] 结构化患者宣教资料库 (关键要点/常见问题/注意事项/护理) */}
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>{t('w3d.edu.title')}</h3>
             <select style={{ ...s.select, width: 200 }} value={eduCategory} onChange={e => setEduCategory(e.target.value)}>
               <option value="">{t('w3d.edu.structured')} · {t('patientEdu.allCategories')}</option>
@@ -312,12 +312,12 @@ export default function PatientEducationPage() {
           </div>
           <div style={s.grid2}>
             {eduFiltered.map(m => (
-              <div key={m.code} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setEduDetail(m)}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <div key={m.code} style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setEduDetail(m)}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                   <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{m.title}</span>
                   <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 'auto' }}>{m.category}</span>
                 </div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-2, 8px)' }}>
                   {m.modality && <span style={s.badge('#fff', 'var(--color-primary-800)')}>{m.modality}</span>}
                   {m.duration && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.duration')}: {m.duration}</span>}
                   {m.fasting && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.fasting')}: {m.fasting}</span>}
@@ -348,7 +348,7 @@ export default function PatientEducationPage() {
               </span>
             </div>
           ))}
-          {records.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 24 }}>{t('patientEdu.noRecords')}</div>}
+          {records.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 'var(--space-6, 24px)' }}>{t('patientEdu.noRecords')}</div>}
         </Card>
       )}
 
@@ -357,14 +357,14 @@ export default function PatientEducationPage() {
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={{ ...s.title, fontSize: 16 }}>{t('patientEdu.tabCommunication')}</h3>
           {templates.map(tpl => (
-            <div key={tpl.id} style={{ padding: 16, marginBottom: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div key={tpl.id} style={{ padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{tpl.name}</span>
                 <span style={s.badge('#fff', { 'sms': '#0369a1', 'wechat': '#166534', 'email': '#92400e', 'app_push': '#7c3aed' }[tpl.channel] || '#64748b')}>{tpl.channel}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('patientEdu.commTitle')}{tpl.title}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)' }}>{tpl.body}</div>
-              <div style={{ marginTop: 6, display: 'flex', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('patientEdu.commTitle')}{tpl.title}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'var(--bg-card)', padding: 'var(--space-2, 8px)', borderRadius: 6, border: '1px solid var(--border-color)' }}>{tpl.body}</div>
+              <div style={{ marginTop: 6, display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 {tpl.variables.map(v => <span key={v} style={s.badge('#7c3aed', '#f3e8ff')}>{`{${v}}`}</span>)}
               </div>
             </div>
@@ -381,7 +381,7 @@ export default function PatientEducationPage() {
         width={640}
       >
         {eduDetail && (
-          <div style={{ display: 'grid', gap: 14, paddingTop: 4 }}>
+          <div style={{ display: 'grid', gap: 14, paddingTop: 'var(--space-1, 4px)' }}>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <span style={s.badge('#fff', 'var(--color-primary-800)')}>{eduDetail.category}</span>
               {eduDetail.modality && <span style={s.badge('#0369a1', '#e0f2fe')}>{eduDetail.modality}</span>}
@@ -409,11 +409,11 @@ export default function PatientEducationPage() {
             {eduDetail.commonQuestions.length > 0 && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.faq')}</div>
-                <div style={{ display: 'grid', gap: 8 }}>
+                <div style={{ display: 'grid', gap: 'var(--space-2, 8px)' }}>
                   {eduDetail.commonQuestions.map((q, i) => (
                     <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 10 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>Q: {q.question}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>A: {q.answer}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>A: {q.answer}</div>
                     </div>
                   ))}
                 </div>
@@ -433,12 +433,12 @@ export default function PatientEducationPage() {
         okText={t('patientEdu.create')}
         cancelText={t('patientEdu.cancel')}
       >
-        <div style={{ display: 'grid', gap: 12, paddingTop: 8 }}>
+        <div style={{ display: 'grid', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <div>
             <label style={s.label}>{t('patientEdu.fieldTitle')}</label>
             <Input value={createForm.title} onChange={e => setCreateForm(f => ({ ...f, title: e.target.value }))} placeholder={t('patientEdu.titlePlaceholder')} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
             <div>
               <label style={s.label}>{t('patientEdu.category')}</label>
               <Select value={createForm.category} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, category: v }))}
@@ -458,7 +458,7 @@ export default function PatientEducationPage() {
             <label style={s.label}>{t('patientEdu.fieldContent')}</label>
             <Input.TextArea rows={4} value={createForm.content} onChange={e => setCreateForm(f => ({ ...f, content: e.target.value }))} placeholder={t('patientEdu.contentPlaceholder')} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
             <div>
               <label style={s.label}>{t('patientEdu.duration')}</label>
               <InputNumber min={1} value={createForm.duration} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, duration: v ?? undefined }))} placeholder={t('patientEdu.durationPlaceholder')} />

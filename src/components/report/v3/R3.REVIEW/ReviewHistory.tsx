@@ -138,7 +138,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -158,7 +158,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
         </Space>
       </div>
 
-      <Card size="small" style={{ marginBottom: 8 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-2, 8px)' }}>
         <Space>
           <Filter size={14} color="#64748b" />
           <Select
@@ -205,7 +205,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                     </div>
                   }
                 >
-                  <div style={{ marginBottom: 4 }}>
+                  <div style={{ marginBottom: 'var(--space-1, 4px)' }}>
                     <Space>
                       <Tag color={meta.color}>{meta.label}</Tag>
                       <strong>{e.actorName}</strong>
@@ -214,12 +214,12 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                     </Space>
                   </div>
                   {e.comment && (
-                    <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>
                       {e.comment}
                     </div>
                   )}
                   {e.reason && (
-                    <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginBottom: 'var(--space-1, 4px)' }}>
                       {t('w9e.reviewHistory.reasonPrefix', { reason: e.reason })}
                     </div>
                   )}
@@ -227,7 +227,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                     {e.fromStage} <ArrowRight size={10} style={{ margin: '0 4px' }} /> {e.toStage}
                     {e.hash && (
                       <Tooltip title={`Hash: ${e.hash}`}>
-                        <span style={{ marginLeft: 8, fontFamily: 'monospace' }}>
+                        <span style={{ marginLeft: 'var(--space-2, 8px)', fontFamily: 'monospace' }}>
                           #{e.hash.substring(0, 8)}
                         </span>
                       </Tooltip>

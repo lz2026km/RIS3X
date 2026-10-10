@@ -20,7 +20,7 @@ export interface DentalHeaderProps {
 export const DentalPageHeader: React.FC<DentalHeaderProps> = ({
   title, version = 'v3.0.6.8-82', icon, tags = [], children, extra,
 }) => (
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
     <Space>
       {icon || <Activity size={20} color="var(--color-primary-600)" />}
       <span style={{ fontSize: 18, fontWeight: 600 }}>{title}</span>
@@ -150,9 +150,9 @@ export const DentalPageLayout: React.FC<{
   alert?: { message: string; type?: 'info' | 'success' | 'warning' | 'error' };
   children?: React.ReactNode;
 }> = ({ header, alert, children }) => (
-  <div style={{ padding: 24, background: 'var(--bg-card)',}}>
+  <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
     <DentalPageHeader {...header} />
-    {alert && <Alert title={alert.message} type={alert.type || 'info'} showIcon style={{ marginBottom: 12 }} />}
+    {alert && <Alert title={alert.message} type={alert.type || 'info'} showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} />}
     {children}
   </div>
 );

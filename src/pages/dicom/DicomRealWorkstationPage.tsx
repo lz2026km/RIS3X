@@ -925,7 +925,7 @@ const s: Record<string, React.CSSProperties> = {
     borderBottom: "1px solid #1e293b",
     flexWrap: "wrap",
   },
-  brand: { display: "flex", alignItems: "center", gap: 8 },
+  brand: { display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' },
   brandText: { fontSize: 12, fontWeight: 700, color: "#f8fafc", whiteSpace: "nowrap" },
   pill: {
     fontSize: 10,
@@ -936,15 +936,15 @@ const s: Record<string, React.CSSProperties> = {
   toolGroup: {
     display: "flex",
     alignItems: "center",
-    gap: 4,
-    paddingLeft: 8,
+    gap: 'var(--space-1, 4px)',
+    paddingLeft: 'var(--space-2, 8px)',
     borderLeft: "1px solid #1e293b",
   },
   groupLabel: { fontSize: 10, color: "#64748b", whiteSpace: "nowrap" },
   btn: {
     display: "inline-flex",
     alignItems: "center",
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
     background: "#111c2e",
     color: "#cbd5e1",
     border: "1px solid #1e293b",
@@ -1005,7 +1005,7 @@ const s: Record<string, React.CSSProperties> = {
   metaRow: {
     display: "flex",
     justifyContent: "space-between",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: "3px 10px",
     fontSize: 11,
   },
@@ -1015,11 +1015,11 @@ const s: Record<string, React.CSSProperties> = {
     flex: 1,
     minWidth: 0,
     minHeight: 0,
-    padding: 4,
+    padding: 'var(--space-1, 4px)',
     background: "#000",
     position: "relative",
   },
-  grid: { display: "grid", width: "100%", height: "100%", gap: 4 },
+  grid: { display: "grid", width: "100%", height: "100%", gap: 'var(--space-1, 4px)' },
   pane: {
     position: "relative",
     overflow: "hidden",
@@ -1048,7 +1048,7 @@ const s: Record<string, React.CSSProperties> = {
   slabLabel: {
     display: "inline-flex",
     alignItems: "center",
-    gap: 4,
+    gap: 'var(--space-1, 4px)',
     fontSize: 11,
     color: "#cbd5e1",
     whiteSpace: "nowrap",
@@ -1134,7 +1134,7 @@ const s: Record<string, React.CSSProperties> = {
   thumbStrip: {
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 'var(--space-2, 8px)',
     padding: "6px 10px",
     background: "#0b1220",
     borderTop: "1px solid #1e293b",

@@ -89,7 +89,7 @@ export function ConfirmDialog({
         style={{
           background: 'var(--bg-card)',
           borderRadius: 12,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
           width: 400,
           maxWidth: '90vw',
           boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
@@ -97,7 +97,7 @@ export function ConfirmDialog({
         }}
         onClick={e => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4, 16px)' }}>
           <div style={{
             width: 48,
             height: 48,
@@ -123,7 +123,7 @@ export function ConfirmDialog({
               border: 'none',
               cursor: 'pointer',
               color: '#94a3b8',
-              padding: 4,
+              padding: 'var(--space-1, 4px)',
               display: 'flex',
               borderRadius: 4,
             }}
@@ -131,7 +131,7 @@ export function ConfirmDialog({
             <X size={18} />
           </button>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-6, 24px)' }}>
           <button
             onClick={onCancel}
             style={{
@@ -190,8 +190,8 @@ export const FieldError = React.memo(function FieldError({ message }: FieldError
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      gap: 4,
-      marginTop: 4,
+      gap: 'var(--space-1, 4px)',
+      marginTop: 'var(--space-1, 4px)',
       color: 'var(--color-error-500)',
       fontSize: 12,
     }}>
@@ -213,7 +213,7 @@ interface FormFieldProps {
 
 export const FormField = React.memo(function FormField({ label, error, required, children }: FormFieldProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
       <label style={{ fontSize: 12, fontWeight: 500, color: '#334155' }}>
         {label}
         {required && <span aria-label="必填" style={{ color: 'var(--color-error-500)', marginLeft: 2 }}>*</span>}

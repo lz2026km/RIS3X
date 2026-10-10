@@ -147,8 +147,8 @@ const AIAssistPage: React.FC = () => {
   const allText = draft ? draft.sections.map((s) => `【${s.heading}】\n${s.content}`).join('\n\n') : ''
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Sparkles size={20} color="#7c3aed" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiAssist.title')}</span>
         <Tag color="purple">v3.0.6.11-75</Tag>
@@ -161,14 +161,14 @@ const AIAssistPage: React.FC = () => {
           showIcon
           message={t('aiAssist.opFail')}
           description={error}
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => setError('')}>{t('aiAssist.close')}</Button>}
         />
       )}
 
       <Row gutter={16}>
         <Col xs={24} lg={9}>
-          <Card size="small" title={t('aiAssist.clinicalInput')} extra={<Tag color="geekblue">{t('aiAssist.genDraftTag')}</Tag>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('aiAssist.clinicalInput')} extra={<Tag color="geekblue">{t('aiAssist.genDraftTag')}</Tag>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Form form={form} layout="vertical" size="small" initialValues={{ modality: 'CT', bodyPart: '胸部', style: 'standard' }}>
               <Row gutter={8}>
                 <Col span={12}>
@@ -206,10 +206,10 @@ const AIAssistPage: React.FC = () => {
           <Card
             size="small"
             title={<Space><History size={14} color="var(--color-primary-600)" />{t('aiAssist.historyTitle')}</Space>}
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 'var(--space-4, 16px)' }}
           >
             {loadingHistory ? (
-              <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /></div>
+              <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)' }}><Spin size="small" /></div>
             ) : history.length === 0 ? (
               <EmptyState description={t('aiAssist.emptyHistory')} />
             ) : (
@@ -249,20 +249,20 @@ const AIAssistPage: React.FC = () => {
             {generating ? (
               <div style={{ textAlign: 'center', padding: '48px 0' }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 12, color: '#8b5cf6' }}>{t('aiAssist.analyzing')}</div>
+                <div style={{ marginTop: 'var(--space-3, 12px)', color: '#8b5cf6' }}>{t('aiAssist.analyzing')}</div>
               </div>
             ) : !draft ? (
               <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiAssist.emptyDraft')} />
             ) : (
               <>
-                <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 12 }}>
+                <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                   <StatCard size="sm" title={t('aiAssist.stat.confidence')} value={Math.round((draft.confidence ?? 0) * 100)} suffix="%" color="#7c3aed" />
                   <StatCard size="sm" title={t('aiAssist.stat.modelVersion')} value={draft.modelVersion || '-'} />
                   <StatCard size="sm" title={t('aiAssist.stat.status')} value={draft.status} color={draft.status === 'ACCEPTED' ? 'success' : 'warning'} />
                 </StatCardGrid>
                 <Divider style={{ margin: '8px 0' }} />
                 {draft.sections.map((s) => (
-                  <div key={s.heading} style={{ marginBottom: 12, border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
+                  <div key={s.heading} style={{ marginBottom: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <Text strong style={{ color: 'var(--color-primary-800)' }}>{s.heading}</Text>
                       <Button
@@ -277,7 +277,7 @@ const AIAssistPage: React.FC = () => {
                     <Paragraph style={{ marginBottom: 0, whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>{s.content}</Paragraph>
                   </div>
                 ))}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--space-2, 8px)' }}>
                   <Text type="secondary" style={{ fontSize: 12 }}>{t('aiAssist.generateTime')} {new Date(draft.createdAt).toLocaleString('zh-CN')}</Text>
                   <Space>
                     <Button size="small" icon={<RefreshCw size={12} />} onClick={handleGenerate} loading={generating}>{t('aiAssist.regenerate')}</Button>
@@ -288,12 +288,12 @@ const AIAssistPage: React.FC = () => {
             )}
           </Card>
           {draft && draft.sections.length > 0 && (
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)' }}>
               <Card size="small" title={<Space><Sparkles size={13} color="var(--color-warning-500)" />{t('aiAssist.sectionConfidence')}</Space>}>
                 <Row gutter={[12, 8]}>
                   {draft.sections.map((s) => (
                     <Col span={12} key={s.heading}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                         <Text style={{ fontSize: 12, width: 90 }}>{s.heading}</Text>
                         <Progress percent={Math.round((draft.confidence ?? 0.8) * 100)} size="small" style={{ flex: 1, margin: 0 }} strokeColor="#7c3aed" />
                       </div>

@@ -55,33 +55,33 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050 }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 640, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <FileText size={18} color="#7c3aed" />
             <span style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>PPTX 导出</span>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
         </div>
 
-        <div style={{ padding: 20 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+        <div style={{ padding: 'var(--space-5, 20px)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>标题</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>标题</label>
               <input value={title} onChange={e => setTitle(e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>作者</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>作者</label>
               <input value={author} onChange={e => setAuthor(e.target.value)} style={inputStyle} />
             </div>
           </div>
 
-          <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginBottom: 'var(--space-3, 12px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>幻灯片 ({slides.length})</span>
             <button onClick={addSlide} style={addBtnStyle}><Plus size={14} /> 添加</button>
           </div>
 
           {slides.map((slide, idx) => (
-            <div key={idx} style={{ padding: 12, marginBottom: 8, background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <div key={idx} style={{ padding: 'var(--space-3, 12px)', marginBottom: 'var(--space-2, 8px)', background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <GripVertical size={14} color="#94a3b8" />
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>#{idx + 1}</span>
                 <input value={slide.title} onChange={e => updateSlide(idx, { title: e.target.value })} placeholder="幻灯片标题" style={{ ...inputStyle, flex: 1 }} />
@@ -115,7 +115,7 @@ const selectSmall: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, };
 const addBtnStyle: React.CSSProperties = {
   padding: '4px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#f5f3ff',
-  color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+  color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
 };
 const btnPrimary: React.CSSProperties = {
   width: '100%', padding: '10px 16px', border: 'none', borderRadius: 6,

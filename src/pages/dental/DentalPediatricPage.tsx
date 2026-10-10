@@ -198,14 +198,14 @@ export const DentalPediatricPage: React.FC = () => {
       }}
     >
       {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t("w9.states.retry")} />}
-      <StatCardGrid style={{ marginBottom: 16 }}>
+      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("w9.common.statsTotal")} value={treats.length} icon={<Baby size={18} />} color="primary" />
         <StatCard title={t("w9.common.statsActive")} value={activeCount} icon={<Clock3 size={18} />} color="warning" />
         <StatCard title={t("w9.common.statsDone")} value={doneCount} icon={<CheckCircle2 size={18} />} color="success" />
         <StatCard title={t("w9.common.statsCost")} value={totalCost.toLocaleString("zh-CN")} suffix="¥" icon={<Wallet size={18} />} color="error" />
       </StatCardGrid>
 
-      <Space style={{ marginBottom: 12 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
         <Select
           size="small"
           style={{ width: 140 }}
@@ -227,7 +227,7 @@ export const DentalPediatricPage: React.FC = () => {
       </Space>
 
       {loading ? (
-        <div style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}>{t("w9.common.loading")}</div>
+        <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "var(--text-secondary)" }}>{t("w9.common.loading")}</div>
       ) : filtered.length === 0 ? (
         <EmptyState
           tip={t("w9.dentalPed.empty")}

@@ -546,7 +546,7 @@ function ShiftBadge({ shift, size = 'default' }: { shift: ShiftType; size?: 'sma
     <span style={{
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 4,
+      gap: 'var(--space-1, 4px)',
       padding,
       background: config.bg,
       color: config.color,
@@ -623,7 +623,7 @@ function WeekNavigator({ weekStart, onPrev, onNext, onToday }: {
   }
   
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
       <button onClick={onPrev} aria-label={t('schedulePage.prevWeek')} style={btnStyle(C.primary)}>
         <ChevronLeft size={16} />
       </button>
@@ -652,7 +652,7 @@ const btnStyle = (bg: string) => ({
   borderRadius: 4,
   cursor: 'pointer',
   fontSize: 12,
-  gap: 4,
+  gap: 'var(--space-1, 4px)',
 })
 
 // ============================================================
@@ -1137,7 +1137,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <div data-testid="schedule-page" style={{ background: C.bg, padding: 20 }}>
+    <div data-testid="schedule-page" style={{ background: C.bg, padding: 'var(--space-5, 20px)' }}>
       {loading && <LoadingBanner message={t('schedulePage.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部标题栏 */}
@@ -1145,14 +1145,14 @@ export default function SchedulePage() {
         background: 'var(--bg-card)',
         borderRadius: 8,
         padding: '16px 20px',
-        marginBottom: 16,
+        marginBottom: 'var(--space-4, 16px)',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <CalendarClock size={28} style={{ color: C.primary }} />
             <div>
-              <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 {t('schedulePage.title')}
                 <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>
                   {t('schedulePage.demoBadge')}
@@ -1257,7 +1257,7 @@ export default function SchedulePage() {
       <div style={{
         background: 'var(--bg-card)',
         borderRadius: '0 0 8px 8px',
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         minHeight: 600,
       }}>
@@ -1269,8 +1269,8 @@ export default function SchedulePage() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: 16,
-              gap: 16,
+              marginBottom: 'var(--space-4, 16px)',
+              gap: 'var(--space-4, 16px)',
             }}>
               <WeekNavigator 
                 weekStart={currentWeekStart} 
@@ -1279,7 +1279,7 @@ export default function SchedulePage() {
                 onToday={goToToday}
               />
               
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center' }}>
                 {/* 搜索框 */}
                 <div style={{ position: 'relative' }}>
                   <Search size={16} style={{ 
@@ -1436,7 +1436,7 @@ export default function SchedulePage() {
                             background: bgColor,
                           }}>
                             {schedule ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                                 <ShiftBadge shift={schedule.shift} size="small" />
                                 <ModalityBadge modality={schedule.modality} />
                               </div>
@@ -1454,12 +1454,12 @@ export default function SchedulePage() {
             
             {/* 班次图例 */}
             <div style={{
-              marginTop: 16,
+              marginTop: 'var(--space-4, 16px)',
               padding: '12px 16px',
               background: C.bgLight,
               borderRadius: 6,
               display: 'flex',
-              gap: 20,
+              gap: 'var(--space-5, 20px)',
               flexWrap: 'wrap',
             }}>
               <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{t('schedulePage.shiftLegend')}</span>
@@ -1501,7 +1501,7 @@ export default function SchedulePage() {
         {/* ========== 节假日配置视图 ========== */}
         {activeTab === 'holiday' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.holidayTitle')}
               </h3>
@@ -1511,10 +1511,10 @@ export default function SchedulePage() {
               </button>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)' }}>
               {/* 法定节假日 */}
               <div style={{
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
                 background: C.bgLight,
                 borderRadius: 8,
                 border: `1px solid ${C.border}`,
@@ -1536,7 +1536,7 @@ export default function SchedulePage() {
                   }} />
                   {t('schedulePage.legalHolidays')}
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                   {holidays.filter(h => h.type === 'legal').map(h => (
                     <div key={h.date} style={{
                       display: 'flex',
@@ -1549,7 +1549,7 @@ export default function SchedulePage() {
                     }}>
                       <div>
                         <span style={{ fontWeight: 500, color: C.textDark }}>{h.name}</span>
-                        <span style={{ marginLeft: 12, color: C.textMid, fontSize: 12 }}>{h.date}</span>
+                        <span style={{ marginLeft: 'var(--space-3, 12px)', color: C.textMid, fontSize: 12 }}>{h.date}</span>
                       </div>
                       <button 
                         onClick={() => handleHolidayDelete(h.date)}
@@ -1558,7 +1558,7 @@ export default function SchedulePage() {
                           border: 'none',
                           color: C.danger,
                           cursor: 'pointer',
-                          padding: 4,
+                          padding: 'var(--space-1, 4px)',
                         }}
                       >
                         <Trash2 size={14} />
@@ -1566,7 +1566,7 @@ export default function SchedulePage() {
                     </div>
                   ))}
                   {holidays.filter(h => h.type === 'legal').length === 0 && (
-                    <div style={{ color: C.textLight, fontSize: 12, padding: 12, textAlign: 'center' }}>
+                    <div style={{ color: C.textLight, fontSize: 12, padding: 'var(--space-3, 12px)', textAlign: 'center' }}>
                       {t('schedulePage.noLegalHolidays')}
                     </div>
                   )}
@@ -1575,7 +1575,7 @@ export default function SchedulePage() {
               
               {/* 调休工作日 */}
               <div style={{
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
                 background: C.bgLight,
                 borderRadius: 8,
                 border: `1px solid ${C.border}`,
@@ -1597,7 +1597,7 @@ export default function SchedulePage() {
                   }} />
                   {t('schedulePage.adjustmentWorkdays')}
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                   {holidays.filter(h => h.type === 'adjustment').map(h => (
                     <div key={h.date} style={{
                       display: 'flex',
@@ -1610,7 +1610,7 @@ export default function SchedulePage() {
                     }}>
                       <div>
                         <span style={{ fontWeight: 500, color: C.textDark }}>{h.name}</span>
-                        <span style={{ marginLeft: 12, color: C.textMid, fontSize: 12 }}>{h.date}</span>
+                        <span style={{ marginLeft: 'var(--space-3, 12px)', color: C.textMid, fontSize: 12 }}>{h.date}</span>
                       </div>
                       <button 
                         onClick={() => handleHolidayDelete(h.date)}
@@ -1619,7 +1619,7 @@ export default function SchedulePage() {
                           border: 'none',
                           color: C.danger,
                           cursor: 'pointer',
-                          padding: 4,
+                          padding: 'var(--space-1, 4px)',
                         }}
                       >
                         <Trash2 size={14} />
@@ -1627,7 +1627,7 @@ export default function SchedulePage() {
                     </div>
                   ))}
                   {holidays.filter(h => h.type === 'adjustment').length === 0 && (
-                    <div style={{ color: C.textLight, fontSize: 12, padding: 12, textAlign: 'center' }}>
+                    <div style={{ color: C.textLight, fontSize: 12, padding: 'var(--space-3, 12px)', textAlign: 'center' }}>
                       {t('schedulePage.noAdjustments')}
                     </div>
                   )}
@@ -1637,8 +1637,8 @@ export default function SchedulePage() {
             
             {/* 节假日说明 */}
             <div style={{
-              marginTop: 20,
-              padding: 16,
+              marginTop: 'var(--space-5, 20px)',
+              padding: 'var(--space-4, 16px)',
               background: C.infoLight,
               borderRadius: 6,
               border: `1px solid ${C.info}30`,
@@ -1646,7 +1646,7 @@ export default function SchedulePage() {
               <h5 style={{ fontSize: 12, fontWeight: 600, color: C.info, margin: '0 0 8px 0' }}>
                 {t('schedulePage.configNote')}
               </h5>
-              <ul style={{ fontSize: 12, color: C.textMid, margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
+              <ul style={{ fontSize: 12, color: C.textMid, margin: 0, paddingLeft: 'var(--space-5, 20px)', lineHeight: 1.8 }}>
                 <li>{t('schedulePage.noteLegal')}</li>
                 <li>{t('schedulePage.noteAdjustment')}</li>
                 <li>{t('schedulePage.noteEffect')}</li>
@@ -1658,7 +1658,7 @@ export default function SchedulePage() {
         {/* ========== 换班申请视图 ========== */}
         {activeTab === 'swap' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.swapTitle')}
               </h3>
@@ -1669,7 +1669,7 @@ export default function SchedulePage() {
             </div>
             
             {/* 换班统计卡片 */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)' }}>
               {[
                 { label: t('schedulePage.allRequests'), value: swapRequests.length, color: C.primary },
                 { label: t('schedulePage.pendingApproval'), value: swapRequests.filter(r => r.status === 'pending').length, color: C.warning },
@@ -1677,23 +1677,23 @@ export default function SchedulePage() {
                 { label: t('schedulePage.rejected'), value: swapRequests.filter(r => r.status === 'rejected').length, color: C.danger },
               ].map(stat => (
                 <div key={stat.label} style={{
-                  padding: 16,
+                  padding: 'var(--space-4, 16px)',
                   background: 'var(--bg-card)',
                   borderRadius: 8,
                   border: `1px solid ${C.border}`,
                   textAlign: 'center',
                 }}>
                   <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
-                  <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{stat.label}</div>
+                  <div style={{ fontSize: 12, color: C.textMid, marginTop: 'var(--space-1, 4px)' }}>{stat.label}</div>
                 </div>
               ))}
             </div>
             
             {/* 换班申请列表 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               {swapRequests.map(request => (
                 <div key={request.id} style={{
-                  padding: 16,
+                  padding: 'var(--space-4, 16px)',
                   background: 'var(--bg-card)',
                   borderRadius: 8,
                   border: `1px solid ${C.border}`,
@@ -1705,7 +1705,7 @@ export default function SchedulePage() {
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-2, 8px)' }}>
                         <span style={{ fontWeight: 600, color: C.textDark }}>
                           {request.requesterName}
                         </span>
@@ -1716,7 +1716,7 @@ export default function SchedulePage() {
                         <StatusBadge status={request.status} />
                       </div>
                       
-                      <div style={{ fontSize: 12, color: C.textMid, display: 'flex', gap: 20 }}>
+                      <div style={{ fontSize: 12, color: C.textMid, display: 'flex', gap: 'var(--space-5, 20px)' }}>
                         <span>
                           {request.requesterName}：{request.requesterDate} 
                           <ShiftBadge shift={request.requesterShift} size="small" />
@@ -1728,19 +1728,19 @@ export default function SchedulePage() {
                       </div>
                       
                       {request.reason && (
-                        <div style={{ marginTop: 8, fontSize: 12, color: C.textMid }}>
+                        <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: C.textMid }}>
                            {t('schedulePage.reasonPrefix', { reason: request.reason })}
                         </div>
                       )}
                       
-                      <div style={{ marginTop: 8, fontSize: 12, color: C.textLight }}>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: C.textLight }}>
                         {t('schedulePage.applyTime', { time: request.requestDate })}
                         {request.approveDate && t('schedulePage.approveTime', { time: request.approveDate, name: request.approverName })}
                       </div>
                     </div>
                     
                     {request.status === 'pending' && (
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                         <button 
                           onClick={() => handleSwapApprove(request.id, true)}
                           style={{
@@ -1772,7 +1772,7 @@ export default function SchedulePage() {
               {swapRequests.length === 0 && (
                 <div style={{ 
                   textAlign: 'center', 
-                  padding: 40, 
+                  padding: 'var(--space-10, 40px)', 
                   color: C.textLight,
                   fontSize: 14,
                 }}>
@@ -1791,7 +1791,7 @@ export default function SchedulePage() {
             </h3>
             
             {/* 统计卡片 */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-6, 24px)' }}>
               {[
                 { label: t('schedulePage.totalShifts'), value: allSchedules.length, icon: <Calendar size={20} />, color: C.primary },
                 { label: t('schedulePage.attendanceCount'), value: allSchedules.filter(s => s.shift !== 'off').length, icon: <CheckCircle size={20} />, color: C.success },
@@ -1799,13 +1799,13 @@ export default function SchedulePage() {
                 { label: t('schedulePage.swapCount'), value: swapRequests.length, icon: <ArrowRightLeft size={20} />, color: C.accent },
               ].map(stat => (
                 <div key={stat.label} style={{
-                  padding: 16,
+                  padding: 'var(--space-4, 16px)',
                   background: 'var(--bg-card)',
                   borderRadius: 8,
                   border: `1px solid ${C.border}`,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                 }}>
                   <div style={{
                     width: 44,
@@ -1827,10 +1827,10 @@ export default function SchedulePage() {
               ))}
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' }}>
               {/* 个人出勤统计 */}
               <div style={{
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
                 background: C.bgLight,
                 borderRadius: 8,
                 border: `1px solid ${C.border}`,
@@ -1846,8 +1846,8 @@ export default function SchedulePage() {
                       padding: '10px 12px',
                       background: 'var(--bg-card)',
                       borderRadius: 6,
-                      marginBottom: 8,
-                      gap: 12,
+                      marginBottom: 'var(--space-2, 8px)',
+                      gap: 'var(--space-3, 12px)',
                     }}>
                       <div style={{
                         width: 28,
@@ -1867,7 +1867,7 @@ export default function SchedulePage() {
                         <div style={{ fontWeight: 500, color: C.textDark, fontSize: 12 }}>{stat.staffName}</div>
                         <div style={{ fontSize: 12, color: C.textMid }}>{stat.title}</div>
                       </div>
-                      <div style={{ display: 'flex', gap: 4 }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                         <span style={{
                           padding: '2px 6px',
                           background: C.successLight,
@@ -1885,7 +1885,7 @@ export default function SchedulePage() {
               
               {/* 班次分布饼图 */}
               <div style={{
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
                 background: C.bgLight,
                 borderRadius: 8,
                 border: `1px solid ${C.border}`,
@@ -1916,7 +1916,7 @@ export default function SchedulePage() {
               
               {/* 设备利用率 */}
               <div style={{
-                padding: 16,
+                padding: 'var(--space-4, 16px)',
                 background: C.bgLight,
                 borderRadius: 8,
                 border: `1px solid ${C.border}`,
@@ -1925,10 +1925,10 @@ export default function SchedulePage() {
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>
                   {t('schedulePage.modalityDist')}
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3, 12px)' }}>
                   {stats.modalityUtilization.map(mod => (
                     <div key={mod.modality} style={{
-                      padding: 16,
+                      padding: 'var(--space-4, 16px)',
                       background: 'var(--bg-card)',
                       borderRadius: 8,
                       textAlign: 'center',
@@ -1949,7 +1949,7 @@ export default function SchedulePage() {
                         {mod.label.slice(0, 2)}
                       </div>
                       <div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{mod.label}</div>
-                      <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: C.textMid, marginTop: 'var(--space-1, 4px)' }}>
                         {t('schedulePage.personTimes', { count: mod.count })}
                       </div>
                     </div>
@@ -1963,7 +1963,7 @@ export default function SchedulePage() {
         {/* ========== 智能排班视图 ========== */}
         {activeTab === 'auto' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.autoTitle')}
               </h3>
@@ -1981,13 +1981,13 @@ export default function SchedulePage() {
             </div>
 
             {/* 技能矩阵 */}
-            <div style={{ marginBottom: 20, padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)', padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
               <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>{t('schedulePage.skillMatrix')}</h4>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
                 {STAFF_LIST.slice(0, 10).map(s => (
                   <div key={s.id} style={{ padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{s.name}</div>
-                    <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: C.textMid, marginTop: 'var(--space-1, 4px)' }}>
                       {(STAFF_SKILLS[s.id] || []).join(' · ') || t('schedulePage.noCert')}
                     </div>
                     <div style={{ fontSize: 12, color: C.success, marginTop: 2 }}>{t('schedulePage.skillPoints', { count: (STAFF_SKILLS[s.id]?.length || 0) * 20 })}</div>
@@ -1998,8 +1998,8 @@ export default function SchedulePage() {
 
             {/* 排班结果 */}
             {autoRunning && (
-              <div style={{ textAlign: 'center', padding: 40, color: C.textMid }}>
-                <RefreshCw size={32} style={{ animation: 'spin 1s linear infinite', marginBottom: 12 }} />
+              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: C.textMid }}>
+                <RefreshCw size={32} style={{ animation: 'spin 1s linear infinite', marginBottom: 'var(--space-3, 12px)' }} />
                 <div>{t('schedulePage.runningAlgorithm')}</div>
               </div>
             )}
@@ -2026,7 +2026,7 @@ export default function SchedulePage() {
                         {autoResult.map((day, di) => {
                           const dayCand = day[si]
                           return (
-                            <td key={di} style={{ padding: 8, textAlign: 'center', borderBottom: `1px solid ${C.borderLight}` }}>
+                            <td key={di} style={{ padding: 'var(--space-2, 8px)', textAlign: 'center', borderBottom: `1px solid ${C.borderLight}` }}>
                               {dayCand && dayCand.shift !== 'off' ? (
                                 <div>
                                   <ShiftBadge shift={dayCand.shift} size="small" />
@@ -2052,7 +2052,7 @@ export default function SchedulePage() {
         {/* ========== 班次模板视图 ========== */}
         {activeTab === 'templates' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.templatesTitle')}
               </h3>
@@ -2061,15 +2061,15 @@ export default function SchedulePage() {
                 {t('schedulePage.newTemplate')}
               </button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
               {templates.map(tpl => (
-                <div key={tpl.id} style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div key={tpl.id} style={{ padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3, 12px)' }}>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{tpl.name}</div>
                       <div style={{ fontSize: 12, color: C.textMid, marginTop: 2 }}>{tpl.description}</div>
                     </div>
-                    <div style={{ display: 'flex', gap: 4 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                       <button onClick={() => handleApplyTemplate(tpl)} style={{ ...btnStyle(C.success), padding: '4px 8px', fontSize: 12 }} title={t('schedulePage.applyToWeek')}>
                         <CalendarDays size={14} />
                       </button>
@@ -2081,7 +2081,7 @@ export default function SchedulePage() {
                   <div style={{ fontSize: 12, color: C.textLight }}>
                     {t('schedulePage.createdAt', { date: tpl.createdAt, count: tpl.pattern.length })}
                   </div>
-                  <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
                     {tpl.pattern.slice(0, 6).map((p, i) => {
                       const staff = STAFF_LIST.find(s => s.id === p.staffId)
                       return (
@@ -2100,7 +2100,7 @@ export default function SchedulePage() {
         {/* ========== 请假管理视图 ========== */}
         {activeTab === 'leave' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.leaveTitle')}
               </h3>
@@ -2111,13 +2111,13 @@ export default function SchedulePage() {
             </div>
 
             {/* 余额概览 */}
-            <div style={{ marginBottom: 20, padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)', padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
               <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>{t('schedulePage.leaveBalance')}</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 'var(--space-3, 12px)' }}>
                 {leaveBalances.slice(0, 8).map(lb => (
-                  <div key={lb.staffId} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
+                  <div key={lb.staffId} style={{ padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{lb.staffName}</div>
-                    <div style={{ fontSize: 12, color: C.textMid, marginTop: 4, display: 'flex', gap: 8 }}>
+                    <div style={{ fontSize: 12, color: C.textMid, marginTop: 'var(--space-1, 4px)', display: 'flex', gap: 'var(--space-2, 8px)' }}>
                       <span>{t('schedulePage.annualLeave')} {lb.annualUsed}/{lb.annualTotal}</span>
                       <span>{t('schedulePage.sickLeave')} {lb.sickUsed}/{lb.sickTotal}</span>
                       <span>{t('schedulePage.personalLeave')} {lb.personalUsed}/{lb.personalTotal}</span>
@@ -2128,14 +2128,14 @@ export default function SchedulePage() {
             </div>
 
             {/* 请假列表 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               {leaveRequests.map(lr => {
                 const statusCfg = { pending: { label: t('schedulePage.leavePending'), color: C.warning, bg: C.warningLight }, approved: { label: t('schedulePage.leaveApproved'), color: C.success, bg: C.successLight }, rejected: { label: t('schedulePage.leaveRejected'), color: C.danger, bg: C.dangerLight } }[lr.status]
                 return (
-                  <div key={lr.id} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, borderLeft: `4px solid ${statusCfg.color}` }}>
+                  <div key={lr.id} style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, borderLeft: `4px solid ${statusCfg.color}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-2, 8px)' }}>
                           <span style={{ fontWeight: 600, color: C.textDark }}>{lr.staffName}</span>
                           <span style={{ padding: '2px 8px', background: C.primaryLighter, color: C.primary, borderRadius: 4, fontSize: 12 }}>
                             {lr.type === 'annual' ? t('schedulePage.annualLeave') : lr.type === 'sick' ? t('schedulePage.sickLeave') : t('schedulePage.personalLeave')}
@@ -2147,13 +2147,13 @@ export default function SchedulePage() {
                         <div style={{ fontSize: 12, color: C.textMid }}>
                           {t('schedulePage.leaveDays', { start: lr.startDate, end: lr.endDate, count: lr.days })}
                         </div>
-                        {lr.reason && <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t('schedulePage.leaveReason', { reason: lr.reason })}</div>}
-                        <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
+                        {lr.reason && <div style={{ fontSize: 12, color: C.textMid, marginTop: 'var(--space-1, 4px)' }}>{t('schedulePage.leaveReason', { reason: lr.reason })}</div>}
+                        <div style={{ fontSize: 12, color: C.textLight, marginTop: 'var(--space-1, 4px)' }}>
                           {t('schedulePage.leaveApplyTime', { time: lr.applyDate })}{lr.approveDate && t('schedulePage.leaveApproveTime', { time: lr.approveDate, name: lr.approverName })}
                         </div>
                       </div>
                       {lr.status === 'pending' && (
-                        <div style={{ display: 'flex', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                           <button onClick={() => handleLeaveApprove(lr.id)} style={{ ...btnStyle(C.success), padding: '6px 12px', fontSize: 12 }}>
                             <Check size={14} />{t('schedulePage.approveLeave')}
                           </button>
@@ -2173,7 +2173,7 @@ export default function SchedulePage() {
         {/* ========== 合规检查视图 ========== */}
         {activeTab === 'compliance' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.complianceTitle')}
               </h3>
@@ -2187,30 +2187,30 @@ export default function SchedulePage() {
               <div>
                 {/* 合规分数 */}
                 <div style={{
-                  textAlign: 'center', padding: 32, marginBottom: 20,
+                  textAlign: 'center', padding: 'var(--space-8, 32px)', marginBottom: 'var(--space-5, 20px)',
                   background: complianceResult.score >= 80 ? C.successLight : complianceResult.score >= 50 ? C.warningLight : C.dangerLight,
                   borderRadius: 12, border: `2px solid ${complianceResult.score >= 80 ? C.success : complianceResult.score >= 50 ? C.warning : C.danger}`,
                 }}>
                   <div style={{ fontSize: 48, fontWeight: 700, color: complianceResult.score >= 80 ? C.success : complianceResult.score >= 50 ? C.warning : C.danger }}>
                     {complianceResult.score}%
                   </div>
-                  <div style={{ fontSize: 14, color: C.textMid, marginTop: 8 }}>
+                  <div style={{ fontSize: 14, color: C.textMid, marginTop: 'var(--space-2, 8px)' }}>
                     {t('schedulePage.complianceScore')}
                     {complianceResult.score >= 80 ? t('schedulePage.scoreGood') : complianceResult.score >= 50 ? t('schedulePage.scoreImprove') : t('schedulePage.scoreFail')}
                   </div>
-                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 'var(--space-1, 4px)' }}>
                     {t('schedulePage.violationsFound', { count: complianceResult.violations })}
                   </div>
                 </div>
 
                 {/* 违规详情 */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
                   {[
                     { title: t('schedulePage.violMaxConsecutive'), data: complianceResult.maxConsecutiveAlerts, icon: <AlertCircle size={16} />, color: C.danger },
                     { title: t('schedulePage.violRestPeriod'), data: complianceResult.restPeriodViolations, icon: <Coffee size={16} />, color: C.warning },
                     { title: t('schedulePage.violOvertime'), data: complianceResult.overtimeAlerts, icon: <TrendingUp size={16} />, color: C.info },
                   ].map(section => (
-                    <div key={section.title} style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                    <div key={section.title} style={{ padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
                       <h4 style={{ fontSize: 14, fontWeight: 600, color: section.color, margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
                         {section.icon}
                         {section.title}
@@ -2220,7 +2220,7 @@ export default function SchedulePage() {
                         <div style={{ fontSize: 12, color: C.success, fontStyle: 'italic' }}>{t('schedulePage.noViolations')}</div>
                       ) : (
                         section.data.slice(0, 5).map((v, i) => (
-                          <div key={i} style={{ padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 4, marginBottom: 4, fontSize: 12, color: C.textMid, border: `1px solid ${C.borderLight}` }}>
+                          <div key={i} style={{ padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 4, marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: C.textMid, border: `1px solid ${C.borderLight}` }}>
                             <span style={{ fontWeight: 500, color: C.textDark }}>{v.staffName}</span> · {v.date}<br />
                             {v.detail}
                           </div>
@@ -2232,7 +2232,7 @@ export default function SchedulePage() {
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: 60, color: C.textLight }}>
-                <Shield size={48} style={{ marginBottom: 12, opacity: 0.3 }} />
+                <Shield size={48} style={{ marginBottom: 'var(--space-3, 12px)', opacity: 0.3 }} />
                 <div style={{ fontSize: 14 }}>{t('schedulePage.complianceHint')}</div>
               </div>
             )}
@@ -2242,7 +2242,7 @@ export default function SchedulePage() {
         {/* ========== 成本分析视图 ========== */}
         {activeTab === 'cost' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.costTitle')}
               </h3>
@@ -2253,14 +2253,14 @@ export default function SchedulePage() {
             </div>
 
             {/* 成本卡片 */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)' }}>
               {[
                 { label: t('schedulePage.totalLaborCost'), value: `¥${(costData.reduce((s, c) => s + c.totalCost, 0) / 10000).toFixed(2)}万`, color: C.primary, icon: DollarSign },
                 { label: t('schedulePage.overtimeShare'), value: costData.length > 0 ? `${((costData.reduce((s, c) => s + c.overtimeCost, 0) / costData.reduce((s, c) => s + c.totalCost, 1)) * 100).toFixed(1)}%` : '-', color: C.warning, icon: TrendingUp },
                 { label: t('schedulePage.avgShiftCost'), value: costData.length > 0 ? `¥${Math.round(costData.reduce((s, c) => s + c.totalCost, 0) / costData.length)}` : '-', color: C.info, icon: Clock },
                 { label: t('schedulePage.monthlyTrend'), value: `${costTrend.length}个月`, color: C.accent, icon: Calendar },
               ].map(stat => (
-                <div key={stat.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div key={stat.label} style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                   <div style={{ width: 44, height: 44, borderRadius: 8, background: stat.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
                     <stat.icon size={20} />
                   </div>
@@ -2274,7 +2274,7 @@ export default function SchedulePage() {
 
             {/* 月度成本趋势图 */}
             {costTrend.length > 0 && (
-              <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
+              <div style={{ padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)' }}>
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>{t('schedulePage.costTrendTitle')}</h4>
                 <ChartContainer height={280} state={costTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t('schedulePage.noCostData')}>
                   <BarChart data={costTrend}>
@@ -2293,7 +2293,7 @@ export default function SchedulePage() {
 
             {/* 个人成本明细 */}
             {costData.length > 0 && (
-              <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+              <div style={{ padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>{t('schedulePage.costDetail')}</h4>
                 <div style={{ overflowX: 'auto' }}>
                   <DataTable
@@ -2337,12 +2337,12 @@ export default function SchedulePage() {
           <div style={{
             background: 'var(--bg-card)',
             borderRadius: 12,
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
             width: 480,
             maxHeight: '80vh',
             overflowY: 'auto',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.applySwap')}
               </h3>
@@ -2351,7 +2351,7 @@ export default function SchedulePage() {
               </button>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               {swapError && <div style={{ color: 'var(--color-error-600)', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
               {/* 申请人 */}
               <div>
@@ -2499,7 +2499,7 @@ export default function SchedulePage() {
                 />
               </div>
               
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', justifyContent: 'flex-end', marginTop: 'var(--space-2, 8px)' }}>
                 <button 
                   onClick={() => setShowSwapModal(false)}
                   style={{
@@ -2552,10 +2552,10 @@ export default function SchedulePage() {
           <div style={{
             background: 'var(--bg-card)',
             borderRadius: 12,
-            padding: 24,
+            padding: 'var(--space-6, 24px)',
             width: 400,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.addHoliday')}
               </h3>
@@ -2564,7 +2564,7 @@ export default function SchedulePage() {
               </button>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.holidayDate')}
@@ -2619,7 +2619,7 @@ export default function SchedulePage() {
                 </select>
               </div>
               
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', justifyContent: 'flex-end', marginTop: 'var(--space-2, 8px)' }}>
                 <button 
                   onClick={() => setShowHolidayModal(false)}
                   style={{
@@ -2661,14 +2661,14 @@ export default function SchedulePage() {
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 420 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 420 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.newTemplateTitle')}</h3>
               <button onClick={() => setShowTemplateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateName')}</label>
                 <input type="text" value={templateForm.name} onChange={e => setTemplateForm({ ...templateForm, name: e.target.value })}
@@ -2679,12 +2679,12 @@ export default function SchedulePage() {
                 <input type="text" value={templateForm.description} onChange={e => setTemplateForm({ ...templateForm, description: e.target.value })}
                   placeholder={t('schedulePage.placeholderTemplateDesc')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
               </div>
-              <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>
+              <div style={{ fontSize: 12, color: C.textLight, padding: 'var(--space-2, 8px)', background: C.bgLight, borderRadius: 6 }}>
                 {t('schedulePage.templateHint')}
               </div>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', justifyContent: 'flex-end', marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowTemplateModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>{t('schedulePage.cancel')}</button>
-                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />{t('schedulePage.saveTemplate')}</button>
+                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Save size={13} />{t('schedulePage.saveTemplate')}</button>
               </div>
             </div>
           </div>
@@ -2697,14 +2697,14 @@ export default function SchedulePage() {
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 460 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.newLeave')}</h3>
               <button onClick={() => setShowLeaveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveApplicant')}</label>
                 <select value={leaveForm.staffId} onChange={e => setLeaveForm({ ...leaveForm, staffId: e.target.value })}
@@ -2724,7 +2724,7 @@ export default function SchedulePage() {
                   <option value="personal">{t('schedulePage.personalLeave')}</option>
                 </select>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveStartDate')}</label>
                   <input type="date" value={leaveForm.startDate} onChange={e => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
@@ -2742,9 +2742,9 @@ export default function SchedulePage() {
                   placeholder={t('schedulePage.placeholderLeaveReason')} rows={3}
                   style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, resize: 'vertical' }} />
               </div>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', justifyContent: 'flex-end', marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>{t('schedulePage.cancel')}</button>
-                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('schedulePage.submitRequest')}</button>
+                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Send size={13} />{t('schedulePage.submitRequest')}</button>
               </div>
             </div>
           </div>
@@ -2754,17 +2754,17 @@ export default function SchedulePage() {
       {/* ========== 导出排班弹窗 ========== */}
       {showExportModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 400 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.exportTitle')}</h3>
               <button onClick={() => setShowExportModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
-            <div style={{ fontSize: 12, color: C.textMid, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: C.textMid, marginBottom: 'var(--space-3, 12px)' }}>
               {exportProgress < 100 ? t('schedulePage.exportProgressMsg', { count: allSchedules.length }) : t('schedulePage.exportDoneMsg')}
             </div>
-            <div style={{ height: 8, background: C.bgLight, borderRadius: 4, overflow: 'hidden', marginBottom: 20 }}>
+            <div style={{ height: 8, background: C.bgLight, borderRadius: 4, overflow: 'hidden', marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ width: `${exportProgress}%`, height: '100%', background: C.primary, borderRadius: 4, transition: 'width 0.15s ease-out' }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

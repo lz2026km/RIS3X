@@ -147,32 +147,32 @@ export default function DicomWebPage() {
   ]
 
   return (
-    <div style={{ padding: 24, maxWidth: 1280, margin: '0 auto' }}>
-      <Space style={{ marginBottom: 8 }} wrap>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1280, margin: '0 auto' }}>
+      <Space style={{ marginBottom: 'var(--space-2, 8px)' }} wrap>
         <Title level={3} style={{ margin: 0 }}>{t('dw.title')}</Title>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         <Tag color="geekblue">QIDO-RS · WADO-RS · STOW-RS</Tag>
       </Space>
-      <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>{t('dw.subtitle')}</Text>
+      <Text type="secondary" style={{ display: 'block', marginBottom: 'var(--space-4, 16px)' }}>{t('dw.subtitle')}</Text>
 
       {searchError && (
-        <Alert type="error" showIcon message={t('dw.qidoFailed')} description={searchError} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('dw.qidoFailed')} description={searchError} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void handleQidoSearch()}><RefreshCw size={14} /> {t('dw.retry')}</Button>} />
       )}
 
-      <Card size="small" title={t('dw.qidoTitle')} style={{ marginBottom: 16 }} extra={capabilities && (
+      <Card size="small" title={t('dw.qidoTitle')} style={{ marginBottom: 'var(--space-4, 16px)' }} extra={capabilities && (
         <Text type="secondary" style={{ fontSize: 12 }}>
           QIDO-RS: {capabilities.qidors ? '' : ''} | WADO-RS: {capabilities.wadors ? '' : ''} | STOW-RS: {capabilities.stowrs ? '' : ''} | v{capabilities.version}
         </Text>
       )}>
-        <Space wrap style={{ width: '100%', marginBottom: 12 }}>
+        <Space wrap style={{ width: '100%', marginBottom: 'var(--space-3, 12px)' }}>
           <Input placeholder={t('dw.colPatientId')} value={qidopatient} onChange={(e) => setQidopatient(e.target.value)} style={{ width: 150 }} />
           <Select placeholder={t('dw.colModality')} allowClear style={{ width: 100 }} options={MODALITY_OPTIONS} value={qidomodality || undefined} onChange={(v) => setQidomodality(v ?? '')} />
           <Input placeholder={t('dw.descKeywordPlaceholder')} value={qidokeyword} onChange={(e) => setQidokeyword(e.target.value)} style={{ width: 220 }} onPressEnter={() => void handleQidoSearch()} />
           <Button type="primary" icon={<Search />} onClick={() => void handleQidoSearch()} loading={searchLoading}>{t('dw.qidoSearch')}</Button>
         </Space>
         {searchLoading ? (
-          <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)' }}><Spin /></div>
         ) : studies.length === 0 ? (
           <EmptyState description={t('dw.noResults')} />
         ) : (
@@ -180,7 +180,7 @@ export default function DicomWebPage() {
         )}
       </Card>
 
-      <Card size="small" title={t('dw.wadoTitle')} style={{ marginBottom: 16 }}>
+      <Card size="small" title={t('dw.wadoTitle')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space wrap>
           <Select options={SERVER_OPTIONS} value={server} onChange={setServer} style={{ width: 180 }} />
           <Input

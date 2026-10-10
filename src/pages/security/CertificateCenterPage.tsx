@@ -178,8 +178,8 @@ export const CertificateCenterPage: React.FC = () => {
   ]
 
   return (
-    <div data-testid="certificate-center-page" style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+    <div data-testid="certificate-center-page" style={{ padding: 'var(--space-5, 20px)', maxWidth: 1400, margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <ShieldCheck size={22} color="var(--color-info-600)" />
         <Typography.Title level={4} style={{ margin: 0 }}>{t('w8Report.certCenterTitle')}</Typography.Title>
         <Tag color="cyan">{t('w8Report.certCenterBadge')}</Tag>
@@ -187,11 +187,11 @@ export const CertificateCenterPage: React.FC = () => {
         {activeKeyId && <Tag icon={<KeyRound size={12} />} color="blue">{activeKeyId}</Tag>}
         <Button size="small" icon={<RotateCw size={12} />} loading={rotating} onClick={() => void handleRotate()}>{t('w13Sec.ca.hsm.rotate')}</Button>
       </div>
-      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: -8, marginBottom: 16 }}>{t('w8Report.certCenterSubtitle')}</p>
+      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: -8, marginBottom: 'var(--space-4, 16px)' }}>{t('w8Report.certCenterSubtitle')}</p>
 
       {error && <ErrorBanner message={error} />}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('w8Report.stat.total')} value={stats?.total ?? 0} icon={<KeyRound size={16} />} />
         <StatCard title={t('w8Report.stat.valid')} value={stats?.valid ?? 0} color="success" icon={<BadgeCheck size={16} />} />
         <StatCard title={t('w8Report.stat.superseded')} value={stats?.superseded ?? 0} color="warning" icon={<RotateCw size={16} />} />
@@ -225,7 +225,7 @@ export const CertificateCenterPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={<span><Ban size={14} /> {t('w8Report.crlTitle')}</span>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<span><Ban size={14} /> {t('w8Report.crlTitle')}</span>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Descriptions size="small" column={1}>
               <Descriptions.Item label={t('w8Report.crlIssuer')}>{crl?.issuer ?? '-'}</Descriptions.Item>
               <Descriptions.Item label={t('w8Report.crlThisUpdate')}>{crl?.thisUpdate?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
@@ -263,7 +263,7 @@ export const CertificateCenterPage: React.FC = () => {
           </Card>
 
           {/* [G005 W13-Security] OCSP 在线状态查询 */}
-          <Card size="small" title={<span><Search size={14} /> {t('w13Sec.ca.ocsp')}</span>} style={{ marginTop: 16 }}>
+          <Card size="small" title={<span><Search size={14} /> {t('w13Sec.ca.ocsp')}</span>} style={{ marginTop: 'var(--space-4, 16px)' }}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <Space.Compact style={{ width: '100%' }}>
                 <Input value={ocspSerial} onChange={(e) => setOcspSerial(e.target.value)} placeholder={t('w13Sec.ca.ocspPlaceholder')} onPressEnter={() => void handleOcsp()} />

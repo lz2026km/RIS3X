@@ -170,7 +170,7 @@ export const MprViewerPage: React.FC = () => {
             onClick={() => setActivePlane(plane)}>
             <div style={{ position: 'absolute', top: 4, left: 8, color: '#00ff88', fontSize: 12, fontWeight: 600, zIndex: 2 }}>
               {planeLabel(plane)}
-              <Tag style={{ marginLeft: 8 }} color="blue">{slices[plane] + 1}/{totalSlices[plane]}</Tag>
+              <Tag style={{ marginLeft: 'var(--space-2, 8px)' }} color="blue">{slices[plane] + 1}/{totalSlices[plane]}</Tag>
             </div>
             <canvas ref={plane === 'Axial' ? axialRef : plane === 'Sagittal' ? sagittalRef : coronalRef}
               width={512} height={512} style={{ width: '100%', height: '100%', cursor: 'pointer', imageRendering: 'pixelated' }}
@@ -185,7 +185,7 @@ export const MprViewerPage: React.FC = () => {
             <div style={{ position: 'absolute', bottom: 4, left: 8, color: 'var(--text-secondary)', fontSize: 10 }}>
               WW: {ww} WC: {wc}
             </div>
-            <div style={{ position: 'absolute', bottom: 4, right: 8, display: 'flex', gap: 4 }}>
+            <div style={{ position: 'absolute', bottom: 4, right: 8, display: 'flex', gap: 'var(--space-1, 4px)' }}>
               <Button size="small" aria-label={`${planeLabel(plane)}-${t('w9d.mprViewer.prevSlice')}`} icon={<ChevronLeft size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, -1); }} />
               <Button size="small" aria-label={`${planeLabel(plane)}-${t('w9d.mprViewer.nextSlice')}`} icon={<ChevronRight size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, 1); }} />
             </div>
@@ -193,34 +193,34 @@ export const MprViewerPage: React.FC = () => {
         ))}
         {/* Bottom Right: 3D Volume Rendering */}
         <div style={{ border: '1px solid #222', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a1a' }}>
-          <div style={{ textAlign: 'center', width: '100%', padding: 16 }}>
+          <div style={{ textAlign: 'center', width: '100%', padding: 'var(--space-4, 16px)' }}>
             {rebuild.done ? (
               <>
                 <CheckCircle2 size={40} color="#00ff88" />
-                <div style={{ color: '#00ff88', marginTop: 8, fontSize: 12, fontWeight: 600 }}>{t('w9d.mprViewer.volumeDone')}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>
+                <div style={{ color: '#00ff88', marginTop: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 600 }}>{t('w9d.mprViewer.volumeDone')}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 'var(--space-1, 4px)' }}>
                   {t('w9d.mprViewer.volumeInfo')}
                 </div>
-                <Tag color="orange" style={{ marginTop: 8 }}>{t('w9d.mprViewer.demoRebuildWebgl')}</Tag>
-                <div style={{ marginTop: 8 }}>
+                <Tag color="orange" style={{ marginTop: 'var(--space-2, 8px)' }}>{t('w9d.mprViewer.demoRebuildWebgl')}</Tag>
+                <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                   <Button size="small" onClick={() => setRebuild({ running: false, progress: 0, done: false })}>{t('w9d.mprViewer.rebuildAgain')}</Button>
                 </div>
               </>
             ) : rebuild.running ? (
               <>
                 <Activity size={40} color="#00ff88" style={{ animation: 'pulse 1s infinite' }} />
-                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>{t('w9d.mprViewer.rebuilding', { progress: rebuild.progress })}</div>
+                <div style={{ color: 'var(--text-secondary)', marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>{t('w9d.mprViewer.rebuilding', { progress: rebuild.progress })}</div>
                 <div style={{ width: 220, margin: '12px auto 0' }}>
                   <Progress percent={rebuild.progress} size="small" strokeColor="#00ff88" showInfo={false} />
                 </div>
-                <Tag color="orange" style={{ marginTop: 8 }}>{t('w9d.mprViewer.demoRebuild')}</Tag>
+                <Tag color="orange" style={{ marginTop: 'var(--space-2, 8px)' }}>{t('w9d.mprViewer.demoRebuild')}</Tag>
               </>
             ) : (
               <>
                 <Activity size={48} color="var(--text-secondary)" />
-                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>{t('w9d.mprViewer.volumeRender')}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>{t('w9d.mprViewer.volumeHint')}</div>
-                <Button size="small" style={{ marginTop: 8 }} onClick={startRebuild}>{t('w9d.mprViewer.startRebuild')}</Button>
+                <div style={{ color: 'var(--text-secondary)', marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>{t('w9d.mprViewer.volumeRender')}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 'var(--space-1, 4px)' }}>{t('w9d.mprViewer.volumeHint')}</div>
+                <Button size="small" style={{ marginTop: 'var(--space-2, 8px)' }} onClick={startRebuild}>{t('w9d.mprViewer.startRebuild')}</Button>
               </>
             )}
           </div>

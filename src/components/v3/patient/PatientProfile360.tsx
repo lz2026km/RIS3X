@@ -106,7 +106,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
 
   return (
     <div data-testid="patient-profile-360">
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Row gutter={16} align="middle">
           <Col flex="80px">
             <Avatar size={64} icon={<User size={32} />} style={{ background: 'var(--color-primary-800)' }} data-testid="patient-avatar">
@@ -124,7 +124,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                 <Tag color="orange" icon={<Shield size={10} />}>{t('w9e.patientProfile360.allergy', { list: patient.allergy.join('/') })}</Tag>
               )}
             </Space>
-            <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b' }}>
               <Space size={12} wrap>
                 <span><IdCard size={10} /> {t('w9e.patientProfile360.idCard', { id: patient.idCard })}</span>
                 <span><Phone size={10} /> {patient.phone}</span>
@@ -181,7 +181,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                   </Card>
                 </Col>
                 <Col span={8}>
-                  <Card size="small" title={t('w9e.patientProfile360.chronicTitle')} style={{ marginBottom: 12 }}>
+                  <Card size="small" title={t('w9e.patientProfile360.chronicTitle')} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                     {patient.chronicDiseases && patient.chronicDiseases.length > 0 ? (
                       <Space wrap>
                         {patient.chronicDiseases.map((d) => <Tag key={d} color="orange">{d}</Tag>)}

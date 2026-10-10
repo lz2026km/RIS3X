@@ -376,7 +376,7 @@ const LesionTrackingPage: React.FC = () => {
 
   return (
     <PageContainer background="dark" padding={16} style={{ color: '#e2e8f0' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+      <Row justify="space-between" align="middle" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Crosshair size={22} color="#60a5fa" />
@@ -398,7 +398,7 @@ const LesionTrackingPage: React.FC = () => {
       </Row>
 
       {/* 统计卡 */}
-      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         {[
           { title: t('lesionTrack.statTotal'), value: stats?.total ?? 0, color: 'var(--color-primary-500)' },
           { title: t('lesionTrack.statNew'), value: stats?.new ?? 0, color: '#f97316' },
@@ -425,7 +425,7 @@ const LesionTrackingPage: React.FC = () => {
       {/* 患者选择 + 新建 */}
       <Card
         size="small"
-        style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10, marginBottom: 16 }}
+        style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10, marginBottom: 'var(--space-4, 16px)' }}
         title={<span style={{ fontSize: 14, color: '#e2e8f0' }}>{t('lesionTrack.patientSelect')}</span>}
         extra={
           <Space>
@@ -456,7 +456,7 @@ const LesionTrackingPage: React.FC = () => {
       {/* 病灶列表 */}
       <Card
         size="small"
-        style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10, marginBottom: 16 }}
+        style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10, marginBottom: 'var(--space-4, 16px)' }}
         title={<span style={{ fontSize: 14, color: '#e2e8f0' }}>{t('lesionTrack.lesionList')}</span>}
       >
         <Spin spinning={loading}>
@@ -496,7 +496,7 @@ const LesionTrackingPage: React.FC = () => {
         <Spin spinning={trendLoading}>
           {trend && trend.timeline.length > 0 ? (
             <div>
-              <Space size={12} wrap style={{ marginBottom: 8 }}>
+              <Space size={12} wrap style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <Tag color="blue">{t('lesionTrack.baseline')} {trend.baselineSize.toFixed(1)}mm ({trend.baselineDate})</Tag>
                 <Tag color="blue">{t('lesionTrack.latest')} {trend.latestSize.toFixed(1)}mm ({trend.latestDate})</Tag>
                 <Tag color={trend.changePercent >= 20 ? 'red' : trend.changePercent <= -30 ? 'green' : 'blue'}>
@@ -518,7 +518,7 @@ const LesionTrackingPage: React.FC = () => {
               </ChartContainer>
             </div>
           ) : (
-            <Empty description={t('lesionTrack.emptyTrend')} style={{ padding: 40, color: '#64748b' }} />
+            <Empty description={t('lesionTrack.emptyTrend')} style={{ padding: 'var(--space-10, 40px)', color: '#64748b' }} />
           )}
         </Spin>
       </Card>
@@ -577,7 +577,7 @@ const LesionTrackingPage: React.FC = () => {
               />
 
               {/* 测量时间线 */}
-              <div style={{ marginTop: 16, marginBottom: 8 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', marginBottom: 'var(--space-2, 8px)' }}>
                 <b style={{ color: '#e2e8f0' }}>{t('lesionTrack.measurementSeries')}</b>
               </div>
               <Timeline
@@ -586,7 +586,7 @@ const LesionTrackingPage: React.FC = () => {
                   children: (
                     <div>
                       <div style={{ color: '#e2e8f0' }}>{m.date} · <b>{m.sizeMm.toFixed(1)}mm</b> <Text type="secondary">({m.studyId || '-'})</Text></div>
-                      {m.response && <Tag color={RESPONSE_COLORS[m.response]} style={{ marginTop: 4 }}>{t(`lesionTrack.response.${m.response}`)}</Tag>}
+                      {m.response && <Tag color={RESPONSE_COLORS[m.response]} style={{ marginTop: 'var(--space-1, 4px)' }}>{t(`lesionTrack.response.${m.response}`)}</Tag>}
                       {m.notes && <div style={{ fontSize: 12, color: '#94a3b8' }}>{m.notes}</div>}
                     </div>
                   ),
@@ -594,7 +594,7 @@ const LesionTrackingPage: React.FC = () => {
               />
 
               {/* 新增测量 */}
-              <Card size="small" title={t('lesionTrack.addMeasurement')} style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 12 }}>
+              <Card size="small" title={t('lesionTrack.addMeasurement')} style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 'var(--space-3, 12px)' }}>
                 <Form form={measureForm} layout="vertical" size="small">
                   <Row gutter={8}>
                     <Col span={8}>
@@ -623,7 +623,7 @@ const LesionTrackingPage: React.FC = () => {
                         <Input placeholder={t('w9dLesion.studyPlaceholder', { id: Date.now() })} />
                       </Form.Item>
                     </Col>
-                    <Col span={8} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 24 }}>
+                    <Col span={8} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 'var(--space-6, 24px)' }}>
                       <Button type="primary" size="small" icon={<History size={12} />} onClick={() => void handleAddMeasurement()} data-testid="lt-add-measurement">
                         {t('lesionTrack.recordMeasurement')}
                       </Button>
@@ -633,7 +633,7 @@ const LesionTrackingPage: React.FC = () => {
               </Card>
 
               {/* 跨期对比 */}
-              <Card size="small" title={t('lesionTrack.compareCard')} style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 12 }}>
+              <Card size="small" title={t('lesionTrack.compareCard')} style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 'var(--space-3, 12px)' }}>
                 <Row gutter={8} align="middle">
                   <Col span={9}>
                     <Select
@@ -668,10 +668,10 @@ const LesionTrackingPage: React.FC = () => {
                   </Col>
                 </Row>
                 {compareResult && (
-                  <div style={{ marginTop: 12, padding: 12, background: '#111c33', border: '1px solid #1e2b45', borderRadius: 8 }} data-testid="lt-compare-result">
+                  <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: '#111c33', border: '1px solid #1e2b45', borderRadius: 8 }} data-testid="lt-compare-result">
                     <div style={{ fontSize: 12, color: '#e2e8f0', marginBottom: 6 }}>
                       {compareResult.sizeA.toFixed(1)}mm → {compareResult.sizeB.toFixed(1)}mm
-                      <b style={{ color: compareResult.changeMm > 0 ? severityColor('critical') : compareResult.changeMm < 0 ? severityColor('success') : '#94a3b8', marginLeft: 8 }}>
+                      <b style={{ color: compareResult.changeMm > 0 ? severityColor('critical') : compareResult.changeMm < 0 ? severityColor('success') : '#94a3b8', marginLeft: 'var(--space-2, 8px)' }}>
                         {compareResult.changeMm > 0 ? '+' : ''}{compareResult.changeMm}mm ({compareResult.changePercent > 0 ? '+' : ''}{compareResult.changePercent}%)
                       </b>
                     </div>
@@ -707,7 +707,7 @@ const LesionTrackingPage: React.FC = () => {
                   </Button>
                 </Space.Compact>
                 <Alert
-                  style={{ marginTop: 8, background: '#0b1626', border: '1px solid #1e2b45' }}
+                  style={{ marginTop: 'var(--space-2, 8px)', background: '#0b1626', border: '1px solid #1e2b45' }}
                   type="info"
                   showIcon
                   message={t('lesionTrack.followupAlert')}

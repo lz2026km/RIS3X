@@ -353,7 +353,7 @@ export default function QcPdcaPage() {
       key: 'ownerName',
       width: 100,
       render: (v: string) => (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <User size={12} color="#64748b" /> {v}
         </span>
       ),
@@ -365,7 +365,7 @@ export default function QcPdcaPage() {
       width: 120,
       render: (v: string, r) => (
         <Space direction="vertical" size={2}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <CalendarClock size={12} color="#64748b" /> {fmtDate(v)}
           </span>
           {r.completedAt && <span style={{ color: '#10b981', fontSize: 12 }}>{t('qcPdca.closedAt')} {fmtDate(r.completedAt)}</span>}
@@ -446,7 +446,7 @@ export default function QcPdcaPage() {
 
       {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
         <StatCardGrid gap={12}>
           {statCards.map((s, i) => (
             <StatCard key={i} title={s.label} value={s.value} icon={s.icon} color={s.color} sub={s.sub} />
@@ -520,7 +520,7 @@ export default function QcPdcaPage() {
         extra={sourceBadge}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}>{t('qcPdca.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>{t('qcPdca.loading')}</div>
         ) : detail ? (
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
@@ -539,7 +539,7 @@ export default function QcPdcaPage() {
 
             {/* 阶段时间线 + 条目 CRUD */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
                 <b>{t('qcPdca.phasePlanResult')}</b>
                 <Button
                   size="small"
@@ -561,7 +561,7 @@ export default function QcPdcaPage() {
                   items={phases.map((p) => ({
                     color: PHASE_META[p.phase]?.color,
                     children: (
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'flex-start' }}>
                         <Tag color={PHASE_META[p.phase]?.color} style={{ marginTop: 1, flexShrink: 0 }}>{PHASE_META[p.phase]?.label}</Tag>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12 }}>{p.content}</div>
@@ -612,7 +612,7 @@ export default function QcPdcaPage() {
               ) : (
                 <Space direction="vertical" size={6} style={{ width: '100%' }}>
                   {defects.map((d) => (
-                    <div key={d.id} style={{ display: 'flex', gap: 8, alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12 }}>
+                    <div key={d.id} style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12 }}>
                       <Tag color={CATEGORY_COLORS[d.defectType] ?? 'default'} style={{ flexShrink: 0 }}>{CATEGORY_LABELS[d.defectType] ?? d.defectType}</Tag>
                       <span style={{ flex: 1, color: '#475569' }}>{d.description}</span>
                       <Tag color={STATUS_COLORS[d.status] ?? 'default'}>{STATUS_LABELS[d.status] ?? d.status}</Tag>

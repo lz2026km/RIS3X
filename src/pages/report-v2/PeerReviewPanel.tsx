@@ -256,8 +256,8 @@ const PeerReviewPanel: React.FC = () => {
         title={<Space><Star size={16} color="var(--color-primary-600)" /><span>{t('peerReview.title')}</span><Tag color="blue">{t('peerReview.tag')}</Tag></Space>}
         extra={<Button type="primary" icon={<PlusCircle size={14} />} onClick={() => setAssignOpen(true)}>{t('peerReview.assignTask')}</Button>}
       >
-        {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
-        <StatCardGrid minWidth={170} gap={16} style={{ marginBottom: 16 }}>
+        {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
+        <StatCardGrid minWidth={170} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('peerReview.statTotal')} value={stats?.total ?? 0} icon={<FileText size={16} />} color="primary" />
           <StatCard title={t('peerReview.stPending')} value={stats?.pendingCount ?? 0} color="info" />
           <StatCard title={t('peerReview.stReviewed')} value={stats?.reviewedCount ?? 0} color="success" />
@@ -265,7 +265,7 @@ const PeerReviewPanel: React.FC = () => {
           <StatCard title={t('peerReview.statCompletionRate')} value={stats?.completionRate ?? 0} suffix="%" color="primary" />
           <StatCard title={t('peerReview.statAvgScore')} value={stats?.avgScores.overall ?? 0} suffix="/ 5" color="warning" />
         </StatCardGrid>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           {dimensionMeta.map(dm => (
             <Col span={4} key={dm.key}>
               <Card size="small" title={`${t(dm.labelKey)}${t('peerReview.avgSuffix')}`}>
@@ -292,7 +292,7 @@ const PeerReviewPanel: React.FC = () => {
             </Card>
           </Col>
         </Row>
-        <Space style={{ marginBottom: 12 }}>
+        <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <AppText>{t('peerReview.statusLabel')}: </AppText>
           <Select allowClear placeholder={t('peerReview.all')} style={{ width: 120 }} value={statusFilter}
             onChange={v => setStatusFilter(v)}
@@ -346,8 +346,8 @@ const PeerReviewPanel: React.FC = () => {
                 <AppText weight={600}>{t(dm.labelKey)}</AppText>
                 <Rate value={scores[dm.key]} count={5}
                   onChange={v => setScores(p => ({ ...p, [dm.key]: v }))}
-                  style={{ marginLeft: 12 }} />
-                <AppText color="secondary" style={{ marginLeft: 8 }}>{scores[dm.key]} / 5</AppText>
+                  style={{ marginLeft: 'var(--space-3, 12px)' }} />
+                <AppText color="secondary" style={{ marginLeft: 'var(--space-2, 8px)' }}>{scores[dm.key]} / 5</AppText>
               </div>
             ))}
             <TextArea rows={4} placeholder={t('peerReview.commentPlaceholder')} value={comment} onChange={e => setComment(e.target.value)} />

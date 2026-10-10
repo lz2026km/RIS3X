@@ -1,3 +1,13 @@
+## v3.0.6.13-7 (2026-10-10) — 间距令牌化（12,013 处 → --space-N）
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；核心路由 E2E 通过；`guard:ui` 全绿（新增 spacingTokens 预算）
+
+### UI-D2b 间距令牌化
+- **12,013 处**内联数字间距（`marginTop/marginBottom/margin/padding*/gap/rowGap/columnGap`，值在 `--space` 刻度 4/8/12/16/20/24/32/40/48/64/80/96 内）→ `var(--space-N, Npx)`，覆盖 **606 文件**
+- 仅替换 JS 对象上下文（后视 `[,}]`/`}）保护，模板串 CSS `padding: 16px` 不受影响）；非刻度值（1/2/3/5/6/7…共 4,282 处）保留
+- 密度语义收归 design-system：主题/密度调整只需改 `--space-*` 一处
+- `guard:ui` 新增 `spacingTokens` 预算 **0**（只减不增）；hex 预算 8,395 → 8,393
+
 ## v3.0.6.13-6 (2026-10-10) — P0 稳定性修复：配置加载不再阻塞整站
 
 > **根因**: E2E 深查发现 `/critical-value?tab=alert`、`/reports` 永久停留在 `正在加载临床配置…`（body 文本仅 9 字符）。

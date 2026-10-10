@@ -63,7 +63,7 @@ export default function BreastDoseTracking() {
   ).length;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
       {dataSource === "demo" && (
@@ -76,7 +76,7 @@ export default function BreastDoseTracking() {
           fontSize: 12,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <AlertTriangle size={14} /> {t("w8Dose.breastDemo")}
@@ -86,7 +86,7 @@ export default function BreastDoseTracking() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}
       >
         <KpiBox label="本月检查量" value={totalExams} suffix="人次" color="var(--color-primary-800)" />
@@ -109,7 +109,7 @@ export default function BreastDoseTracking() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -118,7 +118,7 @@ export default function BreastDoseTracking() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <div>
@@ -129,7 +129,7 @@ export default function BreastDoseTracking() {
               平均腺体剂量(AGD)参考值: 6 mGy（欧盟标准）
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
             <Legend color="var(--color-primary-800)" label="AGD值" />
             <Legend color="var(--color-error-600)" label="参考线(6mGy)" />
           </div>
@@ -198,7 +198,7 @@ export default function BreastDoseTracking() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -207,7 +207,7 @@ export default function BreastDoseTracking() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           乳腺剂量检查记录
@@ -291,13 +291,13 @@ const KpiBox = ({
     }}
   >
     <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
-    <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 4 }}>{value}</div>
+    <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 'var(--space-1, 4px)' }}>{value}</div>
     <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{suffix}</div>
   </div>
 );
 
 const Legend = ({ color, label }: { color: string; label: string }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
     <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
     <span style={{ fontSize: 12, color: "#64748b" }}>{label}</span>
   </div>

@@ -73,8 +73,8 @@ export const ToothChartPage: React.FC = () => {
   const surfaceLabel = (k: string) => t(`w9d.tooth.surface.${k}`);
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)" }}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)" }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Stethoscope size={20} color="var(--color-primary-600)" />
         <Activity size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.tooth.title')}</span>
@@ -113,14 +113,14 @@ export const ToothChartPage: React.FC = () => {
                   display: "flex",
                   justifyContent: "center",
                   gap: 6,
-                  marginBottom: 12,
+                  marginBottom: 'var(--space-3, 12px)',
                 }}
               >
                 {ri === 0 && (
                   <div
                     style={{
                       writingMode: "vertical-lr",
-                      marginRight: 8,
+                      marginRight: 'var(--space-2, 8px)',
                       color: "var(--text-secondary)",
                     }}
                   >
@@ -131,7 +131,7 @@ export const ToothChartPage: React.FC = () => {
                   <div
                     style={{
                       writingMode: "vertical-lr",
-                      marginRight: 8,
+                      marginRight: 'var(--space-2, 8px)',
                       color: "var(--text-secondary)",
                     }}
                   >
@@ -214,7 +214,7 @@ export const ToothChartPage: React.FC = () => {
                   <div>{t('w9d.tooth.cariesGrade', { grade: chart.teeth[activeTooth].cariesGrade })}</div>
                 )}
                 {chart.teeth[activeTooth].periodontal && (
-                  <Card size="small" title={t('w9d.tooth.periodontal')} style={{ marginTop: 8 }}>
+                  <Card size="small" title={t('w9d.tooth.periodontal')} style={{ marginTop: 'var(--space-2, 8px)' }}>
                     <div>PD: {chart.teeth[activeTooth].periodontal.pd}mm</div>
                     <div>CAL: {chart.teeth[activeTooth].periodontal.cal}mm</div>
                     <div>

@@ -33,8 +33,8 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
 }) {
   const tabsStyle: React.CSSProperties = {
     display: 'flex',
-    gap: 4,
-    marginBottom: 20,
+    gap: 'var(--space-1, 4px)',
+    marginBottom: 'var(--space-5, 20px)',
     borderBottom: '1px solid var(--border-default, #30363d)',
     paddingBottom: 0,
     flexWrap: 'wrap',
@@ -42,12 +42,12 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 4 }}>{t('costFilter.title')}</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 'var(--space-1, 4px)' }}>{t('costFilter.title')}</div>
           <div style={{ fontSize: 12, color: '#6e7681' }}>{t('costFilter.subtitle')}</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           {(['month', 'quarter', 'year'] as TimeRange[]).map(range => (
             <button
               key={range}

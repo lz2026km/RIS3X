@@ -109,7 +109,7 @@ export default function DoseControlCharts() {
   const processCp = sigma > 0 && ucl > lcl ? (((ucl - lcl) / (6 * sigma)).toFixed(2)) : "-";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
       {dataSource === "demo" && (
@@ -122,7 +122,7 @@ export default function DoseControlCharts() {
           fontSize: 12,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         <AlertTriangle size={14} /> {t("w8Dose.controlDemo")}
@@ -132,7 +132,7 @@ export default function DoseControlCharts() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -141,7 +141,7 @@ export default function DoseControlCharts() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <div>
@@ -163,7 +163,7 @@ export default function DoseControlCharts() {
                 fontWeight: 700,
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 'var(--space-1, 4px)',
               }}
             >
               <AlertTriangle size={12} /> {outOfControl.length}个失控点
@@ -220,7 +220,7 @@ export default function DoseControlCharts() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 20,
+          padding: 'var(--space-5, 20px)',
           border: "1px solid #e2e8f0",
         }}
       >
@@ -229,7 +229,7 @@ export default function DoseControlCharts() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           R 控制图（极差监控）
@@ -267,18 +267,18 @@ export default function DoseControlCharts() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
+          gap: 'var(--space-3, 12px)',
         }}
       >
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>均值偏移</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 4 }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 'var(--space-1, 4px)' }}>
             {meanShift}
           </div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>过程能力Cp</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-success-600)", marginTop: 4 }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-success-600)", marginTop: 'var(--space-1, 4px)' }}>
             {processCp}
           </div>
         </div>
@@ -289,7 +289,7 @@ export default function DoseControlCharts() {
               fontSize: 16,
               fontWeight: 800,
               color: outOfControl.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)",
-              marginTop: 4,
+              marginTop: 'var(--space-1, 4px)',
             }}
           >
             {outOfControl.length}
@@ -302,7 +302,7 @@ export default function DoseControlCharts() {
               fontSize: 16,
               fontWeight: 800,
               color: outOfControl.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)",
-              marginTop: 4,
+              marginTop: 'var(--space-1, 4px)',
             }}
           >
             {outOfControl.length > 0 ? "失控" : "受控"}
@@ -340,7 +340,7 @@ export default function DoseControlCharts() {
 const kpiBox: React.CSSProperties = {
   background: "var(--bg-card)",
   borderRadius: 10,
-  padding: 12,
+  padding: 'var(--space-3, 12px)',
   border: "1px solid #e2e8f0",
   textAlign: "center",
 };

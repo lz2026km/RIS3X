@@ -122,7 +122,7 @@ export function EmptyState({
         alignItems: "center",
         justifyContent: "center",
         padding: "40px 16px",
-        gap: 12,
+        gap: 'var(--space-3, 12px)',
         textAlign: "center",
         ...style,
       }}
@@ -147,7 +147,7 @@ export function EmptyState({
       >
         {desc}
       </div>
-      {action && <div style={{ marginTop: 4 }}>{action}</div>}
+      {action && <div style={{ marginTop: 'var(--space-1, 4px)' }}>{action}</div>}
     </div>
   );
 }

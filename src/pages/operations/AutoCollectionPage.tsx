@@ -357,7 +357,7 @@ const AutoCollectionPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
       {/* [G005 Wave1A W9] 后端已实现 /auto-collection, MSW 仅 mock 兜底 */}
       <Alert
         type="success"
@@ -365,13 +365,13 @@ const AutoCollectionPage: React.FC = () => {
         banner
         message={t('autoCollection.backendConnected')}
         description={t('autoCollection.sourceNote')}
-        style={{ marginBottom: 16 }}
-      />      <Space style={{ marginBottom: 16 }}>
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
+      />      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Settings size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('autoCollection.title')}</span>
       </Space>
-      {error && <Alert type="warning" showIcon message={t('autoCollection.loadFailed')} description={error} action={<Button size="small" onClick={fetchRules}><RefreshCw size={14} /> {t('autoCollection.retry')}</Button>} style={{ marginBottom: 16 }} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && <Alert type="warning" showIcon message={t('autoCollection.loadFailed')} description={error} action={<Button size="small" onClick={fetchRules}><RefreshCw size={14} /> {t('autoCollection.retry')}</Button>} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('autoCollection.statTotalRules')} value={rules.length} loading={loading} />
         <StatCard title={t('autoCollection.statEnabled')} value={rules.filter(r => r.enabled).length} color="success" loading={loading} />
         <StatCard title={t('autoCollection.statDisabled')} value={rules.filter(r => !r.enabled).length} loading={loading} />
@@ -388,7 +388,7 @@ const AutoCollectionPage: React.FC = () => {
       <Card
         title={<Space><History size={14} />{t('autoCollection.collectionTasks')}</Space>}
         size="small"
-        style={{ marginTop: 12 }}
+        style={{ marginTop: 'var(--space-3, 12px)' }}
         extra={<Space>
           <Button size="small" type="primary" icon={<Play size={12} />} onClick={() => { taskForm.resetFields(); setTaskCreateOpen(true); }}>{t('autoCollection.createTask')}</Button>
           <Button size="small" icon={<RefreshCw size={12} />} onClick={() => { fetchTasks(); fetchStats(); }}>{t('autoCollection.refresh')}</Button>
@@ -427,22 +427,22 @@ const AutoCollectionPage: React.FC = () => {
       <Card
         title={<Space><ScrollText size={14} />{t('autoCollection.executionLogs')}</Space>}
         size="small"
-        style={{ marginTop: 12 }}
+        style={{ marginTop: 'var(--space-3, 12px)' }}
         extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => { fetchLogs(); }}>{t('autoCollection.refresh')}</Button>}
       >
         <Spin spinning={logsLoading}>
           {logs.length === 0 ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
+            <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
               {t('autoCollection.noLogs')}
             </div>
           ) : (
             <Timeline
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'var(--space-2, 8px)' }}
               items={logs.slice(0, 30).map((log) => ({
                 color: log.level === 'ERROR' ? 'red' : log.level === 'WARN' ? 'orange' : 'green',
                 children: (
                   <div>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', fontSize: 12 }}>
                       <Tag color={log.level === 'ERROR' ? 'red' : log.level === 'WARN' ? 'orange' : 'green'} style={{ marginRight: 0 }}>{log.level}</Tag>
                       <Tag style={{ marginRight: 0 }}>{log.source}</Tag>
                       <span style={{ color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: 11 }}>{log.time ? new Date(log.time).toLocaleString() : '-'}</span>
@@ -457,7 +457,7 @@ const AutoCollectionPage: React.FC = () => {
       </Card>
 
       {/* [G005 Wave1B] 配置: getConfig + updateConfig */}
-      <Card title={<Space><Settings size={14} />{t('autoCollection.collectionConfig')}</Space>} size="small" style={{ marginTop: 12 }}>
+      <Card title={<Space><Settings size={14} />{t('autoCollection.collectionConfig')}</Space>} size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Spin spinning={configLoading}>
           <DataTable
             rowKey="key"
@@ -495,7 +495,7 @@ const AutoCollectionPage: React.FC = () => {
         confirmLoading={creating}
         width={480}
       >
-        <Form form={form} layout="vertical" size="small" style={{ marginTop: 12 }} initialValues={{ triggerType: 'event', action: 'archive', enabled: true }}>
+        <Form form={form} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }} initialValues={{ triggerType: 'event', action: 'archive', enabled: true }}>
           <Form.Item name="name" label={t('autoCollection.ruleNameLabel')} rules={[{ required: true, message: t('autoCollection.requiredRuleName') }]}>
             <Input placeholder={t('autoCollection.placeholderRuleName')} />
           </Form.Item>
@@ -531,7 +531,7 @@ const AutoCollectionPage: React.FC = () => {
         confirmLoading={taskCreating}
         width={480}
       >
-        <Form form={taskForm} layout="vertical" size="small" style={{ marginTop: 12 }} initialValues={{ sourceType: 'DICOM' }}>
+        <Form form={taskForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }} initialValues={{ sourceType: 'DICOM' }}>
           <Form.Item name="name" label={t('autoCollection.taskName')} rules={[{ required: true, message: t('autoCollection.requiredTaskName') }]}>
             <Input placeholder={t('autoCollection.placeholderTaskName')} />
           </Form.Item>
@@ -561,7 +561,7 @@ const AutoCollectionPage: React.FC = () => {
       >
         <Spin spinning={detailLoading}>
           {taskDetail && (
-            <Descriptions bordered column={1} size="small" style={{ marginTop: 8 }}>
+            <Descriptions bordered column={1} size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Descriptions.Item label={t('autoCollection.taskId')}>{taskDetail.id}</Descriptions.Item>
               <Descriptions.Item label={t('autoCollection.rule')}>{taskDetail.ruleName} ({taskDetail.ruleId})</Descriptions.Item>
               <Descriptions.Item label={t('autoCollection.status')}><Tag color={taskDetail.status === 'completed' ? 'green' : taskDetail.status === 'failed' ? 'red' : taskDetail.status === 'running' ? 'blue' : 'orange'}>{TASK_STATUS_LABEL[taskDetail.status] ?? taskDetail.status}</Tag></Descriptions.Item>

@@ -64,7 +64,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
   if (loading) {
     return (
       <Card data-testid="review-ai-hint" role="region" aria-label={t('reportReview.aiHint.title')}>
-        <div style={{ textAlign: 'center', padding: 40 }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
           <Spin tip={t('reportReview.aiHint.analyzing')} />
         </div>
       </Card>
@@ -74,9 +74,9 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
   if (!result) {
     return (
       <Card data-testid="review-ai-hint" role="region" aria-label={t('reportReview.aiHint.title')}>
-        <div style={{ textAlign: 'center', padding: 20 }}>
-          <Brain size={48} color="#94a3b8" style={{ marginBottom: 8 }} />
-          <div style={{ marginBottom: 8, color: '#64748b' }}>{t('reportReview.aiHint.empty')}</div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)' }}>
+          <Brain size={48} color="#94a3b8" style={{ marginBottom: 'var(--space-2, 8px)' }} />
+          <div style={{ marginBottom: 'var(--space-2, 8px)', color: '#64748b' }}>{t('reportReview.aiHint.empty')}</div>
           <Button type="primary" icon={<Sparkles size={14} />} loading={triggering} onClick={trigger}>
             {t('reportReview.aiHint.trigger')}
           </Button>
@@ -93,7 +93,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -107,7 +107,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
             {t('reportReview.aiHint.reanalyze')}
           </Button>
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={6}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportReview.aiHint.suggestedScore')}</span>}
@@ -151,7 +151,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
           icon={<AlertTriangle size={14} />}
           message={t('reportReview.aiHint.criticalDetected')}
           description={t('reportReview.aiHint.criticalAdvice')}
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 'var(--space-3, 12px)' }}
         />
       )}
 
@@ -162,7 +162,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
           </Space>
         }
         size="small"
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       >
         <Row gutter={[12, 8]}>
           <Col span={8}>
@@ -189,14 +189,14 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
             </Space>
           }
           size="small"
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 'var(--space-3, 12px)' }}
         >
           {result.defects.map((d: AIPreReviewResult['defects'][number]) => (
             <div
               key={d.code}
               style={{
-                padding: 8,
-                marginBottom: 4,
+                padding: 'var(--space-2, 8px)',
+                marginBottom: 'var(--space-1, 4px)',
                 background:
                   d.severity === 'critical'
                     ? '#fee2e2'
@@ -219,7 +219,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
                 <Tag>{d.code}</Tag>
               </Space>
               {d.position && (
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{t('reportReview.aiHint.position')}{d.position}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{t('reportReview.aiHint.position')}{d.position}</div>
               )}
               {d.suggestion && (
                 <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 2 }}>{t('reportReview.aiHint.suggestion')}{d.suggestion}</div>
@@ -238,7 +238,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
             </Space>
           }
           size="small"
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 'var(--space-3, 12px)' }}
         >
           {result.suggestions.map((s: string, i: number) => (
             <div key={i} style={{ padding: 6, fontSize: 12, color: '#334155' }}>
@@ -249,15 +249,15 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
       )}
 
       {onAccept && (
-        <div style={{ textAlign: 'right', marginBottom: 12 }}>
+        <div style={{ textAlign: 'right', marginBottom: 'var(--space-3, 12px)' }}>
           <Button type="primary" icon={<Sparkles size={12} />} onClick={() => onAccept(result)}>
             {t('reportReview.aiHint.apply')}
           </Button>
         </div>
       )}
 
-      <div style={{ background: 'var(--bg-primary)', padding: 8, borderRadius: 4, fontSize: 12, color: '#64748b' }}>
-        <FileText size={11} style={{ marginRight: 4 }} />
+      <div style={{ background: 'var(--bg-primary)', padding: 'var(--space-2, 8px)', borderRadius: 4, fontSize: 12, color: '#64748b' }}>
+        <FileText size={11} style={{ marginRight: 'var(--space-1, 4px)' }} />
         {t('reportReview.aiHint.generatedAt')}{new Date(result.generatedAt).toLocaleString()} · {t('reportReview.aiHint.modelVersion')}{result.modelVersion}
       </div>
     </div>

@@ -201,8 +201,8 @@ const SecondReadPanel: React.FC = () => {
         title={<Space><ShieldAlert size={16} color="var(--color-primary-600)" /><span>{t('secondRead.title')}</span><Tag color="blue">{t('secondRead.tag')}</Tag></Space>}
         extra={<Button type="primary" icon={<ClipboardCheck size={14} />} onClick={() => setAnalyzeOpen(true)}>{t('secondRead.newTask')}</Button>}
       >
-        {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('secondRead.statTotal')} value={stats?.total ?? 0} icon={<Activity size={15} />} />
           <StatCard title={t('secondRead.statAvgRisk')} value={stats?.avgRiskScore ?? 0} suffix="/ 100" />
           <StatCard title={t('secondRead.statOpenRisk')} value={stats?.openRiskItems ?? 0} color="error" />

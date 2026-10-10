@@ -147,8 +147,8 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
     <div data-testid="hl7-monitor-panel">
       {/* 数据源徽标 */}
       <div style={{
-        marginBottom: 16, padding: '8px 14px', borderRadius: 8, fontSize: 12,
-        display: 'flex', alignItems: 'center', gap: 8,
+        marginBottom: 'var(--space-4, 16px)', padding: '8px 14px', borderRadius: 8, fontSize: 12,
+        display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
         background: (mllpReal || health24h.real) ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
         border: `1px solid ${(mllpReal || health24h.real) ? '#bbf7d0' : '#fde68a'}`,
         color: (mllpReal || health24h.real) ? '#15803d' : '#92400e',
@@ -160,7 +160,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
       </div>
 
       {/* M2. 通道健康卡 */}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={4}>
           <Card size="small" title={<Space><Activity size={14} />{t('hl7Page.mllpChannel')}</Space>}>
             <div style={{ textAlign: 'center' }}>
@@ -170,7 +170,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
                 {mllp ? `端口 ${mllp.port}${mllp.tlsEnabled ? ' (TLS)' : ''}` : t('hl7Page.unknown')} · {t('hl7Page.totalMessages')} {mllp?.totalMessages ?? '-'}
               </div>
-              <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: '#6b7280', marginTop: 'var(--space-1, 4px)' }}>
                 {t('hl7Page.uptime')} {(mllp?.uptimeMs ?? 0) / 3600000 > 24 ? `${((mllp?.uptimeMs ?? 0) / 86400000).toFixed(1)} ${t('hl7Page.day')}` : `${Math.round((mllp?.uptimeMs ?? 0) / 3600000)} ${t('hl7Page.hour')}`}
               </div>
             </div>
@@ -208,7 +208,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         </Col>
         <Col span={5}>
           <Card size="small" title={<Space><Activity size={14} />{t('hl7Page.healthStatus')}</Space>}>
-            <div style={{ textAlign: 'center', paddingTop: 8 }}>
+            <div style={{ textAlign: 'center', paddingTop: 'var(--space-2, 8px)' }}>
               <div style={{
                 display: 'inline-block', padding: '10px 18px', borderRadius: 999, fontSize: 14, fontWeight: 800,
                 background: healthOk ? 'var(--color-success-bg)' : 'var(--color-error-bg)',
@@ -216,7 +216,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
               }}>
                 {healthOk ? t('hl7Page.healthy') : t('hl7Page.attention')}
               </div>
-              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 8 }}>{t('hl7Page.threshold')}</div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 'var(--space-2, 8px)' }}>{t('hl7Page.threshold')}</div>
             </div>
           </Card>
         </Col>
@@ -257,7 +257,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
       </Row>
 
       {/* M4. 错误 TOP 消息列表 */}
-      <Card size="small" title={<Space><AlertTriangle size={14} />{t('hl7Page.errorTop')}</Space>} style={{ marginTop: 16 }}>
+      <Card size="small" title={<Space><AlertTriangle size={14} />{t('hl7Page.errorTop')}</Space>} style={{ marginTop: 'var(--space-4, 16px)' }}>
         <DataTable
           dataSource={errorTop}
           rowKey="messageType"
@@ -278,7 +278,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
               render: (_: unknown, r: any) => {
                 const pct = Math.round((r.count / Math.max(1, errorTotal)) * 100)
                 return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <div style={{ flex: 1, height: 8, background: 'var(--bg-primary, #f8fafc)', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${pct}%`, height: '100%', background: pct > 40 ? 'var(--color-error-600)' : 'var(--color-warning-600)', borderRadius: 999 }} />
                     </div>
@@ -297,7 +297,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
             },
           ]}
         />
-        <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
+        <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#6b7280' }}>
           {errorTop.length === 0 ? t('hl7Page.noFailure') : `共 ${errorTotal} 条失败消息, 建议检查目标系统 ACK 配置与消息格式 (MSH-11 加工位)`}
         </div>
       </Card>
@@ -560,13 +560,13 @@ export const Hl7ManagerPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Archive size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('hl7Page.archiveHeader')}</span>
         <Tag color="blue">v2.x</Tag>
         <Tag color="green">ORU / ORM / DFT</Tag>
       </Space>
-      <Alert title={t('hl7Page.archiveDesc')} type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title={t('hl7Page.archiveDesc')} type="info" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }} />
       <Tabs activeKey={tab} onChange={setTab} items={tabItems} />
     </PageContainer>
   )

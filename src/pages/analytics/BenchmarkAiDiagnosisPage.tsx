@@ -59,7 +59,7 @@ function AccuracyGauge({ label, value, color }: { label: string; value: number; 
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (value / 100) * circumference
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
       <svg width={radius * 2 + 16} height={radius * 2 + 16}>
         <circle cx={radius + 8} cy={radius + 8} r={radius} fill="none" stroke="#e2e8f0" strokeWidth={stroke} />
         <circle cx={radius + 8} cy={radius + 8} r={radius} fill="none" stroke={color} strokeWidth={stroke} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${radius + 8} ${radius + 8})`} />
@@ -152,14 +152,14 @@ export default function BenchmarkAiDiagnosisPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1600, margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
         <Space>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #8b5cf6, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Cpu size={22} color="#fff" />
           </div>
           <div>
-            <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               {t('benchmarkAi.title')}
               <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff', fontWeight: 600 }}>{t('benchmarkAi.demoData')}</span>
             </Title>
@@ -168,7 +168,7 @@ export default function BenchmarkAiDiagnosisPage() {
         </Space>
       </div>
 
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
         <RangePicker
           size="small"
           value={[dateRange[0] ? dayjs(dateRange[0]) : null, dateRange[1] ? dayjs(dateRange[1]) : null] as [Dayjs | null, Dayjs | null]}
@@ -185,7 +185,7 @@ export default function BenchmarkAiDiagnosisPage() {
       <Spin spinning={loading}>
         {accuracy && (
           <>
-            <StatCardGrid style={{ marginBottom: 16 }}>
+            <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <StatCard title={t('benchmarkAi.totalCases')} value={accuracy.totalCases} suffix={t('benchmarkAi.caseUnit')} color="#8b5cf6" />
               <StatCard title={t('benchmarkAi.aiPositive')} value={accuracy.aiPositive} suffix={t('benchmarkAi.caseUnit')} />
               <StatCard title={t('benchmarkAi.aiNegative')} value={accuracy.aiNegative} suffix={t('benchmarkAi.caseUnit')} />
@@ -194,7 +194,7 @@ export default function BenchmarkAiDiagnosisPage() {
               <StatCard title={t('benchmarkAi.overallAccuracy')} value={accuracy.accuracy} suffix="%" color="#10b981" />
             </StatCardGrid>
 
-            <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+            <Row gutter={[12, 12]} style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <Col span={6}><AccuracyGauge label={t('benchmarkAi.sensitivity')} value={accuracy.sensitivity} color="var(--color-primary-500)" /></Col>
               <Col span={6}><AccuracyGauge label={t('benchmarkAi.specificity')} value={accuracy.specificity} color="#10b981" /></Col>
               <Col span={6}><AccuracyGauge label={t('benchmarkAi.ppv')} value={accuracy.ppv} color="var(--color-warning-500)" /></Col>
@@ -225,11 +225,11 @@ export default function BenchmarkAiDiagnosisPage() {
               <text x={w - 60} y={pad.top + 34} fontSize={9} fill="#10b981">{t('benchmarkAi.specificity')}</text>
             </svg>
           ) : (
-            <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('benchmarkAi.noTrend')}</div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('benchmarkAi.noTrend')}</div>
           )}
         </Card>
 
-        <Card title={<Space><Cpu size={16} /> {t('w1tables.benchmark.title')}</Space>} variant="borderless" style={{ borderRadius: 12, marginTop: 16 }}>
+        <Card title={<Space><Cpu size={16} /> {t('w1tables.benchmark.title')}</Space>} variant="borderless" style={{ borderRadius: 12, marginTop: 'var(--space-4, 16px)' }}>
           <DataTable dataSource={trend} rowKey="date" columns={trendColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </Card>
       </Spin>

@@ -210,17 +210,17 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
 
   return (
     <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, marginBottom: 14, background: '#fff', overflow: 'visible' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 6 }}>
           <FileText size={14} color="var(--color-primary-600)" />【{label}】
         </span>
         <div style={{ flex: 1 }} />
         {locked ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#b45309', fontWeight: 600 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#b45309', fontWeight: 600 }}>
             <Lock size={12} />{t('w17.sr.locked')}
           </span>
         ) : (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#64748b' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#64748b' }}>
             <LockOpen size={12} />{t('w17.sr.editable')}
           </span>
         )}
@@ -265,12 +265,12 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
             <button
               type="button"
               onClick={() => setShowTemplates((v) => !v)}
-              style={{ ...toolBtn, display: 'flex', alignItems: 'center', gap: 4, background: showTemplates ? '#e0e7ff' : 'transparent' }}
+              style={{ ...toolBtn, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', background: showTemplates ? '#e0e7ff' : 'transparent' }}
             >
               <Plus size={13} />{t('w17.sr.insertTemplate')}
             </button>
             {showTemplates && (
-              <div style={{ position: 'absolute', top: 26, left: 0, zIndex: 50, width: 320, maxHeight: 320, overflowY: 'auto', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: 8 }}>
+              <div style={{ position: 'absolute', top: 26, left: 0, zIndex: 50, width: 320, maxHeight: 320, overflowY: 'auto', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: 'var(--space-2, 8px)' }}>
                 {SECTION_SUB_TEMPLATES.map((tpl) => (
                   <button
                     key={tpl.key}
@@ -313,7 +313,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(248,250,252,0.4)', pointerEvents: 'none', border: '1px dashed #cbd5e1' }} />
         )}
         {showMacros && editable && (
-          <div style={{ position: 'absolute', top: 4, left: 14, zIndex: 60, width: 300, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', padding: 8 }}>
+          <div style={{ position: 'absolute', top: 4, left: 14, zIndex: 60, width: 300, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', padding: 'var(--space-2, 8px)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', fontSize: 12, fontWeight: 600, color: '#334155' }}>
               <Command size={12} color="var(--color-primary-600)" />{t('w17.sr.macroTitle')}
               <input
@@ -329,7 +329,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
                 key={m.key}
                 type="button"
                 onClick={() => pickMacro(m)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', border: 'none', background: 'transparent', padding: '7px 8px', borderRadius: 6, cursor: 'pointer' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', width: '100%', textAlign: 'left', border: 'none', background: 'transparent', padding: '7px 8px', borderRadius: 6, cursor: 'pointer' }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = '#eff6ff' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
               >
@@ -421,7 +421,7 @@ export const StructuredReportEditorV3 = React.forwardRef<StructuredReportEditorH
   }, [buildDoc, onSave])
 
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 20 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 'var(--space-5, 20px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Type size={16} color="var(--color-primary-600)" />{t('w17.sr.title')}
@@ -447,7 +447,7 @@ export const StructuredReportEditorV3 = React.forwardRef<StructuredReportEditorH
       {preview ? (
         <div
           data-testid="sr-preview"
-          style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, minHeight: 480, background: '#fff' }}
+          style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 'var(--space-5, 20px)', minHeight: 480, background: '#fff' }}
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(structuredSectionsToHtml(sections)) }}
         />
       ) : (

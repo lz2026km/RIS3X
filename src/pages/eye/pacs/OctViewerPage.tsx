@@ -237,8 +237,8 @@ const OctViewerPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         <Activity className="v4-icon" style={{ width: 24, height: 24, color: 'var(--color-info-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('octViewer.title')}</span>
         {study?.eyeSide && <EyeLateralityBadge eyeSide={study.eyeSide as 'OD' | 'OS' | 'OU'} />}
@@ -246,7 +246,7 @@ const OctViewerPage: React.FC = () => {
         <Tag color="blue">Macular Cube 512×128</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('octViewer.retry')}</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('octViewer.retry')}</Button>} />}
 
       <Row gutter={12}>
         <Col span={5}>
@@ -254,7 +254,7 @@ const OctViewerPage: React.FC = () => {
             size="small"
             title={t('octViewer.studyList')}
             extra={<Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} />}
-            bodyStyle={{ padding: 8 }}
+            bodyStyle={{ padding: 'var(--space-2, 8px)' }}
           >
             <Segmented
               size="small"
@@ -262,7 +262,7 @@ const OctViewerPage: React.FC = () => {
               value={eyeFilter}
               onChange={(v) => setEyeFilter(v as typeof eyeFilter)}
               options={[{ label: t('octViewer.all'), value: 'ALL' }, { label: 'OD', value: 'OD' }, { label: 'OS', value: 'OS' }, { label: 'OU', value: 'OU' }]}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 'var(--space-2, 8px)' }}
             />
             <Spin spinning={loading}>
               <div style={{ maxHeight: 460, overflow: 'auto' }}>
@@ -309,7 +309,7 @@ const OctViewerPage: React.FC = () => {
               <>
                 <OctCanvas width={560} height={220} seed={study.id} measurePoints={measurePoints} onMeasurePoint={measureMode === 'distance' ? handleMeasurePoint : undefined} />
                 {measureMode === 'distance' && (
-                  <div style={{ marginTop: 8 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                     <Alert type="info" showIcon message={measureResult
                       ? t('octViewer.measureResultAlert', { um: measureResult.um.toFixed(1), px: measureResult.px.toFixed(1) })
                       : t('octViewer.measureToolEnabled')} style={{ fontSize: 12 }} />
@@ -323,7 +323,7 @@ const OctViewerPage: React.FC = () => {
                   <div>{t('octViewer.choroidalThickness')}: <b>{study.measurements?.choroidalThickness ?? '-'}μm</b></div>
                 </div>
                 {study.report && (
-                  <div style={{ marginTop: 10, padding: 8, background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                  <div style={{ marginTop: 10, padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
                     <b>{t('octViewer.aiDescription')}: </b>{study.report}
                   </div>
                 )}
@@ -348,7 +348,7 @@ const OctViewerPage: React.FC = () => {
               ))}
             </div>
           </Card>
-          <Card size="small" title={t('octViewer.measureSummary')} style={{ marginTop: 12 }}>
+          <Card size="small" title={t('octViewer.measureSummary')} style={{ marginTop: 'var(--space-3, 12px)' }}>
             {study?.measurements ? (
               <Descriptions column={1} size="small" bordered>
                 <Descriptions.Item label={t('octViewer.centralRetinalThickness')}>{study.measurements.centralRetinalThickness ?? '-'} μm</Descriptions.Item>

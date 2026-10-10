@@ -66,7 +66,7 @@ export default function RadiationSafetyPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#059669,#065f46)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <Shield size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>辐射安全与防护</span>
         </div>
         <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -75,7 +75,7 @@ export default function RadiationSafetyPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)', flexWrap: 'wrap' }}>
           {[
             { title: 'ALARA合规率', value: `${complianceRate}%`, icon: CheckCircle, color: complianceRate >= 90 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))' },
             { title: '本月检查量', value: doseRecords.length, icon: Activity, color: 'var(--color-primary-500, var(--color-primary-500))' },
@@ -83,7 +83,7 @@ export default function RadiationSafetyPage() {
             { title: '优化建议', value: optimizations.length, icon: Zap, color: 'var(--color-warning-500, var(--color-warning-500))' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2, 8px)' }}>
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
@@ -92,7 +92,7 @@ export default function RadiationSafetyPage() {
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)' }}>
           {(['overview', 'records', 'alerts', 'optimize'] as const).map(t => (
             <button key={t} onClick={() => setActiveTab(t)} style={{ padding: '6px 16px', borderRadius: 4, border: 'none', background: activeTab === t ? '#059669' : 'var(--bg-card, #161b22)', color: activeTab === t ? '#fff' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
               {{ overview: '总览', records: '剂量记录', alerts: '阈值告警', optimize: '优化建议' }[t]}
@@ -109,9 +109,9 @@ export default function RadiationSafetyPage() {
           skeletonRows={6}
         >
         {activeTab === 'overview' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BarChart3 size={16} color="var(--color-primary-500)" />各设备剂量对比 (DLP)
               </div>
               <ChartContainer height={240} state={dlpData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量对比数据">
@@ -126,8 +126,8 @@ export default function RadiationSafetyPage() {
                 </BarChart>
               </ChartContainer>
             </div>
-            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Shield size={16} color="var(--color-success-500)" />ALARA合规率
               </div>
               <ChartContainer height={240} state={complianceData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无合规率数据">
@@ -140,8 +140,8 @@ export default function RadiationSafetyPage() {
                 </BarChart>
               </ChartContainer>
             </div>
-            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Activity size={16} color="var(--color-warning-500)" />各设备类型总剂量
               </div>
               <ChartContainer height={240} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备剂量数据">
@@ -154,8 +154,8 @@ export default function RadiationSafetyPage() {
                 </BarChart>
               </ChartContainer>
             </div>
-            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>合规详情</div>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>合规详情</div>
               {compliance.map(c => (
                 <div key={c.modality} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', alignItems: 'center' }}>
                   <div>
@@ -192,15 +192,15 @@ export default function RadiationSafetyPage() {
         {activeTab === 'optimize' && (
           <div>
             {optimizations.map((opt, i) => (
-              <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                   <div>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${MODALITY_COLORS[opt.modality]}20`, color: MODALITY_COLORS[opt.modality], marginRight: 8 }}>{opt.modality}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${MODALITY_COLORS[opt.modality]}20`, color: MODALITY_COLORS[opt.modality], marginRight: 'var(--space-2, 8px)' }}>{opt.modality}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{opt.procedureName}</span>
                   </div>
                   <span style={{ color: 'var(--color-success-500)', fontSize: 12 }}>预计降低 {opt.estimatedReduction}%</span>
                 </div>
-                <div style={{ display: 'flex', gap: 16, marginBottom: 8, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
+                <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
                   <span>当前平均: <b style={{ color: 'var(--text-primary, #f0f6fc)' }}>{opt.currentAvgDose}</b></span>
                   <span>目标值: <b style={{ color: 'var(--color-success-500)' }}>{opt.recommendedTarget}</b></span>
                 </div>
@@ -215,8 +215,8 @@ export default function RadiationSafetyPage() {
         )}
 
         {activeTab === 'alerts' && (
-          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20, textAlign: 'center', color: 'var(--text-muted, #8b949e)' }}>
-            <AlertTriangle size={32} style={{ marginBottom: 8 }} />
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-5, 20px)', textAlign: 'center', color: 'var(--text-muted, #8b949e)' }}>
+            <AlertTriangle size={32} style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <div>阈值告警配置功能 - 可配置各设备类型的剂量阈值和通知规则</div>
           </div>
         )}

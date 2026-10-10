@@ -12,7 +12,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        padding: 20,
+        padding: 'var(--space-5, 20px)',
         border: "1px solid #e2e8f0",
       }}
     >
@@ -21,7 +21,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -53,7 +53,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <span
@@ -80,7 +80,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <AlertTriangle size={12} /> {d.alertCount}起预警
@@ -92,8 +92,8 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: 12,
-          marginBottom: 16,
+          gap: 'var(--space-3, 12px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <Metric label="今日DLP" value={d.todayDLP} unit="mGy·cm" />
@@ -104,8 +104,8 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 8,
-          marginBottom: 16,
+          gap: 'var(--space-2, 8px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <MicroStat label="检查人数" value={d.examCount} />
@@ -115,7 +115,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
 
       <div
         style={{
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
           padding: 10,
           background: "var(--bg-primary)",
           borderRadius: 6,
@@ -152,7 +152,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
         <button onClick={onShowHistory} style={cardBtn("#eff6ff", "var(--color-primary-600)")}>
           <Clock size={13} /> 历史
         </button>
@@ -182,11 +182,11 @@ const Metric = ({
     style={{
       background: "var(--bg-primary)",
       borderRadius: 8,
-      padding: 12,
+      padding: 'var(--space-3, 12px)',
       textAlign: "center",
     }}
   >
-    <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
     <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)" }}>{value}</div>
     <div style={{ fontSize: 12, color: "#94a3b8" }}>{unit}</div>
   </div>
@@ -196,7 +196,7 @@ const MicroStat = ({ label, value }: { label: string; value: string | number }) 
   <div
     style={{
       textAlign: "center",
-      padding: 8,
+      padding: 'var(--space-2, 8px)',
       background: "var(--bg-primary)",
       borderRadius: 6,
     }}
@@ -208,7 +208,7 @@ const MicroStat = ({ label, value }: { label: string; value: string | number }) 
 
 const cardBtn = (bg: string, color: string): React.CSSProperties => ({
   flex: 1,
-  padding: 8,
+  padding: 'var(--space-2, 8px)',
   background: bg,
   color,
   border: "none",
@@ -219,5 +219,5 @@ const cardBtn = (bg: string, color: string): React.CSSProperties => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 4,
+  gap: 'var(--space-1, 4px)',
 });

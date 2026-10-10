@@ -74,14 +74,14 @@ export const VisitPage: React.FC = () => {
   const currentState = visit?.status ?? 'registered';
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheVisit.title')}</span>
         <Tag color="cyan">v3.0.6.0</Tag>
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space.Compact style={{ width: 400 }}>
           <Input value={patientId} onChange={e => setPatientId(e.target.value)}
             placeholder={t('iheVisit.searchPlaceholder')} onPressEnter={handleSearch} />
@@ -134,7 +134,7 @@ export const VisitPage: React.FC = () => {
                 );
               })}
             </Space>
-            <div style={{ fontSize: 11, color: '#999', marginTop: 8 }}>{t('iheVisit.hint', { status: STATE_TAGS[currentState]?.label })}</div>
+            <div style={{ fontSize: 11, color: '#999', marginTop: 'var(--space-2, 8px)' }}>{t('iheVisit.hint', { status: STATE_TAGS[currentState]?.label })}</div>
           </Card>
 
           <Card size="small" title={<Space><Clock size={14} />{t('iheVisit.timeline')}</Space>}>

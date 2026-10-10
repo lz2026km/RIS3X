@@ -81,7 +81,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
-          marginBottom: 12,
+          marginBottom: 'var(--space-3, 12px)',
         }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -99,7 +99,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
             ]}
           />
         </Space>
-        <Row gutter={12} style={{ marginTop: 12 }}>
+        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Col span={6}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('w9e.criticalLevelSelector.statLevelCount')}</span>}
@@ -141,11 +141,11 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
         showIcon
         title={t('w9e.criticalLevelSelector.alertTitle')}
         description={t('w9e.criticalLevelSelector.alertDesc')}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40 }}>{t('w9e.criticalLevelSelector.loading')}</div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>{t('w9e.criticalLevelSelector.loading')}</div>
       ) : view === 'grid' ? (
         <Row gutter={[12, 12]}>
           {orderedLevels.map((l) => {
@@ -237,8 +237,8 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                     }}
                   >
                     <Gauge size={10} /> {t('w9e.criticalLevelSelector.monthShare')}
-                    <strong style={{ color: l.color, marginLeft: 4 }}>{pct}%</strong>
-                    <span style={{ marginLeft: 4, color: '#94a3b8' }}>({count}/{totalThisMonth})</span>
+                    <strong style={{ color: l.color, marginLeft: 'var(--space-1, 4px)' }}>{pct}%</strong>
+                    <span style={{ marginLeft: 'var(--space-1, 4px)', color: '#94a3b8' }}>({count}/{totalThisMonth})</span>
                   </div>
                 </Card>
               </Col>
@@ -276,14 +276,14 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                   <ChevronRight size={14} color="#94a3b8" />
                 </Space>
               </Space>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, marginLeft: 26 }}>{l.description}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)', marginLeft: 26 }}>{l.description}</div>
             </div>
           ))}
         </Card>
       )}
 
       {showKPI && kpi && (
-        <Card size="small" title={t('w9e.criticalLevelSelector.distribution')} style={{ marginTop: 12 }}>
+        <Card size="small" title={t('w9e.criticalLevelSelector.distribution')} style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Space orientation="vertical" style={{ width: '100%' }} size={6}>
             {LEVEL_ORDER.map((lv) => {
               const meta = orderedLevels.find((l) => l.level === lv);

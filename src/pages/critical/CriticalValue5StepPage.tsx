@@ -195,14 +195,14 @@ export default function CriticalValue5StepPage() {
 
   return (
     <PageContainer padding={24}>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
         <Title level={4} style={{ margin: 0 }}>{t('cv5.title')}</Title>
         <Tag color="red">{t('cv5.loopTag')}</Tag>
       </div>
 
       {/* 5步流程图 */}
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0' }}>
           {STEP_CONFIG.map((step, idx) => {
             const Icon = step.icon
@@ -221,7 +221,7 @@ export default function CriticalValue5StepPage() {
                   <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', maxWidth: 80 }}>{t(step.descKey)}</div>
                 </div>
                 {idx < STEP_CONFIG.length - 1 && (
-                  <div style={{ flex: 1, height: 2, background: 'var(--border-color)', margin: '0 4px', marginBottom: 40 }} />
+                  <div style={{ flex: 1, height: 2, background: 'var(--border-color)', margin: '0 4px', marginBottom: 'var(--space-10, 40px)' }} />
                 )}
               </React.Fragment>
             )
@@ -230,7 +230,7 @@ export default function CriticalValue5StepPage() {
       </Card>
 
       {/* 统计 */}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('cv5.statTotal')} value={stats.total} />
         <StatCard title={t('cv5.statToNotify')} value={stats.step2} color="error" icon={<Phone size={14} />} />
         <StatCard title={t('cv5.statToConfirm')} value={stats.step3} color="warning" icon={<CheckCircle size={14} />} />
@@ -242,7 +242,7 @@ export default function CriticalValue5StepPage() {
       {/* 列表 */}
       <Card title={t('cv5.listTitle')} extra={<Button icon={<RefreshCw size={14} />} onClick={loadData} loading={loading}>{t('cv5.refresh')}</Button>}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
         ) : data.length === 0 ? (
           <Empty description={t('cv5.empty')} image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
@@ -252,14 +252,14 @@ export default function CriticalValue5StepPage() {
 
       {/* 详情侧边栏 */}
       {selected && (
-        <Card title={`${t('cv5.detail')} - ${selected.id}`} style={{ marginTop: 16 }}>
+        <Card title={`${t('cv5.detail')} - ${selected.id}`} style={{ marginTop: 'var(--space-4, 16px)' }}>
           <Descriptions bordered column={2} size="small">
             <Descriptions.Item label={t('cv5.colPatient')}>{selected.patientName}</Descriptions.Item>
             <Descriptions.Item label={t('cv5.colSeverity')}><Tag color={selected.severity === '危及生命' ? 'red' : 'orange'}>{selected.severity}</Tag></Descriptions.Item>
             <Descriptions.Item label={t('cv5.colFinding')} span={2}>{selected.finding}</Descriptions.Item>
           </Descriptions>
 
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
             <h4>{t('cv5.progress')}</h4>
             <Steps
               current={selected.currentStep}
@@ -286,7 +286,7 @@ export default function CriticalValue5StepPage() {
             />
           </div>
 
-          <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+          <div style={{ marginTop: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-2, 8px)' }}>
             {selected.currentStep === 1 && (
               <Button type="primary" icon={<Phone size={14} />} onClick={() => handleAction(selected, 'voiceCall')}>{t('cv5.notify')}</Button>
             )}
@@ -314,8 +314,8 @@ export default function CriticalValue5StepPage() {
       >
         {actionType === 'voiceCall' && (
           <div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('cv5.contactPhone')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#666' }}>{t('cv5.contactPhone')}</div>
               <Input value={actionPhone} onChange={e => setActionPhone(e.target.value)} placeholder={t('cv5.contactPhonePlaceholder')} />
             </div>
             <Alert title={t('cv5.notifyAlert')} type="info" showIcon />
@@ -323,16 +323,16 @@ export default function CriticalValue5StepPage() {
         )}
         {actionType === 'acknowledge' && (
           <div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('cv5.confirmDoctor')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#666' }}>{t('cv5.confirmDoctor')}</div>
               <Input value={actionNote} onChange={e => setActionNote(e.target.value)} placeholder={t('cv5.confirmDoctorPlaceholder')} />
             </div>
           </div>
         )}
         {actionType === 'receipt' && (
           <div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('cv5.clinicalNote')}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#666' }}>{t('cv5.clinicalNote')}</div>
               <TextArea rows={3} value={actionNote} onChange={e => setActionNote(e.target.value)} placeholder={t('cv5.clinicalNotePlaceholder')} />
             </div>
           </div>

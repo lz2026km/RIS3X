@@ -40,7 +40,7 @@ function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFind
         background: '#0f172a',
         border: '1px solid #334155',
         borderRadius: 10,
-        padding: 12,
+        padding: 'var(--space-3, 12px)',
         boxShadow: '0 12px 32px rgba(0,0,0,0.55)',
         zIndex: 40,
         fontSize: 12,
@@ -48,7 +48,7 @@ function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFind
         pointerEvents: 'auto',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
         <span style={{ fontWeight: 700, color: '#60a5fa', fontSize: 12 }}>{finding.label}</span>
         <span
           style={{
@@ -64,7 +64,7 @@ function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFind
           {confidenceLabel(finding)}
         </span>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
         <div><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.model')} </span>{finding.modelLabel}{finding.demo && <span style={{ color: 'var(--color-warning-400)', marginLeft: 6 }}>{t('w9d.aiOverlay.demoData')}</span>}</div>
         <div><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.lesionType')} </span>{finding.label}</div>
         <div><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.risk')} </span><span style={{ color: COLOR_BY_CONFIDENCE(finding.confidence), fontWeight: 700 }}>{finding.risk}</span></div>
@@ -74,7 +74,7 @@ function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFind
         )}
       </div>
       {finding.suggestion && (
-        <div style={{ borderTop: '1px solid #334155', marginTop: 8, paddingTop: 8, color: '#cbd5e1', lineHeight: 1.6 }}>
+        <div style={{ borderTop: '1px solid #334155', marginTop: 'var(--space-2, 8px)', paddingTop: 'var(--space-2, 8px)', color: '#cbd5e1', lineHeight: 1.6 }}>
           <span style={{ color: '#4ade80', fontWeight: 700 }}>{t('w9d.aiOverlay.suggestion')} </span>{finding.suggestion}
         </div>
       )}
@@ -225,15 +225,15 @@ export function AiFindingsOverlay({ findings, loading = false, selected, onSelec
             {t('w9d.aiOverlay.summaryTitle', { count: findings.length })}
             {loading && <span style={{ color: '#94a3b8', fontWeight: 400 }}>{t('w9d.viewerPro.loading')}</span>}
           </div>
-          <div style={{ marginTop: 4, color: '#94a3b8' }}>{t('w9d.aiOverlay.model')} {summary.models.join(' / ')}</div>
+          <div style={{ marginTop: 'var(--space-1, 4px)', color: '#94a3b8' }}>{t('w9d.aiOverlay.model')} {summary.models.join(' / ')}</div>
           {summary.suggestion && (
-            <div style={{ marginTop: 4, color: '#cbd5e1', lineHeight: 1.6 }}>
+            <div style={{ marginTop: 'var(--space-1, 4px)', color: '#cbd5e1', lineHeight: 1.6 }}>
               <span style={{ color: '#4ade80', fontWeight: 700 }}>{t('w9d.aiOverlay.suggestion')} </span>{summary.suggestion}
             </div>
           )}
           {/* [G005 v3.0.6.11-100 Wave 6A (D-1)] 全部检出 → 一键插入报告 */}
           {onInsertAllReport && findings.length > 0 && (
-            <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 6 }}>
               <button
                 data-testid="ai-insert-report-all"
                 onClick={(e) => { e.stopPropagation(); onInsertAllReport() }}

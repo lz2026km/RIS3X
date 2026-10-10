@@ -203,7 +203,7 @@ const AiRadsPage: React.FC = () => {
   const renderFields = (tabKey: RadsType) => {
     if (tabKey === 'breast') {
       return (
-        <div style={{ padding: 12, background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8 }}>
+        <div style={{ padding: 'var(--space-3, 12px)', background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8 }}>
           <Text>{t('aiRads.biradsHint')}</Text>
         </div>
       )
@@ -214,13 +214,13 @@ const AiRadsPage: React.FC = () => {
         {fields.map((f) => {
           if (f.type === 'number') {
             return (
-              <Form.Item key={f.name} name={f.name} label={f.label} style={{ marginBottom: 8 }}>
+              <Form.Item key={f.name} name={f.name} label={f.label} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <InputNumber min={f.min} max={f.max} style={{ width: 140 }} />
               </Form.Item>
             )
           }
           return (
-            <Form.Item key={f.name} name={f.name} label={f.label} style={{ marginBottom: 8 }}>
+            <Form.Item key={f.name} name={f.name} label={f.label} style={{ marginBottom: 'var(--space-2, 8px)' }}>
               <Select style={{ width: 150 }} options={f.options} />
             </Form.Item>
           )
@@ -231,14 +231,14 @@ const AiRadsPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Cpu size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('aiRads.title')}</Title>
         <Tag color="blue">Lung / BI / PI / LI / TI-RADS</Tag>
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }}>
-        <Space wrap style={{ marginBottom: 12 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <div>
             <Text strong>{t('aiRads.patientId')}: </Text>
             <Select
@@ -279,7 +279,7 @@ const AiRadsPage: React.FC = () => {
               <Form
                 form={form}
                 layout="vertical"
-                style={{ marginTop: 8 }}
+                style={{ marginTop: 'var(--space-2, 8px)' }}
                 initialValues={
                   tab.key !== 'breast'
                     ? Object.fromEntries(FIELDS[tab.key].map((f) => [f.name, f.defaultValue]))
@@ -303,7 +303,7 @@ const AiRadsPage: React.FC = () => {
           <Card
             size="small"
             title={t('w9d.aiRads.rulesTableTitle', { group: group.name, source: rulesSource === 'api' ? t('w9d.aiRads.backendRules') : t('w9d.aiRads.builtinRules') })}
-            style={{ marginTop: 16 }}
+            style={{ marginTop: 'var(--space-4, 16px)' }}
           >
             <DataTable<RadsRule>
               rowKey="level"

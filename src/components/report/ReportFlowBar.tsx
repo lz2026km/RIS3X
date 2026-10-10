@@ -187,7 +187,7 @@ const ReportFlowBar: React.FC<ReportFlowBarProps> = ({ status, reportId, onTrans
           )}
         </Space>
       }
-      styles={{ body: { paddingTop: compact ? 4 : 8, paddingBottom: 8 } }}
+      styles={{ body: { paddingTop: compact ? 4 : 8, paddingBottom: 'var(--space-2, 8px)' } }}
     >
       <Steps
         size="small"

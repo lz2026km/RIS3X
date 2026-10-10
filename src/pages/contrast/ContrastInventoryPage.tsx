@@ -189,8 +189,8 @@ const ContrastInventoryPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', border: 'none' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)', background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', border: 'none' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
           <Space>
             <Package size={20} color="#fff" />
             <div>
@@ -207,19 +207,19 @@ const ContrastInventoryPage: React.FC = () => {
       </Card>
 
       {error && (
-        <Alert type="error" showIcon message={t('contrastInv.loadFailedTitle')} description={error} style={{ marginBottom: 16 }}
+        <Alert type="error" showIcon message={t('contrastInv.loadFailedTitle')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('contrastInv.retry')}</Button>} />
       )}
 
       {(lowItems.length > 0 || expiredItems.length > 0) && !error && (
         <Alert
-          type="warning" showIcon style={{ marginBottom: 16 }}
+          type="warning" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }}
           message={`库存告警: ${lowItems.length} 项库存不足, ${expiredItems.length} 项已过期`}
           description={`低于阈值 (≤${LOW_THRESHOLD}ml) 的批次: ${lowItems.map((i) => i.name).join('、') || '无'}`}
         />
       )}
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('contrastInv.statBatches')} value={inventory.length} icon={<Package size={14} />} loading={loading} />
         <StatCard title={t('contrastInv.statTotalQty')} value={totalQty} suffix="ml" loading={loading} />
         <StatCard title={t('contrastInv.statLow')} value={lowItems.length} loading={loading} color="warning" />
@@ -244,7 +244,7 @@ const ContrastInventoryPage: React.FC = () => {
         }
       >
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin size="large" /></div>
         ) : filtered.length === 0 ? (
           <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? t('contrastInv.loadFailedShort') : t('contrastInv.empty')} />
         ) : (
@@ -254,7 +254,7 @@ const ContrastInventoryPage: React.FC = () => {
 
       <Modal title={`${adjustTarget ? adjustTarget.name : ''} - ${t('contrastInv.inOut')}`} open={!!adjustTarget}
         onCancel={() => setAdjustTarget(null)} footer={null} width={420}>
-        <Alert type="info" showIcon style={{ marginBottom: 12 }}
+        <Alert type="info" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }}
           message={`${t('contrastInv.currentRemaining')}: ${adjustTarget?.quantity ?? 0} ml`} />
         <Form form={adjustForm} layout="vertical" size="small">
           <Form.Item name="quantity" label={t('contrastInv.qtyLabel')} rules={[{ required: true, message: t('contrastInv.enterQty') }]}>
@@ -269,7 +269,7 @@ const ContrastInventoryPage: React.FC = () => {
 
       <Modal title={t('contrastInv.receive')} open={receiveOpen} onCancel={() => setReceiveOpen(false)} onOk={handleReceive}
         okText={t('contrastInv.confirmIn')} confirmLoading={submitting} width={460}>
-        <Form form={receiveForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
+        <Form form={receiveForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="itemId" label={t('contrastInv.batchLabel')} rules={[{ required: true, message: t('contrastInv.selectBatch') }]}>
             <Select placeholder={t('contrastInv.selectBatchPlaceholder')} options={inventory.map((i) => ({ value: i.id, label: `${i.name}${i.batchNo ? ` (${i.batchNo})` : ''} · 余量 ${i.quantity}ml` }))} />
           </Form.Item>

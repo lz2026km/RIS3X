@@ -534,7 +534,7 @@ const SegmentationPage: React.FC = () => {
 
   return (
     <PageContainer padding={16}>
-      <Space style={{ marginBottom: 12 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
         <Scan size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('segmentationV2.title')}</span>
         <Tag color="cyan">{t('segmentationV2.tagAlgos')}</Tag>
@@ -545,10 +545,10 @@ const SegmentationPage: React.FC = () => {
 
       <Row gutter={12}>
         <Col span={5}>
-          <Card size="small" title={<Space><Activity size={14} /><span>{t('segmentationV2.paramsTitle')}</span></Space>} style={{ marginBottom: 12 }}>
-            <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('segmentationV2.seriesLabel')}</div>
+          <Card size="small" title={<Space><Activity size={14} /><span>{t('segmentationV2.paramsTitle')}</span></Space>} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)', fontWeight: 500 }}>{t('segmentationV2.seriesLabel')}</div>
             <Select
-              style={{ width: '100%', marginBottom: 8 }}
+              style={{ width: '100%', marginBottom: 'var(--space-2, 8px)' }}
               placeholder={t('segmentationV2.selectSeries')}
               value={selectedUid}
               onChange={selectSeries}
@@ -560,7 +560,7 @@ const SegmentationPage: React.FC = () => {
               })}
             />
             <Divider style={{ margin: '12px 0' }} />
-            <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('segmentationV2.algorithmLabel')}</div>
+            <div style={{ marginBottom: 'var(--space-2, 8px)', fontWeight: 500 }}>{t('segmentationV2.algorithmLabel')}</div>
             <Select
               style={{ width: '100%', marginBottom: 6 }}
               value={algorithm}
@@ -573,12 +573,12 @@ const SegmentationPage: React.FC = () => {
               <>
                 {algorithm === 'threshold' && (
                   <>
-                    <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('segmentationV2.thresholdMode')}</div>
+                    <div style={{ marginBottom: 'var(--space-2, 8px)', fontWeight: 500 }}>{t('segmentationV2.thresholdMode')}</div>
                     <Radio.Group
                       size="small"
                       value={thMode}
                       onChange={(e) => setThMode(e.target.value as ThresholdMode)}
-                      style={{ marginBottom: 8 }}
+                      style={{ marginBottom: 'var(--space-2, 8px)' }}
                       options={[
                         { value: 'otsu', label: t('segmentationV2.otsu') },
                         { value: 'manual', label: t('segmentationV2.manual') },
@@ -587,7 +587,7 @@ const SegmentationPage: React.FC = () => {
                     />
                   </>
                 )}
-                <div style={{ marginBottom: 8, fontWeight: 500 }}>
+                <div style={{ marginBottom: 'var(--space-2, 8px)', fontWeight: 500 }}>
                   {thMode === 'otsu' && algorithm === 'threshold' ? t('segmentationV2.otsuUpper') : t('segmentationV2.rangeLabel')}
                 </div>
                 <Space>
@@ -617,7 +617,7 @@ const SegmentationPage: React.FC = () => {
                   <InputNumber size="small" placeholder="Z" value={seed?.z ?? null} onChange={(v) => setSeed((s) => ({ x: s?.x ?? 0, y: s?.y ?? 0, z: v ?? 0 }))} style={{ width: 64 }} />
                 </Space>
                 {seed && <Tag color="red" style={{ marginTop: 6 }}>{t('segmentationV2.seedTag', { x: seed.x, y: seed.y, z: seed.z })}</Tag>}
-                {algorithm === 'region_grow' && <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>{t('segmentationV2.noSeedHint')}</div>}
+                {algorithm === 'region_grow' && <div style={{ fontSize: 11, color: '#999', marginTop: 'var(--space-1, 4px)' }}>{t('segmentationV2.noSeedHint')}</div>}
               </>
             )}
 
@@ -635,12 +635,12 @@ const SegmentationPage: React.FC = () => {
 
             {(algorithm === 'kmeans' || algorithm === 'active_contour') && (
               <div style={{ margin: '10px 0 4px', fontWeight: 500 }}>
-                {t('segmentationV2.iterations')} <InputNumber size="small" min={0} max={50} value={iterations ?? 2} onChange={(v) => setIterations(v ?? null)} style={{ width: 70, marginLeft: 8 }} />
+                {t('segmentationV2.iterations')} <InputNumber size="small" min={0} max={50} value={iterations ?? 2} onChange={(v) => setIterations(v ?? null)} style={{ width: 70, marginLeft: 'var(--space-2, 8px)' }} />
               </div>
             )}
 
             <div style={{ margin: '10px 0 4px', fontWeight: 500 }}>
-              {t('segmentationV2.minVoxels')} <InputNumber size="small" min={0} value={minVoxels} onChange={(v) => setMinVoxels(v ?? null)} style={{ width: 90, marginLeft: 8 }} placeholder={t('segmentationV2.noLimit')} />
+              {t('segmentationV2.minVoxels')} <InputNumber size="small" min={0} value={minVoxels} onChange={(v) => setMinVoxels(v ?? null)} style={{ width: 90, marginLeft: 'var(--space-2, 8px)' }} placeholder={t('segmentationV2.noLimit')} />
             </div>
 
             <div style={{ marginTop: 14 }}>
@@ -655,8 +655,8 @@ const SegmentationPage: React.FC = () => {
             size="small"
             title={<Space><Layers size={14} /><span>{t('segmentationV2.resultsTitle')}</span></Space>}
             extra={<Tag>{list.length}</Tag>}
-            style={{ marginBottom: 12 }}
-            styles={{ body: { padding: 8, maxHeight: 420, overflowY: 'auto' } }}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
+            styles={{ body: { padding: 'var(--space-2, 8px)', maxHeight: 420, overflowY: 'auto' } }}
           >
             <Spin spinning={listLoading}>
               {list.length === 0 ? (
@@ -690,7 +690,7 @@ const SegmentationPage: React.FC = () => {
                         {s.usedFallback && <Tag color="orange" style={{ marginLeft: 6 }}>{t('segmentationV2.fallback')}</Tag>}
                         {s.linkedMeasurement && <Tag color="purple" style={{ marginLeft: 6 }}>{t('segmentationV2.linked', { size: s.linkedMeasurement.diameterMm })}</Tag>}
                       </div>
-                      <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginTop: 'var(--space-1, 4px)' }}>
                         <Button size="small" type="primary" ghost icon={<PenLine size={11} />} onClick={(e) => { e.stopPropagation(); openRelabel(s) }}>{t('segmentationV2.annotate')}</Button>
                         <Button size="small" icon={<Ruler size={11} />} onClick={(e) => { e.stopPropagation(); openLink(s) }}>{t('segmentationV2.linkMeasure')}</Button>
                         <Popconfirm
@@ -711,7 +711,7 @@ const SegmentationPage: React.FC = () => {
             </Spin>
           </Card>
 
-          <Card size="small" title={<Space><History size={14} /><span>{t('segmentationV2.historyTitle')}</span></Space>} styles={{ body: { padding: 8, maxHeight: 260, overflowY: 'auto' } }}>
+          <Card size="small" title={<Space><History size={14} /><span>{t('segmentationV2.historyTitle')}</span></Space>} styles={{ body: { padding: 'var(--space-2, 8px)', maxHeight: 260, overflowY: 'auto' } }}>
             <Spin spinning={historyLoading}>
               {history.length === 0 ? (
                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('segmentationV2.noHistory')} style={{ margin: '12px 0' }} />
@@ -742,7 +742,7 @@ const SegmentationPage: React.FC = () => {
             </Card>
           ) : (
             <>
-              <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+              <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <StatCard title={t('segmentationV2.statVolume')} value={stats?.volumeCm3 ?? 0} precision={2} icon={<Box size={16} />} />
                 <StatCard title={t('segmentationV2.statArea')} value={stats?.areaCm2 ?? 0} precision={1} />
                 <StatCard title={t('segmentationV2.statMean')} value={stats?.meanIntensity ?? 0} precision={1} icon={<Activity size={16} />} />
@@ -799,14 +799,14 @@ const SegmentationPage: React.FC = () => {
                       {selectedDetail && (
                         <>
                           <Divider style={{ margin: '8px 0' }} />
-                          <div style={{ fontWeight: 500, marginBottom: 4 }}>{t('segmentationV2.params')}</div>
+                          <div style={{ fontWeight: 500, marginBottom: 'var(--space-1, 4px)' }}>{t('segmentationV2.params')}</div>
                           {Object.entries(selectedDetail.params).filter(([, v]) => v !== undefined && v !== null).map(([k, v]) => (
                             <div key={k} style={{ fontSize: 12, color: '#555' }}>
                               {k}: {typeof v === 'object' ? JSON.stringify(v) : String(v)}
                             </div>
                           ))}
                           <Divider style={{ margin: '8px 0' }} />
-                          <div style={{ fontWeight: 500, marginBottom: 4 }}>{t('segmentationV2.measureLink')}</div>
+                          <div style={{ fontWeight: 500, marginBottom: 'var(--space-1, 4px)' }}>{t('segmentationV2.measureLink')}</div>
                           {selectedDetail.linkedMeasurement ? (
                             <div style={{ fontSize: 12 }}>
                               <Tag color="purple">{t('segmentationV2.linkedTag')}</Tag>
@@ -839,11 +839,11 @@ const SegmentationPage: React.FC = () => {
         {relabelTarget && (
           <Space direction="vertical" style={{ width: '100%' }} size={12}>
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.fldLabelName')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.fldLabelName')}</div>
               <Input value={relabelForm.label} onChange={(e) => setRelabelForm((f) => ({ ...f, label: e.target.value }))} placeholder={t('segmentationV2.fldLabelPlaceholder')} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.fldColor')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.fldColor')}</div>
               <Space wrap>
                 {RELABEL_COLORS.map((c) => (
                   <span
@@ -858,7 +858,7 @@ const SegmentationPage: React.FC = () => {
               </Space>
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.fldOrgan')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.fldOrgan')}</div>
               <Select
                 style={{ width: '100%' }}
                 value={relabelForm.organClass}
@@ -888,7 +888,7 @@ const SegmentationPage: React.FC = () => {
               description={t('segmentationV2.linkAlertDesc', { size: equivalentDiameterMm(linkTarget.stats.volumeCm3) })}
             />
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.linkMode')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.linkMode')}</div>
               <Radio.Group
                 value={linkForm.mode}
                 onChange={(e) => setLinkForm((f) => ({ ...f, mode: e.target.value as 'existing' | 'new' }))}
@@ -901,21 +901,21 @@ const SegmentationPage: React.FC = () => {
             </div>
             {linkForm.mode === 'new' ? (
               <div>
-                <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.fldPatientId')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.fldPatientId')}</div>
                 <Input value={linkForm.patientId} onChange={(e) => setLinkForm((f) => ({ ...f, patientId: e.target.value }))} placeholder={t('segmentationV2.fldPatientIdPlaceholder')} />
               </div>
             ) : (
               <div>
-                <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.fldLesionId')}</div>
+                <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.fldLesionId')}</div>
                 <Input value={linkForm.lesionId} onChange={(e) => setLinkForm((f) => ({ ...f, lesionId: e.target.value }))} placeholder={t('segmentationV2.fldLesionIdPlaceholder')} />
               </div>
             )}
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.fldSize')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.fldSize')}</div>
               <InputNumber style={{ width: '100%' }} min={0} value={linkForm.sizeMm} onChange={(v) => setLinkForm((f) => ({ ...f, sizeMm: v ?? null }))} placeholder={t('segmentationV2.fldSizePlaceholder')} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 500 }}>{t('segmentationV2.fldNotes')}</div>
+              <div style={{ marginBottom: 'var(--space-1, 4px)', fontWeight: 500 }}>{t('segmentationV2.fldNotes')}</div>
               <Input value={linkForm.notes} onChange={(e) => setLinkForm((f) => ({ ...f, notes: e.target.value }))} placeholder={t('segmentationV2.fldNotesPlaceholder')} />
             </div>
           </Space>

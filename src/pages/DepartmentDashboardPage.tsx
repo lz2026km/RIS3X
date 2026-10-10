@@ -257,22 +257,22 @@ const DepartmentDashboardPage: React.FC = () => {
   if (loading) {
     // [v3.0.6.11-103 Wave 6] 骨架屏加载态
     return (
-      <div role="status" data-testid="dept-loading" style={{ padding: 24 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div role="status" data-testid="dept-loading" style={{ padding: 'var(--space-6, 24px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-6, 24px)' }}>
           {Array.from({ length: 5 }, (_, i) => <SkeletonKpi key={i} />)}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           <div style={{ height: 320, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
           <div style={{ height: 320, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
         </div>
       </div>
     );
   }
-  if (error) return <div role="alert" data-testid="dept-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
+  if (error) return <div role="alert" data-testid="dept-error" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (!dataAvailable) {
     return (
-      <div data-testid="dept-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('deptDash.noData')}</div>
+      <div data-testid="dept-empty" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>{t('deptDash.noData')}</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('deptDash.noDataHint')}</div>
       </div>
     );
@@ -295,12 +295,12 @@ const DepartmentDashboardPage: React.FC = () => {
         </div>
         <div style={styles.headerSubtitle}>
           {t('deptDash.subtitle', { time: currentTime.toLocaleString('zh-CN') })}
-          {dataMode === 'demo' && <span style={{ marginLeft: 8 }}>{t('deptDash.demoNote')}</span>}
+          {dataMode === 'demo' && <span style={{ marginLeft: 'var(--space-2, 8px)' }}>{t('deptDash.demoNote')}</span>}
         </div>
       </div>
 
       {/* 统计卡片 (v3.0.6.11-103 Wave 6: KpiCard 卡片化) */}
-      <KpiCardGrid minWidth={230} style={{ marginBottom: 24 }}>
+      <KpiCardGrid minWidth={230} style={{ marginBottom: 'var(--space-6, 24px)' }}>
         <KpiCard title={t('deptDash.kpiTotalPatients')} value={kpi.totalPatients} icon={<Users size={20} />} color="primary" />
         <KpiCard title={t('deptDash.kpiCompleted')} value={kpi.completedToday} icon={<FileCheck2 size={20} />} color="success" />
         <KpiCard title={t('deptDash.kpiPendingReports')} value={kpi.pendingReports} icon={<AlertTriangle size={20} />} color="error" />

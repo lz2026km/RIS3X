@@ -67,7 +67,7 @@ const SubRecordHistory: React.FC<{
         </Space>
       }
       size="small"
-      style={{ marginTop: 16 }}
+      style={{ marginTop: 'var(--space-4, 16px)' }}
     >
       {!loaded ? (
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('eyeSub.loading')}</div>
@@ -112,8 +112,8 @@ export const StrabismusPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.strabismusTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -160,7 +160,7 @@ export const StrabismusPage: React.FC = () => {
                 </StatCardGrid>
                 <Divider style={{ margin: '8px 0' }} />
                 <Alert title={result.diagnosis} type={result.diagnosis === '正常' ? 'success' : 'warning'} showIcon />
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 8 }}>{t('eyeSub.method')}: {result.method}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 'var(--space-2, 8px)' }}>{t('eyeSub.method')}: {result.method}</div>
               </>
             ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('eyeSub.clickSave')} />}
           </Card>
@@ -198,8 +198,8 @@ export const NeuroOphthalmologyPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Activity size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.neuroTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -224,7 +224,7 @@ export const NeuroOphthalmologyPage: React.FC = () => {
               <Button type="primary" block onClick={handleColor}>{t('eyeSub.examine')}</Button>
             </Form>
           </Card>
-          <Card title={t('eyeSub.pvepCard')} size="small" style={{ marginTop: 16 }}>
+          <Card title={t('eyeSub.pvepCard')} size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
             <Form layout="vertical" size="small">
               <Form.Item label={t('eyeSub.p100Latency')}>
                 <InputNumber value={p100Lat} onChange={v => setP100Lat(v || 105)} min={80} max={200} step={1} style={{ width: '100%' }} />
@@ -247,7 +247,7 @@ export const NeuroOphthalmologyPage: React.FC = () => {
                     <StatCard title={t('eyeSub.p100LatencyShort')} value={`${result.p100Latency.value} ${result.p100Latency.unit}`} color={result.p100Latency.normal ? 'success' : 'error'} />
                     <StatCard title={t('eyeSub.p100AmplitudeShort')} value={`${result.p100Amplitude.value} ${result.p100Amplitude.unit}`} />
                   </StatCardGrid>
-                  <Alert style={{ marginTop: 16 }} title={result.diagnosis} type={result.diagnosis.includes('正常') ? 'success' : 'warning'} showIcon />
+                  <Alert style={{ marginTop: 'var(--space-4, 16px)' }} title={result.diagnosis} type={result.diagnosis.includes('正常') ? 'success' : 'warning'} showIcon />
                 </>
               )
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
@@ -275,8 +275,8 @@ export const OcularOncologyPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Compass size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.oncologyTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -305,7 +305,7 @@ export const OcularOncologyPage: React.FC = () => {
                   <StatCard title="OS" value={result.os.value} suffix="mm" />
                   <StatCard title={t('eyeSub.difference')} value={result.difference} suffix="mm" color={result.difference > 2 ? 'error' : 'success'} />
                 </StatCardGrid>
-                <Alert style={{ marginTop: 16 }} title={result.diagnosis} type={result.diagnosis === '双眼对称' ? 'success' : 'warning'} showIcon />
+                <Alert style={{ marginTop: 'var(--space-4, 16px)' }} title={result.diagnosis} type={result.diagnosis === '双眼对称' ? 'success' : 'warning'} showIcon />
               </>
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
@@ -332,8 +332,8 @@ export const CorneaPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Layers size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.corneaTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -362,7 +362,7 @@ export const CorneaPage: React.FC = () => {
                   <StatCard title={t('eyeSub.thinnestPoint')} value={result.thinnestPachy.value} suffix="μm" color={result.thinnestPachy.value < 480 ? 'error' : 'success'} />
                   <StatCard title={t('eyeSub.badScore')} value={result.badScore} color={result.badScore >= 2 ? 'error' : 'success'} />
                 </StatCardGrid>
-                <Alert style={{ marginTop: 16 }} title={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon />
+                <Alert style={{ marginTop: 'var(--space-4, 16px)' }} title={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon />
               </>
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
@@ -389,8 +389,8 @@ export const ContactLensFittingPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Glasses size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.lensTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -430,7 +430,7 @@ export const ContactLensFittingPage: React.FC = () => {
                   <StatCard title={t('eyeSub.dia')} value={result.dia} suffix="mm" />
                   <StatCard title={t('eyeSub.powerShort')} value={result.power} suffix="D" />
                 </StatCardGrid>
-                <Alert style={{ marginTop: 16 }} title={`${t('eyeSub.fit')}: ${result.fit}`} type="success" showIcon />
+                <Alert style={{ marginTop: 'var(--space-4, 16px)' }} title={`${t('eyeSub.fit')}: ${result.fit}`} type="success" showIcon />
               </>
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
@@ -462,8 +462,8 @@ export const LowVisionPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Accessibility size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.lowVisionTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -512,7 +512,7 @@ export const LowVisionPage: React.FC = () => {
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
           {/* [v3.0.6.11-103 Wave 3A] 加载最近处方 */}
-          <Button style={{ marginTop: 8 }} icon={<Save size={12} />} onClick={loadLatest}>
+          <Button style={{ marginTop: 'var(--space-2, 8px)' }} icon={<Save size={12} />} onClick={loadLatest}>
             {t('eye.sub.loadLatest')}
           </Button>
         </Col>
@@ -539,8 +539,8 @@ export const CataractPage: React.FC = () => {
   };
   const gradeColor = (g: number) => g >= 3 ? '#ff4d4f' : g >= 2 ? '#faad14' : '#52c41a';
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.cataractTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -571,7 +571,7 @@ export const CataractPage: React.FC = () => {
                   <StatCard title={t('eyeSub.pscShort')} value={result.pscGrade} color={gradeColor(result.pscGrade)} />
                   <StatCard title={t('eyeSub.totalGrade')} value={result.totalScore} color={result.totalScore >= 4 ? 'error' : 'success'} />
                 </StatCardGrid>
-                <Alert style={{ marginTop: 16 }} title={result.diagnosis} description={`${t('eyeSub.suggestion')}: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon />
+                <Alert style={{ marginTop: 'var(--space-4, 16px)' }} title={result.diagnosis} description={`${t('eyeSub.suggestion')}: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon />
               </>
             ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('eyeSub.clickEvaluate')} />}
           </Card>
@@ -612,8 +612,8 @@ export const RefractivePage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Zap size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.refractiveTitle')}</span>
         {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
@@ -674,7 +674,7 @@ export const RefractivePage: React.FC = () => {
             ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('eyeSub.clickPrescribe')} />}
           </Card>
           {/* [v3.0.6.11-103 Wave 3A] 加载最近处方 */}
-          <Button style={{ marginTop: 8 }} icon={<Save size={12} />} onClick={loadLatest}>
+          <Button style={{ marginTop: 'var(--space-2, 8px)' }} icon={<Save size={12} />} onClick={loadLatest}>
             {t('eye.sub.loadLatest')}
           </Button>
         </Col>

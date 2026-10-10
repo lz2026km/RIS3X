@@ -18,8 +18,8 @@ const ReportV2Page: React.FC = () => {
   const [activeTab, setActiveTab] = useState('second-read')
 
   return (
-    <div style={{ padding: 24 }}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <ShieldAlert size={20} color="var(--color-primary-600)" />
         <Text style={{ fontSize: 18, fontWeight: 600 }}>{t('reportV2.title')}</Text>
         <Tag color="blue">{t('reportV2.wave')}</Tag>

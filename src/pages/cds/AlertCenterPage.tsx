@@ -120,7 +120,7 @@ export default function AlertCenterPage() {
           <CheckCircle2 size={14} />{acknowledgingId === alert.id ? '确认中...' : '确认'}
         </button>
       ) : (
-        <span style={{ fontSize: 12, color: 'var(--color-success-500)', display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={13} />已处理</span>
+        <span style={{ fontSize: 12, color: 'var(--color-success-500)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><CheckCircle2 size={13} />已处理</span>
       ),
     },
   ]
@@ -128,7 +128,7 @@ export default function AlertCenterPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <Bell size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>CDS 告警中心</span>
           {pendingCount > 0 && (
@@ -143,7 +143,7 @@ export default function AlertCenterPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           {([['all', '全部'], ['pending', '待确认'], ['acknowledged', '已确认']] as const).map(([key, label]) => (
             <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: statusFilter === key ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: statusFilter === key ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {label}
@@ -152,7 +152,7 @@ export default function AlertCenterPage() {
         </div>
 
         {error && (
-          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 16 }}>
+          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>
             加载失败: {error}
           </div>
         )}
@@ -161,7 +161,7 @@ export default function AlertCenterPage() {
           <DataTable dataSource={filtered} rowKey="id" columns={alertColumns} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText="暂无告警" />
         </div>
 
-        <div style={{ marginTop: 20, padding: '12px 16px', background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
+        <div style={{ marginTop: 'var(--space-5, 20px)', padding: '12px 16px', background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
           <Info size={14} style={{ color: 'var(--color-primary-500)' }} />
           CDS 告警来自规则引擎评估结果，确认后将在统计报表中计入响应时长。
         </div>

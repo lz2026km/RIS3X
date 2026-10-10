@@ -114,29 +114,29 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
       onClose={onClose}
       width={520}
       title={
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <History size={16} color={PRIMARY} />
           审计轨迹 {report ? `· ${report.reportId || report.id}` : ''}
         </span>
       }
     >
       {/* [G005 W8-Report] 数据签名与证书 */}
-      <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 700, color: 'var(--color-info-600)' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 700, color: 'var(--color-info-600)' }}>
           <ShieldCheck size={14} /> {t('w8Report.sig.panelTitle')}
         </div>
         {signature ? (
-          <div style={{ fontSize: 12, display: 'grid', gap: 4 }}>
+          <div style={{ fontSize: 12, display: 'grid', gap: 'var(--space-1, 4px)' }}>
             <div>{t('w8Report.sig.algorithm')}: <Tag color={signature.algorithm === 'SM3' ? 'purple' : 'blue'} style={{ marginInlineEnd: 0 }}>{signature.algorithm}</Tag></div>
             <div>{t('w8Report.sig.digest')}: <code style={{ fontSize: 11 }}>{signature.digest.slice(0, 40)}…</code></div>
             <div>{t('w8Report.sig.certificate')}: {signature.certificateSerial}</div>
             <div>{t('w8Report.sig.signedBy')}: {signature.signedById} · {signature.signedAt.slice(0, 19).replace('T', ' ')}</div>
             <div>{t('w8Report.sig.status')}: <Tag color={signature.status === 'valid' ? 'green' : signature.status === 'superseded' ? 'orange' : 'red'} style={{ marginInlineEnd: 0 }}>{t(`w8Report.sig.status.${signature.status}`)}</Tag></div>
-            <div style={{ marginTop: 4 }}>
+            <div style={{ marginTop: 'var(--space-1, 4px)' }}>
               <Button size="small" type="primary" ghost loading={verifying} icon={<BadgeCheck size={12} />} onClick={() => void handleVerify()}>{t('w8Report.sig.verify')}</Button>
             </div>
             {verifyResult && (
-              <div style={{ marginTop: 6, padding: 8, borderRadius: 6, background: verifyResult.valid ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: verifyResult.valid ? 'var(--color-success)' : '#92400e' }}>
+              <div style={{ marginTop: 6, padding: 'var(--space-2, 8px)', borderRadius: 6, background: verifyResult.valid ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: verifyResult.valid ? 'var(--color-success)' : '#92400e' }}>
                 <div style={{ fontWeight: 700 }}>{verifyResult.valid ? t('w8Report.sig.verifyPass') : t('w8Report.sig.verifyFail')}</div>
                 <div style={{ fontSize: 11 }}>
                   {t('w8Report.sig.digestMatch')}: {String(verifyResult.digestMatch)} · {t('w8Report.sig.certValid')}: {String(verifyResult.certificateValid)} · {t('w8Report.sig.notRevoked')}: {String(verifyResult.notRevoked)} · {t('w8Report.sig.tsaValid')}: {String(verifyResult.tsaValid)}
@@ -155,9 +155,9 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
         {loaded && events.length === 0 && !failed ? (
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无修订记录" />
         ) : (
-          <div style={{ position: 'relative', paddingLeft: 20 }}>
+          <div style={{ position: 'relative', paddingLeft: 'var(--space-5, 20px)' }}>
             {events.map((e, i) => (
-              <div key={e.id ?? i} style={{ position: 'relative', paddingBottom: 20 }}>
+              <div key={e.id ?? i} style={{ position: 'relative', paddingBottom: 'var(--space-5, 20px)' }}>
                 <div style={{
                   position: 'absolute', left: -20, top: 4, width: 10, height: 10, borderRadius: '50%',
                   background: STATE_COLORS[(e.toState ?? '').toUpperCase()] ?? '#94a3b8',
@@ -169,19 +169,19 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {e.action || `${e.fromState ?? '?'} → ${e.toState ?? '?'}`}
                 </div>
-                <div style={{ fontSize: 12, color: GRAY, marginTop: 2, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                  {e.timestamp && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Clock size={11} />{formatTime(e.timestamp)}</span>}
-                  {e.actor && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><User size={11} />{e.actor}</span>}
+                <div style={{ fontSize: 12, color: GRAY, marginTop: 2, display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
+                  {e.timestamp && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Clock size={11} />{formatTime(e.timestamp)}</span>}
+                  {e.actor && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><User size={11} />{e.actor}</span>}
                 </div>
                 {e.fromState && e.toState && (
-                  <div style={{ marginTop: 4 }}>
-                    <Tag color={STATE_COLORS[e.fromState.toUpperCase()] ?? 'default'} style={{ fontSize: 11, marginRight: 4 }}>{e.fromState}</Tag>
+                  <div style={{ marginTop: 'var(--space-1, 4px)' }}>
+                    <Tag color={STATE_COLORS[e.fromState.toUpperCase()] ?? 'default'} style={{ fontSize: 11, marginRight: 'var(--space-1, 4px)' }}>{e.fromState}</Tag>
                     <span style={{ color: '#94a3b8', fontSize: 11 }}>→</span>
-                    <Tag color={STATE_COLORS[e.toState.toUpperCase()] ?? 'default'} style={{ fontSize: 11, marginLeft: 4 }}>{e.toState}</Tag>
+                    <Tag color={STATE_COLORS[e.toState.toUpperCase()] ?? 'default'} style={{ fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{e.toState}</Tag>
                   </div>
                 )}
                 {e.reason && (
-                  <div style={{ marginTop: 4, fontSize: 12, color: '#64748b', background: 'var(--bg-card)', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)' }}>
+                  <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: '#64748b', background: 'var(--bg-card)', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                     原因: {e.reason}
                   </div>
                 )}

@@ -17,7 +17,7 @@ export default function ReportStatsBar({ cards }: { cards: ReportStatCardProps[]
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: `repeat(${Math.min(cards.length, 6)}, 1fr)`,
-      gap: 12, marginBottom: 14,
+      gap: 'var(--space-3, 12px)', marginBottom: 14,
     }}>
       {cards.map((c, i) => (
         <StatCard key={i} {...c} />

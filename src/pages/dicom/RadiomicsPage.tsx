@@ -172,7 +172,7 @@ export default function RadiomicsPage() {
   } : null
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 'var(--space-6, 24px)' }}>
       <Title level={3}><ExperimentOutlined /> {t('radiomics:pageTitle')}</Title>
       <Text type="secondary">{t('radiomics:subtitle')}</Text>
       <Divider />
@@ -181,7 +181,7 @@ export default function RadiomicsPage() {
         <Col span={12}>
           <Card title={t('radiomics:selectInstance')} size="small">
             {rois.map((roi, idx) => (
-              <Space key={roi.key} orientation="vertical" style={{ width: '100%', marginBottom: 16 }}>
+              <Space key={roi.key} orientation="vertical" style={{ width: '100%', marginBottom: 'var(--space-4, 16px)' }}>
                 <Space>
                   <Text strong>ROI #{idx + 1}</Text>
                   {rois.length > 1 && (
@@ -254,7 +254,7 @@ export default function RadiomicsPage() {
       </Row>
 
       {compareMode && radarConfig && (
-        <Card title={t('radiomics:compareTitle')} style={{ marginTop: 16 }}>
+        <Card title={t('radiomics:compareTitle')} style={{ marginTop: 'var(--space-4, 16px)' }}>
           <Tabs items={[
             {
               key: 'radar',

@@ -59,7 +59,7 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
 
   return (
     <div data-testid={testIdPrefix} role="region" aria-label={t('w9e.autoCallSmsLog.ariaLabel')}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
         <strong style={{ fontSize: 12, color: '#334155' }}>{t('w9e.autoCallSmsLog.title')}</strong>
         <Tag color={source === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }} title={t('w9e.autoCallSmsLog.sourceTitle')}>
           {source === 'api' ? t('w9e.autoCallSmsLog.sourceLive') : t('w9e.autoCallSmsLog.sourceNone')}
@@ -67,7 +67,7 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('w9e.autoCallSmsLog.totalCount', { count: entries.length })}</span>
       </div>
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 12 }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-3, 12px)' }}>
           <Spin size="small" /> {t('w9e.autoCallSmsLog.loading')}
         </div>
       ) : entries.length === 0 ? (
@@ -77,7 +77,7 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
           style={{ margin: '6px 0' }}
         />
       ) : (
-        <div style={{ maxHeight, overflowY: 'auto', paddingRight: 4 }}>
+        <div style={{ maxHeight, overflowY: 'auto', paddingRight: 'var(--space-1, 4px)' }}>
           <Timeline
             items={entries.map((e) => {
               const isPhone = e.channel === 'phone';
@@ -101,7 +101,7 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
                     )}
                     {isPhone && e.recordingUrl && (
                       <Tooltip title={t('w9e.autoCallSmsLog.recordingTip')}>
-                        <Tag icon={<FileAudio size={10} />} color="cyan" style={{ marginLeft: 4, fontSize: 10 }}>
+                        <Tag icon={<FileAudio size={10} />} color="cyan" style={{ marginLeft: 'var(--space-1, 4px)', fontSize: 10 }}>
                           {t('w9e.autoCallSmsLog.recording')}
                         </Tag>
                       </Tooltip>

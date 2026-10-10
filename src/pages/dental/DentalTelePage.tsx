@@ -213,8 +213,8 @@ export const DentalTelePage: React.FC = () => {
 
   return (
     <DentalPageLayout header={{ title: t('dentalTele.title'), icon: <Video size={20} color="var(--color-primary-600)" /> }}>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalTele.retry')}</Button>} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalTele.retry')}</Button>} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dentalTele.total')} value={sessions.length} icon={<Video size={16} />} />
         <StatCard title={t('dentalTele.inProgress')} value={activeCount} color="primary" />
         <StatCard title={t('dentalTele.waiting')} value={waitingCount} color="warning" />
@@ -226,7 +226,7 @@ export const DentalTelePage: React.FC = () => {
         <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} loading={screeningLoading} onClick={() => void runAiPrescreen()}>{t('dentalTele.aiPrescreen')}</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('dentalTele.refresh')}</Button></Card></Col>
       </Row>
-      <Card title={t('w9d.dentalTele.sessionRecords', { count: sessions.length })} size="small" style={{ marginTop: 16 }}>
+      <Card title={t('w9d.dentalTele.sessionRecords', { count: sessions.length })} size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
         <Spin spinning={loading}>
           {sessions.length === 0 && !loading ? (
             <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalTele.empty')} />
@@ -287,7 +287,7 @@ export const DentalTelePage: React.FC = () => {
       </Modal>
 
       <Modal title={t('dentalTele.uploadPhotos')} open={photoModal} onCancel={() => setPhotoModal(false)} footer={<Button type="primary" onClick={() => setPhotoModal(false)}>{t('dentalTele.done')}</Button>} width={520}>
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <input
             ref={photoInputRef}
             type="file"
@@ -297,14 +297,14 @@ export const DentalTelePage: React.FC = () => {
             onChange={(e) => handleSelectPhotos(e.target.files)}
           />
           <Button type="primary" icon={<Upload size={14} />} onClick={() => photoInputRef.current?.click()}>{t('dentalTele.selectPhotos')}</Button>
-          <span style={{ marginLeft: 12, fontSize: 12, color: 'var(--text-secondary)' }}>{t('dentalTele.selectedPhotos', { count: photos.length })}</span>
+          <span style={{ marginLeft: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t('dentalTele.selectedPhotos', { count: photos.length })}</span>
         </div>
         {photos.length === 0 ? (
           <Empty description={t('dentalTele.noPhotos')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' }}>
             {photos.map((p) => (
-              <div key={p.id} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 8 }}>
+              <div key={p.id} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-2, 8px)' }}>
                 <Image src={p.url} alt={p.name} style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 6 }} />
                 <div style={{ marginTop: 6, fontSize: 11, color: 'var(--text-primary)' }}>{p.name}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.sizeKB} KB · {p.uploadedAt}</div>
@@ -320,13 +320,13 @@ export const DentalTelePage: React.FC = () => {
             ))}
           </div>
         )}
-        <Alert style={{ marginTop: 12 }} type="info" showIcon icon={<AlertTriangle size={14} />} message={t('dentalTele.photoLocalOnly')} />
+        <Alert style={{ marginTop: 'var(--space-3, 12px)' }} type="info" showIcon icon={<AlertTriangle size={14} />} message={t('dentalTele.photoLocalOnly')} />
       </Modal>
 
       <Modal title={`${t('dentalTele.detailTitle')} - ${detailModal?.title ?? ''}`} open={!!detailModal} onCancel={() => setDetailModal(null)} footer={<Button onClick={() => setDetailModal(null)}>{t('dentalTele.close')}</Button>} width={480}>
         {detailModal && (
           <div>
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Space wrap>
                 <b>{detailModal.id}</b>
                 <Tag color="geekblue">{detailModal.status}</Tag>
@@ -360,10 +360,10 @@ export const DentalTelePage: React.FC = () => {
           />
         ) : (
           <div>
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Tag color="purple">{t('dentalTele.model')}: {screeningMeta?.model || '-'}</Tag>
               <Tag color="cyan">{t('dentalTele.method')}: {screeningMeta?.method || '-'}</Tag>
-              <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t('dentalTele.source')}: {screeningSource}</span>
+              <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>{t('dentalTele.source')}: {screeningSource}</span>
             </div>
             {screeningDetections.length === 0 ? (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalTele.noCaries')} />
@@ -385,7 +385,7 @@ export const DentalTelePage: React.FC = () => {
                 )}
               />
             )}
-            <Alert style={{ marginTop: 12 }} type="info" showIcon message={t('dentalTele.screeningDisclaimer')} />
+            <Alert style={{ marginTop: 'var(--space-3, 12px)' }} type="info" showIcon message={t('dentalTele.screeningDisclaimer')} />
           </div>
         )}
       </Modal>

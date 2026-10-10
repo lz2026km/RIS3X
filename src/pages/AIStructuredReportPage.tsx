@@ -1291,7 +1291,7 @@ const AIStructuredReportPage: React.FC = () => {
           <div style={styles.formSection}>
             {/* Patient Info */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.patientInfo")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader variant="inline" title={t("aiStructured.patientInfo")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
@@ -1396,7 +1396,7 @@ const AIStructuredReportPage: React.FC = () => {
             {/* WS/T 500-2016 三段式报告 */}
             {/* Finding Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.findingSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader variant="inline" title={t("aiStructured.findingSection")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
@@ -1507,7 +1507,7 @@ const AIStructuredReportPage: React.FC = () => {
               <PageHeader
                 variant="inline"
                 title={activeSpecialtyTab === "ct" ? t("aiStructured.specCtFields") : activeSpecialtyTab === "mr" ? t("aiStructured.specMrFields") : activeSpecialtyTab === "dxr" ? t("aiStructured.specDxrFields") : t("aiStructured.specBreastFields")}
-                style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }}
+                style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }}
               />
 
               {activeSpecialtyTab === "ct" && (
@@ -1735,7 +1735,7 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Impression Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.impressionSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader variant="inline" title={t("aiStructured.impressionSection")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
 
               <div style={styles.sectionSubtitle}>{t("aiStructured.impressionSubtitle")}</div>
               {formData.impression.diagnoses.map((diag, index) => (
@@ -1799,7 +1799,7 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Recommendation Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.recommendationSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader variant="inline" title={t("aiStructured.recommendationSection")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{t("aiStructured.furtherExam")}</label>
@@ -1856,14 +1856,14 @@ const AIStructuredReportPage: React.FC = () => {
                 {t("aiStructured.preview")}
               </button>
               <button
-                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}
+                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
                 onClick={() => void handleSubmit()}
                 disabled={savingReport}
               >
                 <Save size={14} /> {savingReport ? t("aiStructured.saving") : t("aiStructured.saveReport")}
               </button>
               <button
-                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}
+                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
                 onClick={handlePrint}
               >
                 <Printer size={14} /> {t("aiStructured.print")}

@@ -155,7 +155,7 @@ const WadoRsPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("wadoRs.title")}</span>
         <Button
@@ -167,7 +167,7 @@ const WadoRsPage: React.FC = () => {
           {t("wadoRs.refresh")}
         </Button>
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("wadoRs.totalStudies")} value={studies.length} icon={<Globe size={16} />} />
         <StatCard
           title={t("wadoRs.totalInstances")}
@@ -175,7 +175,7 @@ const WadoRsPage: React.FC = () => {
           icon={<Database size={16} />}
         />
       </StatCardGrid>
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Space>
           <Input
             prefix={<Search size={14} />}
@@ -190,7 +190,7 @@ const WadoRsPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               {t("wadoRs.retry")}
@@ -220,7 +220,7 @@ const WadoRsPage: React.FC = () => {
         <Spin spinning={seriesLoading}>
           {retrieveResult && (
             <>
-              <Space direction="vertical" style={{ width: '100%', marginBottom: 12 }}>
+              <Space direction="vertical" style={{ width: '100%', marginBottom: 'var(--space-3, 12px)' }}>
                 <Tag color="blue">Study: {retrieveResult.studyInstanceUid.slice(0, 20)}...</Tag>
                 <span>{t("wadoRs.resultSummary", { patient: retrieveResult.patientName, modality: retrieveResult.modality, series: retrieveResult.seriesCount, instances: retrieveResult.instanceCount })}</span>
               </Space>

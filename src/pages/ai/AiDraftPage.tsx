@@ -197,16 +197,16 @@ const AiDraftPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Card style={{ marginBottom: 16 }}>
-        <Space style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <Brain size={24} color="#7c3aed" />
           <Title level={4} style={{ margin: 0 }}>{t('aiDraft.title')}</Title>
           {draftResult && <Tag color="purple">{t('aiDraft.confidence')} {(draftResult.overallConfidence * 100).toFixed(0)}%</Tag>}
         </Space>
 
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ minWidth: 200 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}><User size={12} /> {t('aiDraft.patient')}</Text>
+            <Text type="secondary" style={{ display: 'block', marginBottom: 'var(--space-1, 4px)' }}><User size={12} /> {t('aiDraft.patient')}</Text>
             <Select
               style={{ width: 220 }}
               placeholder={t('aiDraft.selectPatient')}
@@ -217,7 +217,7 @@ const AiDraftPage: React.FC = () => {
             />
           </div>
           <div style={{ minWidth: 200 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}><Activity size={12} /> {t('aiDraft.exam')}</Text>
+            <Text type="secondary" style={{ display: 'block', marginBottom: 'var(--space-1, 4px)' }}><Activity size={12} /> {t('aiDraft.exam')}</Text>
             <Select
               style={{ width: 300 }}
               placeholder={t('aiDraft.selectExamPlaceholder')}
@@ -229,7 +229,7 @@ const AiDraftPage: React.FC = () => {
             />
           </div>
           {currentExam && (
-            <div style={{ padding: '4px 12px', background: '#f0f5ff', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: '4px 12px', background: '#f0f5ff', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <FileText size={14} color="var(--color-primary-600)" />
               <span style={{ fontSize: 12 }}>{currentExam.modality} · {currentExam.bodyPart}</span>
             </div>
@@ -247,7 +247,7 @@ const AiDraftPage: React.FC = () => {
         <Card
           title={<Space><Layout size={14} color="#7c3aed" />{t('aiDraft.templates')}</Space>}
           size="small"
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           loading={templatesLoading}
         >
           <Space wrap>
@@ -261,9 +261,9 @@ const AiDraftPage: React.FC = () => {
       )}
 
       {generating && (
-        <Card style={{ marginBottom: 16, textAlign: 'center', padding: 40 }}>
+        <Card style={{ marginBottom: 'var(--space-4, 16px)', textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
           <Spin size="large" />
-          <div style={{ marginTop: 12, color: '#7c3aed', fontWeight: 600 }}>{t('aiDraft.generating')}</div>
+          <div style={{ marginTop: 'var(--space-3, 12px)', color: '#7c3aed', fontWeight: 600 }}>{t('aiDraft.generating')}</div>
         </Card>
       )}
 
@@ -276,11 +276,11 @@ const AiDraftPage: React.FC = () => {
               <Button size="small" icon={<RefreshCw size={12} />} onClick={handleGenerate}>{t('aiDraft.regenerate')}</Button>
             </Space>
           }
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
         >
           {draftResult.paragraphs.map((p, idx) => (
             <div key={p.id} style={{
-              marginBottom: 12, padding: 12, border: '1px solid var(--border-color)', borderRadius: 6,
+              marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', borderRadius: 6,
               background: editingParagraph === p.id ? 'var(--color-warning-bg)' : 'var(--bg-card)',
               borderLeft: `3px solid ${idx === 0 ? 'var(--color-primary-600)' : idx === 1 ? '#52c41a' : idx === 2 ? '#faad14' : '#722ed1'}`,
             }}>
@@ -312,27 +312,27 @@ const AiDraftPage: React.FC = () => {
       )}
 
       {draftResult && !generating && (
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
           <Card size="small" title={<Space><Plus size={14} />{t('aiDraft.continue')}</Space>} style={{ flex: 1, minWidth: 300 }}>
-            <TextArea value={continuePrompt} onChange={e => setContinuePrompt(e.target.value)} placeholder={t('aiDraft.continuePlaceholder')} rows={2} style={{ marginBottom: 8 }} />
+            <TextArea value={continuePrompt} onChange={e => setContinuePrompt(e.target.value)} placeholder={t('aiDraft.continuePlaceholder')} rows={2} style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <Button size="small" type="primary" icon={<Plus size={12} />} onClick={handleContinue} loading={generating}>{t('aiDraft.continue')}</Button>
           </Card>
           <Card size="small" title={<Space><Edit3 size={14} />{t('aiDraft.rewrite')}</Space>} style={{ flex: 1, minWidth: 300 }}>
             <Select
-              style={{ width: '100%', marginBottom: 8 }}
+              style={{ width: '100%', marginBottom: 'var(--space-2, 8px)' }}
               placeholder={t('aiDraft.selectRewritePlaceholder')}
               value={rewriteTarget}
               onChange={setRewriteTarget}
               options={draftResult.paragraphs.map(p => ({ label: p.heading, value: p.id }))}
             />
-            <TextArea value={rewriteInstruction} onChange={e => setRewriteInstruction(e.target.value)} placeholder={t('aiDraft.rewritePlaceholder')} rows={2} style={{ marginBottom: 8 }} />
+            <TextArea value={rewriteInstruction} onChange={e => setRewriteInstruction(e.target.value)} placeholder={t('aiDraft.rewritePlaceholder')} rows={2} style={{ marginBottom: 'var(--space-2, 8px)' }} />
             <Button size="small" type="primary" icon={<RefreshCw size={12} />} onClick={handleRewrite} loading={generating}>{t('aiDraft.rewrite')}</Button>
           </Card>
         </div>
       )}
 
       {draftResult && !generating && (
-        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div style={{ marginTop: 'var(--space-4, 16px)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
           <Button icon={<Check size={14} />} type="primary" onClick={() => void handleAcceptAll()} loading={submitting}>
             {t('aiDraft.acceptAll')}
           </Button>

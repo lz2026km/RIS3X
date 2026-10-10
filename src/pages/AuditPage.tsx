@@ -220,12 +220,12 @@ export default function AuditPage() {
                     <StatCard title={t('auditPage.statSuccessRate')} value={overview ? `${overview.successRate}%` : '-'} icon={<ShieldCheck size={18} />} color={(overview?.successRate ?? 0) >= 90 ? 'success' : 'warning'} />
                   </StatCardGrid>
                   {overview?.seeded === true && (
-                    <div style={{ marginTop: 4 }}>
+                    <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                       <Tag color="gold" style={{ fontSize: 11 }}>{t('auditPage.seededTag')}</Tag>
                     </div>
                   )}
                   {byAction && Object.keys(byAction).length > 0 && (
-                    <div style={{ marginTop: 12 }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                       <Card size="small" title={t('auditPage.byActionTitle')}>
                         <Space wrap size={[8, 8]}>
                           {Object.entries(byAction)
@@ -242,7 +242,7 @@ export default function AuditPage() {
                   )}
                   {/* [Wave 4B] 近 30 日操作趋势 (GET /audit/action-trend) */}
                   {trend.length > 0 && (
-                    <Card size="small" title={<span><LineChart /> {t('auditPage.trendTitle')}</span>} style={{ marginTop: 12 }}>
+                    <Card size="small" title={<span><LineChart /> {t('auditPage.trendTitle')}</span>} style={{ marginTop: 'var(--space-3, 12px)' }}>
                       <Row gutter={[8, 8]}>
                         {trend.slice(-14).map((p) => {
                           const max = Math.max(...trend.map((t) => t.total), 1)
@@ -251,7 +251,7 @@ export default function AuditPage() {
                               <div style={{ textAlign: 'center' }}>
                                 <Tooltip title={t('auditPage.trendTooltip', { label: p.label, total: p.total, highRisk: p.highRisk, failed: p.failed })}>
                                   <div>
-                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{p.label}</div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{p.label}</div>
                                     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', height: 64 }}>
                                       <div style={{ width: 14, height: `${Math.max((p.total / max) * 100, 3)}%`, minHeight: 3, background: p.failed > 0 ? '#fa8c16' : '#1677ff', borderRadius: 3 }} />
                                     </div>
@@ -265,12 +265,12 @@ export default function AuditPage() {
                       </Row>
                     </Card>
                   )}
-                  <Row gutter={16} style={{ marginTop: 12 }}>
+                  <Row gutter={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
                     {/* [Wave 4B] 用户活跃排行 (GET /audit/user-activity) */}
                     <Col span={12}>
                       <Card size="small" title={<span><User /> {t('auditPage.userActivityTitle')}</span>}>
                         {userActivity.length === 0 ? (
-                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>{t('auditPage.noData')}</div>
+                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 'var(--space-4, 16px)' }}>{t('auditPage.noData')}</div>
                         ) : (
                           <List
                             size="small"
@@ -294,7 +294,7 @@ export default function AuditPage() {
                     <Col span={12}>
                       <Card size="small" title={<span><AlertTriangle /> {t('auditPage.highRiskTitle')}</span>} extra={highRisk ? <Tag color="red">{t('auditPage.totalTimes', { total: highRisk.total })}</Tag> : null}>
                         {!highRisk || highRisk.actions.length === 0 ? (
-                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>{t('auditPage.noHighRisk')}</div>
+                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 'var(--space-4, 16px)' }}>{t('auditPage.noHighRisk')}</div>
                         ) : (
                           <ProTable<AuditHighRiskActionDto>
                             dataSource={highRisk.actions.slice(0, 10)}
@@ -322,7 +322,7 @@ export default function AuditPage() {
               label: <span><Filter /> {t('auditPage.tabLogs')}</span>,
               children: (
                 <>
-                  <Space style={{ marginBottom: 16 }}>
+                  <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <Select allowClear placeholder={t('auditPage.filterAction')} style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, action: v }))} options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'PRINT'].map((a) => ({ value: a, label: a }))} />
                     <Select allowClear placeholder={t('auditPage.filterResource')} style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, resource: v }))} options={['patient', 'report', 'user', 'exam', 'dicom'].map((r) => ({ value: r, label: r }))} />
                     <Button type="primary" icon={<Search size={14} />} onClick={() => fetchLogs(1)}>{t('auditPage.query')}</Button>
@@ -352,14 +352,14 @@ export default function AuditPage() {
                         message={chain.verified ? t('w13Sec.ac.verified') : t('w13Sec.ac.broken', { index: chain.brokenAt ?? 0 })}
                         description={chain.reason ?? undefined}
                       />
-                      <Row gutter={16} style={{ marginTop: 12 }}>
+                      <Row gutter={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
                         <Col span={6}><Statistic title={t('w13Sec.ac.blocks')} value={chain.totalBlocks} prefix={<ShieldCheck />} /></Col>
                         <Col span={6}><Statistic title={t('w13Sec.ac.checked')} value={chain.checkedBlocks} /></Col>
                         <Col span={6}><Statistic title={t('w13Sec.ac.source')} value={t(`w13Sec.ac.source.${chain.source}`)} /></Col>
                         <Col span={6}><Card size="small"><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w13Sec.ac.headHash')}</div><Tooltip title={chain.headHash}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{chain.headHash.slice(0, 20)}…</span></Tooltip></Card></Col>
                       </Row>
                       {chainRetention && (
-                        <Descriptions bordered size="small" column={3} style={{ marginTop: 12 }}>
+                        <Descriptions bordered size="small" column={3} style={{ marginTop: 'var(--space-3, 12px)' }}>
                           <Descriptions.Item label={t('w13Sec.ac.retentionMonths')}>{chainRetention.retentionMonths}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.retentionDays')}>{chainRetention.retentionDays}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{chainRetention.archiveLocation}</span></Descriptions.Item>
@@ -370,7 +370,7 @@ export default function AuditPage() {
                       )}
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: 24 }}><Spin tip={t('auditPage.loading')} /></div>
+                    <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin tip={t('auditPage.loading')} /></div>
                   )}
                 </Card>
               ),
@@ -402,14 +402,14 @@ export default function AuditPage() {
                         message={orphanChain.verified ? t('w4a.audit.verified') : t('w4a.audit.broken', { index: orphanChain.brokenAt ?? 0 })}
                         description={orphanChain.reason ?? undefined}
                       />
-                      <Row gutter={16} style={{ marginTop: 12 }}>
+                      <Row gutter={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
                         <Col span={6}><Statistic title={t('w4a.audit.blocks')} value={orphanChain.totalBlocks} prefix={<ShieldCheck />} /></Col>
                         <Col span={6}><Statistic title={t('w4a.audit.checked')} value={orphanChain.checkedBlocks} /></Col>
                         <Col span={6}><Statistic title={t('w4a.audit.source')} value={orphanChain.source === 'database' ? t('w4a.audit.sourceDatabase') : t('w4a.audit.sourceSeed')} /></Col>
                         <Col span={6}><Card size="small"><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w4a.audit.headHash')}</div><Tooltip title={orphanChain.headHash}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanChain.headHash.slice(0, 20)}…</span></Tooltip></Card></Col>
                       </Row>
                       {orphanRetention && (
-                        <Descriptions title={t('w4a.audit.retention')} bordered size="small" column={3} style={{ marginTop: 12 }}>
+                        <Descriptions title={t('w4a.audit.retention')} bordered size="small" column={3} style={{ marginTop: 'var(--space-3, 12px)' }}>
                           <Descriptions.Item label={t('w4a.audit.retentionMonths')}>{orphanRetention.retentionMonths}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.retentionDays')}>{orphanRetention.retentionDays}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanRetention.archiveLocation}</span></Descriptions.Item>
@@ -420,7 +420,7 @@ export default function AuditPage() {
                         </Descriptions>
                       )}
                       {orphanArchive && (
-                        <Card size="small" title={t('w4a.audit.coldArchive')} style={{ marginTop: 12 }}>
+                        <Card size="small" title={t('w4a.audit.coldArchive')} style={{ marginTop: 'var(--space-3, 12px)' }}>
                           <Descriptions bordered size="small" column={3}>
                             <Descriptions.Item label={t('w4a.audit.archiveId')}><span style={{ fontFamily: 'monospace' }}>{orphanArchive.archiveId}</span></Descriptions.Item>
                             <Descriptions.Item label={t('w4a.audit.archived', { count: orphanArchive.archivedCount })}>{orphanArchive.archivedCount}</Descriptions.Item>
@@ -431,7 +431,7 @@ export default function AuditPage() {
                       )}
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: 24 }}><Spin tip={t('auditPage.loading')} /></div>
+                    <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin tip={t('auditPage.loading')} /></div>
                   )}
                 </Card>
               ),
@@ -470,7 +470,7 @@ export default function AuditPage() {
         )}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin tip={t('auditPage.loading')} /></div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin tip={t('auditPage.loading')} /></div>
         ) : detail ? (
           <Descriptions bordered column={1} size="small">
             <Descriptions.Item label={t('auditPage.detailRecordId')}>{detail.id}</Descriptions.Item>

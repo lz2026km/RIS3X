@@ -232,7 +232,7 @@ export default function RevenueAnalysisPage() {
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9e.revenueAnalysis.title')}</span>
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 10,
@@ -245,7 +245,7 @@ export default function RevenueAnalysisPage() {
           </span>
           {loading && <span style={{ fontSize: 12, color: '#93c5fd' }}>{t('w9e.revenueAnalysis.loading')}</span>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
           <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Download size={14} />{t('w9e.revenueAnalysis.exportReport')}</button>
         </div>
@@ -256,49 +256,49 @@ export default function RevenueAnalysisPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4, 16px)', padding: '20px 24px' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyRevenue')}</span>
             <DollarSign size={16} color="var(--color-success-500)" />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, var(--color-success-500))', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momRevenue >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, var(--color-success-500))', marginTop: 'var(--space-1, 4px)' }}>{latest.revenue.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: momRevenue >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 'var(--space-1, 4px)' }}>
             {momRevenue >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momRevenue >= 0 ? '+' : ''}{momRevenue.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyProfit')}</span>
             <Activity size={16} color="var(--color-warning-500)" />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, var(--color-warning-500))', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momProfit >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, var(--color-warning-500))', marginTop: 'var(--space-1, 4px)' }}>{latest.profit.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: momProfit >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 'var(--space-1, 4px)' }}>
             {momProfit >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momProfit >= 0 ? '+' : ''}{momProfit.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyExams')}</span>
             <Users size={16} color="var(--color-primary-500)" />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, var(--color-primary-500))', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momExams >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, var(--color-primary-500))', marginTop: 'var(--space-1, 4px)' }}>{latest.exams.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: momExams >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 'var(--space-1, 4px)' }}>
             {momExams >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momExams >= 0 ? '+' : ''}{momExams.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.avgRevenue')}</span>
             <TrendingUp size={16} color="#8b5cf6" />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-modality-mr, #8b5cf6)', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
-          <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{t('w9e.revenueAnalysis.revenueCapacity')}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-modality-mr, #8b5cf6)', marginTop: 'var(--space-1, 4px)' }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
+          <div style={{ fontSize: 12, color: '#6e7681', marginTop: 'var(--space-1, 4px)' }}>{t('w9e.revenueAnalysis.revenueCapacity')}</div>
         </div>
       </div>
 
       <div style={{ padding: '0 24px 24px' }}>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           {(['trend', 'modality', 'payer', 'doctor'] as const).map(tab => (
             <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: view === tab ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: view === tab ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tab === 'trend' ? <BarChart3 size={14} /> : tab === 'modality' ? <Monitor size={14} /> : tab === 'payer' ? <Building2 size={14} /> : <Users size={14} />}
@@ -307,12 +307,12 @@ export default function RevenueAnalysisPage() {
           ))}
         </div>
 
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-5, 20px)' }}>
           {view === 'trend' && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>
                 {t('w9e.revenueAnalysis.trendTitle')}
-                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{source === 'api'
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{source === 'api'
                   ? (costFromApi ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.trendApiNote'))
                   : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
@@ -331,9 +331,9 @@ export default function RevenueAnalysisPage() {
             </div>
           )}
           {view === 'modality' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6, 24px)' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.modalityShareTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.demoData')}</span></div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('w9e.revenueAnalysis.modalityShareTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.demoData')}</span></div>
                 <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noModalityData')}>
                   <RePie>
                     <Pie data={modalityData} dataKey="revenue" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
@@ -344,7 +344,7 @@ export default function RevenueAnalysisPage() {
                 </ChartContainer>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.modalityRevenueTitle')}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('w9e.revenueAnalysis.modalityRevenueTitle')}</div>
                 <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noModalityData')}>
                   <BarChart data={modalityData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-secondary, #21262d)" />
@@ -360,9 +360,9 @@ export default function RevenueAnalysisPage() {
             </div>
           )}
           {view === 'payer' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6, 24px)' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.payerTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.payerApiNote') : t('w9e.revenueAnalysis.demoData')}</span></div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('w9e.revenueAnalysis.payerTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.payerApiNote') : t('w9e.revenueAnalysis.demoData')}</span></div>
                 <ChartContainer height={300} state={payerData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noPayerData')}>
                   <RePie>
                     <Pie data={payerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} labelLine={false}>
@@ -374,7 +374,7 @@ export default function RevenueAnalysisPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {payerData.map(d => (
-                  <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
+                  <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                     <div style={{ width: 12, height: 12, borderRadius: 2, background: d.color }} />
                     <span style={{ flex: 1, fontSize: 12 }}>{d.name}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>¥{d.value}万</span>
@@ -386,9 +386,9 @@ export default function RevenueAnalysisPage() {
           )}
           {view === 'doctor' && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>
                 {t('w9e.revenueAnalysis.doctorTitle')}
-                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{t('w9e.revenueAnalysis.doctorNote')}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{t('w9e.revenueAnalysis.doctorNote')}</span>
               </div>
               <ChartContainer height={300} state={doctorData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noDoctorData')}>
                 <BarChart data={doctorData} layout="vertical">
@@ -403,8 +403,8 @@ export default function RevenueAnalysisPage() {
           )}
         </div>
 
-        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, marginTop: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.revenue.title')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-3, 12px)', color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.revenue.title')}</div>
           <DataTable dataSource={monthlyData} rowKey="month" columns={revenueColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </div>
       </div>

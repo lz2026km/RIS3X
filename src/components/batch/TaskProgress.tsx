@@ -87,14 +87,14 @@ export function TaskProgress({
       </div>
 
       <div style={{ marginBottom: 6 }}>
-        <div style={{ display: "flex", gap: 16, fontSize: 11, color: "#64748b" }}>
+        <div style={{ display: "flex", gap: 'var(--space-4, 16px)', fontSize: 11, color: "#64748b" }}>
           <span>总计: <strong>{task.total}</strong></span>
           <span style={{ color: "var(--color-success-500)" }}>完成: <strong>{task.completed}</strong></span>
           {task.failed > 0 && <span style={{ color: "var(--color-error-500)" }}>失败: <strong>{task.failed}</strong></span>}
         </div>
       </div>
 
-      <div style={{ position: "relative", height: 6, background: "var(--bg-primary)", borderRadius: 3, overflow: "hidden", marginBottom: 8 }}>
+      <div style={{ position: "relative", height: 6, background: "var(--bg-primary)", borderRadius: 3, overflow: "hidden", marginBottom: 'var(--space-2, 8px)' }}>
         <div
           style={{
             height: "100%",

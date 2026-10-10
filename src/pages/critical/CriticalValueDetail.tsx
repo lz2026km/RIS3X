@@ -69,12 +69,12 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
         })}
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
+      <div style={{ flex: 1, overflow: 'auto', padding: 'var(--space-4, 16px)' }}>
         {activeTab === 0 && (
           <div>
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.patientInfo')}</div>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {[
                     { label: t('critDetail.name'), value: cv.patientName }, { label: t('critDetail.gender'), value: cv.gender },
@@ -87,9 +87,9 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
                 </div>
               </div>
             </div>
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.examInfo')}</div>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {[
                     { label: t('critDetail.examItem'), value: cv.examItemName }, { label: t('critDetail.device'), value: cv.deviceName },
@@ -103,7 +103,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             </div>
             <div>
               <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.summary')}</div>
-              <div style={{ background: 'var(--color-error-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--color-error-border)' }}>
+              <div style={{ background: 'var(--color-error-bg)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--color-error-border)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', marginBottom: 6 }}>{cv.severity} · {cv.modality}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{cv.findingDetails}</div>
               </div>
@@ -113,25 +113,25 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
 
         {activeTab === 1 && (
           <div>
-            <div style={{ background: 'var(--color-error-bg)', borderRadius: 10, padding: 16, border: '2px solid var(--color-error-600)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--color-error-bg)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '2px solid var(--color-error-600)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <AlertTriangle size={18} style={{ color: 'var(--color-error-600)' }} />
                 <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-error-600)' }}>{t('critDetail.abnormalResult')}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div><div style={labelStyle}>{t('critDetail.resultValue')}</div><div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-error-600)' }}>{cv.resultValue}</div></div>
                 <div><div style={labelStyle}>{t('critDetail.unit')}</div><div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{cv.resultUnit}</div></div>
                 <div><div style={labelStyle}>{t('critDetail.normalRange')}</div><div style={{ fontSize: 14, fontWeight: 600, color: '#059669' }}>{cv.normalRange}</div></div>
                 <div><div style={labelStyle}>{t('critDetail.criticalRange')}</div><div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-error-600)' }}>{cv.criticalRange}</div></div>
               </div>
               {cv.exceedRatio && (
-                <div style={{ marginTop: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                   <TrendingUp size={14} style={{ color: 'var(--color-error-600)' }} />
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)' }}>{t('critDetail.exceed', { value: cv.exceedRatio })}</span>
                 </div>
               )}
             </div>
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.description')}</div>
               <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.7 }}>
                 {cv.findingDetails}
@@ -150,53 +150,53 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
 
         {activeTab === 2 && (
           <div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <Bell size={16} style={{ color: 'var(--color-warning-600)' }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('critDetail.reportInfo')}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 {[{ label: t('critDetail.reportedTime'), value: cv.reportedTime }, { label: t('critDetail.reportedBy'), value: cv.reportedByName }, { label: t('critDetail.notifyMethod'), value: cv.notificationMethod }, { label: t('critDetail.receivingDept'), value: cv.receivingDepartment }].map(item => (
                   <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={valueStyle}>{item.value || '-'}</div></div>
                 ))}
               </div>
             </div>
-            <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-warning-border)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <PhoneIncoming size={16} style={{ color: '#ea580c' }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#ea580c' }}>{t('critDetail.phoneNotify')}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 {[{ label: t('critDetail.phoneCaller'), value: cv.voiceCalledBy || cv.receivingDoctorName || t('critDetail.toNotify') }, { label: t('critDetail.notifyTime'), value: cv.voiceCalledAt || cv.receivingTime || '-' }].map(item => (
                   <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === t('critDetail.toNotify') || item.value === '-' ? '#94a3b8' : 'var(--color-primary-800)' }}>{item.value}</div></div>
                 ))}
               </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <Stethoscope size={16} style={{ color: 'var(--color-primary-800)' }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('critDetail.receiveClinical')}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 {[{ label: t('critDetail.receivingDoctor'), value: cv.receivingDoctorName || t('critDetail.toAssign') }, { label: t('critDetail.receivingTime'), value: cv.receivingTime || '-' }, { label: t('critDetail.clinicalReply'), value: cv.acknowledgedBy || t('critDetail.toReply') }, { label: t('critDetail.replyTime'), value: cv.acknowledgedTime || '-' }].map(item => (
                   <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === t('critDetail.toAssign') || item.value === t('critDetail.toReply') || item.value === '-' ? '#94a3b8' : 'var(--color-primary-800)' }}>{item.value}</div></div>
                 ))}
               </div>
             </div>
-            <div style={{ background: 'var(--color-success-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-success-border)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--color-success-bg)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--color-success-border)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 <CheckCircle size={16} style={{ color: 'var(--color-success-600)' }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-success-600)' }}>{t('critDetail.clinicalReceipt')}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 {[{ label: t('critDetail.confirmedBy'), value: cv.confirmedBy || t('critDetail.toReceipt') }, { label: t('critDetail.receiptTime'), value: cv.confirmedAt || '-' }, { label: t('critDetail.signature'), value: cv.confirmedSignature || '-' }, { label: t('critDetail.receiptNote'), value: cv.confirmedComment || '-' }].map(item => (
                   <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === t('critDetail.toReceipt') || item.value === '-' ? '#94a3b8' : 'var(--color-primary-800)' }}>{item.value}</div></div>
                 ))}
               </div>
             </div>
             {cv.followUpNotes && (
-              <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--color-info-border)' }}>
-                <div style={{ ...labelStyle, marginBottom: 4 }}>{t('critDetail.followUpNotes')}</div>
+              <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--color-info-border)' }}>
+                <div style={{ ...labelStyle, marginBottom: 'var(--space-1, 4px)' }}>{t('critDetail.followUpNotes')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{cv.followUpNotes}</div>
               </div>
             )}
@@ -205,21 +205,21 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
 
         {activeTab === 3 && (
           <div>
-            <div style={{ background: cv.status === '已处理' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', borderRadius: 10, padding: 16, border: `1px solid ${cv.status === '已处理' ? 'var(--color-success-border)' : 'var(--color-warning-border)'}`, marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: cv.status === '已处理' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: `1px solid ${cv.status === '已处理' ? 'var(--color-success-border)' : 'var(--color-warning-border)'}`, marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
                 {cv.status === '已处理' ? <CheckCircle size={18} style={{ color: '#059669' }} /> : <Clock size={18} style={{ color: 'var(--color-warning-600)' }} />}
                 <span style={{ fontSize: 14, fontWeight: 800, color: cv.status === '已处理' ? '#059669' : 'var(--color-warning-600)' }}>
                   {cv.status === '已处理' ? t('critDetail.processingDone') : t('critDetail.processing')}
                 </span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 {[{ label: t('critDetail.processingTime'), value: cv.processingTime || '-' }, { label: t('critDetail.processingDoctor'), value: cv.processingDoctorName || '-' }, { label: t('critDetail.processingDept'), value: cv.processingDepartment || '-' }, { label: t('critDetail.processingDuration'), value: cv.processingDuration || '-' }].map(item => (
                   <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={valueStyle}>{item.value}</div></div>
                 ))}
               </div>
             </div>
             {cv.processingMeasure && (
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
                 <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.processingMeasure')}</div>
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{cv.processingMeasure}</div>
               </div>
@@ -239,21 +239,21 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
 
         {activeTab === 5 && (
           <div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
               {(cv.timeline ?? []).map((event, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: 12, marginBottom: idx < cv.timeline.length - 1 ? 16 : 0 }}>
+                <div key={idx} style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: idx < cv.timeline.length - 1 ? 16 : 0 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: idx === cv.timeline.length - 1 ? 'var(--color-primary-800)' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {idx === cv.timeline.length - 1 ? <CheckCircle size={16} style={{ color: '#fff' }} /> : <Circle size={12} style={{ color: '#94a3b8' }} />}
                     </div>
-                    {idx < cv.timeline.length - 1 && <div style={{ width: 2, flex: 1, background: 'var(--border-color)', marginTop: 4, minHeight: 20 }} />}
+                    {idx < cv.timeline.length - 1 && <div style={{ width: 2, flex: 1, background: 'var(--border-color)', marginTop: 'var(--space-1, 4px)', minHeight: 20 }} />}
                   </div>
-                  <div style={{ flex: 1, paddingTop: 4 }}>
+                  <div style={{ flex: 1, paddingTop: 'var(--space-1, 4px)' }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{event.event}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
                     {event.detail && (
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
                         {event.detail}
                       </div>
                     )}
@@ -262,21 +262,21 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
               ))}
               {historyEvents && historyEvents.length > 0 && (
                 <>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', borderTop: '1px dashed var(--border-color)', paddingTop: 12, marginTop: 12 }}>{t('critDetail.operationHistory')}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', borderTop: '1px dashed var(--border-color)', paddingTop: 'var(--space-3, 12px)', marginTop: 'var(--space-3, 12px)' }}>{t('critDetail.operationHistory')}</div>
                   {historyEvents.map((event, idx) => (
-                    <div key={`h-${idx}`} style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+                    <div key={`h-${idx}`} style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-3, 12px)' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <Clock size={13} style={{ color: '#4f46e5' }} />
                         </div>
-                        <div style={{ width: 2, flex: 1, background: 'var(--border-color)', marginTop: 4, minHeight: 20 }} />
+                        <div style={{ width: 2, flex: 1, background: 'var(--border-color)', marginTop: 'var(--space-1, 4px)', minHeight: 20 }} />
                       </div>
-                      <div style={{ flex: 1, paddingTop: 4 }}>
+                      <div style={{ flex: 1, paddingTop: 'var(--space-1, 4px)' }}>
                         <div style={{ fontSize: 12, fontWeight: 700, color: '#4338ca' }}>{event.event}</div>
                         <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
                         <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
                         {event.detail && (
-                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
+                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
                             {event.detail}
                           </div>
                         )}

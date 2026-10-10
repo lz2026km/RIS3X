@@ -85,7 +85,7 @@ export default function SnomedPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Code size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")} />
       {/* [v3.0.6.11-104 Wave 5C] SNOMED 收敛: 编码 / 编码器 / 自动编码 三 Tab 同页 */}
-      <div style={{ display: "flex", gap: 8, padding: "12px 24px 0", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 'var(--space-2, 8px)', padding: "12px 24px 0", flexWrap: "wrap" }}>
         {SNOMED_TABS.map(tab => (
           <button
             key={tab.key}
@@ -104,16 +104,16 @@ export default function SnomedPage() {
       </div>
 
       {activeTab === "encode" && (
-      <div style={{ padding: 24 }}>
-        <StatCardGrid style={{ marginBottom: 16 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
+        <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t9("w9.snomed.statsTotal")} value={codes.length} icon={<FileText size={18} />} color="primary" />
           <StatCard title={t9("w9.snomed.statsConfirmed")} value={confirmed.size} icon={<CheckCircle size={18} />} color="success" />
           <StatCard title={t9("w9.snomed.statsAvgConfidence")} value={avgConfidence} icon={<ThumbsUp size={18} />} color="warning" />
           <StatCard title={t9("w9.snomed.statsSearched")} value={searchResults.length} icon={<Search size={18} />} color="info" />
         </StatCardGrid>
 
-        <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 320, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", gap: 'var(--space-5, 20px)', flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 320, background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <FileText size={16} color="var(--color-primary-500)" />{t("reportInput")}
             </h3>
@@ -121,18 +121,18 @@ export default function SnomedPage() {
               value={text}
               onChange={e => setText(e.target.value)}
               rows={8}
-              style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
+              style={{ width: "100%", padding: 'var(--space-3, 12px)', border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
               placeholder={t("inputPlaceholder")}
             />
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)' }}>
               <ActionButton action="submit" loading={loading} disabled={!text.trim()} onClick={() => void handleEncode()} icon={<Code size={14} />}>
                 {loading ? t("encoding") : t("encode")}
               </ActionButton>
             </div>
 
             {codes.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 'var(--space-2, 8px)' }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{t("encodedCodes")} ({codes.length})</span>
                   <ActionButton action="save" size="compact" onClick={confirmAll} icon={<ThumbsUp size={12} />}>
                     {t("confirmAll")}
@@ -191,17 +191,17 @@ export default function SnomedPage() {
             )}
 
             {codes.length === 0 && !loading && text && (
-              <div style={{ marginTop: 12, padding: 12, background: "var(--bg-primary)", borderRadius: 6, color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: "var(--bg-primary)", borderRadius: 6, color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
                 {t("noCodesFound")}
               </div>
             )}
           </div>
 
-          <div style={{ flex: 1, minWidth: 320, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ flex: 1, minWidth: 320, background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <Search size={16} color="#8b5cf6" />{t("searchCodes")}
             </h3>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
               <input
                 value={searchQ}
                 onChange={e => setSearchQ(e.target.value)}
@@ -213,7 +213,7 @@ export default function SnomedPage() {
                 {t9("w9.common.search")}
               </ActionButton>
             </div>
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 'var(--space-3, 12px)' }}>
               {searchResults.length > 0 && (
                 <DataTable
                   rowKey="conceptId"
@@ -237,7 +237,7 @@ export default function SnomedPage() {
                 />
               )}
               {searchResults.length === 0 && searchQ && !searching && (
-                <div style={{ padding: 12, color: "#94a3b8", fontSize: 12, textAlign: "center" }}>{t("noSearchResults")}</div>
+                <div style={{ padding: 'var(--space-3, 12px)', color: "#94a3b8", fontSize: 12, textAlign: "center" }}>{t("noSearchResults")}</div>
               )}
             </div>
           </div>
@@ -246,13 +246,13 @@ export default function SnomedPage() {
       )}
 
       {activeTab === "encoder" && (
-        <div data-testid="snomed-embedded-encoder" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 4, border: "1px solid var(--border-color)" }}>
+        <div data-testid="snomed-embedded-encoder" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-1, 4px)', border: "1px solid var(--border-color)" }}>
           <SnomedEncoderPage />
         </div>
       )}
 
       {activeTab === "autoCoding" && (
-        <div data-testid="snomed-embedded-auto-coding" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 4, border: "1px solid var(--border-color)" }}>
+        <div data-testid="snomed-embedded-auto-coding" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-1, 4px)', border: "1px solid var(--border-color)" }}>
           <AutoCodingPage />
         </div>
       )}

@@ -362,7 +362,7 @@ export default function ReportDefectLibraryPage() {
         const cConf = CATEGORY_CONFIG[d.category] ?? CATEGORY_CONFIG.description;
         const sConf = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.minor;
         return (
-          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
             <span style={{ fontSize: 12, padding: "1px 5px", borderRadius: 2, background: cConf.bg, color: cConf.color, fontWeight: 600 }}>{t(cConf.labelKey)}</span>
             <span style={{ fontSize: 12, padding: "1px 4px", borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700 }}>{t(sConf.labelKey)}</span>
           </div>
@@ -375,14 +375,14 @@ export default function ReportDefectLibraryPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: "0 auto" }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: "0 auto" }}>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* 顶部 */}
       <div
         style={{
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -395,7 +395,7 @@ export default function ReportDefectLibraryPage() {
               margin: 0,
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 'var(--space-2, 8px)',
             }}
           >
             <AlertOctagon size={20} color="var(--color-error-600)" /> {t('reportDefect.title')}
@@ -416,7 +416,7 @@ export default function ReportDefectLibraryPage() {
             {t('reportDefect.summary', { count: defectList.length, evaluated: apiKpi.totalEvaluated })}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={openAddModal}
             style={{
@@ -430,7 +430,7 @@ export default function ReportDefectLibraryPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Plus size={12} /> {t('reportDefect.addDefect')}
@@ -443,8 +443,8 @@ export default function ReportDefectLibraryPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(6, 1fr)",
-          gap: 8,
-          marginBottom: 16,
+          gap: 'var(--space-2, 8px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         {Object.entries(CATEGORY_CONFIG).map(([key, conf]) => {
@@ -458,7 +458,7 @@ export default function ReportDefectLibraryPage() {
               }
               style={{
                 background: "var(--bg-card)",
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
                 borderRadius: 8,
                 border: `2px solid ${filterCategory === key ? conf.color : "#e2e8f0"}`,
                 cursor: "pointer",
@@ -468,7 +468,7 @@ export default function ReportDefectLibraryPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                   marginBottom: 6,
                 }}
               >
@@ -492,7 +492,7 @@ export default function ReportDefectLibraryPage() {
                   {t(conf.labelKey)}
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 'var(--space-1, 4px)' }}>
                 <span
                   style={{ fontSize: 18, fontWeight: 700, color: conf.color }}
                 >
@@ -512,8 +512,8 @@ export default function ReportDefectLibraryPage() {
         style={{
           background: "linear-gradient(135deg, var(--color-warning-bg) 0%, var(--color-warning-bg) 100%)",
           borderRadius: 8,
-          padding: 12,
-          marginBottom: 16,
+          padding: 'var(--space-3, 12px)',
+          marginBottom: 'var(--space-4, 16px)',
           border: "1px solid #fcd34d",
         }}
       >
@@ -522,7 +522,7 @@ export default function ReportDefectLibraryPage() {
             fontSize: 12,
             fontWeight: 700,
             color: "#92400e",
-            marginBottom: 8,
+            marginBottom: 'var(--space-2, 8px)',
             display: "flex",
             alignItems: "center",
             gap: 6,
@@ -534,7 +534,7 @@ export default function ReportDefectLibraryPage() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(5, 1fr)",
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}
         >
           {apiKpi.defectTopList.map((d, i) => {
@@ -545,7 +545,7 @@ export default function ReportDefectLibraryPage() {
                 style={{
                   background: "var(--bg-card)",
                   borderRadius: 6,
-                  padding: 8,
+                  padding: 'var(--space-2, 8px)',
                   border: "1px solid var(--color-warning-400)",
                 }}
               >
@@ -568,7 +568,7 @@ export default function ReportDefectLibraryPage() {
                     fontSize: 18,
                     fontWeight: 700,
                     color: "var(--color-error-600)",
-                    marginTop: 4,
+                    marginTop: 'var(--space-1, 4px)',
                   }}
                 >
                   {d.count}
@@ -582,7 +582,7 @@ export default function ReportDefectLibraryPage() {
                       background: SEVERITY_CONFIG[defect.severity].bg,
                       color: SEVERITY_CONFIG[defect.severity].color,
                       fontWeight: 700,
-                      marginTop: 4,
+                      marginTop: 'var(--space-1, 4px)',
                       display: "inline-block",
                     }}
                   >
@@ -596,7 +596,7 @@ export default function ReportDefectLibraryPage() {
       </div>
 
       <div
-        style={{ display: "grid", gridTemplateColumns: "420px 1fr", gap: 12 }}
+        style={{ display: "grid", gridTemplateColumns: "420px 1fr", gap: 'var(--space-3, 12px)' }}
       >
         {/* 左：缺陷列表 */}
         <div
@@ -684,7 +684,7 @@ export default function ReportDefectLibraryPage() {
             style={{
               background: "var(--bg-card)",
               borderRadius: 8,
-              padding: 16,
+              padding: 'var(--space-4, 16px)',
               border: "1px solid var(--border-color)",
             }}
           >
@@ -692,8 +692,8 @@ export default function ReportDefectLibraryPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                marginBottom: 16,
+                gap: 'var(--space-3, 12px)',
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <div
@@ -734,7 +734,7 @@ export default function ReportDefectLibraryPage() {
             </div>
 
             {/* 标签行 */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+            <div style={{ display: "flex", gap: 6, marginBottom: 'var(--space-3, 12px)' }}>
               <span
                 style={{
                   fontSize: 12,
@@ -764,7 +764,7 @@ export default function ReportDefectLibraryPage() {
             {/* 描述 */}
             <div
               style={{
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
                 padding: 10,
                 background: "var(--bg-card)",
                 borderRadius: 6,
@@ -775,7 +775,7 @@ export default function ReportDefectLibraryPage() {
                   fontSize: 12,
                   color: "var(--text-secondary)",
                   fontWeight: 600,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                 }}
               >
                 {t('reportDefect.description')}
@@ -786,7 +786,7 @@ export default function ReportDefectLibraryPage() {
             </div>
 
             {/* 示例 */}
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <div
                 style={{
                   fontSize: 12,
@@ -795,7 +795,7 @@ export default function ReportDefectLibraryPage() {
                   marginBottom: 6,
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <MessageSquare size={12} /> {t('reportDefect.examples')}
@@ -804,8 +804,8 @@ export default function ReportDefectLibraryPage() {
                 <div
                   key={i}
                   style={{
-                    padding: 8,
-                    marginBottom: 4,
+                    padding: 'var(--space-2, 8px)',
+                    marginBottom: 'var(--space-1, 4px)',
                     background: "var(--color-error-bg)",
                     borderLeft: "3px solid var(--color-error-600)",
                     borderRadius: 4,
@@ -832,10 +832,10 @@ export default function ReportDefectLibraryPage() {
                   fontSize: 12,
                   color: "#047857",
                   fontWeight: 700,
-                  marginBottom: 4,
+                  marginBottom: 'var(--space-1, 4px)',
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Lightbulb size={12} /> {t('reportDefect.solution')}
@@ -849,9 +849,9 @@ export default function ReportDefectLibraryPage() {
             <div
               style={{
                 display: "flex",
-                gap: 8,
-                marginTop: 12,
-                paddingTop: 12,
+                gap: 'var(--space-2, 8px)',
+                marginTop: 'var(--space-3, 12px)',
+                paddingTop: 'var(--space-3, 12px)',
                 borderTop: "1px solid var(--border-color)",
               }}
             >
@@ -867,7 +867,7 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Edit2 size={11} /> {t('reportDefect.edit')}
@@ -884,7 +884,7 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Eye size={11} /> {t('w4a.defect.viewDetail')}
@@ -904,7 +904,7 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Eye size={11} /> {t('reportDefect.triggers')}
@@ -923,7 +923,7 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                   marginLeft: "auto",
                 }}
               >
@@ -944,7 +944,7 @@ export default function ReportDefectLibraryPage() {
         {libraryDetailLoading ? (
           <LoadingBanner message={t('w9.states.loading')} />
         ) : libraryDetail ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{libraryDetail.name}</div>
               <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
@@ -955,24 +955,24 @@ export default function ReportDefectLibraryPage() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('reportDefect.description')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t('reportDefect.description')}</div>
               <div style={{ fontSize: 12, lineHeight: 1.7, color: "var(--text-primary)" }}>{libraryDetail.description}</div>
             </div>
             {libraryDetail.standard && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('w4a.defect.standard')}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t('w4a.defect.standard')}</div>
                 <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{libraryDetail.standard}</div>
               </div>
             )}
             {libraryDetail.checkMethod && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('w4a.defect.checkMethod')}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t('w4a.defect.checkMethod')}</div>
                 <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{libraryDetail.checkMethod}</div>
               </div>
             )}
           </div>
         ) : (
-          <div style={{ textAlign: "center", padding: 24, color: "var(--text-secondary)", fontSize: 12 }}>{t('w9.states.noResults')}</div>
+          <div style={{ textAlign: "center", padding: 'var(--space-6, 24px)', color: "var(--text-secondary)", fontSize: 12 }}>{t('w9.states.noResults')}</div>
         )}
       </Drawer>
 
@@ -1100,9 +1100,9 @@ export default function ReportDefectLibraryPage() {
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 8,
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
                 border: "1px solid var(--border-color)",
-                marginBottom: 12,
+                marginBottom: 'var(--space-3, 12px)',
               }}
             >
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>
@@ -1141,7 +1141,7 @@ export default function ReportDefectLibraryPage() {
                           {10 + i * 3}
                         </span>
                       </div>
-                      <div style={{ color: "var(--text-secondary)", marginTop: 4 }}>
+                      <div style={{ color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
                         {t('reportDefect.operatorInfo', { id: 1000 + i })}
                       </div>
                     </div>
@@ -1152,7 +1152,7 @@ export default function ReportDefectLibraryPage() {
               <div
                 style={{
                   textAlign: "center",
-                  padding: 24,
+                  padding: 'var(--space-6, 24px)',
                   color: "var(--text-secondary)",
                   fontSize: 12,
                 }}
@@ -1236,11 +1236,11 @@ function DefectFormFields({
     fontSize: 12,
     fontWeight: 600,
     color: "var(--text-primary)",
-    marginBottom: 4,
+    marginBottom: 'var(--space-1, 4px)',
     display: "block",
   };
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div>
           <label htmlFor={`${idPrefix}code`} style={labelStyle}>

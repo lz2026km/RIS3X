@@ -36,28 +36,28 @@ const statsData = [
 // ---------- 样式 ----------
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
-  header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  header: { marginBottom: 'var(--space-6, 24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
-  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
+  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' },
   // 统计卡片行
-  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-6, 24px)' },
   statCard: {
     background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px',
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden',
   },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statValue: { fontSize: 30, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
-  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   statTrend: { position: 'absolute', top: 14, right: 14, fontSize: 12, fontWeight: 600 },
   // 功能区分区
-  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' },
   // 任务管理
-  taskGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
+  taskGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' },
   taskLeft: {},
   taskRight: {},
-  taskToolbar: { display: 'flex', gap: 8, marginBottom: 12 },
+  taskToolbar: { display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' },
   searchInput: {
     flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)',
     fontSize: 12, },
@@ -72,29 +72,29 @@ const s: Record<string, React.CSSProperties> = {
   td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' },
   statusBadge: { padding: '3px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600 },
   // 高危评估
-  assessGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
-  assessForm: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
+  assessGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' },
+  assessForm: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' },
   formItem: {},
-  formLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 },
+  formLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' },
   formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
   riskCard: {
-    borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16,
+    borderRadius: 12, padding: 'var(--space-5, 20px)', textAlign: 'center', marginBottom: 'var(--space-4, 16px)',
     border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.2s',
   },
   riskValue: { fontSize: 48, fontWeight: 800, lineHeight: 1 },
   riskLabel: { fontSize: 14, marginTop: 6, fontWeight: 600 },
-  riskScore: { fontSize: 12, marginTop: 4, opacity: 0.8 },
+  riskScore: { fontSize: 12, marginTop: 'var(--space-1, 4px)', opacity: 0.8 },
   // 早癌检出
   detectionGrid: { display: 'grid', gridTemplateColumns: '1fr', gap: 0 },
   detectionRow: {
     display: 'grid', gridTemplateColumns: '100px 80px 60px 80px 120px 80px 70px 70px 80px',
-    gap: 8, padding: '10px 8px', borderBottom: '1px solid var(--border-light)', alignItems: 'center', fontSize: 12,
+    gap: 'var(--space-2, 8px)', padding: '10px 8px', borderBottom: '1px solid var(--border-light)', alignItems: 'center', fontSize: 12,
   },
-  detectionHeader: { background: 'var(--content-bg)', borderRadius: 8, marginBottom: 4, fontWeight: 600, color: 'var(--text-secondary)', fontSize: 12 },
+  detectionHeader: { background: 'var(--content-bg)', borderRadius: 8, marginBottom: 'var(--space-1, 4px)', fontWeight: 600, color: 'var(--text-secondary)', fontSize: 12 },
   tag: { padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, display: 'inline-block', textAlign: 'center' },
   // 地图
-  mapGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
-  mapSvg: { position: 'relative', background: 'var(--content-bg)', borderRadius: 12, padding: 16, minHeight: 400 },
+  mapGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5, 20px)' },
+  mapSvg: { position: 'relative', background: 'var(--content-bg)', borderRadius: 12, padding: 'var(--space-4, 16px)', minHeight: 400 },
   mapPlaceholder: { display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' },
   mapProvince: { padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'default' },
   provinceTable: { fontSize: 12 },
@@ -110,13 +110,13 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 12,
+    gap: 'var(--space-3, 12px)',
   },
-  emptyStateIcon: { opacity: 0.35, marginBottom: 4 },
+  emptyStateIcon: { opacity: 0.35, marginBottom: 'var(--space-1, 4px)' },
   emptyStateText: { fontSize: 14, color: 'var(--text-secondary)', fontWeight: 500 },
-  emptyStateHint: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
+  emptyStateHint: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' },
   // 筛查类型标签
-  screenTypeTag: { padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 },
+  screenTypeTag: { padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' },
 }
 
 // ---------- 组件 ----------
@@ -128,7 +128,7 @@ const StatCard = ({ label, value, unit, sub, icon: Icon, color, bg, trend }: typ
     suffix={unit}
     sub={
       (sub || trend) ? (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           {sub}
           {trend && (
             <span style={{ color: trend === 'up' ? severityColor('success') : severityColor('critical'), fontWeight: 600 }}>
@@ -713,7 +713,7 @@ const CancerScreenPage = () => {
           <Title level={4} style={{ margin: 0 }}>{t('cancerScreen.title')}</Title>
           <p style={s.subtitle}>{t('cancerScreen.subtitle')}</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           <button style={s.btn} onClick={() => void handleSyncData()} disabled={syncing}><RefreshCw size={14} /> {syncing ? t('cancerScreen.syncing') : t('cancerScreen.syncData')}</button>
           <button style={s.btn} onClick={() => setShowExportModal(true)}><Download size={14} /> {t('cancerScreen.exportReport')}</button>
         </div>
@@ -725,7 +725,7 @@ const CancerScreenPage = () => {
       </div>
 
       {/* 功能区Tab导航 */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--content-bg)', padding: 4, borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-5, 20px)', background: 'var(--content-bg)', padding: 'var(--space-1, 4px)', borderRadius: 10 }}>
         {[
           { label: t('cancerScreen.tabTaskManage'), icon: Target },
           { label: t('cancerScreen.tabRiskAssess'), icon: AlertTriangle },
@@ -775,7 +775,7 @@ const CancerScreenPage = () => {
             showExport={false}
             showDensity={false}
             emptyText={
-              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <FileSearch size={40} style={s.emptyStateIcon} />
                 <span>{t('cancerScreen.noTaskMatch')}</span>
                 <span style={{ fontSize: 12 }}>{t('cancerScreen.taskMatchHint')}</span>
@@ -805,7 +805,7 @@ const CancerScreenPage = () => {
                 title: t('cancerScreen.thAction'),
                 key: 'action',
                 render: (_v, task) => (
-                  <div style={{ display: 'flex', gap: 4 }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                     <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => setShowDetailModal(true)}><Eye size={12} /></button>
                     <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => { setEditTaskForm({ id: task.id, name: task.name, type: task.type, region: task.region, target: task.target, status: task.status }); setShowEditModal(true) }}><Edit size={12} /></button>
                   </div>
@@ -813,7 +813,7 @@ const CancerScreenPage = () => {
               },
             ]}
           />
-          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
             {t('cancerScreen.showingTasks', { count: filteredTasks.length })}
           </div>
         </div>
@@ -826,7 +826,7 @@ const CancerScreenPage = () => {
           <div style={s.assessGrid}>
             {/* 左: 评估表单 */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.currentAssess')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('cancerScreen.currentAssess')}</div>
               <div style={s.assessForm}>
                 {assessmentDimensions.map(dim => (
                   <div key={dim.key} style={s.formItem}>
@@ -840,19 +840,19 @@ const CancerScreenPage = () => {
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 16, padding: '12px 16px', background: riskTone(currentRisk).bg, borderRadius: 10, textAlign: 'center', border: `2px solid ${riskTone(currentRisk).color}` }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: '12px 16px', background: riskTone(currentRisk).bg, borderRadius: 10, textAlign: 'center', border: `2px solid ${riskTone(currentRisk).color}` }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: riskTone(currentRisk).color }}>{t('cancerScreen.assessResult')}</div>
-                <div style={{ fontSize: 30, fontWeight: 700, color: riskTone(currentRisk).color, lineHeight: 1.2, marginTop: 4 }}>{currentRisk}</div>
-                <div style={{ fontSize: 12, color: riskTone(currentRisk).color, opacity: 0.8, marginTop: 4 }}>{t('cancerScreen.riskScore', { score: currentScore })}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: riskTone(currentRisk).color, lineHeight: 1.2, marginTop: 'var(--space-1, 4px)' }}>{currentRisk}</div>
+                <div style={{ fontSize: 12, color: riskTone(currentRisk).color, opacity: 0.8, marginTop: 'var(--space-1, 4px)' }}>{t('cancerScreen.riskScore', { score: currentScore })}</div>
               </div>
-              <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => setShowConfirmModal(true)}><CheckCircle size={16} />{t('cancerScreen.submitAssess')}</button>
                 <button style={{ ...s.btn, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => { setCurrentScore(0); setCurrentRisk('低危'); setAssessmentForm({ age: 55, gender: '男', smoking: '无', family: '无', exposure: '无', symptoms: '无', history: '无', region: '低风险' }) }}>{t('cancerScreen.resetAssess')}</button>
               </div>
             </div>
             {/* 右: 历史评估记录 */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.historyAssess', { count: assessments.length })}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('cancerScreen.historyAssess', { count: assessments.length })}</div>
               <div style={s.scrollBox}>
                 {assessments.length === 0 ? (
                   <div style={s.emptyState}>
@@ -889,13 +889,13 @@ const CancerScreenPage = () => {
           <div style={{ overflowX: 'auto' }}>
             <div style={s.detectionGrid}>
               <div style={s.detectionHeader}>
-                <div style={{ display: 'grid', gridTemplateColumns: '100px 80px 60px 80px 120px 80px 70px 70px 80px', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '100px 80px 60px 80px 120px 80px 70px 70px 80px', gap: 'var(--space-2, 8px)' }}>
                   <div>{t('cancerScreen.thDate')}</div><div>{t('cancerScreen.thName')}</div><div>{t('cancerScreen.thAge')}</div><div>{t('cancerScreen.thGender')}</div><div>{t('cancerScreen.thLesion')}</div><div>{t('cancerScreen.thLocation')}</div><div>{t('cancerScreen.thGrade')}</div><div>{t('cancerScreen.thTreatment')}</div><div>{t('cancerScreen.thFollowUp')}</div>
                 </div>
               </div>
               {detections.map(d => (
                 <div key={d.id} style={s.detectionRow}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '100px 80px 60px 80px 120px 80px 70px 70px 80px', gap: 8, alignItems: 'center' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '100px 80px 60px 80px 120px 80px 70px 70px 80px', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
                     <div style={{ fontSize: 12 }}>{d.date}</div>
                     <div style={{ fontSize: 12, fontWeight: 600 }}>{d.name}</div>
                     <div style={{ fontSize: 12 }}>{d.age}</div>
@@ -921,7 +921,7 @@ const CancerScreenPage = () => {
           <div style={s.mapGrid}>
             {/* 省份列表 */}
             <div style={s.mapSvg}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.provinceCoverage')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>{t('cancerScreen.provinceCoverage')}</div>
               <DataTable
                 rowKey="name"
                 dataSource={provinces}
@@ -958,14 +958,14 @@ const CancerScreenPage = () => {
                   },
                 ]}
               />
-              <div style={{ marginTop: 12, display: 'flex', gap: 16, fontSize: 12, color: 'var(--text-secondary)' }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', display: 'flex', gap: 'var(--space-4, 16px)', fontSize: 12, color: 'var(--text-secondary)' }}>
                 <span>{t('cancerScreen.totalInsts')} <strong>404家</strong></span>
                 <span>{t('cancerScreen.totalScreenCount')} <strong>36,248人</strong></span>
                 <span>{t('cancerScreen.overallRate')} <strong>2.37%</strong></span>
               </div>
             </div>
             {/* 右侧：影像筛查类型分布 */}
-            <div style={{ ...s.mapSvg, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ ...s.mapSvg, display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('cancerScreen.typeStats')}</div>
               {[
                 { type: 'LDCT', icon: Wind, count: 8642, color: 'var(--color-primary-600)', bg: '#3b82f622' },
@@ -975,7 +975,7 @@ const CancerScreenPage = () => {
               ].map(item => {
                 const Icon = item.icon
                 return (
-                  <div key={item.type} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: item.bg, borderRadius: 10 }}>
+                  <div key={item.type} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '12px 16px', background: item.bg, borderRadius: 10 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: item.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Icon size={20} color={item.color} />
                     </div>
@@ -987,16 +987,16 @@ const CancerScreenPage = () => {
                   </div>
                 )
               })}
-              <div style={{ marginTop: 8, padding: '12px 16px', background: 'var(--content-bg)', borderRadius: 10, border: '1px dashed var(--border-color)' }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('cancerScreen.monthlyTrend')}</div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', padding: '12px 16px', background: 'var(--content-bg)', borderRadius: 10, border: '1px dashed var(--border-color)' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>{t('cancerScreen.monthlyTrend')}</div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)', height: 60 }}>
                   {monthlyData.slice(-6).map((m) => {
                     const maxS = Math.max(...monthlyData.slice(-6).map(x => x.screenings))
 
 // 月度筛查趋势数据
 
                     return (
-                      <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                      <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                         <div style={{ width: '100%', background: 'var(--border-default)', borderRadius: 4, height: 50, position: 'relative' }}>
                           <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'var(--color-primary-600)', borderRadius: 4, height: `${(m.screenings / maxS) * 50}px` }} />
                         </div>
@@ -1013,20 +1013,20 @@ const CancerScreenPage = () => {
       {/* 筛选Modal */}
       {showFilterModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 400 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.filterTitle')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.screenType')}</div>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', minWidth: 400 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-4, 16px)' }}>{t('cancerScreen.filterTitle')}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.screenType')}</div>
                 <Select style={{ width: '100%' }} value={filterForm.type} onChange={(v) => setFilterForm({ ...filterForm, type: v })} options={['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.region')}</div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.region')}</div>
                 <Select style={{ width: '100%' }} value={filterForm.region} onChange={(v) => setFilterForm({ ...filterForm, region: v })} options={['全部地区', ...regions].map(v => ({ value: v, label: v }))} />
               </div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.status')}</div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.status')}</div>
                 <Select style={{ width: '100%' }} value={filterForm.status} onChange={(v) => setFilterForm({ ...filterForm, status: v })} options={['全部', ...taskStatuses].map(v => ({ value: v, label: v }))} />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowFilterModal(false)}>{t('cancerScreen.cancel')}</button>
               <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={handleApplyFilter}>{t('cancerScreen.applyFilter')}</button>
             </div>
@@ -1037,19 +1037,19 @@ const CancerScreenPage = () => {
       {/* 新增Modal */}
       {showNewModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 450 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.newTaskTitle')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.taskName')}</div><input style={{ ...s.formSelect, width: '100%' }} placeholder={t('cancerScreen.placeholderTaskName')} value={newTaskForm.name} onChange={e => setNewTaskForm({ ...newTaskForm, name: e.target.value })} /></div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.screenType')}</div>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', minWidth: 450 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-4, 16px)' }}>{t('cancerScreen.newTaskTitle')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.taskName')}</div><input style={{ ...s.formSelect, width: '100%' }} placeholder={t('cancerScreen.placeholderTaskName')} value={newTaskForm.name} onChange={e => setNewTaskForm({ ...newTaskForm, name: e.target.value })} /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.screenType')}</div>
                 <Select style={{ width: '100%' }} value={newTaskForm.type} onChange={(v) => setNewTaskForm({ ...newTaskForm, type: v })} options={['LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.region')}</div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.region')}</div>
                 <Select style={{ width: '100%' }} value={newTaskForm.region} onChange={(v) => setNewTaskForm({ ...newTaskForm, region: v })} options={regions.map(v => ({ value: v, label: v }))} />
               </div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.target')}</div><input style={{ ...s.formSelect, width: '100%' }} type="number" placeholder={t('cancerScreen.placeholderTarget')} value={newTaskForm.target} onChange={e => setNewTaskForm({ ...newTaskForm, target: Number(e.target.value) })} /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.target')}</div><input style={{ ...s.formSelect, width: '100%' }} type="number" placeholder={t('cancerScreen.placeholderTarget')} value={newTaskForm.target} onChange={e => setNewTaskForm({ ...newTaskForm, target: Number(e.target.value) })} /></div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowNewModal(false)}>{t('cancerScreen.cancel')}</button>
               <button style={{ ...s.btnPrimary, padding: '8px 16px' }} disabled={taskCreating} onClick={() => void handleCreateTask()}>{taskCreating ? t('cancerScreen.creating') : t('cancerScreen.createTask')}</button>
             </div>
@@ -1060,9 +1060,9 @@ const CancerScreenPage = () => {
       {/* [W1-B] 登记筛查 Modal: screeningApi.create */}
       {showRegisterModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRegisterModal(false)}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 480, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.registerScreen')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', minWidth: 480, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-4, 16px)' }}>{t('cancerScreen.registerScreen')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               <div><div style={s.formLabel}>{t('cancerScreen.patientIdRequired')}</div><input style={{ ...s.formSelect, width: '100%' }} value={regForm.patientId} onChange={e => setRegForm({ ...regForm, patientId: e.target.value })} placeholder={t('cancerScreen.placeholderPatientId')} /></div>
               <div><div style={s.formLabel}>{t('cancerScreen.patientNameRequired')}</div><input style={{ ...s.formSelect, width: '100%' }} value={regForm.patientName} onChange={e => setRegForm({ ...regForm, patientName: e.target.value })} placeholder={t('cancerScreen.placeholderPatientName')} /></div>
               <div><div style={s.formLabel}>{t('cancerScreen.age')}</div><input type="number" style={{ ...s.formSelect, width: '100%' }} value={regForm.age} onChange={e => setRegForm({ ...regForm, age: Number(e.target.value) })} /></div>
@@ -1074,7 +1074,7 @@ const CancerScreenPage = () => {
               </div>
               <div><div style={s.formLabel}>{t('cancerScreen.screenDate')}</div><input type="date" style={{ ...s.formSelect, width: '100%' }} value={regForm.screenDate} onChange={e => setRegForm({ ...regForm, screenDate: e.target.value })} /></div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowRegisterModal(false)}>{t('cancerScreen.cancel')}</button>
               <button style={{ ...s.btnPrimary, padding: '8px 16px' }} disabled={regSaving} onClick={() => void handleRegisterScreening()}>{regSaving ? t('cancerScreen.registering') : t('cancerScreen.confirmRegister')}</button>
             </div>
@@ -1085,17 +1085,17 @@ const CancerScreenPage = () => {
       {/* 详情Modal */}
       {showDetailModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 500 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.taskDetail')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.taskName')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.screenType')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.target')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>500人</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.thCompleted')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.region')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.leader')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', minWidth: 500 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-4, 16px)' }}>{t('cancerScreen.taskDetail')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.taskName')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>山东省LDCT早癌筛查</div></div>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.screenType')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>LDCT</div></div>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.target')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>500人</div></div>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.thCompleted')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>326人 (65.2%)</div></div>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.region')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>山东省</div></div>
+              <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.leader')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>张伟医生</div></div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowDetailModal(false)}>{t('cancerScreen.close')}</button>
             </div>
           </div>
@@ -1105,7 +1105,7 @@ const CancerScreenPage = () => {
       {/* ========== 功能区5: 筛查队列（真实 API） ========== */}
       {tab === 5 && (
         <div style={s.section}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={s.sectionTitle}><ListOrdered size={16} color="var(--color-primary)" />{t('cancerScreen.queueTitle')}</div>
             <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => void loadQueue()}><RefreshCw size={13} /> {t('cancerScreen.refresh')}</button>
           </div>
@@ -1124,9 +1124,9 @@ const CancerScreenPage = () => {
           </div>
 
           {queueLoading ? (
-            <div style={{ padding: 40, textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingQueue')}><div style={{ height: 40 }} /></Spin></div>
+            <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingQueue')}><div style={{ height: 40 }} /></Spin></div>
           ) : queueError ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 12 }}>{queueError}</div>
+            <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--color-error)', fontSize: 12 }}>{queueError}</div>
           ) : (
             <DataTable
               rowKey="id"
@@ -1184,7 +1184,7 @@ const CancerScreenPage = () => {
                   title: t('cancerScreen.thAction'),
                   key: 'action',
                   render: (_v, item: any) => (
-                    <div style={{ display: 'flex', gap: 4 }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                       <button style={{ ...s.tag, background: 'var(--color-info-bg)', color: 'var(--color-primary)', cursor: 'pointer', border: 'none' }} onClick={() => void handleMarkScreening(item)}>
                         <Flag size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />{t('cancerScreen.mark')}
                       </button>
@@ -1210,14 +1210,14 @@ const CancerScreenPage = () => {
       {/* ========== 功能区6: 筛查趋势 ========== */}
       {tab === 6 && (
         <div style={s.section}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={s.sectionTitle}><TrendingUp size={16} color='var(--color-info-600)' />{t('w3b.screenTrendTitle')} <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('w3b.screenTrendSub')}（GET /screening/trend）</span></div>
             <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => void loadTrend()}><RefreshCw size={13} /> {t('w3b.refresh')}</button>
           </div>
           {trendLoading ? (
-            <div style={{ padding: 40, textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingTrend')}><div style={{ height: 40 }} /></Spin></div>
+            <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingTrend')}><div style={{ height: 40 }} /></Spin></div>
           ) : trendError ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 12 }}>{trendError}</div>
+            <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--color-error)', fontSize: 12 }}>{trendError}</div>
           ) : trend.length === 0 ? (
             <div style={s.emptyState}>
               <FileSearch size={48} style={s.emptyStateIcon} />
@@ -1226,22 +1226,22 @@ const CancerScreenPage = () => {
           ) : (
             <>
               {/* 概览指标 */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)' }}>
                 {[
                   { label: t('w3b.screenCount'), value: trend.reduce((s, t) => s + (t.screenings ?? 0), 0).toLocaleString(), unit: '人', color: 'var(--color-primary-600)' },
                   { label: t('w3b.screenDetections'), value: trend.reduce((s, t) => s + (t.detections ?? 0), 0).toLocaleString(), unit: '例', color: 'var(--color-error-600)' },
                   { label: t('w3b.screenRate'), value: (trend.reduce((s, t) => s + (t.rate ?? 0), 0) / trend.length).toFixed(2), unit: '%', color: '#ea580c' },
                   { label: t('w3b.screenMonth'), value: String(trend.length), unit: '月', color: 'var(--color-info-600)' },
                 ].map((item, i) => (
-                  <div key={i} style={{ background: 'var(--content-bg)', borderRadius: 10, padding: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
+                  <div key={i} style={{ background: 'var(--content-bg)', borderRadius: 10, padding: 'var(--space-4, 16px)', textAlign: 'center' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>{item.label}</div>
                     <div style={{ fontSize: 24, fontWeight: 700, color: item.color }}>{item.value}<span style={{ fontSize: 12, fontWeight: 400 }}>{item.unit}</span></div>
                   </div>
                 ))}
               </div>
               {/* 柱状趋势图 (筛查量 + 检出量) */}
-              <div style={{ overflowX: 'auto', paddingBottom: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, minWidth: Math.max(560, trend.length * 56) }}>
+              <div style={{ overflowX: 'auto', paddingBottom: 'var(--space-2, 8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-4, 16px)', minWidth: Math.max(560, trend.length * 56) }}>
                   {trend.map((tr, i) => {
                     const maxS = Math.max(...trend.map(x => x.screenings ?? 0), 1)
                     const maxD = Math.max(...trend.map(x => x.detections ?? 0), 1)
@@ -1261,13 +1261,13 @@ const CancerScreenPage = () => {
                   })}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 16, marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
-                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-primary-600)', borderRadius: 2, marginRight: 4 }} />{t('w3b.screenCount')}</span>
-                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-error-600)', borderRadius: 2, marginRight: 4 }} />{t('w3b.screenDetections')}</span>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)' }}>
+                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-primary-600)', borderRadius: 2, marginRight: 'var(--space-1, 4px)' }} />{t('w3b.screenCount')}</span>
+                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-error-600)', borderRadius: 2, marginRight: 'var(--space-1, 4px)' }} />{t('w3b.screenDetections')}</span>
                 <span>{t('w3b.screenRate')}: {trend[trend.length - 1]?.rate ?? '-'}% ({t('w3b.screenMonth')})</span>
               </div>
               {/* 明细表 */}
-              <div style={{ marginTop: 20 }}>
+              <div style={{ marginTop: 'var(--space-5, 20px)' }}>
                 <DataTable
                   rowKey="month"
                   dataSource={trend}
@@ -1311,22 +1311,22 @@ const CancerScreenPage = () => {
       {/* 编辑Modal */}
       {showEditModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 450 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.editTask')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.taskName')}</div><input style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.name} onChange={e => setEditTaskForm({ ...editTaskForm, name: e.target.value })} /></div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.target')}</div><input style={{ ...s.formSelect, width: '100%' }} type="number" value={editTaskForm.target} onChange={e => setEditTaskForm({ ...editTaskForm, target: Number(e.target.value) })} /></div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.screenType')}</div>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', minWidth: 450 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-4, 16px)' }}>{t('cancerScreen.editTask')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.taskName')}</div><input style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.name} onChange={e => setEditTaskForm({ ...editTaskForm, name: e.target.value })} /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.target')}</div><input style={{ ...s.formSelect, width: '100%' }} type="number" value={editTaskForm.target} onChange={e => setEditTaskForm({ ...editTaskForm, target: Number(e.target.value) })} /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.screenType')}</div>
                 <Select style={{ width: '100%' }} value={editTaskForm.type} onChange={(v) => setEditTaskForm({ ...editTaskForm, type: v })} options={['LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.region')}</div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.region')}</div>
                 <Select style={{ width: '100%' }} value={editTaskForm.region} onChange={(v) => setEditTaskForm({ ...editTaskForm, region: v })} options={regions.map(v => ({ value: v, label: v }))} />
               </div>
-              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.status')}</div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('cancerScreen.status')}</div>
                 <Select style={{ width: '100%' }} value={editTaskForm.status} onChange={(v) => setEditTaskForm({ ...editTaskForm, status: v })} options={taskStatuses.map(v => ({ value: v, label: v }))} />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowEditModal(false)}>{t('cancerScreen.cancel')}</button>
               <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => void handleSaveEdit()}>{t('cancerScreen.saveEdit')}</button>
             </div>
@@ -1337,16 +1337,16 @@ const CancerScreenPage = () => {
       {/* 导出预览Modal */}
       {showExportModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 500 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.exportPreview')}</div>
-            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('cancerScreen.reportSummary')}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', minWidth: 500 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-4, 16px)' }}>{t('cancerScreen.exportPreview')}</div>
+            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('cancerScreen.reportSummary')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                 <span>{t('cancerScreen.exportStatLdct')}</span><span>{t('cancerScreen.exportStatBreast')}</span>
                 <span>{t('cancerScreen.exportStatHighRisk')}</span><span>{t('cancerScreen.exportStatEarly')}</span>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowExportModal(false)}>{t('cancerScreen.cancel')}</button>
               <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={handleExportConfirm}>{t('cancerScreen.confirmExport')}</button>
             </div>
@@ -1357,10 +1357,10 @@ const CancerScreenPage = () => {
       {/* 确认Modal */}
       {showConfirmModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 400 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{t('cancerScreen.confirmSubmitTitle')}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 20 }}>{t('cancerScreen.confirmSubmitText', { risk: currentRisk, score: currentScore })}</div>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', minWidth: 400 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 'var(--space-3, 12px)' }}>{t('cancerScreen.confirmSubmitTitle')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-5, 20px)' }}>{t('cancerScreen.confirmSubmitText', { risk: currentRisk, score: currentScore })}</div>
+            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowConfirmModal(false)}>{t('cancerScreen.cancel')}</button>
               <button style={{ ...s.btnPrimary, padding: '8px 16px' }} disabled={submitting} onClick={() => void handleSubmitAssessment()}>{submitting ? t('cancerScreen.submitting') : t('cancerScreen.confirmSubmit')}</button>
             </div>

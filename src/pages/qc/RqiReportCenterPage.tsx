@@ -686,9 +686,9 @@ export default function RqiReportCenterPage() {
         }
       />
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
         {/* 统计卡 */}
-        <StatCardGrid gap={12} minWidth={180} style={{ marginBottom: 16 }}>
+        <StatCardGrid gap={12} minWidth={180} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard
             title={t('rqiReport.stat.total')}
             value={stats?.total ?? 0}
@@ -755,7 +755,7 @@ export default function RqiReportCenterPage() {
               ),
               children: (
                 <div>
-                  <div style={{ marginBottom: 12 }}>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                     <Space size={8}>
                       <span style={{ fontSize: 12, color: '#64748b' }}>
                         {t('rqiReport.filter.status')}
@@ -899,7 +899,7 @@ export default function RqiReportCenterPage() {
         width={820}
       >
         {detailLoading && !detailBatch ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>
             {t('rqiReport.loading')}
           </div>
         ) : detailBatch ? (
@@ -909,7 +909,7 @@ export default function RqiReportCenterPage() {
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
                 gap: 10,
-                marginBottom: 16,
+                marginBottom: 'var(--space-4, 16px)',
               }}
             >
               <InfoItem label={t('rqiReport.detail.periodLabel')} value={detailBatch.periodLabel} />
@@ -954,7 +954,7 @@ export default function RqiReportCenterPage() {
               )}
             </div>
 
-            <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8 }}>
+            <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>
               {t('rqiReport.detail.indicators')}
             </div>
             <DataTable<RqiReportIndicatorEntry>

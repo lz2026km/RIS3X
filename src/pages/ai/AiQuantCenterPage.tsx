@@ -106,7 +106,7 @@ const MetricCard: React.FC<{
     >
       {value}
       {unit ? (
-        <span style={{ fontSize: 12, marginLeft: 4, color: "#8c8c8c" }}>
+        <span style={{ fontSize: 12, marginLeft: 'var(--space-1, 4px)', color: "#8c8c8c" }}>
           {unit}
         </span>
       ) : null}
@@ -150,7 +150,7 @@ const SectionTitle: React.FC<{ icon?: React.ReactNode; text: string }> = ({
   icon,
   text,
 }) => (
-  <Space size={6} style={{ marginBottom: 8 }}>
+  <Space size={6} style={{ marginBottom: 'var(--space-2, 8px)' }}>
     {icon}
     <span style={{ fontWeight: 600 }}>{text}</span>
   </Space>
@@ -381,7 +381,7 @@ const StrokePanel: React.FC<{ r: StrokeResult }> = ({ r }) => (
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}
       >
         {r.aspects.map((a) => (
@@ -400,7 +400,7 @@ const StrokePanel: React.FC<{ r: StrokeResult }> = ({ r }) => (
             </div>
             <div style={{ fontSize: 11, color: "#595959" }}>{pick(a.name, a.nameEn)}</div>
             <Tag
-              style={{ marginTop: 4, marginInlineEnd: 0 }}
+              style={{ marginTop: 'var(--space-1, 4px)', marginInlineEnd: 0 }}
               color={a.involved ? "red" : "green"}
             >
               {a.involved ? t("w3quant.aspects.involved") : t("w3quant.aspects.spared")}
@@ -599,7 +599,7 @@ const NodulePanel: React.FC<{ r: NoduleResult }> = ({ r }) => {
                     : `VDT ${n.vdtDays} ${t("w3quant.unit.days")}`}
                 </span>
               </div>
-              <div style={{ marginTop: 4 }}>
+              <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                 <HeatBar value={n.volumeMm3} max={maxVol} color={n.density === "ggo" ? "#85a5ff" : n.density === "part-solid" ? "#ffc069" : "#ff7875"} />
               </div>
             </div>
@@ -1003,10 +1003,10 @@ const AiQuantCenterPage: React.FC = () => {
       : "";
 
   return (
-    <div style={{ padding: 20 }} data-testid="ai-quant-center">
+    <div style={{ padding: 'var(--space-5, 20px)' }} data-testid="ai-quant-center">
       <Space orientation="vertical" size={16} style={{ width: "100%" }}>
         <Card size="small">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 'var(--space-3, 12px)', alignItems: "center" }}>
             <Space size={8}>
               <Sparkles size={20} color="var(--color-primary-600)" />
               <span style={{ fontSize: 18, fontWeight: 700 }}>{t("w3quant.title")}</span>
@@ -1048,7 +1048,7 @@ const AiQuantCenterPage: React.FC = () => {
             </Button>
           </div>
           {header ? (
-            <Space size={16} style={{ marginTop: 12, flexWrap: "wrap" }}>
+            <Space size={16} style={{ marginTop: 'var(--space-3, 12px)', flexWrap: "wrap" }}>
               <span style={{ fontSize: 12, color: "#595959" }}>
                 {t("w3quant.studyId")}: <strong>{header.studyId}</strong>
               </span>

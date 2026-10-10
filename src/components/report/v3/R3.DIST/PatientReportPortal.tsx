@@ -111,7 +111,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filtered.map((l) => (
-              <Card key={l.id} size="small" className="border border-slate-200 hover:shadow-md transition" bodyStyle={{ padding: 12 }}>
+              <Card key={l.id} size="small" className="border border-slate-200 hover:shadow-md transition" bodyStyle={{ padding: 'var(--space-3, 12px)' }}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <Tag color={STATUS_COLORS[l.status]}>{STATUS_LABELS[l.status]}</Tag>

@@ -215,7 +215,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
         </Space>
       </div>
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /> {t("reportWrite.searching2")}</div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)' }}><Spin size="small" /> {t("reportWrite.searching2")}</div>
       ) : cases.length === 0 ? (
         <EmptyState type="noresult" description={t("reportWrite.searchHint")} />
       ) : (
@@ -239,7 +239,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
               {c.featureSummary != null && <span>{t("reportWrite.average")} {c.featureSummary.mean}</span>}
             </div>
           )}
-          <Progress percent={c.similarity} size="small" strokeColor={c.similarity >= 70 ? 'var(--color-success-600)' : 'var(--color-warning-500)'} showInfo={false} style={{ marginTop: 4 }} />
+          <Progress percent={c.similarity} size="small" strokeColor={c.similarity >= 70 ? 'var(--color-success-600)' : 'var(--color-warning-500)'} showInfo={false} style={{ marginTop: 'var(--space-1, 4px)' }} />
         </div>
       ))}
       </>
@@ -525,7 +525,7 @@ function TemplateSmartPanel({ templates, loading, favIds, recentIds, modality, b
     </div>
   );
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 20 }}><Spin size="small" /> {t("reportWrite.templateLoading2")}</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)' }}><Spin size="small" /> {t("reportWrite.templateLoading2")}</div>;
 
   return (
     <div className="space-y-3">
@@ -2507,7 +2507,7 @@ export default function ReportWritePage() {
               activeKey={activeToolsTab}
               onChange={setActiveToolsTab}
               size="small"
-              tabBarStyle={{ margin: 0, paddingLeft: 8 }}
+              tabBarStyle={{ margin: 0, paddingLeft: 'var(--space-2, 8px)' }}
               tabBarExtraContent={
                 <Badge
                   count={drafts.length}
@@ -3057,7 +3057,7 @@ function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', favIds
           </Checkbox>
         </div>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 24 }}><Spin /> {t("reportWrite.phraseLoading2")}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin /> {t("reportWrite.phraseLoading2")}</div>
         ) : filtered.length === 0 ? (
           <EmptyState type="noresult" description={favOnly ? t('w12.write.favoritesEmpty') : t("reportWrite.noMatchingPhrase")} style={{ padding: '16px 8px' }} />
         ) : (
@@ -3243,7 +3243,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
           onChange={(e) => setQ(e.target.value)}
         />
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 24 }}><Spin /> {t("reportWrite.templateLoading2")}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin /> {t("reportWrite.templateLoading2")}</div>
         ) : (
           <div className="grid grid-cols-2 gap-3" style={{ minHeight: 380, maxHeight: 560, overflow: 'hidden' }}>
             {/* 左: 全文模板 (分类 Tab + 最近使用/收藏置顶) */}

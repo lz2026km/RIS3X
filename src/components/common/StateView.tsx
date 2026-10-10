@@ -76,7 +76,7 @@ export function StateView({
           alignItems: "center",
           justifyContent: "center",
           gap: 14,
-          padding: 24,
+          padding: 'var(--space-6, 24px)',
         }}
         data-testid="state-view-error"
       >

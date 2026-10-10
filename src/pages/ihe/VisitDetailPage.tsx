@@ -73,8 +73,8 @@ export const VisitDetailPage: React.FC = () => {
   const currentIdx = visit ? (STATE_MAP[visit.status as keyof typeof STATE_MAP] ?? 0) : 0;
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('visitDetail.title')}</span>
         <Tag color="cyan">v3.0.6.0</Tag>
@@ -106,7 +106,7 @@ export const VisitDetailPage: React.FC = () => {
               }))}
             />
             <Divider />
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
               {STATE_STEPS.map((s, i) => (
                 <React.Fragment key={s.key}>
                   <Tag color={i <= currentIdx ? s.color : 'default'}
@@ -119,7 +119,7 @@ export const VisitDetailPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card size="small" title={<span><Clock size={14} style={{ marginRight: 4 }} />{t('visitDetail.timestamps')}</span>}>
+          <Card size="small" title={<span><Clock size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />{t('visitDetail.timestamps')}</span>}>
             <Descriptions column={2} size="small" bordered>
                 <Descriptions.Item label={t('visitDetail.admit')}>{visit?.admitDateTime ?? '-'}</Descriptions.Item>
                 <Descriptions.Item label={t('visitDetail.inProgress')}>{visit?.inProgressAt ?? '-'}</Descriptions.Item>
@@ -128,7 +128,7 @@ export const VisitDetailPage: React.FC = () => {
               </Descriptions>
           </Card>
 
-          <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 4 }} />{t('visitDetail.adtMessages')}</span>}>
+          <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />{t('visitDetail.adtMessages')}</span>}>
             <DataTable dataSource={visit.adtMessages ?? []} rowKey="id" pagination={false} scroll={{ x: 'max-content' }}
               columns={[
                 { title: t('visitDetail.col.id'), dataIndex: 'id', width: 60 },

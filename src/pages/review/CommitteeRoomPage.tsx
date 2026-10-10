@@ -304,11 +304,11 @@ const CommitteeRoomPage: React.FC = () => {
   const memberCards = useMemo(() => detail?.members ?? [], [detail]);
 
   return (
-    <div data-testid="committee-room-page" role="region" aria-label={t("committeeRoom.pageTitle")} style={{ padding: 16 }}>
+    <div data-testid="committee-room-page" role="region" aria-label={t("committeeRoom.pageTitle")} style={{ padding: 'var(--space-4, 16px)' }}>
       <style>{`@keyframes cmtBreath { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
 
       {/* ============ 顶栏 ============ */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Space size={10}>
           <Landmark size={20} color="#7c3aed" />
           <strong style={{ fontSize: 16 }}>{t("committeeRoom.pageTitle")}</strong>
@@ -332,7 +332,7 @@ const CommitteeRoomPage: React.FC = () => {
         showIcon
         icon={<Scale size={14} />}
         message={t("committeeRoom.infoMessage")}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
       />
 
       <Row gutter={12}>
@@ -368,7 +368,7 @@ const CommitteeRoomPage: React.FC = () => {
                   <div style={{ fontSize: 12, color: "#64748b" }}>
                     {t("committeeRoom.selectHint")}
                     {reportIdParam && (
-                      <div style={{ marginTop: 8, fontSize: 12 }}>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>
                         {t("committeeRoom.carryReport")} <Tag color="blue">{reportIdParam}</Tag>, {t("committeeRoom.canStart")}
                         <Button size="small" type="link" onClick={openCreate}>{t("committeeRoom.startCommittee")}</Button>
                       </div>
@@ -406,7 +406,7 @@ const CommitteeRoomPage: React.FC = () => {
             >
               {/* 汇总 */}
               {summary && (
-                <Row gutter={12} style={{ marginBottom: 12 }}>
+                <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                   <Col span={4}><Statistic title={t("committeeRoom.statMembers")} value={summary.totalMembers} prefix={<Users size={13} />} /></Col>
                   <Col span={5}><Statistic title={t("committeeRoom.statVoted")} value={summary.votedCount} prefix={<Vote size={13} />} valueStyle={{ color: summary.votedCount === summary.totalMembers ? "#10b981" : "var(--color-warning-500)" }} /></Col>
                   <Col span={5}><Statistic title={t("committeeRoom.statAgree")} value={summary.agreeCount} prefix={<CheckCircle2 size={13} />} valueStyle={{ color: "#10b981" }} /></Col>
@@ -420,7 +420,7 @@ const CommitteeRoomPage: React.FC = () => {
                       valueStyle={{ color: summary.agreeRate >= 67 ? "#10b981" : "var(--color-warning-500)" }}
                     />
                   </Col>
-                  <Col span={24} style={{ marginTop: 8 }}>
+                  <Col span={24} style={{ marginTop: 'var(--space-2, 8px)' }}>
                     <Progress
                       percent={summary.agreeRate}
                       success={{ percent: summary.agreeRate }}
@@ -428,7 +428,7 @@ const CommitteeRoomPage: React.FC = () => {
                       size="small"
                     />
                     {summary.pendingMembers.length > 0 && (
-                      <div style={{ fontSize: 12, color: "var(--color-warning-500)", marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: "var(--color-warning-500)", marginTop: 'var(--space-1, 4px)' }}>
                         {t("committeeRoom.pendingVotes")} {summary.pendingMembers.join("、")}
                       </div>
                     )}
@@ -439,7 +439,7 @@ const CommitteeRoomPage: React.FC = () => {
               <Divider style={{ margin: "8px 0" }}>{t("committeeRoom.memberOpinions")}</Divider>
 
               {/* 成员卡片 */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 10, marginBottom: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
                 {memberCards.map((m) => {
                   const voted = !!m.votedAt;
                   return (
@@ -453,7 +453,7 @@ const CommitteeRoomPage: React.FC = () => {
                         background: voted ? (m.agree ? "var(--color-success-bg)" : "var(--color-error-bg)") : "var(--bg-card)",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                         <Avatar size="small" style={{ background: "var(--color-primary-800)" }}>{m.name.slice(0, 1)}</Avatar>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12, fontWeight: 700 }}>{m.name}</div>
@@ -469,18 +469,18 @@ const CommitteeRoomPage: React.FC = () => {
                           <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--color-warning-500)", animation: "cmtBreath 1.2s infinite" }} title={t("committeeRoom.pendingVote")} />
                         )}
                       </div>
-                      <div style={{ fontSize: 12, color: "#475569", marginTop: 8, lineHeight: 1.6, minHeight: 36 }}>
+                      <div style={{ fontSize: 12, color: "#475569", marginTop: 'var(--space-2, 8px)', lineHeight: 1.6, minHeight: 36 }}>
                         {voted ? m.opinion : t("committeeRoom.notVoted")}
                       </div>
                       {m.suggestion && (
-                        <div style={{ fontSize: 11, color: "#7c3aed", marginTop: 4, background: "rgba(124,58,237,0.08)", borderRadius: 4, padding: "4px 6px" }}>
+                        <div style={{ fontSize: 11, color: "#7c3aed", marginTop: 'var(--space-1, 4px)', background: "rgba(124,58,237,0.08)", borderRadius: 4, padding: "4px 6px" }}>
                           {t("committeeRoom.suggestion")} {m.suggestion}
                         </div>
                       )}
                       {m.votedAt && (
-                        <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>{t("committeeRoom.votedAt")} {new Date(m.votedAt).toLocaleString()}</div>
+                        <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 'var(--space-1, 4px)' }}>{t("committeeRoom.votedAt")} {new Date(m.votedAt).toLocaleString()}</div>
                       )}
-                      <div style={{ marginTop: 8, textAlign: "right" }}>
+                      <div style={{ marginTop: 'var(--space-2, 8px)', textAlign: "right" }}>
                         {detail.status === "voting" && !voted && (
                           <Button size="small" type="primary" ghost icon={<Vote size={11} />} onClick={() => openVote(m)} data-testid={`committee-vote-${m.memberId}`}>
                             {t("committeeRoom.voteAsSelf")}
@@ -495,8 +495,8 @@ const CommitteeRoomPage: React.FC = () => {
               {/* 决议 */}
               <Divider style={{ margin: "8px 0" }}>{t("committeeRoom.committeeResolution")}</Divider>
               {detail.resolution ? (
-                <div style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success-border)", borderRadius: 8, padding: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <div style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success-border)", borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                     <BadgeCheck size={15} color="#10b981" />
                     <strong style={{ color: "#047857", fontSize: 12 }}>{t("committeeRoom.resolutionGeneratedLabel")}</strong>
                     <span style={{ fontSize: 11, color: "#94a3b8" }}>
@@ -520,7 +520,7 @@ const CommitteeRoomPage: React.FC = () => {
                 />
               )}
 
-              <Descriptions size="small" column={2} style={{ marginTop: 12 }}>
+              <Descriptions size="small" column={2} style={{ marginTop: 'var(--space-3, 12px)' }}>
                 <Descriptions.Item label={t("committeeRoom.createdBy")}>{detail.createdBy}</Descriptions.Item>
                 <Descriptions.Item label={t("committeeRoom.createdAt")}>{new Date(detail.createdAt).toLocaleString()}</Descriptions.Item>
                 <Descriptions.Item label={t("committeeRoom.consultationId")}>{detail.id}</Descriptions.Item>
@@ -549,7 +549,7 @@ const CommitteeRoomPage: React.FC = () => {
         width={560}
         destroyOnHidden
       >
-        <Form form={createForm} layout="vertical" style={{ marginTop: 8 }} initialValues={{ reportId: reportIdParam ?? "", title: "", members: [] }}>
+        <Form form={createForm} layout="vertical" style={{ marginTop: 'var(--space-2, 8px)' }} initialValues={{ reportId: reportIdParam ?? "", title: "", members: [] }}>
           <Form.Item name="reportId" label={t("committeeRoom.formReportId")} rules={[{ required: true, message: t("committeeRoom.formReportIdRequired") }]}>
             <Input placeholder={t("committeeRoom.formReportIdPlaceholder")} data-testid="committee-create-reportid" />
           </Form.Item>
@@ -583,19 +583,19 @@ const CommitteeRoomPage: React.FC = () => {
         destroyOnHidden
       >
         {voteTarget && (
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>
               {t("committeeRoom.consultationLabel")} {detail?.title} · {t("committeeRoom.reportLabel")} {detail?.reportId}
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.voteStance")}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t("committeeRoom.voteStance")}</div>
               <Radio.Group value={voteAgree} onChange={(e) => setVoteAgree(e.target.value)} data-testid="committee-vote-agree">
                 <Radio.Button value={true} style={{ color: "#10b981" }}>{t("committeeRoom.agreeOption")}</Radio.Button>
                 <Radio.Button value={false} style={{ color: "var(--color-error-600)" }}>{t("committeeRoom.disagreeOption")}</Radio.Button>
               </Radio.Group>
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.opinionRequiredLabel")}</div>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t("committeeRoom.opinionRequiredLabel")}</div>
               <Input.TextArea
                 rows={3}
                 value={voteOpinion}
@@ -605,7 +605,7 @@ const CommitteeRoomPage: React.FC = () => {
               />
             </div>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.suggestionOptional")}</div>
+              <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t("committeeRoom.suggestionOptional")}</div>
               <Input.TextArea
                 rows={2}
                 value={voteSuggestion}
@@ -630,15 +630,15 @@ const CommitteeRoomPage: React.FC = () => {
         width={560}
         destroyOnHidden
       >
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Alert
             type="info"
             showIcon
             message={`${summary?.votedCount ?? 0}/${summary?.totalMembers ?? 0} 名委员已投票`}
-            style={{ marginBottom: 12 }}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
           />
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.resolutionContent")}</div>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t("committeeRoom.resolutionContent")}</div>
             <Input.TextArea
               rows={4}
               value={resolutionText}

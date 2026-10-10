@@ -157,12 +157,12 @@ export default function DoctorWorkloadPage() {
 
   const selected = doctors.find(d => d.doctorId === selectedDoctorId);
 
-  if (loading) return <div role="status" data-testid="workload-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('dw2.loading')}</div>;
-  if (error) return <div role="alert" data-testid="workload-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
+  if (loading) return <div role="status" data-testid="workload-loading" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>{t('dw2.loading')}</div>;
+  if (error) return <div role="alert" data-testid="workload-error" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (doctors.length === 0) {
     return (
-      <div data-testid="workload-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('dw2.emptyTitle')}</div>
+      <div data-testid="workload-empty" style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: 14, marginBottom: 'var(--space-3, 12px)' }}>{t('dw2.emptyTitle')}</div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dw2.emptyHint')}</div>
       </div>
     );
@@ -205,11 +205,11 @@ export default function DoctorWorkloadPage() {
   ];
 
   return (
-    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Users size={20} color="#7c3aed" /> {t('dw2.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
@@ -218,10 +218,10 @@ export default function DoctorWorkloadPage() {
           </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('dw2.subtitle')}
-            {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{error}</span>}
+            {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-2, 8px)' }}>{error}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
           {([
             { key: 'ranking', label: t('dw2.sort.ranking') },
             { key: 'totalReports', label: t('dw2.sort.totalReports') },
@@ -246,7 +246,7 @@ export default function DoctorWorkloadPage() {
       </div>
 
       {/* 团队 KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <Kpi icon={Users} label={t('dw2.kpiDoctors')} value={doctors.length} color="#7c3aed" />
         <Kpi icon={FileText} label={t('dw2.kpiMonthlyReports')} value={doctors.reduce((s, d) => s + d.totalReports, 0)} color="var(--color-primary-500)" />
         <Kpi icon={Award} label={t('dw2.kpiAvgQuality')} value={(doctors.reduce((s, d) => s + d.qualityScore, 0) / doctors.length).toFixed(1)} color="#10b981" />
@@ -254,7 +254,7 @@ export default function DoctorWorkloadPage() {
         <Kpi icon={Stethoscope} label={t('dw2.kpiConsulting')} value={`${doctors.reduce((s, d) => s + d.consultingHours, 0)}h`} color="var(--color-info-600)" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '480px 1fr', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '480px 1fr', gap: 'var(--space-3, 12px)' }}>
         {/* 左：排行列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
@@ -278,7 +278,7 @@ export default function DoctorWorkloadPage() {
             onRow={(record) => ({ onClick: () => setSelectedDoctorId(record.doctorId), style: { cursor: 'pointer' } })}
           />
           {/* [v3.0.6.11-92] W2-B P2: 合计行 (报告数 + RVU); [v3.0.6.11-99] + 总奖金 */}
-          <div style={{ padding: 10, borderTop: '2px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-secondary)' }}>
+          <div style={{ padding: 10, borderTop: '2px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, display: 'flex', gap: 'var(--space-4, 16px)', color: 'var(--text-secondary)' }}>
             <span><strong style={{ color: 'var(--text-primary)' }}>{t('dw2.total')}</strong> · {filtered.length} {t('dw2.unitPeople')}</span>
             <span>{t('dw2.reportLabel')} <strong style={{ color: 'var(--color-primary-800)' }}>{doctors.reduce((s, d) => s + d.totalReports, 0)}</strong> {t('dw2.unitReports')}</span>
             <span>RVU <strong style={{ color: '#b45309' }}>{totalRvu}</strong></span>
@@ -288,10 +288,10 @@ export default function DoctorWorkloadPage() {
 
         {/* 右：详情 */}
         {selected && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             {/* 头部 */}
-            <div style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)6fe' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)6fe' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <div style={{
                   width: 64, height: 64, borderRadius: '50%',
                   background: 'linear-gradient(135deg, #7c3aed, #5b21b6)', color: '#fff',
@@ -310,7 +310,7 @@ export default function DoctorWorkloadPage() {
             </div>
 
             {/* 4 维度 KPI */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)' }}>
               <BigKpi icon={FileText} label={t('dw2.reportCount')} value={selected.totalReports} sub={t('dw2.unitReports')} color="var(--color-primary-500)" />
               <BigKpi icon={Clock} label={t('dw2.dailyAvg')} value={selected.avgPerDay} sub={t('dw2.unitPerDay')} color="#7c3aed" />
               <BigKpi icon={Clock} label={t('dw2.avgSign')} value={selected.avgSignTime} sub={t('dw2.unitMinutes')} color="var(--color-warning-500)" />
@@ -318,7 +318,7 @@ export default function DoctorWorkloadPage() {
             </div>
 
             {/* [v3.0.6.11-99] Wave 5B-B: 奖金预估详情卡 (RVU × 单价 × 质量系数) */}
-            <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', borderRadius: 8, padding: 12, border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
               <div style={{ width: 36, height: 36, borderRadius: 8, background: '#05966920', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Award size={18} />
               </div>
@@ -326,7 +326,7 @@ export default function DoctorWorkloadPage() {
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dw2.bonusDetail')}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#059669' }}>
                   ¥{Number(bonusByDoctor[selected.doctorName]?.bonus ?? 0).toLocaleString()}
-                  <span style={{ fontSize: 12, fontWeight: 600, marginLeft: 8, color: '#15803d' }}>×{bonusByDoctor[selected.doctorName]?.coefficient ?? 1}{t('dw2.qualityInlinePrefix')}{bonusByDoctor[selected.doctorName]?.qualityScore ?? selected.qualityScore}{t('dw2.unitScore')}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, marginLeft: 'var(--space-2, 8px)', color: '#15803d' }}>×{bonusByDoctor[selected.doctorName]?.coefficient ?? 1}{t('dw2.qualityInlinePrefix')}{bonusByDoctor[selected.doctorName]?.qualityScore ?? selected.qualityScore}{t('dw2.unitScore')}</span>
                 </div>
               </div>
               <div style={{ fontSize: 12, color: '#065f46' }}>
@@ -334,7 +334,7 @@ export default function DoctorWorkloadPage() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)' }}>
               <BigKpi icon={Target} label={t('dw2.approvalRate')} value={`${selected.approvedRate}%`} sub={t('dw2.subApproved')} color="#10b981" />
               <BigKpi icon={AlertCircle} label={t('dw2.rejectRate')} value={`${selected.rejectRate}%`} sub={t('dw2.subRejected')} color="var(--color-error-600)" />
               <BigKpi icon={AlertCircle} label={t('dw2.criticalValue')} value={selected.criticalValueHandled} sub={t('dw2.subThisMonth')} color="#7f1d1d" />
@@ -342,11 +342,11 @@ export default function DoctorWorkloadPage() {
             </div>
 
             {/* 设备分布 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Database size={13} /> {t('dw2.modalityDist')}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-2, 8px)' }}>
                 {Object.entries(selected.byModality).map(([mod, count]) => {
                   const total = Object.values(selected.byModality).reduce((a, b) => a + b, 0);
                   const pct = (count / total) * 100;
@@ -372,7 +372,7 @@ export default function DoctorWorkloadPage() {
 // KPI
 // ============================================================
 const Kpi: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
-  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
+  <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Icon size={18} />
     </div>
@@ -387,14 +387,14 @@ const Kpi: React.FC<{ icon: any; label: string; value: number | string; color: s
 // 大字 KPI
 // ============================================================
 const BigKpi: React.FC<{ icon: any; label: string; value: number | string; sub: string; color: string }> = ({ icon: Icon, label, value, sub, color }) => (
-  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+  <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
       <Icon size={12} color={color} />
       <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
     </div>
     <div>
       <span style={{ fontSize: 30, fontWeight: 700, color }}>{value}</span>
-      <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>{sub}</span>
+      <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'var(--space-1, 4px)' }}>{sub}</span>
     </div>
   </div>
 );

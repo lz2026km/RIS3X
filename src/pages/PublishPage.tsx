@@ -87,7 +87,7 @@ export default function PublishPage() {
       render: (_: unknown, r) => (
         <div>
           <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>
             {r.modality} · {r.bodyPart} · {r.reportId}
           </div>
         </div>
@@ -141,12 +141,12 @@ export default function PublishPage() {
   ]
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto', background: 'var(--bg-card)' }}>
-      <div style={{ marginBottom: 20 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1200, margin: '0 auto', background: 'var(--bg-card)' }}>
+      <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
         <Title level={4} style={{ margin: 0 }}>
           报告发布管理
         </Title>
-        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>
           已签发报告需录入质量分(≥ {MIN_QUALITY_SCORE})后逐条确认发布,防止误操作批量上发布队列。
         </p>
       </div>
@@ -155,7 +155,7 @@ export default function PublishPage() {
         <div
           role="alert"
           style={{
-            marginBottom: 12, padding: '8px 14px', background: 'var(--color-error-bg)',
+            marginBottom: 'var(--space-3, 12px)', padding: '8px 14px', background: 'var(--color-error-bg)',
             border: '1px solid #fca5a5', color: '#7f1d1d', borderRadius: 6, fontSize: 12,
           }}
         >
@@ -183,14 +183,14 @@ export default function PublishPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
           }}
         >
-          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 420, maxWidth: '90%' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 420, maxWidth: '90%' }}>
             <Title level={5} style={{ margin: 0 }}>确认发布报告</Title>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 12 }}>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 'var(--space-3, 12px)' }}>
               报告号 <strong>{confirming.report.reportId}</strong> · 患者 <strong>{confirming.report.patientName}</strong>
               <br />
               质量分 <strong>{confirming.score}</strong> 已通过阈值校验,确认发布到队列?
             </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)' }}>
               <button
                 onClick={() => setConfirming(null)}
                 style={{

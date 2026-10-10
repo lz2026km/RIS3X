@@ -129,8 +129,8 @@ export default function RdsrPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Radio size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")} />
-      <div style={{ padding: 24 }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      <div style={{ padding: 'var(--space-6, 24px)' }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           <button onClick={() => setActiveTab("parse")} style={{ padding: "6px 16px", background: activeTab === "parse" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "parse" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "parse" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <Upload size={14} />{t("parse")}
           </button>
@@ -149,27 +149,27 @@ export default function RdsrPage() {
         </div>
 
         {activeTab === "parse" && (
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
                 <Upload size={28} color="var(--color-primary-500)" />
               </div>
-              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16 }}>{t("uploadHint")}</div>
-              <button onClick={handleParse} disabled={loading} style={{ padding: "10px 28px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 'var(--space-4, 16px)' }}>{t("uploadHint")}</div>
+              <button onClick={handleParse} disabled={loading} style={{ padding: "10px 28px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 <Zap size={16} />{loading ? t("parsing") : t("parseRdsr")}
               </button>
             </div>
 
             {rdsrResult && (
-              <div style={{ marginTop: 16, borderTop: "1px solid #e2e8f0", paddingTop: 16 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', borderTop: "1px solid #e2e8f0", paddingTop: 'var(--space-4, 16px)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px" }}>{t("parseResult")}</h3>
                 <StatCardGrid minWidth={190} gap={12}>
                   <StatCard title="CTDIvol" value={`${rdsrResult.ctdivol} mGy`} icon={<Activity size={20} />} color={rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : rdsrResult.alertLevel === "warning" ? "var(--color-warning-500)" : "#10b981"} />
                   <StatCard title="DLP" value={`${rdsrResult.dlp} mGy·cm`} icon={<BarChart3 size={20} />} color="var(--color-primary-500)" />
                   <StatCard title="SSDE" value={rdsrResult.ssde ? `${rdsrResult.ssde} mGy` : "—"} icon={<Calculator size={20} />} color="#8b5cf6" />
-                  <StatCard title={t("alertLevel")} value={<span style={{ display: "flex", alignItems: "center", gap: 4 }}>{alertColor(rdsrResult.alertLevel).icon}{t(rdsrResult.alertLevel)}</span>} icon={<AlertTriangle size={20} />} color={rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : rdsrResult.alertLevel === "warning" ? "var(--color-warning-500)" : "#10b981"} />
+                  <StatCard title={t("alertLevel")} value={<span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>{alertColor(rdsrResult.alertLevel).icon}{t(rdsrResult.alertLevel)}</span>} icon={<AlertTriangle size={20} />} color={rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : rdsrResult.alertLevel === "warning" ? "var(--color-warning-500)" : "#10b981"} />
                 </StatCardGrid>
-                <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12, color: "#475569" }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-2, 8px)', fontSize: 12, color: "#475569" }}>
                   <div><strong>{t("modality")}:</strong> {rdsrResult.modality}</div>
                   <div><strong>{t("bodyPart")}:</strong> {rdsrResult.bodyPart}</div>
                   <div><strong>{t("events")}:</strong> {rdsrResult.numberOfEvents}</div>
@@ -179,7 +179,7 @@ export default function RdsrPage() {
                 </div>
 
                 {rdsrResult.alertLevel !== "normal" && (
-                  <div style={{ marginTop: 12, padding: 12, background: rdsrResult.alertLevel === "critical" ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: rdsrResult.alertLevel === "critical" ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                     {alertColor(rdsrResult.alertLevel).icon}
                     <span style={{ fontSize: 12, fontWeight: 600, color: rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : "#92400e" }}>
                       {t(rdsrResult.alertLevel === "critical" ? "alertCritical" : "alertWarning")}
@@ -192,7 +192,7 @@ export default function RdsrPage() {
         )}
 
         {activeTab === "drls" && (
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <BarChart3 size={16} color="#10b981" />{t("drlComparison")}
             </h3>
@@ -204,8 +204,8 @@ export default function RdsrPage() {
               />
             </div>
             {rdsrResult && (
-              <div style={{ marginTop: 16, padding: 12, background: "#f0fdf4", borderRadius: 6 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#065f46", marginBottom: 8 }}>{t("currentComparison")}</div>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: "#f0fdf4", borderRadius: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#065f46", marginBottom: 'var(--space-2, 8px)' }}>{t("currentComparison")}</div>
                 <div style={{ fontSize: 12, color: "#475569" }}>
                   <div>CTDIvol: {rdsrResult.ctdivol} mGy vs DRL {drls.find(d => d.bodyPart === rdsrResult.bodyPart)?.ctdivolDrl ?? "?"} mGy</div>
                   <div>DLP: {rdsrResult.dlp} mGy·cm vs DRL {drls.find(d => d.bodyPart === rdsrResult.bodyPart)?.dlpDrl ?? "?"} mGy·cm</div>
@@ -216,7 +216,7 @@ export default function RdsrPage() {
         )}
 
         {activeTab === "stats" && (
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <TrendingUp size={16} color="#8b5cf6" />{t("doseStats")}
             </h3>
@@ -230,7 +230,7 @@ export default function RdsrPage() {
                 </StatCardGrid>
 
                 {Array.isArray(stats.trend) && stats.trend.length > 0 && (
-                  <div style={{ marginTop: 16 }}>
+                  <div style={{ marginTop: 'var(--space-4, 16px)' }}>
                     <h4 style={{ fontSize: 12, fontWeight: 700, color: "#1e293b", margin: "0 0 8px" }}>{t("trend")}</h4>
                     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 100, padding: "0 8px" }}>
                       {stats.trend.map((p, i) => {
@@ -242,7 +242,7 @@ export default function RdsrPage() {
                               <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: `${h}%`, background: "var(--color-primary-500)", borderRadius: "3px 0 0 0", transition: "height 0.3s" }} />
                               <div style={{ position: "absolute", bottom: 0, right: 0, width: "50%", height: `${h2}%`, background: "#10b981", borderRadius: "0 3px 0 0", transition: "height 0.3s" }} />
                             </div>
-                            <div style={{ display: "flex", gap: 4 }}>
+                            <div style={{ display: "flex", gap: 'var(--space-1, 4px)' }}>
                               <span style={{ fontSize: 10, color: "var(--color-primary-500)" }}>{Number(p.avgCtdivol ?? 0).toFixed(0)}</span>
                               <span style={{ fontSize: 10, color: "#10b981" }}>{Number(p.avgDlp ?? 0).toFixed(0)}</span>
                             </div>
@@ -251,15 +251,15 @@ export default function RdsrPage() {
                         )
                       })}
                     </div>
-                    <div style={{ display: "flex", gap: 16, marginTop: 4, fontSize: 10, color: "#64748b" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, background: "var(--color-primary-500)", borderRadius: 2, display: "inline-block" }} />CTDIvol</span>
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, background: "#10b981", borderRadius: 2, display: "inline-block" }} />DLP</span>
+                    <div style={{ display: "flex", gap: 'var(--space-4, 16px)', marginTop: 'var(--space-1, 4px)', fontSize: 10, color: "#64748b" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: "var(--color-primary-500)", borderRadius: 2, display: "inline-block" }} />CTDIvol</span>
+                      <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: "#10b981", borderRadius: 2, display: "inline-block" }} />DLP</span>
                     </div>
                   </div>
                 )}
 
                 {(stats.warningCount ?? 0) + (stats.criticalCount ?? 0) > 0 && (
-                  <div style={{ marginTop: 12, padding: 12, background: (stats.criticalCount ?? 0) > 0 ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: (stats.criticalCount ?? 0) > 0 ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                     <AlertTriangle size={16} color={(stats.criticalCount ?? 0) > 0 ? "var(--color-error-600)" : "var(--color-warning-500)"} />
                     <span style={{ fontSize: 12, fontWeight: 600, color: (stats.criticalCount ?? 0) > 0 ? "var(--color-error-600)" : "#92400e" }}>
                       {t("overThreshold")}: {t("warning")} {stats.warningCount ?? 0}, {t("critical")} {stats.criticalCount ?? 0}
@@ -268,18 +268,18 @@ export default function RdsrPage() {
                 )}
               </>
             ) : (
-              <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>{t("noStatsData")}</div>
+              <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "#94a3b8" }}>{t("noStatsData")}</div>
             )}
           </div>
         )}
 
         {/* [v3.0.6.11-104 Wave 2A] GET /rdsr/patients — 患者累积剂量列表 */}
         {activeTab === "patients" && (
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <Users size={16} color="var(--color-primary-500)" />{tApp("rdsr.patients")}
             </h3>
-            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+            <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               <input
                 value={patientSearch}
                 onChange={(e) => setPatientSearch(e.target.value)}
@@ -292,9 +292,9 @@ export default function RdsrPage() {
               </button>
             </div>
             {patientsLoading ? (
-              <div style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.loading")}</div>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.loading")}</div>
             ) : patients.length === 0 ? (
-              <div style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.noData")}</div>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.noData")}</div>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <DataTable<PatientDoseSummary>
@@ -309,7 +309,7 @@ export default function RdsrPage() {
 
         {/* [v3.0.6.11-104 Wave 2A] GET /rdsr/alerts — 超阈值告警 */}
         {activeTab === "alerts" && (
-          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <ShieldAlert size={16} color="var(--color-error-600)" />{tApp("rdsr.alertsTab")}
               {alerts.length > 0 && (
@@ -317,9 +317,9 @@ export default function RdsrPage() {
               )}
             </h3>
             {alertsLoading ? (
-              <div style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.loading")}</div>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.loading")}</div>
             ) : alerts.length === 0 ? (
-              <div style={{ padding: 32, textAlign: "center", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                 <CheckCircle size={16} color="var(--color-success-600)" />{tApp("rdsr.noData")}
               </div>
             ) : (

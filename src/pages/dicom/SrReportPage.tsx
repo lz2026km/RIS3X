@@ -345,8 +345,8 @@ const SrReportPage: React.FC = () => {
   );
 
   const renderSection = (s: SrSection) => (
-    <Card size="small" key={s.conceptName.code} title={s.title} style={{ marginBottom: 12 }}>
-      <Space size={6} style={{ marginBottom: 8 }}>
+    <Card size="small" key={s.conceptName.code} title={s.title} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+      <Space size={6} style={{ marginBottom: 'var(--space-2, 8px)' }}>
         {renderConcept(s.conceptName)}
       </Space>
       {s.items.length > 0 ? (
@@ -359,7 +359,7 @@ const SrReportPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("srReport.title")}</span>
         <span style={{ fontSize: 12, color: "#94a3b8" }}>
@@ -377,7 +377,7 @@ const SrReportPage: React.FC = () => {
           {t("srReport.generateFromReport")}
         </Button>
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("srReport.statDocs")} value={documents.length} icon={<FileText size={16} />} />
         <StatCard
           title={t("srReport.statFinalized")}
@@ -394,7 +394,7 @@ const SrReportPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               {t("srReport.retry")}
@@ -479,7 +479,7 @@ const SrReportPage: React.FC = () => {
                 column={2}
                 bordered
                 size="small"
-                style={{ marginBottom: 16 }}
+                style={{ marginBottom: 'var(--space-4, 16px)' }}
               >
                 <Descriptions.Item label={t("srReport.colId")}>{detail.id}</Descriptions.Item>
                 <Descriptions.Item label={t("srReport.colStatus")}>
@@ -524,7 +524,7 @@ const SrReportPage: React.FC = () => {
               <Divider titlePlacement="left" style={{ margin: "8px 0 16px" }}>
                 {t("srReport.contentTree")} (TID {detail.tid})
               </Divider>
-              <Card size="small" title={t("srReport.context")} style={{ marginBottom: 12 }}>
+              <Card size="small" title={t("srReport.context")} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <Descriptions column={3} size="small">
                   <Descriptions.Item label={t("srReport.colPatient")}>
                     {detail.content?.context?.patient?.name} (
@@ -573,7 +573,7 @@ const SrReportPage: React.FC = () => {
                       fontSize: 11,
                       fontFamily: "monospace",
                       background: "var(--bg-card)",
-                      padding: 12,
+                      padding: 'var(--space-3, 12px)',
                       borderRadius: 8,
                       maxHeight: 220,
                       overflow: "auto",
@@ -593,7 +593,7 @@ const SrReportPage: React.FC = () => {
                   fontSize: 11,
                   fontFamily: "monospace",
                   background: "var(--bg-card)",
-                  padding: 12,
+                  padding: 'var(--space-3, 12px)',
                   borderRadius: 8,
                   maxHeight: 260,
                   overflow: "auto",
@@ -643,7 +643,7 @@ const SrReportPage: React.FC = () => {
                     { title: t("srReport.measureSource"), dataIndex: "source", width: 130, render: (v: string) => <Tag color={v === "measurement-group" ? "cyan" : v === "num-item" ? "blue" : "default"}>{v}</Tag> },
                   ]}
                   pagination={false}
-                  style={{ marginBottom: 12 }}
+                  style={{ marginBottom: 'var(--space-3, 12px)' }}
                   scroll={{ x: "max-content" }}
                 />
               )}
@@ -746,7 +746,7 @@ const GenerateSrModal: React.FC<{
       width={640}
     >
       {loadError && !reportsLoading && (
-        <Alert type="warning" showIcon style={{ marginBottom: 12 }} title={loadError} />
+        <Alert type="warning" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} title={loadError} />
       )}
       <Form form={form} layout="vertical">
         <Form.Item
@@ -766,8 +766,8 @@ const GenerateSrModal: React.FC<{
           />
         </Form.Item>
         {selectedReport && (
-          <Card size="small" style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
+          <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>
               {selectedReport.patientName} - {t("srReport.findingsLabel")} {selectedReport.findings || t("srReport.emptyPlaceholder")}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -788,7 +788,7 @@ const GenerateSrModal: React.FC<{
           <Input.TextArea rows={2} placeholder={t("srReport.impressionOverridePlaceholder")} />
         </Form.Item>
       </Form>
-      <div style={{ fontSize: 12, color: "#94a3b8", display: "flex", alignItems: "center", gap: 4 }}>
+      <div style={{ fontSize: 12, color: "#94a3b8", display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
         <ChevronRight size={12} /> {t("srReport.generateHint")}
       </div>
     </Modal>

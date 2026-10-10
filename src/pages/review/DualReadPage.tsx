@@ -287,14 +287,14 @@ const DualReadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dualRead.title')}</span>
         <Tag color="blue">{t('dualRead.realApiData')}</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>{t('dualRead.refresh')}</Button>
       </Space>
-      {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t('dualRead.totalAssignments')} value={discTotal} icon={<GitBranch size={16} />} />
         <StatCard title={t('dualRead.arbitrated')} value={discArbitrated} icon={<CheckCircle size={16} />} />
         <StatCard title={t('dualRead.avgDiscrepancy')} value={`${(discAvg * 100).toFixed(1)}%`} icon={<BarChart3 size={16} />} />
@@ -311,7 +311,7 @@ const DualReadPage: React.FC = () => {
           </Row>
           <Divider />
           <Text strong>{t('dualRead.arbitrationReport')}:</Text>
-          <TextArea rows={4} value={arbitrateReport} onChange={e => setArbitrateReport(e.target.value)} style={{ marginTop: 8 }} />
+          <TextArea rows={4} value={arbitrateReport} onChange={e => setArbitrateReport(e.target.value)} style={{ marginTop: 'var(--space-2, 8px)' }} />
         </Modal>
       )}
       <Modal

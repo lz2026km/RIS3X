@@ -364,7 +364,7 @@ const DicomPrintPage: React.FC = () => {
         if (record.status === 'Completed') return <span style={{ color: C.success }}>{t('dicomPrint.statusCompleted')}</span>
         if (record.status === 'Failed') return <span style={{ color: C.danger }}>{record.errorMsg || t('dicomPrint.statusFailed')}</span>
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <div style={{ flex: 1, height: 6, background: C.border, borderRadius: 3, overflow: 'hidden' }}>
               <div style={{
                 width: `${record.progress || 0}%`,
@@ -383,7 +383,7 @@ const DicomPrintPage: React.FC = () => {
       title: t('dicomPrint.colActions'),
       width: '100px',
       render: (_: unknown, record: PrintJob) => (
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
           {record.status === 'Pending' && (
             <button
               onClick={() => handleCancel(record.id)}
@@ -573,7 +573,7 @@ const DicomPrintPage: React.FC = () => {
         variant="banner"
         bannerBg={`linear-gradient(135deg, ${C.primary}, ${C.primaryLight})`}
         actions={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             {loading && <Loader2 size={16} color="#ffffff" className="animate-spin" />}
             <span style={{
               padding: '3px 12px',
@@ -595,16 +595,16 @@ const DicomPrintPage: React.FC = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: 16,
+        gap: 'var(--space-4, 16px)',
         padding: '16px 24px',
       }}>
         <div style={{
           background: C.white,
           borderRadius: 8,
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <div style={{ width: 40, height: 40, background: `${C.pending}20`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Clock size={20} color={C.pending} />
             </div>
@@ -617,10 +617,10 @@ const DicomPrintPage: React.FC = () => {
         <div style={{
           background: C.white,
           borderRadius: 8,
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <div style={{ width: 40, height: 40, background: `${C.printing}20`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Loader2 size={20} color={C.printing} className="animate-spin" />
             </div>
@@ -633,10 +633,10 @@ const DicomPrintPage: React.FC = () => {
         <div style={{
           background: C.white,
           borderRadius: 8,
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <div style={{ width: 40, height: 40, background: `${C.completed}20`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CheckCircle size={20} color={C.completed} />
             </div>
@@ -649,10 +649,10 @@ const DicomPrintPage: React.FC = () => {
         <div style={{
           background: C.white,
           borderRadius: 8,
-          padding: 16,
+          padding: 'var(--space-4, 16px)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
             <div style={{ width: 40, height: 40, background: `${C.failed}20`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <XCircle size={20} color={C.failed} />
             </div>
@@ -665,7 +665,7 @@ const DicomPrintPage: React.FC = () => {
       </div>
 
       {/* 主内容区 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, padding: '0 24px 16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-4, 16px)', padding: '0 24px 16px' }}>
         {/* 左侧：打印机队列列表 */}
         <div style={{
           background: C.white,
@@ -680,7 +680,7 @@ const DicomPrintPage: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Film size={18} color={C.primary} />
               <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t('dicomPrint.queueTitle')}</span>
               <span style={{
@@ -737,14 +737,14 @@ const DicomPrintPage: React.FC = () => {
             borderBottom: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 'var(--space-2, 8px)',
           }}>
             <Plus size={18} color={C.primary} />
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t('dicomPrint.newJobTitle')}</span>
           </div>
-          <div style={{ padding: 16 }}>
+          <div style={{ padding: 'var(--space-4, 16px)' }}>
             {/* 患者姓名 */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
                 {t('dicomPrint.labelPatientName')}
               </label>
@@ -766,7 +766,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
 
             {/* 检查UID */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
                 {t('dicomPrint.labelStudyUid')}
               </label>
@@ -789,7 +789,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
 
             {/* 打印机选择 */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
                 {t('dicomPrint.labelPrinter')}
               </label>
@@ -813,7 +813,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
 
             {/* 胶片布局 */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
                 {t('dicomPrint.labelLayout')}
               </label>
@@ -838,7 +838,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
 
             {/* 介质 */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
                 {t('dicomPrint.labelMedium')}
               </label>
@@ -861,7 +861,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
 
             {/* 复制份数 */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
                 {t('dicomPrint.labelCopies')}
               </label>
@@ -884,7 +884,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
 
             {/* 胶片数量 */}
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
                 {t('dicomPrint.labelFilmCount')}
               </label>
@@ -944,7 +944,7 @@ const DicomPrintPage: React.FC = () => {
           borderBottom: `1px solid ${C.border}`,
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 'var(--space-2, 8px)',
         }}>
           <Clock size={18} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t('dicomPrint.historyTitle')}</span>
@@ -973,9 +973,9 @@ const DicomPrintPage: React.FC = () => {
         margin: '0 24px 24px',
         borderRadius: 8,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
           <span style={{ fontSize: 12, color: C.textMid }}>{t('dicomPrint.pagination', { total: history.length, page: historyPage, pages: totalHistoryPages })}</span>
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
             <button disabled={historyPage <= 1} onClick={() => setHistoryPage(p => Math.max(1, p - 1))} style={{
               padding: '6px 12px',
               fontSize: 12,

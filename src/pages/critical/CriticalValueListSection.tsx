@@ -50,28 +50,28 @@ const CriticalItemsDirectory = () => {
 
   return (
     <>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`, borderRadius: '12px 12px 0 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <ShieldAlert size={18} style={{ color: '#fff' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{t('cvSection.catalogTitle')}</span>
           </div>
-          <button onClick={() => setShowModal(true)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={() => setShowModal(true)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
             <Eye size={12} />{t('cvSection.fullCatalog')}
           </button>
         </div>
-        <div style={{ padding: 12 }}>
+        <div style={{ padding: 'var(--space-3, 12px)' }}>
           {Object.entries(NATIONAL_CRITICAL_ITEMS).map(([category, items]) => {
             const CategoryIcon = categoryIcons[category] || AlertTriangle
             const isExpanded = expandedCategory === category
             return (
-              <div key={category} style={{ marginBottom: 8 }}>
+              <div key={category} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <div
                   role="button"
                   tabIndex={0}
                   onClick={() => setExpandedCategory(isExpanded ? null : category)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedCategory(isExpanded ? null : category) } }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}
                 >
                   <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
                   <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{CATEGORY_LABELS[category] ?? category}</span>
@@ -79,11 +79,11 @@ const CriticalItemsDirectory = () => {
                   <ChevronRight size={14} style={{ color: '#64748b', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </div>
                 {isExpanded && (
-                  <div style={{ padding: '8px 12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, background: 'var(--bg-card)', borderRadius: '0 0 8px 8px', border: '1px solid var(--border-color)', borderTop: 'none' }}>
+                  <div style={{ padding: '8px 12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: '0 0 8px 8px', border: '1px solid var(--border-color)', borderTop: 'none' }}>
                     {items.map((item) => {
                       const ItemIcon = item.icon
                       return (
-                        <div key={item.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-light)' }}>
+                        <div key={item.code} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-light)' }}>
                           <div style={{ width: 28, height: 28, borderRadius: 6, background: item.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <ItemIcon size={14} style={{ color: item.color }} />
                           </div>
@@ -106,7 +106,7 @@ const CriticalItemsDirectory = () => {
         <div onClick={() => setShowModal(false)} role="dialog" aria-modal="true" aria-label={t('cvSection.modalAria')} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 500)' }}>
           <div onClick={(e) => e.stopPropagation()} style={{ width: 700, maxHeight: '80vh', background: 'var(--bg-card)', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)` }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
                 <ShieldAlert size={20} style={{ color: '#fff' }} />
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>{t('cvSection.modalTitle')}</div>
@@ -117,26 +117,26 @@ const CriticalItemsDirectory = () => {
                 <X size={18} style={{ color: '#fff' }} />
               </button>
             </div>
-            <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+            <div style={{ flex: 1, overflow: 'auto', padding: 'var(--space-5, 20px)' }}>
               {Object.entries(NATIONAL_CRITICAL_ITEMS).map(([category, items]) => {
                 const CategoryIcon = categoryIcons[category] || AlertTriangle
                 return (
-                  <div key={category} style={{ marginBottom: 20 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid ' + PRIMARY_COLOR }}>
+                  <div key={category} style={{ marginBottom: 'var(--space-5, 20px)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: '2px solid ' + PRIMARY_COLOR }}>
                       <CategoryIcon size={16} style={{ color: PRIMARY_COLOR }} />
                       <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY_COLOR }}>{CATEGORY_LABELS[category] ?? category}</span>
                       <span style={{ fontSize: 12, color: '#fff', background: PRIMARY_COLOR, padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
                       {items.map((item) => {
                         const ItemIcon = item.icon
                         return (
-                          <div key={item.code} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+                          <div key={item.code} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: item.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <ItemIcon size={18} style={{ color: item.color }} />
                             </div>
                             <div style={{ flex: 1 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{item.name}</span>
                                 <span style={{ fontSize: 12, color: '#fff', background: item.color, padding: '1px 6px', borderRadius: 4 }}>{item.code}</span>
                               </div>
@@ -150,7 +150,7 @@ const CriticalItemsDirectory = () => {
                 )
               })}
             </div>
-            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', gap: 12 }}>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', gap: 'var(--space-3, 12px)' }}>
               <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('cvSection.close')}</button>
               <button onClick={() => { const blob = new Blob([JSON.stringify(NATIONAL_CRITICAL_ITEMS, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '危急值目录.json'; link.click(); URL.revokeObjectURL(url) }}
                 style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -203,11 +203,11 @@ export const CriticalValueListSection = (props: CriticalValueListSectionProps) =
   const { filtered, selectedIds, onToggleSelect, onToggleSelectAll, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, criticalValues, ...filterProps } = props
 
   return (
-    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+    <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'flex-start' }}>
       <div style={{ width: 280, flexShrink: 0 }}>
         <CriticalItemsDirectory />
       </div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
         <FilterBar {...filterProps} />
         <CriticalValueList
           filtered={filtered}

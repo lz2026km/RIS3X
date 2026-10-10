@@ -24,10 +24,10 @@ export default function DoseTrendChart({
 }: DoseTrendChartProps) {
   // [v3.0.6.8-31] t() from appI18n
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)' }}>
             {t("doseTrack.trend.overview") || "各类设备剂量趋势（本周DLP合计）"}
           </div>
           <ChartContainer height={220} state={doseHistoryData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量趋势数据">
@@ -44,8 +44,8 @@ export default function DoseTrendChart({
           </ChartContainer>
         </div>
 
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16 }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)' }}>
             {t("doseTrack.ctdiTrend.title")}
           </div>
           <ChartContainer height={220} state={ctdivolTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无CTDI趋势数据">
@@ -62,8 +62,8 @@ export default function DoseTrendChart({
         </div>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-4, 16px)' }}>
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>{t("doseTrack.deviceDap.title")}</div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
@@ -81,8 +81,8 @@ export default function DoseTrendChart({
         </ChartContainer>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16 }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)' }}>
           {t("doseTrack.device.statusLabel") || "设备今日剂量状态"}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

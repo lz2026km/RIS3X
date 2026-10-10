@@ -244,7 +244,7 @@ function StorageMonitorTab() {
         size="small"
         title={<Space><BellRing size={16} />{t("cloudStorage.monitor.alertsTitle")}<Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.monitor.alertsSub")}</Text></Space>}
         extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={alertsSaving} onClick={() => void saveAlertsConfig()}>{t("cloudStorage.monitor.save")}</Button>}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         loading={alertsLoading}
       >
         <Form form={alertsForm} layout="inline" initialValues={{ warnPercent: 80, criticalPercent: 90, notifyChannels: ["email", "sms"] }}>
@@ -263,7 +263,7 @@ function StorageMonitorTab() {
       {/* [G005 v3.0.6.11-100 Wave 3B (G-28)] 监控大屏: 容量环形图 + 增长率趋势线 + 桶用量条形 + IO 计数 + 复制队列 */}
       <Card
         size="small"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
         loading={monitorLoading}
         title={
           <Space>
@@ -327,14 +327,14 @@ function StorageMonitorTab() {
                 <Line type="monotone" dataKey="usedBytes" name={t("cloudStorage.monitor.usedCapacity")} stroke="#0ea5e9" strokeWidth={2} dot={false} />
               </LineChart>
             </ChartContainer>
-            <div style={{ textAlign: "center", marginTop: 4 }}>
+            <div style={{ textAlign: "center", marginTop: 'var(--space-1, 4px)' }}>
               <Tag color="geekblue" icon={<TrendingUp size={12} />}>{t("cloudStorage.monitor.growth30d", { rate: monitor?.growthRatePct30d ?? "—" })}</Tag>
             </div>
           </Col>
         </Row>
       </Card>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={12}>
           <Card size="small" title={<Space><Boxes size={15} />{t("cloudStorage.monitor.bucketUsage")}</Space>} style={{ height: "100%" }}>
             <ChartContainer type="bar" height={230}>
@@ -349,14 +349,14 @@ function StorageMonitorTab() {
               </BarChart>
             </ChartContainer>
             {(monitor?.buckets ?? []).map((b) => (
-              <Text type="secondary" key={b.name} style={{ fontSize: 11, marginRight: 12 }}>
+              <Text type="secondary" key={b.name} style={{ fontSize: 11, marginRight: 'var(--space-3, 12px)' }}>
                 {b.name}: {b.percentOfTotal}%
               </Text>
             ))}
           </Card>
         </Col>
         <Col span={12}>
-          <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 12 }}>
+          <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <StatCard title={t("cloudStorage.monitor.ioRead")} value={monitor?.ioCounts.readPerMin ?? 0} precision={1} color="var(--color-info-600)" icon={<Eye size={14} />} />
             <StatCard title={t("cloudStorage.monitor.ioWrite")} value={monitor?.ioCounts.writePerMin ?? 0} precision={1} color="#10b981" icon={<UploadCloud size={14} />} />
             <StatCard title={t("cloudStorage.monitor.ioPut")} value={monitor?.ioCounts.putPerMin ?? 0} precision={1} color="#8b5cf6" icon={<Cloud size={14} />} />
@@ -405,7 +405,7 @@ function StorageMonitorTab() {
         </Col>
       </Row>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("cloudStorage.monitor.totalObjects")} value={totalObjects} color="#0ea5e9" />
         <StatCard title={t("cloudStorage.monitor.totalCapacity")} value={(totalCapacity / 1024).toFixed(1)} color="var(--color-primary-800)" />
         <StatCard
@@ -418,7 +418,7 @@ function StorageMonitorTab() {
               type={capacityLevel === "critical" ? "error" : "warning"}
               showIcon
               icon={<AlertCircle size={14} />}
-              style={{ marginTop: 8, padding: "4px 8px" }}
+              style={{ marginTop: 'var(--space-2, 8px)', padding: "4px 8px" }}
               message={<span style={{ fontSize: 12 }}>{capacityLevel === "critical" ? t("cloudStorage.monitor.criticalMsg", { pct: criticalPct }) : t("cloudStorage.monitor.warnMsg", { pct: warnPct })}</span>}
             />
           ) : undefined}
@@ -439,7 +439,7 @@ function StorageMonitorTab() {
       </StatCardGrid>
 
       {/* [G005 v3.0.6.11-99 Wave 7A (G-28)] S3 驱动状态徽标 + 数据源徽标 */}
-      <Card size="small" style={{ marginBottom: 16 }} title={<Space><ShieldCheck size={16} />{t("cloudStorage.monitor.driverStatusTitle")}</Space>}>
+      <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }} title={<Space><ShieldCheck size={16} />{t("cloudStorage.monitor.driverStatusTitle")}</Space>}>
         <Space size={8} wrap>
           <Tag icon={<Cloud size={12} />} color={storageStats?.driver === "s3" ? "cyan" : "green"}>
             {storageStats?.driver === "s3" ? "S3 / MinIO" : t("cloudStorage.monitor.localStorage")}
@@ -473,7 +473,7 @@ function StorageMonitorTab() {
         </Space>
       </Card>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={16}>
           <Card title={<Space><HardDrive size={16} />{t("cloudStorage.monitor.nodesTitle", { n: nodes.length })}<Tag color="green">{t("cloudStorage.monitor.onlineTag", { n: nodes.filter(n => n.status === "online").length })}</Tag></Space>}>
             <DataTable scroll={{ x: 'max-content' }}
@@ -513,10 +513,10 @@ function StorageMonitorTab() {
           </Card>
         </Col>
         <Col span={8}>
-          <Card title={<Space><Archive size={16} />{t("cloudStorage.monitor.tieredStorage")}</Space>} style={{ marginBottom: 16 }}>
+          <Card title={<Space><Archive size={16} />{t("cloudStorage.monitor.tieredStorage")}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {TIER_METRICS.map(m => (
-              <div key={m.tier} style={{ marginBottom: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+              <div key={m.tier} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 'var(--space-1, 4px)' }}>
                   <Space>
                     <div style={{ width: 10, height: 10, background: TIER_COLORS[m.tier], borderRadius: 2 }} />
                     <Text strong>{t("cloudStorage.monitor.tierLayer", { label: tierLabel(m.tier) })}</Text>
@@ -530,11 +530,11 @@ function StorageMonitorTab() {
           </Card>
           <Card title={<Space><TrendingUp size={16} />{t("cloudStorage.monitor.compressionTitle")}</Space>}>
             <Statistic title={t("cloudStorage.monitor.rawSize")} value={`${(COMPRESSION.rawBytes / 1e12).toFixed(2)} TB`} />
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Text>{t("cloudStorage.monitor.compressedAfter", { size: (COMPRESSION.compressedBytes / 1e12).toFixed(2) })}</Text>
             </div>
             <Progress percent={COMPRESSION.ratio * 100} strokeColor="#7c3aed" format={(p) => `${((p ?? 0) / 100).toFixed(2)}x`} />
-            <Alert type="success" showIcon title={t("cloudStorage.monitor.savedSpace", { gb: COMPRESSION.savedGb })} style={{ marginTop: 8 }} />
+            <Alert type="success" showIcon title={t("cloudStorage.monitor.savedSpace", { gb: COMPRESSION.savedGb })} style={{ marginTop: 'var(--space-2, 8px)' }} />
           </Card>
         </Col>
       </Row>
@@ -670,7 +670,7 @@ function StorageConfigTab() {
                 type="info"
                 showIcon
                 icon={<AlertCircle size={14} />}
-                style={{ marginBottom: 16 }}
+                style={{ marginBottom: 'var(--space-4, 16px)' }}
                 message={t("cloudStorage.config.currentChoice", { driver: driverLabel })}
                 description={
                   driver === "s3"
@@ -716,7 +716,7 @@ function StorageConfigTab() {
 
             {testResult && (
               <Alert
-                style={{ marginTop: 8 }}
+                style={{ marginTop: 'var(--space-2, 8px)' }}
                 type={testResult.status === "active" ? "success" : "error"}
                 showIcon
                 icon={testResult.status === "active" ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
@@ -729,39 +729,39 @@ function StorageConfigTab() {
 
         <Col span={10}>
           <Card title={<Space><Activity size={16} />{t("cloudStorage.config.statsTitle")}</Space>} loading={loading}>
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Space>
                 <div style={{ width: 10, height: 10, background: activeColor, borderRadius: "50%" }} />
                 <Text strong style={{ fontSize: 14 }}>
                   {t("cloudStorage.config.currentDriver", { driver: stats?.driver === "s3" ? "S3 / MinIO" : t("cloudStorage.monitor.localStorage") })}
-                  <Tag color={stats?.status === "active" ? "green" : "red"} style={{ marginLeft: 8 }}>
+                  <Tag color={stats?.status === "active" ? "green" : "red"} style={{ marginLeft: 'var(--space-2, 8px)' }}>
                     {stats?.status === "active" ? t("cloudStorage.config.running") : t("cloudStorage.config.abnormal")}
                   </Tag>
                 </Text>
               </Space>
             </div>
             {envDriver && (
-              <Alert type="warning" showIcon style={{ marginBottom: 12 }}
+              <Alert type="warning" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }}
                 message={t("cloudStorage.config.envDriverMsg", { env: envDriver })} />
             )}
-            <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 12 }}>
+            <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <StatCard title={t("cloudStorage.config.usedBytes")} value={formatBytes(stats?.usedBytes)} color="error" />
               <StatCard title={t("cloudStorage.config.objectCount")} value={stats?.objectCount ?? 0} color="#0ea5e9" />
             </StatCardGrid>
             {stats?.truncated && (
-              <Alert type="info" showIcon message={t("cloudStorage.config.truncatedMsg")} style={{ marginBottom: 12 }} />
+              <Alert type="info" showIcon message={t("cloudStorage.config.truncatedMsg")} style={{ marginBottom: 'var(--space-3, 12px)' }} />
             )}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
               <Clock size={14} color="var(--text-secondary)" />
               <Text type="secondary" style={{ fontSize: 12 }}>{stats?.detail ?? t("cloudStorage.config.noStats")}</Text>
             </div>
             {stats?.latencyMs !== undefined && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 <Activity size={14} color="var(--text-secondary)" />
                 <Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.monitor.driverLatency", { ms: stats.latencyMs })}</Text>
               </div>
             )}
-            <Alert type="success" showIcon icon={<CheckCircle size={14} />} style={{ marginTop: 12 }}
+            <Alert type="success" showIcon icon={<CheckCircle size={14} />} style={{ marginTop: 'var(--space-3, 12px)' }}
               message={t("cloudStorage.config.archiveReady")} description={t("cloudStorage.config.archiveReadyDesc")} />
           </Card>
         </Col>
@@ -941,10 +941,10 @@ function BucketObjectsModal({
       <Alert
         type="info"
         showIcon
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 'var(--space-3, 12px)' }}
         message={t("cloudStorage.objects.uploadInfo")}
       />
-      <Space style={{ marginBottom: 12 }} wrap>
+      <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
         <Upload
           accept="*"
           showUploadList={false}
@@ -1068,7 +1068,7 @@ function BucketObjectsModal({
         cancelText={t("cloudStorage.cancel")}
         destroyOnHidden
       >
-        <div style={{ marginBottom: 8 }}>
+        <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
           <Text strong>{t("cloudStorage.objects.objectLabel", { key: copyKey })}</Text>
         </div>
         <Select
@@ -1079,7 +1079,7 @@ function BucketObjectsModal({
           options={copyTargets.map((b) => ({ value: b.name, label: `${b.name} (${providerLabel(b.provider)})` }))}
         />
         {copyTarget && (
-          <Alert type="info" showIcon style={{ marginTop: 8 }} message={t("cloudStorage.objects.copyInfo", { key: copyKey, target: copyTarget })} />
+          <Alert type="info" showIcon style={{ marginTop: 'var(--space-2, 8px)' }} message={t("cloudStorage.objects.copyInfo", { key: copyKey, target: copyTarget })} />
         )}
       </Modal>
 
@@ -1100,7 +1100,7 @@ function BucketObjectsModal({
             <Alert
               type="info"
               showIcon
-              style={{ marginBottom: 12 }}
+              style={{ marginBottom: 'var(--space-3, 12px)' }}
               message={t("cloudStorage.objects.objectLabel", { key: `${signedUrlInfo.bucket}/${signedUrlInfo.key}` })}
               description={
                 <Space size={6} wrap>
@@ -1231,7 +1231,7 @@ function StorageBucketsTab() {
 
   return (
     <>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard title={t("cloudStorage.buckets.count")} value={buckets.length} color="#0ea5e9" icon={<Boxes size={14} />} />
         <StatCard title={t("cloudStorage.buckets.totalObjects")} value={totalObjects.toLocaleString()} color="var(--color-info-600)" icon={<Inbox size={14} />} />
         <StatCard title={t("cloudStorage.buckets.usedBytes")} value={formatBytes(totalBytes)} color="error" icon={<HardDrive size={14} />} />
@@ -1347,7 +1347,7 @@ function StorageBucketsTab() {
         okText={t("cloudStorage.buckets.create")}
         cancelText={t("cloudStorage.cancel")}
       >
-        <Form form={createForm} layout="vertical" initialValues={{ provider: "s3", region: "us-east-1" }} style={{ marginTop: 8 }}>
+        <Form form={createForm} layout="vertical" initialValues={{ provider: "s3", region: "us-east-1" }} style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Form.Item
             name="name"
             label={t("cloudStorage.buckets.thName")}
@@ -1388,10 +1388,10 @@ function StorageBucketsTab() {
         <Alert
           type="info"
           showIcon
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 'var(--space-3, 12px)' }}
           message={t("cloudStorage.buckets.replicateInfo", { name: replicateSrc?.name, count: replicateSrc?.objectCount ?? 0, size: formatBytes(replicateSrc?.usedBytes) })}
         />
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Text strong style={{ display: "block", marginBottom: 6 }}>{t("cloudStorage.buckets.targetBucket")}</Text>
           <Select
             style={{ width: "100%" }}
@@ -1401,7 +1401,7 @@ function StorageBucketsTab() {
             options={repTargets.map((b) => ({ value: b.name, label: `${b.name} (${providerLabel(b.provider)} / ${b.region})` }))}
           />
         </div>
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Text strong style={{ display: "block", marginBottom: 6 }}>{t("cloudStorage.buckets.targetRegion")}</Text>
           <Select
             style={{ width: "100%" }}
@@ -1433,7 +1433,7 @@ function StorageBucketsTab() {
           />
         )}
         {repTasks.length > 0 && (
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Space style={{ marginBottom: 6 }}>
               <Text strong style={{ fontSize: 12 }}>{t("cloudStorage.buckets.recentRepTasks")}</Text>
               {repPolling && <Tag color="blue">{t("cloudStorage.buckets.refreshing")}</Tag>}
@@ -1575,7 +1575,7 @@ function LifecyclePoliciesTab() {
             <Button type="primary" icon={<FolderPlus size={14} />} onClick={openCreate}>{t("cloudStorage.lifecycle.newPolicy")}</Button>
           </Space>
         }
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 'var(--space-4, 16px)' }}
       >
         <DataTable
           scroll={{ x: 'max-content' }}
@@ -1693,7 +1693,7 @@ function LifecyclePoliciesTab() {
         cancelText={t("cloudStorage.cancel")}
         destroyOnHidden
       >
-        <Form form={form} layout="vertical" style={{ marginTop: 8 }}>
+        <Form form={form} layout="vertical" style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Form.Item name="bucket" label={t("cloudStorage.lifecycle.thBucket")} rules={[{ required: true, message: t("cloudStorage.lifecycle.needBucket") }]}>
             <Select
               placeholder={t("cloudStorage.lifecycle.selectBucketPlaceholder")}
@@ -1734,13 +1734,13 @@ function LifecyclePoliciesTab() {
 
 export default function CloudStorageDashboardPage() {
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
-      <Card style={{ background: "linear-gradient(135deg,#0ea5e9 0%,var(--color-info-500) 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+      <Card style={{ background: "linear-gradient(135deg,#0ea5e9 0%,var(--color-info-500) 100%)", color: "#fff", border: "none", marginBottom: 'var(--space-4, 16px)' }}>
         <Space size={16}>
           <Cloud size={36} color="#fff" />
           <div>
             <div style={{ fontSize: 20, fontWeight: 800 }}>{t("cloudStorage.pageTitle")}</div>
-            <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+            <div style={{ fontSize: 12, opacity: 0.9, marginTop: 'var(--space-1, 4px)' }}>
               {t("cloudStorage.pageSub")}
             </div>
           </div>

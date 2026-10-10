@@ -169,7 +169,7 @@ export default function CdsManagementPage() {
       dataIndex: "name",
       key: "name",
       render: (_: unknown, rule) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: TYPE_COLORS[rule.type], display: "inline-block" }} />
           <span style={{ fontSize: 12 }}>{rule.name}</span>
           <span style={{ fontSize: 12, color: "#6e7681" }}>({rule.id})</span>
@@ -189,7 +189,7 @@ export default function CdsManagementPage() {
       key: "status",
       width: 110,
       render: (active: boolean) => (
-        <span style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
+        <span style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
           {active
             ? <ToggleRight size={12} style={{ color: "var(--color-success-500, var(--color-success-500))" }} />
             : <ToggleLeft size={12} style={{ color: "var(--color-error-500, var(--color-error-500))" }} />}
@@ -232,11 +232,11 @@ export default function CdsManagementPage() {
           alignItems: "center",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
           <Sliders size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t("cdsMgmt.title")}</span>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={() => setShowAudit(!showAudit)}
             style={{
@@ -285,27 +285,27 @@ export default function CdsManagementPage() {
             background: "var(--bg-card, #161b22)",
             border: "1px solid var(--border-default, #30363d)",
             borderRadius: 8,
-            padding: 16,
+            padding: 'var(--space-4, 16px)',
           }}
         >
           <div
             style={{
               fontSize: 14,
               fontWeight: 600,
-              marginBottom: 12,
+              marginBottom: 'var(--space-3, 12px)',
               color: "var(--text-primary, #f0f6fc)",
             }}
           >
             {t("cdsMgmt.auditLog")}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
             {audit.map((entry) => (
               <div
                 key={entry.id}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  gap: 'var(--space-3, 12px)',
                   padding: "8px 12px",
                   background: "var(--bg-primary, #0d1117)",
                   borderRadius: 6,
@@ -336,7 +336,7 @@ export default function CdsManagementPage() {
       )}
 
       <div style={{ padding: "20px 24px" }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
           {TAB_CONFIG.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -368,10 +368,10 @@ export default function CdsManagementPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 'var(--space-3, 12px)', alignItems: "center" }}>
             <div style={{ position: "relative" }}>
               <Search
                 size={16}
@@ -450,7 +450,7 @@ export default function CdsManagementPage() {
             expandedRowKeys: expandedId ? [expandedId] : [],
             onExpand: (expanded, rule) => setExpandedId(expanded ? rule.id : null),
             expandedRowRender: (rule) => (
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                 <button
                   onClick={() => openEditRule(rule)}
                   style={{
@@ -463,7 +463,7 @@ export default function CdsManagementPage() {
                     fontSize: 12,
                     display: "flex",
                     alignItems: "center",
-                    gap: 4,
+                    gap: 'var(--space-1, 4px)',
                   }}
                 >
                   <Edit3 size={12} />
@@ -481,7 +481,7 @@ export default function CdsManagementPage() {
                     fontSize: 12,
                     display: "flex",
                     alignItems: "center",
-                    gap: 4,
+                    gap: 'var(--space-1, 4px)',
                   }}
                 >
                   {rule.isActive ? <ToggleLeft size={12} /> : <ToggleRight size={12} />}
@@ -513,7 +513,7 @@ export default function CdsManagementPage() {
               background: "var(--bg-card, #161b22)",
               border: "1px solid var(--border-default, #30363d)",
               borderRadius: 12,
-              padding: 24,
+              padding: 'var(--space-6, 24px)',
               width: 480,
               maxWidth: "90vw",
             }}
@@ -524,7 +524,7 @@ export default function CdsManagementPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 20,
+                marginBottom: 'var(--space-5, 20px)',
               }}
             >
               <div
@@ -534,7 +534,7 @@ export default function CdsManagementPage() {
                   color: "var(--text-primary, #f0f6fc)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}
               >
                 <Shield size={18} style={{ color: "var(--color-primary-500)" }} /> {t("cdsMgmt.newRulePrefix")}{" "}
@@ -559,7 +559,7 @@ export default function CdsManagementPage() {
                     display: "block",
                     fontSize: 12,
                     color: "var(--text-muted, #8b949e)",
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                   }}
                 >
                   {t("cdsMgmt.ruleNameLabel")}
@@ -587,7 +587,7 @@ export default function CdsManagementPage() {
                     display: "block",
                     fontSize: 12,
                     color: "var(--text-muted, #8b949e)",
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                   }}
                 >
                   {t("cdsMgmt.versionLabel")}
@@ -615,7 +615,7 @@ export default function CdsManagementPage() {
                     display: "block",
                     fontSize: 12,
                     color: "var(--text-muted, #8b949e)",
-                    marginBottom: 4,
+                    marginBottom: 'var(--space-1, 4px)',
                   }}
                 >
                   {t("cdsMgmt.descLabel")}
@@ -647,9 +647,9 @@ export default function CdsManagementPage() {
             <div
               style={{
                 display: "flex",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
                 justifyContent: "flex-end",
-                marginTop: 20,
+                marginTop: 'var(--space-5, 20px)',
               }}
             >
               <button
@@ -707,7 +707,7 @@ export default function CdsManagementPage() {
               background: "var(--bg-card, #161b22)",
               border: "1px solid var(--border-default, #30363d)",
               borderRadius: 12,
-              padding: 24,
+              padding: 'var(--space-6, 24px)',
               width: 480,
               maxWidth: "90vw",
             }}
@@ -718,7 +718,7 @@ export default function CdsManagementPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 20,
+                marginBottom: 'var(--space-5, 20px)',
               }}
             >
               <div
@@ -728,7 +728,7 @@ export default function CdsManagementPage() {
                   color: "var(--text-primary, #f0f6fc)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 'var(--space-2, 8px)',
                 }}
               >
                 <Edit3 size={18} style={{ color: "var(--color-primary-500)" }} /> {t("cdsMgmt.editRuleTitle")} · {editRule.id}
@@ -747,7 +747,7 @@ export default function CdsManagementPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, color: "var(--text-muted, #8b949e)", marginBottom: 4 }}>{t("cdsMgmt.ruleNameLabel")}</label>
+                <label style={{ display: "block", fontSize: 12, color: "var(--text-muted, #8b949e)", marginBottom: 'var(--space-1, 4px)' }}>{t("cdsMgmt.ruleNameLabel")}</label>
                 <input
                   value={editForm.name}
                   onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
@@ -760,7 +760,7 @@ export default function CdsManagementPage() {
                 />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 12, color: "var(--text-muted, #8b949e)", marginBottom: 4 }}>{t("cdsMgmt.versionLabel")}</label>
+                <label style={{ display: "block", fontSize: 12, color: "var(--text-muted, #8b949e)", marginBottom: 'var(--space-1, 4px)' }}>{t("cdsMgmt.versionLabel")}</label>
                 <input
                   value={editForm.version}
                   onChange={(e) => setEditForm((f) => ({ ...f, version: e.target.value }))}
@@ -776,7 +776,7 @@ export default function CdsManagementPage() {
                 {t("cdsMgmt.currentStatusPrefix")}{editRule.isActive ? t("cdsMgmt.enabledStatus") : t("cdsMgmt.disabledStatus")}{t("cdsMgmt.editNote")}
               </div>
             </div>
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
+            <div style={{ display: "flex", gap: 'var(--space-2, 8px)', justifyContent: "flex-end", marginTop: 'var(--space-5, 20px)' }}>
               <button
                 onClick={() => setEditRule(null)}
                 style={{

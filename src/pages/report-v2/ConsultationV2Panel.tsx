@@ -237,8 +237,8 @@ const ConsultationV2Panel: React.FC = () => {
         title={<Space><Users size={16} color="var(--color-primary-600)" /><span>{t('consultationV2.panelTitle')}</span><Tag color="blue">{t('consultationV2.multiPartyTag')}</Tag></Space>}
         extra={<Button type="primary" icon={<PlusCircle size={14} />} onClick={() => setCreateOpen(true)}>{t('consultationV2.createRoom')}</Button>}
       >
-        {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
-        <StatCardGrid minWidth={160} gap={16} style={{ marginBottom: 16 }}>
+        {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
+        <StatCardGrid minWidth={160} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
           <StatCard title={t('consultationV2.statRooms')} value={stats?.totalRooms ?? 0} icon={<Users size={14} />} />
           <StatCard title={t('consultationV2.statusInProgress')} value={stats?.byStatus.in_progress ?? 0} />
           <StatCard title={t('consultationV2.statusVoting')} value={stats?.byStatus.voting ?? 0} />
@@ -270,7 +270,7 @@ const ConsultationV2Panel: React.FC = () => {
           </Col>
           <Col span={14}>
             {!active ? (
-              <Empty description={t('consultationV2.selectRoomHint')} style={{ paddingTop: 40 }} />
+              <Empty description={t('consultationV2.selectRoomHint')} style={{ paddingTop: 'var(--space-10, 40px)' }} />
             ) : (
               <Space direction="vertical" style={{ width: '100%' }}>
                 <Card size="small"
@@ -314,7 +314,7 @@ const ConsultationV2Panel: React.FC = () => {
                     </Col>
                     <Col span={16}>
                       <Text strong>{t('consultationV2.messageStream')}</Text>
-                      <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 6, padding: 8 }}>
+                      <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 6, padding: 'var(--space-2, 8px)' }}>
                         {active.messages.length === 0 ? (
                           <Empty description={t('consultationV2.noMessages')} />
                         ) : (
@@ -335,7 +335,7 @@ const ConsultationV2Panel: React.FC = () => {
                           />
                         )}
                       </div>
-                      <Space.Compact style={{ width: '100%', marginTop: 8 }}>
+                      <Space.Compact style={{ width: '100%', marginTop: 'var(--space-2, 8px)' }}>
                         <Select size="middle" style={{ width: 130 }}
                           value={myMemberId}
                           onChange={v => setMyMemberId(v)}
@@ -362,7 +362,7 @@ const ConsultationV2Panel: React.FC = () => {
                     </Row>
                   )}
                   {active.conclusion && (
-                    <Alert type="success" showIcon style={{ marginTop: 8 }}
+                    <Alert type="success" showIcon style={{ marginTop: 'var(--space-2, 8px)' }}
                       title={t('consultationV2.conclusionTitle')}
                       description={
                         <div>
@@ -376,7 +376,7 @@ const ConsultationV2Panel: React.FC = () => {
                               </Tooltip>
                             ))}
                           </Space>
-                          <div style={{ marginTop: 4 }}><Text type="secondary">{t('consultationV2.generatedBy', { name: active.conclusion.generatedBy })}</Text></div>
+                          <div style={{ marginTop: 'var(--space-1, 4px)' }}><Text type="secondary">{t('consultationV2.generatedBy', { name: active.conclusion.generatedBy })}</Text></div>
                         </div>
                       }
                     />
@@ -435,7 +435,7 @@ const ConsultationV2Panel: React.FC = () => {
       <Modal title={t('consultationV2.exportModalTitle', { title: exportData?.reportTitle ?? '' })} open={!!exportData}
         onCancel={() => setExportData(null)} footer={null} width={720}>
         {exportData && (
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: 'var(--bg-primary, #f8fafc)', padding: 12, borderRadius: 6, maxHeight: 480, overflowY: 'auto' }}>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: 'var(--bg-primary, #f8fafc)', padding: 'var(--space-3, 12px)', borderRadius: 6, maxHeight: 480, overflowY: 'auto' }}>
             {exportData.content}
           </pre>
         )}

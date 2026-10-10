@@ -85,7 +85,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
 
   return (
     <div data-testid="critical-stats-dashboard">
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={6}>
           <Card>
             <Statistic title={t('w9e.criticalStats.recentDays', { days })} value={data.recent.length} prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />} />
@@ -109,7 +109,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
         </Col>
       </Row>
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={12}>
           <Card size="small" title={t('w9e.criticalStats.byCategory')} data-testid="cv-stats-category">
             <ChartContainer
@@ -146,7 +146,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
         </Col>
       </Row>
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
+      <Row gutter={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Col span={14}>
           <Card size="small" title={t('w9e.criticalStats.daily30')} data-testid="cv-stats-daily">
             <ChartContainer

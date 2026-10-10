@@ -690,11 +690,11 @@ export default function TemplateDesignerPage() {
           flexShrink: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
           <button
             onClick={() => navigate("/template-management")}
             style={{
-              padding: 4,
+              padding: 'var(--space-1, 4px)',
               border: "none",
               background: "transparent",
               color: "var(--text-secondary)",
@@ -735,7 +735,7 @@ export default function TemplateDesignerPage() {
                 marginTop: 2,
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 'var(--space-2, 8px)',
               }}
             >
               <span>{meta.name}</span>
@@ -754,7 +754,7 @@ export default function TemplateDesignerPage() {
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <button
             onClick={() => setDesignerMode(designerMode === "visual" ? "fields" : "visual")}
             style={{
@@ -767,7 +767,7 @@ export default function TemplateDesignerPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Layers size={12} />{" "}
@@ -785,7 +785,7 @@ export default function TemplateDesignerPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Eye size={12} /> {previewMode ? t("templateDesigner.edit") : t("templateDesigner.preview")}
@@ -822,7 +822,7 @@ export default function TemplateDesignerPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Copy size={12} /> {t("templateDesigner.clone")}
@@ -830,7 +830,7 @@ export default function TemplateDesignerPage() {
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
             style={{
-              padding: 4,
+              padding: 'var(--space-1, 4px)',
               border: "1px solid var(--border-color)",
               borderRadius: 6,
               background: "var(--bg-card)",
@@ -893,7 +893,7 @@ export default function TemplateDesignerPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Save size={12} /> {t("templateDesigner.saveTemplate")}
@@ -910,7 +910,7 @@ export default function TemplateDesignerPage() {
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
-            gap: 12,
+            gap: 'var(--space-3, 12px)',
             fontSize: 12,
             flexShrink: 0,
           }}
@@ -994,7 +994,7 @@ export default function TemplateDesignerPage() {
             </select>
           </MetaField>
           <MetaField label={t("templateDesigner.meta.age")}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
               <input
                 type="number"
                 value={meta.minAge}
@@ -1056,19 +1056,19 @@ export default function TemplateDesignerPage() {
             >
               <FileSpreadsheet size={13} /> {t("templateDesigner.fieldLibrary")}
             </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: 8 }}>
+            <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-2, 8px)' }}>
               {FIELD_LIBRARY_GROUPS.map((group) => {
                 const groupTypes = FIELD_TYPE_META.filter((ftMeta) =>
                   group.types.includes(ftMeta.type),
                 );
                 return (
-                  <div key={group.key} style={{ marginBottom: 12 }}>
+                  <div key={group.key} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                     <div
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
                         color: "var(--text-secondary)",
-                        marginBottom: 4,
+                        marginBottom: 'var(--space-1, 4px)',
                         textTransform: "uppercase",
                         letterSpacing: 1,
                       }}
@@ -1141,8 +1141,8 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
               })}
               <div
                 style={{
-                  marginTop: 16,
-                  padding: 8,
+                  marginTop: 'var(--space-4, 16px)',
+                  padding: 'var(--space-2, 8px)',
                   background: "var(--color-warning-bg)",
                   border: "1px solid #fcd34d",
                   borderRadius: 6,
@@ -1150,7 +1150,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                   color: "#92400e",
                 }}
               >
-                <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                <div style={{ fontWeight: 700, marginBottom: 'var(--space-1, 4px)' }}>
                   {t("templateDesigner.dragTipTitle")}
                 </div>
                 <div>{t("templateDesigner.dragTipBody")}</div>
@@ -1167,7 +1167,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
             flexDirection: "column",
             background: "var(--content-bg)",
             overflow: "auto",
-            padding: 12,
+            padding: 'var(--space-3, 12px)',
           }}
         >
           {previewMode ? (
@@ -1215,7 +1215,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                         ({section.fields.length} {t("templateDesigner.fieldsUnit")})
                       </AppText>
                     </div>
-                    <div style={{ display: "flex", gap: 4 }}>
+                    <div style={{ display: "flex", gap: 'var(--space-1, 4px)' }}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1235,11 +1235,11 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                       </button>
                     </div>
                   </div>
-                  <div style={{ padding: 8, minHeight: 60 }}>
+                  <div style={{ padding: 'var(--space-2, 8px)', minHeight: 60 }}>
                     {section.fields.length === 0 ? (
                       <div
                         style={{
-                          padding: 20,
+                          padding: 'var(--space-5, 20px)',
                           textAlign: "center",
                           color: "var(--text-secondary)",
                           fontSize: 12,
@@ -1270,8 +1270,8 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                               setSelectedFieldId(field.id);
                             }}
                             style={{
-                              padding: 8,
-                              marginBottom: 4,
+                              padding: 'var(--space-2, 8px)',
+                              marginBottom: 'var(--space-1, 4px)',
                               background: isSelected
                                 ? `${typeMeta?.color}15`
                                 : "var(--bg-card)",
@@ -1280,7 +1280,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                               cursor: "pointer",
                               display: "flex",
                               alignItems: "center",
-                              gap: 8,
+                              gap: 'var(--space-2, 8px)',
                               transition: "all 0.15s",
                             }}
                             onMouseEnter={(e) => {
@@ -1313,7 +1313,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 4,
+                                  gap: 'var(--space-1, 4px)',
                                 }}
                               >
                                 {field.required && (
@@ -1412,7 +1412,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                 style={{
                   width: "100%",
                   padding: 10,
-                  marginTop: 4,
+                  marginTop: 'var(--space-1, 4px)',
                   background: "var(--bg-card)",
                   border: "2px dashed var(--border-color)",
                   borderRadius: 8,
@@ -1478,7 +1478,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 4,
+                    gap: 'var(--space-1, 4px)',
                     padding: "6px 8px",
                     borderRadius: 4,
                     fontSize: 12,
@@ -1499,7 +1499,7 @@ e.currentTarget.style.background = "var(--bg-card)";
               ))}
             </div>
 
-            <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
+            <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-3, 12px)' }}>
               {activeRightTab === "properties" && (
                 <>
                   {!selectedField && !selectedSection && (
@@ -1552,7 +1552,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
-                      marginBottom: 12,
+                      marginBottom: 'var(--space-3, 12px)',
                     }}
                   >
                     <GitMerge size={13} color="var(--color-warning-500)" />
@@ -1590,7 +1590,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                       style={{
                         textAlign: "center",
                         color: "var(--text-secondary)",
-                        padding: 20,
+                        padding: 'var(--space-5, 20px)',
                         fontSize: 12,
                         background: "var(--content-bg)",
                         borderRadius: 8,
@@ -1617,7 +1617,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                           border: "1px solid #fcd34d",
                           borderRadius: 6,
                           padding: 10,
-                          marginBottom: 8,
+                          marginBottom: 'var(--space-2, 8px)',
                         }}
                       >
                         <div
@@ -1661,7 +1661,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 4,
+                              gap: 'var(--space-1, 4px)',
                               fontSize: 12,
                             }}
                           >
@@ -1694,7 +1694,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 4,
+                              gap: 'var(--space-1, 4px)',
                               fontSize: 12,
                             }}
                           >
@@ -1741,7 +1741,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 4,
+                              gap: 'var(--space-1, 4px)',
                               fontSize: 12,
                             }}
                           >
@@ -1797,7 +1797,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   )}
                   <div
                     style={{
-                      marginTop: 8,
+                      marginTop: 'var(--space-2, 8px)',
                       fontSize: 12,
                       color: "var(--text-secondary)",
                       lineHeight: 1.4,
@@ -1815,7 +1815,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
-                      marginBottom: 12,
+                      marginBottom: 'var(--space-3, 12px)',
                     }}
                   >
                     <Activity size={13} color="var(--color-info-600)" />
@@ -1835,7 +1835,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                       border: "1px solid var(--color-info-600)",
                       borderRadius: 6,
                       padding: "8px 10px",
-                      marginBottom: 12,
+                      marginBottom: 'var(--space-3, 12px)',
                     }}
                   >
                     <StatCard
@@ -1851,10 +1851,10 @@ e.currentTarget.style.background = "var(--bg-card)";
                       }
                       variant="compact"
                       size="sm"
-                      style={{ marginBottom: 12, padding: "8px 10px" }}
+                      style={{ marginBottom: 'var(--space-3, 12px)', padding: "8px 10px" }}
                     />
                   </div>
-                  <div style={{ marginBottom: 12 }}>
+                  <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                     <label
                       style={{
                         fontSize: 12,
@@ -2018,7 +2018,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                       style={{
                         textAlign: "center",
                         color: "var(--text-secondary)",
-                        padding: 16,
+                        padding: 'var(--space-4, 16px)',
                         fontSize: 12,
                       }}
                     >
@@ -2027,7 +2027,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   )}
                   <div
                     style={{
-                      marginTop: 8,
+                      marginTop: 'var(--space-2, 8px)',
                       fontSize: 12,
                       color: "var(--text-secondary)",
                       lineHeight: 1.4,
@@ -2092,7 +2092,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Check size={11} /> {t("templateDesigner.applyProps")}
@@ -2116,7 +2116,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                 }}
               >
                 <Trash2 size={11} /> {t("templateDesigner.deleteField")}
@@ -2148,7 +2148,7 @@ const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   label,
   children,
 }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
     <AppText size="xs" color="secondary" as="span" style={{ fontWeight: 600 }}>
       {label}:
     </AppText>
@@ -2166,7 +2166,7 @@ const FieldPropertyPanel: React.FC<{
         fontSize: 12,
         fontWeight: 700,
         color: "var(--color-primary-800)",
-        marginBottom: 8,
+        marginBottom: 'var(--space-2, 8px)',
         display: "flex",
         alignItems: "center",
         gap: 6,
@@ -2364,7 +2364,7 @@ const SectionPropertyPanel: React.FC<{
         fontSize: 12,
         fontWeight: 700,
         color: "var(--color-primary-800)",
-        marginBottom: 8,
+        marginBottom: 'var(--space-2, 8px)',
         display: "flex",
         alignItems: "center",
         gap: 6,
@@ -2381,7 +2381,7 @@ const SectionPropertyPanel: React.FC<{
       />
     </PropRow>
     <PropRow label={t("templateDesigner.prop.themeColor")}>
-      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
         {[
           "var(--color-primary-800)",
           "#7c3aed",
@@ -2451,7 +2451,7 @@ const PreviewCanvas: React.FC<{
     style={{
       background: "var(--bg-card)",
       borderRadius: 8,
-      padding: 20,
+      padding: 'var(--space-5, 20px)',
       maxWidth: 800,
       margin: "0 auto",
       boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -2460,25 +2460,25 @@ const PreviewCanvas: React.FC<{
     <div
       style={{
         textAlign: "center",
-        marginBottom: 20,
+        marginBottom: 'var(--space-5, 20px)',
         borderBottom: "2px solid var(--color-primary-800)",
-        paddingBottom: 12,
+        paddingBottom: 'var(--space-3, 12px)',
       }}
     >
       <Title level={5} style={{ margin: 0 }}>{meta.name}</Title>
-      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
         {meta.modality} · {meta.bodyPart} · {meta.version} · {meta.author}
       </div>
     </div>
     {sections.map((section) => (
-      <div key={section.id} style={{ marginBottom: 16 }}>
+      <div key={section.id} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <h3
           style={{
             fontSize: 14,
             color: section.color,
-            marginBottom: 8,
+            marginBottom: 'var(--space-2, 8px)',
             borderLeft: `3px solid ${section.color}`,
-            paddingLeft: 8,
+            paddingLeft: 'var(--space-2, 8px)',
           }}
         >
           {section.name}{" "}
@@ -2492,8 +2492,8 @@ const PreviewCanvas: React.FC<{
           <div
             key={field.id}
             style={{
-              padding: 8,
-              marginBottom: 4,
+              padding: 'var(--space-2, 8px)',
+              marginBottom: 'var(--space-1, 4px)',
               background: "var(--content-bg)",
               borderRadius: 4,
               fontSize: 12,
@@ -2506,7 +2506,7 @@ const PreviewCanvas: React.FC<{
                 <span style={{ color: "var(--text-secondary)" }}> ({field.unit})</span>
               )}
             </span>
-            <span style={{ color: "var(--text-secondary)", marginLeft: 8, fontSize: 12 }}>
+            <span style={{ color: "var(--text-secondary)", marginLeft: 'var(--space-2, 8px)', fontSize: 12 }}>
               [{field.dataType}]
             </span>
           </div>
@@ -2575,7 +2575,7 @@ const VisualDesignerBody: React.FC<{
         >
           <Braces size={13} /> {t("templateDesigner.variablePanel")}
         </div>
-        <div style={{ padding: 8, borderBottom: "1px solid var(--border-color)" }}>
+        <div style={{ padding: 'var(--space-2, 8px)', borderBottom: "1px solid var(--border-color)" }}>
           {TEMPLATE_VARIABLES.map((v) => (
             <button
               key={v.key}
@@ -2623,7 +2623,7 @@ const VisualDesignerBody: React.FC<{
         >
           <Layers size={13} /> {t("templateDesigner.structuredFields")}
         </div>
-        <div style={{ padding: 8 }}>
+        <div style={{ padding: 'var(--space-2, 8px)' }}>
           {STRUCTURED_FIELD_PRESETS.map((f) => (
             <button
               key={f.fieldKey}
@@ -2679,7 +2679,7 @@ const VisualDesignerBody: React.FC<{
           flex: 1,
           background: "var(--content-bg)",
           overflowY: "auto",
-          padding: 12,
+          padding: 'var(--space-3, 12px)',
         }}
       >
         <div
@@ -2702,7 +2702,7 @@ const VisualDesignerBody: React.FC<{
           </AppText>
         </div>
         {loading && (
-          <AppText size="xs" color="secondary" as="div" style={{ padding: 20 }}>
+          <AppText size="xs" color="secondary" as="div" style={{ padding: 'var(--space-5, 20px)' }}>
             {t("templateDesigner.loadingStructured")}
           </AppText>
         )}
@@ -2716,15 +2716,15 @@ const VisualDesignerBody: React.FC<{
                 background: "var(--bg-card)",
                 border: `1px solid ${selected ? "#7c3aed" : "var(--border-color)"}`,
                 borderRadius: 6,
-                marginBottom: 8,
-                padding: 8,
+                marginBottom: 'var(--space-2, 8px)',
+                padding: 'var(--space-2, 8px)',
               }}
             >
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 'var(--space-1, 4px)',
                   marginBottom: 6,
                 }}
               >
@@ -2868,7 +2868,7 @@ const VisualDesignerBody: React.FC<{
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 'var(--space-1, 4px)',
             }}
           >
             <Plus size={12} /> {t("templateDesigner.addParagraph")}
@@ -2920,13 +2920,13 @@ const VisualDesignerBody: React.FC<{
         >
           <Eye size={13} /> {t("templateDesigner.livePreview")} {"{{变量}} 高亮"}
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-3, 12px)' }}>
           {content ? (
             <div
               style={{
                 background: "var(--content-bg)",
                 borderRadius: 6,
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
                 fontSize: 12,
                 lineHeight: 1.9,
                 whiteSpace: "pre-wrap",

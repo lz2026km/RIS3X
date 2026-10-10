@@ -79,7 +79,7 @@ export const DentalRestorativePage: React.FC = () => {
     >
       {loadError && <ErrorBanner message={loadError} onRetry={() => load()} retryLabel={t("w9.states.retry")} />}
       {loading ? (
-        <div style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}>
+        <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "var(--text-secondary)" }}>
           {t("dentalRestorative.loading")}
         </div>
       ) : treats.length === 0 ? (

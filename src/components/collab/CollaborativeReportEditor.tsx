@@ -146,7 +146,7 @@ export default function CollaborativeReportEditor({
   return (
     <div data-testid="collab-editor" style={{ border: '1px solid #334155', borderRadius: 8, background: '#0f172a', color: '#e2e8f0', overflow: 'hidden' }}>
       {/* Toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderBottom: '1px solid #1e293b', fontSize: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 10px', borderBottom: '1px solid #1e293b', fontSize: 12 }}>
         <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 4, background: connectionBadge.color }} />
         <span data-testid="collab-status" style={{ color: connectionBadge.color }}>{connectionBadge.text}</span>
         <div style={{ flex: 1 }} />
@@ -202,7 +202,7 @@ export default function CollaborativeReportEditor({
               style={{
                 width: '100%',
                 minHeight: height,
-                padding: 12,
+                padding: 'var(--space-3, 12px)',
                 background: 'transparent',
                 color: '#e2e8f0',
                 border: 'none', fontSize: 14,
@@ -229,7 +229,7 @@ export default function CollaborativeReportEditor({
           </div>
 
           {/* Footer */}
-          <div style={{ display: 'flex', gap: 12, padding: '4px 10px', borderTop: '1px solid #1e293b', fontSize: 12, color: '#64748b' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', padding: '4px 10px', borderTop: '1px solid #1e293b', fontSize: 12, color: '#64748b' }}>
             <span data-testid="collab-charcount">字符: {collab.text.length}</span>
             <span>注释: {collab.annotations.length}</span>
             <span>评论: {collab.comments.length}</span>

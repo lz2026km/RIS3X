@@ -111,8 +111,8 @@ export const TransferToFollowUpModal = ({
             <X size={16} style={{ color: "#fff" }} />
           </button>
         </div>
-        <div style={{ padding: 24 }}>
-          <div style={{ marginBottom: 20 }}>
+        <div style={{ padding: 'var(--space-6, 24px)' }}>
+          <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
             <div
               style={{
                 fontSize: 12,
@@ -164,7 +164,7 @@ export const TransferToFollowUpModal = ({
               </div>
             </div>
           </div>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
             <div
               style={{
                 fontSize: 12,
@@ -194,7 +194,7 @@ export const TransferToFollowUpModal = ({
               borderRadius: 10,
               padding: 14,
               border: "1px solid var(--color-warning-border)",
-              marginBottom: 20,
+              marginBottom: 'var(--space-5, 20px)',
             }}
           >
             <div
@@ -286,7 +286,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
         style={{
           display: "flex",
           justifyContent: "flex-end",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <button
@@ -309,7 +309,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
           添加回访
         </button>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
         {records
           .filter((r) => !r.relatedCVId || r.relatedCVId === cv.id)
           .slice(0, 3)
@@ -324,7 +324,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
               }}
             >
               <div
-                style={{ display: "flex", alignItems: "flex-start", gap: 12 }}
+                style={{ display: "flex", alignItems: "flex-start", gap: 'var(--space-3, 12px)' }}
               >
                 <div
                   style={{
@@ -360,8 +360,8 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 8,
-                      marginBottom: 4,
+                      gap: 'var(--space-2, 8px)',
+                      marginBottom: 'var(--space-1, 4px)',
                     }}
                   >
                     <span
@@ -409,7 +409,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                   >
                     {record.content}
                   </div>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 'var(--space-1, 4px)' }}>
                     操作人：{record.operator}
                   </div>
                 </div>
@@ -454,7 +454,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 16,
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
@@ -488,8 +488,8 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                padding: 12,
+                gap: 'var(--space-3, 12px)',
+                padding: 'var(--space-3, 12px)',
                 background: "var(--bg-card)",
                 borderRadius: 8,
                 border: "1px solid var(--border-color)",
@@ -537,9 +537,9 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
             border: "1px dashed var(--border-color)",
           }}
         >
-          <FileText size={32} style={{ color: "#cbd5e1", marginBottom: 8 }} />
+          <FileText size={32} style={{ color: "#cbd5e1", marginBottom: 'var(--space-2, 8px)' }} />
           <div style={{ fontSize: 12, color: "#94a3b8" }}>暂无相关文档</div>
-          <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 'var(--space-1, 4px)' }}>
             可上传检查报告、影像截图等
           </div>
         </div>

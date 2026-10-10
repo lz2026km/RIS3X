@@ -118,20 +118,20 @@ export default function MfaSetupPage() {
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 800, margin: "0 auto" }}>
+    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 800, margin: "0 auto" }}>
       <Title
         level={3}
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 8,
-          marginBottom: 16,
+          gap: 'var(--space-2, 8px)',
+          marginBottom: 'var(--space-4, 16px)',
         }}
       >
         <Shield size={22} /> {t("mfaSetup.title")}
       </Title>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <StatCard
           title={t("mfaSetup.currentStatus")}
           value={enabled ? t("mfaSetup.enabledTag") : t("mfaSetup.disabledTag")}
@@ -151,13 +151,13 @@ export default function MfaSetupPage() {
         />
       </StatCardGrid>
 
-      <Card style={{ borderRadius: 8, marginBottom: 16 }}>
+      <Card style={{ borderRadius: 8, marginBottom: 'var(--space-4, 16px)' }}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 16,
+            marginBottom: 'var(--space-4, 16px)',
           }}
         >
           <Text strong style={{ fontSize: 14 }}>
@@ -168,7 +168,7 @@ export default function MfaSetupPage() {
 
         <Steps
           current={step}
-          style={{ marginBottom: 24 }}
+          style={{ marginBottom: 'var(--space-6, 24px)' }}
           items={[
             { title: t("mfaSetup.selectMethod"), icon: <Shield size={14} /> },
             { title: t("mfaSetup.configureKey"), icon: <Key size={14} /> },
@@ -179,7 +179,7 @@ export default function MfaSetupPage() {
 
         {step === 0 && (
           <div>
-            <Paragraph type="secondary" style={{ marginBottom: 16 }}>
+            <Paragraph type="secondary" style={{ marginBottom: 'var(--space-4, 16px)' }}>
               {t("mfaSetup.chooseMethod")}
             </Paragraph>
             <Space orientation="vertical" style={{ width: "100%" }}>
@@ -224,19 +224,19 @@ export default function MfaSetupPage() {
               title={t("mfaSetup.scanHint")}
               type="info"
               showIcon
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 'var(--space-4, 16px)' }}
             />
             {method === "totp" && (
               <div
                 style={{
                   textAlign: "center",
-                  padding: 16,
+                  padding: 'var(--space-4, 16px)',
                   background: "var(--bg-card)",
                   borderRadius: 8,
-                  marginBottom: 16,
+                  marginBottom: 'var(--space-4, 16px)',
                 }}
               >
-                <div style={{ fontSize: 48, marginBottom: 12 }}></div>
+                <div style={{ fontSize: 48, marginBottom: 'var(--space-3, 12px)' }}></div>
                 <div
                   style={{
                     display: "inline-block",
@@ -244,7 +244,7 @@ export default function MfaSetupPage() {
                     background: THEME_TOKENS.bgCard,
                     borderRadius: 8,
                     border: "1px solid #e2e8f0",
-                    marginBottom: 12,
+                    marginBottom: 'var(--space-3, 12px)',
                   }}
                 >
                   {showSecret ? (
@@ -280,7 +280,7 @@ export default function MfaSetupPage() {
                     {t("mfaSetup.copyKey")}
                   </Button>
                 </div>
-                <Paragraph style={{ marginTop: 8 }}>
+                <Paragraph style={{ marginTop: 'var(--space-2, 8px)' }}>
                   <Text type="secondary">
                     {t("mfaSetup.inputSecretHint")}
                   </Text>
@@ -318,7 +318,7 @@ export default function MfaSetupPage() {
                 type={result.success ? "success" : "error"}
                 title={result.message}
                 showIcon
-                style={{ marginTop: 12 }}
+                style={{ marginTop: 'var(--space-3, 12px)' }}
               />
             )}
           </div>
@@ -331,7 +331,7 @@ export default function MfaSetupPage() {
               type="success"
               showIcon
               icon={<CheckCircle size={16} />}
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 'var(--space-4, 16px)' }}
             />
             <Descriptions column={1} bordered size="small">
               <Descriptions.Item label={t("mfaSetup.authMethod")}>
@@ -346,7 +346,7 @@ export default function MfaSetupPage() {
             <Divider />
             <Title
               level={5}
-              style={{ display: "flex", alignItems: "center", gap: 8 }}
+              style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}
             >
               {t("mfaSetup.backupCodesTitle")} <Tag color="orange">{t("mfaSetup.keepSafe")}</Tag>
             </Title>
@@ -364,7 +364,7 @@ export default function MfaSetupPage() {
                   <Text code>{c}</Text>
                 </List.Item>
               )}
-              style={{ maxWidth: 400, marginBottom: 16 }}
+              style={{ maxWidth: 400, marginBottom: 'var(--space-4, 16px)' }}
             />
             <Space>
               <Button icon={<Copy size={14} />} onClick={copyBackupCodes}>

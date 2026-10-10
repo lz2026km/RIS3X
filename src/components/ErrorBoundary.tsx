@@ -50,40 +50,40 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       if (this.props.fallback) return this.props.fallback
 
       return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', padding: 24 }}>
-          <div style={{ maxWidth: 440, width: '100%', background: '#1e293b', borderRadius: 12, padding: 32, textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', padding: 'var(--space-6, 24px)' }}>
+          <div style={{ maxWidth: 440, width: '100%', background: '#1e293b', borderRadius: 12, padding: 'var(--space-8, 32px)', textAlign: 'center' }}>
             <div style={{ width: 64, height: 64, margin: '0 auto 24px', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertCircle size={32} color="var(--color-error-500)" />
             </div>
-            <h1 style={{ fontSize: 20, fontWeight: 600, color: '#f1f5f9', marginBottom: 8 }}>抱歉，出现了一些问题</h1>
-            <p style={{ fontSize: 14, color: '#94a3b8', marginBottom: 24 }}>系统遇到意外错误，请尝试刷新或返回首页</p>
+            <h1 style={{ fontSize: 20, fontWeight: 600, color: '#f1f5f9', marginBottom: 'var(--space-2, 8px)' }}>抱歉，出现了一些问题</h1>
+            <p style={{ fontSize: 14, color: '#94a3b8', marginBottom: 'var(--space-6, 24px)' }}>系统遇到意外错误，请尝试刷新或返回首页</p>
 
             {this.props.showErrorDetails && this.state.error && (
-              <div style={{ marginBottom: 24, padding: 16, background: '#0f172a', borderRadius: 8, textAlign: 'left' }}>
+              <div style={{ marginBottom: 'var(--space-6, 24px)', padding: 'var(--space-4, 16px)', background: '#0f172a', borderRadius: 8, textAlign: 'left' }}>
                 <div style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--color-error-500)', wordBreak: 'break-all' }}>{this.state.error.message}</div>
                 {this.state.errorInfo && (
-                  <div style={{ marginTop: 8, fontSize: 12, fontFamily: 'monospace', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, fontFamily: 'monospace', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {this.state.errorInfo.componentStack?.split('\n')[0]}
                   </div>
                 )}
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <button onClick={this.handleRetry} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 44, background: 'var(--color-success-600)', border: 'none', color: '#fff', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+              <button onClick={this.handleRetry} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)', width: '100%', height: 44, background: 'var(--color-success-600)', border: 'none', color: '#fff', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
                 <RefreshCw size={16} /> 重试
               </button>
-              <button onClick={this.handleReload} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 44, background: 'var(--color-primary-600)', border: 'none', color: '#fff', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+              <button onClick={this.handleReload} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)', width: '100%', height: 44, background: 'var(--color-primary-600)', border: 'none', color: '#fff', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
                 <RefreshCw size={16} /> 刷新页面
               </button>
-              <button onClick={this.handleGoHome} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 44, background: '#334155', border: 'none', color: '#f1f5f9', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+              <button onClick={this.handleGoHome} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)', width: '100%', height: 44, background: '#334155', border: 'none', color: '#f1f5f9', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
                 <Home size={16} /> 返回首页
               </button>
             </div>
 
-            <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ marginTop: 'var(--space-6, 24px)', paddingTop: 'var(--space-6, 24px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               {/* [v3.0.6.11-98 Wave3B P2] 无帮助文档 URL → 返回首页 (navigate('/')) */}
-              <button onClick={this.handleGoHome} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 14, margin: '0 auto' }}>
+              <button onClick={this.handleGoHome} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 14, margin: '0 auto' }}>
                 <Home size={14} /> 返回首页
               </button>
             </div>

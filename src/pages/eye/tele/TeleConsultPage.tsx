@@ -335,8 +335,8 @@ export const TeleConsultPage: React.FC = () => {
   }, [recording]);
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)",}}>
-      <Space style={{ marginBottom: 16 }}>
+    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)",}}>
+      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Video size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
           {t("eye.tele.title")}
@@ -442,7 +442,7 @@ export const TeleConsultPage: React.FC = () => {
                     <Card
                       title={t("eye.tele.networkTitle")}
                       size="small"
-                      style={{ marginTop: 16 }}
+                      style={{ marginTop: 'var(--space-4, 16px)' }}
                     >
                       <Row gutter={[8, 8]}>
                         <Col span={12}>
@@ -510,7 +510,7 @@ export const TeleConsultPage: React.FC = () => {
                             size={64}
                             color={videoOn ? "var(--color-primary-600)" : "#444"}
                           />
-                          <div style={{ marginTop: 16, fontSize: 14 }}>
+                          <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 14 }}>
                             {t("eye.tele.consultLabel")} {session.sessionId}
                           </div>
                           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -521,7 +521,7 @@ export const TeleConsultPage: React.FC = () => {
                       ) : (
                         <>
                           <MonitorSmartphone size={64} color="var(--text-secondary)" />
-                          <div style={{ marginTop: 16, color: "var(--text-secondary)" }}>
+                          <div style={{ marginTop: 'var(--space-4, 16px)', color: "var(--text-secondary)" }}>
                             {t("eye.tele.emptyLive")}
                           </div>
                         </>
@@ -590,7 +590,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Space>
                       }
                       size="small"
-                      style={{ marginTop: 16 }}
+                      style={{ marginTop: 'var(--space-4, 16px)' }}
                     >
                       <Alert
                         title={t('w9d.tele.statusSla', { status: consult.status, sla: consult.sla.responseTime })}
@@ -598,7 +598,7 @@ export const TeleConsultPage: React.FC = () => {
                         showIcon
                       />
                       <div
-                        style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}
+                        style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: "var(--text-secondary)" }}
                       >
                         {t("eye.tele.expertLabel")} {consult.specialistId}
                         <br />
@@ -624,7 +624,7 @@ export const TeleConsultPage: React.FC = () => {
                       </Space>
                     }
                     size="small"
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 'var(--space-4, 16px)' }}
                   >
                     {teleSessions.length === 0 && teleConsults.length === 0 ? (
                       <Empty
@@ -633,7 +633,7 @@ export const TeleConsultPage: React.FC = () => {
                       />
                     ) : (
                       <>
-                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>
                           {t("eye.tele.historySessions")}
                         </div>
                         {teleSessions.slice(0, 5).map((s: any) => (
@@ -668,7 +668,7 @@ export const TeleConsultPage: React.FC = () => {
                           .slice(0, 3)
                           .map((c: any) => (
                             <div key={c.consultId} style={{ fontSize: 12, padding: "2px 0" }}>
-                              <Tag color="orange" style={{ marginRight: 4 }}>
+                              <Tag color="orange" style={{ marginRight: 'var(--space-1, 4px)' }}>
                                 {c.specialistName}
                               </Tag>
                               {c.question}
@@ -698,7 +698,7 @@ export const TeleConsultPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 8,
+                          marginBottom: 'var(--space-2, 8px)',
                           fontWeight: 600,
                         }}
                       >
@@ -742,7 +742,7 @@ export const TeleConsultPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 8,
+                          marginBottom: 'var(--space-2, 8px)',
                           fontWeight: 600,
                         }}
                       >
@@ -806,7 +806,7 @@ export const TeleConsultPage: React.FC = () => {
                   <Card
                     title={t("eye.tele.okLensCard")}
                     size="small"
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 'var(--space-4, 16px)' }}
                   >
                     <Form layout="vertical" size="small">
                       <Form.Item label={t("eye.tele.targetReductionLabel")}>
@@ -875,7 +875,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Space>
                       }
                       size="small"
-                      style={{ marginTop: 16 }}
+                      style={{ marginTop: 'var(--space-4, 16px)' }}
                     >
                       <Row gutter={[16, 16]}>
                         <Col span={8}>
@@ -1001,7 +1001,7 @@ export const TeleConsultPage: React.FC = () => {
                       </Space>
                     }
                     size="small"
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 'var(--space-4, 16px)' }}
                   >
                     <Space.Compact style={{ width: "100%" }}>
                       <Input
@@ -1014,7 +1014,7 @@ export const TeleConsultPage: React.FC = () => {
                       </Button>
                     </Space.Compact>
                     {sessionDetail ? (
-                      <div style={{ marginTop: 12, fontSize: 12 }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12 }}>
                         <div>
                           {t("eye.tele.sessionLabel")} {sessionDetail.sessionId} · {t("eye.tele.patientLabel")} {sessionDetail.patientId}
                         </div>
@@ -1045,13 +1045,13 @@ export const TeleConsultPage: React.FC = () => {
                           )}
                         </Space>
                         {sessionDetail.network && (
-                          <div style={{ marginTop: 8, color: "var(--text-secondary)" }}>
+                          <div style={{ marginTop: 'var(--space-2, 8px)', color: "var(--text-secondary)" }}>
                             {t("eye.tele.edgeLabel")} {sessionDetail.network.edgeNodeId} · {t("eye.tele.sliceLabel")} {sessionDetail.network.slice} · P95 {sessionDetail.network.latencyP95}ms
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div style={{ marginTop: 12, fontSize: 12, color: "var(--text-secondary)" }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: "var(--text-secondary)" }}>
                         {t("eye.common.noData")}
                       </div>
                     )}
@@ -1079,7 +1079,7 @@ export const TeleConsultPage: React.FC = () => {
                       </Button>
                     </Space.Compact>
                     {consultDetail ? (
-                      <div style={{ marginTop: 12, fontSize: 12 }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12 }}>
                         <Alert
                           title={`${consultDetail.specialistName ?? consultDetail.specialistId} · ${consultDetail.status === "pending" ? t('w9d.tele.pendingReply') : consultDetail.status}`}
                           description={consultDetail.question}
@@ -1087,8 +1087,8 @@ export const TeleConsultPage: React.FC = () => {
                           showIcon
                         />
                         {consultDetail.answer && (
-                          <div style={{ marginTop: 8 }}>
-                            <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                          <div style={{ marginTop: 'var(--space-2, 8px)' }}>
+                            <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>
                               {t("eye.tele.existingAnswer")}:
                             </div>
                             <div style={{ color: "var(--text-secondary)" }}>
@@ -1109,7 +1109,7 @@ export const TeleConsultPage: React.FC = () => {
                               type="primary"
                               block
                               icon={<Send size={14} />}
-                              style={{ marginTop: 8 }}
+                              style={{ marginTop: 'var(--space-2, 8px)' }}
                               onClick={handleAnswerConsult}
                             >
                               {t("eye.tele.submitAnswer")}
@@ -1118,7 +1118,7 @@ export const TeleConsultPage: React.FC = () => {
                         )}
                       </div>
                     ) : (
-                      <div style={{ marginTop: 12, fontSize: 12, color: "var(--text-secondary)" }}>
+                      <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: "var(--text-secondary)" }}>
                         {t("eye.common.noData")}
                       </div>
                     )}
@@ -1132,7 +1132,7 @@ export const TeleConsultPage: React.FC = () => {
                       </Space>
                     }
                     size="small"
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 'var(--space-4, 16px)' }}
                   >
                     {teleConsults.length === 0 ? (
                       <Empty
@@ -1212,11 +1212,11 @@ export const TeleConsultPage: React.FC = () => {
           </Form.Item>
           <Form.Item label={t("eye.tele.otherOptions")}>
             <Space direction="vertical">
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', cursor: 'pointer' }}>
                 <input type="checkbox" checked={settings.enableNoiseCancellation} onChange={(e) => setSettings({ ...settings, enableNoiseCancellation: e.target.checked })} />
                 {t("eye.tele.enableNoiseCancellation")}
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', cursor: 'pointer' }}>
                 <input type="checkbox" checked={settings.autoRecord} onChange={(e) => setSettings({ ...settings, autoRecord: e.target.checked })} />
                 {t("eye.tele.autoRecord")}
               </label>
