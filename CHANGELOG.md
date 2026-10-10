@@ -1,3 +1,13 @@
+## v3.0.6.13-5 (2026-10-10) — 版本元数据同步（侧边栏版本显示修复）
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
+
+### 版本源统一（E2E 发现侧边栏仍显示 `3.0.6.12-8`）
+- `.env.development` / `.env.production` / `.env.example` / `backend/.env.example`：`VITE_APP_VERSION`、`VITE_RELEASE`、标题注释 → `3.0.6.13-5`
+- `src/utils/appInfo.ts` 回退版本 `3.0.6.11-79` → `3.0.6.13-5`
+- `package.json` / `backend/package.json` / `index.html`（title + `__appVersion`）同步
+- 说明：此前 E2E 快照显示侧边栏版本为 `3.0.6.12-8`，因构建期 `VITE_APP_VERSION` 未被纳入版本发布流程
+
 ## v3.0.6.13-4 (2026-10-10) — 标题体系统一 + 排班页崩溃修复
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；E2E `/schedule`、`/ops/tech-schedule` 修复通过；`guard:ui` 全绿
