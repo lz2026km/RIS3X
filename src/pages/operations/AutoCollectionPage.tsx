@@ -273,7 +273,8 @@ const AutoCollectionPage: React.FC = () => {
   }
 
   const handleCreate = async () => {
-    const values = await form.validateFields()
+    const values = await form.validateFields().catch(() => null)
+    if (!values) return;
     setCreating(true)
     try {
       if (editingRule) {
@@ -314,7 +315,8 @@ const AutoCollectionPage: React.FC = () => {
 
   // [Wave1B P2] 新建采集任务: createTask (POST /auto-collection/tasks)
   const handleCreateTask = async () => {
-    const values = await taskForm.validateFields()
+    const values = await taskForm.validateFields().catch(() => null)
+    if (!values) return;
     setTaskCreating(true)
     try {
       const res = await autoCollectionApi.createTask({

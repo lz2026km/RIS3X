@@ -1,10 +1,20 @@
 /** G005 眼科 PACS Mock 数据 v3.0.6.8-21 — 深化版 */
 import type { EyeStudy, EyeImageSeries, KeyImage, EyeMeasurement, OctThicknessMap, VisualFieldAnalysis } from '../types/eye';
+import { resolvePatientId } from './master/idAlias';
+import { hashSeed, mulberry32 } from '../utils/seededRandom';
 
 const NOW = Date.now();
 
-/** 扩展检查列表: 40 个检查 */
-export const MOCK_EYE_STUDIES: EyeStudy[] = [
+// [G005 eye-expand] 确定性 DICOM UID 生成 (同一 key 始终得到同一 UID)
+const SITE_UID_ROOT = '1.2.840.113619.2.117';
+function dicomUid(kind: string, key: string): string {
+  const h1 = hashSeed(`${kind}:${key}`);
+  const h2 = hashSeed(`${kind}:${key}:tail`);
+  return `${SITE_UID_ROOT}.${(h1 % 100000000)}.1.${(h2 % 100000000)}`;
+}
+
+/** 扩展检查列表: 40 个检查 (基线 36 条手写数据, 保留供扩展生成引用) */
+const BASE_EYE_STUDIES: EyeStudy[] = [
   // p-1001 李明 (糖尿病/白内障)
   {
     id: "es-001",
@@ -1309,8 +1319,8 @@ export const MOCK_EYE_STUDIES: EyeStudy[] = [
   },
 ];
 
-/** 40 个检查的患者列表 */
-export const MOCK_EYE_PATIENTS = [
+/** 40 个检查的患者列表 (基线 36 条, 供扩展生成引用) */
+const BASE_EYE_PATIENTS = [
   {
     id: "p-1001",
     name: "李明",
@@ -1637,8 +1647,8 @@ export const MOCK_EYE_PATIENTS = [
   },
 ];
 
-/** 检查系列 */
-export const MOCK_EYE_SERIES: EyeImageSeries[] = [
+/** 检查系列 (基线 14 条, 供扩展生成引用) */
+const BASE_EYE_SERIES: EyeImageSeries[] = [
   {
     id: "ser-001",
     studyId: "es-001",
@@ -3133,3 +3143,288 @@ export const MODALITY_LABELS: Record<string, string> = {
   gonioscopy: "房角镜",
   specular_microscopy: "角膜内皮显微镜",
 };
+
+// ============= [G005 eye-expand] 确定性扩展: 60 患者 / 150 Study / Series =============
+// 全部经 resolvePatientId 归一到患者主数据 P000001-P049700;
+// 随机数一律来自 utils/seededRandom 的 mulberry32 (无模块级 Math.random)。
+
+/** 补齐基线缺失的 24 名患者 (p-1013..p-1020, p-1045..p-1060), 使患者总数 = 60 */
+const EXTRA_EYE_PATIENTS = [
+  { id: "p-1013", name: "赵文博", gender: "男", age: 50, diagnosis: "视网膜分支静脉阻塞", doctor: "张明远" },
+  { id: "p-1014", name: "钱丽华", gender: "女", age: 63, diagnosis: "老年性白内障(膨胀期)", doctor: "陈丽" },
+  { id: "p-1015", name: "孙长海", gender: "男", age: 71, diagnosis: "急性闭角型青光眼", doctor: "张明远" },
+  { id: "p-1016", name: "李娜", gender: "女", age: 36, diagnosis: "中心性浆液性脉络膜视网膜病变", doctor: "王建国" },
+  { id: "p-1017", name: "王建军", gender: "男", age: 58, diagnosis: "糖尿病视网膜病变(中度NPDR)", doctor: "赵静" },
+  { id: "p-1018", name: "张秀英", gender: "女", age: 67, diagnosis: "视网膜色素变性", doctor: "李明远" },
+  { id: "p-1019", name: "陈志强", gender: "男", age: 44, diagnosis: "黄斑裂孔(Stage 2)", doctor: "王建国" },
+  { id: "p-1020", name: "刘晓燕", gender: "女", age: 29, diagnosis: "圆锥角膜(双眼)", doctor: "李梅" },
+  { id: "p-1045", name: "何丽", gender: "女", age: 55, diagnosis: "青光眼可疑随访", doctor: "张明远" },
+  { id: "p-1046", name: "郑国强", gender: "男", age: 62, diagnosis: "玻璃体积血(糖尿病性)", doctor: "赵静" },
+  { id: "p-1047", name: "马晓娟", gender: "女", age: 41, diagnosis: "视锥视杆细胞营养不良", doctor: "李明远" },
+  { id: "p-1048", name: "黄志明", gender: "男", age: 33, diagnosis: "近视性黄斑病变", doctor: "王建国" },
+  { id: "p-1049", name: "徐若琳", gender: "女", age: 26, diagnosis: "干眼综合征", doctor: "李梅" },
+  { id: "p-1050", name: "朱建平", gender: "男", age: 69, diagnosis: "特发性黄斑前膜", doctor: "王建国" },
+  { id: "p-1051", name: "高雪梅", gender: "女", age: 59, diagnosis: "缺血性视神经病变", doctor: "张明远" },
+  { id: "p-1052", name: "林俊杰", gender: "男", age: 38, diagnosis: "角膜异物(左眼)", doctor: "李梅" },
+  { id: "p-1053", name: "曹婷", gender: "女", age: 47, diagnosis: "甲状腺相关眼病", doctor: "李梅" },
+  { id: "p-1054", name: "谢文涛", gender: "男", age: 54, diagnosis: "视网膜裂孔(激光术后)", doctor: "张明远" },
+  { id: "p-1055", name: "邓佳", gender: "女", age: 31, diagnosis: "葡萄膜炎(复发)", doctor: "王建国" },
+  { id: "p-1056", name: "周晓峰", gender: "男", age: 65, diagnosis: "年龄相关性黄斑变性(干性)", doctor: "王建国" },
+  { id: "p-1057", name: "吴月华", gender: "女", age: 72, diagnosis: "硅油眼随访", doctor: "张明远" },
+  { id: "p-1058", name: "徐立", gender: "男", age: 49, diagnosis: "视神经萎缩", doctor: "李明远" },
+  { id: "p-1059", name: "韩雨桐", gender: "女", age: 8, diagnosis: "弱视(左眼)", doctor: "李梅" },
+  { id: "p-1060", name: "罗建华", gender: "男", age: 60, diagnosis: "新生血管性青光眼", doctor: "张明远" },
+].map((p) => ({ ...p, lastVisit: new Date(NOW - 86400000 * (hashSeed(p.id) % 30 + 1)).toISOString() }));
+
+/** 全量 60 名患者 — id/patientId 均已映射到主数据命名空间 */
+export const MOCK_EYE_PATIENTS = [...BASE_EYE_PATIENTS, ...EXTRA_EYE_PATIENTS].map((p) => {
+  const masterId = resolvePatientId(p.id);
+  return { ...p, legacyId: p.id, id: masterId, patientId: masterId };
+});
+
+// 扩展用模态轮换 (OCT / 眼底彩照 / OCTA / UBM / 角膜地形图 / 视野)
+const EXPAND_MODALITIES = ["oct", "fundus_photo", "oct_a", "ubm", "topography", "visual_field"] as const;
+const EXPAND_DEVICES: Record<string, string> = {
+  oct: "Zeiss Cirrus HD-OCT 5000",
+  fundus_photo: "Topcon TRC-NW400",
+  oct_a: "Zeiss Cirrus HD-OCT 5000 AngioPlex",
+  ubm: "Quantel Medical Aviso S/US",
+  topography: "Tomey Tangent Screen TS-2000",
+  visual_field: "Zeiss Humphrey Field Analyzer 3",
+};
+const EXPAND_PROTOCOLS: Record<string, string> = {
+  oct: "Macular Cube 512x128",
+  fundus_photo: "标准眼底彩照 45°",
+  oct_a: "Angio 6x6mm",
+  ubm: "眼前节 UBM 10-20MHz",
+  topography: "角膜地形图 24 ring",
+  visual_field: "24-2 SITA Standard",
+};
+const EXPAND_FINDINGS: Record<string, string> = {
+  oct: "黄斑中心凹形态存在,椭圆体带连续,RNFL 厚度在正常范围。",
+  fundus_photo: "视盘边界清晰,C/D 比值正常,黄斑区未见明显异常。",
+  oct_a: "黄斑区血流信号连续,FAZ 形态规则,未见明确无灌注区。",
+  ubm: "前房深度可,房角开放,睫状体未见占位。",
+  topography: "角膜地形图形态对称,散光规则,未见圆锥角膜样改变。",
+  visual_field: "平均缺损在正常范围,未见明确局限性缺损,GHT within normal limits。",
+};
+
+// 基线 Study 按患者计数 (legacy id 维度)
+const BASE_STUDY_COUNT = new Map<string, number>();
+for (const s of BASE_EYE_STUDIES) {
+  const pid = String(s.patientId);
+  BASE_STUDY_COUNT.set(pid, (BASE_STUDY_COUNT.get(pid) ?? 0) + 1);
+}
+
+// [G005 eye-expand] 桥接 Study: 补齐基线悬空引用 (ser-006..012 / cv-103..107 指向的 es-010..es-025),
+// 与既有 series/critical 记录形成完整 patientId ↔ studyId ↔ studyUID 交叉链接。
+const BRIDGE_STUDY_SPECS: Array<{
+  id: string;
+  legacyPatientId: string;
+  patientName: string;
+  modality: string;
+  eyeSide: "OD" | "OS" | "OU";
+  device: string;
+  protocol: string;
+  report: string;
+}> = [
+  { id: "es-010", legacyPatientId: "p-1010", patientName: "林峰", modality: "topography", eyeSide: "OS", device: "Tomey Tangent Screen TS-2000", protocol: "角膜地形图 24 ring", report: "左眼角膜地形图不对称领结图形,下方陡峭,建议随访。" },
+  { id: "es-012", legacyPatientId: "p-1012", patientName: "许芳", modality: "fundus_photo", eyeSide: "OU", device: "Optos 200Tx", protocol: "Wide Field", report: "双眼广角眼底像,周边部未见明显异常。" },
+  { id: "es-015", legacyPatientId: "p-1015", patientName: "孙长海", modality: "oct", eyeSide: "OD", device: "Zeiss Cirrus HD-OCT 5000", protocol: "Optic Disc Cube 200x200", report: "右眼视盘周围 RNFL 部分象限变薄,建议结合视野随访。" },
+  { id: "es-018", legacyPatientId: "p-1018", patientName: "张秀英", modality: "ffa", eyeSide: "OU", device: "Heidelberg Spectralis", protocol: "ICG Angiography", report: "双眼 ICG 造影脉络膜血管通透性轻度增加。" },
+  { id: "es-020", legacyPatientId: "p-1020", patientName: "刘晓燕", modality: "oct_a", eyeSide: "OU", device: "Heidelberg Spectralis", protocol: "Angio 3x3mm", report: "双眼黄斑区 OCT-A 血流密度大致正常。" },
+  { id: "es-022", legacyPatientId: "p-1022", patientName: "罗秀英", modality: "fundus_photo", eyeSide: "OD", device: "Topcon TRC-NW400", protocol: "标准眼底彩照 45°", report: "右眼玻璃体混浊,眼底隐约可见,建议 B 超进一步评估。" },
+  { id: "es-023", legacyPatientId: "p-1023", patientName: "马建国", modality: "slit_lamp", eyeSide: "OD", device: "Topcon SL-D701", protocol: "Slit Lamp Photo", report: "右眼前节照相,角膜透明,前房深度可。" },
+  { id: "es-025", legacyPatientId: "p-1025", patientName: "韩志明", modality: "fundus_photo", eyeSide: "OD", device: "Topcon TRC-NW400", protocol: "标准眼底彩照 45°", report: "右眼后极部见散在微动脉瘤及点片状出血,增殖期改变待排。" },
+];
+
+const BRIDGE_STUDIES: EyeStudy[] = BRIDGE_STUDY_SPECS.map((spec) => {
+  const patientId = resolvePatientId(spec.legacyPatientId);
+  const studyUID = dicomUid("study", spec.id);
+  const seriesUID = dicomUid("series", `${spec.id}:1`);
+  const daysAgo = 14 + (hashSeed(spec.id) % 30);
+  const studyDate = new Date(NOW - 86400000 * daysAgo).toISOString();
+  return {
+    id: spec.id,
+    studyUID,
+    seriesUIDs: [seriesUID],
+    patientId,
+    legacyPatientId: spec.legacyPatientId,
+    patientName: spec.patientName,
+    eyeSide: spec.eyeSide,
+    modality: spec.modality,
+    studyDate,
+    device: spec.device,
+    images: [
+      {
+        id: `ei-${spec.id}-1`,
+        studyId: spec.id,
+        seriesNumber: 1,
+        instanceNumber: 1,
+        sopInstanceUid: dicomUid("sop", `${spec.id}:1`),
+        seriesUID,
+        url: `/mock/eye/${spec.modality}-bridge-1.jpg`,
+        thumbnail: `/mock/eye/${spec.modality}-bridge-1-thumb.jpg`,
+        description: spec.protocol,
+        eyeSide: spec.eyeSide,
+      },
+    ],
+    measurements: { signalStrength: 8.5, qualityScore: 92 },
+    report: spec.report,
+    criticalFlag: false,
+    status: "verified",
+  } as EyeStudy;
+});
+
+// 基线 + 桥接 Study 按患者计数 (统一用 legacy id 维度)
+const SEED_STUDY_COUNT = new Map<string, number>();
+for (const s of BASE_EYE_STUDIES) {
+  const pid = String(s.patientId);
+  SEED_STUDY_COUNT.set(pid, (SEED_STUDY_COUNT.get(pid) ?? 0) + 1);
+}
+for (const spec of BRIDGE_STUDY_SPECS) {
+  SEED_STUDY_COUNT.set(spec.legacyPatientId, (SEED_STUDY_COUNT.get(spec.legacyPatientId) ?? 0) + 1);
+}
+
+// 每患者 Study 目标数: 基线+桥接值钳到 [2,5], 再 round-robin 补足到恰好 150
+const STUDY_TARGET = new Map<string, number>();
+let studyTargetSum = 0;
+for (const p of MOCK_EYE_PATIENTS) {
+  const seedCount = SEED_STUDY_COUNT.get(p.legacyId) ?? 0;
+  const target = Math.min(5, Math.max(2, seedCount));
+  STUDY_TARGET.set(p.legacyId, target);
+  studyTargetSum += target;
+}
+{
+  let guard = 0;
+  let cursor = 0;
+  while (studyTargetSum < 150 && guard < 1000) {
+    const p = MOCK_EYE_PATIENTS[cursor % MOCK_EYE_PATIENTS.length]!;
+    cursor++;
+    guard++;
+    const cur = STUDY_TARGET.get(p.legacyId)!;
+    if (cur < 5) {
+      STUDY_TARGET.set(p.legacyId, cur + 1);
+      studyTargetSum++;
+    }
+  }
+}
+
+/** 生成的 Study + 对应 Series (id es-201.., 确定性 seriesUID) */
+const GENERATED_STUDIES: EyeStudy[] = [];
+const GENERATED_SERIES: (EyeImageSeries & { seriesUID: string })[] = [];
+{
+  let seq = 201;
+  for (const p of MOCK_EYE_PATIENTS) {
+    const seedCount = SEED_STUDY_COUNT.get(p.legacyId) ?? 0;
+    const need = STUDY_TARGET.get(p.legacyId)! - seedCount;
+    const rnd = mulberry32(hashSeed(`eye-expand-study:${p.legacyId}`));
+    for (let k = 0; k < need; k++) {
+      const sid = `es-${seq++}`;
+      const modality = EXPAND_MODALITIES[(Math.floor(rnd() * 6) + k) % 6]!;
+      const eyeSide: "OD" | "OS" = rnd() > 0.5 ? "OD" : "OS";
+      const studyUID = dicomUid("study", sid);
+      const seriesUID = dicomUid("series", sid);
+      const daysAgo = 1 + Math.floor(rnd() * 90);
+      const studyDate = new Date(NOW - 86400000 * daysAgo).toISOString();
+      const criticalFlag = rnd() > 0.9;
+      GENERATED_STUDIES.push({
+        id: sid,
+        studyUID,
+        seriesUIDs: [seriesUID],
+        patientId: p.patientId,
+        legacyPatientId: p.legacyId,
+        patientName: p.name,
+        eyeSide,
+        modality,
+        studyDate,
+        device: EXPAND_DEVICES[modality] ?? "unknown",
+        images: [
+          {
+            id: `ei-${sid}-1`,
+            studyId: sid,
+            seriesNumber: 1,
+            instanceNumber: 1,
+            sopInstanceUid: dicomUid("sop", `${sid}:1`),
+            seriesUID,
+            url: `/mock/eye/${modality}-${eyeSide.toLowerCase()}-1.jpg`,
+            thumbnail: `/mock/eye/${modality}-${eyeSide.toLowerCase()}-1-thumb.jpg`,
+            description: EXPAND_PROTOCOLS[modality] ?? modality,
+            eyeSide,
+          },
+        ],
+        measurements: {
+          signalStrength: Math.round((6 + rnd() * 4) * 10) / 10,
+          qualityScore: Math.round((80 + rnd() * 19) * 10) / 10,
+        },
+        report: EXPAND_FINDINGS[modality] ?? "检查所见未见明显异常。",
+        criticalFlag,
+        status: criticalFlag ? "verified" : rnd() > 0.3 ? "verified" : "completed",
+      } as EyeStudy);
+      GENERATED_SERIES.push({
+        id: `ser-${sid}`,
+        seriesUID,
+        studyId: sid,
+        seriesNumber: 1,
+        modality,
+        description: `${EXPAND_PROTOCOLS[modality] ?? modality} (${eyeSide})`,
+        eyeSide,
+        laterality: eyeSide === "OD" ? "right" : "left",
+        instances: [],
+        acquisitionDateTime: studyDate,
+        protocolName: EXPAND_PROTOCOLS[modality] ?? modality,
+        manufacturer: modality === "fundus_photo" ? "Topcon" : modality === "ubm" ? "Quantel Medical" : "Zeiss",
+        deviceModel: EXPAND_DEVICES[modality] ?? "unknown",
+        softwareVersion: "V3.0",
+        seriesDateTime: studyDate,
+        bodyPart: "EYE",
+        numberOfInstances: 1,
+        seriesType: ["ORIGINAL", "PRIMARY"],
+        operatorName: "技师王",
+        performerName: "技师王",
+        institutionName: "北京明德医院",
+      });
+    }
+  }
+}
+
+/** 基线 Study 归一 patientId 并补充 studyUID / seriesUIDs */
+const MAPPED_BASE_STUDIES: EyeStudy[] = BASE_EYE_STUDIES.map((s) => ({
+  ...s,
+  patientId: resolvePatientId(String(s.patientId)),
+  studyUID: dicomUid("study", String(s.id)),
+  seriesUIDs: [dicomUid("series", `${String(s.id)}:1`), dicomUid("series", `${String(s.id)}:2`)],
+}));
+
+/** 全量 150 条 Study (36 基线 + 8 桥接 + 106 生成), 每患者 2-5 条 */
+export const MOCK_EYE_STUDIES: EyeStudy[] = [...MAPPED_BASE_STUDIES, ...BRIDGE_STUDIES, ...GENERATED_STUDIES];
+
+/** 全量 Series (14 基线 + 生成), 与 Study 经 studyId/seriesUID 交叉链接 */
+export const MOCK_EYE_SERIES: (EyeImageSeries & { seriesUID?: string })[] = [
+  ...BASE_EYE_SERIES.map((ser) => ({
+    ...ser,
+    seriesUID: dicomUid("series", `${ser.studyId}:1`),
+  })),
+  ...GENERATED_SERIES,
+];
+
+/** Study 交叉链接索引 — 供 EMR / 危急值 mock 引用 (patientId ↔ studyId ↔ studyUID) */
+export const EYE_STUDY_LINKS: Array<{
+  studyId: string;
+  studyUID: string;
+  patientId: string;
+  patientName: string;
+  modality: string;
+}> = MOCK_EYE_STUDIES.map((s) => ({
+  studyId: String(s.id),
+  studyUID: String(s.studyUID ?? ""),
+  patientId: String(s.patientId),
+  patientName: String(s.patientName ?? ""),
+  modality: String(s.modality),
+}));
+
+/** 患者姓名索引 (master patientId → 姓名) */
+export const EYE_PATIENT_NAME_BY_ID: Record<string, string> = Object.fromEntries(
+  MOCK_EYE_PATIENTS.map((p) => [p.patientId, p.name]),
+);
+

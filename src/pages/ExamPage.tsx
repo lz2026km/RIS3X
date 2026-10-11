@@ -1154,7 +1154,8 @@ export default function ExamPage() {
   const [createExamForm] = Form.useForm();
 
   const handleCreateExam = async () => {
-    const values = await createExamForm.validateFields();
+    const values = await createExamForm.validateFields().catch(() => null);
+    if (!values) return;
     setCreatingExam(true);
     try {
       const res = await examApi.create({

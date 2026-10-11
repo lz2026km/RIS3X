@@ -15,6 +15,7 @@ import type {
   CollabCommentThread,
   CollabCommentStatus,
 } from '../../types/collab';
+import { COLLAB_COMMENTS } from '../../data/collabMock';
 import { webSocketCollabService } from './WebSocketCollabService';
 
 const comments = new Map<string, CollabComment>();
@@ -50,9 +51,9 @@ const seedFromMock = (): void => {
   if (seedLoaded) return;
   seedLoaded = true;
   try {
-    // Lazy require to avoid hard dependency at bundle time
-    const mod = require('../../data/collabMock') as { COLLAB_COMMENTS?: CollabComment[] };
-    mod.COLLAB_COMMENTS?.forEach((c) => {
+    // [B-11] ESM 下 require() 恒抛 ReferenceError (被 catch 吞掉导致协同评论 demo 永远空),
+    //        改为模块顶层静态 import 的 COLLAB_COMMENTS
+    COLLAB_COMMENTS?.forEach((c) => {
       comments.set(c.id, { ...c });
       recomputeThread(c.threadId);
     });

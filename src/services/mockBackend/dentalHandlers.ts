@@ -5,7 +5,7 @@
 import { http, HttpResponse, delay } from 'msw';
 import { list, get, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
-import { getDentalChart } from '../../data/dental/dentalChartMock';
+import { getDentalChart, MOCK_DENTAL_CHARTS, getDentalChartById, getDentalChartsByPatient } from '../../data/dental/dentalChartMock';
 import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality } from '../../data/dental/dentalImagingMock';
 import { MOCK_CAD_DESIGNS, MOCK_CAD_MATERIALS, MOCK_VITA_SHADES, MOCK_MILLING_UNITS } from '../../data/dental/dentalCadMock';
 import { MOCK_IMPLANT_BRANDS, MOCK_IMPLANT_PLANS_3D, MOCK_NERVE_3D, MOCK_BONE_DENSITY_MAP, MOCK_NERVE_DISTANCES } from '../../data/dental/dentalImplant3dMock';
@@ -19,13 +19,31 @@ import { generateMockAppointments, MOCK_PSR_RECORDS } from '../../data/dental/de
 
 const DENTAL_API = '/api/v1/dental';
 
+// [G005 dental-demo-fill] 列表端点分页: 未显式传 page/pageSize 时返回全量
+//   (studies 600 / treatments 100 / charts 60 → 保证 "150+ 影像可列出")
+function fullListOpts(url: URL, total: number) {
+  const opts = parseQuery(url);
+  if (!url.searchParams.has('page') && !url.searchParams.has('pageSize')) {
+    opts.page = 1;
+    opts.pageSize = Math.max(total, 1);
+  }
+  return opts;
+}
+
 // ============= Day 1: 影像 PACS (24 端点) =============
 const dentalImagingModule = [
   // 影像 CRUD
   http.get(`${DENTAL_API}/studies`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
-    const opts = parseQuery(url);
+    // [G005-P1] 容错空 studyId: 前端拼出 /studies/ (尾斜杠=空 id) 时返回首个 study 对象而非列表, 避免页面拿到数组
+    if (url.pathname.endsWith('/')) {
+      let first: any = null;
+      try { first = list<any>('dental_studies')[0]; } catch {}
+      if (!first) first = MOCK_DENTAL_STUDIES[0];
+      if (!first) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+      return HttpResponse.json({ success: true, data: first });
+    }
     const toothNo = url.searchParams.get('toothNo');
     // [v3.0.6.8-81] 优先查 store 中新增的, fallback 到 mock
     let storeItems: any[] = [];
@@ -37,16 +55,25 @@ const dentalImagingModule = [
       const tn = parseInt(toothNo);
       filtered = dedup.filter((s: any) => s.toothNumbers?.includes(tn));
     }
+    // [G005 dental-demo-fill] 默认返回全量 (600 影像, patientId 均指向真实患者)
+    const opts = fullListOpts(url, filtered.length);
     const result = applyQuery(filtered, opts, ['patientName', 'indication', 'modality', 'region']);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, library: 'dental_imaging' } });
   }),
   http.get(`${DENTAL_API}/studies/:id`, async ({ params }) => {
     await delay(50);
-    // [v3.0.6.8-81] 先查 store, fallback mock
+    // [G005-P1] 容错空 id: 返回首个 study (200), 不 500; 非空 id 先查 store, fallback mock
+    const id = String(params.id ?? '').trim();
     let s: any = null;
-    try { s = get<any>('dental_studies', params.id as string); } catch {}
-    if (!s) s = MOCK_DENTAL_STUDIES.find(x => x.id === params.id);
-    if (!s) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (id) {
+      try { s = get<any>('dental_studies', id); } catch {}
+      if (!s) s = MOCK_DENTAL_STUDIES.find(x => x.id === id);
+      if (!s) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    } else {
+      try { s = list<any>('dental_studies')[0]; } catch {}
+      if (!s) s = MOCK_DENTAL_STUDIES[0];
+      if (!s) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    }
     return HttpResponse.json({ success: true, data: s });
   }),
   http.post(`${DENTAL_API}/studies`, async ({ request }) => {
@@ -126,7 +153,7 @@ const dentalImagingModule = [
   // CBCT 专项
   http.get(`${DENTAL_API}/cbct/list`, async () => {
     await delay(50);
-    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('CBCT').slice(0, 50) });
+    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('CBCT'), meta: { total: getDentalStudiesByModality('CBCT').length } });
   }),
   http.get(`${DENTAL_API}/cbct/:id/nerve-canal`, async () => {
     await delay(150);
@@ -169,7 +196,7 @@ const dentalImagingModule = [
   // 全景片
   http.get(`${DENTAL_API}/panoramic/list`, async () => {
     await delay(50);
-    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Panoramic').slice(0, 50) });
+    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Panoramic'), meta: { total: getDentalStudiesByModality('Panoramic').length } });
   }),
   http.get(`${DENTAL_API}/panoramic/:id`, async ({ params }) => {
     await delay(30);
@@ -178,7 +205,7 @@ const dentalImagingModule = [
   // 根尖片
   http.get(`${DENTAL_API}/periapical/list`, async () => {
     await delay(50);
-    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Periapical').slice(0, 50) });
+    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Periapical'), meta: { total: getDentalStudiesByModality('Periapical').length } });
   }),
   http.get(`${DENTAL_API}/periapical/:id`, async ({ params }) => {
     await delay(30);
@@ -187,7 +214,7 @@ const dentalImagingModule = [
   // 口扫
   http.get(`${DENTAL_API}/scan/list`, async () => {
     await delay(50);
-    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Scan').slice(0, 50) });
+    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Scan'), meta: { total: getDentalStudiesByModality('Scan').length } });
   }),
   http.get(`${DENTAL_API}/scan/:id/model`, async ({ params }) => {
     await delay(100);
@@ -208,7 +235,7 @@ const dentalImagingModule = [
   // 咬合翼片
   http.get(`${DENTAL_API}/bitewing/list`, async () => {
     await delay(50);
-    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Bitewing').slice(0, 50) });
+    return HttpResponse.json({ success: true, data: getDentalStudiesByModality('Bitewing'), meta: { total: getDentalStudiesByModality('Bitewing').length } });
   }),
   // 影像对比
   http.get(`${DENTAL_API}/compare/:idA/:idB`, async ({ params }) => {
@@ -230,6 +257,32 @@ const dentalImagingModule = [
 
 
 const dentalChartAiModule = [
+  // [G005 dental-demo-fill] 牙位图列表: 60 张 (20 患者 × 3 快照), patientId 均指向真实患者
+  http.get(`${DENTAL_API}/charts`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const pid = url.searchParams.get('patientId');
+    let storeItems: any[] = [];
+    try { storeItems = list<any>('dental_charts'); } catch {}
+    const combined = [...storeItems, ...MOCK_DENTAL_CHARTS];
+    const dedup = Array.from(new Map(combined.map(c => [c.id ?? c.patientId, c])).values());
+    let filtered = dedup;
+    if (pid) filtered = dedup.filter((c: any) => c.patientId === pid);
+    const result = applyQuery(filtered, fullListOpts(url, filtered.length), ['patientName', 'patientId']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, library: 'dental_charts' } });
+  }),
+  http.get(`${DENTAL_API}/charts/:id`, async ({ params }) => {
+    await delay(30);
+    const id = String(params.id ?? '').trim();
+    let c: any = id ? getDentalChartById(id) : undefined;
+    if (!c && id) {
+      try { c = get<any>('dental_charts', id); } catch {}
+      if (!c) c = getDentalChartsByPatient(id)[0];
+    }
+    if (!c) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: c });
+  }),
+
   // 获取患者牙位图
   http.get(`${DENTAL_API}/chart/:patientId`, async ({ params }) => {
     await delay(50);
@@ -390,7 +443,8 @@ const dentalTreatmentModule = [
   http.get(`${DENTAL_API}/treatments`, async ({ request }) => {
     await delay(60);
     const url = new URL(request.url);
-    const opts = parseQuery(url);
+    // [G005 dental-demo-fill] 默认返回全量 100 条 (20 患者 × 5, patientId/chartId/studyId 全关联)
+    const opts = fullListOpts(url, MOCK_DENTAL_TREATMENTS.length);
     const result = applyQuery(MOCK_DENTAL_TREATMENTS, opts, ['patientName', 'diagnosis', 'type']);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
@@ -419,11 +473,29 @@ const dentalTreatmentModule = [
   }),
   http.post(`${DENTAL_API}/treatments/:id/start`, async ({ params }) => {
     await delay(40);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'InProgress', startedAt: new Date().toISOString() } });
+    const id = String(params.id ?? '').trim();
+    const startedAt = new Date().toISOString();
+    // [G005-P1] 同步 store 状态 (dental_treatments), 兼容 mock 数据
+    if (id) {
+      try {
+        const existing = get<any>('dental_treatments', id) ?? MOCK_DENTAL_TREATMENTS.find(x => x.id === id);
+        if (existing) update<any>('dental_treatments', id, { status: 'InProgress', startedAt } as any);
+      } catch {}
+    }
+    return HttpResponse.json({ success: true, data: { id, status: 'InProgress', startedAt } });
   }),
   http.post(`${DENTAL_API}/treatments/:id/complete`, async ({ params }) => {
     await delay(40);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'Completed', completedAt: new Date().toISOString() } });
+    const id = String(params.id ?? '').trim();
+    const completedAt = new Date().toISOString();
+    // [G005-P1] 同步 store 状态 (dental_treatments), 兼容 mock 数据
+    if (id) {
+      try {
+        const existing = get<any>('dental_treatments', id) ?? MOCK_DENTAL_TREATMENTS.find(x => x.id === id);
+        if (existing) update<any>('dental_treatments', id, { status: 'Completed', completedAt } as any);
+      } catch {}
+    }
+    return HttpResponse.json({ success: true, data: { id, status: 'Completed', completedAt } });
   }),
   
   
@@ -890,34 +962,44 @@ const dentalEmrModule = [
     await delay(60);
     const p = MOCK_DENTAL_PATIENTS.find(x => x.id === params.id);
     if (!p) return HttpResponse.json({ success: false }, { status: 404 });
+    // [G005 dental-demo-fill] 汇总按患者过滤 (treatments/appointments/unpaid 均关联 patientId)
+    const t = MOCK_PATIENT_TREATMENT_HISTORY.filter(h => h.patientId === p.id);
+    const a = MOCK_PATIENT_APPOINTMENTS.filter(x => x.patientId === p.id && x.status !== 'completed');
+    const b = MOCK_PATIENT_BILLING.filter(x => x.patientId === p.id && x.status !== 'paid');
     return HttpResponse.json({
       success: true,
-      data: { ...p, summary: { treatments: MOCK_PATIENT_TREATMENT_HISTORY.length, appointments: MOCK_PATIENT_APPOINTMENTS.filter(a => a.status !== 'completed').length, unpaid: MOCK_PATIENT_BILLING.filter(b => b.status !== 'paid').reduce((s:number,b:any)=>s+b.selfPay,0) } },
+      data: { ...p, summary: { treatments: t.length, appointments: a.length, unpaid: b.reduce((s: number, x: any) => s + x.selfPay, 0) } },
     });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/treatments`, async () => {
+  http.get(`${DENTAL_API}/patients/:id/overview/treatments`, async ({ params }) => {
     await delay(40);
-    return HttpResponse.json({ success: true, data: MOCK_PATIENT_TREATMENT_HISTORY });
+    const filtered = MOCK_PATIENT_TREATMENT_HISTORY.filter(h => h.patientId === params.id);
+    return HttpResponse.json({ success: true, data: filtered.length ? filtered : MOCK_PATIENT_TREATMENT_HISTORY });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/appointments`, async () => {
+  http.get(`${DENTAL_API}/patients/:id/overview/appointments`, async ({ params }) => {
     await delay(30);
-    return HttpResponse.json({ success: true, data: MOCK_PATIENT_APPOINTMENTS });
+    const filtered = MOCK_PATIENT_APPOINTMENTS.filter(x => x.patientId === params.id);
+    return HttpResponse.json({ success: true, data: filtered.length ? filtered : MOCK_PATIENT_APPOINTMENTS });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/billing`, async () => {
+  http.get(`${DENTAL_API}/patients/:id/overview/billing`, async ({ params }) => {
     await delay(40);
-    return HttpResponse.json({ success: true, data: MOCK_PATIENT_BILLING });
+    const filtered = MOCK_PATIENT_BILLING.filter(x => x.patientId === params.id);
+    return HttpResponse.json({ success: true, data: filtered.length ? filtered : MOCK_PATIENT_BILLING });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/prescriptions`, async () => {
+  http.get(`${DENTAL_API}/patients/:id/overview/prescriptions`, async ({ params }) => {
     await delay(30);
-    return HttpResponse.json({ success: true, data: MOCK_PATIENT_PRESCRIPTIONS });
+    const filtered = MOCK_PATIENT_PRESCRIPTIONS.filter(x => x.patientId === params.id);
+    return HttpResponse.json({ success: true, data: filtered.length ? filtered : MOCK_PATIENT_PRESCRIPTIONS });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/consents`, async () => {
+  http.get(`${DENTAL_API}/patients/:id/overview/consents`, async ({ params }) => {
     await delay(30);
-    return HttpResponse.json({ success: true, data: MOCK_PATIENT_CONSENTS });
+    const filtered = MOCK_PATIENT_CONSENTS.filter(x => x.patientId === params.id);
+    return HttpResponse.json({ success: true, data: filtered.length ? filtered : MOCK_PATIENT_CONSENTS });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/recalls`, async () => {
+  http.get(`${DENTAL_API}/patients/:id/overview/recalls`, async ({ params }) => {
     await delay(30);
-    return HttpResponse.json({ success: true, data: MOCK_PATIENT_RECALLS });
+    const filtered = MOCK_PATIENT_RECALLS.filter(x => x.patientId === params.id);
+    return HttpResponse.json({ success: true, data: filtered.length ? filtered : MOCK_PATIENT_RECALLS });
   }),
   // 收藏患者标记
   
@@ -1062,15 +1144,33 @@ const dentalAiEnhanceModule = [
   
   
   // 口内照片管理
-  http.get(`${DENTAL_API}/patient/:pid/photos`, async () => {
+  http.get(`${DENTAL_API}/patient/:pid/photos`, async ({ params }) => {
     await delay(40);
-    return HttpResponse.json({ success: true, data: [
-      { id: 'PHOTO-001', type: 'frontal', label: '正面微笑像', url: 'data:image/png;base64,PHOTO_FRONTAL', takenAt: '2026-06-20T10:00:00Z', category: 'extraoral' },
-      { id: 'PHOTO-002', type: 'occlusal-upper', label: '上颌合面', url: 'data:image/png;base64,PHOTO_OCCLUSAL_U', takenAt: '2026-06-20T10:05:00Z', category: 'intraoral' },
-      { id: 'PHOTO-003', type: 'occlusal-lower', label: '下颌合面', url: 'data:image/png;base64,PHOTO_OCCLUSAL_L', takenAt: '2026-06-20T10:05:00Z', category: 'intraoral' },
-      { id: 'PHOTO-004', type: 'buccal-right', label: '右侧咬合', url: 'data:image/png;base64,PHOTO_BL', takenAt: '2026-06-20T10:10:00Z', category: 'intraoral' },
-      { id: 'PHOTO-005', type: 'buccal-left', label: '左侧咬合', url: 'data:image/png;base64,PHOTO_BR', takenAt: '2026-06-20T10:10:00Z', category: 'intraoral' },
-    ] });
+    // [G005-P1] 按患者 id 确定性生成 3-6 张照片 (无 Math.random; store 中有该患者时优先取 store id)
+    const rawPid = String(params.pid ?? '').trim();
+    let pid = rawPid || 'P100001';
+    try {
+      const fromStore = list<any>('dental_studies').find((st: any) => st.patientId === rawPid);
+      if (fromStore?.patientId) pid = String(fromStore.patientId);
+    } catch {}
+    const hash = Array.from(pid).reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 997, 7);
+    const templates = [
+      { type: 'frontal', label: '正面微笑像', category: 'extraoral', url: 'data:image/png;base64,PHOTO_FRONTAL' },
+      { type: 'occlusal-upper', label: '上颌合面', category: 'intraoral', url: 'data:image/png;base64,PHOTO_OCCLUSAL_U' },
+      { type: 'occlusal-lower', label: '下颌合面', category: 'intraoral', url: 'data:image/png;base64,PHOTO_OCCLUSAL_L' },
+      { type: 'buccal-right', label: '右侧咬合', category: 'intraoral', url: 'data:image/png;base64,PHOTO_BL' },
+      { type: 'buccal-left', label: '左侧咬合', category: 'intraoral', url: 'data:image/png;base64,PHOTO_BR' },
+      { type: 'panoramic', label: '全景片', category: 'radiograph', url: 'data:image/png;base64,PHOTO_PANO' },
+    ];
+    const count = 3 + (hash % 4); // 3..6, 由 patientId 派生
+    const day = String(10 + (hash % 18)).padStart(2, '0');
+    const data = templates.slice(0, count).map((tpl, i) => ({
+      id: `PHOTO-${pid}-${i + 1}`,
+      patientId: pid,
+      ...tpl,
+      takenAt: `2026-06-${day}T10:0${i % 6}:00Z`,
+    }));
+    return HttpResponse.json({ success: true, data, meta: { total: data.length, patientId: pid } });
   }),
 ];
 
@@ -1080,7 +1180,9 @@ const dentalManagementModule = [
     await delay(50);
     const url = new URL(request.url);
     void url;
-    return HttpResponse.json({ success: true, data: MOCK_DENTAL_TREATMENTS.slice(0, 50).map(t => ({ id: t.patientId, name: t.patientName })), meta: { total: 200 } });
+    // [G005 dental-demo-fill] 真实患者池 (20 名, P100001-P100020), 与 charts/studies/treatments 关联
+    const data = MOCK_DENTAL_PATIENTS.map(p => ({ id: p.id, name: p.name, gender: p.gender, age: p.age, phone: p.phone, dentist: p.dentist, tags: p.tags }));
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
   }),
   // [G005 W1-A] 医生列表 (DentalSchedulePage 在用)
   http.get(`${DENTAL_API}/dentists`, async () => {
@@ -1094,6 +1196,9 @@ const dentalManagementModule = [
   }),
   http.get(`${DENTAL_API}/patients/:id`, async ({ params }) => {
     await delay(30);
+    // [G005 dental-demo-fill] 真实患者档案 fallback 占位
+    const p = MOCK_DENTAL_PATIENTS.find(x => x.id === params.id);
+    if (p) return HttpResponse.json({ success: true, data: p });
     return HttpResponse.json({ success: true, data: { id: params.id, name: '患者姓名', age: 35, phone: '13800000000' } });
   }),
   http.post(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -1187,6 +1292,22 @@ const dentalManagementModule = [
     item.acceptedAt = new Date().toISOString();
     return HttpResponse.json({ success: true, data: item });
   }),
+  // [G005-P1] 转诊详情 (DentalRadFusionPages): GET /dental/referrals/:id (此前 0 handler)
+  http.get(`${DENTAL_API}/referrals/:id`, async ({ params }) => {
+    await delay(40);
+    const id = String(params.id ?? '').trim();
+    const item = id ? dentalReferrals.find((r: any) => r.id === id) : dentalReferrals[0];
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  // [G005-P1] 转诊撤销 (DentalRadFusionPages handleRevoke 调用 DELETE /dental/referrals/:id)
+  http.delete(`${DENTAL_API}/referrals/:id`, async ({ params }) => {
+    await delay(50);
+    const idx = dentalReferrals.findIndex((r: any) => r.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    dentalReferrals.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];
 
 // [W3-2] 口腔模块内存数据源 (跨页面共享, 页面刷新前持久)
@@ -1194,13 +1315,13 @@ export const dentalReferrals: any[] = [
   { id: 'REF-001', patientId: 'P100001', patient: '张伟', source: '口腔科', target: '放射科', reason: '36 位种植术前 CBCT 三维评估', doctor: '王强', status: 'pending', createdAt: '2026-07-02T09:20:00.000Z' },
   { id: 'REF-002', patientId: 'P100002', patient: '李娜', source: '口腔科', target: '放射科', reason: '16 位根管治疗后 CBCT 复查', doctor: '王强', status: 'accepted', createdAt: '2026-07-01T14:10:00.000Z', acceptedAt: '2026-07-01T15:00:00.000Z' },
   { id: 'REF-003', patientId: 'P100003', patient: '王芳', source: '正畸科', target: '放射科', reason: '正畸-正颌联合治疗头影测量', doctor: '刘敏', status: 'accepted', createdAt: '2026-06-28T10:00:00.000Z', acceptedAt: '2026-06-28T10:40:00.000Z' },
-  { id: 'REF-004', patientId: 'P100004', patient: '陈丽', source: '口腔科', target: '口腔外科', reason: '38 阻生智齿拔除术前评估', doctor: '王强', status: 'completed', createdAt: '2026-06-20T08:30:00.000Z', acceptedAt: '2026-06-20T09:00:00.000Z' },
+  { id: 'REF-004', patientId: 'P100004', patient: '赵雪', source: '口腔科', target: '口腔外科', reason: '38 阻生智齿拔除术前评估', doctor: '王强', status: 'completed', createdAt: '2026-06-20T08:30:00.000Z', acceptedAt: '2026-06-20T09:00:00.000Z' },
 ];
 
 export const teleSessions: any[] = [
   { id: 'TEL-001', title: '种植复杂病例会诊', patientId: 'P100001', patientName: '张伟', expert: '王专?(种植)', reason: '36 位骨量不足,需评估骨增量方案', status: 'in_progress', hostDoctor: '刘敏', createdAt: '2026-07-02T10:00:00.000Z' },
   { id: 'TEL-002', title: '正畸边界病例讨论', patientId: 'P100003', patientName: '王芳', expert: '李专?(正畸)', reason: '下颌前突手术指征评估', status: 'waiting', hostDoctor: '刘敏', createdAt: '2026-07-01T16:30:00.000Z' },
-  { id: 'TEL-003', title: '牙周-修复联合会诊', patientId: 'P100005', patientName: '赵敏', expert: '王专?(种植)', reason: '重度牙周炎修复方案', status: 'completed', hostDoctor: '王强', createdAt: '2026-06-25T09:00:00.000Z' },
+  { id: 'TEL-003', title: '牙周-修复联合会诊', patientId: 'P100005', patientName: '刘阳', expert: '王专?(种植)', reason: '重度牙周炎修复方案', status: 'completed', hostDoctor: '王强', createdAt: '2026-06-25T09:00:00.000Z' },
 ];
 
 // 合并所有模块

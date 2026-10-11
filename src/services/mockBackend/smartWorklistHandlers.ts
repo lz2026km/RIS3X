@@ -1,13 +1,23 @@
 /**
  * [v3.0.6.11-60] Smart MWL 深度化
- * /api/v1/worklist-smart/* (评分/权重/优先级统计)
+ * /api/v1/worklist-smart/* (评分/权重/优先级统计/MWL 列表)
  * /api/v1/smart-route/*   (路由规则/医生资质/分配)
  * 算法与 backend/src/modules/{worklist-smart,smart-route} 保持一致
+ * [G005 Demo-Expand] GET /worklist-smart/mwl (+ /mwl/stats): 60 条 MWL 排程项,
+ *   锚点检查来自 store.exams (selectAnchorExams().worklist, 含 AI 分诊 30 条 → 三端串联),
+ *   accessionNumber 直接复用检查主数据, 分配到 DEVICE_MASTER 设备 (含 AE Title / 机房),
+ *   排程槽位落在未来 24h, MPPS 状态 SCHEDULED/IN_PROGRESS/COMPLETED。
  */
 import { http, HttpResponse, delay } from 'msw';
 import { v4 as uuidv4 } from 'uuid';
+import { DEVICES_BY_MODALITY, type DeviceMaster } from '../../data/master';
+import { hashSeed, mulberry32 } from '../../utils/seededRandom';
+import { selectAnchorExams, queuePriorityOf } from './aiTriageHandlers';
 
-const API_BASE = '/api/v1';
+// 与 emergencyChannelHandlers/criticalExtHandlers 一致: 浏览器用页面 origin, node 测试兜底 localhost
+const API_BASE = (() => {
+  try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost/api/v1'; }
+})();
 
 interface ScoreInput {
   id: string;
@@ -118,6 +128,136 @@ function computeScore(input: ScoreInput) {
   return { studyId: input.id, score: raw, reasons, level, factors };
 }
 
+// ═══ [G005 Demo-Expand] Smart MWL 60 条 (锚点 = store.exams) ═══
+type MppsStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED';
+type MwlState = 'SCHEDULED' | 'ARRIVED' | 'IN_PROGRESS' | 'COMPLETED';
+type DeviceModalityKey = keyof typeof DEVICES_BY_MODALITY;
+
+const MODALITY_TO_DEVICE: Record<string, DeviceModalityKey> = {
+  CT: 'CT',
+  MR: 'MR',
+  DR: 'DR',
+  DX: 'DR',
+  X线: 'DR',
+  普放: 'DR',
+  US: 'US',
+  超声: 'US',
+  MG: 'MG',
+  钼靶: 'MG',
+  乳腺钼靶: 'MG',
+  DSA: 'DSA',
+  XA: 'DSA',
+  'PET-CT': 'PET-CT',
+  PETCT: 'PET-CT',
+  核医学: 'PET-CT',
+};
+
+// DICOM AE Title (≤16 字符), 由主数据设备 ID 派生: DEV-CT-001 → G005_CT_001
+function aeTitleOf(device: DeviceMaster): string {
+  return `G005_${String(device.id).replace(/^DEV-/, '').replace(/-/g, '_')}`;
+}
+
+const pad2 = (n: number, len = 2): string => String(n).padStart(len, '0');
+
+interface SmartMwlBase {
+  id: string;
+  examId: string;
+  reportId: string;
+  accessionNumber: string;
+  patientId: string;
+  patientName: string;
+  patientSex: string;
+  patientAge: number | null;
+  patientType: string;
+  modality: string;
+  bodyPart: string;
+  requestedProcedureDescription: string;
+  requestedProcedureId: string;
+  studyInstanceUid: string;
+  scheduledStationAeTitle: string;
+  stationName: string;
+  deviceId: string;
+  deviceModel: string;
+  mppsStatus: MppsStatus;
+  state: MwlState;
+  priority: 'STAT' | 'URGENT' | 'ROUTINE';
+  priorityZh: '急诊' | '加急' | '普通';
+  slotOffsetMin: number;
+  source: string;
+}
+
+type SmartMwlItem = SmartMwlBase & { scheduledAt: string; scheduledDate: string; scheduledTime: string };
+
+let mwlBases: SmartMwlBase[] | null = null;
+
+function ensureMwl(): SmartMwlBase[] {
+  if (mwlBases) return mwlBases;
+  const { worklist } = selectAnchorExams();
+  const deviceCursor: Record<string, number> = {};
+  mwlBases = worklist.map((row, idx) => {
+    const rand = mulberry32(hashSeed(`g005-smart-mwl:${row.examId}`));
+    const modKey: DeviceModalityKey = MODALITY_TO_DEVICE[row.modality] ?? 'CT';
+    const pool = DEVICES_BY_MODALITY[modKey];
+    const cursor = deviceCursor[modKey] ?? 0;
+    deviceCursor[modKey] = cursor + 1;
+    const device = pool[cursor % pool.length];
+    const priorityZh = queuePriorityOf(row.examPriority);
+    const priority: SmartMwlBase['priority'] = priorityZh === '急诊' ? 'STAT' : priorityZh === '加急' ? 'URGENT' : 'ROUTINE';
+    const roll = rand();
+    const mppsStatus: MppsStatus = roll < 0.15 ? 'COMPLETED' : roll < 0.4 ? 'IN_PROGRESS' : 'SCHEDULED';
+    const state: MwlState = mppsStatus === 'IN_PROGRESS'
+      ? 'IN_PROGRESS'
+      : mppsStatus === 'COMPLETED'
+        ? 'COMPLETED'
+        : rand() < 0.3
+          ? 'ARRIVED'
+          : 'SCHEDULED';
+    const uidSeed = hashSeed(`g005-mwl-uid:${row.examId}`);
+    return {
+      id: `SW-MWL-${pad2(idx + 1, 4)}`,
+      examId: row.examId,
+      reportId: row.reportId,
+      accessionNumber: row.accessionNumber || `ACC-${uidSeed.toString(36).toUpperCase()}`,
+      patientId: row.patientId,
+      patientName: row.patientName,
+      patientSex: row.gender,
+      patientAge: row.age,
+      patientType: row.patientType || '门诊',
+      modality: row.modality,
+      bodyPart: row.bodyPart,
+      requestedProcedureDescription: row.examItem,
+      requestedProcedureId: `RP-${row.examId}`,
+      studyInstanceUid: `1.2.840.114350.1.136.${uidSeed}`,
+      scheduledStationAeTitle: device ? aeTitleOf(device) : `G005_${modKey}`,
+      stationName: device?.room ?? `${modKey}室`,
+      deviceId: device?.id ?? '',
+      deviceModel: device ? `${device.brand} ${device.model}` : '',
+      mppsStatus,
+      state,
+      priority,
+      priorityZh,
+      // 未来 24h 内的排程槽位 (10min ~ 23h50m)
+      slotOffsetMin: 10 + Math.floor(rand() * 1420),
+      source: 'store.exams',
+    };
+  });
+  return mwlBases;
+}
+
+// 每次请求按 now 重新物化排程时间, 保证槽位始终落在「未来 24h」
+function materializeMwl(bases: SmartMwlBase[]): SmartMwlItem[] {
+  const now = Date.now();
+  return bases.map((b) => {
+    const at = new Date(now + b.slotOffsetMin * 60_000);
+    return {
+      ...b,
+      scheduledAt: at.toISOString(),
+      scheduledDate: `${at.getFullYear()}-${pad2(at.getMonth() + 1)}-${pad2(at.getDate())}`,
+      scheduledTime: `${pad2(at.getHours())}:${pad2(at.getMinutes())}:00`,
+    };
+  });
+}
+
 const DEFAULT_RULES = [
   { id: 'rr-001', name: 'CT Chest - Senior', modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient', maxLoad: 10, priority: 1, enabled: true },
   { id: 'rr-002', name: 'MR Brain - Specialist', modality: 'MR', bodyPart: 'Brain', patientStatus: 'Any', maxLoad: 8, priority: 2, enabled: true },
@@ -217,7 +357,7 @@ function routeAssign(body: { studyId: string; patientName: string; modality: str
     studyId: body.studyId,
     patientName: body.patientName,
     modality: body.modality,
-    assignedTo: doctor ? doctor.name : `Dr. ${['Wang', 'Li', 'Zhang', 'Liu', 'Chen'][Math.floor(Math.random() * 5)]}`,
+    assignedTo: doctor ? doctor.name : `Dr. ${['Wang', 'Li', 'Zhang', 'Liu', 'Chen'][Math.floor(mulberry32(hashSeed(`g005-smart-route-fallback:${body.studyId}`))() * 5)]}`,
     ruleName: rule.name,
     assignedAt: new Date().toISOString(),
     stage,
@@ -273,6 +413,63 @@ export const smartWorklistHandlers = [
       else counts.low++;
     }
     return HttpResponse.json({ success: true, data: counts });
+  }),
+
+  // ── [G005 Demo-Expand] Smart MWL 排程列表 (60 条, accessionNumber 与 store.exams 一致) ──
+  http.get(`${API_BASE}/worklist-smart/mwl`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const modality = url.searchParams.get('modality');
+    const stationAE = url.searchParams.get('stationAE');
+    const mppsStatus = url.searchParams.get('mppsStatus');
+    const priority = url.searchParams.get('priority');
+    const search = url.searchParams.get('search');
+    const page = Math.max(1, Number(url.searchParams.get('page') ?? 1) || 1);
+    const pageSize = Math.max(1, Math.min(200, Number(url.searchParams.get('pageSize') ?? 20) || 20));
+    let items = materializeMwl(ensureMwl());
+    if (modality) items = items.filter((i) => i.modality === modality);
+    if (stationAE) items = items.filter((i) => i.scheduledStationAeTitle === stationAE);
+    if (mppsStatus) items = items.filter((i) => i.mppsStatus === mppsStatus);
+    if (priority) items = items.filter((i) => i.priority === priority || i.priorityZh === priority);
+    if (search) {
+      const kw = search.toLowerCase();
+      items = items.filter((i) => [i.patientName, i.patientId, i.accessionNumber, i.examId, i.requestedProcedureDescription].join(' ').toLowerCase().includes(kw));
+    }
+    items = [...items].sort((a, b) => a.slotOffsetMin - b.slotOffsetMin);
+    const total = items.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const start = (page - 1) * pageSize;
+    return HttpResponse.json({ success: true, data: items.slice(start, start + pageSize), meta: { total, page, pageSize, totalPages } });
+  }),
+
+  http.get(`${API_BASE}/worklist-smart/mwl/stats`, async () => {
+    await delay(60);
+    const bases = ensureMwl();
+    const items = materializeMwl(bases);
+    const byModality: Record<string, number> = {};
+    const byMpps: Record<string, number> = {};
+    const byStation: Record<string, number> = {};
+    const byDevice: Record<string, number> = {};
+    for (const i of items) {
+      byModality[i.modality] = (byModality[i.modality] ?? 0) + 1;
+      byMpps[i.mppsStatus] = (byMpps[i.mppsStatus] ?? 0) + 1;
+      byStation[i.scheduledStationAeTitle] = (byStation[i.scheduledStationAeTitle] ?? 0) + 1;
+      byDevice[i.deviceId] = (byDevice[i.deviceId] ?? 0) + 1;
+    }
+    const next = [...items].sort((a, b) => a.slotOffsetMin - b.slotOffsetMin)[0];
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: items.length,
+        source: 'store.exams',
+        masterDevicesUsed: Object.keys(byDevice).length,
+        windowHours: 24,
+        nextScheduledAt: next?.scheduledAt ?? null,
+        byModality,
+        byMpps,
+        byStation,
+      },
+    });
   }),
 
   // ── smart-route ──

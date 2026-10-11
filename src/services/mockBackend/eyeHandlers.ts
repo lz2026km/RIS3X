@@ -46,6 +46,7 @@ import {
 } from './queryBuilder';
 import { auditCreate, auditUpdate, auditDelete } from './audit';
 import { recordWorkflowEvent, checkRateLimit } from './businessLogic';
+import { resolvePatientId } from '../../data/master/idAlias';
 
 const API_BASE = '/api/v1/eye';
 
@@ -901,7 +902,7 @@ const eyeReportModule = [
   http.post(`${API_BASE}/report/reports/:id/sign`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
-    const updated = update<any>('eye_reports', id, { status: 'signed', signedAt: new Date().toISOString(), signatureHash: 'mock-' + Math.random().toString(36).substring(7) });
+    const updated = update<any>('eye_reports', id, { status: 'signed', signedAt: new Date().toISOString(), signatureHash: 'mock-' + seedRand(`${id}-sign-${Date.now()}`).toString(36) });
     recordWorkflowEvent({ actorId: 'doctor', actorName: '医生', action: 'sign', entityType: 'eye_reports', entityId: id, fromState: 'submitted', toState: 'signed' });
     return HttpResponse.json({ success: true, data: updated });
   }),
@@ -1406,14 +1407,24 @@ const PR2_PROMPT_TEMPLATES: Record<string, { systemPrompt: string; userTemplate:
 
 const eyeReportAiModule = [
   // 1) 病种术语库
+  // [B-09] handler 内异常会被 MSW 转成 HTTP 500, 统一 try/catch 兜底返回 200 错误体,
+  //        并对 params.condition 缺失/非字符串场景加守卫 (原实现直接拿去索引 map)
   http.get(`${API_BASE}/report/asr/vocab/:condition`, async ({ params }) => {
     await delay(40);
-    const c = params.condition as string;
-    const vocab = PR2_OPHTHALMIC_VOCAB[c] || null;
-    if (!vocab) {
-      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `未知病种: ${c}` } }, { status: 404 });
+    try {
+      const raw = params.condition;
+      const c = Array.isArray(raw) ? raw[0] : raw;
+      if (!c || typeof c !== 'string') {
+        return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '缺少病种参数 condition' } });
+      }
+      const vocab = PR2_OPHTHALMIC_VOCAB[c] || null;
+      if (!vocab) {
+        return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `未知病种: ${c}` } });
+      }
+      return HttpResponse.json({ success: true, data: vocab, meta: { condition: c, termCount: vocab.terms?.length ?? 0 } });
+    } catch (e) {
+      return HttpResponse.json({ success: false, error: { code: 'INTERNAL', message: (e as Error)?.message ?? String(e) } });
     }
-    return HttpResponse.json({ success: true, data: vocab, meta: { condition: c, termCount: vocab.terms.length } });
   }),
 
   // 2) 术语反馈
@@ -1433,44 +1444,50 @@ const eyeReportAiModule = [
   }),
 
   // 3) NLP 结构化提取
+  // [B-09] request.json() 对空 body/非法 JSON 会抛异常 (MSW → 500);
+  //        body 为 null 时原实现 body.text 直接空指针, 加守卫并 try/catch 兜底
   http.post(`${API_BASE}/report/nlp/extract`, async ({ request }) => {
     await delay(200);
-    const body = (await request.json()) as { text: string; condition?: string; studyId?: string };
-    const text = body.text || '';
-    // 模拟 NLP 提取: 诊断 + 部位 + 侧别 + 分级
-    const lateralityMatch = text.match(/(右眼|左眼|双眼|OD|OS|OU)/);
-    const diagnosisMatches: string[] = [];
-    for (const [icdName, info] of Object.entries(PR2_ICD10_MAP)) {
-      if (text.includes(icdName)) {
-        diagnosisMatches.push(`${icdName}|${info.code}`);
+    try {
+      const body = (await request.json().catch(() => null)) as { text?: string; condition?: string; studyId?: string } | null;
+      const text = typeof body?.text === 'string' ? body.text : '';
+      // 模拟 NLP 提取: 诊断 + 部位 + 侧别 + 分级
+      const lateralityMatch = text.match(/(右眼|左眼|双眼|OD|OS|OU)/);
+      const diagnosisMatches: string[] = [];
+      for (const [icdName, info] of Object.entries(PR2_ICD10_MAP)) {
+        if (text.includes(icdName)) {
+          diagnosisMatches.push(`${icdName}|${info.code}`);
+        }
       }
-    }
-    // 提取分级
-    const gradeMatch = text.match(/(I{1,3}级|轻度|中度|重度|早期|中期|晚期|稳定|进展)/);
-    // 提取 IOL 度数
-    const iolMatch = text.match(/IOL.*?(\d+\.?\d*)D/);
-    // 提取眼压
-    const iopMatch = text.match(/IOP.*?(\d+\.?\d*)\s*mmHg/);
-    // 提取 C/D
-    const cdMatch = text.match(/C\/D.*?(\d+\.?\d*)/);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        sourceText: text.slice(0, 200),
-        extracted: {
-          laterality: lateralityMatch ? lateralityMatch[1] : null,
-          diagnoses: diagnosisMatches,
-          grade: gradeMatch ? gradeMatch[1] : null,
-          iol: iolMatch ? iolMatch[1] + 'D' : null,
-          iop: iopMatch ? iopMatch[1] + ' mmHg' : null,
-          cdRatio: cdMatch ? cdMatch[1] : null,
+      // 提取分级
+      const gradeMatch = text.match(/(I{1,3}级|轻度|中度|重度|早期|中期|晚期|稳定|进展)/);
+      // 提取 IOL 度数
+      const iolMatch = text.match(/IOL.*?(\d+\.?\d*)D/);
+      // 提取眼压
+      const iopMatch = text.match(/IOP.*?(\d+\.?\d*)\s*mmHg/);
+      // 提取 C/D
+      const cdMatch = text.match(/C\/D.*?(\d+\.?\d*)/);
+      return HttpResponse.json({
+        success: true,
+        data: {
+          sourceText: text.slice(0, 200),
+          extracted: {
+            laterality: lateralityMatch ? lateralityMatch[1] : null,
+            diagnoses: diagnosisMatches,
+            grade: gradeMatch ? gradeMatch[1] : null,
+            iol: iolMatch ? iolMatch[1] + 'D' : null,
+            iop: iopMatch ? iopMatch[1] + ' mmHg' : null,
+            cdRatio: cdMatch ? cdMatch[1] : null,
+          },
+          icdMapped: diagnosisMatches,
+          confidence: 0.85 + seedRand(body?.studyId || 'nlp') * 0.1, // [v3.0.6.8-85] 确定性
+          model: 'eye-nlp-v1',
+          extractedAt: new Date().toISOString(),
         },
-        icdMapped: diagnosisMatches,
-        confidence: 0.85 + seedRand(body.studyId || 'nlp') * 0.1, // [v3.0.6.8-85] 确定性
-        model: 'eye-nlp-v1',
-        extractedAt: new Date().toISOString(),
-      },
-    });
+      });
+    } catch (e) {
+      return HttpResponse.json({ success: false, error: { code: 'INTERNAL', message: (e as Error)?.message ?? String(e) } });
+    }
   }),
 
   // 4) ICD-10 映射
@@ -3155,9 +3172,9 @@ let iopRecordSeed: any[] | null = null;
 function getVisionSeed(): any[] {
   if (!visionRecordSeed) {
     visionRecordSeed = [
-      { id: 'VR-001', patientId: 'p-1001', patientName: '李明', odUcva: 0.6, odBcva: 1.0, odPhva: 0.8, osUcva: 0.5, osBcva: 0.8, osPhva: 0.7, notation: 'decimal', distance: 'far', examiner: '张明远', createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
-      { id: 'VR-002', patientId: 'p-1001', patientName: '李明', odUcva: 0.8, odBcva: 1.0, odPhva: 1.0, osUcva: 0.6, osBcva: 0.9, osPhva: 0.8, notation: 'decimal', distance: 'far', examiner: '张明远', createdAt: new Date(Date.now() - 86400000 * 30).toISOString() },
-      { id: 'VR-003', patientId: 'p-1003', patientName: '赵刚', odUcva: 0.3, odBcva: 0.7, odPhva: 0.7, osUcva: 0.4, osBcva: 0.8, osPhva: 0.8, notation: 'decimal', distance: 'far', examiner: '赵静', createdAt: new Date(Date.now() - 86400000 * 7).toISOString() },
+      { id: 'VR-001', patientId: resolvePatientId('p-1001'), patientName: '李明', odUcva: 0.6, odBcva: 1.0, odPhva: 0.8, osUcva: 0.5, osBcva: 0.8, osPhva: 0.7, notation: 'decimal', distance: 'far', examiner: '张明远', createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
+      { id: 'VR-002', patientId: resolvePatientId('p-1001'), patientName: '李明', odUcva: 0.8, odBcva: 1.0, odPhva: 1.0, osUcva: 0.6, osBcva: 0.9, osPhva: 0.8, notation: 'decimal', distance: 'far', examiner: '张明远', createdAt: new Date(Date.now() - 86400000 * 30).toISOString() },
+      { id: 'VR-003', patientId: resolvePatientId('p-1003'), patientName: '赵刚', odUcva: 0.3, odBcva: 0.7, odPhva: 0.7, osUcva: 0.4, osBcva: 0.8, osPhva: 0.8, notation: 'decimal', distance: 'far', examiner: '赵静', createdAt: new Date(Date.now() - 86400000 * 7).toISOString() },
     ];
   }
   return visionRecordSeed;
@@ -3166,12 +3183,12 @@ function getVisionSeed(): any[] {
 function getIopSeed(): any[] {
   if (!iopRecordSeed) {
     iopRecordSeed = [
-      { id: 'IOP-001', patientId: 'p-1001', patientName: '李明', od: 18, os: 19, device: 'nct', timestamp: new Date(Date.now() - 86400000).toISOString() },
-      { id: 'IOP-002', patientId: 'p-1001', patientName: '李明', od: 17, os: 20, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 30).toISOString() },
-      { id: 'IOP-003', patientId: 'p-1002', patientName: '王芳', od: 22, os: 24, device: 'nct', timestamp: new Date(Date.now() - 86400000 * 7).toISOString() },
-      { id: 'IOP-004', patientId: 'p-1002', patientName: '王芳', od: 21, os: 22, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 10).toISOString() },
-      { id: 'IOP-005', patientId: 'p-1002', patientName: '王芳', od: 24, os: 26, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 14).toISOString() },
-      { id: 'IOP-006', patientId: 'p-1002', patientName: '王芳', od: 16, os: 17, device: 'nct', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 18).toISOString() },
+      { id: 'IOP-001', patientId: resolvePatientId('p-1001'), patientName: '李明', od: 18, os: 19, device: 'nct', timestamp: new Date(Date.now() - 86400000).toISOString() },
+      { id: 'IOP-002', patientId: resolvePatientId('p-1001'), patientName: '李明', od: 17, os: 20, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 30).toISOString() },
+      { id: 'IOP-003', patientId: resolvePatientId('p-1002'), patientName: '王芳', od: 22, os: 24, device: 'nct', timestamp: new Date(Date.now() - 86400000 * 7).toISOString() },
+      { id: 'IOP-004', patientId: resolvePatientId('p-1002'), patientName: '王芳', od: 21, os: 22, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 10).toISOString() },
+      { id: 'IOP-005', patientId: resolvePatientId('p-1002'), patientName: '王芳', od: 24, os: 26, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 14).toISOString() },
+      { id: 'IOP-006', patientId: resolvePatientId('p-1002'), patientName: '王芳', od: 16, os: 17, device: 'nct', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 18).toISOString() },
     ];
   }
   return iopRecordSeed;
@@ -3184,7 +3201,10 @@ const eyeW3RisModule = [
     const url = new URL(request.url);
     const patientId = url.searchParams.get('patientId');
     let data = [...getVisionSeed()];
-    if (patientId) data = data.filter((v: any) => v.patientId === patientId);
+    if (patientId) {
+      const pid = resolvePatientId(patientId);
+      data = data.filter((v: any) => v.patientId === pid || v.patientId === patientId);
+    }
     data.sort((a: any, b: any) => String(b.createdAt).localeCompare(String(a.createdAt)));
     return HttpResponse.json({ success: true, data, meta: { total: data.length } });
   }),
@@ -3193,7 +3213,7 @@ const eyeW3RisModule = [
     const body = (await request.json()) as any;
     const item = {
       id: body.id || `VR-${Date.now()}`,
-      patientId: body.patientId || 'p-1001',
+      patientId: resolvePatientId(body.patientId || 'p-1001'),
       patientName: body.patientName || '李明',
       odUcva: body.odUcva ?? 0,
       odBcva: body.odBcva ?? 0,
@@ -3216,7 +3236,10 @@ const eyeW3RisModule = [
     const url = new URL(request.url);
     const patientId = url.searchParams.get('patientId');
     let data = [...getIopSeed()];
-    if (patientId) data = data.filter((r: any) => r.patientId === patientId);
+    if (patientId) {
+      const pid = resolvePatientId(patientId);
+      data = data.filter((r: any) => r.patientId === pid || r.patientId === patientId);
+    }
     data.sort((a: any, b: any) => String(b.timestamp).localeCompare(String(a.timestamp)));
     return HttpResponse.json({ success: true, data, meta: { total: data.length } });
   }),
@@ -3225,7 +3248,7 @@ const eyeW3RisModule = [
     const body = (await request.json()) as any;
     const item = {
       id: body.id || `IOP-${Date.now()}`,
-      patientId: body.patientId || 'p-1001',
+      patientId: resolvePatientId(body.patientId || 'p-1001'),
       patientName: body.patientName || '李明',
       od: Number(body.od) || 0,
       os: Number(body.os) || 0,

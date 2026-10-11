@@ -149,7 +149,8 @@ export default function DeviceScheduleGanttPage() {
 
   // ── 维护块创建 ──
   const handleCreateBlock = async () => {
-    const values = await blockForm.validateFields()
+    const values = await blockForm.validateFields().catch(() => null)
+    if (!values) return;
     const day = values.date.format('YYYY-MM-DD')
     const start = dayjs(`${day}T${values.time[0].format('HH:mm')}:00`).format('YYYY-MM-DDTHH:mm:ss')
     const end = dayjs(`${day}T${values.time[1].format('HH:mm')}:00`).format('YYYY-MM-DDTHH:mm:ss')

@@ -477,7 +477,7 @@ export default function TermLibraryPage() {
     setTimeout(() => setImportedCount(null), 3000)
   }
 
-  const useCount = (id: string) => {
+  const incrementUsage = (id: string) => {
     setTerms(terms.map(t => t.id === id ? { ...t, count: t.count + 1, lastUsed: new Date().toISOString().slice(0, 10) } : t))
   }
 
@@ -523,7 +523,7 @@ export default function TermLibraryPage() {
           <ActionButton action="edit" size="compact" onClick={() => openEditModal(term)} />
           <button onClick={() => handleToggleActive(term.id)} title={term.isActive === false ? t9('termLibrary.enable') : t9('termLibrary.disable')} style={{ padding: '4px 8px', background: term.isActive === false ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: term.isActive === false ? 'var(--color-success-600)' : 'var(--color-warning-600)', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}</button>
           <ActionButton action="delete" size="compact" onClick={() => handleDeleteTerm(term.id)} />
-          <button onClick={() => { handleCopyTerm(term.term); useCount(term.id) }} title={t9('termLibrary.copyAndUse')} style={{ padding: '4px 8px', background: 'var(--color-success-bg)', color: copySuccess === term.term ? 'var(--color-success-600)' : '#059669', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{copySuccess === term.term ? <Check size={11} /> : <Copy size={11} />}</button>
+          <button onClick={() => { handleCopyTerm(term.term); incrementUsage(term.id) }} title={t9('termLibrary.copyAndUse')} style={{ padding: '4px 8px', background: 'var(--color-success-bg)', color: copySuccess === term.term ? 'var(--color-success-600)' : '#059669', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{copySuccess === term.term ? <Check size={11} /> : <Copy size={11} />}</button>
         </div>
       ),
     },
@@ -1281,7 +1281,7 @@ export default function TermLibraryPage() {
                         {t9('termLibrary.emptyQuick')}
                       </div>
                     ) : quickTerms.map(t => (
-                      <button key={t.id} onClick={() => { handleCopyTerm(t.term); useCount(t.id) }} style={{
+                      <button key={t.id} onClick={() => { handleCopyTerm(t.term); incrementUsage(t.id) }} style={{
                         display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid',
                         cursor: 'pointer', fontSize: 12, fontWeight: 500,
                         background: copySuccess === t.term ? 'var(--color-success-bg)' : 'var(--bg-card)',

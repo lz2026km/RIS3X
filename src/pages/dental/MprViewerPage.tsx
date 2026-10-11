@@ -1,8 +1,8 @@
 // [v3.0.6.8-56] CBCT MPR 多平面重建 (三平面联动)
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Space, Tag, Button, InputNumber, Spin, Progress } from 'antd';
-import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Space, Tag, Button, InputNumber, Spin, Progress, Card, Empty } from 'antd';
+import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight, CheckCircle2, SearchX } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
@@ -137,6 +137,16 @@ export const MprViewerPage: React.FC = () => {
   };
 
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
+
+  // [G005-P1] 守卫空 studyId: 不渲染 MPR 网格, 引导回口腔影像列表
+  if (!studyId) return (
+    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary, #0f172a)' }}>
+      <Card>
+        <Empty image={<SearchX size={48} style={{ opacity: 0.4 }} />}
+          description={<span>{t("dViewer.notFound")} <Link to="/dental/studies" style={{ fontWeight: 600 }}>{t("dentalImplant3d.backToList")}</Link></span>} />
+      </Card>
+    </div>
+  );
 
   return (
     <div style={{ padding: 0, background: '#000', color: '#fff' }}>

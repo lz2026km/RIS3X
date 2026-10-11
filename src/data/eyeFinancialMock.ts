@@ -1,29 +1,34 @@
 /** G005 眼科保险/财务 Mock v3.0.6.8-23a — 40 理赔 + 80 定价 */
 import type { InsuranceClaim, ProcedureCode } from '../types/eye';
+import { hashSeed, mulberry32 } from '../utils/seededRandom';
+import { resolvePatientId } from './master/idAlias';
 
 const NOW = Date.now();
 
-export const MOCK_INSURANCE_CLAIMS: InsuranceClaim[] = Array.from({ length: 40 }, (_, i) => ({
-  id: `cl-${String(i + 1).padStart(3, '0')}`,
-  patientId: `p-${1000 + ((i % 20) + 1)}`,
-  patientName: ['李明','王芳','赵刚','刘洋','陈丽','张强','孙莉','黄伟','吴敏','林峰','周华','许芳','赵文博','钱丽华','孙长海','李娜','王建军','张秀英','陈志强','刘佳琪'][i % 20] ?? '',
-  claimNumber: `CL-2026-${String(100000 + i).slice(1)}`,
-  serviceDate: new Date(NOW - 86400000 * (i * 3 + 1)).toISOString().split('T')[0] ?? '',
-  procedureCode: ['92250','92134','92015','92235','92133','92227','92004','92132','92230','92083'][i % 10] ?? '',
-  procedureName: ['眼底彩照','OCT黄斑','验光','FFA','OCT视盘','DR筛查','眼科检查','OCT前节','荧光造影','视野'][i % 10] ?? '',
-  diagnosisCodes: [['E11.319'],['H40.102'],['H35.301'],['H52.101'],['E11.319'],['S05.8'],['H52.001'],['H44.201'],['H04.123'],['H35.302']][i % 10] ?? [],
-  billedAmount: 200 + Math.round(Math.random() * 1800),
-  allowedAmount: 150 + Math.round(Math.random() * 1200),
-  paidAmount: 100 + Math.round(Math.random() * 1000),
-  patientResponsibility: 20 + Math.round(Math.random() * 200),
-  deductibleApplied: i % 3 === 0 ? 50 : 0,
-  coPayAmount: i % 4 === 0 ? 15 : 10,
-  status: (['submitted','approved','pending','denied','appealed'] as const)[i % 5] ?? 'pending',
-  denialReason: i % 5 === 3 ? '诊断编码与手术不匹配' : undefined,
-  submittedAt: new Date(NOW - 86400000 * (i * 3 + 2)).toISOString(),
-  processedAt: i % 5 !== 0 ? new Date(NOW - 86400000 * (i * 3 + 1)).toISOString() : undefined,
-  remittanceDate: i % 5 === 1 || i % 5 === 2 ? new Date(NOW - 86400000 * i).toISOString() : undefined,
-}));
+export const MOCK_INSURANCE_CLAIMS: InsuranceClaim[] = Array.from({ length: 40 }, (_, i) => {
+  const rnd = mulberry32(hashSeed(`eye-claim:${i}`));
+  return {
+    id: `cl-${String(i + 1).padStart(3, '0')}`,
+    patientId: resolvePatientId(`p-${1000 + ((i % 20) + 1)}`),
+    patientName: ['李明','王芳','赵刚','刘洋','陈丽','张强','孙莉','黄伟','吴敏','林峰','周华','许芳','赵文博','钱丽华','孙长海','李娜','王建军','张秀英','陈志强','刘佳琪'][i % 20] ?? '',
+    claimNumber: `CL-2026-${String(100000 + i).slice(1)}`,
+    serviceDate: new Date(NOW - 86400000 * (i * 3 + 1)).toISOString().split('T')[0] ?? '',
+    procedureCode: ['92250','92134','92015','92235','92133','92227','92004','92132','92230','92083'][i % 10] ?? '',
+    procedureName: ['眼底彩照','OCT黄斑','验光','FFA','OCT视盘','DR筛查','眼科检查','OCT前节','荧光造影','视野'][i % 10] ?? '',
+    diagnosisCodes: [['E11.319'],['H40.102'],['H35.301'],['H52.101'],['E11.319'],['S05.8'],['H52.001'],['H44.201'],['H04.123'],['H35.302']][i % 10] ?? [],
+    billedAmount: 200 + Math.round(rnd() * 1800),
+    allowedAmount: 150 + Math.round(rnd() * 1200),
+    paidAmount: 100 + Math.round(rnd() * 1000),
+    patientResponsibility: 20 + Math.round(rnd() * 200),
+    deductibleApplied: i % 3 === 0 ? 50 : 0,
+    coPayAmount: i % 4 === 0 ? 15 : 10,
+    status: (['submitted','approved','pending','denied','appealed'] as const)[i % 5] ?? 'pending',
+    denialReason: i % 5 === 3 ? '诊断编码与手术不匹配' : undefined,
+    submittedAt: new Date(NOW - 86400000 * (i * 3 + 2)).toISOString(),
+    processedAt: i % 5 !== 0 ? new Date(NOW - 86400000 * (i * 3 + 1)).toISOString() : undefined,
+    remittanceDate: i % 5 === 1 || i % 5 === 2 ? new Date(NOW - 86400000 * i).toISOString() : undefined,
+  };
+});
 
 export const MOCK_PROCEDURE_CODES: ProcedureCode[] = [
   { code: '92250', name: '眼底彩照(双眼)', category: '影像', rvu: 1.85, medicareReimbursement: 85.42, typicalCharge: 320, typicalDuration: 15, requiresAssistant: false, facilityType: ['office','outpatient'], anesthesiaRequired: false, preOpPrep: '散瞳', postOpCare: '无' },

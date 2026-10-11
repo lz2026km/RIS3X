@@ -1,3 +1,27 @@
+## v3.0.6.15-1 (2026-10-10) — 全面 BUG 修复 + 演示数据扩充（对外商业演示版）
+
+> **目标**: ① 全面审查并修复软件 BUG ② 扩充诊疗/患者/医疗设备演示数据（关联性、模拟子系统运行）
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 后端 tsc **0** / `guard:ui` 全绿
+
+### P0/P1 BUG 修复
+- **B-01** `DicomViewerSubComponents` `require('three')` → ESM import（VR/MIP 模式整页崩溃修复）
+- **B-02** `RealDicomViewerPage` 注册 `frame-` image loader（消除 2 个 unhandled rejection + 白屏）
+- **B-03** `dicomSamples` 热链 ohif.org → 本地 DICOM 样例（消除 CORS 阻断）
+- **B-04~06** 5 个 dental MSW 端点补齐（studies/:id、photos、referrals、treatments start/complete）+ 空 studyId guard
+- **B-07/08** 54 处 `validateFields()` 补 `.catch` + 早退 guard（32 文件）
+- **B-09~11** eye ASR/NLP try/catch、mobile origin pattern、CommentService `require` → static import
+- **B-17~19** PatientMergeTool 绑定恢复、FinalCheckList `blockers!` 修复、TermLibrary `useCount` 重命名
+
+### 演示数据扩充（关联性核心）
+- **ID 命名空间统一**：`idAlias.ts` 753 条映射（`P001`/`P100001`/`p-1001`/`P2026xxxxx` → master `P0000xx`）；`store.ts` 注入 `sanitizePatientIds`；`initialData.ts` 220 条预约 ID 重写；**11,908 条记录 0 非 master patientId**
+- **确定性 RNG**：`deterministicSeed.ts`（mulberry32 + FNV-1a）；`initialData` 66 处、dental 29 处、eye 6 处 `Math.random` 移除
+- **急诊链路**：ai-triage 30 例（ESI 1-5、NIHSS/GCS）、smart-mwl 60 条（35 设备 AE title、MPPS 状态）、emergency-channel 15 条（创伤/卒中/STEMI 门-影像时间）
+- **报告链路**：report-qc-v2 30 任务+评分、radpath 25 对（CT→报告→病理 88% 一致率）、treatment-plans 20 例（3-6 随访时间点）、tele-sign 15 会话（SLA 倒计时）
+- **CDS/BI**：CDS 40 规则 + 30 告警（带 patientId/examId）+ 30 剂量行；bi 7 指标 + modality mix + drill-down + trend 180 天 + physician RVU 40 人 + critical SLA
+- **子模块**：心脏 25 例 CTA（钙化/EF/CAD-RADS）、乳腺 30 例（BI-RADS/密度）、眼科 60 患者/150 检查/100 EMR/60 危急值、FHIR 120 资源、dose 30 条、对比剂 50 条、设备维护 10/校准 8/故障 5
+- **打印/门户**：打印 25 单（关联 study UID + 设备）、患者服务 20 例（微信/支付/满意度）
+- **real 模式**：`backend/prisma/seed.ts` 3→30 患者、3→25 设备、5→60 检查、5→45 报告、5→15 危急值、5→20 预约 + 对比剂 10 / 剂量 5 + FK 全联
+
 ## v3.0.6.14-0 (2026-10-10) — 表格紧凑化（K-1…K-6）
 
 > **根因**: 用户反馈"表格又肥又宽，一两行就要滚动"。诊断发现声明的密度系统（`data-table.css` `--dt-row-height:38px`）**从未生效**——antd v6 CSS-in-JS 编译规则特异性 (0,3,2) 覆盖了 `.data-table` 的 (0,2,2)。每张表格固定开销 ~205-250px ≈ 6-7 行数据被吃掉。

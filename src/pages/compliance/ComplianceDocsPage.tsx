@@ -148,7 +148,8 @@ export const ComplianceDocsPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    const values = await form.validateFields();
+    const values = await form.validateFields().catch(() => null);
+    if (!values) return;
     const payload: CreateComplianceDocInput = {
       title: values.title,
       category: values.category,

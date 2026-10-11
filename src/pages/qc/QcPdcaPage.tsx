@@ -178,7 +178,8 @@ export default function QcPdcaPage() {
   }
 
   const handleSave = async () => {
-    const values = await form.validateFields()
+    const values = await form.validateFields().catch(() => null)
+    if (!values) return;
     setSaving(true)
     try {
       if (editing) {
@@ -300,7 +301,8 @@ export default function QcPdcaPage() {
 
   const handleComplete = async () => {
     if (!completing) return
-    const values = await completeForm.validateFields()
+    const values = await completeForm.validateFields().catch(() => null)
+    if (!values) return;
     const res = await qcPdcaApi.completeCycle(completing.id, { summary: values.summary ?? '' })
     if (!res.success) {
       message.error(res.error?.message ?? t('qcPdca.completeFailed'))

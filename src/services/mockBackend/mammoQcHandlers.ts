@@ -2,11 +2,20 @@
 // [G005 Wave1B P1] 标注更新: 后端已实现 /mammo-qc 端点 (mammo-qc.module),
 // 本 handler 仅作为 mock 模式兜底演示数据。
 //   GET /mammo-qc/overview · GET /mammo-qc/records
+// [G005 demo-data] 50 条质控记录全部挂接真实检查: patientId/examId/reportId ← store.list('exams')
+//   (MG/TOM←MG 检查, US←US, MRI←MR), store 为空回落 EXAM_REPORT_PRE / PATIENT_MASTER;
+//   每条记录附带 study/series Instance UID 与体模质控图像引用 (ACR/CDMAM/CDRH · 超声体模 · ACR MRI 体模)。
 import { http, HttpResponse, delay } from 'msw';
+import { list } from './store';
+import { PATIENT_MASTER, PATIENT_BY_ID, DEVICE_MASTER } from '../../data/master';
+import { EXAM_REPORT_PRE } from '../../data/_generators';
+import { hashSeed } from '../../utils/seededRandom';
 
 const API = '/api/v1/mammo-qc';
 
-const delayMs = (min = 60, max = 180) => Math.floor(Math.random() * (max - min) + min);
+// 确定性延迟抖动 (无模块级 Math.random)
+let delayTick = 0;
+const delayMs = (min = 60, max = 180) => min + ((delayTick++ * 43) % Math.max(1, max - min));
 
 const ACR_CHECKS = [
   { name: '体位标准', score: 96, items: ['CC位胸大肌显示', 'MLO位乳房下角', '乳头轮廓'] },
@@ -20,6 +29,37 @@ const ACR_CHECKS = [
 const TECHNOLOGISTS = ['王芳', '李艳', '张敏', '刘洁', '陈静'];
 const MODALITIES = ['MG', 'TOM', 'US', 'MRI'];
 
+// 体模质控图像引用 (mock-images 演示资源路径, 按模态区分体模类型)
+const PHANTOMS_BY_MODALITY: Record<string, Array<{ type: string; model: string; imageRef: string }>> = {
+  MG: [
+    { type: 'ACR 乳腺体模', model: 'ACR Mammography Phantom (Gammex 075-8)', imageRef: 'mock-images/mg-phantom-acr-01.png' },
+    { type: 'CDMAM 3.0', model: 'Phantom Laboratory CDMAM 3.0', imageRef: 'mock-images/mg-phantom-cdmam-01.png' },
+    { type: 'FDA/CDRH 均匀性体模', model: 'CDRH Uniformity Phantom', imageRef: 'mock-images/mg-phantom-cdrh-01.png' },
+  ],
+  TOM: [
+    { type: 'ACR 断层体模', model: 'ACR DBT Phantom', imageRef: 'mock-images/dbt-phantom-acr-01.png' },
+    { type: 'CDMAM 3.0', model: 'Phantom Laboratory CDMAM 3.0', imageRef: 'mock-images/dbt-phantom-cdmam-01.png' },
+  ],
+  US: [
+    { type: '超声通用体模', model: 'Gammex Superficial/Seneral Ultrasound Phantom', imageRef: 'mock-images/us-phantom-01.png' },
+    { type: '乳腺仿真体模', model: 'CIRS Breast Ultrasound Phantom 059', imageRef: 'mock-images/us-phantom-breast-01.png' },
+  ],
+  MRI: [
+    { type: 'ACR MRI 体模', model: 'ACR MRI Accreditation Phantom', imageRef: 'mock-images/mr-phantom-acr-01.png' },
+  ],
+};
+
+// DICOM UID 根 (与 dbtHandlers 演示 UID 同根)
+const UID_ROOT = '1.2.826.0.1.3680043.10.155.3.0.6.11';
+
+interface QcExamRef {
+  examId: string;
+  reportId: string;
+  accessionNumber: string;
+  patientId: string;
+  patientName: string;
+}
+
 interface MammoQcRecord {
   id: string
   date: string
@@ -29,26 +69,183 @@ interface MammoQcRecord {
   status: '合格' | '待复评' | '不合格'
   technologist: string
   issue: string
+  patientId: string
+  examId: string
+  reportId: string
+  accessionNumber: string
+  deviceId: string
+  deviceModel: string
+  studyInstanceUid: string
+  seriesInstanceUid: string
+  qcType: string
+  phantom: {
+    type: string
+    model: string
+    imageRef: string
+    thicknessMm: number
+    acceptance: '合格' | '待复评' | '不合格'
+    checkedAt: string
+  }
 }
 
-const RECORDS: MammoQcRecord[] = Array.from({ length: 50 }, (_, i) => {
-  const score = 60 + Math.floor(Math.random() * 40);
-  const status: MammoQcRecord['status'] = score >= 80 ? '合格' : score >= 60 ? '待复评' : '不合格';
+const RECORD_COUNT = 50;
+
+function modalityExamTarget(modality: string): string {
+  if (modality === 'MG' || modality === 'TOM') return 'MG';
+  if (modality === 'US') return 'US';
+  return 'MR';
+}
+
+function normalizeExam(row: unknown): QcExamRef | null {
+  if (!row || typeof row !== 'object') return null;
+  const r = row as Record<string, unknown>;
+  const reportId = String(r.reportId ?? r.id ?? '');
+  const patientId = String(r.patientId ?? '');
+  if (!reportId || !patientId) return null;
+  const person = PATIENT_BY_ID[patientId];
+  const patientName = String(r.patientName ?? person?.name ?? '');
+  if (!patientName) return null;
   return {
-    id: `mam-qc-${i + 1}`,
-    date: `2026-${String(1 + (i % 5)).padStart(2, '0')}-${String(5 + i).padStart(2, '0')}`,
-    patient: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
-    modality: MODALITIES[i % MODALITIES.length]!,
-    score,
-    status,
-    technologist: TECHNOLOGISTS[i % TECHNOLOGISTS.length]!,
-    issue: score < 70 ? '压缩不足' : score < 80 ? '定位偏移' : '',
+    examId: String(r.id ?? reportId),
+    reportId,
+    accessionNumber: String(r.accessionNumber ?? `ACC-${reportId}`),
+    patientId,
+    patientName,
   };
-});
+}
+
+function collectExamsByModality(rows: unknown[], target: string): QcExamRef[] {
+  const out: QcExamRef[] = [];
+  const used = new Set<string>();
+  for (const raw of rows) {
+    if (!raw || typeof raw !== 'object') continue;
+    if (String((raw as Record<string, unknown>).modality ?? '') !== target) continue;
+    const ref = normalizeExam(raw);
+    if (!ref || used.has(ref.reportId)) continue;
+    used.add(ref.reportId);
+    out.push(ref);
+  }
+  return out;
+}
+
+function pickExamsByModality(target: string): QcExamRef[] {
+  let storeRows: unknown[] = [];
+  try { storeRows = list<unknown>('exams'); } catch { storeRows = []; }
+  const fromStore = collectExamsByModality(storeRows, target);
+  if (fromStore.length >= RECORD_COUNT / 4) return fromStore;
+  const fromPre = collectExamsByModality(EXAM_REPORT_PRE, target);
+  return fromStore.length > 0 ? [...fromStore, ...fromPre.filter((r) => !fromStore.some((s) => s.reportId === r.reportId))] : fromPre;
+}
+
+function masterFallbackFor(target: string, index: number): QcExamRef | null {
+  const wanted = target === 'MR' ? 'MR' : target;
+  const pool = PATIENT_MASTER.filter((p) => p.modality === wanted);
+  const p = pool[index % Math.max(1, pool.length)] ?? PATIENT_MASTER[index % PATIENT_MASTER.length];
+  if (!p) return null;
+  const seq = String(index + 1).padStart(5, '0');
+  return {
+    examId: `EXAM-QC-FB-${seq}`,
+    reportId: `RPT-QC-FB-${seq}`,
+    accessionNumber: `ACC-QC-FB-${seq}`,
+    patientId: p.id,
+    patientName: p.name,
+  };
+}
+
+function deviceFor(modality: string, index: number): { id: string; model: string } {
+  const wanted = modality === 'TOM' ? 'MG' : modality === 'MRI' ? 'MR' : modality;
+  const pool = DEVICE_MASTER.filter((d) => d.modality === wanted);
+  const d = pool[index % Math.max(1, pool.length)];
+  if (d) return { id: d.id, model: d.model };
+  return { id: `${wanted}-QC-${String(index + 1).padStart(2, '0')}`, model: `${wanted} Demo Unit` };
+}
+
+function buildRecords(): MammoQcRecord[] {
+  const pools: Record<string, QcExamRef[]> = {
+    MG: pickExamsByModality('MG'),
+    US: pickExamsByModality('US'),
+    MR: pickExamsByModality('MR'),
+  };
+  const usedPick = { MG: 0, US: 0, MR: 0 };
+  const out: MammoQcRecord[] = [];
+
+  for (let i = 0; i < RECORD_COUNT; i += 1) {
+    const modality = MODALITIES[i % MODALITIES.length] ?? 'MG';
+    const target = modalityExamTarget(modality);
+    const pool = pools[target] ?? [];
+    const pickIdx = usedPick[target as 'MG' | 'US' | 'MR'] ?? 0;
+    let exam = pool.length > 0 ? (pool[pickIdx % pool.length] ?? null) : null;
+    if (exam && pool.length > 0) usedPick[target as 'MG' | 'US' | 'MR'] = pickIdx + 1;
+    if (!exam) exam = masterFallbackFor(target, i);
+    const examRef: QcExamRef = exam ?? {
+      examId: `EXAM-QC-${String(i + 1).padStart(3, '0')}`,
+      reportId: `RPT-QC-${String(i + 1).padStart(3, '0')}`,
+      accessionNumber: `ACC-QC-${String(i + 1).padStart(3, '0')}`,
+      patientId: `P-QC-${String(i + 1).padStart(3, '0')}`,
+      patientName: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
+    };
+
+    // 确定性评分 55-100 (合格 ≥80 / 待复评 60-79 / 不合格 <60)
+    const score = 55 + (hashSeed(`mammo-qc-${i + 1}:${examRef.reportId}`) % 46);
+    const status: MammoQcRecord['status'] = score >= 80 ? '合格' : score >= 60 ? '待复评' : '不合格';
+    const day = 5 + (i % 24);
+    const date = `2026-${String(1 + (i % 5)).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const device = deviceFor(modality, i);
+    const phantomPool = PHANTOMS_BY_MODALITY[modality] ?? PHANTOMS_BY_MODALITY.MG ?? [];
+    const phantomDef = phantomPool[i % Math.max(1, phantomPool.length)] ?? { type: '体模', model: 'Demo Phantom', imageRef: 'mock-images/phantom-01.png' };
+    const uidDate = date.replace(/-/g, '');
+    const seq = String(i + 1).padStart(4, '0');
+
+    out.push({
+      id: `mam-qc-${i + 1}`,
+      date,
+      patient: examRef.patientName,
+      modality,
+      score,
+      status,
+      technologist: TECHNOLOGISTS[i % TECHNOLOGISTS.length] ?? '王芳',
+      issue: score < 70 ? '压缩不足' : score < 80 ? '定位偏移' : '',
+      patientId: examRef.patientId,
+      examId: examRef.examId,
+      reportId: examRef.reportId,
+      accessionNumber: examRef.accessionNumber,
+      deviceId: device.id,
+      deviceModel: device.model,
+      studyInstanceUid: `${UID_ROOT}.${uidDate}.${examRef.accessionNumber}`,
+      seriesInstanceUid: `${UID_ROOT}.${uidDate}.${examRef.accessionNumber}.S.${i + 1}`,
+      qcType: modality === 'US' || modality === 'MRI' ? '设备质控' : '体模质控',
+      phantom: {
+        type: phantomDef.type,
+        model: phantomDef.model,
+        imageRef: phantomDef.imageRef,
+        thicknessMm: 20 + (hashSeed(`phantom:${seq}`) % 45),
+        acceptance: status,
+        checkedAt: `${date}T08:${String(i % 60).padStart(2, '0')}:00`,
+      },
+    });
+  }
+  return out;
+}
+
+let RECORDS: MammoQcRecord[] = [];
+let seeded = false;
+
+// 幂等种子: 首个路由命中时构建 (store 为空则回落生成器 / 主数据)
+function ensureSeeded(): void {
+  if (seeded) return;
+  seeded = true;
+  RECORDS = buildRecords();
+}
+
+// 路由统一入口: 先确保种子就绪, 再执行确定性 delay
+function routeDelay(ms: number): Promise<void> {
+  ensureSeeded();
+  return delay(ms);
+}
 
 export const mammoQcHandlers = [
   http.get(`${API}/overview`, async () => {
-    await delay(delayMs());
+    await routeDelay(delayMs());
     return HttpResponse.json({
       success: true,
       data: {
@@ -68,26 +265,30 @@ export const mammoQcHandlers = [
   }),
 
   http.get(`${API}/records`, async ({ request }) => {
-    await delay(delayMs());
+    await routeDelay(delayMs());
     const url = new URL(request.url);
     const search = (url.searchParams.get('search') ?? '').toLowerCase();
     const items = search
-      ? RECORDS.filter((r) => r.patient.toLowerCase().includes(search) || r.technologist.toLowerCase().includes(search))
+      ? RECORDS.filter((r) =>
+          r.patient.toLowerCase().includes(search) ||
+          r.technologist.toLowerCase().includes(search) ||
+          r.patientId.toLowerCase().includes(search) ||
+          r.studyInstanceUid.toLowerCase().includes(search))
       : RECORDS;
     return HttpResponse.json({
       success: true,
       data: {
         source: 'demo',
         generatedAt: new Date().toISOString(),
-        data: items.map((r) => ({ ...r })),
+        data: items.map((r) => ({ ...r, phantom: { ...r.phantom } })),
       },
-      meta: { total: items.length },
+      meta: { total: items.length, linkedExams: RECORDS.filter((r) => !r.examId.startsWith('EXAM-QC')).length },
     });
   }),
 
   // [G005 Wave1A W9] 质控测试项 / 标准 / 统计 (与后端 mammo-qc.controller 对齐)
   http.get(`${API}/tests`, async () => {
-    await delay(delayMs());
+    await routeDelay(delayMs());
     return HttpResponse.json({
       success: true,
       data: [
@@ -101,7 +302,7 @@ export const mammoQcHandlers = [
   }),
 
   http.get(`${API}/standards`, async () => {
-    await delay(delayMs());
+    await routeDelay(delayMs());
     return HttpResponse.json({
       success: true,
       data: [
@@ -113,11 +314,13 @@ export const mammoQcHandlers = [
   }),
 
   http.get(`${API}/stats`, async () => {
-    await delay(delayMs());
+    await routeDelay(delayMs());
     const total = RECORDS.length;
     const pass = RECORDS.filter((r) => r.status === '合格').length;
     const review = RECORDS.filter((r) => r.status === '待复评').length;
     const fail = RECORDS.filter((r) => r.status === '不合格').length;
+    const byModality: Record<string, number> = {};
+    for (const r of RECORDS) byModality[r.modality] = (byModality[r.modality] ?? 0) + 1;
     return HttpResponse.json({
       success: true,
       data: {
@@ -125,16 +328,16 @@ export const mammoQcHandlers = [
         generatedAt: new Date().toISOString(),
         data: {
           totalRecords: total,
-          passRate: Math.round((pass / total) * 1000) / 10,
-          reviewRate: Math.round((review / total) * 1000) / 10,
-          failRate: Math.round((fail / total) * 1000) / 10,
-          avgScore: Math.round((RECORDS.reduce((s, r) => s + r.score, 0) / total) * 10) / 10,
-          byModality: {},
-          byTechnologist: TECHNOLOGISTS.map((name) => ({
-            technologist: name,
-            count: RECORDS.filter((r) => r.technologist === name).length,
-            avgScore: 80 + Math.floor(Math.random() * 12),
-          })),
+          passRate: total > 0 ? Math.round((pass / total) * 1000) / 10 : 0,
+          reviewRate: total > 0 ? Math.round((review / total) * 1000) / 10 : 0,
+          failRate: total > 0 ? Math.round((fail / total) * 1000) / 10 : 0,
+          avgScore: total > 0 ? Math.round((RECORDS.reduce((s, r) => s + r.score, 0) / total) * 10) / 10 : 0,
+          byModality,
+          byTechnologist: TECHNOLOGISTS.map((name) => {
+            const own = RECORDS.filter((r) => r.technologist === name);
+            const ownAvg = own.length > 0 ? Math.round((own.reduce((s, r) => s + r.score, 0) / own.length) * 10) / 10 : 0;
+            return { technologist: name, count: own.length, avgScore: ownAvg };
+          }),
         },
       },
     });
@@ -142,7 +345,7 @@ export const mammoQcHandlers = [
 
   // [G-21 Wave3C] 乳腺质控规则列表 (15 条 seed, 与后端 mammo-qc.service 对齐)
   http.get(`${API}/breast-rules`, async () => {
-    await delay(delayMs());
+    await routeDelay(delayMs());
     const rules = [
       { id: 'BR-001', category: '投照质量', name: 'CC 位乳腺覆盖', description: 'CC 位应包括全部乳腺实质, 胸大肌显示或达乳头水平, 覆盖 ≥ 90%', level: 'required', metric: 'coverage', views: ['CC'], thresholdMin: 90, warnMin: 85 },
       { id: 'BR-002', category: '投照质量', name: 'MLO 位乳腺覆盖', description: 'MLO 位应包括乳房下角、胸大肌上缘, 覆盖 ≥ 95%', level: 'required', metric: 'coverage', views: ['MLO'], thresholdMin: 95, warnMin: 90 },
@@ -165,7 +368,7 @@ export const mammoQcHandlers = [
 
   // [G-21 Wave3C] 影像质量参数 → 规则命中评估 (通过/告警/不合格 + 依据)
   http.post(`${API}/breast-evaluate`, async ({ request }) => {
-    await delay(delayMs(80, 200));
+    await routeDelay(delayMs(80, 200));
     const body = await request.json().catch(() => ({})) as { images?: Array<Record<string, unknown>> };
     const images = Array.isArray(body.images) ? body.images : [];
     if (images.length === 0) {

@@ -249,7 +249,8 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
   }, [uploadForm])
 
   const handleUploadSubmit = useCallback(async () => {
-    const values = await uploadForm.validateFields()
+    const values = await uploadForm.validateFields().catch(() => null)
+    if (!values) return;
     if (!uploadFile && !values.name) {
       message.warning(t('vnaPage.selectFileOrName'))
       return
@@ -356,7 +357,8 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
   }, [policyForm])
 
   const handlePolicySave = useCallback(async () => {
-    const values = await policyForm.validateFields()
+    const values = await policyForm.validateFields().catch(() => null)
+    if (!values) return;
     setPolicySaving(true)
     try {
       const payload = { tier: values.tier as VnaLifecycleTier, retentionDays: Number(values.retentionDays), description: values.description }

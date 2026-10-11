@@ -142,7 +142,8 @@ const PacsAdminPage: React.FC = () => {
   }
 
   const handleAddServer = async () => {
-    const values = await serverForm.validateFields()
+    const values = await serverForm.validateFields().catch(() => null)
+    if (!values) return;
     const res = await pacsAdminApi.addServer(values)
     if (res.success) { message.success(t('pacsAdmin.serverAdded')); setServerModal(false); serverForm.resetFields(); void fetchData() }
     else message.error(res.error?.message ?? t('pacsAdmin.addFailed'))
@@ -157,7 +158,8 @@ const PacsAdminPage: React.FC = () => {
 
   const handleUpdateServer = async () => {
     if (!editingServer) return
-    const values = await serverForm.validateFields()
+    const values = await serverForm.validateFields().catch(() => null)
+    if (!values) return;
     const res = await pacsAdminApi.updateServer(editingServer.id, values)
     if (res.success) { message.success(t('pacsAdmin.serverUpdated')); setServerModal(false); setEditingServer(null); serverForm.resetFields(); void fetchData() }
     else message.error(res.error?.message ?? t('pacsAdmin.updateFailed'))
@@ -188,7 +190,8 @@ const PacsAdminPage: React.FC = () => {
   }
 
   const handleAddStorage = async () => {
-    const values = await storageForm.validateFields()
+    const values = await storageForm.validateFields().catch(() => null)
+    if (!values) return;
     const res = await pacsAdminApi.createStorageGroup(values)
     if (res.success) { message.success(t('pacsAdmin.storageCreated')); setStorageModal(false); storageForm.resetFields(); void fetchData() }
     else message.error(res.error?.message ?? t('pacsAdmin.createFailed'))

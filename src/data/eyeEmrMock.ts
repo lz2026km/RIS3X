@@ -1,9 +1,14 @@
 /** G005 眼科 EMR Mock 数据 v3.0.6.8-21 — 深化版 (15 份病历) */
 import type { OphthalmologyEmr, PreOpAssessment, PostOpNote, SurgicalRecord } from '../types/eye';
+import { resolvePatientId } from './master/idAlias';
+import { hashSeed, mulberry32 } from '../utils/seededRandom';
+import { MOCK_EYE_PATIENTS, EYE_STUDY_LINKS } from './eyePacsMock';
 
 const NOW = Date.now();
 
-export const MOCK_OPHTHALMOLOGY_EMR_LIST: OphthalmologyEmr[] = [
+export type LinkedEmr = OphthalmologyEmr & { studyId?: string; studyUID?: string };
+
+const BASE_EYE_EMRS: OphthalmologyEmr[] = [
   // 李明 - 糖尿病视网膜病变
   {
     id: "emr-001",
@@ -522,6 +527,135 @@ export const MOCK_OPHTHALMOLOGY_EMR_LIST: OphthalmologyEmr[] = [
     department: "眼科",
   },
 ];
+
+// ============= [G005 eye-expand] 确定性扩展: 100 份 EMR =============
+// 基线 9 份 (emr-001..009) + 生成 91 份 (emr-101..emr-191), 覆盖全部 60 名患者;
+// patientId 经 resolvePatientId 归一, 并交叉链接 studyId/studyUID。
+
+const EXPAND_CHIEF_COMPLAINTS = [
+  "双眼视物模糊渐进性加重",
+  "右眼眼前黑影飘动伴闪光感",
+  "左眼视力下降伴眼胀",
+  "双眼干涩异物感",
+  "右眼突发无痛性视力下降",
+  "体检发现眼底异常",
+  "视物变形伴中心暗点",
+  "眼红眼痛伴畏光流泪",
+];
+const EXPAND_DIAGNOSES: Array<{ diagnosis: string[]; icd: string[] }> = [
+  { diagnosis: ["糖尿病视网膜病变(中度NPDR)"], icd: ["E11.319"] },
+  { diagnosis: ["原发性开角型青光眼"], icd: ["H40.102"] },
+  { diagnosis: ["湿性年龄相关性黄斑变性"], icd: ["H35.301"] },
+  { diagnosis: ["老年性白内障(核性)"], icd: ["H25.101"] },
+  { diagnosis: ["视网膜分支静脉阻塞", "黄斑水肿"], icd: ["H34.801", "H35.801"] },
+  { diagnosis: ["干眼综合征"], icd: ["H04.123"] },
+  { diagnosis: ["高度近视伴黄斑劈裂"], icd: ["H44.201", "H35.731"] },
+  { diagnosis: ["急性前葡萄膜炎"], icd: ["H20.001"] },
+];
+const EXPAND_PLANS = [
+  "门诊随访, 3 个月后复查 OCT+眼底彩照。",
+  "药物治疗, 2 周后复诊评估疗效。",
+  "建议择期手术治疗, 先完成术前检查。",
+  "激光光凝治疗后定期随访视野及 OCT。",
+  "控制血糖血压, 半年后复查眼底。",
+  "继续当前方案, 如症状加重及时就诊。",
+];
+const EXPAND_DOCTORS = ["赵静", "张明远", "王建国", "李梅", "李明远", "陈丽"];
+
+/** 基线病历映射: patientId 归一 + 关联该患者首个 Study */
+const MAPPED_BASE_EMRS: LinkedEmr[] = BASE_EYE_EMRS.map((e) => {
+  const patientId = resolvePatientId(e.patientId);
+  const link = EYE_STUDY_LINKS.find((l) => l.patientId === patientId);
+  return {
+    ...e,
+    patientId,
+    ...(link ? { studyId: link.studyId, studyUID: link.studyUID } : {}),
+  };
+});
+
+/** 生成 91 份病历 (每位患者至少 1 份, 前 31 名患者各 2 份) */
+const GENERATED_EMRS: LinkedEmr[] = [];
+{
+  const perPatientFirst: LinkedEmr[] = [];
+  const perPatientSecond: LinkedEmr[] = [];
+  for (let i = 0; i < MOCK_EYE_PATIENTS.length; i++) {
+    const p = MOCK_EYE_PATIENTS[i]!;
+    const rnd = mulberry32(hashSeed(`eye-emr:${p.legacyId}`));
+    const dx = EXPAND_DIAGNOSES[Math.floor(rnd() * EXPAND_DIAGNOSES.length)] ?? EXPAND_DIAGNOSES[0]!;
+    const link = EYE_STUDY_LINKS.find((l) => l.patientId === p.patientId);
+    const daysAgo = 2 + Math.floor(rnd() * 60);
+    const createdAt = new Date(NOW - 86400000 * daysAgo).toISOString();
+    const emrIndex = 101 + i;
+    const base: LinkedEmr = {
+      id: `emr-${String(emrIndex).padStart(3, "0")}`,
+      patientId: p.patientId,
+      ...(link ? { studyId: link.studyId, studyUID: link.studyUID } : {}),
+      chiefComplaint: EXPAND_CHIEF_COMPLAINTS[Math.floor(rnd() * EXPAND_CHIEF_COMPLAINTS.length)] ?? "视物模糊",
+      hpi: `患者因「${dx.diagnosis[0]}」就诊。既往病史详见专科记录, 本次复查未见急性加重。`,
+      pastHistory: ["慢性病随访"],
+      systemicHistory: p.age > 50 ? ["高血压"] : ["无"],
+      medicationHistory: [],
+      allergyHistory: ["无"],
+      familyHistory: ["无特殊"],
+      socialHistory: ["无特殊"],
+      visionOd: [Math.round((0.3 + rnd() * 0.7) * 10) / 10, Math.round((0.4 + rnd() * 0.6) * 10) / 10],
+      visionOs: [Math.round((0.3 + rnd() * 0.7) * 10) / 10, Math.round((0.4 + rnd() * 0.6) * 10) / 10],
+      iopOd: [
+        {
+          od: 12 + Math.floor(rnd() * 12),
+          os: 12 + Math.floor(rnd() * 12),
+          device: "nct",
+          timestamp: createdAt,
+        },
+      ],
+      iopOs: [],
+      slitLamp: {
+        lid: "-",
+        conjunctiva: "-",
+        cornea: "透明",
+        anteriorChamber: "深度可",
+        iris: "纹理清",
+        pupil: "圆,光反射(+)",
+        lens: "透明",
+      },
+      fundus: {
+        disc: "边界清,C/D 0.3",
+        macula: "中心凹反射存在",
+        vessel: "A/V=2:3",
+        periphery: "未见明显异常",
+      },
+      refraction: {
+        od: { sph: Math.round((rnd() * 6 - 3) * 4) / 4, cyl: 0, axis: 0, va: 0.8 },
+        os: { sph: Math.round((rnd() * 6 - 3) * 4) / 4, cyl: 0, axis: 0, va: 0.8 },
+        pd: 62 + Math.floor(rnd() * 5),
+        ph: 14,
+      },
+      gonioscopy: "双眼房角开放",
+      diagnosis: dx.diagnosis,
+      icdCodes: dx.icd,
+      plan: EXPAND_PLANS[Math.floor(rnd() * EXPAND_PLANS.length)] ?? "门诊随访",
+      followUpDays: 30,
+      createdAt,
+      updatedAt: createdAt,
+      doctorName: EXPAND_DOCTORS[Math.floor(rnd() * EXPAND_DOCTORS.length)] ?? "赵静",
+      department: "眼科",
+    };
+    perPatientFirst.push(base);
+    if (i < 31) {
+      perPatientSecond.push({
+        ...base,
+        id: `emr-${String(161 + i).padStart(3, "0")}`,
+        chiefComplaint: "复诊随访",
+        createdAt: new Date(NOW - 86400000 * (daysAgo + 30)).toISOString(),
+        updatedAt: new Date(NOW - 86400000 * (daysAgo + 30)).toISOString(),
+      });
+    }
+  }
+  GENERATED_EMRS.push(...perPatientFirst, ...perPatientSecond);
+}
+
+/** 全量 100 份 EMR (9 基线 + 91 生成) */
+export const MOCK_OPHTHALMOLOGY_EMR_LIST: LinkedEmr[] = [...MAPPED_BASE_EMRS, ...GENERATED_EMRS];
 
 /** 术前评估 mock */
 export const MOCK_PRE_OP_ASSESSMENTS: PreOpAssessment[] = [

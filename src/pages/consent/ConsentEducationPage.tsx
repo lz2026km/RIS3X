@@ -194,7 +194,8 @@ export const ConsentEducationPage: React.FC = () => {
   const createConsent = async () => {
     setSaving(true);
     try {
-      const values = await consentForm.validateFields();
+      const values = await consentForm.validateFields().catch(() => null);
+      if (!values) return;
       const res = await consentEducationApi.createRecord({
         patient: values.patient,
         patientId: values.patientId || undefined,
@@ -260,7 +261,8 @@ export const ConsentEducationPage: React.FC = () => {
     if (!editingConsent) return;
     setSaving(true);
     try {
-      const values = await consentEditForm.validateFields();
+      const values = await consentEditForm.validateFields().catch(() => null);
+      if (!values) return;
       const res = await consentEducationApi.updateRecord(editingConsent.id, {
         status: values.status,
         witnessName: values.witnessName || null,
@@ -280,7 +282,8 @@ export const ConsentEducationPage: React.FC = () => {
   const createMaterial = async () => {
     setSaving(true);
     try {
-      const values = await materialForm.validateFields();
+      const values = await materialForm.validateFields().catch(() => null);
+      if (!values) return;
       // [G005 2B] 附件随提交附上: base64 → content 字段, 文件名 → 摘要 (后端 FormData 不支持时的回退)
       const attachmentNote = materialFile ? `[附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)]` : '';
       const res = await consentEducationApi.createMaterial({
@@ -329,7 +332,8 @@ export const ConsentEducationPage: React.FC = () => {
     if (!editingMaterial) return;
     setSaving(true);
     try {
-      const values = await materialEditForm.validateFields();
+      const values = await materialEditForm.validateFields().catch(() => null);
+      if (!values) return;
       const res = await consentEducationApi.updateEducationMaterial(editingMaterial.id, {
         title: values.title,
         category: values.category,

@@ -1,5 +1,13 @@
 import { http, HttpResponse, delay } from "msw";
 import { v4 as uuidv4 } from "uuid";
+import { list } from "./store";
+import {
+  DEVICES_BY_MODALITY,
+  DEVICE_BY_ID,
+  PATIENT_BY_ID,
+  type DeviceModality,
+} from "../../data/master";
+import { fnv1a32, resolvePatientId } from "../../data/master/idAlias";
 import type {
   DrlEntry,
   RdsrResult,
@@ -31,29 +39,34 @@ const CHILD_DRLS: DrlEntry[] = [
   { modality: "CT", bodyPart: "腹部", ctdivolDrl: 20, dlpDrl: 600, source: "国家DRLs 2023(儿童)", ageGroup: "child" },
 ];
 
+// [G005] 剂量记录直接挂接到 store 的检查主脊 (store.list('exams')),
+//   patientId → PATIENT_MASTER (P000001-P049700), deviceId → DEVICE_MASTER (DEV-CT-001 ...)
 interface MockDoseRecord {
   id: string;
+  /** store exams 集合主键 (cross-link 证据) */
+  examId: string;
+  accessionNumber?: string;
   patientId: string;
   patientName: string;
+  age?: number;
   studyUid: string;
+  /** 输出模态: CT / MR / IR (介入, 主数据中以 DSA 存储) */
   modality: string;
+  /** 源检查模态 (CT / MR / DSA) */
+  examModality: string;
   bodyPart: string;
   ctdiVol: number;
   dlp: number;
+  /** DAP (剂量面积积, Gy·cm²) */
+  dap: number;
   ssde?: number;
+  /** DEVICE_MASTER 设备 id */
+  deviceId: string;
+  deviceName: string;
+  /** DRL 合规标记 (无对应 DRL 时视为合规) */
+  drlCompliant: boolean;
   date: string;
 }
-
-const PATIENTS = [
-  { id: "P1001", name: "张三" },
-  { id: "P1002", name: "李四" },
-  { id: "P1003", name: "王五" },
-  { id: "P1004", name: "赵六" },
-  { id: "P1005", name: "陈七" },
-  { id: "P1006", name: "刘八" },
-  { id: "P1007", name: "周九" },
-  { id: "P1008", name: "吴十" },
-];
 
 const BODY_PARTS = ["头部", "胸部", "腹部", "盆腔", "腰椎"];
 
@@ -64,34 +77,11 @@ const addDays = (d: Date, days: number) => {
   return copy;
 };
 
-let seq = 0;
+let seq = 20261011;
 const lcg = () => {
   seq = (seq * 1103515245 + 12345) % 2147483648;
   return seq / 2147483648;
 };
-
-const MOCK_RECORDS: MockDoseRecord[] = [];
-const NOW = new Date();
-for (let i = 0; i < 64; i++) {
-  const patient = PATIENTS[i % PATIENTS.length]!;
-  const bodyPart = BODY_PARTS[i % BODY_PARTS.length]!;
-  const daysAgo = i < 8 ? 0 : 1 + Math.floor(lcg() * 364);
-  const date = iso(addDays(NOW, -daysAgo));
-  const ctdiVol = +(10 + lcg() * 45).toFixed(1);
-  const dlp = +(200 + lcg() * 850).toFixed(1);
-  MOCK_RECORDS.push({
-    id: `dr-${String(i + 1).padStart(3, "0")}`,
-    patientId: patient.id,
-    patientName: patient.name,
-    studyUid: `1.2.840.113654.2026.${String(100000 + i)}`,
-    modality: "CT",
-    bodyPart,
-    ctdiVol,
-    dlp,
-    ssde: +(10 + lcg() * 30).toFixed(1),
-    date,
-  });
-}
 
 const ackedAlerts = new Set<string>([]);
 
@@ -99,11 +89,169 @@ const findDrl = (bodyPart: string, ageGroup: "adult" | "child" = "adult"): DrlEn
   (ageGroup === "child" ? CHILD_DRLS : DRLS).find((d) => d.bodyPart === bodyPart);
 
 const levelFor = (r: MockDoseRecord): "normal" | "warning" | "critical" => {
+  if (r.modality !== "CT") return "normal"; // DRL 仅针对 CT 电离辐射剂量
   const drl = findDrl(r.bodyPart);
   if (!drl) return "normal";
   if (r.ctdiVol > drl.ctdivolDrl * 1.5 || r.dlp > drl.dlpDrl * 1.5) return "critical";
   if (r.ctdiVol > drl.ctdivolDrl || r.dlp > drl.dlpDrl) return "warning";
   return "normal";
+};
+
+// ==================== 检查主脊 (store exams → 剂量记录) ====================
+interface ExamSource {
+  id?: string;
+  reportId?: string;
+  accessionNumber?: string;
+  patientId?: string;
+  patientName?: string;
+  patientAge?: number;
+  age?: number;
+  modality?: string;
+  bodyPart?: string;
+  examItem?: string;
+  examItemName?: string;
+  examDate?: string;
+  examAt?: string;
+  deviceId?: string;
+  deviceName?: string;
+  deviceModel?: string;
+  studyInstanceUID?: string;
+  studyInstanceUid?: string;
+}
+
+/** 剂量监测覆盖的检查模态: CT / MR / IR(DSA 介入) */
+const DOSE_SOURCE_MODALITIES = ["CT", "MR", "DSA"] as const;
+const DOSE_RECORD_TOTAL = 30;
+// 仅采用同步种子生成的检查 id (RPT-YYYYMMDD-xxxxx / RAD-EXxxx),
+//   排除异步懒加载的 unified-exams, 保证抽样集合确定性
+const STABLE_EXAM_ID = /^(RPT-\d{8}-\d{5}|RAD-EX\d{3,})$/;
+const DEVICE_MODALITY_ORDER: DeviceModality[] = ["CT", "MR", "DR", "US", "MG", "DSA", "PET-CT"];
+
+const examKey = (e: ExamSource) => String(e.id ?? e.reportId ?? "");
+const examDay = (e: ExamSource) => {
+  const raw = e.examDate ?? e.examAt ?? "";
+  return raw ? raw.slice(0, 10) : "";
+};
+const compareExamDesc = (a: ExamSource, b: ExamSource) => {
+  const da = examDay(a);
+  const db = examDay(b);
+  if (da !== db) return db.localeCompare(da);
+  return examKey(a).localeCompare(examKey(b));
+};
+
+/** 确定性等距抽样: 保证日期跨度 (含当日) 且顺序稳定 */
+const pickSpread = (items: ExamSource[], limit: number): ExamSource[] => {
+  if (items.length <= limit) return [...items];
+  const stride = Math.max(1, Math.floor(items.length / limit));
+  const out: ExamSource[] = [];
+  for (let i = 0; out.length < limit && i < items.length; i += stride) {
+    const item = items[i];
+    if (item && !out.includes(item)) out.push(item);
+  }
+  return out;
+};
+
+const resolveDevice = (
+  examModality: string,
+  deviceId: string | undefined,
+  index: number,
+): { id: string; name: string } => {
+  const master = deviceId ? DEVICE_BY_ID[deviceId] : undefined;
+  if (master) return { id: master.id, name: `${master.brand} ${master.model}` };
+  const key = DEVICE_MODALITY_ORDER.find((m) => m === examModality) ?? "CT";
+  const pool = DEVICES_BY_MODALITY[key];
+  const fallback = pool[index % pool.length];
+  return fallback
+    ? { id: fallback.id, name: `${fallback.brand} ${fallback.model}` }
+    : { id: "", name: "未知设备" };
+};
+
+const buildDoseRecords = (): MockDoseRecord[] => {
+  seq = 20261011; // 重置种子 → 每次构建序列一致
+  const exams = list<ExamSource>("exams");
+  const candidates = exams.filter(
+    (e) =>
+      STABLE_EXAM_ID.test(examKey(e)) &&
+      (DOSE_SOURCE_MODALITIES as readonly string[]).includes(String(e.modality ?? "")) &&
+      !!e.patientId &&
+      !!examDay(e),
+  );
+  const byModality = (m: string) => candidates.filter((e) => e.modality === m).sort(compareExamDesc);
+  const picked: ExamSource[] = [];
+  const add = (pool: ExamSource[], limit: number) => {
+    for (const item of pickSpread(pool, limit)) {
+      if (picked.length >= DOSE_RECORD_TOTAL) return;
+      if (!picked.includes(item)) picked.push(item);
+    }
+  };
+  add(byModality("CT"), 16);
+  add(byModality("MR"), 8);
+  add(byModality("DSA"), 6);
+  if (picked.length < DOSE_RECORD_TOTAL) {
+    for (const item of [...candidates].sort(compareExamDesc)) {
+      if (picked.length >= DOSE_RECORD_TOTAL) break;
+      if (!picked.includes(item)) picked.push(item);
+    }
+  }
+  return picked.slice(0, DOSE_RECORD_TOTAL).map((e, i) => toDoseRecord(e, i + 1));
+};
+
+const toDoseRecord = (e: ExamSource, index: number): MockDoseRecord => {
+  const examModality = String(e.modality ?? "CT");
+  const examId = examKey(e);
+  const patientId = resolvePatientId(String(e.patientId ?? ""));
+  const patient = PATIENT_BY_ID[patientId];
+  const patientName = patient?.name ?? e.patientName ?? patientId;
+  const bodyPart = String(e.bodyPart ?? patient?.bodyPart ?? "未指定");
+  const device = resolveDevice(examModality, e.deviceId, index);
+  const isCt = examModality === "CT";
+  const ctdiVol = isCt ? +(8 + lcg() * 42).toFixed(1) : 0;
+  const dlp = isCt
+    ? +(150 + lcg() * 900).toFixed(1)
+    : examModality === "DSA"
+      ? +(40 + lcg() * 260).toFixed(1)
+      : 0;
+  // MR 无电离辐射 → DAP=0; CT/DSA 由 DLP 派生 DAP (Gy·cm²)
+  const dap = examModality === "MR" ? 0 : +(dlp * (1.1 + lcg() * 0.9)).toFixed(1);
+  const record: MockDoseRecord = {
+    id: `dr-${String(index).padStart(3, "0")}`,
+    examId,
+    accessionNumber: e.accessionNumber,
+    patientId,
+    patientName,
+    age: e.patientAge ?? e.age ?? patient?.age,
+    studyUid:
+      e.studyInstanceUID ??
+      e.studyInstanceUid ??
+      `1.2.826.0.1.3680043.10.543.${fnv1a32(examId || `dr-${index}`)}`,
+    modality: examModality === "DSA" ? "IR" : examModality,
+    examModality,
+    bodyPart,
+    ctdiVol,
+    dlp,
+    dap,
+    ssde: isCt ? +(8 + lcg() * 25).toFixed(1) : undefined,
+    deviceId: device.id,
+    deviceName: device.name,
+    drlCompliant: true,
+    date: examDay(e) || iso(new Date()),
+  };
+  record.drlCompliant = levelFor(record) === "normal";
+  return record;
+};
+
+let doseRecordsCache: MockDoseRecord[] | null = null;
+const doseRecords = (): MockDoseRecord[] => {
+  if (!doseRecordsCache) doseRecordsCache = buildDoseRecords();
+  return doseRecordsCache;
+};
+
+type RdsrResultWithLinks = RdsrResult & {
+  examId: string;
+  dap: number;
+  deviceId: string;
+  deviceName: string;
+  drlCompliant: boolean;
 };
 
 function buildCheck(records: DrlCheckRecordInput[]): DrlCheckSummary {
@@ -153,7 +301,7 @@ function buildCheck(records: DrlCheckRecordInput[]): DrlCheckSummary {
   };
 }
 
-const toResult = (r: MockDoseRecord): RdsrResult => ({
+const toResult = (r: MockDoseRecord): RdsrResultWithLinks => ({
   id: r.id,
   studyInstanceUid: r.studyUid,
   modality: r.modality,
@@ -167,11 +315,16 @@ const toResult = (r: MockDoseRecord): RdsrResult => ({
   alertLevel: levelFor(r),
   patientId: r.patientId,
   patientName: r.patientName,
+  examId: r.examId,
+  dap: r.dap,
+  deviceId: r.deviceId,
+  deviceName: r.deviceName,
+  drlCompliant: r.drlCompliant,
 });
 
 const buildAlerts = (status?: string): DoseAlert[] => {
   const alerts: DoseAlert[] = [];
-  for (const r of MOCK_RECORDS) {
+  for (const r of doseRecords()) {
     const level = levelFor(r);
     if (level === "normal") continue;
     const drl = findDrl(r.bodyPart);
@@ -200,7 +353,7 @@ const buildAlerts = (status?: string): DoseAlert[] => {
 
 const buildToday = (): TodayDoseStats => {
   const today = iso(new Date());
-  const records = MOCK_RECORDS.filter((r) => r.date === today);
+  const records = doseRecords().filter((r) => r.date === today);
   const byBodyPart = new Map<string, MockDoseRecord[]>();
   for (const r of records) {
     const list = byBodyPart.get(r.bodyPart) ?? [];
@@ -231,7 +384,7 @@ const buildToday = (): TodayDoseStats => {
 };
 
 const buildStats = (dateFrom?: string, dateTo?: string, modality?: string): RdsrStats => {
-  let items = MOCK_RECORDS;
+  let items = doseRecords();
   if (dateFrom) items = items.filter((r) => r.date >= dateFrom);
   if (dateTo) items = items.filter((r) => r.date <= dateTo);
   if (modality) items = items.filter((r) => r.modality === modality);
@@ -265,7 +418,7 @@ const buildStats = (dateFrom?: string, dateTo?: string, modality?: string): Rdsr
 };
 
 const buildCumulative = (patientId: string): CumulativeDose => {
-  const records = MOCK_RECORDS.filter((r) => r.patientId === patientId).sort((a, b) => b.date.localeCompare(a.date));
+  const records = doseRecords().filter((r) => r.patientId === patientId).sort((a, b) => b.date.localeCompare(a.date));
   const cutoff30 = iso(addDays(new Date(), -30));
   const cutoff365 = iso(addDays(new Date(), -365));
   const totalDlp30d = records.filter((r) => r.date >= cutoff30).reduce((s, r) => s + r.dlp, 0);
@@ -294,7 +447,7 @@ const buildCumulative = (patientId: string): CumulativeDose => {
 
 const buildSummaries = (search?: string): PatientDoseSummary[] => {
   const byPatient = new Map<string, MockDoseRecord[]>();
-  for (const r of MOCK_RECORDS) {
+  for (const r of doseRecords()) {
     const list = byPatient.get(r.patientId) ?? [];
     list.push(r);
     byPatient.set(r.patientId, list);
@@ -372,6 +525,12 @@ export const doseHandlers = [
     return HttpResponse.json({ success: true, data: buildCheck(body.records ?? []) });
   }),
 
+  // [G005] 30 条剂量记录 (源自 store exams, 关联 patient/device/DRL 合规)
+  http.get(`${API_BASE}/rdsr/records`, async () => {
+    await delay(90);
+    return HttpResponse.json({ success: true, data: doseRecords().map(toResult) });
+  }),
+
   http.get(`${API_BASE}/rdsr/today`, async () => {
     await delay(80);
     return HttpResponse.json({ success: true, data: buildToday() });
@@ -387,23 +546,45 @@ export const doseHandlers = [
 
   http.post(`${API_BASE}/rdsr/parse`, async ({ request }) => {
     await delay(150);
-    const body = (await request.json()) as { dicomJson?: Record<string, unknown>; modality?: string; patientId?: string; patientName?: string; examDate?: string };
+    const body = (await request.json()) as {
+      dicomJson?: Record<string, unknown>;
+      modality?: string;
+      patientId?: string;
+      patientName?: string;
+      examDate?: string;
+      deviceId?: string;
+    };
     const json = body.dicomJson ?? {};
-    const patient = PATIENTS[Math.floor(Math.random() * PATIENTS.length)]!;
-    const bodyPart = typeof json.BodyPartExamined === "string" && json.BodyPartExamined !== "" ? String(json.BodyPartExamined) : BODY_PARTS[Math.floor(Math.random() * BODY_PARTS.length)]!;
+    const patientId = resolvePatientId(body.patientId ?? doseRecords()[0]?.patientId ?? "P000001");
+    const patient = PATIENT_BY_ID[patientId];
+    const patientName = body.patientName ?? patient?.name ?? patientId;
+    const bodyPart = typeof json.BodyPartExamined === "string" && json.BodyPartExamined !== ""
+      ? String(json.BodyPartExamined)
+      : BODY_PARTS[Math.floor(lcg() * BODY_PARTS.length)]!;
+    const modality = body.modality ?? "CT";
+    const device = resolveDevice(modality, body.deviceId, doseRecords().length + 1);
+    const dlp = +(200 + lcg() * 800).toFixed(1);
     const record: MockDoseRecord = {
       id: uuidv4(),
-      patientId: body.patientId ?? patient.id,
-      patientName: body.patientName ?? patient.name,
+      examId: "",
+      patientId,
+      patientName,
+      age: patient?.age,
       studyUid: typeof json.StudyInstanceUID === "string" ? String(json.StudyInstanceUID) : `1.2.840.${Date.now()}`,
-      modality: body.modality ?? "CT",
+      modality: modality === "DSA" ? "IR" : modality,
+      examModality: modality,
       bodyPart,
-      ctdiVol: +(10 + Math.random() * 40).toFixed(1),
-      dlp: +(200 + Math.random() * 800).toFixed(1),
-      ssde: +(12 + Math.random() * 30).toFixed(1),
+      ctdiVol: modality === "CT" ? +(10 + lcg() * 40).toFixed(1) : 0,
+      dlp: modality === "CT" ? dlp : 0,
+      dap: modality === "CT" ? +(dlp * (1.1 + lcg() * 0.9)).toFixed(1) : modality === "DSA" ? +(400 + lcg() * 3600).toFixed(1) : 0,
+      ssde: modality === "CT" ? +(12 + lcg() * 30).toFixed(1) : undefined,
+      deviceId: device.id,
+      deviceName: device.name,
+      drlCompliant: true,
       date: body.examDate ?? iso(new Date()),
     };
-    MOCK_RECORDS.unshift(record);
+    record.drlCompliant = levelFor(record) === "normal";
+    doseRecords().unshift(record);
     return HttpResponse.json({ success: true, data: toResult(record) }, { status: 201 });
   }),
 
@@ -417,7 +598,7 @@ export const doseHandlers = [
   http.get(`${API_BASE}/rdsr/patients/:id/cumulative`, async ({ params }) => {
     await delay(110);
     const patientId = String(params.id);
-    const has = MOCK_RECORDS.some((r) => r.patientId === patientId);
+    const has = doseRecords().some((r) => r.patientId === patientId);
     if (!has) {
       return HttpResponse.json({ success: false, data: null, error: { code: "NOT_FOUND", message: `未找到患者 ${patientId} 的剂量记录` } }, { status: 404 });
     }
@@ -434,7 +615,7 @@ export const doseHandlers = [
   http.post(`${API_BASE}/rdsr/alerts/:id/ack`, async ({ params }) => {
     await delay(100);
     const id = String(params.id);
-    const record = MOCK_RECORDS.find((r) => r.id === id);
+    const record = doseRecords().find((r) => r.id === id);
     const level = record ? levelFor(record) : "normal";
     if (!record || level === "normal") {
       return HttpResponse.json({ success: false, data: null, error: { code: "NOT_FOUND", message: "未找到该告警" } }, { status: 404 });

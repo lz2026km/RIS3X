@@ -186,7 +186,8 @@ export default function ReportWatermarkPage() {
   const submitApply = async () => {
     setModalSaving(true)
     try {
-      const values = await applyForm.validateFields()
+      const values = await applyForm.validateFields().catch(() => null)
+      if (!values) return;
       const res = await reportSignV2Api
         .applySign({
           reportId: values.reportId,
@@ -227,7 +228,8 @@ export default function ReportWatermarkPage() {
     if (!rejecting) return
     setModalSaving(true)
     try {
-      const values = await rejectForm.validateFields()
+      const values = await rejectForm.validateFields().catch(() => null)
+      if (!values) return;
       const res = await reportSignV2Api.rejectSign(rejecting.id, { reason: values.reason, actorId: ACTOR.id }).catch(() => null)
       if (res?.success) {
         message.success(t('reportWatermark.rejected'))

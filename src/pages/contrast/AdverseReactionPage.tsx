@@ -123,7 +123,8 @@ export default function AdverseReactionPage() {
   }, [extraContrastTypes])
 
   const handleExtraSubmit = async () => {
-    const values = await extraForm.validateFields()
+    const values = await extraForm.validateFields().catch(() => null)
+    if (!values) return;
     setExtraSubmitting(true)
     try {
       const payload: RecordExtravasationDto = {

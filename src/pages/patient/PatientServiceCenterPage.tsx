@@ -361,7 +361,8 @@ export default function PatientServiceCenterPage() {
   }
 
   const doSubmitTpl = async () => {
-    const values = await ncTplForm.validateFields()
+    const values = await ncTplForm.validateFields().catch(() => null)
+    if (!values) return;
     setNcTplBusy(true)
     try {
       const body = {
@@ -404,7 +405,8 @@ export default function PatientServiceCenterPage() {
   }
 
   const doTriggerNotify = async () => {
-    const values = await ncTriggerForm.validateFields()
+    const values = await ncTriggerForm.validateFields().catch(() => null)
+    if (!values) return;
     setNcTriggerBusy(true)
     try {
       const res = ncTriggerKind === 'appointment'

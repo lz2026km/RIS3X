@@ -1,7 +1,13 @@
 // [G005 W7] 演示数据补齐 handlers — 对比剂质量与合规 (/contrast/quality-compliance)
 // 供 ContrastQualityCompliancePage 走真实 service 层 (contrastSafetyApi.getQualityCompliance),
 // MSW 在 demo 模式下提供确定性演示数据 (source: 'demo')。
+// [G005] 对比剂使用记录 (/contrast/administrations): 50 条, 挂接 store 检查主脊
+//   (patientId → PATIENT_MASTER, examId → store exams, deviceId → DEVICE_MASTER)。
 import { http, HttpResponse, delay } from 'msw'
+import { list } from './store'
+import { CONTRAST_AGENTS } from '../../data/contrastProtocols'
+import { DEVICES_BY_MODALITY, DEVICE_BY_ID, PATIENT_BY_ID } from '../../data/master'
+import { resolvePatientId } from '../../data/master/idAlias'
 
 const API_BASE =
   typeof process !== 'undefined' && process.env.VITEST
@@ -39,6 +45,172 @@ const DEMO_CHECKS = [
   { checkId: 'rc-006', name: '温湿度记录', regulation: '《药品经营质量管理规范》', status: 'fail', details: '6月15日造影剂储存冰箱温度超标（8.5°C）', checkedAt: '2025-06-30T00:00:00Z' },
 ]
 
+// ==================== 对比剂使用记录 (store exams → 50 条) ====================
+interface AdministrationExam {
+  id?: string
+  reportId?: string
+  accessionNumber?: string
+  patientId?: string
+  patientName?: string
+  modality?: string
+  bodyPart?: string
+  examItem?: string
+  examItemName?: string
+  examDate?: string
+  examAt?: string
+  deviceId?: string
+  deviceName?: string
+}
+
+export interface ContrastAdministrationRecord {
+  id: string
+  examId: string
+  accessionNumber?: string
+  patientId: string
+  patientName: string
+  modality: string
+  bodyPart: string
+  examItem: string
+  agentId: string
+  agentName: string
+  genericName: string
+  concentration: string
+  volumeMl: number
+  route: '静脉' | '动脉' | '口服'
+  injectionRateMls: number
+  adverseEvent: boolean
+  adverseEventSeverity: '轻度' | '中度' | '重度' | null
+  deviceId: string
+  deviceName: string
+  administeredAt: string
+}
+
+const ADMINISTRATION_TOTAL = 50
+// 仅采用同步种子检查 id (排除异步懒加载 unified-exams), 保证抽样确定性
+const STABLE_EXAM_ID = /^(RPT-\d{8}-\d{5}|RAD-EX\d{3,})$/
+const IODINE_AGENTS = CONTRAST_AGENTS.filter((a) => a.type === '碘' && !/口服|硫酸钡/.test(a.name))
+const ORAL_AGENTS = CONTRAST_AGENTS.filter((a) => /口服|硫酸钡/.test(a.name))
+const GADOLINIUM_AGENTS = CONTRAST_AGENTS.filter((a) => a.type === '钆')
+const ADVERSE_SEVERITIES: Array<ContrastAdministrationRecord['adverseEventSeverity']> = ['轻度', '中度', '重度']
+
+let adminSeq = 0x5eed1234
+const adminRng = () => {
+  adminSeq = (adminSeq * 1103515245 + 12345) % 2147483648
+  return adminSeq / 2147483648
+}
+
+const examKey = (e: AdministrationExam) => String(e.id ?? e.reportId ?? '')
+const examDay = (e: AdministrationExam) => {
+  const raw = e.examDate ?? e.examAt ?? ''
+  return raw ? raw.slice(0, 10) : ''
+}
+const examLabel = (e: AdministrationExam) => String(e.examItemName ?? e.examItem ?? '')
+const isEnhancedExam = (e: AdministrationExam) =>
+  /增强|CTA|MRA|造影|栓塞|灌注|血管/.test(examLabel(e))
+
+const adminDevice = (
+  examModality: string,
+  deviceId: string | undefined,
+  index: number,
+): { id: string; name: string } => {
+  const master = deviceId ? DEVICE_BY_ID[deviceId] : undefined
+  if (master) return { id: master.id, name: `${master.brand} ${master.model}` }
+  const pool =
+    examModality === 'MR'
+      ? DEVICES_BY_MODALITY.MR
+      : examModality === 'DSA'
+        ? DEVICES_BY_MODALITY.DSA
+        : DEVICES_BY_MODALITY.CT
+  const fallback = pool[index % pool.length]
+  return fallback
+    ? { id: fallback.id, name: `${fallback.brand} ${fallback.model}` }
+    : { id: '', name: '未知设备' }
+}
+
+let administrationCache: ContrastAdministrationRecord[] | null = null
+
+const buildAdministrations = (): ContrastAdministrationRecord[] => {
+  if (administrationCache) return administrationCache
+  adminSeq = 0x5eed1234
+  const exams = list<AdministrationExam>('exams').filter(
+    (e) =>
+      (e.modality === 'CT' || e.modality === 'MR' || e.modality === 'DSA') &&
+      STABLE_EXAM_ID.test(examKey(e)) &&
+      !!e.patientId &&
+      !!examDay(e),
+  )
+  const cmp = (a: AdministrationExam, b: AdministrationExam) => {
+    const da = examDay(a)
+    const db = examDay(b)
+    if (da !== db) return db.localeCompare(da)
+    return examKey(a).localeCompare(examKey(b))
+  }
+  // 增强/造影类检查优先, 其余补齐; 日期降序 + 等距抽样保证确定性与时间跨度
+  const ordered = [...exams.filter(isEnhancedExam).sort(cmp), ...exams.filter((e) => !isEnhancedExam(e)).sort(cmp)]
+  const stride = Math.max(1, Math.floor(ordered.length / ADMINISTRATION_TOTAL))
+  const picked: AdministrationExam[] = []
+  for (let i = 0; picked.length < ADMINISTRATION_TOTAL && i < ordered.length; i += stride) {
+    const item = ordered[i]
+    if (item !== undefined && !picked.includes(item)) picked.push(item)
+  }
+  administrationCache = picked.map((e, i) => {
+    const examModality = String(e.modality ?? 'CT')
+    const examId = examKey(e)
+    const patientId = resolvePatientId(String(e.patientId ?? ''))
+    const patient = PATIENT_BY_ID[patientId]
+    const label = examLabel(e)
+    const isOral = /口服/.test(label)
+    const route: ContrastAdministrationRecord['route'] = isOral
+      ? '口服'
+      : examModality === 'DSA'
+        ? '动脉'
+        : '静脉'
+    const agentPool =
+      route === '口服' ? ORAL_AGENTS : examModality === 'MR' ? GADOLINIUM_AGENTS : IODINE_AGENTS
+    const agent = agentPool[Math.floor(adminRng() * agentPool.length)] ?? IODINE_AGENTS[0]!
+    const volumeMl =
+      examModality === 'MR'
+        ? +(10 + adminRng() * 10).toFixed(1)
+        : examModality === 'DSA'
+          ? +(40 + adminRng() * 110).toFixed(1)
+          : isOral
+            ? +(250 + adminRng() * 250).toFixed(1)
+            : +(60 + adminRng() * 40).toFixed(1)
+    const injectionRateMls = isOral
+      ? 0
+      : +((examModality === 'MR' ? 1 + adminRng() : 2 + adminRng() * 1.5)).toFixed(1)
+    const adverseEvent = adminRng() < 0.06
+    const device = adminDevice(examModality, e.deviceId, i)
+    const hour = 8 + Math.floor(adminRng() * 9)
+    const minute = Math.floor(adminRng() * 60)
+    return {
+      id: `CADM-${String(i + 1).padStart(3, '0')}`,
+      examId,
+      accessionNumber: e.accessionNumber,
+      patientId,
+      patientName: patient?.name ?? e.patientName ?? patientId,
+      modality: examModality,
+      bodyPart: String(e.bodyPart ?? patient?.bodyPart ?? '未指定'),
+      examItem: label || `${examModality} 检查`,
+      agentId: agent.id,
+      agentName: agent.name,
+      genericName: agent.genericName,
+      concentration: agent.concentration,
+      volumeMl,
+      route,
+      injectionRateMls,
+      adverseEvent,
+      adverseEventSeverity: adverseEvent
+        ? ADVERSE_SEVERITIES[Math.floor(adminRng() * ADVERSE_SEVERITIES.length)] ?? '轻度'
+        : null,
+      deviceId: device.id,
+      deviceName: device.name,
+      administeredAt: `${examDay(e)}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`,
+    }
+  })
+  return administrationCache
+}
+
 export const w7MockHandlers = [
   http.get(`${API_BASE}/contrast/quality-compliance`, async ({ request }) => {
     await delay(60)
@@ -55,5 +227,22 @@ export const w7MockHandlers = [
         regulatoryChecks: DEMO_CHECKS,
       },
     })
+  }),
+
+  // [G005] 对比剂使用记录 50 条 (对照剂/体积/途径/流速/不良事件), 关联真实检查与患者
+  http.get(`${API_BASE}/contrast/administrations`, async ({ request }) => {
+    await delay(80)
+    const sp = new URL(request.url).searchParams
+    let items = buildAdministrations()
+    const patientId = sp.get('patientId')
+    const examId = sp.get('examId')
+    const modality = sp.get('modality')
+    const adverseEvent = sp.get('adverseEvent')
+    if (patientId) items = items.filter((r) => r.patientId === patientId)
+    if (examId) items = items.filter((r) => r.examId === examId)
+    if (modality) items = items.filter((r) => r.modality === modality)
+    if (adverseEvent === 'true') items = items.filter((r) => r.adverseEvent)
+    if (adverseEvent === 'false') items = items.filter((r) => !r.adverseEvent)
+    return HttpResponse.json({ success: true, data: { items, total: items.length, source: 'demo' } })
   }),
 ]

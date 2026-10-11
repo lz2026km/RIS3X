@@ -135,7 +135,8 @@ export default function MultiSiteDashboardPage() {
   useEffect(() => { fetchAll() }, [fetchAll])
 
   const saveFederation = async () => {
-    const values = await fedForm.validateFields()
+    const values = await fedForm.validateFields().catch(() => null)
+    if (!values) return;
     const res = await regionalApi.updateFederationConfig(values)
     if (res.success) {
       message.success(t('multiSite.saved'))
@@ -146,7 +147,8 @@ export default function MultiSiteDashboardPage() {
   }
 
   const createSite = async () => {
-    const values = await siteForm.validateFields()
+    const values = await siteForm.validateFields().catch(() => null)
+    if (!values) return;
     const res = await regionalApi.createSite(values)
     if (res.success) {
       message.success(t('multiSite.createSite'))

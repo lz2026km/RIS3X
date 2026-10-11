@@ -641,7 +641,8 @@ export default function ReportRulesPage() {
   }
 
   const saveRule = async () => {
-    const values = await ruleForm.validateFields()
+    const values = await ruleForm.validateFields().catch(() => null)
+    if (!values) return;
     const condition = {
       field: values.field as RuleField,
       operator: values.operator as RuleOperator,

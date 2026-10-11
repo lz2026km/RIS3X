@@ -247,7 +247,8 @@ export const CosignSchedule: React.FC = () => {
   }, [calendar]);
 
   const handleCreateCalendar = async () => {
-    const values = await calendarForm.validateFields();
+    const values = await calendarForm.validateFields().catch(() => null);
+    if (!values) return;
     try {
       await cosignService.createCalendarEntry({
         date: values.date,
@@ -283,7 +284,8 @@ export const CosignSchedule: React.FC = () => {
 
   // ============ 9. 临时授权 ============
   const handleCreateTempAuth = async () => {
-    const values = await tempAuthForm.validateFields();
+    const values = await tempAuthForm.validateFields().catch(() => null);
+    if (!values) return;
     try {
       const grantee = reviewers.find((r) => r.id === values.granteeId);
       await cosignService.createTempAuth({
@@ -312,7 +314,8 @@ export const CosignSchedule: React.FC = () => {
 
   // ============ 10. 批量签 ============
   const handleStartBatch = async () => {
-    const values = await batchForm.validateFields();
+    const values = await batchForm.validateFields().catch(() => null);
+    if (!values) return;
     try {
       const cosigner = reviewers.find((r) => r.id === values.cosignerId);
       await cosignService.startBatchCosign({

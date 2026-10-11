@@ -66,7 +66,8 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
   }, []);
 
   const trigger = async () => {
-    const values = await form.validateFields();
+    const values = await form.validateFields().catch(() => null);
+    if (!values) return;
     setCalling(true);
     const gateway = defaultVoiceRouter.getGateways()[0];
     if (!gateway) {

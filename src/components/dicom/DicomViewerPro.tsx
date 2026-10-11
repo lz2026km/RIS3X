@@ -14,7 +14,7 @@ import {
 import { useCornerstone3D, useViewport, useDicomMetadata } from '../../hooks/useCornerstone';
 import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
 import { getDefaultWindowing } from '../../services/viewer/displayService';
-import { DICOM_SAMPLES, DicomSample } from '../../data/dicomSamples';
+import { DICOM_SAMPLES, DicomSample, getSeriesImageIds, getSampleSeriesImageIds } from '../../data/dicomSamples';
 import { TOOLS, ToolType, DicomMeasurement, createMeasurement, calculateLength, calculateAngle, calculateCobbAngle } from './tools';
 import { t } from '../../i18n/appI18n';
 
@@ -75,12 +75,15 @@ export default function DicomViewerPro({
   const imageIds = useMemo(() => {
     if (propImageIds && propImageIds.length > 0) return propImageIds;
     if (sample) {
-      return Array.from({ length: sample.sliceCount }, (_, i) =>
-        `${sample.imageUrl}?frame=${i + 1}`
-      );
+      // [B-03] 本地真实 DICOM 序列 (/dicom-samples 由 Vite dev 中间件 + build 复制提供, 不再 hot-link ohif.org)
+      const localIds = getSampleSeriesImageIds(sample);
+      if (localIds.length > 0) return localIds;
     }
-    // fallback：OHIF demo
-    return Array.from({ length: 30 }, (_, i) => `wadouri:https://ohif.org/dicom-cases/pt/CT-Chest-1.mhd?frame=${i + 1}`);
+    // fallback：本地 CT 胸部样本序列 (manifest 缺失时退化为单张首帧)
+    const fallbackIds = getSeriesImageIds('CT_CHEST');
+    return fallbackIds.length > 0
+      ? fallbackIds
+      : ['wadouri:/dicom-samples/CT_CHEST/CT_CHEST_001.dcm'];
   }, [propImageIds, sample]);
 
   const effectiveModality = sample?.modality || modality;

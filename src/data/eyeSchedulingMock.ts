@@ -1,5 +1,6 @@
 /** G005 眼科排班 Mock v3.0.6.8-23a — 8 医生 × 30 天 */
 import type { DoctorSchedule, NotificationTemplate } from '../types/eye';
+import { hashSeed, mulberry32 } from '../utils/seededRandom';
 
 const NOW = Date.now();
 const DOCTORS = [
@@ -16,6 +17,7 @@ const DOCTORS = [
 export const MOCK_DOCTOR_SCHEDULES: DoctorSchedule[] = [];
 for (let d = 0; d < DOCTORS.length; d++) {
   const doc = DOCTORS[d]!;
+  const rnd = mulberry32(hashSeed(`eye-schedule:${doc.id}`));
   for (let day = 0; day < 30; day++) {
     const date = new Date(NOW + 86400000 * day);
     const dow = date.getDay();
@@ -31,7 +33,7 @@ for (let d = 0; d < DOCTORS.length; d++) {
       type: day % 7 === 3 ? 'surgery' : day % 10 === 0 ? 'teaching' : day % 15 === 7 ? 'consultation' : 'clinic',
       location: doc.dept === '视光中心' ? '3F诊区' : '2F诊区',
       maxPatients: isMorning ? 20 : 15,
-      bookedPatients: Math.round((isMorning ? 20 : 15) * (0.6 + Math.random() * 0.35)),
+      bookedPatients: Math.round((isMorning ? 20 : 15) * (0.6 + rnd() * 0.35)),
     });
   }
 }

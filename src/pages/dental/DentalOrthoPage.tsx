@@ -74,7 +74,8 @@ export const DentalOrthoPage: React.FC = () => {
   }, [load]);
 
   const createPlan = async () => {
-    const values = await form.validateFields();
+    const values = await form.validateFields().catch(() => null);
+    if (!values) return;
     // [G005 W3-B] 新建正畸病例: POST /dental/ortho/plans (createOrthoPlan), 失败回退 createTreatment
     const res = await dentalApi.createOrthoPlan({
       patientName: values.patientName,

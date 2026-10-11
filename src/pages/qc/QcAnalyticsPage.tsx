@@ -212,7 +212,8 @@ export default function QcAnalyticsPage() {
 
   const handleCreate = async () => {
     if (!createDefect) return
-    const values = await createForm.validateFields()
+    const values = await createForm.validateFields().catch(() => null)
+    if (!values) return;
     setSaving(true)
     try {
       const res = await qcAnalyticsApi.createLoopItem({
@@ -249,7 +250,8 @@ export default function QcAnalyticsPage() {
 
   const handleFix = async () => {
     if (!fixing) return
-    const values = await fixForm.validateFields()
+    const values = await fixForm.validateFields().catch(() => null)
+    if (!values) return;
     await runItemAction(
       () => qcAnalyticsApi.submitFix(fixing.id, { note: values.note ?? '' }),
       t('qcAnalytics.fixSubmitted'),
@@ -264,7 +266,8 @@ export default function QcAnalyticsPage() {
 
   const handleRecheck = async () => {
     if (!rechecking) return
-    const values = await recheckForm.validateFields()
+    const values = await recheckForm.validateFields().catch(() => null)
+    if (!values) return;
     const ok = await runItemAction(
       () => qcAnalyticsApi.recheckItem(rechecking.id, { result: values.result, reviewer: values.reviewer, note: values.note ?? '' }),
       values.result === 'pass' ? t('qcAnalytics.recheckPassed') : t('qcAnalytics.recheckRejected'),
@@ -280,7 +283,8 @@ export default function QcAnalyticsPage() {
 
   const handleClose = async () => {
     if (!closing) return
-    const values = await closeForm.validateFields()
+    const values = await closeForm.validateFields().catch(() => null)
+    if (!values) return;
     const ok = await runItemAction(
       () => qcAnalyticsApi.closeLoopItem(closing.id, { note: values.note ?? '' }),
       t('qcAnalytics.itemClosed'),

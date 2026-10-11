@@ -286,7 +286,8 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const handleAddNote = async () => {
     if (!activeList) return;
-    const v = await noteForm.validateFields();
+    const v = await noteForm.validateFields().catch(() => null);
+    if (!v) return;
     try {
       const created = await finalCheckService.addNote({
         taskId: activeList.taskId, reportId: activeList.reportId,
@@ -305,7 +306,8 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const handleTriggerEmergency = async () => {
     if (!activeList) return;
-    const v = await emForm.validateFields();
+    const v = await emForm.validateFields().catch(() => null);
+    if (!v) return;
     // [G005 Wave3A P2] 先走真实急诊通道端点 (创建触发记录 + 模拟通知), 失败回退本地 review 模拟
     let realOk = false;
     try {
@@ -1136,7 +1138,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   >
                     <Button danger size="small" icon={<RotateCcw size={12} />}>{t('reportReview.final.reject')}</Button>
                   </Popconfirm>
-                  <Button type="primary" size="small" icon={<CheckCircle2 size={12} />} onClick={handleComplete} disabled={activeList.status === 'completed' || summary?.blockers! > 0}>{t('reportReview.final.completeFinal')}</Button>
+                  <Button type="primary" size="small" icon={<CheckCircle2 size={12} />} onClick={handleComplete} disabled={activeList.status === 'completed' || (summary?.blockers ?? 0) > 0}>{t('reportReview.final.completeFinal')}</Button>
                 </Space>
               }
             >

@@ -5,6 +5,7 @@
  * 必须注册在 handlers 数组最前 (新增前缀, 避免与既有通配/参数路由冲突)。
  */
 import { http, HttpResponse, delay } from 'msw'
+import { PATIENT_MASTER } from '../../data/master'
 import type {
   DeliveryLogDto,
   NotificationTemplateDto,
@@ -44,14 +45,16 @@ const bad = (message: string, status = 400) =>
   HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message } }, { status })
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 通用患者 seed
+// 通用患者 seed — 20 人, patientId 直接取自主数据 PATIENT_MASTER (P000001-P049700),
+// 姓名/手机号/身份证与患者主档一致, 保证支付/微信/通知/满意度/自助登记与全院档案交叉引用自洽。
 // ─────────────────────────────────────────────────────────────────────────────
-const PATIENTS = [
-  { patientId: 'P100001', name: '张伟', phone: '13800001001', idCard: '110101196803120011', empiId: 'EMPI-000001' },
-  { patientId: 'P100002', name: '李娜', phone: '13800001002', idCard: '110101199211050028', empiId: 'EMPI-000002' },
-  { patientId: 'P100003', name: '王芳', phone: '13800001003', idCard: 'E12345678', empiId: 'EMPI-000003' },
-  { patientId: 'P100004', name: '陈杰', phone: '13800001004', idCard: '110101198601300037', empiId: 'EMPI-000004' },
-]
+const PATIENTS = PATIENT_MASTER.slice(0, 20).map((p) => ({
+  patientId: p.id,
+  name: p.name,
+  phone: p.phone,
+  idCard: p.idCard,
+  empiId: `EMPI-${p.id.slice(1)}`,
+}))
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 微信
@@ -99,6 +102,7 @@ function wxRecord(input: Omit<WechatSendLogDto, 'id' | 'attempts' | 'createdAt'>
 }
 
 // [demo seed] 微信绑定用户 + 推送日志, 保证 demo 表格首次加载非空 (确定性, 幂等)
+// 20 人患者池中 12 人完成绑定 (服务号 6 / 小程序 6), 14 条推送日志 (含 2 条发送失败)
 function seedWx(): void {
   if (wxUsers.size > 0 || wxLogs.length > 0) return
   const now = Date.now()
@@ -107,6 +111,14 @@ function seedWx(): void {
     { patientIdx: 1, channel: 'MINI_PROGRAM', subscribed: true },
     { patientIdx: 2, channel: 'SERVICE_ACCOUNT', subscribed: false },
     { patientIdx: 3, channel: 'MINI_PROGRAM', subscribed: true },
+    { patientIdx: 4, channel: 'SERVICE_ACCOUNT', subscribed: true },
+    { patientIdx: 5, channel: 'MINI_PROGRAM', subscribed: true },
+    { patientIdx: 6, channel: 'SERVICE_ACCOUNT', subscribed: true },
+    { patientIdx: 7, channel: 'MINI_PROGRAM', subscribed: false },
+    { patientIdx: 8, channel: 'SERVICE_ACCOUNT', subscribed: true },
+    { patientIdx: 9, channel: 'MINI_PROGRAM', subscribed: true },
+    { patientIdx: 10, channel: 'SERVICE_ACCOUNT', subscribed: true },
+    { patientIdx: 11, channel: 'MINI_PROGRAM', subscribed: true },
   ]
   const openids: string[] = []
   userSeeds.forEach((s, i) => {
@@ -123,11 +135,19 @@ function seedWx(): void {
   })
   const logSeeds: Array<{ userIdx: number; type: WechatSendLogDto['type']; title: string; content: string; status: WechatSendLogDto['status'] }> = [
     { userIdx: 0, type: 'OAUTH', title: '微信授权登录', content: 'SERVICE_ACCOUNT 授权成功', status: 'SENT' },
-    { userIdx: 0, type: 'BIND', title: '绑定就诊人成功', content: '张伟 (P100001)', status: 'SENT' },
-    { userIdx: 1, type: 'TEMPLATE', title: '报告已出具', content: '李娜的 MR 颅脑报告已出具', status: 'SENT' },
-    { userIdx: 2, type: 'PUSH', title: '候诊提醒', content: '王芳请于 10:30 到 CT-2 检查', status: 'FAILED' },
-    { userIdx: 3, type: 'TEMPLATE', title: '缴费结果通知', content: '陈杰 CT 增强缴费成功', status: 'SENT' },
+    { userIdx: 0, type: 'BIND', title: '绑定就诊人成功', content: `${PATIENTS[0]!.name} (${PATIENTS[0]!.patientId})`, status: 'SENT' },
+    { userIdx: 1, type: 'TEMPLATE', title: '报告已出具', content: `${PATIENTS[1]!.name}的 MR 颅脑报告已出具`, status: 'SENT' },
+    { userIdx: 2, type: 'PUSH', title: '候诊提醒', content: `${PATIENTS[2]!.name}请于 10:30 到 CT-2 检查`, status: 'FAILED' },
+    { userIdx: 3, type: 'TEMPLATE', title: '缴费结果通知', content: `${PATIENTS[3]!.name} CT 增强缴费成功`, status: 'SENT' },
     { userIdx: 1, type: 'PUSH', title: '预约提醒', content: 'MR 检查将于明日 09:00 进行', status: 'ARCHIVED' },
+    { userIdx: 4, type: 'TEMPLATE', title: '报告已出具', content: `${PATIENTS[4]!.name}的胸部 CT 报告已出具`, status: 'SENT' },
+    { userIdx: 5, type: 'BIND', title: '绑定就诊人成功', content: `${PATIENTS[5]!.name} (${PATIENTS[5]!.patientId})`, status: 'SENT' },
+    { userIdx: 6, type: 'OAUTH', title: '微信授权登录', content: 'SERVICE_ACCOUNT 授权成功', status: 'SENT' },
+    { userIdx: 7, type: 'PUSH', title: '检查前准备提醒', content: `${PATIENTS[7]!.name}腹部 CT 需禁食 6 小时`, status: 'FAILED' },
+    { userIdx: 8, type: 'TEMPLATE', title: '满意度调查邀请', content: `${PATIENTS[8]!.name}您好, 诚邀您参与满意度评价`, status: 'SENT' },
+    { userIdx: 9, type: 'PUSH', title: '排队叫号提醒', content: `${PATIENTS[9]!.name}请到 DR-3 室候诊`, status: 'SENT' },
+    { userIdx: 10, type: 'TEMPLATE', title: '危急值提醒', content: `${PATIENTS[10]!.name}的检查发现危急值, 请尽快联系医生`, status: 'SENT' },
+    { userIdx: 11, type: 'PUSH', title: '胶片领取提醒', content: `${PATIENTS[11]!.name}的胶片已打印完成, 请到自助机领取`, status: 'SENT' },
   ]
   logSeeds.forEach((s, i) => {
     const createdAt = new Date(now - (logSeeds.length - i) * 3600_000).toISOString()
@@ -281,23 +301,42 @@ function payDeriveAmount(itemType: string, refId?: string): number {
 
 function seedPay(): void {
   const now = Date.now()
-  const seeds: Array<{ patientId: string; patientName: string; itemType: PaymentOrderDto['itemType']; refId: string; subject: string; amount: number; method: PaymentMethod; status: PaymentOrderDto['status'] }> = [
-    { patientId: 'P100001', patientName: '张伟', itemType: 'REGISTRATION', refId: 'V20260001', subject: 'CT 平扫登记缴费', amount: 425, method: 'WECHAT', status: 'PAID' },
-    { patientId: 'P100002', patientName: '李娜', itemType: 'APPOINTMENT', refId: 'AP-P100002-001', subject: 'MR 颅脑预约', amount: 620, method: 'ALIPAY', status: 'PAID' },
-    { patientId: 'P100003', patientName: '王芳', itemType: 'EXAM', refId: 'EX-2026-0031', subject: 'DR 腰椎检查', amount: 120, method: 'INSURANCE', status: 'PAID' },
-    { patientId: 'P100004', patientName: '陈杰', itemType: 'REGISTRATION', refId: 'V20260004', subject: 'CT 增强登记缴费', amount: 680, method: 'WECHAT', status: 'CREATED' },
-    { patientId: 'P100001', patientName: '张伟', itemType: 'EXAM', refId: 'EX-2026-0033', subject: 'MR 增强检查', amount: 880, method: 'MIXED', status: 'PARTIAL_REFUND' },
+  const seeds: Array<{ patientIdx: number; itemType: PaymentOrderDto['itemType']; refId: string; subject: string; amount: number; method: PaymentMethod; status: PaymentOrderDto['status'] }> = [
+    { patientIdx: 0, itemType: 'REGISTRATION', refId: 'V20260001', subject: 'CT 平扫登记缴费', amount: 425, method: 'WECHAT', status: 'PAID' },
+    { patientIdx: 1, itemType: 'APPOINTMENT', refId: 'AP-P000002-001', subject: 'MR 颅脑预约', amount: 620, method: 'ALIPAY', status: 'PAID' },
+    { patientIdx: 2, itemType: 'EXAM', refId: 'EX-2026-0031', subject: 'DR 腰椎检查', amount: 120, method: 'INSURANCE', status: 'PAID' },
+    { patientIdx: 3, itemType: 'REGISTRATION', refId: 'V20260004', subject: 'CT 增强登记缴费', amount: 680, method: 'WECHAT', status: 'CREATED' },
+    { patientIdx: 0, itemType: 'EXAM', refId: 'EX-2026-0033', subject: 'MR 增强检查', amount: 880, method: 'MIXED', status: 'PARTIAL_REFUND' },
+    { patientIdx: 4, itemType: 'EXAM', refId: 'EX-2026-0034', subject: '胸部 CT 低剂量筛查', amount: 380, method: 'WECHAT', status: 'PAID' },
+    { patientIdx: 5, itemType: 'APPOINTMENT', refId: 'AP-P000006-002', subject: '乳腺钼靶预约', amount: 260, method: 'ALIPAY', status: 'PAID' },
+    { patientIdx: 6, itemType: 'EXAM', refId: 'EX-2026-0036', subject: '心脏 CTA 检查', amount: 980, method: 'CASH', status: 'PAID' },
+    { patientIdx: 7, itemType: 'REGISTRATION', refId: 'V20260007', subject: '急诊登记缴费', amount: 445, method: 'WECHAT', status: 'PAID' },
+    { patientIdx: 8, itemType: 'EXAM', refId: 'EX-2026-0038', subject: '腹部超声检查', amount: 180, method: 'INSURANCE', status: 'PAID' },
+    { patientIdx: 9, itemType: 'REPORT', refId: 'RPT-2026-0091', subject: '胶片打印工本费', amount: 62.5, method: 'WECHAT', status: 'PAID' },
+    { patientIdx: 10, itemType: 'EXAM', refId: 'EX-2026-0040', subject: '头颅 MR 平扫', amount: 620, method: 'ALIPAY', status: 'FAILED' },
+    { patientIdx: 11, itemType: 'APPOINTMENT', refId: 'AP-P000012-003', subject: '肺结节复查预约', amount: 390, method: 'WECHAT', status: 'CREATED' },
+    { patientIdx: 12, itemType: 'EXAM', refId: 'EX-2026-0042', subject: '腰椎 DR 正侧位', amount: 120, method: 'CASH', status: 'PAID' },
+    { patientIdx: 13, itemType: 'EXAM', refId: 'EX-2026-0043', subject: '前列腺 MR 增强', amount: 860, method: 'INSURANCE', status: 'PAID' },
+    { patientIdx: 14, itemType: 'REGISTRATION', refId: 'V20260015', subject: '体检中心登记缴费', amount: 425, method: 'WECHAT', status: 'PAID' },
+    { patientIdx: 15, itemType: 'EXAM', refId: 'EX-2026-0045', subject: '甲状腺超声', amount: 180, method: 'ALIPAY', status: 'PAID' },
+    { patientIdx: 16, itemType: 'EXAM', refId: 'EX-2026-0046', subject: '冠脉 CTA 检查', amount: 1280, method: 'MIXED', status: 'PAID' },
+    { patientIdx: 17, itemType: 'REPORT', refId: 'RPT-2026-0102', subject: '加急报告工本费', amount: 30, method: 'WECHAT', status: 'CLOSED' },
+    { patientIdx: 18, itemType: 'APPOINTMENT', refId: 'AP-P000019-004', subject: '骨密度检查预约', amount: 240, method: 'ALIPAY', status: 'PAID' },
   ]
   seeds.forEach((s, i) => {
+    const p = PATIENTS[s.patientIdx]!
     const createdAt = new Date(now - (seeds.length - i) * 3600_000).toISOString()
     const id = `PAY-${String(++paySeq).padStart(6, '0')}`
     const orderNo = `PAY202606${String(i + 1).padStart(4, '0')}`
+    const paid = s.status !== 'CREATED' && s.status !== 'FAILED' && s.status !== 'CLOSED'
     const order: PaymentOrderDto = {
-      id, orderNo, patientId: s.patientId, patientName: s.patientName, itemType: s.itemType, refId: s.refId, subject: s.subject,
+      id, orderNo, patientId: p.patientId, patientName: p.name, itemType: s.itemType, refId: s.refId, subject: s.subject,
       amount: s.amount, currency: 'CNY', method: s.method, status: s.status,
-      paidAmount: s.status === 'CREATED' ? 0 : s.amount, refundedAmount: s.status === 'PARTIAL_REFUND' ? 200 : 0,
-      transactionId: s.status === 'CREATED' ? undefined : `TXN-${hashNum(s.itemType + i).toString(16)}`,
-      paidAt: s.status === 'CREATED' ? undefined : createdAt, refundedAt: s.status === 'PARTIAL_REFUND' ? createdAt : undefined,
+      paidAmount: paid ? s.amount : 0, refundedAmount: s.status === 'PARTIAL_REFUND' ? 200 : 0,
+      transactionId: paid ? `TXN-${hashNum(s.itemType + i).toString(16)}` : undefined,
+      paidAt: paid ? createdAt : undefined, refundedAt: s.status === 'PARTIAL_REFUND' ? createdAt : undefined,
+      failureReason: s.status === 'FAILED' ? 'GATEWAY_BALANCE_INSUFFICIENT' : s.status === 'CLOSED' ? 'CLOSED_BY_OPERATOR' : undefined,
+      closedAt: s.status === 'CLOSED' ? createdAt : undefined,
       createdAt, updatedAt: createdAt,
     }
     payOrders.set(order.id, order)
@@ -563,26 +602,40 @@ function ncSend(body: { templateId?: string; templateCode?: string; channel?: De
 }
 
 // [demo seed] 通知投递日志, 保证 demo 投递列表与成功率统计首次加载非空 (确定性, 幂等)
+// 14 条投递日志: 8 条 SENT / 3 条 FAILED (已达 maxAttempts=3, 即 3 条重试失败) / 2 条 RETRYING / 1 条 PENDING
+// patientId/手机号/微信 openid 全部交叉引用 PATIENTS (患者主数据 PATIENT_MASTER)
 function seedNcLogs(): void {
   if (ncLogs.length > 0) return
   const now = Date.now()
-  const seeds: Array<{ templateCode: string; channel: DeliveryLogDto['channel']; recipient: string; patientId: string; variables: Record<string, string | number>; status: DeliveryLogDto['status']; error?: string }> = [
-    { templateCode: 'APPOINTMENT_REMINDER', channel: 'SMS', recipient: '13800001001', patientId: 'P100001', variables: { patientName: '张伟', modality: 'CT', scheduledAt: '2026-09-28 09:00', deviceName: 'CT-1 号机房' }, status: 'SENT' },
-    { templateCode: 'REPORT_READY', channel: 'WECHAT_TEMPLATE', recipient: `o${hexFrom('openid:P100002', 27)}`, patientId: 'P100002', variables: { patientName: '李娜', examDate: '2026-09-26', modality: 'MR', bodyPart: '颅脑' }, status: 'SENT' },
-    { templateCode: 'CRITICAL_ALERT', channel: 'VOICE', recipient: '13800001003', patientId: 'P100003', variables: { patientName: '王芳', modality: 'CT', criticalValue: '颅内出血' }, status: 'SENT' },
-    { templateCode: 'SATISFACTION_SURVEY', channel: 'SMS', recipient: '13800001004', patientId: 'P100004', variables: { patientName: '陈杰' }, status: 'FAILED', error: 'INVALID_PHONE' },
-    { templateCode: 'APPOINTMENT_REMINDER', channel: 'WECHAT_TEMPLATE', recipient: `o${hexFrom('openid:P100001', 27)}`, patientId: 'P100001', variables: { patientName: '张伟', modality: 'CT', scheduledAt: '2026-09-27 14:00', deviceName: 'CT-2 号机房' }, status: 'RETRYING' },
+  const openidOf = (patientIdx: number) => `o${hexFrom(`openid:${PATIENTS[patientIdx]!.patientId}`, 27)}`
+  const seeds: Array<{ templateCode: string; channel: DeliveryLogDto['channel']; recipient: string; patientIdx: number; variables: Record<string, string | number>; status: DeliveryLogDto['status']; error?: string }> = [
+    { templateCode: 'APPOINTMENT_REMINDER', channel: 'SMS', recipient: PATIENTS[0]!.phone, patientIdx: 0, variables: { patientName: PATIENTS[0]!.name, modality: 'CT', scheduledAt: '2026-09-28 09:00', deviceName: 'CT-1 号机房' }, status: 'SENT' },
+    { templateCode: 'REPORT_READY', channel: 'WECHAT_TEMPLATE', recipient: openidOf(1), patientIdx: 1, variables: { patientName: PATIENTS[1]!.name, examDate: '2026-09-26', modality: 'MR', bodyPart: '颅脑' }, status: 'SENT' },
+    { templateCode: 'CRITICAL_ALERT', channel: 'VOICE', recipient: PATIENTS[2]!.phone, patientIdx: 2, variables: { patientName: PATIENTS[2]!.name, modality: 'CT', criticalValue: '颅内出血' }, status: 'SENT' },
+    { templateCode: 'SATISFACTION_SURVEY', channel: 'SMS', recipient: PATIENTS[3]!.phone, patientIdx: 3, variables: { patientName: PATIENTS[3]!.name }, status: 'FAILED', error: 'INVALID_PHONE' },
+    { templateCode: 'APPOINTMENT_REMINDER', channel: 'WECHAT_TEMPLATE', recipient: openidOf(0), patientIdx: 0, variables: { patientName: PATIENTS[0]!.name, modality: 'CT', scheduledAt: '2026-09-27 14:00', deviceName: 'CT-2 号机房' }, status: 'RETRYING' },
+    { templateCode: 'REPORT_READY', channel: 'SMS', recipient: PATIENTS[4]!.phone, patientIdx: 4, variables: { patientName: PATIENTS[4]!.name, examDate: '2026-09-25', modality: 'CT', bodyPart: '胸部' }, status: 'SENT' },
+    { templateCode: 'APPOINTMENT_REMINDER', channel: 'SMS', recipient: PATIENTS[5]!.phone, patientIdx: 5, variables: { patientName: PATIENTS[5]!.name, modality: 'MG', scheduledAt: '2026-09-29 10:30', deviceName: 'MG-1 号机房' }, status: 'SENT' },
+    { templateCode: 'CRITICAL_ALERT', channel: 'SMS', recipient: PATIENTS[6]!.phone, patientIdx: 6, variables: { patientName: PATIENTS[6]!.name, modality: 'CTA', criticalValue: '主动脉夹层' }, status: 'FAILED', error: 'CHANNEL_THROTTLED' },
+    { templateCode: 'REPORT_READY', channel: 'WECHAT_TEMPLATE', recipient: openidOf(7), patientIdx: 7, variables: { patientName: PATIENTS[7]!.name, examDate: '2026-09-24', modality: 'DR', bodyPart: '腰椎' }, status: 'SENT' },
+    { templateCode: 'SATISFACTION_SURVEY', channel: 'SMS', recipient: PATIENTS[8]!.phone, patientIdx: 8, variables: { patientName: PATIENTS[8]!.name }, status: 'SENT' },
+    { templateCode: 'APPOINTMENT_REMINDER', channel: 'VOICE', recipient: PATIENTS[9]!.phone, patientIdx: 9, variables: { patientName: PATIENTS[9]!.name, modality: 'US', scheduledAt: '2026-09-30 08:40', deviceName: '超声 3 室' }, status: 'FAILED', error: 'VOICE_GATEWAY_TIMEOUT' },
+    { templateCode: 'REPORT_READY', channel: 'SMS', recipient: PATIENTS[10]!.phone, patientIdx: 10, variables: { patientName: PATIENTS[10]!.name, examDate: '2026-09-23', modality: 'MR', bodyPart: '头颅' }, status: 'PENDING' },
+    { templateCode: 'APPOINTMENT_REMINDER', channel: 'SMS', recipient: PATIENTS[11]!.phone, patientIdx: 11, variables: { patientName: PATIENTS[11]!.name, modality: 'DR', scheduledAt: '2026-10-01 15:00', deviceName: 'DR-3 号机房' }, status: 'RETRYING' },
+    { templateCode: 'REPORT_READY', channel: 'WECHAT_TEMPLATE', recipient: openidOf(12), patientIdx: 12, variables: { patientName: PATIENTS[12]!.name, examDate: '2026-09-22', modality: 'DR', bodyPart: '腰椎' }, status: 'SENT' },
   ]
   seeds.forEach((s, i) => {
     const tpl = [...ncTemplates.values()].find((t) => t.code === s.templateCode)
     if (!tpl) return
     const createdAt = new Date(now - (seeds.length - i) * 1800_000).toISOString()
+    const patientId = PATIENTS[s.patientIdx]!.patientId
+    const attempts = s.status === 'FAILED' ? 3 : s.status === 'RETRYING' ? 2 : 1
     ncLogs.unshift({
       id: `NLOG-${String(++ncLogSeq).padStart(6, '0')}`,
       templateId: tpl.id, templateCode: tpl.code, templateName: tpl.name,
-      channel: s.channel, recipient: s.recipient, patientId: s.patientId, title: tpl.title,
+      channel: s.channel, recipient: s.recipient, patientId, title: tpl.title,
       content: renderTpl(tpl.content, s.variables), variables: s.variables,
-      status: s.status, attempts: s.status === 'FAILED' ? 3 : 1, maxAttempts: 3,
+      status: s.status, attempts, maxAttempts: 3,
       lastError: s.error, createdAt, sentAt: s.status === 'SENT' ? createdAt : undefined,
     })
   })
@@ -755,12 +808,15 @@ const SEED_SCORES = [10, 9, 8, 7, 6, 10, 9, 5, 8, 9, 10, 7, 3, 9, 8, 10, 6, 9, 7
   }
   const list = [...svSurveys.values()]
   const mods = ['CT', 'MR', 'DR', 'US', 'MG']
-  for (let i = 0; i < SEED_COMMENTS.length; i++) {
+  // [demo seed] 满意度应答 10 条 (确定性): 前 10 位患者各提交 1 份, 覆盖 4 份问卷 × 5 种检查模态
+  const RESPONSE_SEED_COUNT = 10
+  for (let i = 0; i < RESPONSE_SEED_COUNT; i++) {
     const survey = list[i % list.length]!
+    const patient = PATIENTS[i % PATIENTS.length]!
     const score = SEED_SCORES[i % SEED_SCORES.length]!
     const rating = Math.max(1, Math.min(5, Math.round(score / 2)))
     const comment = SEED_COMMENTS[i]!
-    svResponses.push({ id: `SR-${String(++svRespSeq).padStart(5, '0')}`, surveyId: survey.id, patientId: PATIENTS[i % 4]!.patientId, patientName: PATIENTS[i % 4]!.name, department: survey.department, modality: mods[i % mods.length], answers: [{ questionId: 'q1', value: rating }, { questionId: 'q2', value: score }, { questionId: 'q3', value: comment }], rating, npsScore: score, comment, sentiment: classify(comment), tags: extractTags(comment), submittedAt: new Date(now - i * 5 * 86400_000).toISOString() })
+    svResponses.push({ id: `SR-${String(++svRespSeq).padStart(5, '0')}`, surveyId: survey.id, patientId: patient.patientId, patientName: patient.name, department: survey.department, modality: mods[i % mods.length], answers: [{ questionId: 'q1', value: rating }, { questionId: 'q2', value: score }, { questionId: 'q3', value: comment }], rating, npsScore: score, comment, sentiment: classify(comment), tags: extractTags(comment), submittedAt: new Date(now - i * 5 * 86400_000).toISOString() })
   }
 })()
 
@@ -909,34 +965,37 @@ function seedSr(): void {
       submittedAt: iso(opts.hoursAgo),
     }
   }
-  srQuestionnaires.set('P100001', questionnaire('P100001', { hoursAgo: 30 }))
-  srQuestionnaires.set('P100002', questionnaire('P100002', { allergies: ['青霉素'], hoursAgo: 8 }))
-  srQuestionnaires.set('P100003', questionnaire('P100003', { implants: ['心脏起搏器'], claustrophobia: true, hoursAgo: 5 }))
+  const p1 = PATIENTS[0]!
+  const p2 = PATIENTS[1]!
+  const p3 = PATIENTS[2]!
+  srQuestionnaires.set(p1.patientId, questionnaire(p1.patientId, { hoursAgo: 30 }))
+  srQuestionnaires.set(p2.patientId, questionnaire(p2.patientId, { allergies: ['青霉素'], hoursAgo: 8 }))
+  srQuestionnaires.set(p3.patientId, questionnaire(p3.patientId, { implants: ['心脏起搏器'], claustrophobia: true, hoursAgo: 5 }))
 
   const consent = (patientId: string, visitId: string, procedure: string, signedBy: string, hoursAgo: number) => {
     srConsentSeq += 1
     const id = `SC-${String(srConsentSeq).padStart(6, '0')}`
     return { id, patientId, visitId, consentType: 'contrast', procedure, agreed: true, status: 'signed', signedBy, witnessName: '护士-赵敏', signedAt: iso(hoursAgo), signatureHash: hashNum(`${patientId}:${signedBy}`).toString(16) }
   }
-  srConsents.set('P100001', [consent('P100001', 'V202600001', 'CT 增强检查及碘对比剂使用', '张伟', 29)])
-  srConsents.set('P100002', [consent('P100002', 'V202600002', 'MR 增强检查及钆对比剂使用', '李娜', 7)])
+  srConsents.set(p1.patientId, [consent(p1.patientId, 'V202600001', 'CT 增强检查及碘对比剂使用', p1.name, 29)])
+  srConsents.set(p2.patientId, [consent(p2.patientId, 'V202600002', 'MR 增强检查及钆对比剂使用', p2.name, 7)])
 
   const checkIn = (patientId: string, patientName: string, visitId: string, booth: string, hoursAgo: number) => {
     srCheckInSeq += 1
     return { id: `CI-${String(srCheckInSeq).padStart(6, '0')}`, patientId, patientName, visitId, status: 'CHECKED_IN', blockers: [], booth, checkedInAt: iso(hoursAgo) }
   }
-  srCheckIns.set('P100001', checkIn('P100001', '张伟', 'V202600001', '自助机-2', 28))
-  srCheckIns.set('P100002', checkIn('P100002', '李娜', 'V202600002', '自助机-1', 6))
+  srCheckIns.set(p1.patientId, checkIn(p1.patientId, p1.name, 'V202600001', '自助机-2', 28))
+  srCheckIns.set(p2.patientId, checkIn(p2.patientId, p2.name, 'V202600002', '自助机-1', 6))
 
   const queue = (patientId: string, patientName: string, visitId: string, modality: string, priority: 'NORMAL' | 'URGENT' | 'EMERGENCY', position: number, room: string, hoursAgo: number) => {
     srTicketSeq += 1
     return { ticket: `${modality.slice(0, 1)}${String(srTicketSeq).padStart(3, '0')}`, patientId, patientName, visitId, modality, priority, position, estimatedWaitMinutes: position * 8, room, issuedAt: iso(hoursAgo) }
   }
   srQueues.set('CT', [
-    queue('P100001', '张伟', 'V202600001', 'CT', 'NORMAL', 2, 'CT-1', 27),
-    queue('P100003', '王芳', 'V202600003', 'CT', 'URGENT', 1, 'CT-2', 4),
+    queue(p1.patientId, p1.name, 'V202600001', 'CT', 'NORMAL', 2, 'CT-1', 27),
+    queue(p3.patientId, p3.name, 'V202600003', 'CT', 'URGENT', 1, 'CT-2', 4),
   ])
-  srQueues.set('MR', [queue('P100002', '李娜', 'V202600002', 'MR', 'NORMAL', 1, 'MR-1', 5)])
+  srQueues.set('MR', [queue(p2.patientId, p2.name, 'V202600002', 'MR', 'NORMAL', 1, 'MR-1', 5)])
 }
 seedSr()
 

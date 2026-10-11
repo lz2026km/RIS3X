@@ -142,7 +142,8 @@ const SmartRoutePage: React.FC = () => {
   }
 
   const handleAssign = async (doctorId?: string) => {
-    const values = await recommendForm.validateFields()
+    const values = await recommendForm.validateFields().catch(() => null)
+    if (!values) return
     if (!values.studyId || !values.patientName) {
       message.warning(t('smartRoute.fillStudyPatient'))
       return

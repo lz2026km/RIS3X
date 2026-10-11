@@ -46,7 +46,7 @@ export interface PatientMergeToolProps {
   threshold?: number
 }
 
-(a: string, b: string): number => {
+export const similarity = (a: string, b: string): number => {
   if (a === b) return 100
   if (a.length === 0 || b.length === 0) return 0
   // Levenshtein 简化

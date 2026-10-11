@@ -178,7 +178,8 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
 
   const handleSaveChannel = useCallback(async () => {
     if (!editChannel) return;
-    const v = await editChannelForm.validateFields();
+    const v = await editChannelForm.validateFields().catch(() => null);
+    if (!v) return;
     setChannels((arr) => arr.map((x) => x.channel === editChannel.channel
       ? { ...x, displayName: v.displayName, host: v.host, port: v.port, rateLimitPerMin: v.rateLimitPerMin, retryPolicy: { ...x.retryPolicy, maxRetries: v.maxRetries } }
       : x));

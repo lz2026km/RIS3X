@@ -2665,6 +2665,11 @@ export const criticalValueHandlers = [
 
 // ============= Print(8) - [v3.0.6.11-81 W2-B] DICOM 胶片打印子系统 =============
 // [v3.0.6.11-88] 打印队列: 后端 print.controller 已实现 (jobs/queues/history/printers/stats), 此处仅 MSW dev 兜底
+// [G005 demo-fill] 25 条打印订单种子 (确定性, 无 Math.random):
+//   - 检查锚定 store 'exams' (带 accessionNumber 的 RAD-EX* 优先, 保证与检查列表自洽)
+//   - 设备锚定 DEVICE_MASTER (store 'devices'): exam.deviceId 命中优先, 否则按 modality 匹配
+//   - StudyInstanceUID: 检查自带 UID 优先, 否则由 accessionNumber/reportId 确定性派生 (FNV-1a)
+//   - 成本: 胶片规格单价 (14x17=12.5 / 10x12=9 / 8x10=6.5 元) × 份数
 interface PrintTask {
   id: string
   filmId: string
@@ -2680,19 +2685,132 @@ interface PrintTask {
   completeTime: string | null
   progress: number
   errorMsg?: string
+  examId?: string
+  studyUid?: string
+  accessionNumber?: string
+  deviceId?: string
+  deviceName?: string
+  printerId?: string
+  statusLabel?: string
+  costPerFilm?: number
+  totalCost?: number
 }
 
-let printQueueStore: PrintTask[] = [
-  { id: 'DPT001', filmId: 'FLM20260504001', patientId: 'P20260502001', patientName: '王建国', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'printing', printer: '柯尼卡 #1', submitTime: '2026-08-08 08:30:00', completeTime: null, progress: 65 },  { id: 'DPT002', filmId: 'FLM20260504002', patientId: 'P20260502002', patientName: '刘淑芳', modality: 'MR', studyType: '头颅MR平扫', filmSpec: '14x17', copies: 1, status: 'queued', printer: '柯尼卡 #2', submitTime: '2026-08-08 08:25:00', completeTime: null, progress: 0 },
-  { id: 'DPT003', filmId: 'FLM20260504003', patientId: 'P20260502003', patientName: '陈志强', modality: 'DR', studyType: '胸部DR正侧位', filmSpec: '10x12', copies: 2, status: 'queued', printer: '富士', submitTime: '2026-08-08 08:20:00', completeTime: null, progress: 0 },
-  { id: 'DPT004', filmId: 'FLM20260504004', patientId: 'P20260502004', patientName: '赵秀英', modality: 'CT', studyType: '腹部CT增强', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #1', submitTime: '2026-08-08 08:00:00', completeTime: '2026-08-08 08:05:23', progress: 100 },
-  { id: 'DPT005', filmId: 'FLM20260504005', patientId: 'P20260502005', patientName: '孙伟东', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'failed', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:55:00', completeTime: '2026-08-08 08:00:10', progress: 30, errorMsg: '打印机缺纸' },
-  { id: 'DPT006', filmId: 'FLM20260504006', patientId: 'P20260502006', patientName: '周丽华', modality: 'MR', studyType: '腰椎MR平扫', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #2', submitTime: '2026-08-08 07:50:00', completeTime: '2026-08-08 07:56:45', progress: 100 },
-  { id: 'DPT007', filmId: 'FLM20260504007', patientId: 'P20260502007', patientName: '吴敏', modality: 'DR', studyType: '膝关节DR', filmSpec: '8x10', copies: 1, status: 'queued', printer: '富士', submitTime: '2026-08-08 07:45:00', completeTime: null, progress: 0 },
-  { id: 'DPT008', filmId: 'FLM20260504008', patientId: 'P20260502008', patientName: '郑海涛', modality: 'CT', studyType: '头颅CT平扫', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:30:00', completeTime: '2026-08-08 07:35:18', progress: 100 },
-  { id: 'DPT009', filmId: 'FLM20260504009', patientId: 'P20260502009', patientName: '黄晓燕', modality: 'MR', studyType: '肩关节MR', filmSpec: '10x12', copies: 2, status: 'queued', printer: '柯尼卡 #2', submitTime: '2026-08-08 07:25:00', completeTime: null, progress: 0 },
-  { id: 'DPT010', filmId: 'FLM20260504010', patientId: 'P20260502010', patientName: '杨建军', modality: 'CT', studyType: '肺部CT低剂量', filmSpec: '14x17', copies: 1, status: 'printing', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:20:00', completeTime: null, progress: 32 },
+const PRINT_STATUS_LABEL: Record<PrintTask['status'], string> = {
+  queued: '排队中',
+  printing: '打印中',
+  completed: '已完成',
+  failed: '失败',
+};
+const FILM_PRICE: Record<string, number> = { '14x17': 12.5, '10x12': 9, '8x10': 6.5 };
+// 胶片打印机池 (与下方 mswPrinterStore P001-P003 对齐)
+const FILM_PRINTER_POOL = [
+  { printerId: 'P001', printer: '柯尼卡 #1', filmSpec: '14x17' },
+  { printerId: 'P002', printer: '柯尼卡 #2', filmSpec: '14x17' },
+  { printerId: 'P003', printer: '富士', filmSpec: '10x12' },
 ];
+const PRINT_FAIL_REASONS = ['打印机缺纸', '胶片通道堵塞', 'DICOM 连接超时', '打印头温度异常'];
+// 25 条种子状态分布: 排队中 6 / 打印中 4 / 已完成 11 / 失败 4
+const PRINT_SEED_PATTERN: Array<{ status: PrintTask['status']; progress: number }> = [
+  { status: 'printing', progress: 65 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'failed', progress: 30 },
+  { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'printing', progress: 32 }, { status: 'completed', progress: 100 },
+  { status: 'failed', progress: 45 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'printing', progress: 78 },
+  { status: 'completed', progress: 100 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'failed', progress: 12 },
+  { status: 'printing', progress: 54 }, { status: 'completed', progress: 100 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 },
+  { status: 'failed', progress: 68 }, { status: 'completed', progress: 100 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 },
+  { status: 'completed', progress: 100 },
+];
+
+function printHash(input: string): number {
+  let h = 2166136261
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+// StudyInstanceUID: 优先取检查记录自带 UID; 否则按 accessionNumber/reportId 确定性派生
+function studyUidForPrintExam(exam: any): string {
+  const raw = String(exam?.studyInstanceUID ?? exam?.studyInstanceUid ?? exam?.studyUID ?? exam?.studyUid ?? '')
+  if (raw) return raw
+  const key = String(exam?.accessionNumber || exam?.reportId || exam?.examId || exam?.id || 'unknown')
+  return `1.2.826.0.1.3680043.8.498.${printHash(key)}`
+}
+
+let printQueueCache: PrintTask[] | null = null
+function getPrintQueue(): PrintTask[] {
+  if (printQueueCache) return printQueueCache
+  const exams = list<any>('exams')
+  const devices = list<any>('devices') // DEVICE_MASTER 主数据
+  const deviceById = new Map<string, any>(devices.map((d: any) => [String(d.id), d]))
+  const rows = exams.filter((e: any) => e && (e.patientId || e.patientName))
+  const withAccession = rows.filter((e: any) => Boolean(e.accessionNumber))
+  const pool = (withAccession.length >= PRINT_SEED_PATTERN.length ? withAccession : rows)
+    .slice()
+    .sort((a: any, b: any) => String(a.accessionNumber ?? a.id ?? a.reportId ?? '').localeCompare(String(b.accessionNumber ?? b.id ?? b.reportId ?? '')))
+  const picked: any[] = []
+  const used = new Set<string>()
+  const step = pool.length / PRINT_SEED_PATTERN.length
+  for (let i = 0; i < PRINT_SEED_PATTERN.length; i++) {
+    const exam = pool[Math.min(pool.length - 1, Math.floor(i * step))]
+    if (!exam) break
+    const key = String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? i)
+    if (used.has(key)) continue
+    used.add(key)
+    picked.push(exam)
+  }
+  for (const exam of pool) {
+    if (picked.length >= PRINT_SEED_PATTERN.length) break
+    const key = String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? '')
+    if (used.has(key)) continue
+    used.add(key)
+    picked.push(exam)
+  }
+  const fmtTime = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ')
+  printQueueCache = picked.map((exam, i) => {
+    const pattern = PRINT_SEED_PATTERN[i]!
+    const h = printHash(String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? `print-${i}`))
+    const modality = String(exam.modality ?? 'CT').toUpperCase()
+    const printerEntry = FILM_PRINTER_POOL[h % FILM_PRINTER_POOL.length]!
+    const filmSpec = printerEntry.filmSpec
+    const copies = 1 + (h % 2)
+    const costPerFilm = FILM_PRICE[filmSpec] ?? 12.5
+    const device = deviceById.get(String(exam.deviceId ?? ''))
+      ?? devices.find((d: any) => d.modality === modality)
+      ?? devices[i % Math.max(1, devices.length)]
+    const day = Math.max(2, 8 - Math.floor(i / 4)) // 2026-08-02 .. 2026-08-08
+    const submitDate = new Date(Date.UTC(2026, 7, day, 7 + ((i * 3) % 11), (i * 7) % 60, h % 60))
+    const done = pattern.status === 'completed' || pattern.status === 'failed'
+    const task: PrintTask = {
+      id: `DPT${String(i + 1).padStart(3, '0')}`,
+      filmId: `FLM202608${String(day).padStart(2, '0')}${String(i + 1).padStart(3, '0')}`,
+      patientId: String(exam.patientId ?? ''),
+      patientName: String(exam.patientName ?? exam.name ?? '未知患者'),
+      modality,
+      studyType: String(exam.examItemName ?? exam.examItem ?? exam.bodyPart ?? `${modality} 胶片打印`),
+      filmSpec,
+      copies,
+      status: pattern.status,
+      printer: printerEntry.printer,
+      submitTime: fmtTime(submitDate),
+      completeTime: done ? fmtTime(new Date(submitDate.getTime() + (180 + i * 17) * 1000)) : null,
+      progress: pattern.progress,
+      examId: String(exam.id ?? exam.reportId ?? ''),
+      studyUid: studyUidForPrintExam(exam),
+      accessionNumber: exam.accessionNumber ? String(exam.accessionNumber) : undefined,
+      deviceId: device ? String(device.id) : undefined,
+      deviceName: device ? `${String(device.id).replace('DEV-', '')} ${String(device.model ?? '')}`.trim() : undefined,
+      printerId: printerEntry.printerId,
+      statusLabel: PRINT_STATUS_LABEL[pattern.status],
+      costPerFilm,
+      totalCost: Math.round(costPerFilm * copies * 10) / 10,
+    }
+    if (pattern.status === 'failed') task.errorMsg = PRINT_FAIL_REASONS[h % PRINT_FAIL_REASONS.length]
+    return task
+  })
+  return printQueueCache
+}
 
 // [G005 Wave2A P0] 打印机内存存储
 let mswPrinterStore: any[] = [
@@ -2709,14 +2827,14 @@ export const printHandlers = [
     await delay(100);
     const url = new URL(request.url);
     const status = url.searchParams.get('status');
-    let data = printQueueStore;
+    let data = getPrintQueue();
     if (status) data = data.filter((t) => t.status === status);
     return HttpResponse.json({ success: true, data });
   }),
   // [G005 Wave1A P0] 打印任务详情 (GET /print/jobs/:id)
   http.get(`${API_BASE}/print/jobs/:id`, async ({ params }) => {
     await delay(60);
-    const task = printQueueStore.find((t) => t.id === params.id);
+    const task = getPrintQueue().find((t) => t.id === params.id);
     if (!task) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: task });
   }),
@@ -2724,17 +2842,17 @@ export const printHandlers = [
   // [G005 Wave1A P0] 打印队列 (GET /print/queues, 排队中/打印中)
   http.get(`${API_BASE}/print/queues`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'queued' || t.status === 'printing') });
+    return HttpResponse.json({ success: true, data: getPrintQueue().filter((t) => t.status === 'queued' || t.status === 'printing') });
   }),
 
   http.get(`${API_BASE}/print/queue`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'queued' || t.status === 'printing') });
+    return HttpResponse.json({ success: true, data: getPrintQueue().filter((t) => t.status === 'queued' || t.status === 'printing') });
   }),
 
   http.get(`${API_BASE}/print/history`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'completed' || t.status === 'failed') });
+    return HttpResponse.json({ success: true, data: getPrintQueue().filter((t) => t.status === 'completed' || t.status === 'failed') });
   }),
 
   // [G005 Wave2A P0] 打印机内存存储 (GET/POST/PUT/DELETE /print/printers)
@@ -2781,29 +2899,43 @@ export const printHandlers = [
     return HttpResponse.json({ success: true, data: { ok: true } });
   }),
 
-  // 胶片用量 / 设备打印量 / 成本报表
+  // 胶片用量 / 设备打印量 / 成本报表 (由 25 条打印订单确定性聚合, 设备维度来自 DEVICE_MASTER)
   http.get(`${API_BASE}/print/stats`, async () => {
     await delay(100);
-    const filmUsage = ['08-02', '08-03', '08-04', '08-05', '08-06', '08-07', '08-08'].map((date, i) => {
-      const films14x17 = 38 + i * 4 + Math.floor(Math.random() * 8);
-      const films10x12 = 18 + i * 3 + Math.floor(Math.random() * 6);
-      const films8x10 = 6 + i + Math.floor(Math.random() * 4);
+    const queue = getPrintQueue();
+    const filmUsage = ['08-02', '08-03', '08-04', '08-05', '08-06', '08-07', '08-08'].map((date) => {
+      const dayTasks = queue.filter((t) => t.submitTime.slice(5, 10) === date);
+      let films14x17 = 0;
+      let films10x12 = 0;
+      let films8x10 = 0;
+      for (const t of dayTasks) {
+        if (t.filmSpec === '10x12') films10x12 += t.copies;
+        else if (t.filmSpec === '8x10') films8x10 += t.copies;
+        else films14x17 += t.copies;
+      }
       const total = films14x17 + films10x12 + films8x10;
-      return { date, films14x17, films10x12, films8x10, total, cost: Math.round(total * 12.5 * 10) / 10 };
+      const cost = films14x17 * (FILM_PRICE['14x17'] ?? 12.5) + films10x12 * (FILM_PRICE['10x12'] ?? 9) + films8x10 * (FILM_PRICE['8x10'] ?? 6.5);
+      return { date, films14x17, films10x12, films8x10, total, cost: Math.round(cost * 10) / 10 };
     });
+    const byDevice = new Map<string, { device: string; printCount: number; totalFilms: number; cost: number }>();
+    for (const t of queue) {
+      const key = t.deviceId ?? t.deviceName ?? 'UNKNOWN';
+      const row = byDevice.get(key) ?? { device: t.deviceName ?? key, printCount: 0, totalFilms: 0, cost: 0 };
+      row.printCount += 1;
+      row.totalFilms += t.copies;
+      row.cost += t.totalCost ?? ((t.costPerFilm ?? 12.5) * t.copies);
+      byDevice.set(key, row);
+    }
+    const devicePrint = [...byDevice.values()]
+      .map((r) => ({ ...r, cost: Math.round(r.cost * 10) / 10 }))
+      .sort((a, b) => b.printCount - a.printCount || a.device.localeCompare(b.device));
     return HttpResponse.json({
       success: true,
       data: {
         filmUsage,
-        devicePrint: [
-          { device: 'CT-1', printCount: 156, totalFilms: 312, cost: 3900 },
-          { device: 'CT-2', printCount: 142, totalFilms: 284, cost: 3550 },
-          { device: 'MR-1', printCount: 98, totalFilms: 392, cost: 4900 },
-          { device: 'DR-1', printCount: 210, totalFilms: 210, cost: 2625 },
-          { device: 'DR-2', printCount: 185, totalFilms: 185, cost: 2312.5 },
-        ],
-        costReport: filmUsage.slice(-7).map((d) => ({
-          date: '2026-' + d.date.replace('-', '-'),
+        devicePrint,
+        costReport: filmUsage.map((d) => ({
+          date: '2026-' + d.date,
           filmCost: d.cost,
           paperCost: Math.round(d.total * 0.5),
           inkCost: Math.round(d.total * 1.4),
@@ -2816,37 +2948,55 @@ export const printHandlers = [
   http.post(`${API_BASE}/print/jobs`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as any;
+    const queue = getPrintQueue();
+    const exam = body.examId
+      ? list<any>('exams').find((e: any) => String(e.id ?? e.reportId ?? e.examId ?? '') === String(body.examId))
+      : undefined;
+    const filmSpec = body.filmSpec || '14x17';
+    const copies = body.copies || 1;
+    const costPerFilm = FILM_PRICE[filmSpec] ?? 12.5;
+    const printer = body.printer || '柯尼卡 #1';
+    const printerEntry = FILM_PRINTER_POOL.find((p) => p.printer === printer) ?? FILM_PRINTER_POOL[0]!;
     const task: PrintTask = {
-      id: 'DPT' + String(printQueueStore.length + 1).padStart(3, '0'),
-      filmId: 'FLM20260504' + String(printQueueStore.length + 1).padStart(3, '0'),
-      patientId: body.patientId || 'P' + Date.now(),
-      patientName: body.patientName || '未知患者',
-      modality: body.modality || body.examType || 'CT',
-      studyType: body.studyDesc || body.studyType || '胶片打印',
-      filmSpec: body.filmSpec || '14x17',
-      copies: body.copies || 1,
+      id: 'DPT' + String(queue.length + 1).padStart(3, '0'),
+      filmId: 'FLM20260504' + String(queue.length + 1).padStart(3, '0'),
+      patientId: body.patientId || (exam ? String(exam.patientId ?? '') : '') || 'P' + Date.now(),
+      patientName: body.patientName || (exam ? String(exam.patientName ?? '') : '') || '未知患者',
+      modality: body.modality || body.examType || (exam ? String(exam.modality ?? 'CT') : 'CT'),
+      studyType: body.studyDesc || body.studyType || (exam ? String(exam.examItemName ?? exam.examItem ?? '胶片打印') : '胶片打印'),
+      filmSpec,
+      copies,
       status: 'queued',
-      printer: body.printer || '柯尼卡 #1',
+      statusLabel: PRINT_STATUS_LABEL.queued,
+      printer,
+      printerId: printerEntry.printerId,
       submitTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
       completeTime: null,
       progress: 0,
+      costPerFilm,
+      totalCost: Math.round(costPerFilm * copies * 10) / 10,
+      examId: exam ? String(exam.id ?? exam.reportId ?? '') : body.examId,
+      studyUid: exam ? studyUidForPrintExam(exam) : body.studyUid,
+      accessionNumber: exam?.accessionNumber ? String(exam.accessionNumber) : undefined,
+      deviceId: exam?.deviceId ? String(exam.deviceId) : undefined,
     };
-    printQueueStore = [task, ...printQueueStore];
+    queue.unshift(task);
     return HttpResponse.json({ success: true, data: task }, { status: 201 });
   }),
 
   http.post(`${API_BASE}/print/jobs/:id/cancel`, async ({ params }) => {
     await delay(100);
-    const idx = printQueueStore.findIndex((t) => t.id === params.id);
-    if (idx >= 0) printQueueStore.splice(idx, 1);
+    const idx = getPrintQueue().findIndex((t) => t.id === params.id);
+    if (idx >= 0) getPrintQueue().splice(idx, 1);
     return HttpResponse.json({ success: true, data: { ok: true } });
   }),
 
   http.post(`${API_BASE}/print/jobs/:id/retry`, async ({ params }) => {
     await delay(100);
-    const t = printQueueStore.find((x) => x.id === params.id);
+    const t = getPrintQueue().find((x) => x.id === params.id);
     if (t) {
       t.status = 'queued';
+      t.statusLabel = PRINT_STATUS_LABEL.queued;
       t.progress = 0;
       t.errorMsg = undefined;
       t.submitTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
@@ -2857,10 +3007,11 @@ export const printHandlers = [
   // [G005 Wave1A P0] 重新打印 (POST /print/jobs/:id/reprint, 以原任务参数新建任务)
   http.post(`${API_BASE}/print/jobs/:id/reprint`, async ({ params }) => {
     await delay(150);
-    const src = printQueueStore.find((t) => t.id === params.id);
+    const queue = getPrintQueue();
+    const src = queue.find((t) => t.id === params.id);
     if (!src) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     const task: PrintTask = {
-      id: 'DPT' + String(printQueueStore.length + 1).padStart(3, '0'),
+      id: 'DPT' + String(queue.length + 1).padStart(3, '0'),
       filmId: src.filmId,
       patientId: src.patientId,
       patientName: src.patientName,
@@ -2869,13 +3020,22 @@ export const printHandlers = [
       filmSpec: src.filmSpec,
       copies: src.copies,
       status: 'queued',
+      statusLabel: PRINT_STATUS_LABEL.queued,
       printer: src.printer,
+      printerId: src.printerId,
       submitTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
       completeTime: null,
       progress: 0,
       errorMsg: undefined,
+      examId: src.examId,
+      studyUid: src.studyUid,
+      accessionNumber: src.accessionNumber,
+      deviceId: src.deviceId,
+      deviceName: src.deviceName,
+      costPerFilm: src.costPerFilm,
+      totalCost: src.totalCost,
     };
-    printQueueStore = [task, ...printQueueStore];
+    queue.unshift(task);
     return HttpResponse.json({ success: true, data: task }, { status: 201 });
   }),
 ];

@@ -95,12 +95,15 @@ describe("doseHandlers - 剂量管理 DRL 端点", () => {
   });
 
   it("GET /rdsr/patients 按关键字搜索患者累计", async () => {
-    const { status, body } = await getJson("/rdsr/patients?search=张三");
+    // 取真实 master 患者作为搜索关键字（数据已从虚构患者改为 PATIENT_MASTER 关联）
+    const all = await getJson("/rdsr/patients");
+    const first = (all.body.data as Array<{ patientId: string; patientName: string }>)[0]!;
+    const { status, body } = await getJson(`/rdsr/patients?search=${encodeURIComponent(first.patientName.slice(0, 1))}`);
     expect(status).toBe(200);
     expect(body.success).toBe(true);
     const data = body.data as Array<{ patientId: string; patientName: string; examCount: number; totalDlp30d: number; totalDlp1y: number }>;
     expect(data.length).toBeGreaterThanOrEqual(1);
-    expect(data[0]!.patientName).toContain("张三");
+    expect(data[0]!.patientName).toContain(first.patientName.slice(0, 1));
     expect(data[0]!.totalDlp1y).toBeGreaterThan(0);
   });
 

@@ -1,5 +1,8 @@
 /** G005 眼科危急值 Mock 数据 v3.0.6.8-21 */
 import type { CriticalValue } from "../types/eye";
+import { resolvePatientId } from "./master/idAlias";
+import { hashSeed, mulberry32 } from "../utils/seededRandom";
+import { MOCK_EYE_PATIENTS, EYE_STUDY_LINKS } from "./eyePacsMock";
 
 interface CriticalValueV2 {
   id: string;
@@ -21,7 +24,7 @@ interface CriticalValueV2 {
 
 const NOW = Date.now();
 
-export const MOCK_CRITICAL_VALUES: (CriticalValue | CriticalValueV2)[] = [
+const BASE_CRITICAL_VALUES: (CriticalValue | CriticalValueV2)[] = [
   {
     id: "cv-001",
     patientId: "p-1003",
@@ -536,6 +539,93 @@ export const MOCK_CRITICAL_VALUES: (CriticalValue | CriticalValueV2)[] = [
     followUpRecommended: true,
     followUpDays: 7,
   },
+];
+
+// ============= [G005 eye-expand] 确定性扩展: 60 条危急值 =============
+// 基线 33 条 (cv-001..015, cv-101..118) + 生成 27 条 (cv-201..227);
+// 全部 patientId 经 resolvePatientId 归一, 且均链接到真实 patient + study。
+
+const EXPAND_FINDINGS: Array<{
+  value: string;
+  finding: string;
+  severity: CriticalValueV2["severity"];
+  category: string;
+}> = [
+  { value: "视网膜脱离", finding: "右眼颞上方孔源性视网膜脱离累及黄斑, 视网膜隆起约 4DD", severity: "emergent", category: "影像-眼底彩照" },
+  { value: "视网膜脱离", finding: "左眼上方视网膜脱离(未累及黄斑), 题上象限可见马蹄形裂孔", severity: "urgent", category: "影像-眼底彩照" },
+  { value: "急性闭角型青光眼", finding: "左眼房角关闭, 眼压 48mmHg, 角膜水肿, 急性发作期", severity: "emergent", category: "检查" },
+  { value: "房角关闭可疑", finding: "双眼浅前房, 房角窄角(Shaffer I 级), 需紧急评估", severity: "urgent", category: "影像-UBM" },
+  { value: "视网膜中央动脉阻塞", finding: "右眼 CRAO: 视网膜苍白水肿, 樱桃红斑, 臂-视网膜循环显著延长", severity: "emergent", category: "影像-FFA" },
+  { value: "玻璃体积血", finding: "左眼大量玻璃体积血(3+级), 眼底不入, 疑合并视网膜裂孔", severity: "urgent", category: "影像-眼底彩照" },
+  { value: "全层黄斑裂孔", finding: "右眼黄斑全层裂孔(Stage 4), 直径 420μm, 黄斑区视网膜厚度减低", severity: "urgent", category: "影像-OCT" },
+  { value: "恶性青光眼", finding: "左眼术后浅前房伴高眼压, 睫状环阻滞征象, 需急诊处理", severity: "emergent", category: "检查" },
+  { value: "眼内炎", finding: "右眼玻璃体腔炎性混浊伴视盘边界模糊, 术后眼内炎高度可疑", severity: "emergent", category: "检查" },
+  { value: "角膜穿孔", finding: "左眼角膜溃疡灶变薄近穿孔, 前房变浅, 需急诊羊膜覆盖", severity: "emergent", category: "影像-裂隙灯" },
+  { value: "脉络膜上腔出血", finding: "右眼术中突发脉络膜隆起伴眼压急剧升高", severity: "emergent", category: "检查" },
+  { value: "视网膜动脉阻塞", finding: "左眼 BRAO: 视网膜分支动脉供血区灰白水肿", severity: "urgent", category: "影像-眼底彩照" },
+  { value: "缺血性视神经病变", finding: "右眼前部缺血性视神经病变: 视盘水肿伴盘周线状出血, 视野下方缺损", severity: "urgent", category: "影像-眼底彩照" },
+  { value: "重度NPDR", finding: "双眼 4 个象限微动脉瘤伴 IRMA, 符合重度非增殖期糖尿病视网膜病变", severity: "urgent", category: "AI辅助诊断" },
+  { value: "CNV活动期", finding: "左眼中心凹下 CNV 渗漏伴视网膜下液, 抗 VEGF 治疗指征明确", severity: "urgent", category: "影像-OCTA" },
+  { value: "新生血管性青光眼", finding: "右眼虹膜新生血管伴眼压 42mmHg, 新生血管性青光眼期", severity: "emergent", category: "检查" },
+  { value: "晶状体脱位", finding: "左眼晶状体半脱位坠入玻璃体腔, 眼压波动大", severity: "emergent", category: "影像-UBM" },
+  { value: "视网膜巨大裂孔", finding: "右眼颞侧巨大裂孔(>90°)伴视网膜卷曲, 需硅油填充术", severity: "emergent", category: "影像-OCT" },
+  { value: "重度开角型青光眼", finding: "左眼 MD -18.32dB, VFI 41%, RNFL 平均 52μm, 重度视野缺损", severity: "significant", category: "影像-视野" },
+  { value: "视锥细胞营养不良", finding: "双眼 ERG 明视/暗视反应显著降低, 黄斑区椭圆体带弥漫中断", severity: "significant", category: "检查" },
+  { value: "急性视网膜坏死", finding: "左眼周边视网膜坏死灶伴玻璃体炎, 需紧急抗病毒治疗", severity: "emergent", category: "影像-眼底彩照" },
+  { value: "睫状体脱离", finding: "右眼外伤后睫状体脱离伴低眼压(5mmHg), 前房积血", severity: "urgent", category: "影像-UBM" },
+  { value: "重度干眼", finding: "双眼 NIBUT 3.1s, 泪膜破裂时间显著缩短, 角膜点状着染 3 级", severity: "significant", category: "检查" },
+  { value: "圆锥角膜急性水肿", finding: "左眼急性圆锥角膜水肿, 最薄点 312μm, 需急诊处理", severity: "urgent", category: "影像-角膜地形图" },
+  { value: "视网膜色素变性进展", finding: "双眼骨细胞样色素沉着范围扩大, 全视野平均敏感度下降 25%", severity: "significant", category: "影像-视野" },
+  { value: "黄斑前膜进展", finding: "右眼黄斑前膜增厚伴视网膜内层结构紊乱, 视力降至 0.3", severity: "significant", category: "影像-OCT" },
+  { value: "硅油眼高眼压", finding: "左眼硅油填充术后眼压 36mmHg, 需调整降眼压方案", severity: "urgent", category: "检查" },
+];
+
+/** 基线危急值映射: patientId 归一到主数据命名空间 */
+const MAPPED_BASE_CRITICALS: (CriticalValue | CriticalValueV2)[] = BASE_CRITICAL_VALUES.map((c) => ({
+  ...c,
+  patientId: resolvePatientId(c.patientId),
+}));
+
+/** 生成 27 条危急值 — 按患者轮转, 链接真实 study */
+const GENERATED_CRITICALS: CriticalValueV2[] = [];
+{
+  const statuses: CriticalValueV2["status"][] = ["open", "acknowledged", "resolved", "open", "open"];
+  for (let i = 0; i < EXPAND_FINDINGS.length; i++) {
+    const tpl = EXPAND_FINDINGS[i]!;
+    const p = MOCK_EYE_PATIENTS[i % MOCK_EYE_PATIENTS.length]!;
+    const rnd = mulberry32(hashSeed(`eye-critical:${p.legacyId}:${i}`));
+    const link = EYE_STUDY_LINKS.find((l) => l.patientId === p.patientId)
+      ?? EYE_STUDY_LINKS[i % EYE_STUDY_LINKS.length]!;
+    const daysAgo = 1 + Math.floor(rnd() * 40);
+    const createdAt = new Date(NOW - 86400000 * daysAgo).toISOString();
+    const status = statuses[i % statuses.length]!;
+    const notifiedTo = ["张明远", "赵静", "王建国", "李梅"][Math.floor(rnd() * 4)] ?? "张明远";
+    GENERATED_CRITICALS.push({
+      id: `cv-${201 + i}`,
+      studyId: link.studyId,
+      patientId: p.patientId,
+      patientName: p.name,
+      value: tpl.value,
+      unit: "",
+      severity: tpl.severity,
+      finding: tpl.finding,
+      status,
+      discoveredAt: createdAt,
+      reportedBy: rnd() > 0.5 ? "AI辅助诊断" : "技师王",
+      notifiedTo,
+      notifiedAt: new Date(NOW - 86400000 * daysAgo + 1800000).toISOString(),
+      notificationMethod: ["phone", "wechat", "system"][Math.floor(rnd() * 3)] ?? "phone",
+      ...(status === "resolved"
+        ? { closedAt: new Date(NOW - 86400000 * (daysAgo - 1)).toISOString() }
+        : {}),
+    });
+  }
+}
+
+/** 全量 60 条危急值 (33 基线 + 27 生成) */
+export const MOCK_CRITICAL_VALUES: (CriticalValue | CriticalValueV2)[] = [
+  ...MAPPED_BASE_CRITICALS,
+  ...GENERATED_CRITICALS,
 ];
 
 export const CRITICAL_VALUE_CATEGORIES = [

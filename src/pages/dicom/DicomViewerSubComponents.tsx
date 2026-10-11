@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import * as THREE from 'three'
 import type { Tool, PseudoColorMode, Series, MipDirection } from './DicomViewerTypes'
 import { applyGSOFToGray, type GsofMode } from '../../utils/gsdf'
 
@@ -76,7 +77,6 @@ export function VRCanvas({
 
   useEffect(() => {
     if (!containerRef.current) return
-    const THREE = require('three')
     const container = containerRef.current
     const w = container.clientWidth || 512; const h = container.clientHeight || 512
 
@@ -100,14 +100,13 @@ export function VRCanvas({
     const wireframe = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x4a90d9 }))
     scene.add(wireframe)
 
-    const animate = () => { requestAnimationFrame(animate); material.uniforms.uTime.value += 0.01; renderer.render(scene, camera) }
+    const animate = () => { requestAnimationFrame(animate); const uTime = material.uniforms.uTime; if (uTime) uTime.value = (uTime.value ?? 0) + 0.01; renderer.render(scene, camera) }
     animate()
     return () => { renderer.dispose(); geometry.dispose(); material.dispose() }
   }, [])
 
   useEffect(() => {
     if (!sceneRef.current) return
-    require('three')
     sceneRef.current.rotation.set((rotX * Math.PI) / 180, (rotY * Math.PI) / 180, (rotZ * Math.PI) / 180)
   }, [rotX, rotY, rotZ])
 

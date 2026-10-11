@@ -1,10 +1,14 @@
-// [v3.0.6.8-53] PR 口腔: 口腔影像 mock 数据 (1200 行, 600 影像)
-import { randInt, pick, seedRandom } from '../_generators';
-
-function randFloat(min: any, max: any, decimals?: any) {
-  if (decimals === undefined) decimals = 2;
-  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
-}
+// [v3.0.6.8-53] PR 口腔: 口腔影像 mock 数据 (600 影像 = 20 患者 × 30)
+// [G005 dental-demo-fill] patientId/patientName 全部指向 dentalEmrMock 患者池 (无孤儿 ID);
+//   studyId ↔ patientId ↔ chartId ↔ treatmentId 交叉关联; 确定性 mulberry32, 无模块级 Math.random()。
+import { mulberry32, hashSeed } from '../../utils/seededRandom';
+import {
+  MOCK_DENTAL_PATIENTS,
+  DENTAL_STUDIES_PER_PATIENT,
+  dentalStudyIdFor,
+  dentalTreatmentIdFor,
+} from './dentalEmrMock';
+import { getPrimaryChartId } from './dentalChartMock';
 
 export type DentalModality = 'CBCT' | 'Panoramic' | 'Periapical' | 'Scan' | 'Bitewing';
 export type DentalRegion =
@@ -18,6 +22,8 @@ export interface DentalStudyDto {
   id: string;
   patientId: string;
   patientName: string;
+  chartId?: string; // 关联牙位图 (dentalChartMock 主图)
+  treatmentIds?: string[]; // 关联治疗 (dentalTreatmentMock, 反向引用)
   modality: DentalModality;
   region: DentalRegion;
   scanType?: ScanType;
@@ -74,8 +80,6 @@ const SCAN_TYPES: ScanType[] = ['Upper', 'Lower', 'Bite', 'Pre-Ortho', 'Implant'
 const QUALITIES: ImageQuality[] = ['Diagnostic', 'Diagnostic', 'Acceptable', 'Suboptimal', 'Reject'];
 const STATUSES = ['acquired', 'reviewed', 'reported', 'archived'];
 
-const FIRST_NAMES = ['张', '王', '李', '刘', '陈', '杨', '黄', '赵', '吴', '周', '徐', '孙', '马', '朱', '胡', '林', '何', '高', '罗', '郑'];
-const GIVEN_NAMES = ['伟', '芳', '娜', '敏', '静', '丽', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀英', '建国', '海燕'];
 const REFERRING = ['王主任 (修复科)', '李主任 (口腔外科)', '张主任 (牙周科)', '刘主任 (种植科)', '陈主任 (正畸科)', '黄主任 (牙体牙髓科)'];
 const INDICATIONS = [
   '右下后牙疼痛 1 周', '上颌前牙外伤 2 天', '牙龈出血伴松动', '牙髓炎急性发作', '阻生智齿冠周炎',
@@ -83,41 +87,54 @@ const INDICATIONS = [
   '颞下颌关节疼痛', '正畸后保持期随访', '上颌窦提升术前评估', '口腔修复前评估', '龋齿筛查',
 ];
 
+// 固定锚点时间 → 数据刷新后不抖动
+const ANCHOR_MS = Date.parse('2026-09-28T09:00:00.000Z');
+const DAY_MS = 24 * 3600 * 1000;
+const STUDY_COUNT = MOCK_DENTAL_PATIENTS.length * DENTAL_STUDIES_PER_PATIENT; // 600
 
+function rf(r: () => number, min: number, max: number, decimals = 2): number {
+  return parseFloat((r() * (max - min) + min).toFixed(decimals));
+}
 
-function randomDate(daysBack: number): string {
-  const d = new Date(Date.now() - Math.random() * daysBack * 24 * 3600 * 1000);
-  return d.toISOString();
+function ri(r: () => number, min: number, max: number): number {
+  return Math.floor(r() * (max - min + 1)) + min;
+}
+
+function pickBy<T>(r: () => number, arr: readonly T[]): T {
+  return arr[Math.floor(r() * arr.length)]!;
 }
 
 export const MOCK_DENTAL_STUDIES: DentalStudyDto[] = (() => {
-  seedRandom(42);
   const out: DentalStudyDto[] = [];
   const modalities: DentalModality[] = ['CBCT', 'Panoramic', 'Periapical', 'Scan', 'Bitewing'];
   const modalityWeights = [15, 25, 30, 20, 10]; // weights summing to 100
 
-  for (let i = 0; i < 600; i++) {
+  for (let i = 0; i < STUDY_COUNT; i++) {
+    const patientIdx = Math.floor(i / DENTAL_STUDIES_PER_PATIENT) % MOCK_DENTAL_PATIENTS.length; // 20 × 30
+    const k = i % DENTAL_STUDIES_PER_PATIENT;
+    const patient = MOCK_DENTAL_PATIENTS[patientIdx]!;
+    const r = mulberry32(hashSeed(`dental-study-STU${100000 + i}`));
+
     // weighted random modality
-    let r = Math.random() * 100;
+    let wr = r() * 100;
     let modality: DentalModality = 'Panoramic';
     for (let j = 0; j < modalities.length; j++) {
-      r -= modalityWeights[j]!;
-      if (r <= 0) {
+      wr -= modalityWeights[j]!;
+      if (wr <= 0) {
         modality = modalities[j]!;
         break;
       }
     }
 
-    const region = pick(REGIONS);
-    const quality = pick(QUALITIES);
-    const status = pick(STATUSES) as DentalStudyDto['status'];
-    const firstName = pick(FIRST_NAMES);
-    const givenName = pick(GIVEN_NAMES);
-    const patientName = firstName + givenName + randInt(8, 82);
-    const patientId = 'P' + String(100000 + i);
+    const region = pickBy(r, REGIONS);
+    const quality = pickBy(r, QUALITIES);
+    const status = pickBy(r, STATUSES) as DentalStudyDto['status'];
+    const patientId = patient.id;
 
-    const acquisitionDate = randomDate(180);
-    const deviceModel = pick(
+    const acquisitionMs = ANCHOR_MS - r() * 170 * DAY_MS;
+    const acquisitionDate = new Date(acquisitionMs);
+    const acquisitionIso = acquisitionDate.toISOString();
+    const deviceModel = pickBy(r,
       modality === 'CBCT' ? CBCT_DEVICES :
       modality === 'Panoramic' ? PANORAMIC_DEVICES :
       modality === 'Periapical' ? PERIAPICAL_DEVICES :
@@ -125,72 +142,75 @@ export const MOCK_DENTAL_STUDIES: DentalStudyDto[] = (() => {
       BITEWING_DEVICES
     );
 
-    const fov = modality === 'CBCT' ? (pick(['5x5 cm', '8x8 cm', '10x10 cm', '16x8 cm', '17x11 cm'])) :
-               modality === 'Periapical' ? (pick(['2x3 cm', '3x4 cm'])) :
+    const fov = modality === 'CBCT' ? (pickBy(r, ['5x5 cm', '8x8 cm', '10x10 cm', '16x8 cm', '17x11 cm'])) :
+               modality === 'Periapical' ? (pickBy(r, ['2x3 cm', '3x4 cm'])) :
                modality === 'Panoramic' ? '全景' :
-               modality === 'Scan' ? (pick(['上颌', '下颌', '咬合'])) : '咬合翼片';
+               modality === 'Scan' ? (pickBy(r, ['上颌', '下颌', '咬合'])) : '咬合翼片';
 
-    const voxelSize = modality === 'CBCT' ? randFloat(0.08, 0.30) :
-                      modality === 'Periapical' ? randFloat(0.02, 0.05) :
-                      modality === 'Scan' ? randFloat(0.02, 0.08) :
+    const voxelSize = modality === 'CBCT' ? rf(r, 0.08, 0.30) :
+                      modality === 'Periapical' ? rf(r, 0.02, 0.05) :
+                      modality === 'Scan' ? rf(r, 0.02, 0.08) :
                       modality === 'Panoramic' ? 0.1 :
                       0.05;
 
-    const radiationDose = modality === 'CBCT' ? randFloat(50, 800) :
-                          modality === 'Panoramic' ? randFloat(5, 25) :
-                          modality === 'Periapical' ? randFloat(0.5, 3) :
+    const radiationDose = modality === 'CBCT' ? rf(r, 50, 800) :
+                          modality === 'Panoramic' ? rf(r, 5, 25) :
+                          modality === 'Periapical' ? rf(r, 0.5, 3) :
                           undefined;
 
-    const imageCount = modality === 'CBCT' ? randInt(300, 800) :
-                       modality === 'Panoramic' ? 1 :
-                       modality === 'Periapical' ? 1 :
-                       modality === 'Scan' ? 1 :
-                       modality === 'Bitewing' ? 1 : 1;
+    const imageCount = modality === 'CBCT' ? ri(r, 300, 800) : 1;
 
-    const fileSize = modality === 'CBCT' ? randInt(30, 200) * 1024 * 1024 :
-                     modality === 'Panoramic' ? randInt(5, 30) * 1024 * 1024 :
-                     modality === 'Periapical' ? randInt(0.5, 3) * 1024 * 1024 :
-                     modality === 'Scan' ? randInt(10, 80) * 1024 * 1024 :
-                     randInt(1, 5) * 1024 * 1024;
+    const fileSize = modality === 'CBCT' ? ri(r, 30, 200) * 1024 * 1024 :
+                     modality === 'Panoramic' ? ri(r, 5, 30) * 1024 * 1024 :
+                     modality === 'Periapical' ? ri(r, 1, 3) * 1024 * 1024 :
+                     modality === 'Scan' ? ri(r, 10, 80) * 1024 * 1024 :
+                     ri(r, 1, 5) * 1024 * 1024;
 
     // Segments (mainly CBCT)
     const segments: DentalStudyDto['segments'] = [];
-    if (modality === 'CBCT' && Math.random() > 0.3) {
-      segments.push({ id: 'seg-1', type: 'nerve', label: '下牙槽神经 (左)', volume: randFloat(80, 200), color: '#ff7a00' });
-      if (Math.random() > 0.5) segments.push({ id: 'seg-2', type: 'nerve', label: '下牙槽神经 (右)', volume: randFloat(80, 200), color: '#ff7a00' });
-      if (Math.random() > 0.4) segments.push({ id: 'seg-3', type: 'tooth', label: '36 牙根', volume: randFloat(200, 500), color: '#f0f0f0' });
-      if (Math.random() > 0.5) segments.push({ id: 'seg-4', type: 'bone', label: '下颌骨', volume: randFloat(30000, 60000), color: '#fff5e6' });
+    if (modality === 'CBCT' && r() > 0.3) {
+      segments.push({ id: 'seg-1', type: 'nerve', label: '下牙槽神经 (左)', volume: rf(r, 80, 200), color: '#ff7a00' });
+      if (r() > 0.5) segments.push({ id: 'seg-2', type: 'nerve', label: '下牙槽神经 (右)', volume: rf(r, 80, 200), color: '#ff7a00' });
+      if (r() > 0.4) segments.push({ id: 'seg-3', type: 'tooth', label: '36 牙根', volume: rf(r, 200, 500), color: '#f0f0f0' });
+      if (r() > 0.5) segments.push({ id: 'seg-4', type: 'bone', label: '下颌骨', volume: rf(r, 30000, 60000), color: '#fff5e6' });
     }
 
     // Measurements
     const measurements: DentalStudyDto['measurements'] = [];
-    if (modality === 'CBCT' && Math.random() > 0.4) {
-      measurements.push({ id: 'm-1', type: 'distance', label: '36 至下牙槽神经管距离', value: parseFloat(randFloat(6, 15).toFixed(1)), unit: 'mm' });
-      if (Math.random() > 0.5) {
-        measurements.push({ id: 'm-2', type: 'distance', label: '种植体可用骨高度', value: parseFloat(randFloat(8, 18).toFixed(1)), unit: 'mm' });
+    if (modality === 'CBCT' && r() > 0.4) {
+      measurements.push({ id: 'm-1', type: 'distance', label: '36 至下牙槽神经管距离', value: rf(r, 6, 15, 1), unit: 'mm' });
+      if (r() > 0.5) {
+        measurements.push({ id: 'm-2', type: 'distance', label: '种植体可用骨高度', value: rf(r, 8, 18, 1), unit: 'mm' });
       }
     }
 
     // AI Analysis
     let aiAnalysis: DentalStudyDto['aiAnalysis'] = undefined;
-    if (modality === 'Bitewing' || modality === 'Periapical' || (modality === 'CBCT' && Math.random() > 0.3)) {
+    if (modality === 'Bitewing' || modality === 'Periapical' || (modality === 'CBCT' && r() > 0.3)) {
       aiAnalysis = {
-        cariesDetected: randInt(0, 4),
-        boneLossLevel: pick(['None', 'None', 'Mild', 'Moderate', 'Severe']) as any,
-        periapicalLesions: randInt(0, 2),
-        confidence: randFloat(0.7, 0.95),
+        cariesDetected: ri(r, 0, 4),
+        boneLossLevel: pickBy(r, ['None', 'None', 'Mild', 'Moderate', 'Severe']) as any,
+        periapicalLesions: ri(r, 0, 2),
+        confidence: rf(r, 0.7, 0.95),
         modelVersion: 'YOLOv8n-dental-v1.2',
       };
     }
 
+    // 治疗反向引用: dentalTreatmentMock 中 studyId 指向前 3 条治疗 → 此处回链
+    const treatmentIds = k < 3
+      ? [dentalTreatmentIdFor(patientIdx, k)]
+      : undefined;
+
     out.push({
-      id: 'STU' + String(100000 + i),
+      id: dentalStudyIdFor(patientIdx, k),
       patientId,
-      patientName,
+      patientName: patient.name,
+      chartId: getPrimaryChartId(patientId),
+      treatmentIds,
       modality,
       region,
-      scanType: modality === 'Scan' ? pick(SCAN_TYPES) : undefined,
-      acquisitionDate: acquisitionDate.slice(0, 10),
+      scanType: modality === 'Scan' ? pickBy(r, SCAN_TYPES) : undefined,
+      acquisitionDate: acquisitionIso.slice(0, 10),
       deviceModel,
       fieldOfView: fov,
       voxelSize: parseFloat(voxelSize.toFixed(2)),
@@ -198,19 +218,19 @@ export const MOCK_DENTAL_STUDIES: DentalStudyDto[] = (() => {
       fileSize,
       imageCount,
       quality,
-      indications: pick(INDICATIONS),
-      referringDentist: pick(REFERRING),
+      indications: pickBy(r, INDICATIONS),
+      referringDentist: pickBy(r, REFERRING),
       status,
-      thumbnail: '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'),
-      dicomPath: `/dicom/dental/${patientId}/${Date.now()}.dcm`,
+      thumbnail: '#' + (ri(r, 0, 16777215)).toString(16).padStart(6, '0'),
+      dicomPath: `/dicom/dental/${patientId}/${dentalStudyIdFor(patientIdx, k)}.dcm`,
       segments: segments.length > 0 ? segments : undefined,
       measurements: measurements.length > 0 ? measurements : undefined,
       aiAnalysis,
       notes: '',
-      toothNumbers: Math.random() > 0.5 ? [pick([11,16,21,26,31,36,41,46,13,23,33,43,17,27,37,47])] : [],
+      toothNumbers: r() > 0.5 ? [pickBy(r, [11,16,21,26,31,36,41,46,13,23,33,43,17,27,37,47])] : [],
       tags: modality === 'CBCT' ? ['CBCT', '三维'] : modality === 'Scan' ? ['口扫', '3D'] : [],
-      createdAt: acquisitionDate,
-      updatedAt: new Date().toISOString(),
+      createdAt: acquisitionIso,
+      updatedAt: new Date(acquisitionMs + 3600 * 1000).toISOString(),
     });
   }
   return out;

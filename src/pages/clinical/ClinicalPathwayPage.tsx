@@ -80,7 +80,8 @@ export const ClinicalPathwayPage: React.FC = () => {
   };
 
   const enrollPatient = async () => {
-    const values = await enrollForm.validateFields();
+    const values = await enrollForm.validateFields().catch(() => null);
+    if (!values) return;
     const res = await clinicalPathwayApi.enrollPatient({
       patientName: values.patientName,
       pathwayName: values.pathwayName,

@@ -88,7 +88,8 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
   };
 
   const handleSend = async () => {
-    const values = await form.validateFields();
+    const values = await form.validateFields().catch(() => null);
+    if (!values) return;
     const list = (values.phones as string).split(/[,\s]+/).filter(Boolean);
     if (list.length === 0) {
       message.warning('请填写至少一个号码');

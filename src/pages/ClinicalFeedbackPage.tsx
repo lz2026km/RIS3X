@@ -100,7 +100,8 @@ export default function ClinicalFeedbackPage() {
   }, [fetchList])
 
   const handleCreate = async () => {
-    const values = await createForm.validateFields()
+    const values = await createForm.validateFields().catch(() => null)
+    if (!values) return;
     setSubmitting(true)
     try {
       const res = await clinicalFeedbackApi.create({
@@ -143,7 +144,8 @@ export default function ClinicalFeedbackPage() {
   const handleAction = async () => {
     if (!actionTarget) return
     const { mode, record } = actionTarget
-    const values = await actionForm.validateFields()
+    const values = await actionForm.validateFields().catch(() => null)
+    if (!values) return;
     setSubmitting(true)
     try {
       const res = mode === 'respond'

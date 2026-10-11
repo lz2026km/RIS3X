@@ -2,6 +2,10 @@
 // 包含：预约记录、医保审核、患者随访、设备维保合同、临床数据同步、影像会诊
 
 import { formatDate } from "./simulationStore";
+import { resolvePatientId } from "./master/idAlias";
+import { makeRng } from "./_generators/deterministicSeed";
+
+const rng = makeRng("initialData");
 
 // ==================== 类型定义 ====================
 
@@ -363,11 +367,11 @@ function getRelativeDateStr(daysAgo: number): string {
 }
 
 function randomElement<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)] as T;
+  return arr[Math.floor(rng() * arr.length)] as T;
 }
 
 function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(rng() * (max - min + 1)) + min;
 }
 
 // ==================== 数据池 ====================
@@ -1385,7 +1389,7 @@ function generateAppointmentRecords(): AppointmentRecord[] {
     const firstName = randomElement(FIRST_NAMES);
     const lastName = randomElement(LAST_NAMES);
     const name = firstName + lastName;
-    const gender = Math.random() > 0.5 ? "男" : "女";
+    const gender = rng() > 0.5 ? "男" : "女";
     const age = randomInt(18, 85);
     const phone = `1${randomInt(3, 9)}${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`;
     const idCard = `${randomInt(110000, 659999)}${randomInt(1950, 2005)}${String(randomInt(1, 12)).padStart(2, "0")}${String(randomInt(1, 28)).padStart(2, "0")}${randomInt(1000, 9999)}`;
@@ -1413,7 +1417,7 @@ function generateAppointmentRecords(): AppointmentRecord[] {
 
     records.push({
       id: `APT-${String(i).padStart(4, "0")}`,
-      patientId: `P2026${String(i).padStart(5, "0")}`,
+      patientId: resolvePatientId(`P2026${String(i).padStart(5, "0")}`),
       patientName: name,
       gender: gender as "男" | "女",
       age,
@@ -1433,9 +1437,9 @@ function generateAppointmentRecords(): AppointmentRecord[] {
       referringDoctorName: doctor,
       clinicalDiagnosis: randomElement(CLINICAL_DIAGNOSES),
       notes:
-        Math.random() > 0.7
+        rng() > 0.7
           ? "需空腹"
-          : Math.random() > 0.5
+          : rng() > 0.5
             ? "需家属陪同"
             : "",
       status: status as any,
@@ -1458,7 +1462,7 @@ function generatePatientRecords() {
     const firstName = randomElement(FIRST_NAMES);
     const lastName = randomElement(LAST_NAMES);
     const name = firstName + lastName;
-    const gender = Math.random() > 0.5 ? "男" : "女";
+    const gender = rng() > 0.5 ? "男" : "女";
     const age = randomInt(18, 90);
     const phone = `1${randomInt(3, 9)}${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`;
     const idCard = `${randomInt(110000, 659999)}${randomInt(1950, 2005)}${String(randomInt(1, 12)).padStart(2, "0")}${String(randomInt(1, 28)).padStart(2, "0")}${randomInt(1000, 9999)}`;
@@ -1485,7 +1489,7 @@ function generatePatientRecords() {
   return patients;
 }
 
-/** @deprecated 使用 P2026xxxxx 格式，与 master Pxxxxx 不互通，仅用于 fallback */
+/** @deprecated 原用 P2026xxxxx 格式与 master Pxxxxx 不互通；现在 APPOINTMENT_RECORDS.patientId 已统一经 resolvePatientId() 映射进 master P000001-P049700（见 src/data/master/idAlias.ts），本集合仅作 fallback */
 export const PATIENT_RECORDS = generatePatientRecords();
 
 // ==================== 15条医保审核记录 ====================
@@ -12935,7 +12939,7 @@ function generateVoucherData(): ElectronicVoucherRecord[] {
     const minute = randomInt(0, 5) * 10;
     const invoiceDate = getRelativeDateStr(daysAgo);
 
-    const status = statuses[Math.floor(Math.random() * statuses.length)]!;
+    const status = statuses[Math.floor(rng() * statuses.length)]!;
     let amount = 0;
     if (types[i % 3] === "检查费") {
       amount = randomInt(200, 1500);
@@ -13400,8 +13404,8 @@ function generatePhone(): string {
     "147",
   ];
   return (
-    prefixes[Math.floor(Math.random() * prefixes.length)] +
-    Math.floor(Math.random() * 100000000)
+    prefixes[Math.floor(rng() * prefixes.length)] +
+    Math.floor(rng() * 100000000)
       .toString()
       .padStart(8, "0")
   );
@@ -13425,17 +13429,17 @@ function generateIdCard(gender: "男" | "女"): string {
     "440104",
     "330102",
   ];
-  const province = provinces[Math.floor(Math.random() * provinces.length)];
-  const year = 1950 + Math.floor(Math.random() * 55);
-  const month = Math.floor(Math.random() * 12) + 1;
-  const day = Math.floor(Math.random() * 28) + 1;
-  const seq = Math.floor(Math.random() * 900 + 100).toString();
+  const province = provinces[Math.floor(rng() * provinces.length)];
+  const year = 1950 + Math.floor(rng() * 55);
+  const month = Math.floor(rng() * 12) + 1;
+  const day = Math.floor(rng() * 28) + 1;
+  const seq = Math.floor(rng() * 900 + 100).toString();
   const genderCode =
     gender === "男"
-      ? Math.floor(Math.random() * 500) % 2 === 0
+      ? Math.floor(rng() * 500) % 2 === 0
         ? "1"
         : "3"
-      : Math.floor(Math.random() * 500) % 2 === 0
+      : Math.floor(rng() * 500) % 2 === 0
         ? "2"
         : "4";
   return `${province}${year}${month.toString().padStart(2, "0")}${day.toString().padStart(2, "0")}${seq}${genderCode}`;
@@ -13446,44 +13450,44 @@ export const PATIENT_MASTER_INDEX: PatientMasterRecord[] = Array.from(
   { length: 520 },
   (_, i) => {
     const surname =
-      chineseSurnames[Math.floor(Math.random() * chineseSurnames.length)]!;
-    const name1 = chineseNames[Math.floor(Math.random() * chineseNames.length)]!;
+      chineseSurnames[Math.floor(rng() * chineseSurnames.length)]!;
+    const name1 = chineseNames[Math.floor(rng() * chineseNames.length)]!;
     const name2 =
-      Math.random() > 0.3
-        ? chineseNames[Math.floor(Math.random() * chineseNames.length)]!
+      rng() > 0.3
+        ? chineseNames[Math.floor(rng() * chineseNames.length)]!
         : "";
     const name = surname + name1 + name2;
-    const gender: "男" | "女" = Math.random() > 0.48 ? "男" : "女";
-    const age = Math.floor(Math.random() * 60) + 18;
+    const gender: "男" | "女" = rng() > 0.48 ? "男" : "女";
+    const age = Math.floor(rng() * 60) + 18;
     const idCard = generateIdCard(gender);
     const phone = generatePhone();
-    const city = cities[Math.floor(Math.random() * cities.length)];
-    const district = districts[Math.floor(Math.random() * districts.length)];
-    const street = streets[Math.floor(Math.random() * streets.length)];
-    const addressNum = Math.floor(Math.random() * 500) + 1;
+    const city = cities[Math.floor(rng() * cities.length)];
+    const district = districts[Math.floor(rng() * districts.length)];
+    const street = streets[Math.floor(rng() * streets.length)];
+    const addressNum = Math.floor(rng() * 500) + 1;
     const address = `${city}${district}${street}${addressNum}号`;
     const patientType =
-      patientTypes[Math.floor(Math.random() * patientTypes.length)]!;
+      patientTypes[Math.floor(rng() * patientTypes.length)]!;
     const primaryDiagnosis =
-      diagnoses[Math.floor(Math.random() * diagnoses.length)]!;
+      diagnoses[Math.floor(rng() * diagnoses.length)]!;
     const allergyHistory =
-      allergies[Math.floor(Math.random() * allergies.length)]!;
-    const registrationYear = 2020 + Math.floor(Math.random() * 6);
-    const registrationMonth = Math.floor(Math.random() * 12) + 1;
-    const registrationDay = Math.floor(Math.random() * 28) + 1;
+      allergies[Math.floor(rng() * allergies.length)]!;
+    const registrationYear = 2020 + Math.floor(rng() * 6);
+    const registrationMonth = Math.floor(rng() * 12) + 1;
+    const registrationDay = Math.floor(rng() * 28) + 1;
     const registrationDate = `${registrationYear}-${registrationMonth.toString().padStart(2, "0")}-${registrationDay.toString().padStart(2, "0")}`;
-    const linkedFacilitiesCount = Math.floor(Math.random() * 4);
+    const linkedFacilitiesCount = Math.floor(rng() * 4);
     const linkedFacilities: string[] = [];
     for (let j = 0; j < linkedFacilitiesCount; j++) {
-      const fac = facilities[Math.floor(Math.random() * facilities.length)]!;
+      const fac = facilities[Math.floor(rng() * facilities.length)]!;
       if (!linkedFacilities.includes(fac)) linkedFacilities.push(fac);
     }
     const mergeStatus =
-      mergeStatuses[Math.floor(Math.random() * mergeStatuses.length)]!;
-    const confidenceScore = Math.floor(Math.random() * 20) + 80;
-    const updateYear = 2024 + Math.floor(Math.random() * 2);
-    const updateMonth = Math.floor(Math.random() * 12) + 1;
-    const updateDay = Math.floor(Math.random() * 28) + 1;
+      mergeStatuses[Math.floor(rng() * mergeStatuses.length)]!;
+    const confidenceScore = Math.floor(rng() * 20) + 80;
+    const updateYear = 2024 + Math.floor(rng() * 2);
+    const updateMonth = Math.floor(rng() * 12) + 1;
+    const updateDay = Math.floor(rng() * 28) + 1;
     const lastUpdated = `${updateYear}-${updateMonth.toString().padStart(2, "0")}-${updateDay.toString().padStart(2, "0")}`;
 
     return {
@@ -13588,29 +13592,29 @@ function generateClinicalSyncRecords(): ClinicalSyncRecord[] {
 
   return Array.from({ length: 60 }, (_, i) => {
     const sys = systems[i % systems.length]!;
-    const status = statuses[Math.floor(Math.random() * statuses.length)]!;
-    const daysAgo = Math.floor(Math.random() * 7);
-    const hoursAgo = Math.floor(Math.random() * 24);
+    const status = statuses[Math.floor(rng() * statuses.length)]!;
+    const daysAgo = Math.floor(rng() * 7);
+    const hoursAgo = Math.floor(rng() * 24);
     const syncDate = new Date();
     syncDate.setDate(syncDate.getDate() - daysAgo);
     syncDate.setHours(syncDate.getHours() - hoursAgo);
-    const surname = surnames[Math.floor(Math.random() * surnames.length)]!;
-    const name = surname + names[Math.floor(Math.random() * names.length)]!;
+    const surname = surnames[Math.floor(rng() * surnames.length)]!;
+    const name = surname + names[Math.floor(rng() * names.length)]!;
 
     return {
       id: `CDR-SYNC-${String(i + 1).padStart(4, "0")}`,
       systemName: sys.name,
       systemCode: sys.code,
-      recordType: recordTypes[Math.floor(Math.random() * recordTypes.length)]!,
-      patientId: `P2026${String(Math.floor(Math.random() * 500) + 1).padStart(5, "0")}`,
+      recordType: recordTypes[Math.floor(rng() * recordTypes.length)]!,
+      patientId: `P2026${String(Math.floor(rng() * 500) + 1).padStart(5, "0")}`,
       patientName: name,
       dataContent: `患者临床数据记录 #${i + 1}`,
       syncTime: syncDate.toLocaleString("zh-CN"),
       status,
       errorMessage: status === "失败" ? "连接超时，数据未返回" : undefined,
-      retryCount: status === "失败" ? Math.floor(Math.random() * 3) + 1 : 0,
-      dataVolume: `${Math.floor(Math.random() * 500 + 10)}KB`,
-      sourceDept: depts[Math.floor(Math.random() * depts.length)]!,
+      retryCount: status === "失败" ? Math.floor(rng() * 3) + 1 : 0,
+      dataVolume: `${Math.floor(rng() * 500 + 10)}KB`,
+      sourceDept: depts[Math.floor(rng() * depts.length)]!,
     };
   });
 }
@@ -13687,37 +13691,37 @@ function generateClinicalDataRecords(): ClinicalDataRecord[] {
   const names = ["志", "明", "强", "丽", "静", "勇", "磊", "燕", "超", "婷"];
 
   return Array.from({ length: 80 }, (_, i) => {
-    const visitType = visitTypes[Math.floor(Math.random() * visitTypes.length)]!;
-    const daysAgo = Math.floor(Math.random() * 60);
+    const visitType = visitTypes[Math.floor(rng() * visitTypes.length)]!;
+    const daysAgo = Math.floor(rng() * 60);
     const visitDate = new Date();
     visitDate.setDate(visitDate.getDate() - daysAgo);
-    const gender: "男" | "女" = Math.random() > 0.5 ? "男" : "女";
-    const surname = surnames[Math.floor(Math.random() * surnames.length)]!;
-    const name = surname + names[Math.floor(Math.random() * names.length)]!;
+    const gender: "男" | "女" = rng() > 0.5 ? "男" : "女";
+    const surname = surnames[Math.floor(rng() * surnames.length)]!;
+    const name = surname + names[Math.floor(rng() * names.length)]!;
 
     return {
       id: `CDR-REC-${String(i + 1).padStart(4, "0")}`,
-      patientId: `P2026${String(Math.floor(Math.random() * 500) + 1).padStart(5, "0")}`,
+      patientId: `P2026${String(Math.floor(rng() * 500) + 1).padStart(5, "0")}`,
       patientName: name,
       gender,
-      age: Math.floor(Math.random() * 50) + 20,
+      age: Math.floor(rng() * 50) + 20,
       visitDate: visitDate.toISOString().split("T")[0]!,
       visitType,
-      department: depts[Math.floor(Math.random() * depts.length)]!,
-      chiefComplaint: complaints[Math.floor(Math.random() * complaints.length)]!,
-      diagnosis: diagnoses[Math.floor(Math.random() * diagnoses.length)]!,
+      department: depts[Math.floor(rng() * depts.length)]!,
+      chiefComplaint: complaints[Math.floor(rng() * complaints.length)]!,
+      diagnosis: diagnoses[Math.floor(rng() * diagnoses.length)]!,
       examItems:
-        examItemsList[Math.floor(Math.random() * examItemsList.length)]!,
-      labResults: labItems.slice(0, Math.floor(Math.random() * 4) + 2),
+        examItemsList[Math.floor(rng() * examItemsList.length)]!,
+      labResults: labItems.slice(0, Math.floor(rng() * 4) + 2),
       medications:
-        medicationsList[Math.floor(Math.random() * medicationsList.length)]!,
+        medicationsList[Math.floor(rng() * medicationsList.length)]!,
       vitals: {
         date: visitDate.toISOString().split("T")[0]!,
-        bp: `${110 + Math.floor(Math.random() * 40)}/${70 + Math.floor(Math.random() * 20)}`,
-        hr: 60 + Math.floor(Math.random() * 40),
-        temp: 36.2 + Math.random() * 1.5,
+        bp: `${110 + Math.floor(rng() * 40)}/${70 + Math.floor(rng() * 20)}`,
+        hr: 60 + Math.floor(rng() * 40),
+        temp: 36.2 + rng() * 1.5,
       },
-      notes: Math.random() > 0.5 ? "需随访" : "",
+      notes: rng() > 0.5 ? "需随访" : "",
     };
   });
 }

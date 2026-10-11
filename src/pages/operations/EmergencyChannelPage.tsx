@@ -117,7 +117,8 @@ export default function EmergencyChannelPage() {
 
   // POST /emergency-channel/trigger — 手动触发 (含模拟通知回显)
   const handleTrigger = async () => {
-    const values = await triggerForm.validateFields()
+    const values = await triggerForm.validateFields().catch(() => null)
+    if (values === null) return
     try {
       const res = await emergencyChannelApi.trigger({
         patientId: values.patientId,

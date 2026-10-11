@@ -610,7 +610,8 @@ function StorageConfigTab() {
   const driver = Form.useWatch("driver", form);
 
   const onTest = async () => {
-    const values = await form.validateFields();
+    const values = await form.validateFields().catch(() => null);
+    if (!values) return;
     setTesting(true);
     setTestResult(null);
     const res = await storageConfigApi.test(values as StorageConfigDto);
@@ -628,7 +629,8 @@ function StorageConfigTab() {
   };
 
   const onSave = async () => {
-    const values = await form.validateFields();
+    const values = await form.validateFields().catch(() => null);
+    if (!values) return;
     setSaving(true);
     const res = await storageConfigApi.save(values as StorageConfigDto);
     if (res.success && res.data) {

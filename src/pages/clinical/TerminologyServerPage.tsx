@@ -97,7 +97,8 @@ export const TerminologyServerPage: React.FC = () => {
   }, [query]);
 
   const handleCreateMapping = async () => {
-    const values = await mappingForm.validateFields();
+    const values = await mappingForm.validateFields().catch(() => null);
+    if (!values) return;
     const res = await terminologyApi.createMapping({
       source: `${values.sourceSystem}:${values.sourceCode}`,
       sourceSystem: values.sourceSystem,

@@ -1,9 +1,10 @@
-﻿// [v3.0.6.11-7] /api/v1/device-mgmt MSW handlers
+// [v3.0.6.11-7] /api/v1/device-mgmt MSW handlers
 // [G005 P1] 补齐缺口: getEquipmentLifecycle/:id / getDevice/:id / update* / recordDose /
 //           contrast/injection / contrast/quality / 设备 CRUD (device-mgmt 根路径)
 import { http, HttpResponse, delay } from 'msw';
 import { list, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
+import { DEVICE_BY_ID, DEVICE_MASTER, PATIENT_BY_ID, type DeviceMaster } from '../../data/master';
 import { v4 as uuidv4 } from 'uuid';
 
 // 动态 API_BASE (与 handlers.ts 一致): vitest 用 localhost:5173, 浏览器用当前 origin
@@ -17,17 +18,62 @@ const API = `${API_BASE}/device-mgmt`;
 
 const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) + min);
 
-const FALLBACK_LIFECYCLE = [
-  { id: 'EL001', name: 'CT 1号机', model: 'uCT 780', serialNumber: 'SN-CT-001', manufacturer: '联影', location: '1号检查室', status: 'ACTIVE', purchaseDate: '2020-01-01', installationDate: '2020-03-01', warrantyExpiry: '2025-03-01', lastMaintenanceDate: '2026-06-15', nextMaintenanceDate: '2026-09-15', totalCost: 1200000, maintenanceCost: 58000 },
-  { id: 'EL002', name: 'MR 1号机', model: 'uMR 790', serialNumber: 'SN-MR-001', manufacturer: '联影', location: '2号检查室', status: 'MAINTENANCE', purchaseDate: '2021-06-01', installationDate: '2021-08-01', warrantyExpiry: '2026-08-01', lastMaintenanceDate: '2026-07-20', nextMaintenanceDate: '2026-08-20', totalCost: 2800000, maintenanceCost: 96000 },
-  { id: 'EL003', name: 'DR 1号机', model: 'uDR 760i', serialNumber: 'SN-DR-001', manufacturer: '联影', location: '3号检查室', status: 'RETIRED', purchaseDate: '2012-05-01', installationDate: '2012-06-01', warrantyExpiry: '2015-06-01', lastMaintenanceDate: '2024-12-01', nextMaintenanceDate: null, totalCost: 350000, maintenanceCost: 12000 },
-];
+// [G005] 设备生命周期 fallback 同样取自主数据 (原 EL001-EL003 为虚构机型)
+const FALLBACK_LIFECYCLE = (['DEV-CT-001', 'DEV-MR-001', 'DEV-DR-001'] as const).map((id) => {
+  const d = DEVICE_BY_ID[id];
+  return {
+    id: `EL-${id}`,
+    name: `${d?.modality ?? ''}·${d?.model ?? id}`,
+    model: d?.model ?? '',
+    serialNumber: d?.serialNumber ?? '',
+    manufacturer: d?.brand ?? '',
+    location: d?.room ?? '',
+    status: d?.status === '停用' ? 'RETIRED' : d?.status === '维护中' ? 'MAINTENANCE' : 'ACTIVE',
+    purchaseDate: d?.purchaseDate ?? '',
+    installationDate: d?.installedAt ?? '',
+    warrantyExpiry: d?.warrantyExpiry ?? '',
+    lastMaintenanceDate: d?.lastMaintenanceAt ?? '',
+    nextMaintenanceDate: d?.nextMaintenanceAt ?? null,
+    totalCost: (d?.purchasePrice ?? 0) * 10000,
+    maintenanceCost: Math.round((d?.totalDowntime ?? 0) * 1200),
+  };
+});
 
-const FALLBACK_DEVICES = [
-  { id: 'DEV001', code: 'CT-01', name: 'CT 1号机', modality: 'CT', manufacturer: '联影', location: '1号检查室', state: 'IN_USE' },
-  { id: 'DEV002', code: 'MR-01', name: 'MR 1号机', modality: 'MR', manufacturer: '联影', location: '2号检查室', state: 'MAINTENANCE' },
-  { id: 'DEV003', code: 'DR-01', name: 'DR 1号机', modality: 'DR', manufacturer: '飞利浦', location: '3号检查室', state: 'IDLE' },
-];
+// [G005] 设备列表不再使用 3 台虚构设备 (DEV001/CT-01 ...),
+//   统一由 DEVICE_MASTER (45 台: CT 10 / MR 8 / DR 12 / US 8 / MG 3 / DSA 2 / PET-CT 2) 映射。
+const STATE_BY_STATUS: Record<string, string> = {
+  '运行中': 'IN_USE',
+  '待机': 'IDLE',
+  '维护中': 'MAINTENANCE',
+  '故障': 'BROKEN',
+  '停用': 'OFFLINE',
+  '校准中': 'MAINTENANCE',
+};
+
+const toMgmtDevice = (d: DeviceMaster) => ({
+  id: d.id,
+  code: d.id.replace(/^DEV-/, ''),
+  name: `${d.modality}·${d.model}`,
+  modality: d.modality,
+  manufacturer: d.brand,
+  location: d.room,
+  state: STATE_BY_STATUS[d.status] ?? 'IDLE',
+  serialNumber: d.serialNumber,
+  assetCode: d.assetCode,
+  status: d.status,
+  lastMaintenanceDate: d.lastMaintenanceAt,
+  nextMaintenanceDate: d.nextMaintenanceAt,
+  doseComplianceRate: d.doseComplianceRate,
+  defectRate: d.defectRate,
+});
+
+const MASTER_DEVICES = DEVICE_MASTER.map(toMgmtDevice);
+
+const deviceLabel = (deviceId: string): string => {
+  const d = DEVICE_BY_ID[deviceId];
+  return d ? `${d.brand} ${d.model}` : deviceId;
+};
+
 
 export const deviceMgmtHandlers = [
   http.get(`${API}/equipment-lifecycle`, async ({ request }) => {
@@ -153,7 +199,7 @@ export const deviceMgmtHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('mgmtDevices' as any); } catch {}
-    if (!items.length) items = FALLBACK_DEVICES;
+    if (!items.length) items = MASTER_DEVICES;
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: { items: result.data, total: result.total } });
   }),
@@ -162,7 +208,7 @@ export const deviceMgmtHandlers = [
     await delay(delayMs());
     let items: any[] = [];
     try { items = list<any>('mgmtDevices' as any); } catch {}
-    if (!items.length) items = FALLBACK_DEVICES;
+    if (!items.length) items = MASTER_DEVICES;
     const found = items.find((i) => i.id === params.id) ?? items[0];
     return HttpResponse.json({ success: true, data: found });
   }),
@@ -170,7 +216,7 @@ export const deviceMgmtHandlers = [
   http.put(`${API}/devices/:id`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    const existing = { id: params.id, ...FALLBACK_DEVICES[0] };
+    const existing = { id: params.id, ...MASTER_DEVICES[0] };
     const updated = { ...existing, ...body, id: params.id };
     try { update('mgmtDevices' as any, params.id as string, updated); } catch {}
     return HttpResponse.json({ success: true, data: updated });
@@ -182,7 +228,8 @@ export const deviceMgmtHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('faults' as any); } catch {}
-    if (!items.length) items = [{"id":"FA001","deviceId":"DEV001","description":"软件死机","severity":"MINOR","status":"RESOLVED"}];
+    // [G005] 故障史 5 条, deviceId 全部来自 DEVICE_MASTER
+    if (!items.length) items = FAILURE_HISTORY;
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: { items: result.data, total: result.total } });
   }),
@@ -190,7 +237,7 @@ export const deviceMgmtHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('devices', newItem); } catch {}
+    try { create('faults' as any, newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/materials`, async ({ request }) => {
@@ -217,8 +264,8 @@ export const deviceMgmtHandlers = [
     let items: any[] = [];
     try { items = list<any>('doseRecords' as any); } catch {}
     if (!items.length) items = [
-      { id: 'DOSE-001', patientId: 'P000001', deviceId: 'DEV001', doseValue: 450, doseUnit: 'mGy·cm', examType: 'CT胸部平扫', recordedAt: '2026-08-01T09:30:00Z' },
-      { id: 'DOSE-002', patientId: 'P000002', deviceId: 'DEV001', doseValue: 620, doseUnit: 'mGy·cm', examType: 'CT腹部增强', recordedAt: '2026-08-01T10:15:00Z' },
+      { id: 'DOSE-001', patientId: 'P000001', patientName: PATIENT_BY_ID['P000001']?.name ?? 'P000001', deviceId: 'DEV-CT-001', deviceName: deviceLabel('DEV-CT-001'), doseValue: 450, doseUnit: 'mGy·cm', examType: 'CT胸部平扫', recordedAt: '2026-08-01T09:30:00Z' },
+      { id: 'DOSE-002', patientId: 'P000002', patientName: PATIENT_BY_ID['P000002']?.name ?? 'P000002', deviceId: 'DEV-CT-002', deviceName: deviceLabel('DEV-CT-002'), doseValue: 620, doseUnit: 'mGy·cm', examType: 'CT腹部增强', recordedAt: '2026-08-01T10:15:00Z' },
     ];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: { items: result.data, total: result.total } });
@@ -236,7 +283,15 @@ export const deviceMgmtHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('reactions' as any); } catch {}
-    if (!items.length) items = [{"id":"AR001","patientName":"张三","reaction":"皮疹","severity":"MINOR"}];
+    if (!items.length) items = [{
+      id: 'AR001',
+      patientId: 'P000001',
+      patientName: PATIENT_BY_ID['P000001']?.name ?? 'P000001',
+      contrastAgent: '碘海醇（欧乃派克）',
+      reaction: '皮疹',
+      severity: 'MINOR',
+      occurredAt: isoAt(-4, 11),
+    }];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: { items: result.data, total: result.total } });
   }),
@@ -300,7 +355,7 @@ export const deviceMgmtHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('mgmtDevices' as any); } catch {}
-    if (!items.length) items = FALLBACK_DEVICES;
+    if (!items.length) items = MASTER_DEVICES;
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: { items: result.data, total: result.total } });
   }),
@@ -373,11 +428,30 @@ export const deviceMgmtHandlers = [
     try { remove('maintenancePlans' as any, params.id as string); } catch {}
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
+  // [G005] 校准记录 8 条 (DEVICE_MASTER 真实 deviceId), 静态路径先于 :id 通配注册
+  http.get(`${API}/calibration-records`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const deviceId = url.searchParams.get('deviceId');
+    const result = url.searchParams.get('result');
+    let items: any[] = CALIBRATION_RECORDS;
+    if (deviceId) items = items.filter((c) => c.deviceId === deviceId);
+    if (result) items = items.filter((c) => c.result === result);
+    return HttpResponse.json({ success: true, data: { items, total: items.length } });
+  }),
+  http.get(`${API}/failure-history`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const deviceId = url.searchParams.get('deviceId');
+    let items: any[] = FAILURE_HISTORY;
+    if (deviceId) items = items.filter((f) => f.deviceId === deviceId);
+    return HttpResponse.json({ success: true, data: { items, total: items.length } });
+  }),
   http.get(`${API}/:id`, async ({ params }) => {
     await delay(delayMs());
     let items: any[] = [];
     try { items = list<any>('mgmtDevices' as any); } catch {}
-    if (!items.length) items = FALLBACK_DEVICES;
+    if (!items.length) items = MASTER_DEVICES;
     const found = items.find((i) => i.id === params.id) ?? items[0];
     return HttpResponse.json({ success: true, data: found });
   }),
@@ -391,7 +465,7 @@ export const deviceMgmtHandlers = [
   http.patch(`${API}/:id`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    const existing = { id: params.id, ...FALLBACK_DEVICES[0] };
+    const existing = { id: params.id, ...MASTER_DEVICES[0] };
     const updated = { ...existing, ...body, id: params.id };
     try { update('mgmtDevices' as any, params.id as string, updated); } catch {}
     return HttpResponse.json({ success: true, data: updated });
@@ -417,17 +491,118 @@ export const deviceMgmtHandlers = [
   }),
 ];
 
-const FALLBACK_MAINTENANCE_PLANS = [
-  { id: 'MP001', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', maintenanceDate: '2026-08-15T00:00:00.000Z', intervalDays: 90, type: '定期保养', content: '球管衰减检测，系统综合保养', estimatedCost: 3000, assignee: '张工', status: 'PENDING', nextDate: '2026-11-13T00:00:00.000Z', completedAt: null, createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
-  { id: 'MP002', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', maintenanceDate: '2026-09-05T00:00:00.000Z', intervalDays: 180, type: '半年保养', content: '液氦补充，滑环清洁，梯度测试', estimatedCost: 2500, assignee: '李工', status: 'PENDING', nextDate: '2027-03-04T00:00:00.000Z', completedAt: null, createdAt: '2026-05-10T00:00:00.000Z', updatedAt: '2026-05-10T00:00:00.000Z' },
-  { id: 'MP003', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', maintenanceDate: '2026-08-02T00:00:00.000Z', intervalDays: 90, type: '定期保养', content: '探测器校准，X线管训练', estimatedCost: 1800, assignee: '王工', status: 'PENDING', nextDate: '2026-10-31T00:00:00.000Z', completedAt: null, createdAt: '2026-05-20T00:00:00.000Z', updatedAt: '2026-05-20T00:00:00.000Z' },
-  { id: 'MP004', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', maintenanceDate: '2026-07-01T00:00:00.000Z', intervalDays: 90, type: '定期保养', content: '压迫器校准，图像质量检测', estimatedCost: 1500, assignee: '陈工', status: 'COMPLETED', nextDate: '2026-09-29T00:00:00.000Z', completedAt: '2026-07-01T00:00:00.000Z', createdAt: '2026-04-01T00:00:00.000Z', updatedAt: '2026-07-01T00:00:00.000Z' },
-];
+// [G005] 维护/校准/故障数据全部绑定 DEVICE_MASTER 真实 deviceId
+//   (移除旧的 DEV-CT-01 / DEV-MR-01 / DEV-DR-01 / DEV-MG-01 虚构设备)
+const DAY_MS = 86400000;
+const ANCHOR = new Date();
+const isoAt = (offsetDays: number, hour = 9) => {
+  const d = new Date(ANCHOR.getTime() + offsetDays * DAY_MS);
+  d.setHours(hour, 0, 0, 0);
+  return d.toISOString();
+};
+
+const WORK_ORDER_DEVICES = [
+  'DEV-CT-001', 'DEV-CT-002', 'DEV-CT-003',
+  'DEV-MR-001', 'DEV-MR-002',
+  'DEV-DR-001', 'DEV-DR-002',
+  'DEV-US-001', 'DEV-MG-001', 'DEV-DSA-001',
+] as const;
+
+const WORK_ORDER_TEMPLATES = [
+  { type: '定期保养', content: '球管衰减检测，系统综合保养', intervalDays: 90, estimatedCost: 3000, assignee: '工程师-1' },
+  { type: '半年保养', content: '液氦补充，滑环清洁，梯度线圈测试', intervalDays: 180, estimatedCost: 2500, assignee: '工程师-2' },
+  { type: '定期保养', content: '探测器校准，X线管训练', intervalDays: 90, estimatedCost: 1800, assignee: '工程师-3' },
+  { type: '季度保养', content: '高压注射器管路更换与流量校验', intervalDays: 90, estimatedCost: 1200, assignee: '工程师-4' },
+  { type: '年度保养', content: '图像质量模体检测，剂量输出校验', intervalDays: 365, estimatedCost: 4200, assignee: '工程师-5' },
+] as const;
+
+const MAINTENANCE_WORK_ORDERS = WORK_ORDER_DEVICES.map((deviceId, i) => {
+  const tpl = WORK_ORDER_TEMPLATES[i % WORK_ORDER_TEMPLATES.length]!;
+  const offset = (i - 5) * 7; // -35d ~ +28d: 覆盖已完成/逾期/待办
+  const maintenanceDate = isoAt(offset);
+  const completed = offset < -3;
+  return {
+    id: `MP-${String(i + 1).padStart(3, '0')}`,
+    deviceId,
+    deviceName: deviceLabel(deviceId),
+    maintenanceDate,
+    intervalDays: tpl.intervalDays,
+    type: tpl.type,
+    content: tpl.content,
+    estimatedCost: tpl.estimatedCost,
+    assignee: tpl.assignee,
+    status: completed ? 'COMPLETED' : 'PENDING',
+    nextDate: isoAt(offset + tpl.intervalDays),
+    completedAt: completed ? maintenanceDate : null,
+    createdAt: isoAt(offset - 14),
+    updatedAt: completed ? maintenanceDate : isoAt(offset - 14),
+  };
+});
+
+const CALIBRATION_DEVICES = [
+  'DEV-CT-001', 'DEV-CT-004', 'DEV-MR-001', 'DEV-MR-003',
+  'DEV-DR-001', 'DEV-MG-001', 'DEV-DSA-001', 'DEV-PET-CT-001',
+] as const;
+
+const CALIBRATION_TEMPLATES = [
+  { calibrationType: '剂量校准', standard: 'GBZ 130-2020', result: 'PASS', notes: 'CTDIvol 偏差 < 5%' },
+  { calibrationType: '图像质量校准', standard: 'AAPM TG-233', result: 'PASS', notes: 'MTF/噪声体模检测合格' },
+  { calibrationType: '场强匀场校准', standard: 'YY/T 0482-2022', result: 'PASS', notes: '3.0T 匀场偏差达标' },
+  { calibrationType: '探测器增益校准', standard: 'IEC 62220-1', result: 'PASS', notes: '坏点校正后一致性良好' },
+  { calibrationType: '压迫器力值校准', standard: 'YY/T 0687-2023', result: 'FAIL', notes: '压迫力超差, 已安排复校' },
+] as const;
+
+const CALIBRATION_RECORDS = CALIBRATION_DEVICES.map((deviceId, i) => {
+  const tpl = CALIBRATION_TEMPLATES[i % CALIBRATION_TEMPLATES.length]!;
+  const offset = -(i * 11 + 5);
+  return {
+    id: `CAL-${String(i + 1).padStart(3, '0')}`,
+    deviceId,
+    deviceName: deviceLabel(deviceId),
+    calibrationType: tpl.calibrationType,
+    standard: tpl.standard,
+    performedAt: isoAt(offset, 10),
+    result: tpl.result,
+    nextDueAt: isoAt(offset + 180, 10),
+    engineer: `工程师-${(i % 12) + 1}`,
+    notes: tpl.notes,
+  };
+});
+
+const FAILURE_DEVICES = [
+  'DEV-CT-002', 'DEV-MR-002', 'DEV-DR-002', 'DEV-US-001', 'DEV-DSA-001',
+] as const;
+
+const FAILURE_TEMPLATES = [
+  { description: '球管过热保护停机', severity: 'MAJOR', rootCause: '冷却循环水温偏高', downtimeHours: 6 },
+  { description: '梯度放大器报错 E120', severity: 'MAJOR', rootCause: '梯度线圈接插件松动', downtimeHours: 12 },
+  { description: '平板探测器坏点增多', severity: 'MINOR', rootCause: '探测器老化', downtimeHours: 3 },
+  { description: '探头穿刺激活失败', severity: 'MINOR', rootCause: '阵元通道故障', downtimeHours: 2 },
+  { description: '高压注射联锁异常', severity: 'CRITICAL', rootCause: 'C臂限位开关失灵', downtimeHours: 24 },
+] as const;
+
+const FAILURE_HISTORY = FAILURE_DEVICES.map((deviceId, i) => {
+  const tpl = FAILURE_TEMPLATES[i % FAILURE_TEMPLATES.length]!;
+  const offset = -(i * 6 + 2);
+  const resolved = i % 3 !== 2;
+  return {
+    id: `FAULT-${String(i + 1).padStart(3, '0')}`,
+    deviceId,
+    deviceName: deviceLabel(deviceId),
+    description: tpl.description,
+    severity: tpl.severity,
+    status: resolved ? 'RESOLVED' : 'OPEN',
+    rootCause: tpl.rootCause,
+    downtimeHours: tpl.downtimeHours,
+    occurredAt: isoAt(offset, 14),
+    resolvedAt: resolved ? isoAt(offset, 14 + tpl.downtimeHours) : null,
+  };
+});
 
 function getMaintenancePlans(): any[] {
   try {
     const items = list<any>('maintenancePlans' as any);
     if (items && items.length) return items;
   } catch {}
-  return FALLBACK_MAINTENANCE_PLANS.map((p) => ({ ...p }));
+  return MAINTENANCE_WORK_ORDERS.map((p) => ({ ...p }));
 }

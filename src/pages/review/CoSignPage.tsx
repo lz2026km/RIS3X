@@ -100,7 +100,8 @@ const CoSignPage: React.FC = () => {
   }, []);
 
   const handleCreateRule = async () => {
-    const values = await ruleForm.validateFields();
+    const values = await ruleForm.validateFields().catch(() => null);
+    if (!values) return;
     setRuleSaving(true);
     setRuleError("");
     try {

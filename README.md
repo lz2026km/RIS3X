@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.14-0
+# G005 放射科 RIS 系统 v3.0.6.15-1
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.14-0（**表格紧凑化**：工具栏按需显示、分页精简、密度令牌真正生效、Card size=small、PageContainer 16px；每表节省 ~100-140px；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.15-1（**全面 BUG 修复 + 演示数据扩充**：3 个 P0 观察器崩溃修复、54 处 `validateFields` 非法提交保护、ID 命名空间统一 753 条、分诊/MWL/急诊 105 条关联数据、报告 QC/病理/治疗 90 条、CDS 70+ 规则/告警、心脏 25 例/乳腺 30 例、FHIR 120 资源、Prisma seed 3→30 患者；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.14-0**  | **表格紧凑化**：工具栏按需显示（−42px/表）；分页器 `margin:8px 0` + `showSizeChanger:false`（−24px）；Provider 补 `cellPaddingBlockSM:6` 使密度令牌真正生效；109 个 Card 包裹表格 → `size="small"`；PageContainer/PageTemplate 默认 padding 24→16；`scroll.y` 预算修正 | ✅ **当前** |
+| **v3.0.6.15-1**  | **全面 BUG 修复 + 演示数据扩充**：3 个 P0 观察器崩溃修复（`require('three')`/`frame-` loader/ohif CORS）；54 处 `validateFields` 非法提交保护；5 个 dental MSW 端点补齐；ID 命名空间统一 753 条（appointments/dental/eye → master）；分诊 30 例 + MWL 60 条 + 急诊 15 条 + QC 30 任务 + radpath 25 对 + 治疗 20 例 + 电签 15 会话 + CDS 40 规则/30 告警 + 心脏 25 例 + 乳腺 30 例 + FHIR 120 资源 + dose 30 条 + 对比剂 50 条 + 设备维护 10/校准 8/故障 5；Prisma seed 3→30 患者 / 5→60 检查 / 5→45 报告 / 5→15 危急值 | ✅ **当前** |
+| v3.0.6.14-0     | **表格紧凑化**：工具栏按需、分页精简、密度令牌生效、Card small、PageContainer 16px | ✅ 完成 |
 | v3.0.6.13-13    | **全量 E2E 验收**：409 路由——390 通过 + 9 flaky + 10 已知外部依赖缺陷；GitHub Pages 部署 | ✅ 完成 |
 | v3.0.6.13-12     | **后端能力前端化**：4 新页（不良事件/RCA、报告语义检索 V2、报告对比 V2、HL7 消息控制台）+ 16 面板 | ✅ 完成 |
 | v3.0.6.13-11     | **排版密度**：91 路由页 PageContainer、122 处 h3/h4→Title、38 处 Card 嵌套、212 处 Modal 宽度归一、宽表默认省略号 | ✅ 完成 |

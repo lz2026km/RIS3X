@@ -145,7 +145,8 @@ export default function TeachingCaseLibraryPage() {
 
   // ── 收藏教学病例 ──
   const handleFavorite = async () => {
-    const values = await favoriteForm.validateFields()
+    const values = await favoriteForm.validateFields().catch(() => null)
+    if (!values) return;
     setBusy(true)
     try {
       const res = await teachingCaseApi.create({

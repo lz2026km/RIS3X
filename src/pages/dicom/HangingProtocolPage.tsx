@@ -135,7 +135,8 @@ const HangingProtocolPage: React.FC = () => {
   }, [form])
 
   const handleSave = useCallback(async () => {
-    const values = await form.validateFields()
+    const values = await form.validateFields().catch(() => null)
+    if (!values) return;
     const preset = LAYOUT_PRESETS.find((p) => p.layout.rows === values.layoutRows && p.layout.cols === values.layoutCols)
     const base = preset?.layout ?? { rows: values.layoutRows, cols: values.layoutCols, seriesOrder: [] }
     const seriesOrder = String(values.seriesOrder ?? '')
@@ -174,7 +175,8 @@ const HangingProtocolPage: React.FC = () => {
   }, [load])
 
   const handleMatch = useCallback(async () => {
-    const values = await matchForm.validateFields()
+    const values = await matchForm.validateFields().catch(() => null)
+    if (!values) return;
     setMatchLoading(true)
     try {
       const res = await hangingApi.match({

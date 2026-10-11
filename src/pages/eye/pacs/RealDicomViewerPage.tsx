@@ -1,7 +1,7 @@
 // [v3.0.6.8-43] PR 10: 真实 DICOM 像素渲染 (Canvas + WebGL + 伪彩?+ MPR)
 // 对标: ZEISS FORUM DICOM Viewer / Heidelberg HEYEX 2
 // [G005 Wave1B] 9 处裸 fetch → eyeApi (pixel/pacs-measurement, MSW 兜底)
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import {
   Card,
@@ -33,6 +33,7 @@ import { LoadingBanner, ErrorBanner, AppEmpty } from "../../../components/feedba
 import { t } from "../../../i18n/appI18n";
 import {
   useCornerstone3D,
+  initCornerstone3D,
   useViewport,
   useDicomMetadata,
   MODALITY_PRESETS,
@@ -42,6 +43,103 @@ import RealMeasurementPanel, {
   type MeasurementItem,
 } from "@/components/eye/RealMeasurementPanel";
 import type { AnnotationTool } from "@/hooks/useCornerstone";
+
+// [B-02] frame- scheme loader: cornerstone 仅注册 wadouri/wadors/dicomweb,
+// 此处幂等注册 frame- scheme 的合成 8-bit 512x512 确定性图像 loader,
+// 避免 setStack 触发 "No image loader found for scheme 'frame'" 未处理拒绝 → 视口空白。
+let frameSchemeRegistered = false;
+
+function buildSyntheticFrameImage(imageId: string, genericMetadataProvider: any): any {
+  const SIZE = 512;
+  const match = /frame-(\d+)/.exec(imageId);
+  const frame = match ? Number.parseInt(match[1]!, 10) : 1;
+  const pixelData = new Uint8Array(SIZE * SIZE);
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  for (let y = 0; y < SIZE; y += 1) {
+    for (let x = 0; x < SIZE; x += 1) {
+      const dx = x - cx;
+      const dy = y - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      // 确定性图案: 同心环 (半径随帧偏移) + 十字线 + 低频噪声
+      const ring = Math.abs(dist - (120 + (frame % 10) * 6)) < 10 ? 200 : 0;
+      const cross = dx === 0 || dy === 0 ? 60 : 0;
+      const noise = (x * 31 + y * 17 + frame * 101) % 64;
+      pixelData[y * SIZE + x] = Math.min(255, noise + ring + cross);
+    }
+  }
+  genericMetadataProvider?.add?.(imageId, {
+    type: "imagePixelModule",
+    metadata: {
+      bitsAllocated: 8,
+      bitsStored: 8,
+      highBit: 7,
+      samplesPerPixel: 1,
+      pixelRepresentation: 0,
+      photometricInterpretation: "MONOCHROME2",
+    },
+  });
+  genericMetadataProvider?.add?.(imageId, {
+    type: "generalSeriesModule",
+    metadata: { modality: "OT", seriesDescription: "Synthetic frame stack" },
+  });
+  genericMetadataProvider?.add?.(imageId, {
+    type: "imagePlaneModule",
+    metadata: {
+      rows: SIZE,
+      columns: SIZE,
+      rowPixelSpacing: 0.5,
+      columnPixelSpacing: 0.5,
+      sliceThickness: 1,
+      imagePositionPatient: [0, 0, frame],
+      imageOrientationPatient: new Float32Array([1, 0, 0, 0, 1, 0]),
+    },
+  });
+  return {
+    imageId,
+    minPixelValue: 0,
+    maxPixelValue: 255,
+    slope: 1,
+    intercept: 0,
+    windowCenter: 128,
+    windowWidth: 256,
+    voiLUTFunction: 0,
+    getPixelData: () => pixelData,
+    getCanvas: () => document.createElement("canvas"),
+    rows: SIZE,
+    columns: SIZE,
+    height: SIZE,
+    width: SIZE,
+    color: false,
+    rgba: false,
+    numberOfComponents: 1,
+    columnPixelSpacing: 0.5,
+    rowPixelSpacing: 0.5,
+    sliceThickness: 1,
+    invert: false,
+    photometricInterpretation: "MONOCHROME2",
+    sizeInBytes: pixelData.byteLength,
+    dataType: "Uint8Array",
+    imageFrame: {},
+  };
+}
+
+/** 幂等注册 frame- scheme image loader (等 cornerstone core 就绪后注册) */
+async function registerFrameSchemeLoader(): Promise<void> {
+  if (frameSchemeRegistered) return;
+  await initCornerstone3D();
+  const csCore = (await import("@cornerstonejs/core")) as any;
+  const registerImageLoader =
+    csCore?.registerImageLoader ?? csCore?.imageLoader?.registerImageLoader;
+  if (typeof registerImageLoader !== "function") return;
+  const genericMetadataProvider = csCore?.utilities?.genericMetadataProvider;
+  registerImageLoader("frame", (imageId: string) => ({
+    promise: Promise.resolve(
+      buildSyntheticFrameImage(imageId, genericMetadataProvider),
+    ),
+  }));
+  frameSchemeRegistered = true;
+}
 
 export const RealDicomViewerPage: React.FC = () => {
   const { studyId: routeStudyId } = useParams<{ studyId?: string }>();
@@ -53,7 +151,26 @@ export const RealDicomViewerPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewportId = `eye-viewer-${studyId}`;
 
-  const imageIds = Array.from({ length: 30 }, (_, i) => `frame-${i + 1}`);
+  // [B-02] 先注册 frame- scheme loader, 注册完成后才向 useViewport 提供 imageIds
+  const [frameLoaderReady, setFrameLoaderReady] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    registerFrameSchemeLoader()
+      .catch((e) => {
+        console.warn("[RealDicomViewerPage] frame- loader 注册失败:", e);
+      })
+      .finally(() => {
+        if (mounted) setFrameLoaderReady(true);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const imageIds = useMemo(
+    () => (frameLoaderReady ? Array.from({ length: 30 }, (_, i) => `frame-${i + 1}`) : []),
+    [frameLoaderReady],
+  );
   const { elementRef, currentIndex, activeTool, scroll, setWWWC, setTool } =
     useViewport(viewportId, {
       imageIds,
@@ -217,11 +334,13 @@ export const RealDicomViewerPage: React.FC = () => {
 
   // 加载像素信息
   useEffect(() => {
+    const instanceId = imageIds[currentIndex];
+    if (!instanceId) return; // [B-02] frame- loader 尚未就绪
     (async () => {
       setPixelLoading(true);
       setPixelError(null);
       try {
-        const res = await eyeApi.getPixelInstance(imageIds[currentIndex]!);
+        const res = await eyeApi.getPixelInstance(instanceId);
         if (res.success) {
           setPixelInfo(res.data);
         } else {

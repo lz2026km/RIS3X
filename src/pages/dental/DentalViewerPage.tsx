@@ -7,7 +7,7 @@ import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, 
 import { ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Inbox, SearchX } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { t } from '../../i18n/appI18n';
 
 export const DentalViewerPage: React.FC = () => {
@@ -27,6 +27,8 @@ export const DentalViewerPage: React.FC = () => {
   const [aiResult, setAiResult] = useState<any>(null);
 
   useEffect(() => {
+    // [G005-P1] 守卫空 studyId: 不发 /dental/studies/ (空 id) 请求, 由下方 Empty 状态引导回列表
+    if (!studyId) { setLoading(false); return; }
     (async () => {
       setLoading(true);
       setLoadError(null);
@@ -63,8 +65,17 @@ export const DentalViewerPage: React.FC = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
   if (!study) return (
     <div style={{ padding: 'var(--space-6, 24px)' }}>
-      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-      <Card><Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t("dViewer.notFound")} /></Card>
+      {!studyId ? (
+        <Card>
+          <Empty image={<SearchX size={48} style={{opacity:0.4}}/>}
+            description={<span>{t("dViewer.notFound")} <Link to="/dental/studies" style={{ fontWeight: 600 }}>{t("dentalImplant3d.backToList")}</Link></span>} />
+        </Card>
+      ) : (
+        <>
+          {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
+          <Card><Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t("dViewer.notFound")} /></Card>
+        </>
+      )}
     </div>
   );
 

@@ -711,7 +711,8 @@ const GenerateSrModal: React.FC<{
   }, [open, presetReportId, form, loadReports]);
 
   const onSubmit = async () => {
-    const values = await form.validateFields();
+    const values = await form.validateFields().catch(() => null);
+    if (!values) return;
     setGenerating(true);
     try {
       const res = await srDocumentApi.generateByReport({

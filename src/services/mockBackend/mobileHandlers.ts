@@ -10,11 +10,10 @@
  */
 import { http, HttpResponse, delay } from 'msw'
 
-const API_BASE = typeof process !== 'undefined' && process.env.VITEST
-  ? 'http://localhost:5173/api/v1'
-  : (typeof window !== 'undefined' && window.location?.origin
-    ? window.location.origin + '/api/v1'
-    : 'http://localhost:5173/api/v1');
+// [B-10] 相对路径 pattern: MSW 在浏览器里按当前 origin 解析, 任意 host/preview 端口均可匹配;
+//         原先基于 window.location.origin 的绝对 pattern 在 origin 变化 (127.0.0.1 vs localhost
+//         / preview 端口) 时不匹配, 请求穿透到 Vite 代理 → 500
+const API_BASE = '/api/v1';
 
 interface MockCritical {
   id: string

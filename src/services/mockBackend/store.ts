@@ -4,6 +4,7 @@ import Dexie, { type EntityTable } from 'dexie';
 import {
   PATIENT_MASTER, DEVICE_MASTER, DOCTOR_MASTER, EXAM_ITEM_MASTER,
 } from '../../data/master';
+import { resolvePatientId } from '../../data/master/idAlias';
 import {
   EXAM_REPORT_PRE, DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE,
   COSIGN_TASKS_PRE, QUALITY_SCORE_PRE,
@@ -437,6 +438,33 @@ function seedCriticalExamLinks(): void {
 let initialized = false;
 let initPromise: Promise<void> | null = null;
 
+// [G005] 患者 ID 引用完整性: 种子集合里的遗留/专科/预约 patientId 统一改写为主数据
+//   P000001-P049700 (resolvePatientId)。先收集差异再落盘; 键本身是旧 patientId 的
+//   集合 (如 dental_charts) 同步换键, 保持集合内部自洽。
+export function sanitizePatientIds(): number {
+  const patches: Array<{ col: Map<string, unknown>; oldKey: string; newKey: string; rec: Record<string, unknown> }> = [];
+  for (const col of memoryStore.values()) {
+    for (const [key, value] of col) {
+      if (!value || typeof value !== 'object') continue;
+      const raw = (value as { patientId?: unknown }).patientId;
+      if (typeof raw !== 'string' || raw === '') continue;
+      const next = resolvePatientId(raw);
+      if (next === raw) continue;
+      patches.push({
+        col,
+        oldKey: key,
+        newKey: key === raw ? next : key,
+        rec: { ...(value as Record<string, unknown>), patientId: next },
+      });
+    }
+  }
+  for (const p of patches) {
+    p.col.set(p.newKey, p.rec);
+    if (p.newKey !== p.oldKey) p.col.delete(p.oldKey);
+  }
+  return patches.length;
+}
+
 // ==================== 初始化 ====================
 // [v3.0.6.12-B3] qualityScoringHandlers top-5: 同步路径使用的种子 (15 维度 + KPI + 阈值)
 const QUALITY_DIMENSIONS_SEED: Array<{ id: string; key: string; category: string; name: string; weight: number }> = [
@@ -646,6 +674,7 @@ export async function initStore(): Promise<void> {
     // 从 IDB 恢复用户修改 (覆盖基线)
     await hydrateFromIdb();
     console.info('[RIS Backend] IndexedDB 持久化数据已加载');
+    sanitizePatientIds();
 
     initialized = true;
   })();
@@ -667,6 +696,7 @@ async function hydrateFromIdb(): Promise<void> {
         getCollection(coll).set(r.id, r.data);
       });
     }
+    sanitizePatientIds();
   } catch (e) {
     console.warn('[RIS Backend] IDB 读取失败, 用基线数据:', e);
   }
@@ -731,6 +761,10 @@ export function ensureInitialized(): void {
   // [v3.0.6.12-B2] v3ReviewHandlers top-10 同步种子
   seedReviewAssistCollections();
   loadEyeMockDataSync();
+  const sanitized = sanitizePatientIds();
+  if (sanitized > 0) {
+    console.info(`[RIS Seed] patientId 归一到患者主数据 ${sanitized} 条 (legacy/专科/预约命名空间 → P000001-P049700)`);
+  }
   initialized = true;
   // [v3.0.6.11-98 Wave 1A P0] 浏览器 mock 模式: 触发 IDB 恢复 (异步, 不阻塞同步路径),
   //   使「保存 → 刷新」后 findings/htmlContent 等已持久化数据回填内存

@@ -197,7 +197,8 @@ const LesionTrackingPage: React.FC = () => {
 
   const handleAddMeasurement = useCallback(async () => {
     if (!detail) return
-    const values = await measureForm.validateFields()
+    const values = await measureForm.validateFields().catch(() => null)
+    if (!values) return;
     const date = values.date ? dayjs(values.date).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
     const res = await lesionTrackingApi.addMeasurement(detail.id, {
       studyId: values.studyId ?? `STU-${Date.now()}`,
@@ -254,7 +255,8 @@ const LesionTrackingPage: React.FC = () => {
   }, [detail, followupId, refresh])
 
   const handleCreate = useCallback(async () => {
-    const values = await createForm.validateFields()
+    const values = await createForm.validateFields().catch(() => null)
+    if (!values) return;
     const res = await lesionTrackingApi.create({
       patientId,
       name: values.name,

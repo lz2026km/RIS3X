@@ -150,7 +150,8 @@ export default function TenantConfigPage() {
   }
 
   const saveProfile = async () => {
-    const values = await form.validateFields()
+    const values = await form.validateFields().catch(() => null)
+    if (!values) return;
     setSaving(true)
     const res = await tenantApi.updateProfile(values)
     setSaving(false)
@@ -176,7 +177,8 @@ export default function TenantConfigPage() {
   }
 
   const createTenant = async () => {
-    const values = await createForm.validateFields()
+    const values = await createForm.validateFields().catch(() => null)
+    if (!values) return;
     setCreatingTenant(true)
     const res = await tenantApi.createTenant(values)
     setCreatingTenant(false)
