@@ -442,6 +442,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.signAmend",
         roles: ["医生", "主任", "管理员"],
       },
+      // [G005 W-D2] 报告 V2: 语义检索 + 报告对比 (真实后端 report-search-v2 / report-compare-v2)
+      {
+        path: "/report-search-v2",
+        icon: <SearchCheck size={18} />,
+        labelKey: "nav.reportSearchV2",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/report-compare-v2",
+        icon: <GitCompare size={18} />,
+        labelKey: "nav.reportCompareV2",
+        roles: ["医生", "主任", "管理员"],
+      },
       // [v3.0.6.11-104 Wave 5A] 报告书写收敛: /v3-report-hub 已并入 /write-report, 移除旧菜单 (旧路径 redirect)
     ],
   },
@@ -1268,6 +1281,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/hl7/manager",
         icon: <Archive size={18} />,
         labelKey: "nav.hl7Manager",
+        roles: ["技师", "管理员"],
+      },
+      // [W-D3] HL7 消息控制台
+      {
+        path: "/hl7/console",
+        icon: <Radio size={18} />,
+        labelKey: "nav.hl7Console",
         roles: ["技师", "管理员"],
       },
       {

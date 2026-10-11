@@ -380,6 +380,15 @@ export interface EquipmentQcStats {
   recentFailureCount: number
 }
 
+// [G005 W-D4] 设备质控排程行 (GET /equipment-qc/schedule, 模态 × 频次)
+export interface EquipmentQcScheduleRow {
+  modality: EquipmentModality
+  frequency: QcFrequency
+  itemCount: number
+  deviceCount: number
+  items: Array<{ id: string; name: string; standard: string; threshold: string }>
+}
+
 // ================= 内部工具 =================
 
 function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
@@ -478,7 +487,7 @@ export const qualityScoringCenterApi = {
     api.get<PhantomTestItem[]>(`/equipment-qc/items${buildQuery(params)}`),
   // [G005 W4B] 设备质控项详情 (GET /equipment-qc/items/:id)
   getEquipmentItem: (id: string) => api.get<PhantomTestItem>(`/equipment-qc/items/${encodeURIComponent(id)}`),
-  getEquipmentSchedule: () => api.get<Array<{ modality: EquipmentModality; frequency: QcFrequency; itemCount: number; deviceCount: number; items: Array<{ id: string; name: string; standard: string; threshold: string }> }>>('/equipment-qc/schedule'),
+  getEquipmentSchedule: () => api.get<EquipmentQcScheduleRow[]>('/equipment-qc/schedule'),
   listEquipmentRecords: (params: { deviceId?: string; modality?: EquipmentModality; frequency?: QcFrequency; onlyFailed?: boolean } = {}) =>
     api.get<EquipmentQcRecord[]>(`/equipment-qc/records${buildQuery(params)}`),
   createEquipmentRecord: async (data: { deviceId: string; deviceName?: string; modality: EquipmentModality; testItemId: string; value: number; testerName?: string; note?: string }) => {

@@ -1125,6 +1125,7 @@
     "radiomicsFeatures": "Radiomics 特征",
     "iheManager": "IHE 集成管理",
     "hl7Manager": "HL7 消息管理",
+    "hl7Console": "HL7 消息控制台",
     "specialtyModules": "专科模块",
     "breastSpecialty": "乳腺专科",
     "cardiacSpecialty": "心脏专科",

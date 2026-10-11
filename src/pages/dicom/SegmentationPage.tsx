@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Card, Row, Col, Select, InputNumber, Button, Tag, Spin, message, Empty, Slider, Space, Divider, Alert, Popconfirm, Modal, Input, Radio, Tooltip,
 } from 'antd'
+import type { TableColumnsType } from 'antd'
 import {
   Scan, Box, Activity, History, Trash2, Eye, EyeOff, PenLine, Ruler, MousePointerClick, Layers, Database, Boxes,
 } from 'lucide-react'
@@ -23,8 +24,8 @@ import {
   type ThresholdMode,
   type SeedPoint,
 } from '../../services/api/segmentationV2Api'
-import { decodeInt16Base64, applyWWL } from './volumeReal'
-import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
+import { decodeInt16Base64, decodeRgbaBase64, applyWWL, drawImageDataCentered } from './volumeReal'
+import { PageContainer, StatCard, StatCardGrid, DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 const ALGORITHMS: Array<{ value: SegmentationV2Algorithm; labelKey: string; color: string; descKey: string }> = [
@@ -34,6 +35,22 @@ const ALGORITHMS: Array<{ value: SegmentationV2Algorithm; labelKey: string; colo
   { value: 'kmeans', labelKey: 'segmentationV2.algo.kmeans', color: '#722ed1', descKey: 'segmentationV2.algoDesc.kmeans' },
   { value: 'active_contour', labelKey: 'segmentationV2.algo.active_contour', color: '#52c41a', descKey: 'segmentationV2.algoDesc.active_contour' },
 ]
+
+// [W-D7] 算法列表数据源 (label/desc 为 i18n key, render 时翻译)
+interface AlgoListRow {
+  key: string
+  algoKey: SegmentationV2Algorithm
+  labelKey: string
+  descKey: string
+  color: string
+}
+const ALGORITHM_LIST_ROWS: AlgoListRow[] = ALGORITHMS.map((a) => ({
+  key: a.value,
+  algoKey: a.value,
+  labelKey: a.labelKey,
+  descKey: a.descKey,
+  color: a.color,
+}))
 
 const ORGAN_CLASSES: OrganClass[] = ['结节', '骨骼', '肝脏', '肺', '血管', '软组织', '其他']
 const ORGAN_LABEL_KEYS: Record<string, string> = {
@@ -270,6 +287,13 @@ const SegmentationPage: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string>()
   const [history, setHistory] = useState<SegmentationV2HistoryItemDto[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
+
+  // [W-D7] 3D 后处理 (MPR/MIP/VR) — POST /volume/mpr|mip|vr
+  const [postKind, setPostKind] = useState<'mpr' | 'mip' | 'vr' | null>(null)
+  const [postLoading, setPostLoading] = useState(false)
+  const [postInfo, setPostInfo] = useState<{ kind: 'mpr' | 'mip' | 'vr'; meta: Array<{ label: string; value: string }> } | null>(null)
+  const [postImageData, setPostImageData] = useState<ImageData | null>(null)
+  const postCanvasRef = useRef<HTMLCanvasElement>(null)
 
   // 显示
   const [plane, setPlane] = useState<'axial' | 'sagittal' | 'coronal'>('axial')
@@ -522,6 +546,22 @@ const SegmentationPage: React.FC = () => {
   }, [list, visibleIds, details])
 
   const algoMeta = ALGORITHMS.find((a) => a.value === algorithm)
+
+  const algoListColumns: TableColumnsType<AlgoListRow> = [
+    {
+      title: t('common.table.name'),
+      dataIndex: 'labelKey',
+      key: 'label',
+      render: (v: unknown, r: AlgoListRow) => (
+        <Space size={6}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: r.color, display: 'inline-block' }} />
+          {t(String(v))}
+        </Space>
+      ),
+    },
+    { title: t('common.table.type'), dataIndex: 'algoKey', key: 'algoKey', width: 130 },
+    { title: t('common.table.description'), dataIndex: 'descKey', key: 'desc', render: (v: unknown) => t(String(v)) },
+  ]
   const stats = selected ? (selected as SegmentSummaryDto).stats : null
   const planeTotal = useMemo(() => {
     if (!selectedDetail) return 1
@@ -531,6 +571,109 @@ const SegmentationPage: React.FC = () => {
     return H
   }, [selectedDetail, plane])
   const clampedIndex = Math.max(0, Math.min(planeTotal - 1, sliceIndex))
+
+  // [W-D7] 3D 后处理: MPR / MIP / VR → 后端重建结果预览 + 元数据
+  const runPostProcessing = useCallback(
+    async (kind: 'mpr' | 'mip' | 'vr') => {
+      if (!selectedUid) {
+        message.warning(t('segmentationV2.selectSeriesFirst'))
+        return
+      }
+      let jid = jobId
+      if (!jid) jid = await ensureJob(selectedUid)
+      if (!jid) {
+        message.warning(t('segmentationV2.selectSeriesFirst'))
+        return
+      }
+      setPostKind(kind)
+      setPostLoading(true)
+      setPostInfo(null)
+      setPostImageData(null)
+      try {
+        if (kind === 'mpr') {
+          const res = await volumeApi.mprSlice(jid, plane, clampedIndex)
+          if (!res.success) {
+            message.error(res.error?.message ?? t('segmentationV2.runFailed'))
+            return
+          }
+          const legacy = res.data as unknown as { pixelDataBase64?: string; width?: number; height?: number }
+          const payload = res.data.pixelData ?? {
+            dataBase64: legacy.pixelDataBase64 ?? '',
+            width: legacy.width ?? res.data.dimensions?.width ?? 512,
+            height: legacy.height ?? res.data.dimensions?.height ?? 512,
+          }
+          setPostInfo({
+            kind,
+            meta: [
+              { label: t(`segmentationV2.plane.${plane}`), value: `${clampedIndex + 1}` },
+              { label: t('segmentationV2.fldSource'), value: res.data.source ?? jobSource ?? '-' },
+              { label: 'WW/WL', value: `${res.data.windowWidth ?? ww}/${res.data.windowLevel ?? wl}` },
+              { label: 'px', value: `${payload.width}×${payload.height}` },
+            ],
+          })
+          if (payload.dataBase64) setPostImageData(applyWWL(decodeInt16Base64(payload.dataBase64), payload.width, payload.height, ww, wl))
+        } else if (kind === 'mip') {
+          const res = await volumeApi.mipProjection(jid, plane)
+          if (!res.success) {
+            message.error(res.error?.message ?? t('segmentationV2.runFailed'))
+            return
+          }
+          const legacy = res.data as unknown as { pixelDataBase64?: string; width?: number; height?: number }
+          const payload = res.data.pixelData ?? {
+            dataBase64: legacy.pixelDataBase64 ?? '',
+            width: legacy.width ?? 512,
+            height: legacy.height ?? 512,
+          }
+          setPostInfo({
+            kind,
+            meta: [
+              { label: t(`segmentationV2.plane.${res.data.direction}`), value: t('dcm.mip') },
+              { label: t('segmentationV2.fldSource'), value: res.data.source ?? jobSource ?? '-' },
+              { label: 'WW/WL', value: `${res.data.windowWidth ?? ww}/${res.data.windowLevel ?? wl}` },
+              { label: 'px', value: `${payload.width}×${payload.height}` },
+            ],
+          })
+          if (payload.dataBase64) setPostImageData(applyWWL(decodeInt16Base64(payload.dataBase64), payload.width, payload.height, ww, wl))
+        } else {
+          const res = await volumeApi.vrImage(jid, { preset: 'softTissue' })
+          if (!res.success) {
+            message.error(res.error?.message ?? t('segmentationV2.runFailed'))
+            return
+          }
+          const b64 = res.data.pixelData?.dataBase64 ?? (res.data as unknown as { pixelDataBase64?: string }).pixelDataBase64 ?? ''
+          setPostInfo({
+            kind,
+            meta: [
+              { label: t('dcm.vr'), value: t('vr.preset.softTissue') },
+              { label: t('segmentationV2.fldSource'), value: res.data.source ?? jobSource ?? '-' },
+              { label: 'px', value: `${res.data.width}×${res.data.height}` },
+            ],
+          })
+          if (b64) setPostImageData(new ImageData(decodeRgbaBase64(b64), res.data.width, res.data.height))
+        }
+        message.success(t('common.success') + ` · ${kind.toUpperCase()}`)
+      } catch (e) {
+        message.error((e as Error).message || t('segmentationV2.runError'))
+      } finally {
+        setPostLoading(false)
+      }
+    },
+    [selectedUid, jobId, ensureJob, plane, clampedIndex, ww, wl, jobSource],
+  )
+
+  useEffect(() => {
+    const canvas = postCanvasRef.current
+    if (!canvas || !postImageData) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    const rect = canvas.getBoundingClientRect()
+    const w = Math.max(1, rect.width)
+    const h = Math.max(1, rect.height)
+    canvas.width = w * devicePixelRatio
+    canvas.height = h * devicePixelRatio
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0)
+    drawImageDataCentered(ctx, postImageData, w, h)
+  }, [postImageData])
 
   return (
     <PageContainer padding={16}>
@@ -651,6 +794,25 @@ const SegmentationPage: React.FC = () => {
             {error && <Alert style={{ marginTop: 10 }} type="error" showIcon message={error} />}
           </Card>
 
+          {/* [W-D7] 算法列表 (segmentation-v2 内置 5 算法) */}
+          <Card
+            size="small"
+            title={<Space><Database size={14} /><span>{t('segmentationV2.algorithmLabel')}</span></Space>}
+            extra={<Tag>{ALGORITHM_LIST_ROWS.length}</Tag>}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
+          >
+            <DataTable<AlgoListRow>
+              rowKey="key"
+              dataSource={ALGORITHM_LIST_ROWS}
+              columns={algoListColumns}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              columnConfigKey="seg-algo-list"
+              exportFileName="segmentation-algorithms"
+            />
+          </Card>
+
           <Card
             size="small"
             title={<Space><Layers size={14} /><span>{t('segmentationV2.resultsTitle')}</span></Space>}
@@ -729,6 +891,76 @@ const SegmentationPage: React.FC = () => {
                 ))
               )}
             </Spin>
+          </Card>
+
+          {/* [W-D7] 分割/3D 接线 — MPR/MIP/VR 后处理 (POST /volume/mpr|mip|vr) */}
+          <Card
+            size="small"
+            title={<Space><Boxes size={14} /><span>{t('nav.postProcessing')}</span></Space>}
+            style={{ marginBottom: 'var(--space-3, 12px)' }}
+          >
+            <Space wrap style={{ marginBottom: 'var(--space-2, 8px)' }}>
+              <Button
+                size="small"
+                icon={<Scan size={13} />}
+                loading={postLoading && postKind === 'mpr'}
+                onClick={() => void runPostProcessing('mpr')}
+                data-testid="seg-mpr-btn"
+              >
+                {t('dcm.mpr')}
+              </Button>
+              <Button
+                size="small"
+                icon={<Layers size={13} />}
+                loading={postLoading && postKind === 'mip'}
+                onClick={() => void runPostProcessing('mip')}
+                data-testid="seg-mip-btn"
+              >
+                {t('dcm.mip')}
+              </Button>
+              <Button
+                size="small"
+                icon={<Boxes size={13} />}
+                loading={postLoading && postKind === 'vr'}
+                onClick={() => void runPostProcessing('vr')}
+                data-testid="seg-vr-btn"
+              >
+                {t('dcm.vr')}
+              </Button>
+            </Space>
+            <Space wrap size={4}>
+              <Tag>{t('segmentationV2.seriesLabel')}: {selectedUid ? `…${selectedUid.slice(-12)}` : '-'}</Tag>
+              <Tag>{t('segmentationV2.fldSource')}: {jobSource ?? '-'}</Tag>
+              {jobId && <Tag color="blue">jobId: …{jobId.slice(-10)}</Tag>}
+            </Space>
+            {postInfo && (
+              <Space wrap size={4} style={{ marginTop: 'var(--space-2, 8px)' }}>
+                {postInfo.meta.map((m) => (
+                  <Tag key={m.label}>{m.label}: {m.value}</Tag>
+                ))}
+              </Space>
+            )}
+            <div style={{ marginTop: 'var(--space-2, 8px)', height: 220, background: '#0f172a', borderRadius: 6, position: 'relative' }}>
+              <canvas
+                ref={postCanvasRef}
+                style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }}
+                data-testid="seg-post-canvas"
+              />
+              {!postImageData && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--text-muted, #94a3b8)',
+                  }}
+                >
+                  {postLoading ? <Spin size="small" /> : t('segmentationV2.selectSeries')}
+                </div>
+              )}
+            </div>
           </Card>
         </Col>
 

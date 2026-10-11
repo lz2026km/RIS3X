@@ -1,11 +1,11 @@
-﻿import { Card, message } from 'antd'
+﻿import { Card, message, Button, Modal, Tabs, Input, Select, Empty, Tooltip, Tag, Space, Spin } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
 // G005 放射科RIS系统 - 检查预约管理 v2.1.0
 // 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置 + 预约提醒管理
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, type CSSProperties } from "react";
 import {
   CalendarClock,
   Plus,
@@ -28,11 +28,16 @@ import {
   AlertTriangle,
   BarChart3,
   CalendarPlus,
+  RefreshCw,
+  Send,
+  ListChecks,
+  Building2,
+  Zap,
 } from "lucide-react";
 import {
   initialModalityDevices,
 } from "../data/initialData";
-import { appointmentApi, type AppointmentDto } from "../services/api";
+import { appointmentApi, type AppointmentDto, type RoomDto, type WaitlistEntryDto, type ReminderPlanDto, type GreenChannelReservationDto } from "../services/api";
 import { notificationsApi } from "../services/api/notificationsApi";
 import { invalidateApiCacheByPrefix } from "../services/api/client";
 import { getCurrentUser } from "../utils/auth";
@@ -56,6 +61,8 @@ import { DataTable } from "../components/common";
 import { useUndoActions } from "../components/UndoToast";
 import { t } from '../i18n/appI18n';
 import { PageContainer } from "../components/common";
+// [W-D8] 诊室/候补/提醒/绿色通道 面板: 状态色统一走 @/theme/statusTokens (单一来源)
+import { toneToAntd, statusColor } from "../theme/statusTokens";
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -705,6 +712,8 @@ export default function AppointmentPage() {
   // [W5] 视图开关: 资源甘特 + 运营面板 (不改动既有 viewMode 联合类型, 降低回归风险)
   const [showGantt, setShowGantt] = useState(false);
   const [showOps, setShowOps] = useState(false);
+  // [W-D8] 诊室 / 候补 / 提醒 / 绿色通道 资源面板
+  const [showResourceOps, setShowResourceOps] = useState(false);
 
   const weekDates = useMemo(
     () => getWeekDates(currentWeekStart),
@@ -1336,6 +1345,26 @@ const borderGray = "var(--border-color)";
             >
               <Bell size={13} /> {t("w5Appt.opsTitle")}
             </button>
+            {/* [W-D8] 诊室 / 候补 / 提醒 / 绿色通道 资源面板 */}
+            <button
+              data-testid="toggle-resource-ops"
+              onClick={() => { setShowResourceOps(!showResourceOps); setShowForm(false); setShowRules(false); }}
+              style={{
+                padding: "7px 14px",
+                background: showResourceOps ? primaryBlue : whiteBg,
+                color: showResourceOps ? "#fff" : primaryBlue,
+                border: `1px solid ${showResourceOps ? primaryBlue : borderGray}`,
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <Building2 size={13} /> 诊室/候补/提醒
+            </button>
             <ActionButton
               action={showForm ? "cancel" : "create"}
               onClick={() => {
@@ -1436,6 +1465,13 @@ const borderGray = "var(--border-color)";
         {showOps && (
           <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <AppointmentOpsPanels />
+          </div>
+        )}
+
+        {/* [W-D8] 诊室 / 候补 / 提醒 / 绿色通道 资源面板 */}
+        {showResourceOps && (
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <AppointmentResourcePanel />
           </div>
         )}
 
@@ -3308,3 +3344,627 @@ const borderGray = "var(--border-color)";
     </PageContainer>
   );
 }
+
+// ==================== [W-D8] 诊室 / 候补 / 提醒 / 绿色通道 资源面板 ====================
+type ResourceOpsTab = "waitlist" | "reminder" | "green";
+
+const RES_BLUE = "var(--color-primary-800)";
+const RES_BORDER = "var(--border-color)";
+
+const MODALITY_OPTIONS = ["CT", "MR", "DR", "MG", "US", "DSA"].map((v) => ({ value: v, label: v }));
+const WAIT_PRIORITY_OPTIONS = [
+  { value: "normal", label: "普通" },
+  { value: "urgent", label: "加急" },
+  { value: "critical", label: "危急" },
+];
+const REMINDER_CHANNEL_OPTIONS = [
+  { value: "SMS", label: "短信" },
+  { value: "WECHAT", label: "微信" },
+  { value: "PHONE", label: "电话" },
+];
+const ROOM_STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "启用" },
+  { value: "MAINTENANCE", label: "维护中" },
+  { value: "CLOSED", label: "关闭" },
+];
+
+const RES_LABEL: CSSProperties = { fontSize: 12, color: "var(--text-secondary)", fontWeight: 600 };
+
+const toIsoOrNull = (value: string): string | undefined => {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+};
+
+function AppointmentResourcePanel() {
+  const [tab, setTab] = useState<ResourceOpsTab>("waitlist");
+  const [busy, setBusy] = useState(false);
+
+  const [rooms, setRooms] = useState<RoomDto[]>([]);
+  const [waitlist, setWaitlist] = useState<WaitlistEntryDto[]>([]);
+  const [nextWait, setNextWait] = useState<WaitlistEntryDto | null>(null);
+  const [reminders, setReminders] = useState<ReminderPlanDto[]>([]);
+  const [greenList, setGreenList] = useState<GreenChannelReservationDto[]>([]);
+
+  const [roomOpen, setRoomOpen] = useState(false);
+  const [roomForm, setRoomForm] = useState({ name: "", modality: "CT", location: "", maxPerSlot: "", status: "ACTIVE" });
+
+  const [waitForm, setWaitForm] = useState({ patientName: "", phone: "", modality: "CT", priority: "normal", preferredDate: "" });
+
+  const [remOpen, setRemOpen] = useState(false);
+  const [remForm, setRemForm] = useState({ patientName: "", phone: "", channel: "SMS", scheduledAt: "" });
+
+  const [greenOpen, setGreenOpen] = useState(false);
+  const [greenForm, setGreenForm] = useState({ patientName: "", patientId: "", modality: "CT", bodyPart: "", deviceId: "", startAt: "" });
+
+  const load = useCallback(async () => {
+    setBusy(true);
+    try {
+      const [roomRes, waitRes, nextRes, remRes, greenRes] = await Promise.all([
+        appointmentApi.getRooms(),
+        appointmentApi.getWaitlist(),
+        appointmentApi.getNextWaitlist(),
+        appointmentApi.getReminderPlans(),
+        appointmentApi.getGreenChannel(),
+      ]);
+      if (roomRes.success && Array.isArray(roomRes.data)) setRooms(roomRes.data);
+      if (waitRes.success && Array.isArray(waitRes.data)) setWaitlist(waitRes.data);
+      if (nextRes.success) setNextWait(nextRes.data ?? null);
+      if (remRes.success && Array.isArray(remRes.data)) setReminders(remRes.data);
+      if (greenRes.success && Array.isArray(greenRes.data)) setGreenList(greenRes.data);
+    } catch {
+      /* 后端不可用: 保留既有数据, 面板维持空态 */
+    }
+    setBusy(false);
+  }, []);
+
+  useEffect(() => { void load() }, [load]);
+
+  const handleCreateRoom = async () => {
+    if (!roomForm.name.trim() || !roomForm.modality) {
+      message.warning("请填写诊室名称与模态");
+      return;
+    }
+    const res = await appointmentApi.createRoom({
+      name: roomForm.name.trim(),
+      modality: roomForm.modality,
+      location: roomForm.location || undefined,
+      maxPerSlot: roomForm.maxPerSlot ? Number(roomForm.maxPerSlot) : undefined,
+      status: roomForm.status as RoomDto["status"],
+    });
+    if (res.success) {
+      message.success("诊室已创建");
+      setRoomForm({ name: "", modality: "CT", location: "", maxPerSlot: "", status: "ACTIVE" });
+      void load();
+    } else {
+      message.error(res.error?.message ?? "创建诊室失败");
+    }
+  };
+
+  const handleDeleteRoom = async (id: string) => {
+    const res = await appointmentApi.deleteRoom(id);
+    if (res.success) {
+      message.success("诊室已删除");
+      void load();
+    } else {
+      message.error(res.error?.message ?? "删除诊室失败");
+    }
+  };
+
+  const handleAddWaitlist = async () => {
+    if (!waitForm.patientName.trim()) {
+      message.warning("请填写患者姓名");
+      return;
+    }
+    const res = await appointmentApi.addWaitlist({
+      patientName: waitForm.patientName.trim(),
+      modality: waitForm.modality,
+      phone: waitForm.phone || undefined,
+      priority: waitForm.priority,
+      preferredDate: waitForm.preferredDate || undefined,
+    });
+    if (res.success) {
+      message.success("已加入候补队列");
+      setWaitForm({ patientName: "", phone: "", modality: "CT", priority: "normal", preferredDate: "" });
+      void load();
+    } else {
+      message.error(res.error?.message ?? "加入候补失败");
+    }
+  };
+
+  const handleAssignWait = async (id: string) => {
+    const res = await appointmentApi.assignWaitlist(id);
+    if (res.success) {
+      message.success("候补患者已分配");
+      void load();
+    } else {
+      message.error(res.error?.message ?? "分配失败");
+    }
+  };
+
+  const handleCreateReminder = async () => {
+    const at = toIsoOrNull(remForm.scheduledAt);
+    if (!remForm.patientName.trim() || !at) {
+      message.warning("请填写患者姓名与提醒时间");
+      return;
+    }
+    const res = await appointmentApi.createReminderPlan({
+      patientName: remForm.patientName.trim(),
+      phone: remForm.phone || undefined,
+      channel: remForm.channel as ReminderPlanDto["channel"],
+      scheduledAt: at,
+    });
+    if (res.success) {
+      message.success("提醒计划已创建");
+      setRemForm({ patientName: "", phone: "", channel: "SMS", scheduledAt: "" });
+      setRemOpen(false);
+      void load();
+    } else {
+      message.error(res.error?.message ?? "创建提醒计划失败");
+    }
+  };
+
+  const handleFireOne = async (id: string) => {
+    const res = await appointmentApi.fireReminderPlan(id);
+    if (res.success) {
+      message.success("提醒已发送");
+      void load();
+    } else {
+      message.error(res.error?.message ?? "发送提醒失败");
+    }
+  };
+
+  const handleFireDue = async () => {
+    const res = await appointmentApi.fireDueReminders();
+    if (res.success) {
+      const count = Array.isArray(res.data) ? res.data.length : 0;
+      message.success(`已发送 ${count} 条到期提醒`);
+      void load();
+    } else {
+      message.error(res.error?.message ?? "发送到期提醒失败");
+    }
+  };
+
+  const handleCreateGreen = async () => {
+    const at = toIsoOrNull(greenForm.startAt);
+    if (!greenForm.patientName.trim() || !greenForm.modality || !greenForm.deviceId.trim()) {
+      message.warning("请填写患者姓名、模态与设备");
+      return;
+    }
+    const res = await appointmentApi.createGreenChannel({
+      patientName: greenForm.patientName.trim(),
+      patientId: greenForm.patientId || undefined,
+      modality: greenForm.modality,
+      bodyPart: greenForm.bodyPart || undefined,
+      deviceId: greenForm.deviceId.trim(),
+      startAt: at,
+    });
+    if (res.success) {
+      message.success("绿色通道预约已创建");
+      setGreenForm({ patientName: "", patientId: "", modality: "CT", bodyPart: "", deviceId: "", startAt: "" });
+      setGreenOpen(false);
+      void load();
+    } else {
+      message.error(res.error?.message ?? "创建绿色通道失败");
+    }
+  };
+
+  const roomColumns: TableColumnsType<RoomDto> = [
+    { title: "诊室", dataIndex: "name", key: "name" },
+    { title: "模态", dataIndex: "modality", key: "modality", width: 90 },
+    { title: "位置", key: "location", render: (_v: unknown, r: RoomDto) => r.location || "-" },
+    { title: "单时段上限", dataIndex: "maxPerSlot", key: "maxPerSlot", width: 110, render: (v: unknown) => (v === undefined || v === null ? "-" : String(v)) },
+    { title: "开放时间", key: "openTime", width: 150, render: (_v: unknown, r: RoomDto) => `${r.openTime ?? "--:--"} ~ ${r.closeTime ?? "--:--"}` },
+    { title: "状态", dataIndex: "status", key: "status", width: 110, render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "-")}</Tag> },
+    {
+      title: "操作", key: "action", width: 80,
+      render: (_v: unknown, r: RoomDto) => (
+        <Button size="small" danger type="link" disabled={!r.id} onClick={() => { if (r.id) void handleDeleteRoom(r.id) }}>
+          删除
+        </Button>
+      ),
+    },
+  ];
+
+  const waitColumns: TableColumnsType<WaitlistEntryDto> = [
+    { title: "序号", key: "seq", width: 70, render: (_v: unknown, r: WaitlistEntryDto) => r.seq ?? "-" },
+    { title: "患者", dataIndex: "patientName", key: "patientName" },
+    { title: "模态", dataIndex: "modality", key: "modality", width: 80 },
+    {
+      title: "优先级", dataIndex: "priority", key: "priority", width: 90,
+      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "normal")}</Tag>,
+    },
+    {
+      title: "期望时间", key: "preferred", width: 170,
+      render: (_v: unknown, r: WaitlistEntryDto) => `${r.preferredDate ?? "-"} ${r.preferredTime ?? ""}`.trim(),
+    },
+    {
+      title: "状态", dataIndex: "status", key: "status", width: 100,
+      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "WAITING")}</Tag>,
+    },
+    {
+      title: "操作", key: "action", width: 90,
+      render: (_v: unknown, r: WaitlistEntryDto) =>
+        r.status === "ASSIGNED" ? (
+          <Tag color={toneToAntd("success")}>已分配</Tag>
+        ) : (
+          <Button size="small" type="link" onClick={() => void handleAssignWait(r.id)}>分配</Button>
+        ),
+    },
+  ];
+
+  const reminderColumns: TableColumnsType<ReminderPlanDto> = [
+    { title: "患者", dataIndex: "patientName", key: "patientName" },
+    { title: "渠道", dataIndex: "channel", key: "channel", width: 90 },
+    {
+      title: "计划时间", dataIndex: "scheduledAt", key: "scheduledAt", width: 170,
+      render: (v: unknown) => (v ? new Date(String(v)).toLocaleString("zh-CN") : "-"),
+    },
+    {
+      title: "状态", dataIndex: "status", key: "status", width: 100,
+      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "-")}</Tag>,
+    },
+    {
+      title: "操作", key: "action", width: 90,
+      render: (_v: unknown, r: ReminderPlanDto) =>
+        r.status === "SENT" ? (
+          <Tag color={toneToAntd("success")}>已发送</Tag>
+        ) : (
+          <Button size="small" type="link" icon={<Send size={12} />} onClick={() => void handleFireOne(r.id)}>发送</Button>
+        ),
+    },
+  ];
+
+  const greenColumns: TableColumnsType<GreenChannelReservationDto> = [
+    { title: "患者", dataIndex: "patientName", key: "patientName" },
+    { title: "模态", dataIndex: "modality", key: "modality", width: 80 },
+    { title: "部位", dataIndex: "bodyPart", key: "bodyPart", render: (v: unknown) => String(v ?? "-") },
+    {
+      title: "设备", key: "device",
+      render: (_v: unknown, r: GreenChannelReservationDto) => r.deviceName || r.deviceId,
+    },
+    {
+      title: "预留开始", dataIndex: "reservedStartAt", key: "reservedStartAt", width: 170,
+      render: (v: unknown) => (v ? new Date(String(v)).toLocaleString("zh-CN") : "-"),
+    },
+    {
+      title: "优先级", dataIndex: "priority", key: "priority", width: 90,
+      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "STAT")}</Tag>,
+    },
+  ];
+
+  const kpis = [
+    { title: "诊室资源", value: rooms.length, color: "primary" as const },
+    { title: "候补队列", value: waitlist.length, color: "warning" as const },
+    { title: "提醒计划", value: reminders.length, color: "info" as const },
+    { title: "绿色通道", value: greenList.length, color: "error" as const },
+  ];
+
+  return (
+    <div
+      data-testid="appointment-resource-panel"
+      style={{
+        background: "var(--bg-card)",
+        borderRadius: 10,
+        border: `1px solid ${RES_BORDER}`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          padding: "10px 14px",
+          borderBottom: `1px solid ${RES_BORDER}`,
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          flexWrap: "wrap",
+        }}
+      >
+        <span
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: RES_BLUE,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-1, 4px)",
+          }}
+        >
+          <Building2 size={14} /> 诊室 / 候补 / 提醒 / 绿色通道
+        </span>
+        <Tooltip title="机房资源维护 (列表 + 新建)">
+          <Button size="small" icon={<Settings size={13} />} onClick={() => setRoomOpen(true)}>诊室管理</Button>
+        </Tooltip>
+        <div style={{ marginLeft: "auto" }}>
+          <Button size="small" icon={<RefreshCw size={13} />} loading={busy} onClick={() => void load()}>刷新</Button>
+        </div>
+      </div>
+
+      <Spin spinning={busy}>
+        <div style={{ padding: "var(--space-3, 12px)" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              gap: "var(--space-3, 12px)",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            {kpis.map((k) => (
+              <StatCard key={k.title} title={k.title} value={k.value} color={k.color} />
+            ))}
+          </div>
+
+          <Tabs
+            size="small"
+            activeKey={tab}
+            onChange={(k) => setTab(k as ResourceOpsTab)}
+            items={[
+              {
+                key: "waitlist",
+                label: <span><ListChecks size={13} /> 候补队列</span>,
+                children: (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
+                    <div style={{ display: "flex", gap: "var(--space-2, 8px)", flexWrap: "wrap", alignItems: "flex-end" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                        <span style={RES_LABEL}>患者姓名</span>
+                        <Input
+                          size="small"
+                          style={{ width: 140 }}
+                          value={waitForm.patientName}
+                          onChange={(e) => setWaitForm({ ...waitForm, patientName: e.target.value })}
+                          placeholder="必填"
+                          data-testid="wait-add-name"
+                        />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                        <span style={RES_LABEL}>联系电话</span>
+                        <Input
+                          size="small"
+                          style={{ width: 140 }}
+                          value={waitForm.phone}
+                          onChange={(e) => setWaitForm({ ...waitForm, phone: e.target.value })}
+                        />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                        <span style={RES_LABEL}>模态</span>
+                        <Select
+                          size="small"
+                          style={{ width: 110 }}
+                          value={waitForm.modality}
+                          onChange={(v) => setWaitForm({ ...waitForm, modality: v })}
+                          options={MODALITY_OPTIONS}
+                        />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                        <span style={RES_LABEL}>优先级</span>
+                        <Select
+                          size="small"
+                          style={{ width: 110 }}
+                          value={waitForm.priority}
+                          onChange={(v) => setWaitForm({ ...waitForm, priority: v })}
+                          options={WAIT_PRIORITY_OPTIONS}
+                        />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                        <span style={RES_LABEL}>期望日期</span>
+                        <Input
+                          size="small"
+                          type="date"
+                          style={{ width: 150 }}
+                          value={waitForm.preferredDate}
+                          onChange={(e) => setWaitForm({ ...waitForm, preferredDate: e.target.value })}
+                        />
+                      </div>
+                      <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => void handleAddWaitlist()}>
+                        加入候补
+                      </Button>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: "var(--space-3, 12px)",
+                        border: `1px dashed ${RES_BORDER}`,
+                        borderRadius: 8,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "var(--space-3, 12px)",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ fontSize: 12, fontWeight: 700, color: RES_BLUE }}>下一位候补</span>
+                      {nextWait ? (
+                        <>
+                          <Tag color={toneToAntd(nextWait.priority)}>{String(nextWait.priority)}</Tag>
+                          <b style={{ fontSize: 14 }}>{nextWait.patientName}</b>
+                          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                            {nextWait.modality} · {nextWait.preferredDate} {nextWait.preferredTime}
+                          </span>
+                          <span style={{ fontSize: 12, color: statusColor("urgent"), fontWeight: 700 }}>
+                            {nextWait.phone || "未登记电话"}
+                          </span>
+                          <Button size="small" onClick={() => void handleAssignWait(nextWait.id)}>立即分配</Button>
+                        </>
+                      ) : (
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无待分配候补" />
+                      )}
+                    </div>
+
+                    <DataTable<WaitlistEntryDto>
+                      dataSource={waitlist}
+                      rowKey="id"
+                      columns={waitColumns}
+                      exportFileName="appointment-waitlist"
+                      emptyText="暂无候补记录"
+                    />
+                  </div>
+                ),
+              },
+              {
+                key: "reminder",
+                label: <span><Bell size={13} /> 提醒计划</span>,
+                children: (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
+                    <Space wrap>
+                      <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => setRemOpen(true)}>
+                        新建提醒计划
+                      </Button>
+                      <Button size="small" icon={<Send size={13} />} onClick={() => void handleFireDue()}>
+                        发送全部到期提醒
+                      </Button>
+                    </Space>
+                    <DataTable<ReminderPlanDto>
+                      dataSource={reminders}
+                      rowKey="id"
+                      columns={reminderColumns}
+                      exportFileName="appointment-reminders"
+                      emptyText="暂无提醒计划"
+                    />
+                  </div>
+                ),
+              },
+              {
+                key: "green",
+                label: <span><Zap size={13} /> 绿色通道</span>,
+                children: (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
+                    <Space wrap>
+                      <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => setGreenOpen(true)}>
+                        新建绿色通道
+                      </Button>
+                    </Space>
+                    <DataTable<GreenChannelReservationDto>
+                      dataSource={greenList}
+                      rowKey="id"
+                      columns={greenColumns}
+                      exportFileName="appointment-green-channel"
+                      emptyText="暂无绿色通道预约"
+                    />
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </div>
+      </Spin>
+
+      {/* [W-D8] 诊室管理 Modal (列表 + 新建) */}
+      <Modal
+        title="诊室管理"
+        open={roomOpen}
+        onCancel={() => setRoomOpen(false)}
+        footer={null}
+        width={860}
+        destroyOnClose
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "var(--space-3, 12px)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+              <span style={RES_LABEL}>诊室名称 *</span>
+              <Input size="small" value={roomForm.name} onChange={(e) => setRoomForm({ ...roomForm, name: e.target.value })} placeholder="如 CT-1 检查室" data-testid="room-name" />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+              <span style={RES_LABEL}>模态 *</span>
+              <Select size="small" value={roomForm.modality} onChange={(v) => setRoomForm({ ...roomForm, modality: v })} options={MODALITY_OPTIONS} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+              <span style={RES_LABEL}>位置</span>
+              <Input size="small" value={roomForm.location} onChange={(e) => setRoomForm({ ...roomForm, location: e.target.value })} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+              <span style={RES_LABEL}>单时段上限</span>
+              <Input size="small" type="number" value={roomForm.maxPerSlot} onChange={(e) => setRoomForm({ ...roomForm, maxPerSlot: e.target.value })} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+              <span style={RES_LABEL}>状态</span>
+              <Select size="small" value={roomForm.status} onChange={(v) => setRoomForm({ ...roomForm, status: v })} options={ROOM_STATUS_OPTIONS} />
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-end" }}>
+              <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => void handleCreateRoom()}>
+                新建诊室
+              </Button>
+            </div>
+          </div>
+
+          <DataTable<RoomDto>
+            dataSource={rooms}
+            rowKey={(r) => r.id ?? `${r.name}-${r.modality}`}
+            columns={roomColumns}
+            exportFileName="appointment-rooms"
+            emptyText="暂无诊室资源"
+          />
+        </div>
+      </Modal>
+
+      {/* [W-D8] 新建提醒计划 Modal */}
+      <Modal
+        title="新建提醒计划"
+        open={remOpen}
+        onCancel={() => setRemOpen(false)}
+        onOk={() => void handleCreateReminder()}
+        okText="创建"
+        width={480}
+        destroyOnClose
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)", paddingTop: "var(--space-2, 8px)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>患者姓名 *</span>
+            <Input size="small" value={remForm.patientName} onChange={(e) => setRemForm({ ...remForm, patientName: e.target.value })} data-testid="reminder-patient" />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>手机号</span>
+            <Input size="small" value={remForm.phone} onChange={(e) => setRemForm({ ...remForm, phone: e.target.value })} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>提醒渠道 *</span>
+            <Select size="small" value={remForm.channel} onChange={(v) => setRemForm({ ...remForm, channel: v })} options={REMINDER_CHANNEL_OPTIONS} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>提醒时间 *</span>
+            <Input size="small" type="datetime-local" value={remForm.scheduledAt} onChange={(e) => setRemForm({ ...remForm, scheduledAt: e.target.value })} data-testid="reminder-time" />
+          </div>
+        </div>
+      </Modal>
+
+      {/* [W-D8] 新建绿色通道 Modal */}
+      <Modal
+        title="新建绿色通道预约"
+        open={greenOpen}
+        onCancel={() => setGreenOpen(false)}
+        onOk={() => void handleCreateGreen()}
+        okText="创建"
+        width={520}
+        destroyOnClose
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)", paddingTop: "var(--space-2, 8px)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>患者姓名 *</span>
+            <Input size="small" value={greenForm.patientName} onChange={(e) => setGreenForm({ ...greenForm, patientName: e.target.value })} data-testid="green-patient" />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>患者 ID</span>
+            <Input size="small" value={greenForm.patientId} onChange={(e) => setGreenForm({ ...greenForm, patientId: e.target.value })} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>模态 *</span>
+            <Select size="small" value={greenForm.modality} onChange={(v) => setGreenForm({ ...greenForm, modality: v })} options={MODALITY_OPTIONS} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>检查部位</span>
+            <Input size="small" value={greenForm.bodyPart} onChange={(e) => setGreenForm({ ...greenForm, bodyPart: e.target.value })} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>设备 ID *</span>
+            <Input size="small" value={greenForm.deviceId} onChange={(e) => setGreenForm({ ...greenForm, deviceId: e.target.value })} placeholder="如 DEV-CT-01" />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <span style={RES_LABEL}>预留开始时间</span>
+            <Input size="small" type="datetime-local" value={greenForm.startAt} onChange={(e) => setGreenForm({ ...greenForm, startAt: e.target.value })} />
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+

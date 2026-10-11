@@ -16,19 +16,22 @@ import dayjs from 'dayjs'
 import {
   Activity,
   RefreshCw,
+  Calculator,
   Database,
   HardDrive,
   Download,
+  LayoutDashboard,
   Settings2,
   Search,
   TrendingUp,
   Target,
   CheckCircle2,
   AlertTriangle,
-  XCircle,
   ListChecks,
+  ScrollText,
+  XCircle,
 } from 'lucide-react'
-import { Button, Tag, Space, Input, InputNumber, Drawer, message, Tabs, Select } from 'antd'
+import { Button, Tag, Space, Input, InputNumber, Drawer, message, Tabs, Select, Segmented } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -53,6 +56,7 @@ import {
   type RqiIndicatorUnit,
   type RqiMomItem,
   type RqiQualityIndicator,
+  type RqiQualityStandardsResult,
   type RqiTrendResult,
   type RqiWindowParams,
 } from '../../services/api/rqi2024Api'
@@ -112,6 +116,83 @@ const DETAIL_FIELD_LABELS: Record<string, string> = {
 
 const statusLabel = (s: RqiIndicatorStatus) => t(`rqi2024.status.${s}`)
 
+// [G005 W-D6] /quality-indicators/standards 兼容形态 (后端完整镜像 + MSW 简化形态)
+interface StandardsMirror extends Partial<RqiQualityStandardsResult> {
+  imageQuality?: { dimensions?: string[] }
+  reportQuality?: Array<{ code?: string; name?: string }>
+  processPoints?: Array<{ stage?: string; checks?: string[] }>
+}
+
+interface StandardsRow {
+  key: string
+  name: string
+  category: string
+  standard: string
+  detail: string
+}
+
+function normalizeImageStandards(raw: StandardsMirror | null): StandardsRow[] {
+  if (!raw) return []
+  if (Array.isArray(raw.imageQualityDimensions)) {
+    return raw.imageQualityDimensions.map((d, i) => ({
+      key: d.dimension || String(i),
+      name: `${d.dimension} (${d.dimensionEn})`,
+      category: t('rqi2024.category.structure'),
+      standard: String(d.weight),
+      detail: (d.levels ?? []).map((l) => `${l.levelName}: ${l.score}${l.acceptable ? ' ✓' : ''}`).join(' · '),
+    }))
+  }
+  return (raw.imageQuality?.dimensions ?? []).map((name, i) => ({
+    key: name || String(i),
+    name,
+    category: t('rqi2024.category.structure'),
+    standard: '-',
+    detail: '-',
+  }))
+}
+
+function normalizeReportStandards(raw: StandardsMirror | null): StandardsRow[] {
+  if (!raw) return []
+  if (Array.isArray(raw.reportQualityStandards)) {
+    return raw.reportQualityStandards.map((r, i) => ({
+      key: r.id || String(i),
+      name: r.item,
+      category: r.category,
+      standard: r.standard,
+      detail: (r.checkpoints ?? []).join(' · '),
+    }))
+  }
+  return (raw.reportQuality ?? []).map((r, i) => ({
+    key: r.code ?? String(i),
+    name: r.name ?? r.code ?? '',
+    category: t('rqi2024.category.process'),
+    standard: '-',
+    detail: '-',
+  }))
+}
+
+function normalizeWorkflowStandards(raw: StandardsMirror | null): StandardsRow[] {
+  if (!raw) return []
+  if (Array.isArray(raw.workflowQcPoints)) {
+    return raw.workflowQcPoints.map((p, i) => ({
+      key: p.id || String(i),
+      name: p.item,
+      category: p.stage,
+      standard: p.standard,
+      detail: `${p.checkMethod} · ${p.responsible} · ${p.onFailure}`,
+    }))
+  }
+  return (raw.processPoints ?? []).flatMap((p, i) =>
+    (p.checks ?? []).map((c, j) => ({
+      key: `${p.stage ?? i}-${j}`,
+      name: c,
+      category: p.stage ?? '',
+      standard: '-',
+      detail: '-',
+    })),
+  )
+}
+
 function buildPeriodOptions(granularity: RqiGranularity): string[] {
   const now = dayjs()
   if (granularity === 'quarter') {
@@ -153,6 +234,10 @@ export default function RqiIndicatorPage() {
   const [snapshots, setSnapshots] = useState<ComputedSnapshot[]>([])
   const [snapshotDetail, setSnapshotDetail] = useState<ComputedSnapshot | null>(null)
   const [snapshotDetailOpen, setSnapshotDetailOpen] = useState(false)
+  // [G005 W-D6] 质控标准参考 (GET /quality-indicators/standards) + 重算 + 视图切换
+  const [standards, setStandards] = useState<StandardsMirror | null>(null)
+  const [computing, setComputing] = useState(false)
+  const [viewMode, setViewMode] = useState<'dashboard' | 'indicators'>('indicators')
   const [source, setSource] = useState<'database' | 'seed' | 'offline'>('seed')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -189,7 +274,7 @@ export default function RqiIndicatorPage() {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const [indRes, dashRes, extRes, compRes, compDashRes, snapRes] = await Promise.all([
+    const [indRes, dashRes, extRes, compRes, compDashRes, snapRes, stdRes] = await Promise.all([
       rqi2024Api.getIndicators(queryParams).catch(() => ({ success: false as const })),
       rqi2024Api.getDashboard(queryParams).catch(() => ({ success: false as const })),
       rqi2024Api.getExtendedIndicators().catch(() => ({ success: false as const })),
@@ -198,10 +283,13 @@ export default function RqiIndicatorPage() {
       qualityScoringCenterApi.getIndicatorDashboard(dateFrom && dateTo ? period : period).catch(() => ({ success: false as const })),
       // [G005 W4B] 指标快照历史
       qualityScoringCenterApi.listSnapshots().catch(() => ({ success: false as const })),
+      // [G005 W-D6] 质控标准参考 (图像/报告/流程)
+      rqi2024Api.getQualityStandards().catch(() => ({ success: false as const })),
     ])
     if (compRes.success && compRes.data) setComputed(compRes.data)
     if (compDashRes.success && compDashRes.data) setComputedDash(compDashRes.data)
     if (snapRes.success && Array.isArray(snapRes.data)) setSnapshots(snapRes.data)
+    if (stdRes.success && stdRes.data) setStandards(stdRes.data as StandardsMirror)
 
     if (!indRes.success && !dashRes.success) {
       setError(t('rqi2024.loadFailed'))
@@ -439,6 +527,63 @@ export default function RqiIndicatorPage() {
       }
     },
     [queryParams],
+  )
+
+  // [G005 W-D6] 重算按钮: 重新评估全部 40 指标 (compute + dashboard)
+  const handleRecompute = useCallback(async () => {
+    setComputing(true)
+    try {
+      const [compRes, dashRes] = await Promise.all([
+        qualityScoringCenterApi.computeIndicators(period).catch(() => ({ success: false as const })),
+        qualityScoringCenterApi.getIndicatorDashboard(period).catch(() => ({ success: false as const })),
+      ])
+      if (compRes.success && compRes.data) setComputed(compRes.data)
+      if (dashRes.success && dashRes.data) setComputedDash(dashRes.data)
+      if (compRes.success || dashRes.success) message.success(t('common.operationSuccess'))
+      else message.error(t('rqi2024.loadFailed'))
+    } finally {
+      setComputing(false)
+    }
+  }, [period])
+
+  const imageStandards = useMemo(() => normalizeImageStandards(standards), [standards])
+  const reportStandards = useMemo(() => normalizeReportStandards(standards), [standards])
+  const workflowStandards = useMemo(() => normalizeWorkflowStandards(standards), [standards])
+
+  const standardsColumns = useMemo<TableColumnsType<StandardsRow>>(
+    () => [
+      { title: t('rqi2024.extColCode'), dataIndex: 'key', key: 'key', width: 130 },
+      { title: t('common.name'), dataIndex: 'name', key: 'name', width: 220 },
+      { title: t('common.category'), dataIndex: 'category', key: 'category', width: 120 },
+      { title: t('w9Qc.equipment.standard'), dataIndex: 'standard', key: 'standard', width: 140 },
+      { title: t('common.description'), dataIndex: 'detail', key: 'detail', ellipsis: true },
+    ],
+    [],
+  )
+
+  const computedColumns = useMemo<TableColumnsType<ComputedIndicator>>(
+    () => [
+      { title: t('rqi2024.extColCode'), dataIndex: 'code', key: 'code', width: 110 },
+      { title: t('rqi2024.extColName'), dataIndex: 'name', key: 'name' },
+      { title: t('rqi2024.computeNumerator'), dataIndex: 'numerator', key: 'numerator', width: 80 },
+      { title: t('rqi2024.computeDenominator'), dataIndex: 'denominator', key: 'denominator', width: 80 },
+      { title: t('rqi2024.computeRate'), key: 'rate', width: 110, render: (_: unknown, r: ComputedIndicator) => `${r.rate}${r.unit}` },
+      { title: t('rqi2024.extColTarget'), dataIndex: 'target', key: 'target', width: 100 },
+      {
+        title: t('rqi2024.computeStatus'), key: 'status', width: 100,
+        render: (_: unknown, r: ComputedIndicator) => {
+          const m = STATUS_META[r.status as RqiIndicatorStatus]
+          if (!m) return <Tag>{r.status}</Tag>
+          const Icon = m.icon
+          return <Tag color={m.tag} icon={<Icon size={12} />}>{statusLabel(r.status as RqiIndicatorStatus)}</Tag>
+        },
+      },
+      {
+        title: t('rqi2024.computeSource'), key: 'computable', width: 100,
+        render: (_: unknown, r: ComputedIndicator) => <Tag color={r.computable ? 'green' : 'default'}>{r.computable ? t('rqi2024.computeDerived') : t('rqi2024.computeEstimated')}</Tag>,
+      },
+    ],
+    [],
   )
 
   const sourceBadge =
@@ -770,8 +915,28 @@ export default function RqiIndicatorPage() {
           </div>
 
           {/* [G005 W9-QC] 40 指标实时计算引擎 (可从报告/检查/危急值/设备数据派生) */}
+          {/* [G005 W-D6] 重算按钮 (re-evaluate all) + 仪表盘/明细视图切换 */}
           <div style={{ marginTop: 'var(--space-4, 16px)' }} data-testid="rqi-compute-engine">
-            <DashboardCard title={t('rqi2024.computeTitle')} icon={<Activity size={15} />}>
+            <DashboardCard
+              title={t('rqi2024.computeTitle')}
+              icon={<Activity size={15} />}
+              extra={
+                <Space size={6} wrap>
+                  <Segmented
+                    size="small"
+                    value={viewMode}
+                    onChange={(v) => setViewMode(v as 'dashboard' | 'indicators')}
+                    options={[
+                      { value: 'dashboard', label: <span><LayoutDashboard size={12} /> {t('rqi2024.overview')}</span> },
+                      { value: 'indicators', label: <span><ListChecks size={12} /> {t('rqi2024.extendedTitle')}</span> },
+                    ]}
+                  />
+                  <Button size="small" type="primary" icon={<Calculator size={12} />} loading={computing} onClick={() => void handleRecompute()}>
+                    {t('rqi2024.refresh')}
+                  </Button>
+                </Space>
+              }
+            >
               {computedDash && (
                 <StatCardGrid columns={4}>
                   <StatCard title={t('rqi2024.computeTotal')} value={computedDash.total} icon={<Activity size={18} />} color="primary" />
@@ -780,38 +945,112 @@ export default function RqiIndicatorPage() {
                   <StatCard title={t('rqi2024.computePeriod')} value={computedDash.period} icon={<TrendingUp size={18} />} color="warning" />
                 </StatCardGrid>
               )}
-              {computed && (
-                <div style={{ marginTop: 'var(--space-3, 12px)' }}>
-                  <DataTable<ComputedIndicator>
-                    rowKey={(r) => r.code}
-                    pageSize={10}
-                    scroll={{ x: 'max-content' }}
-                    emptyText={t('rqi2024.computeEmpty')}
-                    columns={[
-                      { title: t('rqi2024.extColCode'), dataIndex: 'code', key: 'code', width: 110 },
-                      { title: t('rqi2024.extColName'), dataIndex: 'name', key: 'name' },
-                      { title: t('rqi2024.computeNumerator'), dataIndex: 'numerator', key: 'numerator', width: 80 },
-                      { title: t('rqi2024.computeDenominator'), dataIndex: 'denominator', key: 'denominator', width: 80 },
-                      { title: t('rqi2024.computeRate'), key: 'rate', width: 110, render: (_: unknown, r: ComputedIndicator) => `${r.rate}${r.unit}` },
-                      { title: t('rqi2024.extColTarget'), dataIndex: 'target', key: 'target', width: 100 },
-                      {
-                        title: t('rqi2024.computeStatus'), key: 'status', width: 100,
-                        render: (_: unknown, r: ComputedIndicator) => {
-                          const m = STATUS_META[r.status as RqiIndicatorStatus]
-                          if (!m) return <Tag>{r.status}</Tag>
-                          const Icon = m.icon
-                          return <Tag color={m.tag} icon={<Icon size={12} />}>{statusLabel(r.status as RqiIndicatorStatus)}</Tag>
-                        },
-                      },
-                      {
-                        title: t('rqi2024.computeSource'), key: 'computable', width: 100,
-                        render: (_: unknown, r: ComputedIndicator) => <Tag color={r.computable ? 'green' : 'default'}>{r.computable ? t('rqi2024.computeDerived') : t('rqi2024.computeEstimated')}</Tag>,
-                      },
-                    ]}
-                    dataSource={computed.indicators}
-                  />
-                </div>
+              {viewMode === 'dashboard' ? (
+                computedDash ? (
+                  <div
+                    style={{ marginTop: 'var(--space-3, 12px)', display: 'grid', gridTemplateColumns: 'minmax(0, 180px) minmax(0, 1fr)', gap: 'var(--space-4, 16px)', alignItems: 'center' }}
+                    data-testid="rqi-compute-dashboard"
+                  >
+                    <ProgressRing percent={computedDash.passRate} size={140} strokeWidth={12} subLabel={t('rqi2024.passRate')} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3, 12px)' }}>
+                        {(computedDash.byCategory ?? []).map((c) => (
+                          <StatCard
+                            key={c.categoryKey}
+                            title={c.category}
+                            value={c.passRate}
+                            suffix="%"
+                            color={c.failCount > 0 ? 'error' : c.warnCount > 0 ? 'warning' : 'success'}
+                            icon={<Target size={16} />}
+                            sub={`${t('rqi2024.status.pass')} ${c.passCount} / ${c.total} · ${t('rqi2024.status.warn')} ${c.warnCount} · ${t('rqi2024.status.fail')} ${c.failCount}`}
+                          />
+                        ))}
+                      </div>
+                      <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+                        <DataTable<ComputedIndicator>
+                          rowKey={(r) => r.code}
+                          pageSize={8}
+                          scroll={{ x: 'max-content' }}
+                          emptyText={t('rqi2024.computeEmpty')}
+                          columns={computedColumns}
+                          dataSource={computedDash.indicators ?? []}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <EmptyState type="nodata" description={t('rqi2024.computeEmpty')} />
+                )
+              ) : (
+                computed && (
+                  <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+                    <DataTable<ComputedIndicator>
+                      rowKey={(r) => r.code}
+                      pageSize={10}
+                      scroll={{ x: 'max-content' }}
+                      emptyText={t('rqi2024.computeEmpty')}
+                      columns={computedColumns}
+                      dataSource={computed.indicators}
+                    />
+                  </div>
+                )
               )}
+            </DashboardCard>
+          </div>
+
+          {/* [G005 W-D6] 质控标准参考 (GET /quality-indicators/standards) */}
+          <div style={{ marginTop: 'var(--space-4, 16px)' }} data-testid="rqi-standards-reference">
+            <DashboardCard
+              title={t('qc.standards')}
+              icon={<ScrollText size={15} />}
+              extra={standards ? <Tag color="blue">{t('rqi2024.source.database')}</Tag> : <Tag>{t('w9.states.empty')}</Tag>}
+            >
+              <Tabs
+                items={[
+                  {
+                    key: 'image',
+                    label: `${t('rqi2024.category.structure')} (${imageStandards.length})`,
+                    children: (
+                      <DataTable<StandardsRow>
+                        rowKey="key"
+                        pageSize={8}
+                        scroll={{ x: 'max-content' }}
+                        emptyText={t('rqi2024.extendedEmpty')}
+                        columns={standardsColumns}
+                        dataSource={imageStandards}
+                      />
+                    ),
+                  },
+                  {
+                    key: 'report',
+                    label: `${t('rqi2024.category.process')} (${reportStandards.length})`,
+                    children: (
+                      <DataTable<StandardsRow>
+                        rowKey="key"
+                        pageSize={8}
+                        scroll={{ x: 'max-content' }}
+                        emptyText={t('rqi2024.extendedEmpty')}
+                        columns={standardsColumns}
+                        dataSource={reportStandards}
+                      />
+                    ),
+                  },
+                  {
+                    key: 'workflow',
+                    label: `${t('rqi2024.category.outcome')} (${workflowStandards.length})`,
+                    children: (
+                      <DataTable<StandardsRow>
+                        rowKey="key"
+                        pageSize={8}
+                        scroll={{ x: 'max-content' }}
+                        emptyText={t('rqi2024.extendedEmpty')}
+                        columns={standardsColumns}
+                        dataSource={workflowStandards}
+                      />
+                    ),
+                  },
+                ]}
+              />
             </DashboardCard>
           </div>
 

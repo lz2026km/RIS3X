@@ -5,8 +5,10 @@ import { auditChainApi, type AuditChainVerificationDto, type RetentionPolicyDto 
 import type { ColdArchiveResultDto } from '../services/api/w13SecurityApi'
 import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List, Alert, Checkbox } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
-import { StatCard, StatCardGrid, PageContainer } from '../components/common'
+import { StatCard, StatCardGrid, PageContainer, DataTable } from '../components/common'
 import { PageHeader } from '../components/common/PageHeader'
+// [W-D8] 审计链看板: 状态色统一走 @/theme/statusTokens (单一来源)
+import { toneToAntd, statusColor } from '../theme/statusTokens'
 import { Search, ClipboardList, BarChart3, RefreshCw, Download, Filter, User, Eye, AlertTriangle, LineChart, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react'
 import { t } from '../i18n/appI18n'
 import { ErrorBanner } from '../components/feedback'
@@ -208,6 +210,150 @@ export default function AuditPage() {
             </Space>
           </Row>
           <Tabs items={[
+            {
+              // [W-D8] 审计链看板: KPI + 链校验 + 高危清单 + 导出 + 留存策略 一站式视图
+              key: 'chainBoard',
+              label: <span><ShieldCheck /> 审计链看板</span>,
+              children: (
+                <Space orientation="vertical" style={{ width: '100%' }} size="middle">
+                  <StatCardGrid minWidth={180} gap={16}>
+                    <StatCard title={t('auditPage.statTotalLogs')} value={stats?.total ?? '-'} icon={<ClipboardList size={18} />} />
+                    <StatCard title={t('auditPage.statLast24h')} value={stats?.last24h ?? '-'} icon={<BarChart3 size={18} />} />
+                    <StatCard title={t('auditPage.statTodayOps')} value={overview?.todayOperations ?? '-'} icon={<LineChart size={18} />} />
+                    <StatCard title={t('auditPage.statActiveUsers')} value={overview?.activeUsers ?? '-'} icon={<User size={18} />} />
+                    <StatCard
+                      title={t('auditPage.statHighRisk')}
+                      value={highRisk?.total ?? overview?.highRiskCount ?? '-'}
+                      icon={<AlertTriangle size={18} />}
+                      color={(highRisk?.total ?? overview?.highRiskCount ?? 0) > 0 ? 'warning' : 'success'}
+                    />
+                    <StatCard
+                      title={t('auditPage.statSuccessRate')}
+                      value={overview ? `${overview.successRate}%` : '-'}
+                      icon={<ShieldCheck size={18} />}
+                      color={(overview?.successRate ?? 0) >= 90 ? 'success' : 'warning'}
+                    />
+                  </StatCardGrid>
+
+                  <Card
+                    type="inner"
+                    size="small"
+                    title={<span><ShieldCheck /> {t('w13Sec.ac.title')}</span>}
+                    extra={
+                      <Space>
+                        <Button size="small" type="primary" icon={<ShieldCheck />} loading={chainLoading} onClick={() => void fetchChain()}>
+                          {t('w13Sec.ac.verify')}
+                        </Button>
+                        <Button size="small" icon={<Download />} loading={exporting} onClick={() => void handleExport()}>
+                          {t('auditPage.export')}
+                        </Button>
+                      </Space>
+                    }
+                  >
+                    {chain ? (
+                      <>
+                        <Alert
+                          type={chain.verified ? 'success' : 'error'}
+                          showIcon
+                          message={chain.verified ? t('w13Sec.ac.verified') : t('w13Sec.ac.broken', { index: chain.brokenAt ?? 0 })}
+                          description={chain.reason ?? undefined}
+                        />
+                        <Row gutter={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
+                          <Col span={6}><Statistic title={t('w13Sec.ac.blocks')} value={chain.totalBlocks} prefix={<ShieldCheck />} /></Col>
+                          <Col span={6}><Statistic title={t('w13Sec.ac.checked')} value={chain.checkedBlocks} /></Col>
+                          <Col span={6}><Statistic title={t('w13Sec.ac.source')} value={t(`w13Sec.ac.source.${chain.source}`)} /></Col>
+                          <Col span={6}>
+                            <div style={{ padding: 'var(--space-3, 12px)' }}>
+                              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w13Sec.ac.headHash')}</div>
+                              <Tooltip title={chain.headHash}>
+                                <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{chain.headHash.slice(0, 20)}…</span>
+                              </Tooltip>
+                            </div>
+                          </Col>
+                        </Row>
+                      </>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}><Spin tip={t('auditPage.loading')} /></div>
+                    )}
+                  </Card>
+
+                  <Card
+                    type="inner"
+                    size="small"
+                    title={<span><ClipboardList /> {t('w13Sec.ac.retention')}</span>}
+                    extra={
+                      <Button size="small" loading={orphanBusy} onClick={() => void handleColdArchive()}>
+                        {t('w13Sec.ac.coldArchive')}
+                      </Button>
+                    }
+                  >
+                    {(chainRetention ?? orphanRetention) ? (
+                      <Descriptions bordered size="small" column={3}>
+                        <Descriptions.Item label={t('w13Sec.ac.retentionMonths')}>{(chainRetention ?? orphanRetention)!.retentionMonths}</Descriptions.Item>
+                        <Descriptions.Item label={t('w13Sec.ac.retentionDays')}>{(chainRetention ?? orphanRetention)!.retentionDays}</Descriptions.Item>
+                        <Descriptions.Item label={t('w13Sec.ac.archiveLocation')}>
+                          <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{(chainRetention ?? orphanRetention)!.archiveLocation}</span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t('w13Sec.ac.encrypted')}>
+                          {(chainRetention ?? orphanRetention)!.encrypted
+                            ? <CheckCircle2 size={14} color={statusColor('success')} />
+                            : <XCircle size={14} color={statusColor('critical')} />}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t('w13Sec.ac.immutable')}>
+                          {(chainRetention ?? orphanRetention)!.immutable
+                            ? <CheckCircle2 size={14} color={statusColor('success')} />
+                            : <XCircle size={14} color={statusColor('critical')} />}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t('w13Sec.ac.lastArchive')}>
+                          {(chainRetention ?? orphanRetention)!.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}
+                        </Descriptions.Item>
+                      </Descriptions>
+                    ) : (
+                      <div style={{ color: 'var(--text-secondary)', fontSize: 12, textAlign: 'center', padding: 'var(--space-4, 16px)' }}>
+                        {t('auditPage.noData')}
+                      </div>
+                    )}
+                    {orphanArchive && (
+                      <Descriptions bordered size="small" column={3} style={{ marginTop: 'var(--space-3, 12px)' }}>
+                        <Descriptions.Item label={t('w4a.audit.archiveId')}>
+                          <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{orphanArchive.archiveId}</span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t('w4a.audit.archived', { count: orphanArchive.archivedCount })}>{orphanArchive.archivedCount}</Descriptions.Item>
+                        <Descriptions.Item label={t('w4a.audit.archiveLocation')}>
+                          <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{orphanArchive.location}</span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t('w4a.audit.checksum')} span={3}>
+                          <span style={{ fontFamily: 'monospace', fontSize: 12, wordBreak: 'break-all' }}>{orphanArchive.checksum}</span>
+                        </Descriptions.Item>
+                      </Descriptions>
+                    )}
+                  </Card>
+
+                  <Card
+                    type="inner"
+                    size="small"
+                    title={<span><AlertTriangle /> {t('auditPage.highRiskTitle')}</span>}
+                    extra={highRisk ? <Tag color={toneToAntd('critical')}>{t('auditPage.totalTimes', { total: highRisk.total })}</Tag> : null}
+                  >
+                    <DataTable<AuditHighRiskActionDto>
+                      dataSource={highRisk?.actions ?? []}
+                      rowKey="action"
+                      pagination={false}
+                      showDensity={false}
+                      exportFileName="audit-high-risk"
+                      emptyText={t('auditPage.noHighRisk')}
+                      columns={[
+                        { title: t('auditPage.colAction'), dataIndex: 'action', key: 'action', render: (v: unknown) => <Tag color={toneToAntd('critical')} style={{ fontFamily: 'monospace' }}>{String(v)}</Tag> },
+                        { title: t('auditPage.colCategory'), dataIndex: 'patternZh', key: 'pattern', width: 110, render: (v: unknown) => <Tag>{String(v)}</Tag> },
+                        { title: t('auditPage.colCount'), dataIndex: 'count', key: 'count', width: 90, sorter: (a, b) => a.count - b.count },
+                        { title: t('auditPage.colLastAt'), dataIndex: 'lastAt', key: 'lastAt', width: 170, render: (v: unknown) => (v ? new Date(String(v)).toLocaleString('zh-CN') : '-') },
+                        { title: t('auditPage.colUsers'), dataIndex: 'recentUsers', key: 'users', render: (v: unknown) => (Array.isArray(v) ? (v as string[]).slice(0, 3).join('、') : '-') },
+                      ]}
+                    />
+                  </Card>
+                </Space>
+              ),
+            },
             {
               key: 'overview',
               label: <span><BarChart3 /> {t('auditPage.tabOverview')}</span>,

@@ -314,6 +314,7 @@
   "radiomicsFeatures": "Radiomics Features",
   "iheManager": "IHE Integration",
   "hl7Manager": "HL7 Message Manager",
+  "hl7Console": "HL7 Message Console",
   "specialtyModules": "Specialty Modules",
   "breastSpecialty": "Breast Specialty",
   "cardiacSpecialty": "Cardiac Specialty",

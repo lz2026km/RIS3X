@@ -16,6 +16,9 @@ import {
   Database,
   AlertTriangle,
   AlertOctagon,
+  BarChart3,
+  BookOpen,
+  History,
   Info,
   ScrollText,
 } from 'lucide-react'
@@ -23,6 +26,7 @@ import {
   Button,
   Tag,
   Space,
+  Alert,
   Modal,
   Form,
   Input,
@@ -42,6 +46,7 @@ import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
 import { ErrorBanner } from '../../components/feedback'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { TrendChart } from '../../components/dashboard/TrendChart'
 import { t } from '../../i18n/appI18n'
 import { severityToAntd } from '../../theme/statusTokens'
 import {
@@ -52,12 +57,18 @@ import {
   type QualityRule,
   type RuleSet,
   type RuleViolation,
+  type RuleViolationRecord,
   type RuleStats,
   type RuleType,
   type RuleSeverity,
   type RuleField,
   type RuleOperator,
   type EvaluateResult,
+  type RwsEvaluation,
+  type RwsFailure,
+  type RwsReportInput,
+  type RwsRuleList,
+  type RwsRuleMeta,
   type ReviewTier,
   type AuthorSeniority,
   type CaseSeverity,
@@ -159,6 +170,168 @@ const DEMO_REPORT: ReportFields = {
 const FIELD_KEYS: Array<keyof ReportFields> = ['findings', 'diagnosis', 'impression', 'conclusion', 'recommendations']
 const fieldLabel = (key: keyof ReportFields) => t(`reportRules.field.${key}`)
 
+// [G005 W-D6] RWS 演示报告 (国标书写规范 RQI-RWS-03): 按检查类型分组, 合规/违规混合
+interface RwsDemoReport {
+  reportId: string
+  examType: string
+  input: RwsReportInput
+}
+
+const RWS_COMPLIANT_BASE: RwsReportInput = {
+  patientName: '张建国',
+  patientId: 'P-1001',
+  orderPatientName: '张建国',
+  orderPatientId: 'P-1001',
+  bodyPart: '胸部',
+  reportedBodyPart: '胸部',
+  reportedSide: '双侧',
+  examSide: '双侧',
+  clinicalHistory: '咳嗽 2 周',
+  findings: '双肺纹理清晰。右肺上叶见大小约 5mm 结节影, 边缘光滑。',
+  impression: '右肺上叶小结节。',
+  conclusion: '右肺上叶小结节, 考虑良性可能, 建议定期复查。',
+  recommendations: '建议 6 个月后复查胸部 CT。',
+  signedBy: '李慧敏',
+  radiologistSignature: '李慧敏',
+  hasRadiologistSignature: true,
+}
+
+const RWS_DEMO_REPORTS: RwsDemoReport[] = [
+  { reportId: 'RPT-RWS-CT-01', examType: 'CT', input: { ...RWS_COMPLIANT_BASE } },
+  {
+    reportId: 'RPT-RWS-CT-02',
+    examType: 'CT',
+    input: {
+      ...RWS_COMPLIANT_BASE,
+      patientId: 'P-1002',
+      signedBy: undefined,
+      radiologistSignature: undefined,
+      hasRadiologistSignature: false,
+      conclusion: '右肺上叶小结节。{{请补充结论}}',
+    },
+  },
+  {
+    reportId: 'RPT-RWS-MR-01',
+    examType: 'MR',
+    input: {
+      ...RWS_COMPLIANT_BASE,
+      patientName: '李慧敏',
+      patientId: 'P-2001',
+      orderPatientName: '李慧敏',
+      orderPatientId: 'P-2001',
+      bodyPart: '颅脑',
+      reportedBodyPart: '颅脑',
+      findings: '双侧大脑半球对称, 脑实质内未见明显异常信号。',
+      impression: '颅脑 MRI 未见明显异常。',
+      conclusion: '颅脑 MRI 未见明显异常。',
+      recommendations: '无。',
+      signedBy: '王建华',
+      radiologistSignature: '王建华',
+      hasRadiologistSignature: true,
+    },
+  },
+  {
+    reportId: 'RPT-RWS-MR-02',
+    examType: 'MR',
+    input: {
+      ...RWS_COMPLIANT_BASE,
+      patientName: '王建华',
+      patientId: 'P-2002',
+      orderPatientName: '王建华',
+      orderPatientId: 'P-2002',
+      bodyPart: '膝关节',
+      reportedBodyPart: '膝关节',
+      reportedSide: '左',
+      examSide: '左',
+      findings: '左膝关节半月板前角见线状高信号, 前交叉韧带连续性好。',
+      impression: '左膝关节半月板 I 度损伤。',
+      conclusion: '左膝关节半月板 I 度损伤, 建议关节科随访。',
+      recommendations: '建议 3 个月后复查。',
+      signedBy: '赵星辰',
+      radiologistSignature: '赵星辰',
+      hasRadiologistSignature: true,
+    },
+  },
+  {
+    reportId: 'RPT-RWS-DR-01',
+    examType: 'DR',
+    input: {
+      ...RWS_COMPLIANT_BASE,
+      patientName: '赵星辰',
+      patientId: 'P-3001',
+      orderPatientName: '赵星辰',
+      orderPatientId: 'P-3001',
+      bodyPart: '腹部',
+      reportedBodyPart: '胸部',
+      findings: '双肺未见明显实质性病变。',
+      impression: '心肺未见明显异常。',
+      conclusion: '心肺未见明显异常。',
+      recommendations: '无。',
+      signedBy: '孙雅琴',
+      radiologistSignature: '孙雅琴',
+      hasRadiologistSignature: true,
+    },
+  },
+  {
+    reportId: 'RPT-RWS-DR-02',
+    examType: 'DR',
+    input: {
+      ...RWS_COMPLIANT_BASE,
+      patientName: '孙雅琴',
+      patientId: 'P-3002',
+      orderPatientName: '陈立新',
+      orderPatientId: 'P-3002',
+      findings: '双肺纹理清晰, 心影大小正常。',
+      impression: '心肺未见明显异常。',
+      conclusion: '心肺未见明显异常。',
+      recommendations: '无。',
+      signedBy: '陈立新',
+      radiologistSignature: '陈立新',
+      hasRadiologistSignature: true,
+    },
+  },
+  {
+    reportId: 'RPT-RWS-US-01',
+    examType: 'US',
+    input: {
+      ...RWS_COMPLIANT_BASE,
+      patientName: '陈立新',
+      patientId: 'P-4001',
+      orderPatientName: '陈立新',
+      orderPatientId: 'P-4001',
+      bodyPart: '腹部超声',
+      reportedBodyPart: '腹部超声',
+      findings: '肝脏大小形态正常, 胆囊壁不厚, 胆囊内未见明确结石回声。',
+      impression: '肝胆超声未见明显异常。',
+      conclusion: '肝胆超声未见明显异常。',
+      recommendations: '无。',
+      signedBy: '周敏',
+      radiologistSignature: '周敏',
+      hasRadiologistSignature: true,
+    },
+  },
+  {
+    reportId: 'RPT-RWS-US-02',
+    examType: 'US',
+    input: {
+      ...RWS_COMPLIANT_BASE,
+      patientName: '周敏',
+      patientId: 'P-4002',
+      orderPatientName: '周敏',
+      orderPatientId: 'P-4002',
+      bodyPart: '甲状腺超声',
+      reportedBodyPart: '甲状腺超声',
+      findings: '甲状腺右叶见一低回声结节, 大小约 12mm, 边界清。',
+      impression: '甲状腺右叶结节, TI-RADS 3 类。',
+      conclusion: '甲状腺右叶结节, TI-RADS 3 类。待补充描述。',
+      recommendations: '建议 6 个月后复查甲状腺超声。',
+      signedBy: '刘芳',
+      radiologistSignature: '刘芳',
+      hasRadiologistSignature: true,
+    },
+  },
+]
+
 export default function ReportRulesPage() {
   const [rules, setRules] = useState<QualityRule[]>([])
   const [rulesets, setRulesets] = useState<RuleSet[]>([])
@@ -203,6 +376,16 @@ export default function ReportRulesPage() {
   })
   const [resolveResult, setResolveResult] = useState<ReviewTierResolution | null>(null)
   const [resolving, setResolving] = useState(false)
+
+  // [G005 W-D6] RWS 规则引擎 (国标报告书写规范 RQI-RWS-03)
+  const [rwsReportId, setRwsReportId] = useState<string>(RWS_DEMO_REPORTS[0]?.reportId ?? '')
+  const [signedBy, setSignedBy] = useState<string>(RWS_COMPLIANT_BASE.signedBy ?? '')
+  const [rwsResult, setRwsResult] = useState<RwsEvaluation | null>(null)
+  const [rwsRules, setRwsRules] = useState<RwsRuleList | null>(null)
+  const [rwsHistory, setRwsHistory] = useState<RuleViolationRecord[]>([])
+  const [rwsRateRows, setRwsRateRows] = useState<Array<{ name: string; rate: number; target: number }>>([])
+  const [rwsRunning, setRwsRunning] = useState(false)
+  const [rateRunning, setRateRunning] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -340,6 +523,93 @@ export default function ReportRulesPage() {
     } else {
       message.error(t('reportRules.evalFailed'))
     }
+  }
+
+  // [G005 W-D6] 国标 RWS 规则清单 + 评估历史加载
+  const loadRwsAssets = useCallback(async () => {
+    const [rulesRes, historyRes] = await Promise.all([
+      reportRulesApi.getNationalRwsRules().catch(() => null),
+      reportRulesApi.listHistory().catch(() => null),
+    ])
+    if (rulesRes?.success && rulesRes.data) setRwsRules(rulesRes.data)
+    if (historyRes?.success && historyRes.data?.data) setRwsHistory(historyRes.data.data)
+  }, [])
+
+  useEffect(() => {
+    void loadRwsAssets()
+  }, [loadRwsAssets])
+
+  // [G005 W-D6] 选择演示报告 → 回填报告文本与签名
+  const selectRwsReport = (reportId: string) => {
+    setRwsReportId(reportId)
+    const demo = RWS_DEMO_REPORTS.find((r) => r.reportId === reportId)
+    setRwsResult(null)
+    if (!demo) return
+    setFields({
+      findings: demo.input.findings ?? '',
+      diagnosis: demo.input.diagnosis ?? '',
+      impression: demo.input.impression ?? '',
+      conclusion: demo.input.conclusion ?? '',
+      recommendations: demo.input.recommendations ?? '',
+    })
+    setSignedBy(demo.input.signedBy ?? '')
+  }
+
+  // [G005 W-D6] 一键评估: 规则违规 (POST /report-rules/evaluate) + RWS 书写规范评分 (POST /report-rules/evaluate-rws)
+  const runRwsEvaluate = async () => {
+    const demo = RWS_DEMO_REPORTS.find((r) => r.reportId === rwsReportId) ?? RWS_DEMO_REPORTS[0]
+    if (!demo) return
+    setRwsRunning(true)
+    const [ruleRes, rwsRes] = await Promise.all([
+      reportRulesApi
+        .evaluate({ reportId: demo.reportId, examType: demo.examType, rulesetId, ...fields })
+        .catch(() => null),
+      reportRulesApi
+        .evaluateRws({
+          ...demo.input,
+          reportId: demo.reportId,
+          examType: demo.examType,
+          findings: fields.findings,
+          diagnosis: fields.diagnosis,
+          impression: fields.impression,
+          conclusion: fields.conclusion,
+          recommendations: fields.recommendations,
+          signedBy: signedBy.trim() || undefined,
+          hasRadiologistSignature: Boolean(signedBy.trim()),
+        })
+        .catch(() => null),
+    ])
+    if (ruleRes?.success && ruleRes.data) setResult(ruleRes.data)
+    if (rwsRes?.success && rwsRes.data) {
+      setRwsResult(rwsRes.data)
+      message.success(t('reportRules.evalDone', { count: rwsRes.data.failures?.length ?? 0, score: rwsRes.data.rate }))
+    } else if (!ruleRes?.success) {
+      message.error(t('reportRules.evalFailed'))
+    }
+    setRwsRunning(false)
+    void loadRwsAssets()
+  }
+
+  // [G005 W-D6] 分检查类型批量计算书写规范率 (POST /report-rules/rws-rate) → 规范率图表
+  const runRwsRate = async () => {
+    setRateRunning(true)
+    const groups = new Map<string, RwsReportInput[]>()
+    for (const r of RWS_DEMO_REPORTS) {
+      const list = groups.get(r.examType) ?? []
+      list.push({ ...r.input, reportId: r.reportId, examType: r.examType })
+      groups.set(r.examType, list)
+    }
+    const rows: Array<{ name: string; rate: number; target: number }> = []
+    for (const [name, reports] of groups) {
+      const res = await reportRulesApi.computeRwsRate(reports).catch(() => null)
+      rows.push({
+        name,
+        rate: res?.success && res.data ? Number(res.data.rate ?? 0) : 0,
+        target: res?.success && res.data ? Number(res.data.target ?? 98) : 98,
+      })
+    }
+    setRwsRateRows(rows)
+    setRateRunning(false)
   }
 
   const openCreate = () => {
@@ -600,6 +870,58 @@ export default function ReportRulesPage() {
     },
   ]
 
+  // [G005 W-D6] RWS 国标规则行 (后端 data / MSW rules 双形态兼容)
+  const rwsRuleRows = useMemo<RwsRuleMeta[]>(() => {
+    if (!rwsRules) return []
+    const legacy = (rwsRules as unknown as { rules?: RwsRuleMeta[] }).rules
+    return rwsRules.data ?? legacy ?? []
+  }, [rwsRules])
+
+  const rwsFailureColumns: ColumnsType<RwsFailure> = [
+    { title: t('reportRules.thCode'), dataIndex: 'code', width: 220, render: (code: string) => <Tag color={SEVERITY_COLORS.error}>{code}</Tag> },
+    { title: t('reportRules.thName'), dataIndex: 'name', width: 200 },
+    {
+      title: t('reportRules.thSeverity'),
+      dataIndex: 'severity',
+      width: 90,
+      render: (s: RuleSeverity) => <Tag color={SEVERITY_COLORS[s]}>{RULE_SEVERITY_LABELS[s]}</Tag>,
+    },
+    { title: t('reportRules.thCondition'), key: 'condition', ellipsis: true, render: (_, r) => r.condition || '-' },
+    { title: t('reportRules.thSuggestion'), dataIndex: 'suggestion', ellipsis: true },
+  ]
+
+  const rwsRuleColumns: ColumnsType<RwsRuleMeta> = [
+    { title: t('reportRules.thCode'), dataIndex: 'code', width: 200, render: (code: string) => <Tag>{code}</Tag> },
+    { title: t('reportRules.thName'), dataIndex: 'name', width: 220 },
+    { title: t('reportRules.thType'), dataIndex: 'type', width: 170, render: (v: string) => <Tag color="geekblue">{v}</Tag> },
+    {
+      title: t('reportRules.thSeverity'),
+      dataIndex: 'severity',
+      width: 90,
+      render: (s: RuleSeverity) => <Tag color={SEVERITY_COLORS[s]}>{RULE_SEVERITY_LABELS[s]}</Tag>,
+    },
+    { title: t('reportRules.thCondition'), key: 'condition', ellipsis: true, render: (_, r) => r.conditionLabel || r.condition || '-' },
+    { title: t('reportRules.thSuggestion'), dataIndex: 'suggestion', ellipsis: true },
+  ]
+
+  const rwsHistoryColumns: ColumnsType<RuleViolationRecord> = [
+    { title: t('w13Sec.cp.col.id'), dataIndex: 'id', width: 120, render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('signAmend.colReport'), dataIndex: 'reportId', width: 150, render: (v: string) => <span style={{ fontSize: 12 }}>{v ?? '-'}</span> },
+    { title: t('reportRules.thCode'), dataIndex: 'ruleCode', width: 150 },
+    { title: t('reportRules.thRule'), dataIndex: 'ruleName', ellipsis: true },
+    {
+      title: t('reportRules.thSeverity'),
+      dataIndex: 'severity',
+      width: 90,
+      render: (s: RuleSeverity) => <Tag color={SEVERITY_COLORS[s]}>{RULE_SEVERITY_LABELS[s]}</Tag>,
+    },
+    { title: t('reportRules.thPosition'), dataIndex: 'field', width: 110 },
+    {
+      title: t('reportRules.thUpdatedAt'), dataIndex: 'evaluatedAt', width: 160,
+      render: (v: string) => <span style={{ fontSize: 12 }}>{v ? v.slice(0, 19).replace('T', ' ') : '-'}</span>,
+    },
+  ]
+
   const statsCards = useMemo(() => {
     const s = stats
     return [
@@ -709,6 +1031,162 @@ export default function ReportRulesPage() {
                   ) : (
                     <Empty description={result ? t('reportRules.compliant') : t('reportRules.runFirst')} />
                   )}
+                </Card>
+              </Space>
+            ),
+          },
+          {
+            // [G005 W-D6] RWS 规则引擎 (国标报告书写规范 RQI-RWS-03)
+            key: 'rws',
+            label: `${t('qc.standards')} (RWS)`,
+            children: (
+              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Card
+                  size="small"
+                  title={<span><Play size={14} /> {t('reportRules.tabEvaluate')} · RWS</span>}
+                  data-testid="rws-evaluate-panel"
+                >
+                  <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
+                    <Select
+                      style={{ width: 240 }}
+                      value={rwsReportId}
+                      onChange={(v) => selectRwsReport(v)}
+                      options={RWS_DEMO_REPORTS.map((r) => ({ value: r.reportId, label: `${r.reportId} · ${r.examType}` }))}
+                    />
+                    <Input
+                      style={{ width: 180 }}
+                      value={signedBy}
+                      onChange={(e) => setSignedBy(e.target.value)}
+                      placeholder={t('w8Report.sig.signedBy')}
+                    />
+                    <Button type="primary" icon={<Play size={14} />} loading={rwsRunning} onClick={() => void runRwsEvaluate()}>
+                      {t('reportRules.runEvaluate')}
+                    </Button>
+                    {result && (
+                      <Tag color={result.score >= 90 ? 'green' : result.score >= 60 ? 'orange' : 'red'}>
+                        {t('reportRules.evalSummary', { score: result.score, error: severityCount('error'), warning: severityCount('warning'), info: severityCount('info') })}
+                      </Tag>
+                    )}
+                    {rwsResult && (
+                      <Tag color={rwsResult.compliant ? severityToAntd('success') : severityToAntd('critical')}>
+                        RWS {rwsResult.rate}% · {rwsResult.numerator}/{rwsResult.denominator}
+                      </Tag>
+                    )}
+                  </Space>
+                  {result && result.violations.length > 0 && (
+                    <DataTable
+                      rowKey={(v) => `${v.ruleId}-${v.field}-${v.position}`}
+                      columns={violationColumns}
+                      dataSource={result.violations}
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: 800 }}
+                      showExport={false}
+                    />
+                  )}
+                  {rwsResult && (
+                    <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+                      <Alert
+                        type={rwsResult.compliant ? 'success' : 'warning'}
+                        showIcon
+                        message={
+                          rwsResult.compliant
+                            ? t('reportRules.compliant')
+                            : t('reportRules.violationResult', { count: rwsResult.failures?.length ?? 0 })
+                        }
+                        description={
+                          <div style={{ fontSize: 12 }}>
+                            <div>
+                              {rwsResult.rateExplanation || t('rqi2024.passRate')}: {rwsResult.rate}% · {t('rqi2024.target')} {rwsResult.target ?? 98}%
+                            </div>
+                            {rwsResult.standard && <div>{rwsResult.standard}</div>}
+                          </div>
+                        }
+                      />
+                      {(rwsResult.failures ?? []).length > 0 && (
+                        <div style={{ marginTop: 'var(--space-3, 12px)' }}>
+                          <DataTable<RwsFailure>
+                            rowKey="code"
+                            columns={rwsFailureColumns}
+                            dataSource={rwsResult.failures}
+                            pagination={{ pageSize: 5 }}
+                            scroll={{ x: 800 }}
+                            showExport={false}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {(!result || result.violations.length === 0) && !rwsResult && (
+                    <Empty description={t('reportRules.runFirst')} />
+                  )}
+                </Card>
+
+                <Card
+                  size="small"
+                  title={<span><BarChart3 size={14} /> {t('rqi2024.passRate')} · RWS</span>}
+                  extra={
+                    <Button size="small" icon={<Play size={12} />} loading={rateRunning} onClick={() => void runRwsRate()}>
+                      {t('reportRules.runEvaluate')}
+                    </Button>
+                  }
+                  data-testid="rws-rate-chart"
+                >
+                  <TrendChart
+                    type="bar"
+                    data={rwsRateRows}
+                    xKey="name"
+                    series={[
+                      { key: 'rate', name: t('rqi2024.passRate'), color: 'var(--color-primary-600)' },
+                      { key: 'target', name: t('rqi2024.target'), color: 'var(--color-warning-500)' },
+                    ]}
+                    percent
+                    height={240}
+                    testId="rws-rate-chart"
+                  />
+                </Card>
+
+                <Card
+                  size="small"
+                  title={<span><BookOpen size={14} /> {t('termLibrary.nationalStandard')} · RWS</span>}
+                  extra={
+                    <Space size={4}>
+                      <Tag color="blue">{rwsRuleRows.length}</Tag>
+                      {rwsRules?.target !== undefined && <Tag color="green">{t('rqi2024.target')} {rwsRules.target}%</Tag>}
+                    </Space>
+                  }
+                  data-testid="rws-national-rules"
+                >
+                  <DataTable<RwsRuleMeta>
+                    rowKey="code"
+                    columns={rwsRuleColumns}
+                    dataSource={rwsRuleRows}
+                    pagination={{ pageSize: 8 }}
+                    scroll={{ x: 900 }}
+                    showExport={false}
+                    emptyText={t('w9.states.empty')}
+                  />
+                  {rwsRules?.rateFormula && (
+                    <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>
+                      {rwsRules.rateFormula}
+                    </div>
+                  )}
+                </Card>
+
+                <Card
+                  size="small"
+                  title={<span><History size={14} /> {t('report.history')}</span>}
+                  extra={<Tag color="blue">{rwsHistory.length}</Tag>}
+                  data-testid="rws-history"
+                >
+                  <DataTable<RuleViolationRecord>
+                    rowKey="id"
+                    columns={rwsHistoryColumns}
+                    dataSource={rwsHistory}
+                    pagination={{ pageSize: 8 }}
+                    scroll={{ x: 900 }}
+                    showExport={false}
+                    emptyText={t('w9.states.empty')}
+                  />
                 </Card>
               </Space>
             ),

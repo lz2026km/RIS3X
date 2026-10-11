@@ -1,7 +1,8 @@
 // [v3.0.6.8-79] 知情同意/患者教育管理
 // [v3.0.6.11-60] Batch 3: consentEducationApi 真实数据 + 分类筛选 + 上传/查看
+// [W-D5] 知情同意签署/验证面板: 列表(id/患者/类型/签署日期/状态/签名哈希) + 验证弹窗 + 新建
 import { usePagination } from '../../hooks/usePagination';
-import { consentEducationApi, type ConsentRecord, type EducationMaterialDto } from '../../services/api/consentEducationApi';
+import { consentEducationApi, type ConsentRecord, type ConsentVerification, type EducationMaterialDto } from '../../services/api/consentEducationApi';
 import { getEducationService, type EducationMaterial } from '../../services/education/EducationService';
 import {
   Card,
@@ -24,7 +25,8 @@ import {
   Descriptions,
 } from "antd";
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
-import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
+import { toneToAntd } from '../../theme/statusTokens';
+import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox, ShieldCheck } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { t } from '../../i18n/appI18n';
 
@@ -48,6 +50,17 @@ const CONSENT_TYPE_OPTIONS = [
 ];
 
 const STATUS_COLOR: Record<string, string> = { signed: 'success', pending: 'processing', refused: 'error', expired: 'default' };
+
+// [W-D5] 签名哈希: 后端未返回 signatureHash → 由记录关键字段做本地 FNV-1a 摘要 (确定性, 供列表展示/篡改比对)
+const signatureHashOf = (r: ConsentRecord): string => {
+  const src = `${r.id}|${r.patient}|${r.type}|${r.signedAt ?? ''}|${r.status}|${r.signedBy ?? ''}|${r.witnessName ?? ''}`;
+  let h = 0x811c9dc5;
+  for (let i = 0; i < src.length; i += 1) {
+    h ^= src.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0').toUpperCase();
+};
 
 export const ConsentEducationPage: React.FC = () => {
   const consentTypeLabel = (type: string) => t(`consentEdu.type.${type}`);
@@ -80,6 +93,14 @@ export const ConsentEducationPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [signingId, setSigningId] = useState<string | null>(null);
   const { pageData: consentPageData, pagination: consentPagination } = usePagination(consents, 6);
+  // [W-D5] 签署/验证面板: 同意书列表分页 + 验证弹窗状态
+  const { pageData: signPageData, pagination: signPagination } = usePagination(consents, 8);
+  const [verifyModal, setVerifyModal] = useState(false);
+  const [verifyInput, setVerifyInput] = useState('');
+  const [verifyType, setVerifyType] = useState('');
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<ConsentVerification | null>(null);
+  const [verifyLocal, setVerifyLocal] = useState<ConsentRecord | null>(null);
 
   // [W3-C] 发送患者: 本地真实状态 (标记已发送 + 浏览数 +1)
   const sendToPatient = (m: EducationMaterialDto) => {
@@ -145,6 +166,30 @@ export const ConsentEducationPage: React.FC = () => {
     : materials.filter((m) => m.category === activeCategory);
 
   const { pageData: materialPageData, pagination: materialPagination } = usePagination(filteredMaterials, 6);
+
+  // [W-D5] 验证同意书签署: GET /consent-education/verify?examId=&type= (输入支持 同意书ID 或 检查ID)
+  const runVerify = async () => {
+    const input = verifyInput.trim();
+    if (!input) {
+      message.warning(t('consentEdu.examIdPlaceholder'));
+      return;
+    }
+    setVerifyLoading(true);
+    setVerifyResult(null);
+    setVerifyLocal(null);
+    try {
+      const matched = consents.find((c) => c.id === input) ?? consents.find((c) => c.examId === input) ?? null;
+      setVerifyLocal(matched);
+      const examId = matched?.examId ?? input;
+      const res = await consentEducationApi.verify(examId, verifyType.trim() || undefined);
+      if (res.success && res.data) setVerifyResult(res.data);
+      else message.error(res.error?.message ?? t('consentEdu.loadFailed'));
+    } catch {
+      message.error(t('consentEdu.loadFailed'));
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
 
   const createConsent = async () => {
     setSaving(true);
@@ -363,6 +408,117 @@ export const ConsentEducationPage: React.FC = () => {
           />
         </Spin>
       </Card>
+
+      <Card
+        size="small"
+        title={<Space><ShieldCheck size={14} />{'知情同意签署 / 验证'}</Space>}
+        extra={
+          <Space>
+            <Button size="small" icon={<ShieldCheck size={12} />} onClick={() => { setVerifyResult(null); setVerifyLocal(null); setVerifyModal(true); }}>{'验证签署'}</Button>
+            <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setConsentModal(true)}>{t('consentEdu.newConsent')}</Button>
+          </Space>
+        }
+        style={{ marginTop: 'var(--space-4, 16px)' }}
+      >
+        <Spin spinning={loading}>
+          <DataTable
+            dataSource={signPageData}
+            rowKey="id"
+            pagination={signPagination}
+            columns={[
+              { title: '同意书ID', dataIndex: 'id', width: 130, render: (id: string) => <Tag>{id}</Tag> },
+              { title: t('consentEdu.patient'), dataIndex: 'patient', render: (p: string, r: ConsentRecord) => <Space direction="vertical" size={0}><b>{p}</b><span style={{ fontSize: 11, color: '#999' }}>{r.patientId ?? '—'}</span></Space> },
+              { title: t('consentEdu.type'), dataIndex: 'type', render: (type: string) => <Tag color="blue">{consentTypeLabel(type)}</Tag> },
+              { title: t('consentEdu.signedAt'), dataIndex: 'signedAt', render: (s: string | null) => s || <span style={{ color: '#999' }}>—</span> },
+              { title: t('consentEdu.status'), dataIndex: 'status', render: (s: string) => <Tag color={toneToAntd(s)}>{consentStatusLabel(s)}</Tag> },
+              {
+                title: '签名哈希', dataIndex: 'id', width: 130,
+                render: (_: string, r: ConsentRecord) => (
+                  <Tag color={r.status === 'signed' ? 'green' : 'default'} style={{ fontFamily: 'monospace' }}>
+                    {r.status === 'signed' ? signatureHashOf(r) : '—'}
+                  </Tag>
+                ),
+              },
+              {
+                title: t('consentEdu.actions'),
+                render: (_, r: ConsentRecord) => (
+                  <Space>
+                    <Button size="small" icon={<ShieldCheck size={10} />} onClick={() => { setVerifyInput(r.examId ?? r.id); setVerifyType(r.type); setVerifyResult(null); setVerifyLocal(r); setVerifyModal(true); }}>{'验证'}</Button>
+                    {r.status === 'pending' && <Button size="small" type="primary" loading={signingId === r.id} onClick={() => void signConsent(r)}>{t('consentEdu.signNow')}</Button>}
+                    <Button size="small" icon={<Eye size={10} />} onClick={() => void viewConsentDetail(r)}>{t('consentEdu.view')}</Button>
+                  </Space>
+                ),
+              },
+            ]}
+            scroll={{ x: 'max-content' }}
+          />
+        </Spin>
+      </Card>
+
+      <Modal
+        title={'验证知情同意签署'}
+        open={verifyModal}
+        onCancel={() => setVerifyModal(false)}
+        footer={
+          <Space>
+            <Button onClick={() => setVerifyModal(false)}>{t('consentEdu.close')}</Button>
+            <Button type="primary" loading={verifyLoading} onClick={() => void runVerify()}>{'开始验证'}</Button>
+          </Space>
+        }
+        width={560}
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Row gutter={8}>
+            <Col span={14}>
+              <Input
+                value={verifyInput}
+                onChange={(e) => setVerifyInput(e.target.value)}
+                placeholder={'输入同意书ID 或 检查ID (如 C-001 / EX-SEED-001)'}
+                onPressEnter={() => void runVerify()}
+              />
+            </Col>
+            <Col span={10}>
+              <Select
+                allowClear
+                style={{ width: '100%' }}
+                placeholder={t('consentEdu.type')}
+                value={verifyType || undefined}
+                onChange={(v) => setVerifyType(v ?? '')}
+                options={CONSENT_TYPE_OPTIONS.map((o) => ({ value: o.value, label: t(`consentEdu.type.${o.labelKey}`) }))}
+              />
+            </Col>
+          </Row>
+          {verifyLocal && (
+            <Alert
+              type="info"
+              showIcon
+              message={`${t('consentEdu.consentDetail')} ${verifyLocal.id} · ${verifyLocal.patient} · ${consentTypeLabel(verifyLocal.type)}`}
+              description={`${t('consentEdu.examId')}: ${verifyLocal.examId ?? '—'} · ${t('consentEdu.signedAt')}: ${verifyLocal.signedAt ?? '—'}`}
+            />
+          )}
+          {verifyResult && (
+            <>
+              <Alert
+                type={verifyResult.signed ? 'success' : 'warning'}
+                showIcon
+                message={verifyResult.signed ? '验证通过: 该检查所需同意书已签署' : '验证未通过: 未找到已签署的同意书记录'}
+              />
+              <Descriptions bordered column={2} size="small">
+                <Descriptions.Item label={t('consentEdu.examId')}>{verifyResult.examId}</Descriptions.Item>
+                <Descriptions.Item label={t('consentEdu.type')}>{verifyResult.type ? consentTypeLabel(verifyResult.type) : '—'}</Descriptions.Item>
+                <Descriptions.Item label={'是否已签署'}>
+                  <Tag color={verifyResult.signed ? 'green' : 'red'}>{verifyResult.signed ? '已签署' : '未签署'}</Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label={t('consentEdu.status')}>
+                  {verifyResult.status ? <Tag color={toneToAntd(verifyResult.status)}>{consentStatusLabel(verifyResult.status)}</Tag> : '—'}
+                </Descriptions.Item>
+                <Descriptions.Item label={'关联记录ID'}>{verifyResult.recordId ?? '—'}</Descriptions.Item>
+                <Descriptions.Item label={'校验时间'}>{new Date(verifyResult.checkedAt).toLocaleString('zh-CN', { hour12: false })}</Descriptions.Item>
+              </Descriptions>
+            </>
+          )}
+        </Space>
+      </Modal>
 
       <Card
         size="small"

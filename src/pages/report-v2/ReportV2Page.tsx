@@ -1,16 +1,18 @@
 import React, { useState } from 'react'
 import { Tabs, Typography, Tag, Space } from 'antd'
-import { ShieldAlert, Users, Star } from 'lucide-react'
+import { ShieldAlert, Users, Star, ClipboardList } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import SecondReadPanel from './SecondReadPanel'
 import ConsultationV2Panel from './ConsultationV2Panel'
 import PeerReviewPanel from './PeerReviewPanel'
+import ReportQcTaskBoardPanel from './ReportQcTaskBoardPanel'
 
 const { Text } = Typography
 
 /**
  * [v3.0.6.11-101 Wave 7C] 报告 V2 — AI 二次检出 V2 (F14) + 委员会会诊 V2 (F6) + 报告互评 (F9)
  * 三面板合一页三 Tab: 定稿前 AI 复查 / 多人合议会诊 / 科室互评
+ * [W-D7] 追加第四 Tab: 报告 QC 任务看板 (ReportQcTaskBoardPanel → /report-qc-v2/* 任务流 + 评分 + 维度配置)
  * @deprecated [v3.0.6.11-104 Wave 5A] 报告书写入口已收敛至 ReportWritePage; 旧路由 /report-v2/workbench redirect → /write-report。
  *   子面板(SecondReadPanel/ConsultationV2Panel/PeerReviewPanel)保留供 ReportWritePage 复用，本页保留仅作参考/回退。
  */
@@ -58,6 +60,16 @@ const ReportV2Page: React.FC = () => {
               </Space>
             ),
             children: <PeerReviewPanel />,
+          },
+          {
+            key: 'qc-task-board',
+            label: (
+              <Space size={6}>
+                <ClipboardList size={14} color="var(--color-success-600)" />
+                <span>{t('w4a.qcTask.tab')}</span>
+              </Space>
+            ),
+            children: <ReportQcTaskBoardPanel />,
           },
         ]}
       />

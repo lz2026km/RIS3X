@@ -253,6 +253,7 @@
   "radiomicsFeatures": "影像组学特征",
   "iheManager": "IHE 管理",
   "hl7Manager": "HL7 管理",
+  "hl7Console": "HL7 消息控制台",
   "lungCad": "肺结节 AI 检测",
   "breastCad": "乳腺 AI 检测",
   "fractureCad": "骨折 AI 检测",

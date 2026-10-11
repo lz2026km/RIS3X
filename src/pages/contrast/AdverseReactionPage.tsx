@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { AlertTriangle, Plus, Search, PieChart, ChevronDown, ChevronRight, X } from 'lucide-react'
-import { message } from 'antd'
+import { Button, Card, Col, Form, Input, InputNumber, Modal, Row, Select, Tag, message } from 'antd'
 import { getAdverseReactionService } from '../../services/contrast'
 import type { AdverseReaction, ReactionType, ReactionSeverity, ReactionOutcome } from '../../services/contrast'
 import { createAdverseEvent } from '../../services/api/safetyApi'
@@ -10,6 +10,9 @@ import { deviceMgmtApi } from '../../services/api/deviceMgmtApi'
 import { CONTRAST_ALLERGY_TREATMENT } from '../../data/contrastProtocols'
 // [v3.0.6.11-104 Wave 3B] 不良反应与注射后留观联动 (记录后追加留观观察记录)
 import { contrastSafetyApi } from '../../services/api/contrastSafetyApi'
+import type { ExtravasationEvent, ExtravasationSeverity, ExtravasationStats, RecordExtravasationDto } from '../../services/api/contrastSafetyApi'
+import { DataTable, StatCard, StatCardGrid } from '../../components/common'
+import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 import { AppEmpty } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
@@ -21,6 +24,12 @@ const SEV_COLORS: Record<ReactionSeverity, string> = { mild: 'var(--color-succes
 const SEV_LABELS: Record<ReactionSeverity, string> = { mild: t('advR.sev.mild'), moderate: t('advR.sev.moderate'), severe: t('advR.sev.severe') }
 const OUTCOME_LABELS: Record<string, string> = { resolved: t('advR.outcome.resolved'), improving: t('advR.outcome.improving'), ongoing: t('advR.outcome.ongoing'), fatal: t('advR.outcome.fatal') }
 const OUTCOME_OPTIONS: ReactionOutcome[] = ['resolved', 'improving', 'ongoing', 'fatal']
+
+// [W-D5] 对比剂外渗: 分级/部位/对比剂选项 (POST /contrast/extravasation)
+const EXTRA_SEV_LABELS: Record<ExtravasationSeverity, string> = { mild: 'I级 轻度', moderate: 'II级 中度', severe: 'III级 重度' }
+const EXTRA_SEV_OPTIONS = (Object.keys(EXTRA_SEV_LABELS) as ExtravasationSeverity[]).map((v) => ({ value: v, label: EXTRA_SEV_LABELS[v] }))
+const EXTRA_SITE_OPTIONS = ['手背', '前臂', '肘部', '腕部', '足背', '其他'].map((v) => ({ value: v, label: v }))
+const EXTRA_CONTRAST_OPTIONS = ['碘海醇', '碘普罗胺', '碘克沙醇', '钆对比剂', '其他'].map((v) => ({ value: v, label: v }))
 
 export default function AdverseReactionPage() {
   const [reactions, setReactions] = useState<AdverseReaction[]>([])
@@ -36,6 +45,14 @@ export default function AdverseReactionPage() {
   const [editTarget, setEditTarget] = useState<AdverseReaction | null>(null)
   const [form, setForm] = useState({ patientId: '', reactionType: 'allergic' as ReactionType, severity: 'mild' as ReactionSeverity, description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing' as ReactionOutcome, observationId: '' })
   const [submitting, setSubmitting] = useState(false)
+  // [W-D5] 对比剂外渗面板: 列表/统计/上报表单 (POST + GET /contrast/extravasation[/stats])
+  const [extraEvents, setExtraEvents] = useState<ExtravasationEvent[]>([])
+  const [extraStats, setExtraStats] = useState<ExtravasationStats | null>(null)
+  const [extraLoading, setExtraLoading] = useState(true)
+  const [extraModal, setExtraModal] = useState(false)
+  const [extraSubmitting, setExtraSubmitting] = useState(false)
+  const [extraContrastTypes, setExtraContrastTypes] = useState<Record<string, string>>({})
+  const [extraForm] = Form.useForm()
 
   useEffect(() => {
     const run = async () => {
@@ -75,6 +92,68 @@ export default function AdverseReactionPage() {
     }
     void run()
   }, [])
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const [list, stats] = await Promise.allSettled([
+          contrastSafetyApi.listExtravasations({ pageSize: 100 }),
+          contrastSafetyApi.getExtravasationStats(),
+        ])
+        if (list.status === 'fulfilled' && list.value.success && list.value.data) {
+          setExtraEvents(list.value.data.items ?? [])
+        }
+        if (stats.status === 'fulfilled' && stats.value.success && stats.value.data) {
+          setExtraStats(stats.value.data)
+        }
+      } catch { /* 外渗接口不可用时面板保持空态 */ } finally {
+        setExtraLoading(false)
+      }
+    }
+    void run()
+  }, [])
+
+  const extraSevCount = (sev: ExtravasationSeverity) =>
+    extraStats?.bySeverity?.find((x) => x.severity === sev)?.count ?? 0
+
+  const extraByContrast = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const type of Object.values(extraContrastTypes)) counts[type] = (counts[type] ?? 0) + 1
+    return Object.entries(counts)
+  }, [extraContrastTypes])
+
+  const handleExtraSubmit = async () => {
+    const values = await extraForm.validateFields()
+    setExtraSubmitting(true)
+    try {
+      const payload: RecordExtravasationDto = {
+        patientId: values.patientId,
+        examId: values.examId || undefined,
+        severity: values.severity as ExtravasationSeverity,
+        site: values.site,
+        estimatedVolumeMl: values.estimatedVolumeMl,
+        management: values.management,
+        recordedBy: 'current-user',
+      }
+      const res = await contrastSafetyApi.recordExtravasation(payload)
+      if (res.success && res.data) {
+        const saved = res.data as ExtravasationEvent
+        setExtraEvents((prev) => [saved, ...prev])
+        setExtraContrastTypes((prev) => ({ [saved.id]: values.contrastType as string, ...prev }))
+        message.success('对比剂外渗已上报')
+        setExtraModal(false)
+        extraForm.resetFields()
+        const s = await contrastSafetyApi.getExtravasationStats().catch(() => null)
+        if (s?.success && s.data) setExtraStats(s.data)
+      } else {
+        message.error(res.error?.message ?? '外渗上报失败')
+      }
+    } catch {
+      message.error('外渗上报失败')
+    } finally {
+      setExtraSubmitting(false)
+    }
+  }
 
   const openEdit = (r: AdverseReaction) => {
     setEditTarget(r)
@@ -281,6 +360,108 @@ export default function AdverseReactionPage() {
           </div>
         )}
       </div>
+
+      <div style={{ padding: '0 var(--space-6, 24px) var(--space-6, 24px)' }}>
+        <Card
+          size="small"
+          title="对比剂外渗 (POST /contrast/extravasation · GET /contrast/extravasation/stats)"
+          extra={
+            <Button
+              type="primary"
+              size="small"
+              icon={<Plus size={12} />}
+              onClick={() => {
+                extraForm.resetFields()
+                extraForm.setFieldsValue({ severity: 'mild', site: '手背', contrastType: '碘海醇', estimatedVolumeMl: 10, management: '立即停止注射, 保留通路并抬高患肢, 冷敷观察' })
+                setExtraModal(true)
+              }}
+            >
+              上报外渗
+            </Button>
+          }
+        >
+          <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <StatCard title="外渗总数" value={extraStats?.total ?? extraEvents.length} icon={<AlertTriangle size={14} />} />
+            <StatCard title="I级 轻度" value={extraSevCount('mild')} color="success" />
+            <StatCard title="II级 中度" value={extraSevCount('moderate')} color="warning" />
+            <StatCard title="III级 重度" value={extraSevCount('severe')} color="error" />
+            <StatCard title="发生率 ‰" value={extraStats?.incidenceRatePerThousand ?? 0} />
+            <StatCard title="待处置" value={extraStats?.openCount ?? 0} />
+            <StatCard title="已处置" value={extraStats?.resolvedCount ?? 0} />
+          </StatCardGrid>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', marginBottom: 'var(--space-3, 12px)', fontSize: 12 }}>
+            <span style={{ color: 'var(--text-muted, #8b949e)' }}>按对比剂类型 (本页上报记录):</span>
+            {extraByContrast.length === 0 && <Tag>暂无</Tag>}
+            {extraByContrast.map(([type, count]) => (
+              <Tag key={type} color="blue">{type}: {count} 例</Tag>
+            ))}
+          </div>
+          <DataTable
+            rowKey="id"
+            loading={extraLoading}
+            pagination={{ pageSize: 6, showSizeChanger: false }}
+            dataSource={extraEvents}
+            columns={[
+              { title: '事件ID', dataIndex: 'id', width: 130, render: (id: string) => <Tag>{id}</Tag> },
+              { title: '患者ID', dataIndex: 'patientId', width: 120 },
+              { title: '对比剂类型', width: 110, render: (_: unknown, r: ExtravasationEvent) => extraContrastTypes[r.id] ?? '—' },
+              { title: '外渗量(ml)', dataIndex: 'estimatedVolumeMl', width: 100 },
+              { title: '部位', dataIndex: 'site', width: 100 },
+              { title: '分级', dataIndex: 'severity', width: 110, render: (s: ExtravasationSeverity) => <Tag color={severityToAntd(s)}>{EXTRA_SEV_LABELS[s] ?? s}</Tag> },
+              { title: '处置措施', dataIndex: 'management', ellipsis: true },
+              { title: '状态', dataIndex: 'status', width: 90, render: (s: string) => <Tag color={toneToAntd(s)}>{s === 'resolved' ? '已处置' : '待处置'}</Tag> },
+              { title: '发生时间', dataIndex: 'occurredAt', width: 160, render: (v: string) => new Date(v).toLocaleString('zh-CN', { hour12: false }) },
+            ]}
+            scroll={{ x: 'max-content' }}
+          />
+        </Card>
+      </div>
+
+      <Modal title="上报对比剂外渗" open={extraModal} onCancel={() => setExtraModal(false)} onOk={() => void handleExtraSubmit()} confirmLoading={extraSubmitting} okText="提交上报" width={560}>
+        <Form form={extraForm} layout="vertical">
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="patientId" label="患者ID" rules={[{ required: true, message: '请输入患者ID' }]}>
+                <Input placeholder="如 P100001" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="examId" label="检查ID">
+                <Input placeholder="如 EX-0001 (选填)" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={12}>
+            <Col span={8}>
+              <Form.Item name="contrastType" label="对比剂类型" rules={[{ required: true, message: '请选择对比剂类型' }]}>
+                <Select options={EXTRA_CONTRAST_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="estimatedVolumeMl" label="外渗量 (ml)" rules={[{ required: true, message: '请输入外渗量' }]}>
+                <InputNumber min={0} max={500} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="site" label="外渗部位" rules={[{ required: true, message: '请选择部位' }]}>
+                <Select options={EXTRA_SITE_OPTIONS} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={12}>
+            <Col span={8}>
+              <Form.Item name="severity" label="外渗分级" rules={[{ required: true, message: '请选择分级' }]}>
+                <Select options={EXTRA_SEV_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={16}>
+              <Form.Item name="management" label="处置措施" rules={[{ required: true, message: '请输入处置措施' }]}>
+                <Input.TextArea rows={2} placeholder="如: 立即停止注射, 保留通路并抬高患肢, 冷敷观察" />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
 
       {showStats && stats && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStats(false)}>

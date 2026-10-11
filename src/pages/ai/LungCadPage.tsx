@@ -1,5 +1,8 @@
 import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
 import type { LungCadResult } from "../../services/api/lungCadApi";
+import { radsApi } from "../../services/api/radsApi";
+import type { RadsHistoryEntry, RadsScore } from "../../services/api/radsApi";
+import RadsScoring from "../../components/ai/RadsScoring";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -11,6 +14,9 @@ import {
   Spin,
   Alert,
   message,
+  Form,
+  InputNumber,
+  Select,
 } from "antd";
 import {
   Crosshair,
@@ -22,6 +28,8 @@ import {
   Eye,
   Check,
   X,
+  Sparkles,
+  History,
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
@@ -56,6 +64,14 @@ const LungCadPage: React.FC = () => {
   // [v3.0.6.11-95] W4-B P2: 受控分页 (检测结果表 / 结节明细表)
   const resultPagination = usePagination(results, 10);
   const nodulePagination = usePagination(selected?.nodules ?? [], 10);
+  // [W-D7] Lung-RADS 评分 (POST /ai/cad/rads/lung) + 历史 (GET /ai/cad/rads/history/:patientId)
+  const [radsOpen, setRadsOpen] = useState(false);
+  const [radsTarget, setRadsTarget] = useState<LungCadResult | null>(null);
+  const [radsLoading, setRadsLoading] = useState(false);
+  const [radsResult, setRadsResult] = useState<RadsScore | null>(null);
+  const [radsHistory, setRadsHistory] = useState<RadsHistoryEntry[]>([]);
+  const [radsStats, setRadsStats] = useState<{ total: number; byType: Record<string, number> } | null>(null);
+  const [radsForm] = Form.useForm();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -120,6 +136,63 @@ const LungCadPage: React.FC = () => {
     void load();
   }, [load]);
 
+  // [W-D7] RADS 评分统计 (GET /ai/cad/rads/stats)
+  useEffect(() => {
+    radsApi
+      .getStats()
+      .then((res) => {
+        if (res.success) setRadsStats(res.data);
+      })
+      .catch(() => {});
+  }, []);
+
+  // [W-D7] 打开 Lung-RADS 评分: 预填最大结节征象
+  const openRads = (r: LungCadResult) => {
+    setRadsTarget(r);
+    setRadsResult(null);
+    setRadsHistory([]);
+    const nodules = r.nodules ?? [];
+    const largest = nodules.reduce<(typeof nodules)[number] | null>(
+      (best, n) => (!best || n.diameter > best.diameter ? n : best),
+      null,
+    );
+    radsForm.setFieldsValue({
+      noduleSizeMm: largest ? Math.round(largest.diameter) : 8,
+      spiculatedMargin: false,
+      solidComponent: largest ? largest.density === "solid" : true,
+    });
+    setRadsOpen(true);
+  };
+
+  // [W-D7] POST /ai/cad/rads/lung → Lung-RADS 分级
+  const handleRadsScore = async () => {
+    const valid = await radsForm.validateFields().catch(() => null);
+    if (!valid) return;
+    setRadsLoading(true);
+    try {
+      const res = await radsApi.scoreLung(valid as Record<string, unknown>);
+      if (res.success && res.data) setRadsResult(res.data);
+      else message.error(res.error?.message ?? t("aiRads.historyFail"));
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("aiRads.historyFail"));
+    } finally {
+      setRadsLoading(false);
+    }
+  };
+
+  // [W-D7] GET /ai/cad/rads/history/:patientId → 评分历史
+  const handleRadsHistory = async () => {
+    if (!radsTarget) return;
+    setRadsLoading(true);
+    try {
+      const res = await radsApi.getHistory(radsTarget.patientName || radsTarget.studyId);
+      if (res.success) setRadsHistory(res.data ?? []);
+      else message.error(res.error?.message || t("aiRads.historyFail"));
+    } finally {
+      setRadsLoading(false);
+    }
+  };
+
   const columns = [
     { title: t("lungCad.colStudyId"), dataIndex: "studyId", key: "studyId" },
     { title: t("lungCad.colPatient"), dataIndex: "patientName", key: "patientName" },
@@ -168,6 +241,16 @@ const LungCadPage: React.FC = () => {
             onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
           >
             {t("lungCad.gotoViewer")}
+          </Button>
+          <Button
+            size="small"
+            type="primary"
+            ghost
+            icon={<Sparkles size={14} />}
+            data-testid={`lung-rads-open-${r.id}`}
+            onClick={() => openRads(r)}
+          >
+            {t("aiRads.startScoring")}
           </Button>
         </Space>
       ),
@@ -252,6 +335,14 @@ const LungCadPage: React.FC = () => {
           icon={<Crosshair size={18} />}
           color="primary"
         />
+        {/* [W-D7] RADS 评分统计 (GET /ai/cad/rads/stats) */}
+        <StatCard
+          title={t("aiRads.title")}
+          value={radsStats?.total ?? 0}
+          sub={`Lung-RADS: ${radsStats?.byType?.lung ?? 0}`}
+          icon={<Sparkles size={18} />}
+          color="info"
+        />
       </StatCardGrid>
       {error && (
         <Alert
@@ -323,6 +414,105 @@ const LungCadPage: React.FC = () => {
               <Text strong>{t("lungCad.recommendationLabel")} </Text>
               <Text>{selected.recommendation}</Text>
             </Card>
+          </>
+        )}
+      </Modal>
+      {/* [W-D7] Lung-RADS 评分 (POST /ai/cad/rads/lung + GET history/stats) */}
+      <Modal
+        title={
+          <Space>
+            <Sparkles size={14} />
+            <span>{t("aiRads.title")}</span>
+            <Tag color="blue">Lung-RADS</Tag>
+            {radsTarget && <Tag>{radsTarget.patientName}</Tag>}
+          </Space>
+        }
+        open={radsOpen}
+        onCancel={() => setRadsOpen(false)}
+        width={860}
+        footer={null}
+        data-testid="lung-rads-modal"
+      >
+        {radsTarget && (
+          <>
+            <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <Button
+                type="primary"
+                icon={<Sparkles size={14} />}
+                loading={radsLoading}
+                onClick={() => void handleRadsScore()}
+                data-testid="lung-rads-score"
+              >
+                {t("aiRads.startScoring")}
+              </Button>
+              <Button
+                icon={<History size={14} />}
+                loading={radsLoading}
+                onClick={() => void handleRadsHistory()}
+                data-testid="lung-rads-history"
+              >
+                {t("aiRads.loadHistory")}
+              </Button>
+            </Space>
+            <Form form={radsForm} layout="vertical">
+              <Space wrap>
+                <Form.Item name="noduleSizeMm" label={t("aiRads.f.noduleSize")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                  <InputNumber min={1} max={50} style={{ width: 140 }} />
+                </Form.Item>
+                <Form.Item name="spiculatedMargin" label={t("aiRads.f.spiculatedMargin")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                  <Select
+                    style={{ width: 120 }}
+                    options={[
+                      { value: true, label: t("aiRads.opt.yes") },
+                      { value: false, label: t("aiRads.opt.no") },
+                    ]}
+                  />
+                </Form.Item>
+                <Form.Item name="solidComponent" label={t("aiRads.f.solidComponent")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                  <Select
+                    style={{ width: 120 }}
+                    options={[
+                      { value: true, label: t("aiRads.opt.yes") },
+                      { value: false, label: t("aiRads.opt.no") },
+                    ]}
+                  />
+                </Form.Item>
+              </Space>
+            </Form>
+            <RadsScoring result={radsResult} history={radsHistory} loading={radsLoading} />
+            {radsHistory.length > 0 && (
+              <Card size="small" style={{ marginTop: 'var(--space-3, 12px)' }} title={t("historyTrend")}>
+                <DataTable<RadsHistoryEntry>
+                  rowKey={(r) => `${r.date}-${r.category}-${r.score}`}
+                  dataSource={radsHistory}
+                  pagination={{ pageSize: 5, showSizeChanger: false }}
+                  columns={[
+                    { title: t("common.table.date"), dataIndex: "date", key: "date", width: 110 },
+                    {
+                      title: t("common.table.type"),
+                      dataIndex: "category",
+                      key: "category",
+                      width: 150,
+                      render: (v: string) => <Tag>{v}</Tag>,
+                    },
+                    {
+                      title: t("aiRads.col.level"),
+                      dataIndex: "score",
+                      key: "score",
+                      width: 90,
+                      render: (v: string) => <Tag color="blue">{v}</Tag>,
+                    },
+                    {
+                      title: t("confidence"),
+                      dataIndex: "confidence",
+                      key: "confidence",
+                      width: 100,
+                      render: (v: number) => `${Math.round(v * 100)}%`,
+                    },
+                  ]}
+                />
+              </Card>
+            )}
           </>
         )}
       </Modal>

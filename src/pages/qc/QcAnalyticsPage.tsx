@@ -24,6 +24,7 @@ import {
   XCircle,
   Lock,
   Activity,
+  Stethoscope,
 } from 'lucide-react'
 import {
   Button,
@@ -60,6 +61,14 @@ import {
   type RectificationItem,
   type LoopStatus,
 } from '../../services/api/qcAnalyticsApi'
+// [G005 W-D4] 设备 QC 面板: 后端 /equipment-qc (items/schedule/records/stats/failures)
+import {
+  qualityScoringCenterApi as equipmentQcApi,
+  type EquipmentQcRecord,
+  type EquipmentQcScheduleRow,
+  type EquipmentQcStats,
+  type QcFrequency,
+} from '../../services/api/qualityScoringCenterApi'
 import { t } from '../../i18n/appI18n'
 import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 
@@ -78,6 +87,13 @@ const severityLabel = (s: string) => t(`qcAnalytics.severity.${s}`)
 const sourceLabel = (s: string) => t(`qcAnalytics.source.${s}`)
 
 const fmtDate = (s?: string) => (s ? s.slice(0, 10) : '-')
+
+// [G005 W-D4] 设备 QC 频次文案 (equipment-qc schedule/records)
+const EQ_FREQ_LABELS: Record<QcFrequency, string> = {
+  daily: t('w9Qc.equipment.daily'),
+  weekly: t('w9Qc.equipment.weekly'),
+  monthly: t('w9Qc.equipment.monthly'),
+}
 
 const TrendTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ name?: string; value?: number | string; color?: string }>; label?: string }) => {
   if (!active || !payload || payload.length === 0) return null
@@ -119,6 +135,13 @@ export default function QcAnalyticsPage() {
   const [closeForm] = Form.useForm()
   const [detail, setDetail] = useState<RectificationItem | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+
+  // [G005 W-D4] 设备 QC 面板 (/equipment-qc/schedule|records|stats|failures)
+  const [eqStats, setEqStats] = useState<EquipmentQcStats | null>(null)
+  const [eqSchedule, setEqSchedule] = useState<EquipmentQcScheduleRow[]>([])
+  const [eqRecords, setEqRecords] = useState<EquipmentQcRecord[]>([])
+  const [eqFailures, setEqFailures] = useState<EquipmentQcRecord[]>([])
+  const [eqLoading, setEqLoading] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -162,6 +185,24 @@ export default function QcAnalyticsPage() {
   }, [period])
 
   useEffect(() => { void load() }, [load])
+
+  // [G005 W-D4] 设备 QC 数据 (独立加载, 失败不阻断主面板)
+  const loadEquipment = useCallback(async () => {
+    setEqLoading(true)
+    const [s, sch, rec, fail] = await Promise.all([
+      equipmentQcApi.getEquipmentStats().catch(() => null),
+      equipmentQcApi.getEquipmentSchedule().catch(() => null),
+      equipmentQcApi.listEquipmentRecords().catch(() => null),
+      equipmentQcApi.listEquipmentFailures().catch(() => null),
+    ])
+    if (s?.success && s.data) setEqStats(s.data)
+    if (sch?.success && Array.isArray(sch.data)) setEqSchedule(sch.data)
+    if (rec?.success && Array.isArray(rec.data)) setEqRecords(rec.data)
+    if (fail?.success && Array.isArray(fail.data)) setEqFailures(fail.data)
+    setEqLoading(false)
+  }, [])
+
+  useEffect(() => { void loadEquipment() }, [loadEquipment])
 
   // ── 闭环操作 ────────────────────────────────────────────────
   const openCreate = (d: LoopDefect) => {
@@ -339,6 +380,38 @@ export default function QcAnalyticsPage() {
     { title: t('qcAnalytics.thAvgScore'), dataIndex: 'avgScore', key: 'avgScore', width: 80, align: 'right' as const, render: (v: number) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{v}</span> },
   ]
 
+  // [G005 W-D4] 设备 QC 表格列
+  const eqScheduleColumns: ColumnsType<EquipmentQcScheduleRow> = [
+    { title: t('w9Qc.equipment.modality'), dataIndex: 'modality', key: 'modality', width: 90 },
+    { title: t('w9Qc.equipment.frequency'), dataIndex: 'frequency', key: 'frequency', width: 100, render: (v: QcFrequency) => <Tag color="geekblue">{EQ_FREQ_LABELS[v] ?? v}</Tag> },
+    { title: t('w9Qc.equipment.tabItems'), dataIndex: 'itemCount', key: 'itemCount', width: 100 },
+    { title: t('w9Qc.equipment.device'), dataIndex: 'deviceCount', key: 'deviceCount', width: 100 },
+    { title: t('w9Qc.equipment.item'), key: 'items', render: (_, r) => (
+      <Space size={4} wrap>{r.items.map((it) => <Tag key={it.id} color="default">{it.name}</Tag>)}</Space>
+    ) },
+  ]
+
+  const eqRecordColumns: ColumnsType<EquipmentQcRecord> = [
+    { title: t('w9Qc.equipment.device'), dataIndex: 'deviceName', key: 'deviceName', width: 140, ellipsis: true },
+    { title: t('w9Qc.equipment.item'), dataIndex: 'testItemName', key: 'testItemName', ellipsis: true },
+    { title: t('w9Qc.equipment.modality'), dataIndex: 'modality', key: 'modality', width: 80 },
+    { title: t('w9Qc.equipment.frequency'), dataIndex: 'frequency', key: 'frequency', width: 90, render: (v: QcFrequency) => EQ_FREQ_LABELS[v] ?? v },
+    { title: t('w9Qc.equipment.value'), key: 'value', width: 100, render: (_, r) => `${r.value}${r.unit}` },
+    { title: t('w9Qc.equipment.result'), dataIndex: 'passed', key: 'passed', width: 100, render: (v: boolean) => <Tag color={v ? toneToAntd('passed') : toneToAntd('failed')}>{v ? t('w9Qc.equipment.pass') : t('w9Qc.equipment.fail')}</Tag> },
+    { title: t('w9Qc.equipment.testedAt'), dataIndex: 'testedAt', key: 'testedAt', width: 110, render: (v: string) => fmtDate(v) },
+    { title: t('w9Qc.equipment.tester'), dataIndex: 'testerName', key: 'testerName', width: 100 },
+  ]
+
+  const eqFailureColumns: ColumnsType<EquipmentQcRecord> = [
+    { title: t('w9Qc.equipment.device'), dataIndex: 'deviceName', key: 'deviceName', width: 140, ellipsis: true },
+    { title: t('w9Qc.equipment.item'), dataIndex: 'testItemName', key: 'testItemName', ellipsis: true },
+    { title: t('w9Qc.equipment.modality'), dataIndex: 'modality', key: 'modality', width: 80 },
+    { title: t('w9Qc.equipment.value'), key: 'value', width: 110, render: (_, r) => <span style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{r.value}{r.unit}</span> },
+    { title: t('w9Qc.equipment.testedAt'), dataIndex: 'testedAt', key: 'testedAt', width: 110, render: (v: string) => fmtDate(v) },
+    { title: t('w9Qc.equipment.tester'), dataIndex: 'testerName', key: 'testerName', width: 100 },
+    { title: '备注', dataIndex: 'note', key: 'note', ellipsis: true, render: (v?: string) => v ?? '-' },
+  ]
+
   // ── 图表数据 ────────────────────────────────────────────────
   const trendData = useMemo(() => (Array.isArray(trends?.points) ? trends!.points : []), [trends])
   const paretoData = useMemo(() => (Array.isArray(pareto) ? pareto : []).map((p) => ({ ...p })), [pareto])
@@ -490,6 +563,98 @@ export default function QcAnalyticsPage() {
                     pagination={{ pageSize: 6, showTotal: (total: number) => t('qcAnalytics.totalItems', { count: total }) }}
                     scroll={{ x: 1080 }}
                     locale={{ emptyText: <Empty description={t('qcAnalytics.emptyItems')} image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                  />
+                ),
+              },
+            ]}
+          />
+        </div>
+
+        {/* [G005 W-D4] 设备 QC 面板 (/equipment-qc: schedule / records / stats / failures) */}
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
+            <Space size={8}>
+              <Stethoscope size={16} color="var(--color-primary-500)" />
+              <b>设备 QC</b>
+              <span style={{ color: 'var(--text-muted)' }}>排程 · 检测记录 · 统计 · 不合格清单</span>
+            </Space>
+            <Button size="small" icon={<RefreshCw size={12} />} loading={eqLoading} onClick={() => void loadEquipment()}>{t('qcAnalytics.refresh')}</Button>
+          </div>
+
+          <StatCardGrid gap={12}>
+            <StatCard
+              title={t('w9Qc.equipment.total')}
+              value={eqStats?.total ?? 0}
+              icon={<Activity size={20} />}
+              color="var(--color-primary-500)"
+              sub={t('w9Qc.equipment.tabRecords')}
+            />
+            <StatCard
+              title={t('w9Qc.equipment.passCount')}
+              value={eqStats?.passed ?? 0}
+              icon={<CheckCircle2 size={20} />}
+              color="var(--color-success-600)"
+              sub={`${eqStats?.passRate ?? 0}%`}
+            />
+            <StatCard
+              title={t('w9Qc.equipment.failCount')}
+              value={eqStats?.failed ?? 0}
+              icon={<XCircle size={20} />}
+              color="var(--color-error-600)"
+              sub={`${eqStats?.recentFailureCount ?? 0}`}
+            />
+            <StatCard
+              title={t('w9Qc.equipment.passRate')}
+              value={eqStats?.passRate ?? 0}
+              suffix="%"
+              icon={<ShieldCheck size={20} />}
+              color="var(--color-warning-500)"
+              sub={`${eqSchedule.length} 组排程`}
+            />
+          </StatCardGrid>
+
+          <Tabs
+            items={[
+              {
+                key: 'eqSchedule',
+                label: `排程 (${eqSchedule.length})`,
+                children: (
+                  <DataTable<EquipmentQcScheduleRow>
+                    rowKey={(r) => `${r.modality}-${r.frequency}`}
+                    loading={eqLoading}
+                    columns={eqScheduleColumns}
+                    dataSource={eqSchedule}
+                    pagination={false}
+                    scroll={{ x: 720 }}
+                    showExport={false}
+                  />
+                ),
+              },
+              {
+                key: 'eqRecords',
+                label: `${t('w9Qc.equipment.tabRecords')} (${eqRecords.length})`,
+                children: (
+                  <DataTable<EquipmentQcRecord>
+                    rowKey="id"
+                    loading={eqLoading}
+                    columns={eqRecordColumns}
+                    dataSource={eqRecords}
+                    pagination={{ pageSize: 8, showSizeChanger: false }}
+                    scroll={{ x: 960 }}
+                  />
+                ),
+              },
+              {
+                key: 'eqFailures',
+                label: `${t('w9Qc.equipment.failCount')} (${eqFailures.length})`,
+                children: (
+                  <DataTable<EquipmentQcRecord>
+                    rowKey="id"
+                    loading={eqLoading}
+                    columns={eqFailureColumns}
+                    dataSource={eqFailures}
+                    pagination={{ pageSize: 8, showSizeChanger: false }}
+                    scroll={{ x: 900 }}
                   />
                 ),
               },

@@ -177,6 +177,13 @@ const ReportTimelinessPage = lazy(
   () => import("../pages/ReportTimelinessPage"),
 );
 const ReportSearchPage = lazy(() => import("../pages/ReportSearchPage"));
+// [G005 W-D2] 报告语义检索 V2 + 报告对比 V2 (真实后端 /report-search-v2 + /report-compare-v2)
+const ReportSearchV2Page = lazy(
+  () => import("../pages/report-search-v2/ReportSearchV2Page"),
+);
+const ReportCompareV2Page = lazy(
+  () => import("../pages/report-compare-v2/ReportCompareV2Page"),
+);
 const ChargeItemPage = lazy(() => import("../pages/rcm/ChargeItemPage"));
 const AccountsReceivablePage = lazy(
   () => import("../pages/rcm/AccountsReceivablePage"),
@@ -755,6 +762,8 @@ const RadiomicsFeaturePage = lazy(
 );
 const IheManagerPage = lazy(() => import("../pages/ihe/IheManagerPage"));
 const Hl7ManagerPage = lazy(() => import("../pages/hl7/Hl7ManagerPage"));
+// [W-D3] HL7 消息控制台 (消息发送 + MLLP + 白名单 + 日志)
+const Hl7ConsolePage = lazy(() => import("../pages/hl7/Hl7ConsolePage"));
 
 // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
@@ -995,6 +1004,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/radiomics/features": ["医生", "主任", "管理员"],
   "/ihe/manager": ["主任", "管理员", "技师"],
   "/hl7/manager": ["技师", "管理员"],
+  // [W-D3] HL7 消息控制台
+  "/hl7/console": ["技师", "管理员"],
   // [workflow-gap] 7项缺失功能补齐路由角色映射
   "/smart-mwl": ["医生", "技师", "主任", "管理员"],
   "/ai-triage": ["医生", "主任", "管理员"],
@@ -1203,6 +1214,10 @@ export const routes: RouteObject[] = [
   wrapped("/diagnosis-accuracy", React.createElement(DiagnosisAccuracyPage)),
   wrapped("/report-timeliness", React.createElement(ReportTimelinessPage)),
   wrapped("/report-search", React.createElement(ReportSearchPage)),
+  // [G005 W-D2] 报告语义检索 V2 (结构化 + 自然语言)
+  wrapped("/report-search-v2", React.createElement(ReportSearchV2Page)),
+  // [G005 W-D2] 报告对比 V2 (逐段 diff + 关键字段 + 相似度)
+  wrapped("/report-compare-v2", React.createElement(ReportCompareV2Page)),
   wrapped("/charge-items", React.createElement(ChargeItemPage)),
   wrapped("/accounts-receivable", React.createElement(AccountsReceivablePage)),
   wrapped("/revenue-analysis", React.createElement(RevenueAnalysisPage)),
@@ -1667,6 +1682,8 @@ export const routes: RouteObject[] = [
   wrapped("/radiomics/features", React.createElement(RadiomicsFeaturePage)),
   wrapped("/ihe/manager", React.createElement(IheManagerPage)),
   wrapped("/hl7/manager", React.createElement(Hl7ManagerPage)),
+  // [W-D3] HL7 消息控制台 (真实后端: /hl7/oru|orm|dft + mllp + whitelist + archive + overview)
+  wrapped("/hl7/console", React.createElement(Hl7ConsolePage)),
   // [v3.0.6.11-41] A11 AI 集成补齐路由
   // [W4-AI] AI 模型注册表 / 工作流中心
   wrapped("/ai/models", React.createElement(AiModelRegistryPage)),

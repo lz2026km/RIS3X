@@ -22,6 +22,7 @@ import {
   Database,
   HardDrive,
   Search,
+  Plus,
 } from 'lucide-react'
 import {
   Button,
@@ -49,7 +50,10 @@ import { StateView } from '../../components/common/StateView'
 import {
   qualityScoringCenterApi as api,
   type QualityRubric,
+  type RubricDimension,
   type RubricEvaluationResult,
+  type RubricStats,
+  type GradeBand,
   type ComputedSnapshot,
   type ComputedIndicator,
   type PdcaAction,
@@ -124,6 +128,7 @@ export default function QualityScoringCenterPage() {
         onChange={setTab}
         items={[
           { key: 'rubric', label: <span><SlidersHorizontal size={14} /> {t('w9Qc.tab.rubric')}</span>, children: <RubricTab onSource={setSource} /> },
+          { key: 'rubricEngine', label: <span><Gauge size={14} /> 质控量表引擎</span>, children: <RubricEngineTab /> },
           { key: 'indicators', label: <span><ListChecks size={14} /> {t('w9Qc.tab.indicators')}</span>, children: <IndicatorsTab onSource={setSource} /> },
           { key: 'pdca', label: <span><GitBranch size={14} /> {t('w9Qc.tab.pdca')}</span>, children: <PdcaTab /> },
           { key: 'sampling', label: <span><EyeOff size={14} /> {t('w9Qc.tab.sampling')}</span>, children: <SamplingTab /> },
@@ -310,6 +315,245 @@ function EvaluationResultView({ result }: { result: RubricEvaluationResult }) {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ================= Tab 1B: 质控量表引擎 (量表清单 / 新建 / 评分 / 等级带) =================
+// 后端 quality-rubric (controller path = quality/rubric):
+//   GET  /quality/rubric            当前量表 (单量表模型 → 清单行)
+//   PUT  /quality/rubric            新建/更新量表 (version+1)
+//   GET  /quality/rubric/stats      量表统计
+//   GET  /quality/rubric/grade-bands 等级带
+//   POST /quality/rubric/evaluate   报告评分
+
+interface RubricListRow {
+  key: string
+  id: string
+  name: string
+  version: number
+  dimensionCount: number
+}
+
+function RubricEngineTab() {
+  const [rubric, setRubric] = useState<QualityRubric | null>(null)
+  const [stats, setStats] = useState<RubricStats | null>(null)
+  const [bands, setBands] = useState<GradeBand[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [rubricId, setRubricId] = useState('')
+  const [reportId, setReportId] = useState('RPT-ENGINE-DEMO')
+  const [result, setResult] = useState<RubricEvaluationResult | null>(null)
+  const [evaluating, setEvaluating] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [form] = Form.useForm()
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    const [r, s, b] = await Promise.all([
+      api.getRubric().catch(() => null),
+      api.getRubricStats().catch(() => null),
+      api.getGradeBands().catch(() => null),
+    ])
+    if (r?.success && r.data) {
+      const data = r.data
+      setRubric(data)
+      setRubricId(data.id)
+    } else {
+      setRubric(null)
+      setError(t('w9Qc.rubric.loadFailed'))
+    }
+    if (s?.success && s.data) setStats(s.data)
+    if (b?.success && Array.isArray(b.data)) setBands(b.data)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { void load() }, [load])
+
+  const rows: RubricListRow[] = rubric
+    ? [{ key: rubric.id, id: rubric.id, name: rubric.name, version: rubric.version, dimensionCount: rubric.dimensions.length }]
+    : []
+
+  const rubricColumns: ColumnsType<RubricListRow> = [
+    { title: 'ID', dataIndex: 'id', key: 'id', width: 150, render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('w9Qc.rubric.name'), dataIndex: 'name', key: 'name' },
+    { title: t('w9Qc.rubric.version'), dataIndex: 'version', key: 'version', width: 90, render: (v: number) => `v${v}` },
+    { title: t('w9Qc.rubric.dimension'), dataIndex: 'dimensionCount', key: 'dimensionCount', width: 90 },
+    { title: t('w9Qc.rubric.passThreshold'), key: 'pass', width: 100, render: () => `${rubric?.passThreshold ?? '-'}${t('w9Qc.unit.score')}` },
+    { title: t('w9Qc.indicators.status'), key: 'status', width: 100, render: () => <Tag color={toneToAntd('done')}>启用中</Tag> },
+    { title: '标准', key: 'standard', render: () => rubric?.standard ?? '-' },
+  ]
+
+  const bandColumns: ColumnsType<GradeBand> = [
+    { title: '等级', dataIndex: 'grade', key: 'grade', width: 90, render: (v: string) => <Tag color={GRADE_COLORS[v] ?? 'default'}>{v}</Tag> },
+    { title: '分数区间', key: 'range', width: 120, render: (_, r) => `${r.min} - ${r.max}` },
+    { title: '等级名称', dataIndex: 'label', key: 'label' },
+    { title: t('w9Qc.rubric.publishable'), dataIndex: 'publishable', key: 'publishable', width: 100, render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? t('w9Qc.yes') : t('w9Qc.no')}</Tag> },
+    { title: t('w9Qc.rubric.bonus'), dataIndex: 'bonusEligible', key: 'bonusEligible', width: 100, render: (v: boolean) => <Tag color={v ? 'gold' : 'default'}>{v ? t('w9Qc.yes') : t('w9Qc.no')}</Tag> },
+  ]
+
+  const runEvaluate = async () => {
+    const rid = reportId.trim() || 'RPT-ENGINE-DEMO'
+    setEvaluating(true)
+    const res = await api.evaluate({ reportId: rid }).catch(() => null)
+    if (res?.success && res.data) setResult(res.data)
+    else message.error(t('w9Qc.rubric.evaluateFailed'))
+    setEvaluating(false)
+  }
+
+  const handleCreate = async () => {
+    const values = await form.validateFields().catch(() => null)
+    if (!values) return
+    const dims = (values.dimensions ?? []) as Array<{ name: string; weight: number }>
+    if (dims.length === 0) {
+      message.warning('至少配置 1 个维度')
+      return
+    }
+    setCreating(true)
+    try {
+      // 后端为单量表模型: 新建即写入当前量表 (version+1), 每维度补默认子项/规则保证可评分
+      const dimensions: RubricDimension[] = dims.map((d, i) => ({
+        key: `dim-${i + 1}`,
+        name: String(d.name ?? '').trim() || `维度 ${i + 1}`,
+        weight: Number(d.weight) || 0,
+        subItems: [{
+          key: `dim-${i + 1}-sub`,
+          name: '基础检查项',
+          weight: 1,
+          rules: [{
+            key: `dim-${i + 1}-rule`,
+            name: '检查所见非空',
+            weight: 1,
+            kind: 'presence',
+            field: 'findings',
+            pattern: '.+',
+            explanation: '检查所见需非空',
+          }],
+        }],
+      }))
+      const res = await api.updateRubric({ name: String(values.name ?? '').trim(), dimensions }).catch(() => null)
+      if (res?.success && res.data) {
+        setRubric(res.data)
+        message.success(t('w9Qc.rubric.saved'))
+        setCreateOpen(false)
+        form.resetFields()
+        void load()
+      } else {
+        message.error(t('w9Qc.rubric.saveFailed'))
+      }
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  if (loading || error) {
+    return <StateView loading={loading} error={error} onRetry={load} minHeight={280} />
+  }
+
+  return (
+    <div style={{ display: 'grid', gap: 'var(--space-4, 16px)' }}>
+      <StatCardGrid columns={5}>
+        <StatCard title={t('w9Qc.rubric.dimension')} value={stats?.dimensionCount ?? rubric?.dimensions.length ?? 0} icon={<SlidersHorizontal size={18} />} color="primary" />
+        <StatCard title={t('w9Qc.rubric.subItemCount')} value={stats?.subItemCount ?? 0} icon={<ListChecks size={18} />} color="info" />
+        <StatCard title={t('w9Qc.rubric.ruleCount')} value={stats?.ruleCount ?? 0} icon={<GitBranch size={18} />} color="success" />
+        <StatCard title="评估次数" value={stats?.evaluations ?? 0} icon={<Play size={18} />} color="warning" />
+        <StatCard title="等级带" value={bands.length} icon={<Gauge size={18} />} color="error" />
+      </StatCardGrid>
+
+      {/* 量表清单 */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
+          <b>质控量表清单</b>
+          <Tag color="geekblue">{stats?.standard ?? rubric?.standard ?? '-'}</Tag>
+          <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>新建量表</Button>
+          <Button size="small" icon={<RefreshCw size={14} />} onClick={load}>{t('w9Qc.refresh')}</Button>
+        </Space>
+        <DataTable<RubricListRow> rowKey="key" columns={rubricColumns} dataSource={rows} pagination={false} showDensity={false} showExport={false} />
+      </div>
+
+      {/* 等级带 */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
+          <b>等级带 (Grade Bands)</b>
+          <span style={{ color: 'var(--text-muted)' }}>{t('w9Qc.rubric.passThreshold')}: {rubric?.passThreshold ?? '-'} · {t('w9Qc.rubric.bonusThreshold')}: {rubric?.bonusThreshold ?? '-'}</span>
+        </Space>
+        <DataTable<GradeBand> rowKey="grade" columns={bandColumns} dataSource={bands} pagination={false} showDensity={false} showExport={false} />
+      </div>
+
+      {/* 报告评分 */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 'var(--space-4, 16px)', display: 'grid', gap: 'var(--space-3, 12px)' }}>
+        <Space wrap>
+          <b>{t('w9Qc.rubric.evaluate')}</b>
+          <Select
+            value={rubricId}
+            onChange={setRubricId}
+            style={{ width: 280 }}
+            options={rubric ? [{ value: rubric.id, label: `${rubric.name} · v${rubric.version}` }] : []}
+            placeholder={t('w9Qc.rubric.name')}
+          />
+          <Input
+            value={reportId}
+            onChange={(e) => setReportId(e.target.value)}
+            placeholder={t('w9Qc.rubric.reportId')}
+            style={{ width: 220 }}
+            allowClear
+          />
+          <Button type="primary" icon={<Play size={14} />} loading={evaluating} onClick={runEvaluate}>{t('w9Qc.rubric.runEvaluate')}</Button>
+        </Space>
+        {result && <EvaluationResultView result={result} />}
+      </div>
+
+      {/* 新建量表 */}
+      <Modal
+        title="新建量表"
+        open={createOpen}
+        onOk={() => void handleCreate()}
+        onCancel={() => setCreateOpen(false)}
+        confirmLoading={creating}
+        okText={t('w9Qc.save')}
+        width={640}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label={t('w9Qc.rubric.name')} rules={[{ required: true, message: '请输入量表名称' }]}>
+            <Input placeholder="科室报告质量量表" maxLength={40} />
+          </Form.Item>
+          <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ marginBottom: 'var(--space-2, 8px)' }}><b>{`${t('w9Qc.rubric.dimension')} / ${t('w9Qc.rubric.weight')}`}</b> *</div>
+            <Form.List
+              name="dimensions"
+              rules={[{
+                validator: async (_, value: Array<{ name: string; weight: number }> | undefined) => {
+                  if (!value || value.length === 0) return Promise.reject(new Error('至少配置 1 个维度'))
+                  const total = value.reduce((a, d) => a + (Number(d?.weight) || 0), 0)
+                  if (total <= 0) return Promise.reject(new Error('权重之和必须 > 0'))
+                  return Promise.resolve()
+                },
+              }]}
+            >
+              {(fields, { add, remove }, { errors }) => (
+                <div style={{ display: 'grid', gap: 'var(--space-2, 8px)' }}>
+                  {fields.map((field) => (
+                    <div key={field.key} style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'flex-start' }}>
+                      <Form.Item name={[field.name, 'name']} style={{ flex: 1, marginBottom: 0 }} rules={[{ required: true, message: '维度名称必填' }]}>
+                        <Input placeholder="维度名称 (如: 结构完整性)" maxLength={20} />
+                      </Form.Item>
+                      <Form.Item name={[field.name, 'weight']} style={{ width: 140, marginBottom: 0 }} rules={[{ required: true, message: '权重必填' }]}>
+                        <InputNumber min={0.01} max={1} step={0.05} placeholder="权重 0-1" style={{ width: '100%' }} />
+                      </Form.Item>
+                      <Button type="text" danger icon={<XCircle size={14} />} onClick={() => remove(field.name)} aria-label="删除维度" />
+                    </div>
+                  ))}
+                  <Form.ErrorList errors={errors} />
+                  <Button type="dashed" block icon={<Plus size={14} />} onClick={() => add({ name: '', weight: 0.1 })}>添加维度</Button>
+                </div>
+              )}
+            </Form.List>
+          </div>
+          <div style={{ color: 'var(--text-muted)' }}>保存后写入当前量表并升版本 (v{(rubric?.version ?? 0) + 1})，维度默认附带 1 条可评分规则。</div>
+        </Form>
+      </Modal>
     </div>
   )
 }

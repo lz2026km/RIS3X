@@ -15,6 +15,15 @@ import { t } from '../i18n/appI18n'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { datareportApi } from '../services/api/datareportApi'
 import { olapApi, analyticsStatsApi } from '../services/api/analyticsApi'
+// [W-D8] OLAP 探索器: cubes / drill-down / chart / export-csv / metadata (olap.controller)
+import {
+  olapApi as olapExplorerApi,
+  type OlapCubeDto,
+  type OlapQueryResult,
+  type OlapChartDataDto,
+} from '../services/api/olapApi'
+import { StatCard, DataTable } from '../components/common'
+import { toneToAntd } from '../theme/statusTokens'
 import { statsApi } from '../services/api/statsApi'
 import { biApi } from '../services/api/biApi'
 import { notificationsApi } from '../services/api/notificationsApi'
@@ -66,6 +75,7 @@ import {
 } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState, useMemo, useCallback, useEffect } from 'react'
+import type { TableColumnsType } from 'antd'
 
 const { Header, Sider, Content } = Layout
 const { Title, Text } = Typography
@@ -1197,6 +1207,389 @@ function CustomReportCenterRoot() {
   )
 }
 
+// [W-D8] OLAP 探索器: cube 选择 + 下钻导航 (层级路径) + 图表预览 + CSV 导出
+type OlapPathStep = { dimension: string; value: string }
+
+function OlapExplorer() {
+  const [cubes, setCubes] = useState<OlapCubeDto[]>([])
+  const [cubeId, setCubeId] = useState('')
+  const [meta, setMeta] = useState<Record<string, unknown> | null>(null)
+  const [measures, setMeasures] = useState<string[]>([])
+  const [dimensions, setDimensions] = useState<string[]>([])
+  const [drillDim, setDrillDim] = useState('')
+  const [drillValue, setDrillValue] = useState('')
+  const [path, setPath] = useState<OlapPathStep[]>([])
+  const [result, setResult] = useState<OlapQueryResult | null>(null)
+  const [chart, setChart] = useState<OlapChartDataDto | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [charting, setCharting] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const runQuery = useCallback(
+    async (nextPath: OlapPathStep[], dims: string[], mes: string[], cid: string) => {
+      setLoading(true)
+      setLoadError(null)
+      try {
+        const filters = nextPath.map((p) => ({ dimension: p.dimension, operator: 'eq', value: p.value }))
+        const res = await olapExplorerApi.query({
+          cube: cid,
+          dimensions: dims.length > 0 ? dims : ['date'],
+          measures: mes.length > 0 ? mes : ['exam_count'],
+          filters,
+        })
+        if (res.success && res.data) {
+          setResult(res.data)
+          setPath(nextPath)
+          setChart(null)
+        } else {
+          setLoadError(res.error?.message ?? 'OLAP 查询失败')
+        }
+      } catch (e) {
+        setLoadError((e as Error)?.message ?? 'OLAP 查询失败')
+      } finally {
+        setLoading(false)
+      }
+    },
+    [],
+  )
+
+  const applyCube = useCallback((next: OlapCubeDto) => {
+    setCubeId(next.id)
+    const dims = next.dimensions.slice(0, 2)
+    const mes = next.measures.slice(0, 2)
+    setDimensions(dims)
+    setMeasures(mes)
+    setDrillDim(dims[0] ?? '')
+    setDrillValue('')
+    setPath([])
+    setResult(null)
+    setChart(null)
+    setLoadError(null)
+  }, [])
+
+  useEffect(() => {
+    let alive = true
+    const boot = async () => {
+      try {
+        const [cubeRes, metaRes] = await Promise.all([
+          olapExplorerApi.listCubes(),
+          olapExplorerApi.getMetadata(),
+        ])
+        if (!alive) return
+        if (cubeRes.success && Array.isArray(cubeRes.data)) {
+          setCubes(cubeRes.data)
+          const first = cubeRes.data[0]
+          if (first) applyCube(first)
+        }
+        if (metaRes.success && metaRes.data) setMeta(metaRes.data as unknown as Record<string, unknown>)
+      } catch {
+        /* 回退: 保持立方体空态 */
+      }
+    }
+    void boot()
+    return () => { alive = false }
+  }, [applyCube])
+
+  const dimTotal = useMemo(() => new Set(cubes.flatMap((c) => c.dimensions)).size, [cubes])
+  const measureTotal = useMemo(() => new Set(cubes.flatMap((c) => c.measures)).size, [cubes])
+  const cube = useMemo(() => cubes.find((c) => c.id === cubeId) ?? null, [cubes, cubeId])
+  const metaMetrics = meta && Array.isArray(meta.metrics) ? (meta.metrics as unknown[]).length : null
+  const metaDims = meta && Array.isArray(meta.dimensions) ? (meta.dimensions as unknown[]).length : null
+
+  const resultColumns: TableColumnsType<Record<string, unknown>> = useMemo(() => {
+    if (!result) return []
+    return result.columns.map((c) => ({
+      key: c.code,
+      dataIndex: c.code,
+      title: c.name || c.code,
+      render: (v: unknown) => (typeof v === 'number' ? v.toLocaleString('zh-CN') : String(v ?? '-')),
+    }))
+  }, [result])
+
+  const drillValueOptions = useMemo(() => {
+    if (!result || !drillDim) return [] as Array<{ value: string; label: string }>
+    const seen = new Set<string>()
+    for (const row of result.rows) {
+      const v = row[drillDim]
+      if (v !== undefined && v !== null) seen.add(String(v))
+      if (seen.size >= 200) break
+    }
+    return Array.from(seen).map((v) => ({ value: v, label: v }))
+  }, [result, drillDim])
+
+  const chartRows = useMemo(() => {
+    if (!chart) return [] as Record<string, unknown>[]
+    return chart.labels.map((label, i) => {
+      const row: Record<string, unknown> = { name: label }
+      for (const ds of chart.datasets) row[ds.label] = ds.values[i] ?? 0
+      return row
+    })
+  }, [chart])
+
+  const chartYKeys = useMemo(() => (chart ? chart.datasets.map((d) => d.label) : []), [chart])
+
+  const buildQuery = useCallback(
+    () => ({
+      cube: cubeId,
+      dimensions: dimensions.length > 0 ? dimensions : ['date'],
+      measures: measures.length > 0 ? measures : ['exam_count'],
+      filters: path.map((p) => ({ dimension: p.dimension, operator: 'eq', value: p.value })),
+    }),
+    [cubeId, dimensions, measures, path],
+  )
+
+  const handleDrill = async () => {
+    if (!cubeId || !drillDim || !drillValue) {
+      message.warning('请选择下钻维度与取值')
+      return
+    }
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const res = await olapExplorerApi.drillDown({
+        cube: cubeId,
+        dimension: drillDim,
+        value: drillValue,
+        measures,
+      })
+      if (res.success && res.data) {
+        setResult(res.data)
+        setPath((prev) => [...prev, { dimension: drillDim, value: drillValue }])
+        setDrillValue('')
+        setChart(null)
+      } else {
+        setLoadError(res.error?.message ?? '下钻失败')
+      }
+    } catch (e) {
+      setLoadError((e as Error)?.message ?? '下钻失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChart = async () => {
+    if (!cubeId) return
+    setCharting(true)
+    try {
+      const res = await olapExplorerApi.getChartData(buildQuery())
+      if (res.success && res.data) setChart(res.data)
+      else message.error(res.error?.message ?? '图表生成失败')
+    } catch (e) {
+      message.error((e as Error)?.message ?? '图表生成失败')
+    } finally {
+      setCharting(false)
+    }
+  }
+
+  const handleExportCsv = async () => {
+    if (!cubeId) return
+    setExporting(true)
+    try {
+      const res = await olapExplorerApi.exportCsv(buildQuery())
+      if (res.success && res.data) {
+        const url = URL.createObjectURL(res.data)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `olap-${cubeId}-${dayjs().format('YYYYMMDD-HHmmss')}.csv`
+        a.click()
+        URL.revokeObjectURL(url)
+        message.success('OLAP 结果已导出 CSV')
+      } else {
+        message.error(res.error?.message ?? '导出失败')
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? '导出失败')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const popPath = (keep: number) => {
+    const next = path.slice(0, keep)
+    void runQuery(next, dimensions, measures, cubeId)
+  }
+
+  const builderLabel = (text: string) => (
+    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{text}</span>
+  )
+
+  return (
+    <div data-testid="olap-explorer" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
+        <Space size={8} align="center">
+          <Database size={18} />
+          <Title level={5} style={{ margin: 0, fontSize: 16 }}>OLAP 探索器</Title>
+          <Tag color={toneToAntd(result && result.rows.length > 0 ? 'success' : 'neutral')}>
+            {result ? `${result.rows.length} 行` : '未执行查询'}
+          </Tag>
+          {path.length > 0 && <Tag color="blue">层级深度 {path.length}</Tag>}
+        </Space>
+        <Space size={8} wrap>
+          <Button size="small" icon={<Play size={14} />} loading={loading} onClick={() => void runQuery(path, dimensions, measures, cubeId)}>
+            执行查询
+          </Button>
+          <Button size="small" icon={<TrendingUp size={14} />} loading={charting} onClick={() => void handleChart()}>
+            生成图表
+          </Button>
+          <Button size="small" icon={<Download size={14} />} loading={exporting} onClick={() => void handleExportCsv()}>
+            导出 CSV
+          </Button>
+        </Space>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 'var(--space-3, 12px)' }}>
+        <StatCard title="数据立方体" value={cubes.length} icon={<Database size={18} />} />
+        <StatCard title="元数据度量" value={metaMetrics ?? measureTotal} icon={<SlidersHorizontal size={18} />} />
+        <StatCard title="元数据维度" value={metaDims ?? dimTotal} icon={<Table2 size={18} />} />
+        <StatCard
+          title="结果行数"
+          value={result?.rows.length ?? 0}
+          icon={<BarChart3 size={18} />}
+          color={(result?.rows.length ?? 0) > 0 ? 'success' : 'info'}
+        />
+      </div>
+
+      {loadError && <Alert type="error" showIcon message={loadError} />}
+
+      <Card size="small" title={<Space size={6}><SlidersHorizontal size={14} /><span style={{ fontSize: 12, fontWeight: 600 }}>查询构建器</span></Space>} style={{ borderRadius: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', minWidth: 220 }}>
+              {builderLabel('数据立方体')}
+              <Select
+                size="small"
+                showSearch
+                optionFilterProp="label"
+                value={cubeId || undefined}
+                placeholder="选择 Cube"
+                onChange={(v) => {
+                  const next = cubes.find((c) => c.id === v)
+                  if (next) applyCube(next)
+                }}
+                options={cubes.map((c) => ({ value: c.id, label: `${c.name} (${c.id})` }))}
+                style={{ width: 240 }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', minWidth: 220 }}>
+              {builderLabel('度量 (可多选)')}
+              <Select
+                size="small"
+                mode="multiple"
+                value={measures}
+                onChange={(v) => setMeasures(v)}
+                options={(cube?.measures ?? []).map((m) => ({ value: m, label: m }))}
+                placeholder="选择度量"
+                style={{ minWidth: 240 }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', minWidth: 220 }}>
+              {builderLabel('维度 (可多选)')}
+              <Select
+                size="small"
+                mode="multiple"
+                value={dimensions}
+                onChange={(v) => setDimensions(v)}
+                options={(cube?.dimensions ?? []).map((d) => ({ value: d, label: d }))}
+                placeholder="选择维度"
+                style={{ minWidth: 240 }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', minWidth: 180 }}>
+              {builderLabel('下钻维度')}
+              <Select
+                size="small"
+                value={drillDim || undefined}
+                onChange={(v) => { setDrillDim(v); setDrillValue('') }}
+                options={(cube?.dimensions ?? dimensions).map((d) => ({ value: d, label: d }))}
+                placeholder="维度"
+                style={{ width: 180 }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', minWidth: 200 }}>
+              {builderLabel('下钻取值')}
+              <Select
+                size="small"
+                showSearch
+                allowClear
+                value={drillValue || undefined}
+                onChange={(v) => setDrillValue(v ?? '')}
+                options={drillValueOptions}
+                placeholder={result ? '从结果中选择' : '先执行查询'}
+                style={{ width: 220 }}
+              />
+            </div>
+            <Button size="small" type="primary" icon={<TrendingUp size={14} />} loading={loading} onClick={() => void handleDrill()}>
+              下钻
+            </Button>
+          </div>
+
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>层级路径:</span>
+            <Tag style={{ cursor: 'pointer' }} color={path.length === 0 ? 'blue' : 'default'} onClick={() => popPath(0)}>
+              全部
+            </Tag>
+            {path.map((step, idx) => (
+              <Tag
+                key={`${step.dimension}-${step.value}-${idx}`}
+                style={{ cursor: 'pointer' }}
+                color={idx === path.length - 1 ? 'blue' : 'default'}
+                closable
+                onClose={() => popPath(idx)}
+              >
+                {step.dimension}: {step.value}
+              </Tag>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      <Card
+        size="small"
+        title={<Space size={6}><BarChart3 size={14} /><span style={{ fontSize: 12, fontWeight: 600 }}>图表预览</span></Space>}
+        style={{ borderRadius: 8 }}
+      >
+        {chart && chartRows.length > 0 ? (
+          <ReportChart
+            type="bar"
+            data={chartRows}
+            xKey="name"
+            yKeys={chartYKeys}
+            height={300}
+            title="OLAP 图表预览"
+          />
+        ) : (
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="点击「生成图表」预览当前查询" />
+        )}
+      </Card>
+
+      <Card
+        size="small"
+        title={
+          <Space size={6}>
+            <Table2 size={14} />
+            <span style={{ fontSize: 12, fontWeight: 600 }}>查询结果</span>
+            {result && <Tag style={{ fontSize: 10 }}>{result.total} 行</Tag>}
+          </Space>
+        }
+        style={{ borderRadius: 8 }}
+      >
+        <DataTable<Record<string, unknown>>
+          columns={resultColumns}
+          dataSource={result?.rows ?? []}
+          rowKey={(_row, index) => `row-${index ?? 0}`}
+          loading={loading}
+          exportFileName={`olap-${cubeId || 'query'}`}
+          emptyText="执行查询或下钻后展示结果"
+        />
+      </Card>
+    </div>
+  )
+}
+
 export default function DataReportCenterPage() {
   const [selectedReportId, setSelectedReportId] = useState<string>(reportDefinitions[0]!.id)
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
@@ -1213,7 +1606,7 @@ export default function DataReportCenterPage() {
   const [tablePage, setTablePage] = useState(1)
   const [loading, setLoading] = useState(false)
   // [G005 v3.0.6.11-90 Wave 4A (PACS P0-4)] 视图切换: 标准报表 / 自定义报表
-  const [viewMode, setViewMode] = useState<'standard' | 'custom'>('standard')
+  const [viewMode, setViewMode] = useState<'standard' | 'custom' | 'olap'>('standard')
 
   const currentReport = useMemo(
     () => reportDefinitions.find((r) => r.id === selectedReportId),
@@ -1457,6 +1850,7 @@ export default function DataReportCenterPage() {
             options={[
               { label: t('dataReportCenter.viewStandard'), value: 'standard' },
               { label: t('dataReportCenter.viewCustom'), value: 'custom' },
+              { label: 'OLAP 探索器', value: 'olap' },
             ]}
             style={{ width: 120, background: 'rgba(255,255,255,0.15)', borderRadius: 6 }}
           />
@@ -1592,6 +1986,8 @@ export default function DataReportCenterPage() {
         <Content style={{ padding: 'var(--space-4, 16px)', overflow: 'auto', height: fullscreen ? 'calc(100vh - 56px)' : 'calc(100vh - 56px)' }}>
           {viewMode === 'custom' ? (
             <CustomReportCenterRoot />
+          ) : viewMode === 'olap' ? (
+            <OlapExplorer />
           ) : currentReport ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

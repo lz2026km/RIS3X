@@ -12,6 +12,7 @@ import {
   Col,
   Descriptions,
   Empty,
+  Form,
   Input,
   InputNumber,
   List,
@@ -24,7 +25,7 @@ import {
   Tag,
   Typography,
 } from "antd";
-import { RefreshCw } from 'lucide-react'
+import { Bell, FileText, Plus, RefreshCw, CalendarClock } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
@@ -32,7 +33,7 @@ import {
   wechatApi, paymentApi, notificationChannelApi, satisfactionApi, selfRegistrationApi,
 } from '../../services/api/w12PatientApi'
 import type {
-  DeliveryLogDto, NotificationTemplateDto, NotificationStatsDto, PaymentMethod, PaymentOrderDto,
+  DeliveryLogDto, NotificationChannel, NotificationTemplateDto, NotificationStatsDto, PaymentMethod, PaymentOrderDto,
   PaymentStatsDto, ReconciliationRowDto, SatisfactionAnalyticsDto, SelfCheckInResultDto,
   SelfIdentifyResultDto, SelfPatientDto, SelfQueueNumberDto, SelfQuestionnaireDto, SelfStatusDto,
   SurveyDto, WechatSendLogDto, WechatSubscribeConfigDto, WechatUserDto,
@@ -52,6 +53,22 @@ const NC_STATUS_COLOR: Record<string, string> = { SENT: toneToAntd('completed'),
 const SENTIMENT_COLOR: Record<string, string> = { positive: severityToAntd('success'), neutral: severityToAntd('neutral'), negative: severityToAntd('critical') }
 const RISK_COLOR: Record<string, string> = { LOW: severityToAntd('low'), MEDIUM: severityToAntd('warning'), HIGH: severityToAntd('high') }
 const CHECKIN_COLOR: Record<string, string> = { CHECKED_IN: toneToAntd('completed'), ALREADY_CHECKED_IN: toneToAntd('in_progress'), BLOCKED: toneToAntd('blocked') }
+
+// [W-D5] 通知渠道模板: 触发场景由模板 code 推导 (后端 DTO 无 trigger 字段)
+const NC_TRIGGER_LABELS: Record<string, string> = {
+  APPOINTMENT_REMINDER: '预约提醒',
+  REPORT_READY: '报告已出通知',
+  CRITICAL_ALERT: '危急值提醒',
+}
+const ncTriggerLabel = (code: string) => {
+  if (NC_TRIGGER_LABELS[code]) return NC_TRIGGER_LABELS[code]
+  if (code.includes('APPOINT')) return '预约类触发'
+  if (code.includes('REPORT')) return '报告类触发'
+  if (code.includes('CRITICAL')) return '危急值类触发'
+  return '自定义业务触发'
+}
+const NC_CHANNELS: NotificationChannel[] = ['SMS', 'WECHAT_TEMPLATE', 'VOICE']
+const NC_DEFAULT_SCHEDULED_AT = () => new Date(Date.now() + 86400000).toISOString().slice(0, 16).replace('T', ' ')
 
 type WxBindMethod = 'idCard' | 'phone' | 'empi'
 
@@ -95,6 +112,15 @@ export default function PatientServiceCenterPage() {
   const [ncRecipient, setNcRecipient] = useState('13800001001')
   const [ncVarsText, setNcVarsText] = useState('{"patientName":"张伟","modality":"CT","scheduledAt":"2026-09-01 09:00","deviceName":"CT-01"}')
   const [ncBusy, setNcBusy] = useState(false)
+  // [W-D5] 通知渠道模板: 新建/编辑模板 + 手动触发 (notify/appointment-reminder | report-ready | critical-alert)
+  const [ncTplModal, setNcTplModal] = useState(false)
+  const [ncTplEditing, setNcTplEditing] = useState<NotificationTemplateDto | null>(null)
+  const [ncTplBusy, setNcTplBusy] = useState(false)
+  const [ncTriggerOpen, setNcTriggerOpen] = useState(false)
+  const [ncTriggerKind, setNcTriggerKind] = useState<'appointment' | 'report' | 'critical'>('appointment')
+  const [ncTriggerBusy, setNcTriggerBusy] = useState(false)
+  const [ncTplForm] = Form.useForm()
+  const [ncTriggerForm] = Form.useForm()
 
   // ── 满意度 ──
   const [satAnalytics, setSatAnalytics] = useState<SatisfactionAnalyticsDto | null>(null)
@@ -310,6 +336,89 @@ export default function PatientServiceCenterPage() {
       else message.error(res.error?.message ?? t('w12Patient.loadFailed'))
       await loadNotification()
     } finally { setNcBusy(false) }
+  }
+
+  // [W-D5] 模板管理: POST /notification-channel/templates · PATCH(PUT) /templates/:id
+  const openTplCreate = () => {
+    setNcTplEditing(null)
+    ncTplForm.resetFields()
+    ncTplForm.setFieldsValue({ channel: 'SMS', status: 'active', variables: '' })
+    setNcTplModal(true)
+  }
+
+  const openTplEdit = (tpl: NotificationTemplateDto) => {
+    setNcTplEditing(tpl)
+    ncTplForm.setFieldsValue({
+      code: tpl.code,
+      name: tpl.name,
+      channel: tpl.channel,
+      title: tpl.title,
+      content: tpl.content,
+      variables: (tpl.variables ?? []).join(','),
+      status: tpl.status,
+    })
+    setNcTplModal(true)
+  }
+
+  const doSubmitTpl = async () => {
+    const values = await ncTplForm.validateFields()
+    setNcTplBusy(true)
+    try {
+      const body = {
+        code: values.code,
+        name: values.name,
+        channel: values.channel as NotificationChannel,
+        title: values.title || undefined,
+        content: values.content,
+        variables: splitList(values.variables ?? ''),
+        status: (values.status ?? 'active') as 'active' | 'inactive',
+      }
+      const res = ncTplEditing
+        ? await notificationChannelApi.updateTemplate(ncTplEditing.id, body)
+        : await notificationChannelApi.createTemplate(body)
+      if (res.success) {
+        message.success(ncTplEditing ? '模板已更新' : '模板已创建')
+        setNcTplModal(false)
+        setNcTplEditing(null)
+        await loadNotification()
+      } else message.error(res.error?.message ?? t('w12Patient.loadFailed'))
+    } finally { setNcTplBusy(false) }
+  }
+
+  // [W-D5] 手动触发: /notify/appointment-reminder · /notify/report-ready · /notify/critical-alert
+  const openTrigger = (kind: 'appointment' | 'report' | 'critical') => {
+    setNcTriggerKind(kind)
+    ncTriggerForm.resetFields()
+    ncTriggerForm.setFieldsValue({
+      patientId: 'P100001',
+      patientName: '张伟',
+      modality: 'CT',
+      recipient: ncRecipient,
+      scheduledAt: NC_DEFAULT_SCHEDULED_AT(),
+      examDate: new Date().toISOString().slice(0, 10),
+      bodyPart: '胸部',
+      deviceName: 'CT-01',
+      criticalValue: '发现右肺上叶占位, 建议结合临床进一步检查',
+    })
+    setNcTriggerOpen(true)
+  }
+
+  const doTriggerNotify = async () => {
+    const values = await ncTriggerForm.validateFields()
+    setNcTriggerBusy(true)
+    try {
+      const res = ncTriggerKind === 'appointment'
+        ? await notificationChannelApi.notifyAppointmentReminder(values)
+        : ncTriggerKind === 'report'
+          ? await notificationChannelApi.notifyReportReady(values)
+          : await notificationChannelApi.notifyCriticalAlert(values)
+      if (res.success) {
+        message.success(ncTriggerKind === 'appointment' ? '预约提醒已发送'
+          : ncTriggerKind === 'report' ? '报告已出通知已发送' : '危急值提醒已发送 (语音+短信)')
+        setNcTriggerOpen(false)
+        await loadNotification()
+      } else message.error(res.error?.message ?? t('w12Patient.loadFailed'))
+    } finally { setNcTriggerBusy(false) }
   }
 
   // ── 满意度动作 ──
@@ -561,6 +670,7 @@ export default function PatientServiceCenterPage() {
   ), [payStats, payPatientId, payItemType, payAmount, payMethod, payBusy, orders, reconcile, refundOrder, refundAmount])
 
   const notificationTab = useMemo(() => (
+    <>
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={10}>
         <Card size="small" title={t('w12Patient.nc.sendTitle')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
@@ -580,6 +690,14 @@ export default function PatientServiceCenterPage() {
             </Space>
           </Space>
         </Card>
+        {/* [W-D5] 手动触发通知: POST /notification-channel/notify/* */}
+        <Card size="small" title="手动触发通知 (notify/*)" style={{ marginBottom: 'var(--space-4, 16px)' }}>
+          <Space wrap>
+            <Button size="small" icon={<CalendarClock size={12} />} loading={ncTriggerBusy} onClick={() => openTrigger('appointment')}>预约提醒</Button>
+            <Button size="small" icon={<FileText size={12} />} loading={ncTriggerBusy} onClick={() => openTrigger('report')}>报告已出</Button>
+            <Button size="small" danger icon={<Bell size={12} />} loading={ncTriggerBusy} onClick={() => openTrigger('critical')}>危急值提醒</Button>
+          </Space>
+        </Card>
         <Card size="small" title={t('w12Patient.nc.stats')}>
           <StatCardGrid minWidth={120} gap={8}>
             <StatCard title={t('w12Patient.nc.total')} value={ncStats?.total ?? 0} />
@@ -589,14 +707,24 @@ export default function PatientServiceCenterPage() {
         </Card>
       </Col>
       <Col xs={24} lg={14}>
-        <Card size="small" title={t('w12Patient.nc.templates')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+        <Card
+          size="small"
+          title={t('w12Patient.nc.templates')}
+          style={{ marginBottom: 'var(--space-4, 16px)' }}
+          extra={<Button size="small" type="primary" icon={<Plus size={12} />} onClick={openTplCreate}>新建模板</Button>}
+        >
           <DataTable rowKey="id" pagination={false} dataSource={ncTemplates}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
-              { title: t('w12Patient.nc.templateCode'), dataIndex: 'code', width: 180 },
-              { title: t('w12Patient.nc.templateName'), dataIndex: 'name' },
+              { title: '模板ID', dataIndex: 'id', width: 110, ellipsis: true },
+              { title: t('w12Patient.nc.templateName'), dataIndex: 'name', ellipsis: true },
               { title: t('w12Patient.nc.channel'), dataIndex: 'channel', width: 120, render: (v: string) => <Tag>{t(`w12Patient.nc.channel.${v}`)}</Tag> },
-              { title: t('w12Patient.nc.variables'), dataIndex: 'variables', render: (v: string[]) => (v ?? []).map((x) => <Tag key={x}>{x}</Tag>) },
+              { title: '触发场景', dataIndex: 'code', width: 120, render: (v: string) => <Tag color="blue">{ncTriggerLabel(v)}</Tag> },
+              { title: '启用', dataIndex: 'status', width: 80, render: (v: string) => <Tag color={v === 'active' ? 'green' : 'default'}>{v === 'active' ? '启用' : '停用'}</Tag> },
+              {
+                title: t('w12Patient.actions'), key: 'actions', width: 80,
+                render: (_: unknown, r: NotificationTemplateDto) => <Button size="small" type="link" onClick={() => openTplEdit(r)}>编辑</Button>,
+              },
             ]} />
         </Card>
         <Card size="small" title={`${t('w12Patient.nc.logs')} (${ncLogs.length})`}>
@@ -616,7 +744,128 @@ export default function PatientServiceCenterPage() {
         </Card>
       </Col>
     </Row>
-  ), [ncTemplates, ncLogs, ncStats, ncTemplateCode, ncRecipient, ncVarsText, ncBusy])
+
+    {/* [W-D5] 模板新建/编辑 */}
+    <Modal
+      title={ncTplEditing ? `编辑模板 - ${ncTplEditing.name}` : '新建通知渠道模板'}
+      open={ncTplModal}
+      onCancel={() => { setNcTplModal(false); setNcTplEditing(null) }}
+      onOk={() => void doSubmitTpl()}
+      confirmLoading={ncTplBusy}
+      okText={t('w12Patient.submit')}
+      width={560}
+    >
+      <Form form={ncTplForm} layout="vertical">
+        <Row gutter={12}>
+          <Col span={12}>
+            <Form.Item name="code" label="模板代码" rules={[{ required: true, message: '请输入模板代码' }]}>
+              <Input placeholder="如 APPOINTMENT_REMINDER" disabled={!!ncTplEditing} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="name" label="模板名称" rules={[{ required: true, message: '请输入模板名称' }]}>
+              <Input placeholder="如 预约提醒短信" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={12}>
+          <Col span={8}>
+            <Form.Item name="channel" label={t('w12Patient.nc.channel')} rules={[{ required: true, message: '请选择渠道' }]}>
+              <Select options={NC_CHANNELS.map((v) => ({ value: v, label: t(`w12Patient.nc.channel.${v}`) }))} />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item name="title" label="标题">
+              <Input placeholder="消息标题 (选填)" />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item name="status" label={t('w12Patient.status')}>
+              <Select options={[{ value: 'active', label: '启用' }, { value: 'inactive', label: '停用' }]} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.Item name="content" label="内容模板" rules={[{ required: true, message: '请输入内容模板' }]}>
+          <Input.TextArea rows={3} placeholder="支持 {{变量}} 占位, 如: 尊敬的{{patientName}}, 请于{{scheduledAt}}到院检查" />
+        </Form.Item>
+        <Form.Item name="variables" label="变量列表 (逗号分隔)">
+          <Input placeholder="patientName, scheduledAt, modality" />
+        </Form.Item>
+      </Form>
+    </Modal>
+
+    {/* [W-D5] 手动触发通知 (appointment-reminder / report-ready / critical-alert) */}
+    <Modal
+      title={ncTriggerKind === 'appointment' ? '手动触发 - 预约提醒' : ncTriggerKind === 'report' ? '手动触发 - 报告已出通知' : '手动触发 - 危急值提醒'}
+      open={ncTriggerOpen}
+      onCancel={() => setNcTriggerOpen(false)}
+      onOk={() => void doTriggerNotify()}
+      confirmLoading={ncTriggerBusy}
+      okText="发送"
+      width={520}
+    >
+      <Form form={ncTriggerForm} layout="vertical">
+        <Row gutter={12}>
+          <Col span={12}>
+            <Form.Item name="patientId" label={t('w12Patient.patientId')} rules={[{ required: true, message: '请输入患者ID' }]}>
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="patientName" label={t('w12Patient.sr.name')} rules={[{ required: true, message: '请输入患者姓名' }]}>
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={12}>
+          <Col span={8}>
+            <Form.Item name="modality" label={t('w12Patient.modality')} rules={[{ required: true, message: '请输入检查模态' }]}>
+              <Select options={['CT', 'MR', 'DR', 'US', 'MG'].map((v) => ({ value: v, label: v }))} />
+            </Form.Item>
+          </Col>
+          <Col span={16}>
+            <Form.Item name="recipient" label="接收方 (手机号/openid)" rules={[{ required: true, message: '请输入接收方' }]}>
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+        {ncTriggerKind === 'appointment' && (
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="scheduledAt" label="检查时间" rules={[{ required: true, message: '请输入检查时间' }]}>
+                <Input placeholder="YYYY-MM-DD HH:mm" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="deviceName" label="检查设备">
+                <Input placeholder="如 CT-01" />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
+        {ncTriggerKind === 'report' && (
+          <Row gutter={12}>
+            <Col span={8}>
+              <Form.Item name="examDate" label="检查日期" rules={[{ required: true, message: '请输入检查日期' }]}>
+                <Input placeholder="YYYY-MM-DD" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="bodyPart" label="检查部位">
+                <Input placeholder="如 胸部" />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
+        {ncTriggerKind === 'critical' && (
+          <Form.Item name="criticalValue" label="危急值内容" rules={[{ required: true, message: '请输入危急值内容' }]}>
+            <Input.TextArea rows={3} placeholder="如: 发现右肺上叶占位, 建议结合临床进一步检查" />
+          </Form.Item>
+        )}
+      </Form>
+    </Modal>
+    </>
+  ), [ncTemplates, ncLogs, ncStats, ncTemplateCode, ncRecipient, ncVarsText, ncBusy, ncTplModal, ncTplEditing, ncTplBusy, ncTriggerOpen, ncTriggerKind, ncTriggerBusy])
 
   const satisfactionTab = useMemo(() => (
     <div>

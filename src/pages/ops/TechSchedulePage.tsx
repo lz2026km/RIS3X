@@ -7,13 +7,24 @@ import {
   CalendarDays, CheckCircle2, ChevronLeft, ChevronRight,
   ClipboardList, Coffee, Moon, Pencil, Plus, RefreshCw,
   Sun, UserPlus, Users, CalendarPlus, X, ArrowRightLeft,
+  Play, Scale, TrendingUp,
 } from 'lucide-react'
 import { techScheduleApi } from '../../services/api/techScheduleApi'
 import type {
   TechCalendar, TechRoom, TechScheduleItem, TechShift, TechScheduleStatus, TechStats, TechTechnician,
 } from '../../services/api/techScheduleApi'
+// [W-D8] 技师排班规则: 轮转规则 / 计划生成与执行 / 工作量预测 / 均衡 (tech-v2.controller)
+import {
+  techV2Api,
+  type RotationRule,
+  type RotationPlan,
+  type RotationAssignment,
+  type WorkloadBalance,
+  type WorkloadForecast,
+} from '../../services/api/techV2Api'
 import { invalidateApiCacheByPrefix } from '../../services/api/client'
-import { DataTable } from '../../components/common'
+import { DataTable, StatCard } from '../../components/common'
+import { toneToAntd, statusColor } from '../../theme/statusTokens'
 import { t } from '../../i18n/appI18n'
 
 // ============================================================
@@ -108,6 +119,17 @@ export default function TechSchedulePage() {
   const [editOpen, setEditOpen] = useState(false)
   const [editForm, setEditForm] = useState<CreateForm>(EMPTY_FORM)
 
+  // [W-D8] 技师排班规则 (tech-v2): 轮转规则 / 计划 / 预测 / 均衡
+  const [rotRules, setRotRules] = useState<RotationRule[]>([])
+  const [rotPlan, setRotPlan] = useState<RotationPlan | null>(null)
+  const [rotForecast, setRotForecast] = useState<WorkloadForecast | null>(null)
+  const [rotBalance, setRotBalance] = useState<WorkloadBalance | null>(null)
+  const [rotLoading, setRotLoading] = useState(false)
+  const [rotBusy, setRotBusy] = useState(false)
+  const [rotStartDate, setRotStartDate] = useState(todayStr())
+  const [rotDays, setRotDays] = useState(7)
+  const [executedIds, setExecutedIds] = useState<Set<string>>(new Set())
+
   const load = useCallback(async () => {
     setLoading(true)
     try {
@@ -143,6 +165,95 @@ export default function TechSchedulePage() {
   const afterMutate = () => {
     void invalidateApiCacheByPrefix('/tech-schedules')
     void load()
+  }
+
+  // ================= [W-D8] 轮转规则 / 计划 / 预测 / 均衡 =================
+  const loadRotation = useCallback(async () => {
+    setRotLoading(true)
+    try {
+      const [ruleRes, planRes, fcRes, balRes] = await Promise.all([
+        techV2Api.rotationRules(),
+        techV2Api.rotationPlan(),
+        techV2Api.forecast({ days: 7 }),
+        techV2Api.workloadBalance(),
+      ])
+      if (ruleRes.success && Array.isArray(ruleRes.data)) setRotRules(ruleRes.data)
+      if (planRes.success && planRes.data) setRotPlan(planRes.data)
+      if (fcRes.success && fcRes.data) setRotForecast(fcRes.data)
+      if (balRes.success && balRes.data) setRotBalance(balRes.data)
+    } catch {
+      // 孤儿模块 (tech-v2) 不可用: 维持空态, 不打断排班日历
+    }
+    setRotLoading(false)
+  }, [])
+
+  useEffect(() => { void loadRotation() }, [loadRotation])
+
+  const handleGeneratePlan = async () => {
+    if (!rotStartDate) {
+      message.warning('请选择计划起始日期')
+      return
+    }
+    setRotBusy(true)
+    try {
+      const res = await techV2Api.generatePlan({ startDate: rotStartDate, days: rotDays })
+      if (res.success && res.data) {
+        setRotPlan(res.data)
+        message.success(`轮转计划已生成: ${res.data.assignments.length} 条排班`)
+        const bal = await techV2Api.workloadBalance()
+        if (bal.success && bal.data) setRotBalance(bal.data)
+      } else {
+        message.error(res.error?.message ?? '生成轮转计划失败')
+      }
+    } catch {
+      message.error('生成轮转计划失败')
+    } finally {
+      setRotBusy(false)
+    }
+  }
+
+  const handleExecuteAssignment = async (assignment: RotationAssignment) => {
+    setRotBusy(true)
+    try {
+      const res = await techV2Api.executeAssignment(assignment.id)
+      if (res.success && res.data) {
+        setExecutedIds((prev) => new Set(prev).add(assignment.id))
+        message.success(`已执行: ${assignment.technicianName} · ${assignment.date} ${t(SHIFT_CONFIG[assignment.shift]?.label ?? assignment.shift)}`)
+        const [planRes, balRes] = await Promise.all([
+          techV2Api.rotationPlan(),
+          techV2Api.workloadBalance(),
+        ])
+        if (planRes.success && planRes.data) setRotPlan(planRes.data)
+        if (balRes.success && balRes.data) setRotBalance(balRes.data)
+      } else {
+        message.error(res.error?.message ?? '执行轮转排班失败')
+      }
+    } catch {
+      message.error('执行轮转排班失败')
+    } finally {
+      setRotBusy(false)
+    }
+  }
+
+  const handleBalance = async () => {
+    setRotBusy(true)
+    try {
+      const res = await techV2Api.workloadBalance()
+      if (res.success && res.data) {
+        setRotBalance(res.data)
+        message.success(
+          res.data.balanced
+            ? `工作量已均衡 (极差 ${res.data.maxMinDiff})`
+            : `仍存在差距 (极差 ${res.data.maxMinDiff}, 阈值 ${res.data.threshold})`,
+        )
+      } else {
+        message.error(res.error?.message ?? '工作量均衡分析失败')
+      }
+    } catch {
+      message.error('工作量均衡分析失败')
+    } finally {
+      setRotBusy(false)
+    }
   }
 
   // ================= 新建 =================
@@ -333,6 +444,214 @@ export default function TechSchedulePage() {
               <div style={{ fontSize: 30, fontWeight: 700 }}>{kpi.value}</div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* ================= [W-D8] 技师排班规则 ================= */}
+      <div style={{ padding: '20px 24px 0' }}>
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 'var(--space-4, 16px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', marginBottom: 'var(--space-3, 12px)' }}>
+            <span style={{ fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+              <ClipboardList size={16} color={C.blue} /> 技师排班规则
+            </span>
+            <input
+              type="date"
+              value={rotStartDate}
+              onChange={(e) => setRotStartDate(e.target.value)}
+              style={inputStyle}
+              data-testid="rot-start-date"
+            />
+            <Select
+              size="small"
+              value={rotDays}
+              onChange={(v) => setRotDays(v)}
+              style={{ width: 110 }}
+              options={[3, 5, 7, 14].map((d) => ({ value: d, label: `${d} 天` }))}
+            />
+            <Button size="small" type="primary" icon={<Play size={14} />} loading={rotBusy} onClick={() => void handleGeneratePlan()}>
+              生成计划
+            </Button>
+            <Button size="small" icon={<Scale size={14} />} loading={rotBusy} onClick={() => void handleBalance()}>
+              工作量均衡
+            </Button>
+            <Button size="small" icon={<RefreshCw size={14} />} loading={rotLoading} onClick={() => void loadRotation()}>
+              刷新
+            </Button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
+            <StatCard title="轮转规则" value={rotRules.length} color="primary" icon={<ClipboardList size={18} />} />
+            <StatCard title="计划排班" value={rotPlan?.assignments.length ?? 0} color="info" icon={<CalendarDays size={18} />} />
+            <StatCard
+              title="7 日预测总量"
+              value={rotForecast ? Math.round(rotForecast.totals.value) : '-'}
+              color="warning"
+              icon={<TrendingUp size={18} />}
+            />
+            <StatCard
+              title="工作量极差"
+              value={rotBalance ? rotBalance.maxMinDiff : '-'}
+              color={rotBalance?.balanced ? 'success' : 'error'}
+              icon={<Scale size={18} />}
+              sub={rotBalance ? (rotBalance.balanced ? '已均衡' : `阈值 ${rotBalance.threshold}`) : '未分析'}
+            />
+          </div>
+
+          {/* ---- [W-D8] 工作量预测 ---- */}
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+              <TrendingUp size={16} color={C.teal} /> 工作量预测
+              {rotForecast && <span style={{ fontSize: 12, color: C.textMid, fontWeight: 400 }}>({rotForecast.startDate} 起 {rotForecast.days} 天 · {rotForecast.model})</span>}
+            </div>
+            {!rotForecast ? (
+              <div style={{ fontSize: 12, color: C.textMid, padding: 'var(--space-4, 16px)' }}>暂无预测数据</div>
+            ) : (
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
+                {rotForecast.daily.slice(0, 14).map((day) => {
+                  const peak = Math.max(rotForecast.totals.value, ...rotForecast.daily.map((x) => x.value), 1)
+                  return (
+                    <div key={day.date} style={{ flex: '1 1 64px', minWidth: 64, textAlign: 'center' }}>
+                      <div style={{ fontSize: 11, color: C.textMid }}>{day.weekday}</div>
+                      <div style={{ height: 64, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                        <div
+                          style={{
+                            width: 14,
+                            borderRadius: 3,
+                            background: C.blue,
+                            height: `${Math.max((day.value / peak) * 100, 4)}%`,
+                            minHeight: 4,
+                          }}
+                          title={`${day.date}: ${day.value} (${day.lower}~${day.upper})`}
+                        />
+                      </div>
+                      <div style={{ fontSize: 11, color: C.textMid }}>{Math.round(day.value)}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ---- [W-D8] 轮转规则表 ---- */}
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+              <ClipboardList size={16} color={C.purple} /> 轮转规则
+            </div>
+            <DataTable<RotationRule>
+              dataSource={rotRules}
+              rowKey="id"
+              loading={rotLoading}
+              exportFileName="tech-rotation-rules"
+              emptyText="暂无轮转规则"
+              columns={[
+                { title: '规则', dataIndex: 'name', key: 'name' },
+                {
+                  title: '班次', dataIndex: 'shift', key: 'shift', width: 110,
+                  render: (v: RotationRule['shift']) => (
+                    <Tag color={SHIFT_CONFIG[v]?.color} style={{ margin: 0 }}>
+                      {SHIFT_CONFIG[v]?.icon} {t(SHIFT_CONFIG[v]?.label ?? v)}
+                    </Tag>
+                  ),
+                },
+                { title: '检查室', key: 'rooms', width: 140, render: (_v: unknown, r: RotationRule) => r.roomIds.join('、') || '-' },
+                { title: '最大连班', dataIndex: 'maxConsecutiveDays', key: 'maxConsecutiveDays', width: 90 },
+                { title: '均衡权重', dataIndex: 'balanceWeight', key: 'balanceWeight', width: 90 },
+                { title: '可排技师', key: 'techs', width: 90, render: (_v: unknown, r: RotationRule) => r.eligibleTechIds.length },
+                { title: '技能矩阵', key: 'skills', render: (_v: unknown, r: RotationRule) => Object.keys(r.skillMatrix).join('、') || '-' },
+                {
+                  title: '状态', dataIndex: 'enabled', key: 'enabled', width: 80,
+                  render: (v: boolean) => <Tag color={toneToAntd(v ? 'active' : 'disabled')}>{v ? '启用' : '停用'}</Tag>,
+                },
+              ]}
+            />
+          </div>
+
+          {/* ---- [W-D8] 轮转计划 + 执行 ---- */}
+          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+              <CalendarDays size={16} color={C.orange} /> 轮转计划
+              {rotPlan && (
+                <span style={{ fontSize: 12, color: C.textMid, fontWeight: 400 }}>
+                  ({rotPlan.startDate} ~ {rotPlan.endDate} · {rotPlan.assignments.length} 条 · 跳过 {rotPlan.skipped.length})
+                </span>
+              )}
+            </div>
+            <DataTable<RotationAssignment>
+              dataSource={rotPlan?.assignments ?? []}
+              rowKey="id"
+              loading={rotLoading}
+              exportFileName="tech-rotation-plan"
+              emptyText="点击「生成计划」产出轮转排班"
+              columns={[
+                { title: '日期', dataIndex: 'date', key: 'date', width: 110 },
+                {
+                  title: '班次', dataIndex: 'shift', key: 'shift', width: 100,
+                  render: (v: RotationAssignment['shift']) => (
+                    <Tag color={SHIFT_CONFIG[v]?.color} style={{ margin: 0 }}>
+                      {SHIFT_CONFIG[v]?.icon} {t(SHIFT_CONFIG[v]?.label ?? v)}
+                    </Tag>
+                  ),
+                },
+                { title: '检查室', key: 'room', width: 130, render: (_v: unknown, r: RotationAssignment) => r.roomName ?? r.roomId ?? '-' },
+                { title: '技师', dataIndex: 'technicianName', key: 'technicianName', width: 100 },
+                { title: '预测负荷', dataIndex: 'predictedLoad', key: 'predictedLoad', width: 90 },
+                { title: '累计前', dataIndex: 'accumulatedBefore', key: 'accumulatedBefore', width: 80 },
+                { title: '依据', dataIndex: 'reason', key: 'reason', ellipsis: true },
+                {
+                  title: '操作', key: 'action', width: 90,
+                  render: (_v: unknown, r: RotationAssignment) =>
+                    executedIds.has(r.id) ? (
+                      <Tag color={toneToAntd('success')}>已执行</Tag>
+                    ) : (
+                      <Button
+                        size="small"
+                        type="link"
+                        icon={<CheckCircle2 size={12} />}
+                        loading={rotBusy}
+                        onClick={() => void handleExecuteAssignment(r)}
+                      >
+                        执行
+                      </Button>
+                    ),
+                },
+              ]}
+            />
+          </div>
+
+          {/* ---- [W-D8] 工作量均衡 ---- */}
+          {rotBalance && (
+            <div
+              style={{
+                padding: 'var(--space-3, 12px)',
+                border: `1px solid ${rotBalance.balanced ? 'var(--color-success-500)' : 'var(--color-warning-500)'}`,
+                borderRadius: 8,
+              }}
+            >
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+                <Scale size={16} color={C.blue} /> 工作量均衡
+                <span style={{ fontSize: 12, fontWeight: 600, color: statusColor(rotBalance.balanced ? 'success' : 'warning') }}>
+                  极差 {rotBalance.maxMinDiff} / 阈值 {rotBalance.threshold} · {rotBalance.balanced ? '已均衡' : '待调整'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
+                {rotBalance.perTechnician.map((p) => (
+                  <span
+                    key={p.technicianId}
+                    style={{
+                      fontSize: 12,
+                      color: C.text,
+                      background: 'var(--bg-deep)',
+                      border: `1px solid ${C.border}`,
+                      borderRadius: 6,
+                      padding: '3px 8px',
+                    }}
+                  >
+                    {p.technicianName} · 累计 {p.cumulativeLoad} · 夜班 {p.nights} · 排班 {p.assignmentCount}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

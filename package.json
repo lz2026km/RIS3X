@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-11",
-  "description": "G005 Radiology RIS v3.0.6.13-11 - Typography Density (PageContainer + Title + Card-in-Card + Modal widths + ellipsis)",
+  "version": "3.0.6.13-12",
+  "description": "G005 Radiology RIS v3.0.6.13-12 - Backend Capability Frontend (4 new pages + 16 panels + 7 neutered features)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

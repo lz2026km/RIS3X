@@ -253,6 +253,7 @@
   "radiomicsFeatures": "Radiomics Features",
   "iheManager": "IHE Manager",
   "hl7Manager": "HL7 Manager",
+  "hl7Console": "HL7 Message Console",
   "lungCad": "Lung Nodule AI Detection",
   "breastCad": "Breast AI Detection",
   "fractureCad": "Fracture AI Detection",

@@ -1,7 +1,7 @@
 // [W3-B] 应用信息统一入口
 // VITE_APP_NAME / VITE_APP_VERSION / VITE_GIT_SHA / VITE_BUILD_TIME 声明接入点
 export const APP_NAME: string = import.meta.env.VITE_APP_NAME || "G005 放射RIS";
-export const APP_VERSION: string = import.meta.env.VITE_APP_VERSION || "3.0.6.13-11";
+export const APP_VERSION: string = import.meta.env.VITE_APP_VERSION || "3.0.6.13-12";
 export const GIT_SHA: string = (import.meta.env.VITE_GIT_SHA as string | undefined)?.trim() || "";
 export const BUILD_TIME: string = (import.meta.env.VITE_BUILD_TIME as string | undefined)?.trim() || "";
 

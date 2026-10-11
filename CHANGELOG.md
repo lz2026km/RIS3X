@@ -1,3 +1,23 @@
+## v3.0.6.13-12 (2026-10-10) — 后端能力前端化（W-D，全量 20 项）
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
+
+### 4 个新页
+- **不良事件/RCA 看板** (`/safety/adverse-events`)：KPI、事件列表/筛选/详情抽屉/创建、RCA 关联时间线、RCA 创建
+- **报告语义检索 V2** (`/report-search-v2`)：结构化/NL 双模式搜索、结果高亮、聚合标签、KPI
+- **报告对比 V2** (`/report-compare-v2`)：双报告选择、预设、并排/统一 diff、字段级对比
+- **HL7 消息控制台** (`/hl7/console`)：ORU/ORM/DFT 发送、MLLP 启停/TLS、白名单管理、消息日志、统计
+
+### 16 个面板（接入已有页面）
+- 质控量表引擎（QualityScoringCenter）· 设备 QC（QcAnalytics）· 双盲抽样批次（DualRead）
+- 知情同意签署/验证（ConsentEducation）· 对比剂外渗（AdverseReaction）· 通知渠道模板+手动触发（PatientServiceCenter）
+- 证书/HSM/OCSP（CertificateCenter）· 质控指标计算+仪表盘切换（RqiIndicator）· RWS 规则引擎+国标对照（ReportRules）
+- 报告 QC 任务看板（ReportV2 新 Tab）· 分割/MPR-MIP-VR 接线（Segmentation）· RADS 评分（BreastCad/LungCad）
+- 诊室/候补/提醒/绿色通道（Appointment）· 审计链看板（Audit）· OLAP 探索器（DataReportCenter）· 技师排班规则（TechSchedule）
+
+### 7 处阉割项接通或降级
+- 全部按真实后端接线（如 `/quality/rubric` 单量表模型、`/tech-v2/rotation/generate` 等），无假成功提示
+
 ## v3.0.6.13-11 (2026-10-10) — 排版密度（W-C）
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
