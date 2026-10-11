@@ -725,7 +725,7 @@ export default function DicomCompressPage() {
         <Col xs={24} lg={8}>
           <Card
             title={
-              <Space>
+              <Space size="small">
                 <File size={14} />
                 {t("compressV2.sourceFile")}
               </Space>
@@ -780,7 +780,7 @@ export default function DicomCompressPage() {
         <Col xs={24} lg={8}>
           <Card
             title={
-              <Space>
+              <Space size="small">
                 <FlaskConical size={14} />
                 {t("compressV2.paramsTitle")}
               </Space>
@@ -852,7 +852,7 @@ export default function DicomCompressPage() {
         <Col xs={24} lg={8}>
           <Card
             title={
-              <Space>
+              <Space size="small">
                 <Zap size={14} />
                 {t("compressV2.execTitle")}
               </Space>
@@ -937,7 +937,7 @@ export default function DicomCompressPage() {
 
       <Card
         title={
-          <Space>
+          <Space size="small">
             <BarChart3 size={16} />
             {t("compressV2.resultTitle")}
             {/* [G005 Wave3A P16] 编码来源三态标注, 杜绝估算/真实混淆 */}
@@ -1051,7 +1051,7 @@ export default function DicomCompressPage() {
 
       <Card
         title={
-          <Space>
+          <Space size="small">
             <File size={14} />
             {t("compressV2.taskList")}
             {polling && <Tag color="processing">{t("compressV2.polling")}</Tag>}
@@ -1087,7 +1087,7 @@ export default function DicomCompressPage() {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Space>
+              <Space size="small">
                 <BarChart3 size={16} />
                 {t("compressV2.compareTitle")}
                 {benchmarkResult?.recommendedName && (
@@ -1114,7 +1114,7 @@ export default function DicomCompressPage() {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Space>
+              <Space size="small">
                 <BarChart3 size={16} />
                 {t("compressV2.statsTitle")}
                 <Text type="secondary" style={{ fontSize: 12 }}>

@@ -173,7 +173,7 @@ export default function BusinessContinuityPage() {
 
       <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={12}>
-          <Card title={<Space><Database size={16} />{t("businessContinuity.dbReplicas")} ({replicas.length})<Badge count={replicas.filter(r => r.status === "healthy").length} status="success" /><Tag color="orange">{t("businessContinuity.staticDemoData")}</Tag></Space>}>
+          <Card title={<Space size="small"><Database size={16} />{t("businessContinuity.dbReplicas")} ({replicas.length})<Badge count={replicas.filter(r => r.status === "healthy").length} status="success" /><Tag color="orange">{t("businessContinuity.staticDemoData")}</Tag></Space>}>
             <DataTable scroll={{ x: 'max-content' }}
               dataSource={replicas}
               rowKey="id"
@@ -194,7 +194,7 @@ export default function BusinessContinuityPage() {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title={<Space><AlertTriangle size={16} />{t("businessContinuity.conflictResolution")} ({conflicts.length})</Space>}>
+          <Card title={<Space size="small"><AlertTriangle size={16} />{t("businessContinuity.conflictResolution")} ({conflicts.length})</Space>}>
             <Timeline
               items={conflicts.map(c => ({
                 color: c.status === "escalated" ? "red" : c.status === "pending" ? "orange" : "green",
@@ -228,7 +228,7 @@ export default function BusinessContinuityPage() {
         <StatCard title={t("businessContinuity.devFault")} value={deviceStats?.broken ?? 0} icon={<XCircle size={18} />} color="error" />
       </StatCardGrid>
 
-      <Card title={<Space><Monitor size={16} />{t("businessContinuity.imagingDeviceStatus")} ({devices.length})<Tag color="green">{t("businessContinuity.realDataSource")}</Tag></Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <Card title={<Space size="small"><Monitor size={16} />{t("businessContinuity.imagingDeviceStatus")} ({devices.length})<Tag color="green">{t("businessContinuity.realDataSource")}</Tag></Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <DataTable scroll={{ x: 'max-content' }}
           dataSource={devicePagination.pageData}
           rowKey="id"
@@ -246,7 +246,7 @@ export default function BusinessContinuityPage() {
         />
       </Card>
 
-      <Card title={<Space><Activity size={16} />{t("businessContinuity.syncQueue")} ({queue.length})</Space>}>
+      <Card title={<Space size="small"><Activity size={16} />{t("businessContinuity.syncQueue")} ({queue.length})</Space>}>
         <DataTable scroll={{ x: 'max-content' }}
           dataSource={queuePagination.pageData}
           rowKey="id"

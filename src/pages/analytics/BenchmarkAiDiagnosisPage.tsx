@@ -229,7 +229,7 @@ export default function BenchmarkAiDiagnosisPage() {
           )}
         </Card>
 
-        <Card title={<Space><Cpu size={16} /> {t('w1tables.benchmark.title')}</Space>} variant="borderless" style={{ borderRadius: 12, marginTop: 'var(--space-4, 16px)' }}>
+        <Card title={<Space size="small"><Cpu size={16} /> {t('w1tables.benchmark.title')}</Space>} variant="borderless" style={{ borderRadius: 12, marginTop: 'var(--space-4, 16px)' }}>
           <DataTable dataSource={trend} rowKey="date" columns={trendColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </Card>
       </Spin>

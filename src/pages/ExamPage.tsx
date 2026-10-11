@@ -1760,7 +1760,7 @@ export default function ExamPage() {
           loading={loading}
           zebra
           emptyText={t("examPage.noMatches")}
-          scroll={{ y: "calc(100vh - 420px)" }}
+          scroll={{ y: "calc(100vh - 340px)" }}
           columnConfigKey="exam-table"
           alwaysVisibleColumns={["actions"]}
           contextMenuTestId="exam-context-menu"

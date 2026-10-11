@@ -84,7 +84,7 @@ export function PageTemplate({
   container = true,
   background = "default",
   maxWidth = "full",
-  padding = 24,
+  padding = 16,
   minHeight = "100%",
   fabPadding = false,
   testId,

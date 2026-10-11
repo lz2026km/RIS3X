@@ -187,7 +187,7 @@ const DepartmentOperationsPage = () => {
       )}
 
       <div style={s.grid2}>
-        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
           <div style={s.sectionTitle}><Bed size={16} color='var(--color-primary-600)' />{t('deptOps.deviceStatus')}</div>
           {rooms.map((r, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border-light)' }}>
@@ -203,7 +203,7 @@ const DepartmentOperationsPage = () => {
           ))}
         </Card>
 
-        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
           <div style={s.sectionTitle}><Users size={16} color='#7c3aed' />{t('deptOps.staffTitle')}</div>
           <div style={s.grid4}>
             {staff.map((p, i) => (
@@ -219,7 +219,7 @@ const DepartmentOperationsPage = () => {
         </Card>
       </div>
 
-      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
           <div style={s.sectionTitle}><Calendar size={16} color='var(--color-info-600)' />{t('deptOps.queueTitle')}</div>
           <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>

@@ -178,7 +178,7 @@ const AiTriagePage: React.FC = () => {
       <Card
         title={t('aiTriage.taskList')}
         extra={
-          <Space wrap>
+          <Space wrap size="small">
             <Segmented
               size="small"
               value={filter}

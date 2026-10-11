@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-13",
-  "description": "G005 Radiology RIS v3.0.6.13-13 - Full E2E Verification + GitHub Pages Deploy",
+  "version": "3.0.6.14-0",
+  "description": "G005 Radiology RIS v3.0.6.14-0 - Table Density Fix (toolbar on-demand, pagination slim, density tokens real)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

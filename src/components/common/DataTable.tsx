@@ -8,8 +8,8 @@
  *   - 内置工具栏: 导出 CSV (当前视图) + 密度切换 (compact/comfortable)
  * 兼容 ProTable / VirtualTable 常用调用方式。
  */
-import { useCallback, useMemo, useState } from "react";
-import { Table, Skeleton, Button, Tooltip, Segmented } from "antd";
+import { useCallback, useMemo } from "react";
+import { Table, Skeleton, Button, Tooltip } from "antd";
 import type {
   TableProps,
   TableColumnsType,
@@ -18,7 +18,7 @@ import type {
   TableColumnGroupType,
 } from "antd";
 import type { ReactNode, CSSProperties } from "react";
-import { Download, Rows3, Rows4 } from "lucide-react";
+import { Download } from "lucide-react";
 import "../../styles/data-table.css";
 import { EmptyState } from "./EmptyState";
 // [W14-UX] 列配置/保存视图 + 右键上下文菜单
@@ -234,10 +234,8 @@ export function DataTable<RecordType extends object>({
   contextMenuTestId,
   showExport = true,
   exportFileName = "table",
-  showDensity = true,
   density: densityProp,
   defaultDensity = "compact",
-  onDensityChange,
   disableAutoNumericAlign = false,
   pagination: paginationProp,
   locale,
@@ -247,16 +245,7 @@ export function DataTable<RecordType extends object>({
   onRow: onRowProp,
   ...restProps
 }: DataTableProps<RecordType>) {
-  const [internalDensity, setInternalDensity] = useState<TableDensity>(defaultDensity);
-  const density = densityProp ?? internalDensity;
-
-  const handleDensityChange = useCallback(
-    (value: TableDensity) => {
-      if (densityProp === undefined) setInternalDensity(value);
-      onDensityChange?.(value);
-    },
-    [densityProp, onDensityChange],
-  );
+  const density = densityProp ?? "compact";
 
   const pagination = useMemoPagination(showPagination, paginationProp, pageSize, paginationSize);
   // [W14-UX] 列配置 + 保存视图
@@ -286,9 +275,9 @@ export function DataTable<RecordType extends object>({
   }, [effectiveColumns, dataSource, exportFileName]);
 
   const showExportBtn = showExport && hasData;
-  const showDensityToggle = showDensity;
-  const showAuditActions = showExportBtn || showDensityToggle;
-  const showToolbar = Boolean(toolbar || toolbarExtra || columnConfigKey || showAuditActions);
+  // [K-1] 工具栏仅在用户显式传入 toolbar/toolbarExtra/columnConfigKey 时显示
+  // 密度切换已移除（受控 prop density 仍可用）；导出按钮随工具栏显隐
+  const showToolbar = Boolean(toolbar || toolbarExtra || columnConfigKey);
 
   const toolbarStyle: CSSProperties = {
     display: "flex",
@@ -323,36 +312,6 @@ export function DataTable<RecordType extends object>({
               </Button>
             </Tooltip>
           )}
-          {showDensityToggle && (
-            <Tooltip title={t("ui4Tables.density.tooltip")}>
-              <Segmented<string>
-                size="small"
-                value={density}
-                onChange={(v) => handleDensityChange(v as TableDensity)}
-                data-testid="data-table-density"
-                options={[
-                  {
-                    value: "compact",
-                    label: (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
-                        <Rows3 size={14} />
-                        {t("ui4Tables.density.compact")}
-                      </span>
-                    ),
-                  },
-                  {
-                    value: "comfortable",
-                    label: (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
-                        <Rows4 size={14} />
-                        {t("ui4Tables.density.comfortable")}
-                      </span>
-                    ),
-                  },
-                ]}
-              />
-            </Tooltip>
-          )}
         </div>
       )}
       <Table<RecordType>
@@ -365,21 +324,21 @@ export function DataTable<RecordType extends object>({
           emptyText: (
             <EmptyState
               description={emptyText}
-              style={{ padding: "36px 16px" }}
+              style={{ padding: "12px 16px" }}
               testId="data-table-empty"
             />
           ),
           ...locale,
         }}
-        scroll={{ x: "max-content", y: fixedHeader, ...scroll }}
+        scroll={{ y: fixedHeader, ...scroll }}
         size={density === "compact" ? "small" : "middle"}
         loading={
           loading
             ? {
                 spinning: true,
                 indicator: (
-                  <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 720 }}>
-                    <Skeleton active title={false} paragraph={{ rows: 8 }} />
+                  <div style={{ padding: 'var(--space-4, 16px)', maxWidth: 720 }}>
+                    <Skeleton active title={false} paragraph={{ rows: 4 }} />
                   </div>
                 ),
                 ...(typeof loading === "object" ? loading : {}),
@@ -417,7 +376,7 @@ function useMemoPagination(
   if (!showPagination && paginationProp === undefined) return false;
   const base: TablePaginationConfig = {
     pageSize,
-    showSizeChanger: true,
+    showSizeChanger: false,
     pageSizeOptions: [...TABLE_PAGE_SIZE_OPTIONS],
     showTotal: (total) => `共 ${total} 条`,
     size: paginationSize,

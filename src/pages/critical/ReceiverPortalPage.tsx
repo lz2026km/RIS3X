@@ -248,7 +248,7 @@ export default function ReceiverPortalPage() {
 
       {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
 
-      <Card title={t('receiverPortal.listTitle')}>
+      <Card title={t('receiverPortal.listTitle')} size="small">
         {loading ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
         ) : items.length === 0 ? (

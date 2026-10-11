@@ -258,6 +258,8 @@ function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
       headerBorderRadius: rad.Table.borderRadius,
       cellPaddingBlock: 8,
       cellPaddingInline: 12,
+      cellPaddingBlockSM: 6,
+      cellPaddingInlineSM: 10,
       cellFontSize: 13,
       fontSize: 12,
       borderColor: border,

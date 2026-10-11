@@ -435,7 +435,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'servers', label: <Space size={4}><Server size={13} />{t('pacsAdmin.tabServers')}</Space>,
               children: (
                 <Card
-                  title={<Space><Server size={14} />{t('pacsAdmin.tabServers')}</Space>}
+                  title={<Space size="small"><Server size={14} />{t('pacsAdmin.tabServers')}</Space>}
                   style={{ marginBottom: 'var(--space-4, 16px)' }}
                   extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setServerModal(true)}>{t('pacsAdmin.addServer')}</Button>}
                 >
@@ -478,7 +478,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'associations', label: <Space size={4}><Link2 size={13} />{t('pacsAdmin.tabAssociations')}</Space>,
               children: (
-                <Card title={<Space><Link2 size={14} />{t('pacsAdmin.cardAssociationStatus')}</Space>}>
+                <Card title={<Space size="small"><Link2 size={14} />{t('pacsAdmin.cardAssociationStatus')}</Space>}>
                   <DataTable rowKey="id" dataSource={assocPage.pageData} columns={associationColumns} pagination={assocPage.pagination} scroll={{ x: 'max-content' }}/>
                 </Card>
               ),

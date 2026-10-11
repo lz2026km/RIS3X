@@ -69,7 +69,7 @@ export function PageContainer({
   children,
   background = "default",
   maxWidth = "full",
-  padding = 24,
+  padding = 16,
   minHeight = "100%",
   fabPadding = false,
   fabPaddingBottom = 96,

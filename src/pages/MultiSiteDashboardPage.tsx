@@ -243,7 +243,7 @@ export default function MultiSiteDashboardPage() {
 
       <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={16}>
-          <Card title={<Space><Network size={16} />{t('multiSiteDashboard.siteListTitle', { count: sites.length })}<Tag color="green">{t('multiSiteDashboard.onlineTag', { count: activeCount })}</Tag><Tag color="red">{t('multiSiteDashboard.offlineTag', { count: offlineCount })}</Tag></Space>} extra={<Badge count={offlineCount} title={t('multiSiteDashboard.alertSites')} />}>
+          <Card title={<Space size="small"><Network size={16} />{t('multiSiteDashboard.siteListTitle', { count: sites.length })}<Tag color="green">{t('multiSiteDashboard.onlineTag', { count: activeCount })}</Tag><Tag color="red">{t('multiSiteDashboard.offlineTag', { count: offlineCount })}</Tag></Space>} extra={<Badge count={offlineCount} title={t('multiSiteDashboard.alertSites')} />}>
             <DataTable scroll={{ x: 'max-content' }} dataSource={sites} columns={siteColumns} rowKey="id" pagination={false} loading={loading} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }} />
           </Card>
         </Col>
@@ -266,7 +266,7 @@ export default function MultiSiteDashboardPage() {
         </Col>
       </Row>
 
-      <Card>
+      <Card size="small">
         <Tabs
           items={[
             {

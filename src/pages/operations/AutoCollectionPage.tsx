@@ -387,7 +387,7 @@ const AutoCollectionPage: React.FC = () => {
 
       {/* [G005 Wave1B] 任务列表: listTasks + getTask 详情 + rerunTask 重跑 */}
       <Card
-        title={<Space><History size={14} />{t('autoCollection.collectionTasks')}</Space>}
+        title={<Space size="small"><History size={14} />{t('autoCollection.collectionTasks')}</Space>}
         size="small"
         style={{ marginTop: 'var(--space-3, 12px)' }}
         extra={<Space>
@@ -458,7 +458,7 @@ const AutoCollectionPage: React.FC = () => {
       </Card>
 
       {/* [G005 Wave1B] 配置: getConfig + updateConfig */}
-      <Card title={<Space><Settings size={14} />{t('autoCollection.collectionConfig')}</Space>} size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
+      <Card title={<Space size="small"><Settings size={14} />{t('autoCollection.collectionConfig')}</Space>} size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
         <Spin spinning={configLoading}>
           <DataTable
             rowKey="key"

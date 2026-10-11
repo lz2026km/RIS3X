@@ -365,7 +365,7 @@ export default function AIMedicalDevicePage() {
           </div>
 
           {/* 设备表格 */}
-          <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }} size="small">
             <DataTable
               rowKey={(r) => r.id || r.code}
               columns={deviceColumns}
@@ -435,7 +435,7 @@ export default function AIMedicalDevicePage() {
 
       {/* 表格区域 */}
       <div style={{ padding: '20px 32px' }}>
-        <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }} size="small">
           <DataTable
             rowKey="id"
             columns={certColumns}

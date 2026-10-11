@@ -376,7 +376,7 @@ export default function BenchmarkPageV2() {
         />
 
         <Card
-          title={<Space><Activity size={16} /> 跨院区对比矩阵</Space>}
+          title={<Space size="small"><Activity size={16} /> 跨院区对比矩阵</Space>}
           variant="borderless"
           style={{ borderRadius: 12, marginTop: 'var(--space-4, 16px)' }}
           extra={

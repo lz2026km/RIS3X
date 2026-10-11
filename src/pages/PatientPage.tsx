@@ -1950,7 +1950,7 @@ export default function PatientPage() {
           padding: 'var(--space-5, 20px)',
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
-       styles={{ body: { padding: 0 } }}>
+       styles={{ body: { padding: 0 } }} size="small">
         <div
           style={{
             fontSize: 14,

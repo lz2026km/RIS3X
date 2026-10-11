@@ -571,7 +571,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
         <StatCard loading={statsLoading} title={t('vnaPage.wormLocked')} value={stats?.wormLockedCount ?? 0} icon={<ShieldCheck size={16} />} color="#10b981" />
       </StatCardGrid>
 
-      <Card>
+      <Card size="small">
         <Tabs
           defaultActiveKey="objects"
           items={[

@@ -895,7 +895,7 @@ export default function EquipmentLifecyclePage() {
               <span style={{ ...s.badge, ...s.badgeOrange }}>{t('equipLifecycle.demoMaintPlanBadge')}</span>
             )}
           </div>
-          <Card bordered={false} style={{ ...s.maintAlert, marginTop: 0 }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ ...s.maintAlert, marginTop: 0 }} styles={{ body: { padding: 0 } }} size="small">
             <div style={s.alertTitle}>
               <Clock size={18} color="var(--color-primary-600)" />
               {t('equipLifecycle.maintCalendarTitle')}
@@ -1006,7 +1006,7 @@ export default function EquipmentLifecyclePage() {
           </Card>
 
           {/* E1. 设备状态时间线 */}
-          <Card bordered={false} style={{ ...s.statCard, marginTop: 'var(--space-5, 20px)' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ ...s.statCard, marginTop: 'var(--space-5, 20px)' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Clock size={16} /> {t('equipLifecycle.timelineTitle')}
               <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('equipLifecycle.timelineCount', { n: lifecycleTimeline.length })}</span>
@@ -1061,7 +1061,7 @@ export default function EquipmentLifecyclePage() {
           </Card>
 
           {/* E3. 维保到期预警面板 */}
-          <Card bordered={false} style={{ ...s.statCard, marginTop: 'var(--space-5, 20px)' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ ...s.statCard, marginTop: 'var(--space-5, 20px)' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <AlertTriangle size={16} /> {t('equipLifecycle.maintWarnTitle')}
               <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('equipLifecycle.warnCount', { n: maintWarnings.total })}</span>
@@ -1097,7 +1097,7 @@ export default function EquipmentLifecyclePage() {
           </Card>
 
           {/* E2. 费用分析卡 */}
-          <Card bordered={false} style={{ ...s.statCard, marginTop: 'var(--space-5, 20px)' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ ...s.statCard, marginTop: 'var(--space-5, 20px)' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <DollarSign size={16} /> {t('equipLifecycle.costAnalysisTitle')}
             </div>

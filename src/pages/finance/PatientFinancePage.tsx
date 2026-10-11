@@ -250,7 +250,7 @@ export default function PatientFinancePage() {
 
       {/* Bills Tab */}
       {activeTab === 'bills' && (
-        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }} size="small">
           {selectedBill ? (
             <div>
               <button style={{ ...s.btn, background: '#64748b', marginBottom: 'var(--space-4, 16px)' }} onClick={() => { setSelectedBill(null); setBillPayments([]) }}>{t('patientFinance.backToBills')}</button>
@@ -328,7 +328,7 @@ export default function PatientFinancePage() {
 
       {/* Payments Tab */}
       {activeTab === 'payments' && (
-        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }} size="small">
           {/* [G005 W1-Controls P1-8] 缴费流水 (真实 PaymentRecord) */}
           <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 'var(--space-4, 16px)' }}>{t('w1Controls.patientFinance.paymentsMadeTitle')}</h3>
           <DataTable<PaymentRecord>
@@ -352,7 +352,7 @@ export default function PatientFinancePage() {
 
       {/* Claims Tab */}
       {activeTab === 'claims' && (
-        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }} size="small">
           <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 'var(--space-4, 16px)' }}>{t('patientFinance.tabClaims')}</h3>
           <DataTable<InsuranceClaim>
             columns={claimColumns}

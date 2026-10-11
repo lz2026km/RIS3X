@@ -259,7 +259,7 @@ const QualityManagementPage = () => {
         </div>
       </Card>
 
-      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
         <div style={s.sectionTitle}><FileText size={16} color='#7c3aed' />{t('mammoQc.qcRecords')}</div>
         <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
           <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12,}} placeholder={t('mammoQc.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
@@ -277,7 +277,7 @@ const QualityManagementPage = () => {
       </Card>
 
       {/* [G-21 Wave3C] 乳腺质控评估: 影像质量参数表单 → 规则命中评估 */}
-      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
         <div style={s.sectionTitle}><Scale size={16} color='#be185d' />{t('mammoQc.breastEval')}</div>
         <div style={{ overflowX: 'auto' }}>
           <table style={s.table}>
@@ -337,7 +337,7 @@ const QualityManagementPage = () => {
       </Card>
 
       {/* [G-21 Wave3C] 乳腺质控规则库 (15 条 seed) */}
-      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
         <div style={s.sectionTitle}><BookOpen size={16} color='#0d9488' />{t('mammoQc.ruleLibrary')} ({breastRules.length})</div>
         <DataTable<BreastQcRule>
           rowKey="id"
@@ -351,7 +351,7 @@ const QualityManagementPage = () => {
       </Card>
 
       {/* [G005 Wave1A W9] 测试计划 / 标准 / 统计 (后端 GET /mammo-qc/tests|standards|stats) */}
-      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
         <div style={s.sectionTitle}><PieChart size={16} color='var(--color-info-600)' />{t('mammoQc.testPlanTitle')}</div>
         <Tabs
           size="small"

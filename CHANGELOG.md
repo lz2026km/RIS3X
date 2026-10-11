@@ -1,3 +1,29 @@
+## v3.0.6.14-0 (2026-10-10) — 表格紧凑化（K-1…K-6）
+
+> **根因**: 用户反馈"表格又肥又宽，一两行就要滚动"。诊断发现声明的密度系统（`data-table.css` `--dt-row-height:38px`）**从未生效**——antd v6 CSS-in-JS 编译规则特异性 (0,3,2) 覆盖了 `.data-table` 的 (0,2,2)。每张表格固定开销 ~205-250px ≈ 6-7 行数据被吃掉。
+> **验证**: tsc **0** / vitest **47 文件 831 测试** / 核心路由 E2E 8/8 通过 / `guard:ui` 全绿
+
+### K-1 DataTable 核心
+- **工具栏按需显示**：仅 `toolbar/toolbarExtra/columnConfigKey` 显式传入时渲染（−42px/表 × 645 处）；密度 Segmented 移除（受控 `density` prop 仍可用）
+- **`scroll.x` 移除硬编码** `"max-content"` → 默认 `undefined`（消除横向滚动条 ~15px + "宽"症状）
+- **分页器**：`showSizeChanger` 默认 `false`；CSS `margin: 8px 16px`
+- **空态/加载**：空态 `padding: 12px 16px`；Skeleton 行数 8→4
+
+### K-2 密度令牌真正生效
+- `Provider.tsx` Table 补 `cellPaddingBlockSM: 6, cellPaddingInlineSM: 10`（token 路径直接生效）
+- `data-table.css` 选择器升级 `.ant-table-wrapper .data-table`（提权）；列头 padding 8→6px
+
+### K-3 Card 包裹优化
+- **109 个**包裹 DataTable 的 `Card` → `size="small"`（head 30px / body 12px）
+
+### K-4 容器默认
+- `PageContainer` / `PageTemplate` 默认 `padding` 24→16（上下省 16px）
+
+### K-5 scroll.y 预算修正
+- `WorklistListView` `100vh-400px`→`320px`；`ExamPage` `100vh-420px`→`340px`（消除双滚动条）
+
+**合计：每张表节省 ~100-140px，一屏多显示 3-4 行。**
+
 ## v3.0.6.13-13 (2026-10-10) — 全量 E2E 验收 + GitHub Pages 部署（W-E）
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；全量 **409 路由** E2E：390 通过、9 flaky 重试通过、10 已知外部依赖缺陷（非本次回归）

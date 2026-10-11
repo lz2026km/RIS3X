@@ -613,7 +613,7 @@ export function ListView({
         loading={{ spinning: loading, indicator: <div style={{ padding: 'var(--space-6, 24px)' }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
         sticky
         pagination={listPagination.pagination}
-        scroll={{ x: 1800, y: "calc(100vh - 400px)" }}
+        scroll={{ x: 1800, y: "calc(100vh - 320px)" }}
         rowSelection={{
           preserveSelectedRowKeys: true,
           selectedRowKeys: [...selectedIds],

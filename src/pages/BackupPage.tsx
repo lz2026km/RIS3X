@@ -88,7 +88,7 @@ export default function BackupPage() {
 
   return (
     <PageContainer padding={24}>
-      <Card>
+      <Card size="small">
         <Space orientation="vertical" style={{ width: '100%' }}>
           <Row justify="space-between" align="middle">
             <PageHeader variant="flex" icon={<ShieldCheck />} title={t('bk.title')} style={{ marginBottom: 0 }} />

@@ -281,7 +281,7 @@ const SnomedEncoderPage: React.FC = () => {
       {codes.length > 0 && (
         <Card
           title={
-            <Space>
+            <Space size="small">
               <AlertTriangle size={14} color="var(--color-primary-500)" />
               {t('snomedEncoder.results')}
               <Tag>{t('snomedEncoder.codeCount', { count: codes.length })}</Tag>

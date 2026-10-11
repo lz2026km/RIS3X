@@ -304,7 +304,7 @@ export const ComplianceDocsPage: React.FC = () => {
         </Space>
       </Card>
 
-      <Card>
+      <Card size="small">
         <Spin spinning={loading}>
           <DataTable
             rowKey="id" columns={columns} dataSource={docsPageData}

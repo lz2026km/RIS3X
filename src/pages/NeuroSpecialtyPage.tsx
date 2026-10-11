@@ -214,7 +214,7 @@ const NeuroSpecialtyPage = () => {
       )}
 
       {!loading && tab === 'stroke' && (
-        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }} size="small">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
             <div style={s.sectionTitle}><Zap size={16} color="var(--color-error-600)" /> {t('neuro.strokeAssessment')}</div>
             <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>

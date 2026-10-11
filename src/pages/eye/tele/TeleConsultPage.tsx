@@ -477,7 +477,7 @@ export const TeleConsultPage: React.FC = () => {
                 <Col span={14}>
                   <Card
                     title={
-                      <Space>
+                      <Space size="small">
                         <MonitorSmartphone size={16} color="var(--color-primary-600)" />
                         {t("eye.tele.liveView")}
                         {session && (
@@ -612,7 +612,7 @@ export const TeleConsultPage: React.FC = () => {
                   {/* [G005 Wave10A] 远程会诊记录 (后端真实 /eye/tele/*) */}
                   <Card
                     title={
-                      <Space>
+                      <Space size="small">
                         <Activity size={16} color="var(--color-primary-600)" />
                         {t("eye.tele.consultRecords")}
                         {teleStats && (
@@ -945,7 +945,7 @@ export const TeleConsultPage: React.FC = () => {
                 <Col span={12}>
                   <Card
                     title={
-                      <Space>
+                      <Space size="small">
                         <Database size={16} color="var(--color-info-600)" />
                         {t("eye.tele.streams")}
                         <Tag color="blue">{teleStreams.length}</Tag>
@@ -996,7 +996,7 @@ export const TeleConsultPage: React.FC = () => {
 
                   <Card
                     title={
-                      <Space>
+                      <Space size="small">
                         <ListTree size={16} color="var(--color-primary-600)" />
                         {t("eye.tele.sessionDetail")}
                       </Space>
@@ -1062,7 +1062,7 @@ export const TeleConsultPage: React.FC = () => {
                 <Col span={12}>
                   <Card
                     title={
-                      <Space>
+                      <Space size="small">
                         <FileText size={16} color="#7c3aed" />
                         {t("eye.tele.answer")}
                       </Space>
@@ -1127,7 +1127,7 @@ export const TeleConsultPage: React.FC = () => {
 
                   <Card
                     title={
-                      <Space>
+                      <Space size="small">
                         <Activity size={16} color="#52c41a" />
                         {t("eye.tele.consultRecords")}
                       </Space>

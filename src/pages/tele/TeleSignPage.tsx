@@ -176,7 +176,7 @@ const TeleSignPage: React.FC = () => {
         <Button type="primary" size="small" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>{t('teleSign.createSession')}</Button>
       </Space>
       {error && <Alert type="warning" showIcon message={t('teleSign.loadFail')} description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> {t('teleSign.retry')}</Button>} style={{ marginBottom: 'var(--space-4, 16px)' }} />}
-      <Card>
+      <Card size="small">
         <DataTable rowKey="id" dataSource={pagedSessions} columns={columns} pagination={sessionsPagination} loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       <Modal title={t('teleSign.signReport')} open={signOpen} onCancel={() => setSignOpen(false)} width={560} footer={

@@ -548,7 +548,7 @@ const RegistrationWorkstationPage: React.FC = () => {
 
               {/* 缴费 */}
               <Card
-                title={<Space><CreditCard size={16} />{t('w6Reg.charge.title')}</Space>}
+                title={<Space size="small"><CreditCard size={16} />{t('w6Reg.charge.title')}</Space>}
                 extra={charge ? (
                   <Space>
                     <Text type="secondary">{charge.visitNumber}</Text>

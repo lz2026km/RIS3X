@@ -245,7 +245,7 @@ const SmartRoutingPage: React.FC = () => {
             children: (
               <Card
                 extra={
-                  <Space>
+                  <Space size="small">
                     <Button
                       type="primary"
                       icon={<Plus size={14} />}
@@ -268,7 +268,7 @@ const SmartRoutingPage: React.FC = () => {
           {
             key: 'qualifications',
             label: <span><GraduationCap size={14} /> {t('smartRouting.tabQualifications')}</span>,
-            children: <Card><DataTable rowKey="doctorId" dataSource={qualifications} columns={qualColumns} loading={loading} pagination={false} scroll={{ x: 'max-content' }}/></Card>,
+            children: <Card size="small"><DataTable rowKey="doctorId" dataSource={qualifications} columns={qualColumns} loading={loading} pagination={false} scroll={{ x: 'max-content' }}/></Card>,
           },
           {
             key: 'assign',

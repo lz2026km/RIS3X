@@ -475,7 +475,7 @@ function StorageMonitorTab() {
 
       <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Col span={16}>
-          <Card title={<Space><HardDrive size={16} />{t("cloudStorage.monitor.nodesTitle", { n: nodes.length })}<Tag color="green">{t("cloudStorage.monitor.onlineTag", { n: nodes.filter(n => n.status === "online").length })}</Tag></Space>}>
+          <Card title={<Space size="small"><HardDrive size={16} />{t("cloudStorage.monitor.nodesTitle", { n: nodes.length })}<Tag color="green">{t("cloudStorage.monitor.onlineTag", { n: nodes.filter(n => n.status === "online").length })}</Tag></Space>}>
             <DataTable scroll={{ x: 'max-content' }}
               dataSource={nodes}
               rowKey="id"
@@ -513,7 +513,7 @@ function StorageMonitorTab() {
           </Card>
         </Col>
         <Col span={8}>
-          <Card title={<Space><Archive size={16} />{t("cloudStorage.monitor.tieredStorage")}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+          <Card title={<Space size="small"><Archive size={16} />{t("cloudStorage.monitor.tieredStorage")}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             {TIER_METRICS.map(m => (
               <div key={m.tier} style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 'var(--space-1, 4px)' }}>
@@ -528,7 +528,7 @@ function StorageMonitorTab() {
               </div>
             ))}
           </Card>
-          <Card title={<Space><TrendingUp size={16} />{t("cloudStorage.monitor.compressionTitle")}</Space>}>
+          <Card title={<Space size="small"><TrendingUp size={16} />{t("cloudStorage.monitor.compressionTitle")}</Space>}>
             <Statistic title={t("cloudStorage.monitor.rawSize")} value={`${(COMPRESSION.rawBytes / 1e12).toFixed(2)} TB`} />
             <div style={{ marginTop: 'var(--space-2, 8px)' }}>
               <Text>{t("cloudStorage.monitor.compressedAfter", { size: (COMPRESSION.compressedBytes / 1e12).toFixed(2) })}</Text>
@@ -539,7 +539,7 @@ function StorageMonitorTab() {
         </Col>
       </Row>
 
-      <Card title={<Space><Repeat size={16} />{t("cloudStorage.monitor.archiveJobs", { n: ARCHIVE_JOBS.length })}</Space>}>
+      <Card title={<Space size="small"><Repeat size={16} />{t("cloudStorage.monitor.archiveJobs", { n: ARCHIVE_JOBS.length })}</Space>}>
         <DataTable scroll={{ x: 'max-content' }}
           dataSource={jobsPagination.pageData}
           rowKey="id"
@@ -1238,7 +1238,7 @@ function StorageBucketsTab() {
       </StatCardGrid>
 
       <Card
-        title={<Space><Boxes size={16} />{t("cloudStorage.buckets.title")} <Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.buckets.sub")}</Text><Tag color="gold" icon={<Database size={12} />}>{t("cloudStorage.buckets.dataSourceTag")}</Tag></Space>}
+        title={<Space size="small"><Boxes size={16} />{t("cloudStorage.buckets.title")} <Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.buckets.sub")}</Text><Tag color="gold" icon={<Database size={12} />}>{t("cloudStorage.buckets.dataSourceTag")}</Tag></Space>}
         extra={
           <Space>
             <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>{t("cloudStorage.refresh")}</Button>

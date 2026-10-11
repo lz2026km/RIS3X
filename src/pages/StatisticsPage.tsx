@@ -806,7 +806,7 @@ function WorkloadTab() {
       </div>
 
       {/* 医生工作量表格 */}
-      <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
+      <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }} size="small">
         <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.workloadReportTitle2")}</div>
           <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
@@ -1343,7 +1343,7 @@ function DeviceEfficiencyTab() {
       {/* 设备利用率视图 */}
       {deviceView === 'utilization' && (
         <>
-          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.deviceList")}</div>
             </div>
@@ -1430,7 +1430,7 @@ function DeviceEfficiencyTab() {
       {/* 开机率视图 */}
       {deviceView === 'startup' && (
         <>
-          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.powerOnDetail")}</div>
             </div>
@@ -1462,7 +1462,7 @@ function DeviceEfficiencyTab() {
       {/* 检查完成时间视图 */}
       {deviceView === 'completion' && (
         <>
-          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.completionStats")}</div>
             </div>
@@ -1510,7 +1510,7 @@ function DeviceEfficiencyTab() {
       {/* 预约等待时间视图 */}
       {deviceView === 'wait' && (
         <>
-          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 'var(--space-5, 20px)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.apptWaitStats")}</div>
             </div>

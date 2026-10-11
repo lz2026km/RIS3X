@@ -350,7 +350,7 @@ const TriageDashboardPage: React.FC = () => {
 
       <Card
         title={
-          <Space>
+          <Space size="small">
             <Filter size={14} />
             <span>{t('triage.queue')}</span>
             <Text type="secondary" style={{ fontSize: 12 }}>({filteredItems.length} {t('triage.itemsUnit')})</Text>

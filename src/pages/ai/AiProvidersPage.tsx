@@ -146,7 +146,7 @@ const AiProvidersPage: React.FC = () => {
       </StatCardGrid>
 
       <Card
-        title={<Space><Settings size={14} color="#7c3aed" />{t('aiProviders.list')}</Space>}
+        title={<Space size="small"><Settings size={14} color="#7c3aed" />{t('aiProviders.list')}</Space>}
       >
         <DataTable
           dataSource={providerDetails}

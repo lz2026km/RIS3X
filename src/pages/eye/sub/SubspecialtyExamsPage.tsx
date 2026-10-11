@@ -60,7 +60,7 @@ const SubRecordHistory: React.FC<{
   return (
     <Card
       title={
-        <Space>
+        <Space size="small">
           <History size={14} />
           {t('eye.sub.records')}
           <Tag color="blue">{records.length}</Tag>

@@ -305,7 +305,7 @@ const SmartMwlPage: React.FC = () => {
       <Card
         title={t('smartMwl.listTitle')}
         extra={
-          <Space>
+          <Space size="small">
             <Input placeholder={t('smartMwl.searchPlaceholder')} prefix={<Search size={14} />} value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 220 }} allowClear />
             <Button icon={<ArrowUpDown size={14} />} onClick={handleReorder} disabled={rows.length === 0}>
               {t('smartMwl.smartSort')}

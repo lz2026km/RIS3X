@@ -186,7 +186,7 @@ const RadPathPage: React.FC = () => {
       </StatCardGrid>
       <Card
         extra={
-          <Space>
+          <Space size="small">
             <Input
               placeholder={t('radPath.search')}
               prefix={<Search size={14} />}

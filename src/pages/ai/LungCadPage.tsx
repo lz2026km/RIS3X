@@ -356,7 +356,7 @@ const LungCadPage: React.FC = () => {
           }
         />
       )}
-      <Card>
+      <Card size="small">
         <Spin spinning={loading}>
           <DataTable
             rowKey="id"

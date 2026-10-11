@@ -155,7 +155,7 @@ export default function OpsDashboardPage() {
         </div>
 
         <div style={s.grid2}>
-          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }} size="small">
             <div style={s.panelTitle}><TrendingUp size={16} color="var(--color-primary-500)" />{t('opsDashboard.workloadTrend')}</div>
             <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               {[7, 14, 30].map(d => (
@@ -178,7 +178,7 @@ export default function OpsDashboardPage() {
             </ChartContainer>
           </Card>
 
-          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }} size="small">
             <div style={s.panelTitle}><Monitor size={16} color="var(--color-success-500)" />{t('opsDashboard.deviceUtilization')}</div>
             <ChartContainer height={260} state={modUtil.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noDeviceUtilData')}>
               <BarChart data={modUtil}>
@@ -193,7 +193,7 @@ export default function OpsDashboardPage() {
         </div>
 
         <div style={s.grid2}>
-          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }} size="small">
             <div style={s.panelTitle}><Clock size={16} color="var(--color-warning-500)" />{t('opsDashboard.peakTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('opsDashboard.simulated')}</span></div>
             <ChartContainer height={220} state={peakData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noPeakData')}>
               <BarChart data={peakData}>
@@ -206,7 +206,7 @@ export default function OpsDashboardPage() {
             </ChartContainer>
           </Card>
 
-          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }} size="small">
             <div style={s.panelTitle}><Users size={16} color="var(--color-modality-mr)" />{t('opsDashboard.techRanking')}</div>
             <DataTable
               dataSource={operators}

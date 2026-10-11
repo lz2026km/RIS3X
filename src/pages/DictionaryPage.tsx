@@ -768,7 +768,7 @@ export default function DictionaryPage() {
       )}
 
       {paged.length === 0 ? (
-        <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }} size="small">
           <div style={s.emptyState}>
             <div style={s.emptyIcon}><BookOpen size={28} color="var(--text-secondary)" /></div>
             <div style={s.emptyTitle}>{t('dictionary.emptyTitle')}</div>

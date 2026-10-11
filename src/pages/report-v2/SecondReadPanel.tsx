@@ -198,7 +198,7 @@ const SecondReadPanel: React.FC = () => {
   return (
     <div>
       <Card
-        title={<Space><ShieldAlert size={16} color="var(--color-primary-600)" /><span>{t('secondRead.title')}</span><Tag color="blue">{t('secondRead.tag')}</Tag></Space>}
+        title={<Space size="small"><ShieldAlert size={16} color="var(--color-primary-600)" /><span>{t('secondRead.title')}</span><Tag color="blue">{t('secondRead.tag')}</Tag></Space>}
         extra={<Button type="primary" icon={<ClipboardCheck size={14} />} onClick={() => setAnalyzeOpen(true)}>{t('secondRead.newTask')}</Button>}
       >
         {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} />}

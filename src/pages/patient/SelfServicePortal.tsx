@@ -845,7 +845,7 @@ export default function SelfServicePortal() {
             <StatCard title={t('selfService.home.pendingAppointments')} value={upcomingAppointments.length} suffix={t('selfService.home.pendingAppointmentsSuffix')} />
             <StatCard title={t('selfService.home.reports')} value={reports.length} suffix={t('selfService.home.reportsSuffix')} />
           </StatCardGrid>
-          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
             <Title level={4} style={styles.subTitle}>{t('selfService.home.todayTodo')}</Title>
             {upcomingAppointments.length === 0 && reports.length === 0 ? (
               <Empty description={t('selfService.home.noTodo')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -880,7 +880,7 @@ export default function SelfServicePortal() {
             )}
           </Card>
           {upcomingAppointments.length > 0 && (
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
               <Title level={4} style={styles.subTitle}>{t('selfService.home.recentAppointments')}</Title>
               {upcomingAppointments.slice(0, 3).map(a => (
                 <div key={a.id} style={styles.todoItem}>
@@ -913,7 +913,7 @@ export default function SelfServicePortal() {
               <p style={{ fontSize: 12, color: '#059669', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.booking.arrivalNotice')}</p>
             </Card>
           )}
-          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
             <Title level={4} style={styles.subTitle}>{t('selfService.booking.selectType')}</Title>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
               {MODALITIES.map(m => (
@@ -936,7 +936,7 @@ export default function SelfServicePortal() {
             </div>
           </Card>
           {booking.modality && (
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
               <Title level={4} style={styles.subTitle}>{t('selfService.booking.selectPart')}</Title>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                 {modalityParts.map(p => (
@@ -957,7 +957,7 @@ export default function SelfServicePortal() {
             </Card>
           )}
           {booking.modality && (
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
               <Title level={4} style={styles.subTitle}>{t('selfService.booking.selectDate')}</Title>
               <MiniCalendar
                 month={calendarMonth}
@@ -968,7 +968,7 @@ export default function SelfServicePortal() {
             </Card>
           )}
           {booking.modality && booking.date && (
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
               <Title level={4} style={styles.subTitle}>{t('selfService.booking.selectSlot')} — {booking.date}</Title>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
                 {TIME_SLOTS.map(s => (
@@ -1009,7 +1009,7 @@ export default function SelfServicePortal() {
       label: t('selfService.tab.reports'),
       children: (
         <div>
-          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
             <Title level={4} style={styles.subTitle}>{t('selfService.reports.title')}（{reports.length}）</Title>
             {reports.length === 0 ? (
               <Empty description={t('selfService.reports.noReports')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -1022,7 +1022,7 @@ export default function SelfServicePortal() {
             )}
           </Card>
           {selectedReport && (
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
               <Title level={4} style={{  ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{t('ssp.reports.detailTitle')} — {selectedReport.modality ?? t('ssp.home.imageFallback')}（{selectedReport.bodyPart ?? t('ssp.reports.unspecified')}）</span>
                 {selectedReport.isCritical && <Tag color="error">{t('ssp.reports.critical')}</Tag>}
@@ -1058,7 +1058,7 @@ export default function SelfServicePortal() {
             </Card>
           )}
           {!selectedReport && exams.filter(e => e.reportContent).length > 0 && (
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
               <Title level={4} style={styles.subTitle}>{t('selfService.reports.historyTitle')}</Title>
               {exams.filter(e => e.reportContent).map(exam => (
                 <div key={exam.id} style={styles.todoItem}>
@@ -1097,7 +1097,7 @@ export default function SelfServicePortal() {
       label: t('selfService.tab.images'),
       children: (
         <div>
-          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
             <Title level={4} style={styles.subTitle}>{t('selfService.images.viewableTitle')}</Title>
             {viewableExams.length === 0 ? (
               <Empty description={t('selfService.images.noImages')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -1110,7 +1110,7 @@ export default function SelfServicePortal() {
             )}
           </Card>
           {selectedExam && (
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
               <Title level={4} style={styles.subTitle}>{t('selfService.images.electronicFilm')} — {selectedExam.examItem}</Title>
               {study && study.series.length > 0 && (
                 <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
@@ -1170,7 +1170,7 @@ export default function SelfServicePortal() {
       label: t('selfService.tab.education'),
       children: (
         <div>
-          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
             <Title level={4} style={styles.subTitle}>{t('selfService.education.title')}（{educations.length}）</Title>
             {educations.length === 0 ? (
               <Empty description={t('selfService.education.noData')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -1221,7 +1221,7 @@ export default function SelfServicePortal() {
       label: t('selfService.tab.clinical'),
       children: (
         <div>
-          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }} size="small">
             <Title level={4} style={styles.subTitle}>{t('selfService.clinical.title')}（{clinicalData.length}）</Title>
             {clinicalData.length === 0 ? (
               <Empty description={t('selfService.clinical.noData')} image={Empty.PRESENTED_IMAGE_SIMPLE} />

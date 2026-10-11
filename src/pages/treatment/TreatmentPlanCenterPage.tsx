@@ -258,7 +258,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       </StatCardGrid>
       <Tabs activeKey={tab} onChange={setTab} items={[
         { key: 'plans', label: t('treatmentPlan.tabPlans'), children:
-          <Card extra={<Space><Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('treatmentPlan.newPlan')}</Button><Button icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button></Space>} size="small" title={`${plans.length} ${t('treatmentPlan.itemsUnit')}`}>
+          <Card extra={<Space size="small"><Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('treatmentPlan.newPlan')}</Button><Button icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button></Space>} size="small" title={`${plans.length} ${t('treatmentPlan.itemsUnit')}`}>
             <Spin spinning={loading}>
               <DataTable
                 dataSource={planPageData}

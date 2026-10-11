@@ -255,7 +255,7 @@ export default function RadiomicsPage() {
       </Row>
 
       {compareMode && radarConfig && (
-        <Card title={t('radiomics:compareTitle')} style={{ marginTop: 'var(--space-4, 16px)' }}>
+        <Card title={t('radiomics:compareTitle')} style={{ marginTop: 'var(--space-4, 16px)' }} size="small">
           <Tabs items={[
             {
               key: 'radar',

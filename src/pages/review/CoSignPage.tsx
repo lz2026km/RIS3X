@@ -357,7 +357,7 @@ const CoSignPage: React.FC = () => {
       </StatCardGrid>
       <Card
         extra={
-          <Space>
+          <Space size="small">
             {/* [Wave1B P2] 会签规则配置入口 */}
             <Button
               icon={<Settings2 size={14} />}

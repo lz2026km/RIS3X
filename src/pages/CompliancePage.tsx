@@ -133,7 +133,7 @@ export default function CompliancePage() {
             ))}
           </div>
 
-          <Card bordered={false} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, overflow: 'hidden' }} styles={{ body: { padding: 0 } }} size="small">
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${COLORS.border}`, fontSize: 12, fontWeight: 700, color: COLORS.primary }}>
               审计明细 ({report.details.length})
             </div>

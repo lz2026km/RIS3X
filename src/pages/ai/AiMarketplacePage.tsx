@@ -165,7 +165,7 @@ const AiMarketplacePage: React.FC = () => {
 
       <Card
         extra={
-          <Space>
+          <Space size="small">
             <ActionButton action="refresh" loading={loading} onClick={fetchModels}>{t('w8.aiMarketplace.refresh')}</ActionButton>
             <ActionButton action="create" onClick={() => setDeployOpen(true)}>{t('w8.aiMarketplace.deploy')}</ActionButton>
           </Space>
