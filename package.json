@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-12",
-  "description": "G005 Radiology RIS v3.0.6.13-12 - Backend Capability Frontend (4 new pages + 16 panels + 7 neutered features)",
+  "version": "3.0.6.13-13",
+  "description": "G005 Radiology RIS v3.0.6.13-13 - Full E2E Verification + GitHub Pages Deploy",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

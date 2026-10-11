@@ -1,3 +1,25 @@
+## v3.0.6.13-13 (2026-10-10) — 全量 E2E 验收 + GitHub Pages 部署（W-E）
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；全量 **409 路由** E2E：390 通过、9 flaky 重试通过、10 已知外部依赖缺陷（非本次回归）
+
+### 全量 E2E 结果（409 路由）
+- **390 通过**（含全部 4 个新页：不良事件/RCA、报告检索 V2、报告对比 V2、HL7 控制台）
+- **9 flaky**（重试通过）：reports、cds/management、critical-alert、ai-qc、quality/department、quality-control、critical-value-center、qc-dashboard、critical-value?tab=alert
+- **10 已知外部依赖缺陷**（非本次改动）：
+  - CORS 阻断 ohif.org（dicom-viewer、dicom-viewer-pro、eye/pacs/real-viewer）
+  - MSW 未覆盖 dental/mobile-push 端点（dental/photo、dental/viewer、mobile/push）
+  - cornerstone 图像加载器 scheme 'frame-1'（eye/pacs/real-viewer）
+  - ONNX Runtime Web 回退警告（dental/ai-onnx）
+  - emergency-channel 未捕获 rejection（请输入患者ID 验证）
+  - publish 网络抖动（ERR_NETWORK_CHANGED）
+
+### 五波次累计（v3.0.6.13-9 → v3.0.6.13-13）
+- **W-A**：7 假服务接真 API、10 死调用修复、7 死筛选器、29 alert→message、C-ECHO 接真端点
+- **W-B**：325 按钮 aria-label、182 处暗色令牌化、75 按钮 loading、20 页错误重试、组件内 14 表迁移
+- **W-C**：91 页 PageContainer、122 处 h3/h4→Title、38 处 Card 嵌套、212 处 Modal 宽度归一、宽表省略号
+- **W-D**：4 新页 + 16 面板 + 7 阉割项接通
+- **W-E**：全量 409 路由 E2E 验收 + GitHub Pages 部署
+
 ## v3.0.6.13-12 (2026-10-10) — 后端能力前端化（W-D，全量 20 项）
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
