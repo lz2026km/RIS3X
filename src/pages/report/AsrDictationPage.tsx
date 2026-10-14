@@ -198,11 +198,11 @@ export default function AsrDictationPage() {
       return
     }
     const f = session.sections.find((s) => s.key === 'findings')?.text ?? ''
-    const im = session.sections.find((s) => s.key === 'impression')?.text ?? ''
-    const rc = session.sections.find((s) => s.key === 'recommendation')?.text ?? ''
     const cc = session.sections.find((s) => s.key === 'conclusion')?.text ?? ''
     try {
-      const res = await reportApi.update(reportId.trim(), { findings: f, impression: im, recommendations: rc, conclusion: cc })
+      // [W4] 后端 UpdateReportSchema 仅接受 findings/conclusion/htmlContent;
+      //   impression/recommendations 不在 schema 内 (发送会被剥离), 故不再发送。
+      const res = await reportApi.update(reportId.trim(), { findings: f, conclusion: cc })
       if (res.success) message.success(t('w17.asr.writtenToReport'))
       else message.error(res.error?.message ?? t('w17.asr.writeFailed'))
     } catch {

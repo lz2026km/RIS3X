@@ -220,6 +220,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
           showPagination={false}
           showExport={false}
           showDensity={false}
+          scroll={{ x: 1200 }}
           columns={[
             { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
             { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },

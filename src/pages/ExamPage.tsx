@@ -358,8 +358,8 @@ export default function ExamPage() {
       }
       const res = await examApi.list({});
       if (cancelled) return;
-      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
-      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+      // [W4] api.getList 已归一化为 { items, total }
+      const list = res.data?.items ?? [];
       if (res.success && Array.isArray(list) && list.length > 0) {
         setAllExams(list as unknown as typeof initialRadiologyExams);
         setLoadError(null);
@@ -941,7 +941,8 @@ export default function ExamPage() {
       /* store handles its own error */
     }
     const res = await examApi.list({});
-    const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+    // [W4] api.getList 已归一化为 { items, total }
+    const list = res.data?.items ?? [];
     if (res.success && Array.isArray(list) && list.length > 0) {
       setAllExams(list as unknown as typeof initialRadiologyExams);
       setLoadError(null);
@@ -1747,7 +1748,7 @@ export default function ExamPage() {
         title: t("examPage.closedLoopStatus"),
         dataIndex: "id",
         key: "timeline",
-        width: 300,
+        width: 220,
         render: (_value, exam) => <StatusTimeline exam={exam} />,
       },
     ];
@@ -1761,7 +1762,7 @@ export default function ExamPage() {
           loading={loading}
           zebra
           emptyText={t("examPage.noMatches")}
-          scroll={{ y: "calc(100vh - 340px)" }}
+          scroll={{ x: 1620, y: "calc(100vh - 340px)" }}
           columnConfigKey="exam-table"
           alwaysVisibleColumns={["actions"]}
           contextMenuTestId="exam-context-menu"

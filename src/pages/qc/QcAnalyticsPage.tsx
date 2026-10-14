@@ -523,7 +523,7 @@ export default function QcAnalyticsPage() {
               columns={deptColumns}
               dataSource={departments}
               pagination={false}
-              scroll={{ x: 760 }}
+              scroll={{ x: 710 }}
             />
           </div>
         </div>
@@ -550,7 +550,7 @@ export default function QcAnalyticsPage() {
                     columns={defectColumns}
                     dataSource={defects}
                     pagination={{ pageSize: 6, showTotal: (total: number) => t('qcAnalytics.totalDefects', { count: total }) }}
-                    scroll={{ x: 960 }}
+                    scroll={{ x: 700 }}
                     locale={{ emptyText: <Empty description={t('qcAnalytics.emptyDefects')} image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
                   />
                 ),
@@ -565,7 +565,7 @@ export default function QcAnalyticsPage() {
                     columns={itemColumns}
                     dataSource={items}
                     pagination={{ pageSize: 6, showTotal: (total: number) => t('qcAnalytics.totalItems', { count: total }) }}
-                    scroll={{ x: 1080 }}
+                    scroll={{ x: 880 }}
                     locale={{ emptyText: <Empty description={t('qcAnalytics.emptyItems')} image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
                   />
                 ),
@@ -629,7 +629,7 @@ export default function QcAnalyticsPage() {
                     columns={eqScheduleColumns}
                     dataSource={eqSchedule}
                     pagination={false}
-                    scroll={{ x: 720 }}
+                    scroll={{ x: 390 }}
                     showExport={false}
                   />
                 ),
@@ -644,7 +644,7 @@ export default function QcAnalyticsPage() {
                     columns={eqRecordColumns}
                     dataSource={eqRecords}
                     pagination={{ pageSize: 8, showSizeChanger: false }}
-                    scroll={{ x: 960 }}
+                    scroll={{ x: 720 }}
                   />
                 ),
               },
@@ -658,7 +658,7 @@ export default function QcAnalyticsPage() {
                     columns={eqFailureColumns}
                     dataSource={eqFailures}
                     pagination={{ pageSize: 8, showSizeChanger: false }}
-                    scroll={{ x: 900 }}
+                    scroll={{ x: 540 }}
                   />
                 ),
               },

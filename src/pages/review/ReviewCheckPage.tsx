@@ -28,8 +28,9 @@ import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
+// [W4] api.getList 已归一化为 { items, total }
 function toList(data: any): any[] {
-  return Array.isArray(data) ? data : (data?.items ?? []);
+  return data?.items ?? [];
 }
 
 export const ReviewCheckPage: React.FC = () => {

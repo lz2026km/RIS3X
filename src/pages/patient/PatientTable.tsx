@@ -737,7 +737,7 @@ export function PatientTable({
           dataSource={paginatedPatients}
           rowKey="id"
           pagination={false}
-          scroll={{ x: 1150, y: "calc(100vh - 320px)" }}
+          scroll={{ x: 1400, y: "calc(100vh - 320px)" }}
           columnConfigKey="patient-table"
           alwaysVisibleColumns={["actions"]}
           contextMenuTestId="patient-context-menu"

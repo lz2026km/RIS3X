@@ -566,6 +566,7 @@ export default function DicomCompressPage() {
       dataIndex: "originalSize",
       key: "originalSize",
       width: 110,
+      align: "right" as const,
       render: (v: number) => formatBytes(v),
     },
     {
@@ -573,6 +574,7 @@ export default function DicomCompressPage() {
       dataIndex: "compressedSize",
       key: "compressedSize",
       width: 110,
+      align: "right" as const,
       render: (v: number | null) => formatBytes(v),
     },
     {
@@ -580,6 +582,7 @@ export default function DicomCompressPage() {
       dataIndex: "ratio",
       key: "ratio",
       width: 100,
+      align: "right" as const,
       render: (v: number | undefined, row: DicomCompressTask) =>
         v !== undefined ? (
           <Tag color={v > 3 ? "green" : v > 1.5 ? "blue" : "orange"}>{v.toFixed(2)}×</Tag>
@@ -658,13 +661,14 @@ export default function DicomCompressPage() {
       width: 100,
       render: (v: boolean) => <Tag color={v ? "green" : "red"}>{v ? t("compressV2.losslessTag") : t("compressV2.lossyTag")}</Tag>,
     },
-    { title: t("compressV2.thOriginal"), dataIndex: "originalSize", key: "originalSize", width: 110, render: (v: number) => formatBytes(v) },
-    { title: t("compressV2.thCompressed"), dataIndex: "compressedSize", key: "compressedSize", width: 110, render: (v: number | null) => formatBytes(v) },
+    { title: t("compressV2.thOriginal"), dataIndex: "originalSize", key: "originalSize", width: 110, align: "right" as const, render: (v: number) => formatBytes(v) },
+    { title: t("compressV2.thCompressed"), dataIndex: "compressedSize", key: "compressedSize", width: 110, align: "right" as const, render: (v: number | null) => formatBytes(v) },
     {
       title: t("compressV2.thRatio"),
       dataIndex: "ratio",
       key: "ratio",
       width: 110,
+      align: "right" as const,
       render: (v: number | null) => (v ? <Tag color={v > 3 ? "green" : "blue"}>{v.toFixed(2)}×</Tag> : "-"),
     },
     {

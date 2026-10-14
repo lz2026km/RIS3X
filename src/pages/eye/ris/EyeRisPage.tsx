@@ -251,11 +251,11 @@ const EyeRisPage: React.FC = () => {
   }, [todayApts]);
 
   // [G005 W2-B] 5 张表受控分页 (usePagination: current/total/onChange)
-  const { pageData: todayAptsPage, pagination: todayAptsPagination } = usePagination(todayApts, 5);
-  const { pageData: upcomingAptsPage, pagination: upcomingAptsPagination } = usePagination(upcomingApts, 5);
-  const { pageData: followUpsPage, pagination: followUpsPagination } = usePagination(followUps, 4);
-  const { pageData: referralsPage, pagination: referralsPagination } = usePagination(referrals, 3);
-  const { pageData: surgeryAptsPage, pagination: surgeryAptsPagination } = usePagination(surgeryAppointments, 5);
+  const { pageData: todayAptsPage, pagination: todayAptsPagination } = usePagination(todayApts, 10);
+  const { pageData: upcomingAptsPage, pagination: upcomingAptsPagination } = usePagination(upcomingApts, 10);
+  const { pageData: followUpsPage, pagination: followUpsPagination } = usePagination(followUps, 10);
+  const { pageData: referralsPage, pagination: referralsPagination } = usePagination(referrals, 10);
+  const { pageData: surgeryAptsPage, pagination: surgeryAptsPagination } = usePagination(surgeryAppointments, 10);
 
   
   const statusLabels: Record<string, string> = {
@@ -345,7 +345,6 @@ const EyeRisPage: React.FC = () => {
               rowKey="id"
               pagination={{
                 ...todayAptsPagination,
-                showSizeChanger: true,
                 showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
@@ -440,7 +439,6 @@ const EyeRisPage: React.FC = () => {
               rowKey="id"
               pagination={{
                 ...upcomingAptsPagination,
-                showSizeChanger: true,
                 showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
@@ -503,7 +501,6 @@ const EyeRisPage: React.FC = () => {
               rowKey="id"
               pagination={{
                 ...followUpsPagination,
-                showSizeChanger: true,
                 showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
@@ -554,7 +551,6 @@ const EyeRisPage: React.FC = () => {
               rowKey="id"
               pagination={{
                 ...referralsPagination,
-                showSizeChanger: true,
                 showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
@@ -622,7 +618,6 @@ const EyeRisPage: React.FC = () => {
               rowKey="id"
               pagination={{
                 ...surgeryAptsPagination,
-                showSizeChanger: true,
                 showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}

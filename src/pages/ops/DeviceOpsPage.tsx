@@ -163,7 +163,7 @@ export default function DeviceOpsPage() {
       const oee = oeeR.status === 'fulfilled' && oeeR.value.success ? (oeeR.value.data as any[]) ?? [] : []
       const faultsRaw = faultsR.status === 'fulfilled' && faultsR.value.success ? faultsR.value.data : null
       const faultList: any[] = Array.isArray(faultsRaw) ? faultsRaw : (faultsRaw as any)?.items ?? []
-      const plans = plansR.status === 'fulfilled' && plansR.value.success ? (plansR.value.data?.data ?? []) : []
+      const plans = plansR.status === 'fulfilled' && plansR.value.success ? (plansR.value.data?.items ?? []) : []
       // [G005 Wave1B] 设备注册表: deviceMgmtApi.listDevices (GET /device-mgmt/devices)
       const devRaw = devicesR.status === 'fulfilled' && devicesR.value.success ? devicesR.value.data : null
       const devList: any[] = Array.isArray(devRaw) ? devRaw : (devRaw as any)?.items ?? []

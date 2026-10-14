@@ -192,9 +192,9 @@ export default function ReportTableView({
       dataIndex: 'status',
       key: 'status',
       width: 110,
-      filters: Object.keys(STATUS_CONFIG).map((value) => ({ text: value, value })),
+      filters: Array.from(new Set(Object.keys(STATUS_CONFIG).map((key) => normalizeReportStatus(key)))).map((value) => ({ text: value, value })),
       onFilter: (value, report) => normalizeReportStatus(report.status) === value,
-      sorter: (a, b) => String(a.status).localeCompare(String(b.status), 'zh-CN'),
+      sorter: (a, b) => normalizeReportStatus(String(a.status)).localeCompare(normalizeReportStatus(String(b.status)), 'zh-CN'),
       render: (value, report) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
           <StatusBadge status={String(value)} size="sm" />

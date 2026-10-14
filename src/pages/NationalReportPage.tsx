@@ -1667,6 +1667,7 @@ export default function NationalReportPage() {
                 showPagination={false}
                 showExport={false}
                 showDensity={false}
+                scroll={{ x: 1200 }}
                 columns={[
                   { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
                   { title: t('nationalReport.thModality'), dataIndex: 'modality', render: (value: string) => getModalityBadge(value) },
@@ -1701,6 +1702,7 @@ export default function NationalReportPage() {
                 showPagination={false}
                 showExport={false}
                 showDensity={false}
+                scroll={{ x: 1200 }}
                 columns={[
                   { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
                   { title: t('nationalReport.thTotalReports'), dataIndex: 'totalReports', align: 'right', render: (value: number) => <span style={{ fontWeight: 600 }}>{value.toLocaleString()}</span> },

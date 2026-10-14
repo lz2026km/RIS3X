@@ -68,12 +68,12 @@ async function unwrap<T>(promise: Promise<{ success: boolean; data: T; error?: {
 export const voiceWorkstationApi = {
   listLexicon: async (): Promise<LexiconEntry[]> => {
     const res = await api.getList<LexiconEntry>('/voice-workstation/lexicon')
-    return res.success ? res.data.data : []
+    return res.success ? res.data.items : []
   },
 
   searchLexicon: async (q: string): Promise<LexiconEntry[]> => {
     const res = await api.getList<LexiconEntry>(`/voice-workstation/lexicon/search?q=${encodeURIComponent(q)}`)
-    return res.success ? res.data.data : []
+    return res.success ? res.data.items : []
   },
 
   createLexicon: async (data: { term: string; category: LexiconCategory; priority?: number; aliases?: string[] }) => {
@@ -96,7 +96,7 @@ export const voiceWorkstationApi = {
 
   listSessions: async (): Promise<SessionRecord[]> => {
     const res = await api.getList<SessionRecord>('/voice-workstation/sessions')
-    return res.success ? res.data.data : []
+    return res.success ? res.data.items : []
   },
 
   transcribe: (body: { audioBase64?: string; text?: string; reportId?: string; duration?: number }) =>
@@ -107,7 +107,7 @@ export const voiceWorkstationApi = {
 
   listCorrections: async (): Promise<CorrectionFeedback[]> => {
     const res = await api.getList<CorrectionFeedback>('/voice-workstation/corrections')
-    return res.success ? res.data.data : []
+    return res.success ? res.data.items : []
   },
 
   getStats: () => unwrap(api.get<WorkstationStats>('/voice-workstation/stats')),

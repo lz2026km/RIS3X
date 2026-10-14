@@ -1,5 +1,5 @@
 import { api, invalidateApiCacheByPrefix } from './client'
-import type { ListData } from './client'
+import type { NormalizedList } from './client'
 
 // [v3.0.6.11-99 Wave3B] 状态机扩展: 计划/已提醒/进行中/已完成/已失访/已取消 (OVERDUE 派生态)
 export type FollowUpStatus =
@@ -208,7 +208,7 @@ export const followupApi = {
   getTriggerMode: () => api.get<{ mode: 'auto' | 'hint' }>('/followup-trigger-rules/mode'),
 }
 
-export type FollowUpListResult = ListData<FollowUpPlan>
+export type FollowUpListResult = NormalizedList<FollowUpPlan>
 
 // [v3.0.6.11-100 Wave2C P3] 报告→随访触发规则 DTO (对齐后端 followup-trigger-rules)
 export interface FollowUpTriggerRuleDto {

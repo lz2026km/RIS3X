@@ -1,3 +1,30 @@
+## v3.0.6.15-2 (2026-10-10) — 表格 UI 修复（W1-W4）
+
+> **根因**: `data-table.css` 选择器 `.ant-table-wrapper .data-table` 与实际 DOM `div.data-table > div.ant-table-wrapper` 父子关系不匹配，90% 密度/斑马纹/nowrap/等宽数字规则失效。
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / `guard:ui` 全绿
+
+### W1 表格核心
+- `data-table.css` 21 个选择器反转修复（密度/斑马纹/nowrap/`dt-num`/分页对齐全局生效）
+- 新增 `src/utils/format.ts`（`fmtNum`/`fmtDate`/`fmtPct`/`fmtToFixed` 空值安全工具）
+- EyeRIS 5 表 `pageSize` 3/4/5→10 + 移除死 size changer
+- 3 处页面崩溃修复：`OptometryClosedLoopPage`（`r.rightEye?.sphere?.toFixed`）、`QcImageAiPage`、`PrintManagementPage`（`p.deptCost?.CT?.toFixed`）
+
+### W2 表格比例
+- `scroll.x` 与列宽和匹配：Worklist 1800→2200、PatientTable 1150→1400、ExamPage 补 `x:1620`、QcAnalytics 6 处过冲→精确和
+- 操作列 300-360→180 图标化（Worklist/AiModelRegistry/VNADashboard/AiWorkflowCenter）
+- 59 个数字列补 `align:"right"`；54 个 ≥8 列裸表补 `scroll.x`；560px 单列→ellipsis
+
+### W3 表格正确性
+- `ReportTableView` 状态筛选/排序词表统一
+- `DepartmentPage` 伪造成分移除（改显示 "-" 或隐藏）
+- 10 处索引 rowKey → 业务键；28 处 sorter 补 `?? 0`；16 处裸 Table 补 locale
+
+### W4 前后端契约
+- `api.getList` 归一化器采纳（8 API + ~55 调用点），消除 `{items}` vs `{success,data}` 二义
+- 5 处请求形状修复（gender 枚举、报告字段、worklist roomId）
+- CSRF token 流修复（不再发送随机 UUID）
+- 查询参数 real 模式生效（page/pageSize→skip/take、search→name、status→state）
+
 ## v3.0.6.15-1 (2026-10-10) — 全面 BUG 修复 + 演示数据扩充（对外商业演示版）
 
 > **目标**: ① 全面审查并修复软件 BUG ② 扩充诊疗/患者/医疗设备演示数据（关联性、模拟子系统运行）

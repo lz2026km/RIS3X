@@ -129,10 +129,8 @@ export default function ReportDeliveryPage() {
       try {
         const res = await reportApi.list({ page: 1, pageSize: 100, take: '100', skip: '0' });
         if (!cancelled && res.success && res.data) {
-          const raw = res.data as unknown;
-          const list: ReportDto[] = Array.isArray(raw)
-            ? raw as ReportDto[]
-            : (raw as { items?: ReportDto[] })?.items ?? [];
+          // [W4] api.getList 已归一化为 { items, total }
+          const list: ReportDto[] = res.data.items ?? [];
           if (list.length > 0) {
             setRecords(list.map(reportToDeliveryRecord));
             setRecordsSource('api');

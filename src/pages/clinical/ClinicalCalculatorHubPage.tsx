@@ -205,7 +205,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
         </Col>
         <Col span={10}>
           <Card size="small" title={t('clinicalCalc.recent')} extra={<Button icon={<Download size={12}/>} onClick={handleExport}>{t('clinicalCalc.export')}</Button>}>
-            <DataTable rowKey={(record, index) => `${record.time}-${index}`} dataSource={history} pagination={false} scroll={{ x: 'max-content' }} columns={[
+            <DataTable rowKey={(record) => `${record.time}-${record.calc}-${record.patient}`} dataSource={history} pagination={false} scroll={{ x: 'max-content' }} columns={[
               {title:t('clinicalCalc.colTime'),dataIndex:'time'},{title:t('clinicalCalc.colCalculator'),dataIndex:'calc',render:(c:string)=><Tag color="blue">{c}</Tag>},
               {title:t('clinicalCalc.colPatient'),dataIndex:'patient'},{title:t('clinicalCalc.colResult'),dataIndex:'result'},
             ]} />

@@ -278,7 +278,7 @@ export default function HrOperationsPage() {
             </div>
             <DataTable
               dataSource={certRows}
-              rowKey={(c, i) => `${c.staff}-${i ?? 0}`}
+              rowKey={(c) => `${c.staff}-${c.cert}`}
               pagination={false}
               columns={[
                 { title: t('hrOps.colName'), dataIndex: 'staff' },

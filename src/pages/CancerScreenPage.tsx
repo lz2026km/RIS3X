@@ -1135,6 +1135,7 @@ const CancerScreenPage = () => {
               showPagination={false}
               showExport={false}
               showDensity={false}
+              scroll={{ x: 1200 }}
               emptyText={t('cancerScreen.noQueue')}
               columns={[
                 {

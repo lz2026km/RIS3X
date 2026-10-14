@@ -468,7 +468,7 @@ export default function QcPdcaPage() {
           columns={columns}
           dataSource={cycles}
           pagination={{ pageSize: 8, showTotal: (total) => t('qcPdca.totalCycles', { total }) }}
-          scroll={{ x: 1080 }}
+          scroll={{ x: 800 }}
           locale={{ emptyText: <Empty description={t('qcPdca.emptyCycles')} /> }}
         />
       </div>

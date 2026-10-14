@@ -517,16 +517,16 @@ export const OptometryClosedLoopPage: React.FC = () => {
                             {
                               title: "RE (DS)",
                               render: (_, r: any) =>
-                                r.rightEye.sphere.toFixed(2),
+                                r.rightEye?.sphere?.toFixed(2) ?? '-',
                             },
                             {
                               title: "LE (DS)",
                               render: (_, r: any) =>
-                                r.leftEye.sphere.toFixed(2),
+                                r.leftEye?.sphere?.toFixed(2) ?? '-',
                             },
                             {
                               title: "AL (mm)",
-                              render: (_, r: any) => r.axialLength.toFixed(2),
+                              render: (_, r: any) => r.axialLength?.toFixed(2) ?? '-',
                             },
                             { title: t("eye.optometry.colIntervention"), dataIndex: "intervention" },
                           ]}

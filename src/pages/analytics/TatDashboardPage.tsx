@@ -340,7 +340,7 @@ export default function TatDashboardPage() {
       title: t('tatDashboard.colExamCount'),
       dataIndex: "examCount",
       key: "examCount",
-      sorter: (a, b) => a.examCount - b.examCount,
+      sorter: (a, b) => (a.examCount ?? 0) - (b.examCount ?? 0),
     },
     { title: t('tatDashboard.colReportCount'), dataIndex: "reportCount", key: "reportCount" },
     {
@@ -348,7 +348,7 @@ export default function TatDashboardPage() {
       dataIndex: "avgTatMinutes",
       key: "avgTatMinutes",
       width: 100,
-      sorter: (a, b) => a.avgTatMinutes - b.avgTatMinutes,
+      sorter: (a, b) => (a.avgTatMinutes ?? 0) - (b.avgTatMinutes ?? 0),
       render: (v: number) => {
         const cfg = TAT_LEVEL_CONFIG[tatLevel(v)];
         return (
@@ -756,7 +756,7 @@ export default function TatDashboardPage() {
                 </div>
                 <div style={{ overflowX: "auto" }}>
                   <DataTable
-                    rowKey={(_, i) => String(i ?? 0)}
+                    rowKey={(r, i) => String(r.dimension ?? r[drillDimension] ?? i)}
                     dataSource={drillRows}
                     pagination={false}
                     scroll={{ x: 560 }}

@@ -148,7 +148,7 @@ const AiTriagePage: React.FC = () => {
   const columns = [
     { title: t('aiTriage.colExamId'), dataIndex: 'examId', key: 'examId', width: 150, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
     { title: t('aiTriage.colPatient'), dataIndex: 'patientName', key: 'patientName', width: 90 },
-    { title: t('aiTriage.colAiScore'), dataIndex: 'score', key: 'score', width: 140, sorter: (a: AiTriageResult, b: AiTriageResult) => b.score - a.score, render: (s: number) => <Progress percent={s} size="small" strokeColor={s >= 80 ? '#ff4d4f' : s >= 60 ? '#faad14' : '#52c41a'} /> },
+    { title: t('aiTriage.colAiScore'), dataIndex: 'score', key: 'score', width: 140, sorter: (a: AiTriageResult, b: AiTriageResult) => (b.score ?? 0) - (a.score ?? 0), render: (s: number) => <Progress percent={s} size="small" strokeColor={s >= 80 ? '#ff4d4f' : s >= 60 ? '#faad14' : '#52c41a'} /> },
     { title: t('aiTriage.colLevel'), dataIndex: 'level', key: 'level', width: 90, sorter: (a: AiTriageResult, b: AiTriageResult) => (levelOrder[a.level] ?? 0) - (levelOrder[b.level] ?? 0), render: (l: string) => <Tag color={levelColor[l]}>{t(levelLabelKey[l] ?? l)}</Tag> },
     { title: t('aiTriage.colAiConfidence'), dataIndex: 'aiConfidence', key: 'aiConfidence', width: 100, render: (c: number) => `${((c ?? 0) * 100).toFixed(1)}%` },
     { title: t('aiTriage.colSuggestedDoctor'), dataIndex: 'suggestedDoctor', key: 'suggestedDoctor', ellipsis: true, render: (d: string) => d || '-' },

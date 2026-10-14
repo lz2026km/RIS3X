@@ -289,7 +289,7 @@ const TriageTab: React.FC = () => {
       {
         title: t("w4ai.triage.col.actions"),
         key: "actions",
-        width: 300,
+        width: 180,
         fixed: "right",
         render: (_: unknown, r: TriageQueueItem, index: number) => (
           <Space size={[4, 4]} wrap>
@@ -315,35 +315,35 @@ const TriageTab: React.FC = () => {
               action="edit"
               size="compact"
               icon={<Hand size={13} />}
+              title={t("w4ai.triage.hold")}
+              aria-label={t("w4ai.triage.hold")}
               onClick={() => {
                 setStatus(r.id, "holded");
                 message.success(t("w4ai.triage.holdOk", { name: r.patientName }));
               }}
-            >
-              {t("w4ai.triage.hold")}
-            </ActionButton>
+            />
             <ActionButton
               action="edit"
               size="compact"
               icon={<Gauge size={13} />}
+              title={t("w4ai.triage.review")}
+              aria-label={t("w4ai.triage.review")}
               onClick={() => {
                 setStatus(r.id, "reviewing");
                 message.success(t("w4ai.triage.reviewOk", { name: r.patientName }));
               }}
-            >
-              {t("w4ai.triage.review")}
-            </ActionButton>
+            />
             <ActionButton
               action="submit"
               size="compact"
               icon={<CheckCircle2 size={13} />}
+              title={t("w4ai.triage.adopt")}
+              aria-label={t("w4ai.triage.adopt")}
               onClick={() => {
                 setStatus(r.id, "adopted");
                 message.success(t("w4ai.triage.adoptOk", { name: r.patientName }));
               }}
-            >
-              {t("w4ai.triage.adopt")}
-            </ActionButton>
+            />
           </Space>
         ),
       },

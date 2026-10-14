@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.15-1",
-  "description": "G005 Radiology RIS v3.0.6.15-1 - Bug Fixes + Demo Data Expansion (relational, cross-linked)",
+  "version": "3.0.6.15-2",
+  "description": "G005 Radiology RIS v3.0.6.15-2 - Table UI Fixes (CSS selector, proportions, null-safety, contract)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

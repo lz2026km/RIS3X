@@ -205,7 +205,7 @@ const TriagePage: React.FC = () => {
       title: t("triage.score"),
       dataIndex: "score",
       key: "score",
-      sorter: (a: TriageItem, b: TriageItem) => b.score - a.score,
+      sorter: (a: TriageItem, b: TriageItem) => (b.score ?? 0) - (a.score ?? 0),
       render: (s: number) => <Tag color={scoreColor(s)}>{s}</Tag>,
     },
     {

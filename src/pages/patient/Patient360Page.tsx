@@ -204,7 +204,7 @@ export default function Patient360Page() {
 
         // 随访计划 (GET /followups?patientId=..)
         const fu = settled(fuRes)
-        const fuList: FollowUpPlan[] = Array.isArray(fu) ? fu : Array.isArray((fu as any)?.data) ? (fu as any).data : []
+        const fuList: FollowUpPlan[] = Array.isArray(fu) ? fu : Array.isArray((fu as any)?.items) ? (fu as any).items : Array.isArray((fu as any)?.data) ? (fu as any).data : []
         if (fuList.length > 0) {
           setFollowUps(fuList.filter(p => p.patientId === id).slice(0, 10))
           anyReal = true

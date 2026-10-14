@@ -782,6 +782,7 @@ export default function DictionaryPage() {
           dataSource={paged}
           rowKey="id"
           showPagination={false}
+          scroll={{ x: 1200 }}
         />
       )}
 

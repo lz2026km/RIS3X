@@ -179,25 +179,19 @@ function captureCsrfToken(response: Response): void {
   }
 }
 
-function getCsrfToken(): string {
+// [W4] CSRF 修复: 不再生成随机 UUID 伪 token。
+// 仅当此前 GET 响应已捕获真实 token (captureCsrfToken) 时才返回;
+// 否则返回 undefined, 由调用方省略 X-CSRF-Token 头 (后端仅在要求时校验)。
+function getCsrfToken(): string | undefined {
   const storageKey = "ris_csrf_token";
   if (typeof window !== "undefined") {
     try {
-      const existing = window.sessionStorage.getItem(storageKey);
-      if (existing) return existing;
+      return window.sessionStorage.getItem(storageKey) ?? undefined;
     } catch {
-      /* noop */
+      return undefined;
     }
   }
-  const token = crypto.randomUUID().replace(/-/g, "");
-  if (typeof window !== "undefined") {
-    try {
-      window.sessionStorage.setItem(storageKey, token);
-    } catch {
-      /* noop */
-    }
-  }
-  return token;
+  return undefined;
 }
 
 function apiError(
@@ -273,8 +267,11 @@ async function request<T>(
   if (API_MODE === "real") {
     const tenantId = getTenantId();
     if (tenantId) baseHeaders["X-Tenant-Id"] = tenantId;
-    if (!["GET", "HEAD", "OPTIONS"].includes(method))
-      baseHeaders["X-CSRF-Token"] = getCsrfToken();
+    if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+      // [W4] 仅在捕获到真实 CSRF token 时携带该头, 否则省略 (不再发送随机伪 token)
+      const csrfToken = getCsrfToken();
+      if (csrfToken) baseHeaders["X-CSRF-Token"] = csrfToken;
+    }
   }
 
   const controller = new AbortController();
@@ -465,7 +462,8 @@ async function requestUploadWithProgress<T>(
   if (API_MODE === "real") {
     const tenantId = getTenantId();
     if (tenantId) baseHeaders["X-Tenant-Id"] = tenantId;
-    baseHeaders["X-CSRF-Token"] = getCsrfToken();
+    const uploadCsrfToken = getCsrfToken();
+    if (uploadCsrfToken) baseHeaders["X-CSRF-Token"] = uploadCsrfToken;
   }
   const currentToken = getToken();
   if (currentToken) baseHeaders["Authorization"] = `Bearer ${currentToken}`;
@@ -556,8 +554,10 @@ async function requestBlob<T = Blob>(
   if (API_MODE === "real") {
     const tenantId = getTenantId();
     if (tenantId) baseHeaders["X-Tenant-Id"] = tenantId;
-    if (!["GET", "HEAD", "OPTIONS"].includes(method))
-      baseHeaders["X-CSRF-Token"] = getCsrfToken();
+    if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) baseHeaders["X-CSRF-Token"] = csrfToken;
+    }
   }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
@@ -616,25 +616,40 @@ async function requestBlob<T = Blob>(
 
 // ────────────────────────────────────────────────────────────────────────────
 // [G005 P0] 列表形状归一化 (方案 B: client 层统一收敛)
-// 返回统一 { data: T[], total } 形状, 页面无需再判断 Array.isArray / items。
+// 返回统一 { items, total } 形状, 页面无需再判断 Array.isArray / items。
 // ────────────────────────────────────────────────────────────────────────────
+/** api.getList 归一化后的列表载荷: 消费方始终拿到 { items, total }。 */
+export interface NormalizedList<T> {
+  items: T[];
+  total: number;
+}
+
+/** 部分后端原生列表载荷形状 { data, total } (dept/emergency-channel 等直接 api.get 使用)。 */
 export interface ListData<T> {
   data: T[];
   total: number;
 }
 
-async function requestList<T>(path: string): Promise<ApiResponse<ListData<T>>> {
+async function requestList<T>(
+  path: string,
+): Promise<ApiResponse<NormalizedList<T>>> {
   const res = await request<unknown>(path, { method: "GET" });
   if (!res.success) {
     return {
       success: false,
-      data: { data: [], total: 0 },
+      data: { items: [], total: 0 },
       error: res.error,
     };
   }
+  // 分页响应的总条数优先取 meta.total (MSW 裸数组分页形状), 否则回退 items 长度
+  const metaTotal =
+    typeof res.meta?.total === "number" ? res.meta.total : undefined;
   const d = res.data;
   if (Array.isArray(d)) {
-    return { success: true, data: { data: d as T[], total: d.length } };
+    return {
+      success: true,
+      data: { items: d as T[], total: metaTotal ?? d.length },
+    };
   }
   if (d && typeof d === "object") {
     const obj = d as Record<string, unknown>;
@@ -643,15 +658,30 @@ async function requestList<T>(path: string): Promise<ApiResponse<ListData<T>>> {
       return {
         success: true,
         data: {
-          data: items,
-          total: typeof obj.total === "number" ? obj.total : items.length,
+          items,
+          total:
+            metaTotal ??
+            (typeof obj.total === "number" ? obj.total : items.length),
+        },
+      };
+    }
+    // 兼容 { data: [...] } 内层载荷 (少数 handler 使用)
+    if (Array.isArray(obj.data)) {
+      const items = obj.data as T[];
+      return {
+        success: true,
+        data: {
+          items,
+          total:
+            metaTotal ??
+            (typeof obj.total === "number" ? obj.total : items.length),
         },
       };
     }
   }
   return {
     success: false,
-    data: { data: [], total: 0 },
+    data: { items: [], total: 0 },
     error: { code: "INVALID_LIST", message: "列表响应格式无效" },
   };
 }

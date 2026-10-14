@@ -1,5 +1,5 @@
 import { api, invalidateApiCacheByPrefix } from './client'
-import type { ListData } from './client'
+import type { NormalizedList } from './client'
 
 // [v3.0.6.11-99 Wave3B] 随访模板库 (病种/术式/检查类型 → 间隔数组 + 随访项目)
 export interface FollowUpTemplate {
@@ -65,4 +65,4 @@ export const followupTemplatesApi = {
   },
 }
 
-export type FollowUpTemplateListResult = ListData<FollowUpTemplate>
+export type FollowUpTemplateListResult = NormalizedList<FollowUpTemplate>

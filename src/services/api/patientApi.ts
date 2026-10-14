@@ -92,21 +92,91 @@ export interface PatientVisitHistoryDto {
   events: PatientVisitEvent[]
 }
 
+// [W4] 对齐后端 CreatePatientSchema / UpdatePatientSchema (backend patient.controller.ts):
+//   create: { name, gender: MALE|FEMALE|OTHER, birthDate?, idCard?, phone?, type? }
+//   后端不接受 age/bloodType/address/diagnosis 等旧 mock 字段 → 写请求前统一剔除;
+//   gender 兼容旧 'M'/'F'/'男'/'女' 输入, 归一化为后端枚举 MALE/FEMALE/OTHER。
+export type PatientGender = 'MALE' | 'FEMALE' | 'OTHER'
+export type PatientType = 'OUTPATIENT' | 'INPATIENT' | 'EMERGENCY' | 'PHYSICAL'
+
+const PATIENT_GENDER_MAP: Record<string, PatientGender> = {
+  M: 'MALE', MALE: 'MALE', 男: 'MALE',
+  F: 'FEMALE', FEMALE: 'FEMALE', 女: 'FEMALE',
+  O: 'OTHER', OTHER: 'OTHER', 其他: 'OTHER',
+}
+
+const PATIENT_TYPE_MAP: Record<string, PatientType> = {
+  OUTPATIENT: 'OUTPATIENT', 门诊: 'OUTPATIENT',
+  INPATIENT: 'INPATIENT', 住院: 'INPATIENT',
+  EMERGENCY: 'EMERGENCY', 急诊: 'EMERGENCY',
+  PHYSICAL: 'PHYSICAL', 体检: 'PHYSICAL',
+}
+
+function toPatientWritePayload(
+  data: Partial<PatientDto> & Record<string, unknown>,
+  opts: { requiredName: boolean },
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {}
+  const name = typeof data.name === 'string' ? data.name.trim() : ''
+  if (name) payload.name = name
+  if (data.gender !== undefined && data.gender !== null && String(data.gender).trim() !== '') {
+    const raw = String(data.gender).trim()
+    payload.gender = PATIENT_GENDER_MAP[raw] ?? PATIENT_GENDER_MAP[raw.toUpperCase()] ?? 'OTHER'
+  } else if (opts.requiredName) {
+    payload.gender = 'OTHER'
+  }
+  if (data.birthDate) payload.birthDate = String(data.birthDate)
+  if (data.idCard) payload.idCard = String(data.idCard)
+  if (data.phone) payload.phone = String(data.phone)
+  if (data.type) {
+    const mappedType = PATIENT_TYPE_MAP[String(data.type).trim()]
+    if (mappedType) payload.type = mappedType
+  }
+  return payload
+}
+
 export const patientApi = {
-  list: (params?: PatientQueryParams) =>
-    api.get<ListPayload<PatientDto>>(`/patients?${new URLSearchParams(params as Record<string, string>).toString()}`),
+  // [W4] 列表归一化: api.getList → 消费方始终拿到 { items, total }
+  // [W4] 查询参数映射 (real 模式后端 PatientListQuerySchema):
+  //   - search → name (后端按 name 精确前缀筛选; 同时保留 search 兼容 MSW searchFields)
+  //   - page/pageSize → skip/take (后端 resolvePagination; 同时保留 page/pageSize 兼容 MSW parseQuery)
+  list: (params?: PatientQueryParams) => {
+    const sp = new URLSearchParams()
+    if (params) {
+      const { search, page, pageSize, ...rest } = params
+      Object.entries(rest).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') sp.set(k, String(v))
+      })
+      if (search) {
+        sp.set('name', search)
+        sp.set('search', search)
+      }
+      if (page !== undefined) {
+        sp.set('page', String(page))
+        sp.set('skip', String((page - 1) * (pageSize ?? 20)))
+      }
+      if (pageSize !== undefined) {
+        sp.set('pageSize', String(pageSize))
+        sp.set('take', String(pageSize))
+      }
+    }
+    const qs = sp.toString()
+    return api.getList<PatientDto>(`/patients${qs ? `?${qs}` : ''}`)
+  },
 
   getById: (id: string) =>
     api.get<PatientDto>(`/patients/${id}`),
 
+  // [W4] 创建: 载荷对齐后端 CreatePatientSchema (剔除 age/bloodType/address/diagnosis; gender 归一化枚举)
   create: async (data: Partial<PatientDto>) => {
-    const res = await api.post<PatientDto>('/patients', data)
+    const res = await api.post<PatientDto>('/patients', toPatientWritePayload(data, { requiredName: true }))
     await invalidateApiCacheByPrefix('/patients')
     return res
   },
 
+  // [W4] 更新: 同样只发送后端 UpdatePatientSchema 接受的字段
   update: async (id: string, data: Partial<PatientDto>) => {
-    const res = await api.patch<PatientDto>(`/patients/${id}`, data)
+    const res = await api.patch<PatientDto>(`/patients/${id}`, toPatientWritePayload(data, { requiredName: false }))
     await invalidateApiCacheByPrefix('/patients')
     return res
   },

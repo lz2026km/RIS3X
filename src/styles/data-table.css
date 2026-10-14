@@ -38,8 +38,8 @@
 }
 
 /* ---------- 列头 ---------- */
-.ant-table-wrapper .data-table .ant-table-thead > tr > th,
-.ant-table-wrapper .data-table .ant-table-thead > tr > td {
+.data-table .ant-table-thead > tr > th,
+.data-table .ant-table-thead > tr > td {
   background: var(--table-header-bg, var(--color-gray-50, #f8fafc)) !important;
   color: var(--table-header-fg, var(--text-secondary, #475569)) !important;
   font-weight: 600;
@@ -52,17 +52,17 @@
 }
 
 /* 移除 antd 默认列头竖分隔线 */
-.ant-table-wrapper .data-table .ant-table-thead > tr > th::before {
+.data-table .ant-table-thead > tr > th::before {
   display: none !important;
 }
 
 /* ---------- 行 / 单元格 ---------- */
-.ant-table-wrapper .data-table .ant-table {
+.data-table .ant-table {
   font-size: 13px;
   color: var(--text-primary, #1e293b);
 }
 
-.ant-table-wrapper .data-table .ant-table-tbody > tr > td {
+.data-table .ant-table-tbody > tr > td {
   padding: var(--dt-cell-pad-y) var(--dt-cell-pad-x);
   height: var(--dt-row-height);
   vertical-align: middle;
@@ -72,55 +72,55 @@
 }
 
 /* ---------- 斑马纹 ---------- */
-.ant-table-wrapper .data-table .ant-table-tbody > tr.dt-zebra > td {
+.data-table .ant-table-tbody > tr.dt-zebra > td {
   background: var(--dt-zebra-bg);
 }
 
 /* ---------- hover / 选中 ---------- */
-.ant-table-wrapper .data-table .ant-table-tbody > tr > td.ant-table-cell-row-hover,
-.ant-table-wrapper .data-table .ant-table-tbody > tr.ant-table-row:hover > td,
-.ant-table-wrapper .data-table .ant-table-tbody > tr:hover > td {
+.data-table .ant-table-tbody > tr > td.ant-table-cell-row-hover,
+.data-table .ant-table-tbody > tr.ant-table-row:hover > td,
+.data-table .ant-table-tbody > tr:hover > td {
   background: var(--dt-hover-bg) !important;
 }
 
-.ant-table-wrapper .data-table .ant-table-tbody > tr.ant-table-row-selected > td,
-.ant-table-wrapper .data-table .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+.data-table .ant-table-tbody > tr.ant-table-row-selected > td,
+.data-table .ant-table-tbody > tr.ant-table-row-selected:hover > td {
   background: var(--dt-selected-bg) !important;
 }
 
 /* ---------- 数值列右对齐 + 等宽数字 ---------- */
-.ant-table-wrapper .data-table .ant-table-cell.dt-num,
-.ant-table-wrapper .data-table .ant-table-thead > tr > th.dt-num {
+.data-table .ant-table-cell.dt-num,
+.data-table .ant-table-thead > tr > th.dt-num {
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
 /* ---------- sticky 表头 ---------- */
-.ant-table-wrapper .data-table .ant-table-sticky-holder,
-.ant-table-wrapper .data-table .ant-table-header.ant-table-sticky-holder {
+.data-table .ant-table-sticky-holder,
+.data-table .ant-table-header.ant-table-sticky-holder {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   z-index: 3;
 }
 
-[data-theme="dark"] .ant-table-wrapper .data-table .ant-table-sticky-holder,
-[data-theme="high-contrast"] .ant-table-wrapper .data-table .ant-table-sticky-holder {
+[data-theme="dark"] .data-table .ant-table-sticky-holder,
+[data-theme="high-contrast"] .data-table .ant-table-sticky-holder {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* ---------- 分页器 ---------- */
-.ant-table-wrapper .data-table .ant-table-pagination.ant-pagination {
+.data-table .ant-table-pagination.ant-pagination {
   margin: 8px 16px;
   justify-content: flex-end;
 }
 
 /* ---------- 空态 ---------- */
-.ant-table-wrapper .data-table .ant-table-placeholder:hover > td,
-.ant-table-wrapper .data-table .ant-table-placeholder > td {
+.data-table .ant-table-placeholder:hover > td,
+.data-table .ant-table-placeholder > td {
   background: transparent !important;
 }
 
 /* ---------- 工具栏 ---------- */
-[data-theme="dark"] .ant-table-wrapper .data-table [data-testid="data-table-toolbar"] {
+[data-theme="dark"] .data-table [data-testid="data-table-toolbar"] {
   border-bottom-color: var(--border-default, rgba(255, 255, 255, 0.1)) !important;
 }

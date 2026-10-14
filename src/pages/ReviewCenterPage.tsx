@@ -59,8 +59,13 @@ const ReviewCenterPage: React.FC = () => {
           coSignApi.getStats(),
         ]);
         if (cancelled) return;
-        const countOf = (res: { success: boolean; data?: unknown; meta?: unknown }) =>
-          (res as any)?.meta?.total ?? (Array.isArray((res as any)?.data) ? (res as any).data.length : 0);
+        // [W4] getList 归一化后 total 位于 data.total
+        const countOf = (res: { success: boolean; data?: unknown; meta?: unknown }) => {
+          const d = (res as any)?.data
+          if ((res as any)?.meta?.total != null) return (res as any).meta.total
+          if (d && typeof d === 'object' && typeof d.total === 'number') return d.total
+          return Array.isArray(d) ? d.length : 0
+        }
         setSummary({
           initial: countOf(initialRes as any),
           final: countOf(finalRes as any),

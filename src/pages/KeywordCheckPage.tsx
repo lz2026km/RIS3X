@@ -82,7 +82,8 @@ export default function KeywordCheckPage() {
     setApiError('');
     try {
       const res = await reportApi.list({ take: '50' });
-      const list = Array.isArray(res.data) ? res.data : Array.isArray((res.data as any)?.items) ? (res.data as any).items : [];
+      // [W4] api.getList 已归一化为 { items, total }
+      const list = res.data?.items ?? [];
       if (Array.isArray(list) && list.length > 0) {
         const mapped: ScanReportRow[] = list.map((r: any) => ({
           id: String(r.id),

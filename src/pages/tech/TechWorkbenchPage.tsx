@@ -553,8 +553,8 @@ export default function TechWorkbenchPage() {
     execApi.listProtocols().then(res => { if (res.success && res.data) setProtocols(res.data.items) }).catch(() => {})
     void loadMwlQueue()
     worklistApi.list({ page: 1, pageSize: 200 }).then(res => {
-      const data = res.data as unknown
-      const list = Array.isArray(data) ? (data as WorklistItemDto[]) : (data as { items?: WorklistItemDto[] })?.items ?? []
+      // [W4] api.getList 已归一化为 { items, total }
+      const list = res.data?.items ?? []
       if (res.success) setExecExamOptions(list)
     }).catch(() => { /* 选项不可用不阻断 */ })
   }, [activeTab, loadMwlQueue])

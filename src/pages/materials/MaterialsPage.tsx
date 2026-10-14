@@ -89,12 +89,12 @@ export const MaterialsPage: React.FC = () => {
 
   useEffect(() => { loadIols(); loadLenses(); }, []);
 
-  // [G005 2B] 加载患者列表供试戴选择 (patientApi.list 双形状: 裸数组 / { items, total })
+  // [G005 2B] 加载患者列表供试戴选择 ([W4] api.getList 已归一化为 { items, total })
   useEffect(() => {
     (async () => {
       try {
         const r = await patientApi.list({ pageSize: 50 });
-        const raw = Array.isArray(r.data) ? r.data : (r.data as any)?.items ?? [];
+        const raw = r.data?.items ?? [];
         if (Array.isArray(raw)) {
           setPatientOptions(raw.map((p: any) => ({ value: p.id, label: `${p.name} (${p.id})` })));
         }

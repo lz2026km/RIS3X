@@ -145,7 +145,7 @@ export const ReviewWorkloadStats: React.FC = () => {
       title: t('reportReview.workload.colCompleted'),
       dataIndex: 'totalCompleted',
       key: 'totalCompleted',
-      sorter: (a: WorkloadStat, b: WorkloadStat) => a.totalCompleted - b.totalCompleted,
+      sorter: (a: WorkloadStat, b: WorkloadStat) => (a.totalCompleted ?? 0) - (b.totalCompleted ?? 0),
     },
     {
       title: t('reportReview.workload.colRejected'),
@@ -167,7 +167,7 @@ export const ReviewWorkloadStats: React.FC = () => {
       title: t('reportReview.workload.colOnTime'),
       dataIndex: 'onTimeRate',
       key: 'onTimeRate',
-      sorter: (a: WorkloadStat, b: WorkloadStat) => a.onTimeRate - b.onTimeRate,
+      sorter: (a: WorkloadStat, b: WorkloadStat) => (a.onTimeRate ?? 0) - (b.onTimeRate ?? 0),
       render: (v: number) => (
         <Progress
           percent={v}

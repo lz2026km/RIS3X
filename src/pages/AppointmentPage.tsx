@@ -463,8 +463,8 @@ export default function AppointmentPage() {
           appointmentApi.getRules(),
         ]);
         if (cancelled) return;
-        // [G005 P0] 列表形状兼容: MSW 裸数组 / Nest {items,total}
-        const aptItems = (aptRes.data as { items?: unknown[] } | null)?.items ?? aptRes.data;
+        // [W4] api.getList 已归一化为 { items, total }
+        const aptItems = (aptRes.data as { items?: unknown[] } | null)?.items ?? [];
         if (aptRes.success && Array.isArray(aptItems)) {
           setAppointments(aptItems as unknown as Appointment[]);
           setLoadError(null);
@@ -2187,7 +2187,7 @@ const borderGray = "var(--border-color)";
                           if (ok > 0) {
                             try {
                               const reloadRes = await appointmentApi.list();
-                              const items = (reloadRes.data as { items?: unknown[] } | null)?.items ?? reloadRes.data;
+                              const items = (reloadRes.data as { items?: unknown[] } | null)?.items ?? [];
                               if (reloadRes.success && Array.isArray(items)) setAppointments(items as unknown as Appointment[]);
                             } catch { /* 列表刷新失败不阻断 */ }
                             setShowBatchImport(false);

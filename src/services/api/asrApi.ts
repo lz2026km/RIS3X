@@ -143,7 +143,7 @@ export const asrApi = {
 
   listDictationHotwords: async (): Promise<DictationHotword[]> => {
     const res = await api.getList<DictationHotword>('/asr/dictation/hotwords')
-    return res.success ? res.data.data : []
+    return res.success ? res.data.items : []
   },
 
   createDictationHotword: (data: { term: string; category?: DictationHotwordCategory; priority?: number }) =>

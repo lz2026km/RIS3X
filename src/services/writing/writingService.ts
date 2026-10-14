@@ -336,10 +336,12 @@ export async function compareReports(_reportIdA: string, _reportIdB: string): Pr
 // ============================================================
 export async function listDrafts(reportId: string): Promise<ReportDraft[]> {
   const res = await reportApi.list({ take: '20' });
-  if (!res.success || !Array.isArray(res.data) || res.data.length === 0) {
+  // [W4] getList 归一化为 { items, total }
+  const items = res.data?.items ?? [];
+  if (!res.success || items.length === 0) {
     return REPORT_DRAFTS_MOCK.filter((d) => d.reportId === reportId);
   }
-  return res.data.map((r, i) => ({
+  return items.map((r, i) => ({
     id: `draft-${r.reportId}-${i}`,
     reportId: r.reportId || r.id,
     authorId: r.doctorId ?? '',

@@ -57,7 +57,9 @@ export interface WorklistStatsDto {
   avgDurationMin?: number
   byTechnician?: Array<{ id: string; name: string; completedCount: number; avgDurationMin: number }>
 }
-export interface AssignWorklistDto { doctorId?: string; deviceId?: string; roomId?: string }
+// [W4] 对齐后端 AssignBodySchema (worklist.controller.ts): 仅接受 doctorId/deviceId
+//   (后端无 roomId 字段, 发送会被 zod 剥离并可能引发校验歧义 → 移除)
+export interface AssignWorklistDto { doctorId?: string; deviceId?: string }
 export interface BatchTransitionResult { succeeded: Array<{ id: string; state: string }>; failed: Array<{ id: string; message: string }> }
 
 // [v3.0.6.11-100 Wave 1B] 重拍原因枚举 (对齐后端 RETAKE_REASON_CODES)
@@ -228,10 +230,13 @@ export interface TimeoutVerifyDto {
 }
 
 export const worklistApi = {
+  // [W4] 列表归一化: api.getList → 消费方始终拿到 { items, total }
+  //   (兼容 Nest { items, total } 与 MSW 裸数组/分页 meta 两种响应形状)
   list: (params?: WorklistQueryParams) => {
     const sp = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) sp.set(k, String(v)) }) }
-    return api.get<{ items: WorklistItemDto[]; total: number }>(`/worklist?${sp.toString()}`)
+    const qs = sp.toString()
+    return api.getList<WorklistItemDto>(`/worklist${qs ? `?${qs}` : ''}`)
   },
   getById: (id: string) => api.get<WorklistItemDto>(`/worklist/${id}`),
   updateStatus: (id: string, status: string) => api.patch(`/worklist/${id}`, { status }),
@@ -326,8 +331,9 @@ export const worklistApi = {
   },
 
   // [v3.0.6.11-104 Wave 3D] 重拍审批队列 (QC_REJECT 状态, 由 worklist 列表派生)
+  // [W4] 归一化为 { items, total }
   listRetakeRequests: () =>
-    api.get<{ items: WorklistItemDto[]; total: number }>(`/worklist?${new URLSearchParams({ status: 'QC_REJECT', pageSize: '200' }).toString()}`),
+    api.getList<WorklistItemDto>(`/worklist?${new URLSearchParams({ status: 'QC_REJECT', pageSize: '200' }).toString()}`),
 
   // [v3.0.6.11-95 Wave 1A P1] 暂停/继续: POST /worklist/:id/pause|resume (IN_PROGRESS → PAUSED → IN_PROGRESS)
   pauseExam: async (id: string, reason?: string) => {

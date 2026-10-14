@@ -158,6 +158,7 @@ export default function MwlManagerPage() {
             dataSource={items}
             data-testid="mwl-table"
             onRow={() => ({ 'data-testid': 'mwl-row' }) as HTMLAttributes<HTMLElement>}
+            scroll={{ x: 1200 }}
             columns={[
               { title: t('w7exec.accession'), dataIndex: 'accessionNumber', key: 'accessionNumber', render: (v: string) => <span style={{ fontFamily: 'monospace' }}>{v}</span> },
               { title: t('w7exec.patient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },

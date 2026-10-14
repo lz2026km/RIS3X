@@ -66,12 +66,13 @@ export default function NurseMobileWorkstation() {
         mobileApi.getTodaySummary(),
         mobileApi.getCriticalValues(),
       ])
-      if (!cancelled && aptRes.status === 'fulfilled' && aptRes.value.success && Array.isArray(aptRes.value.data)) {
+      if (!cancelled && aptRes.status === 'fulfilled' && aptRes.value.success) {
+        const aptItems = aptRes.value.data?.items ?? []
         const stateMap: Record<string, NurseAppointment['status']> = {
           SCHEDULED: 'waiting', CONFIRMED: 'waiting', CHECKED_IN: 'in-progress',
           IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled',
         }
-        setAppointments(aptRes.value.data.map((a: AppointmentDto) => ({
+        setAppointments(aptItems.map((a: AppointmentDto) => ({
           id: a.id,
           patientName: a.patientName || t('nurse.unknownPatient'),
           gender: t('nurse.unknown'),

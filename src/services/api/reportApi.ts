@@ -116,8 +116,31 @@ export interface ReportFieldValidationResult {
 }
 
 export const reportApi = {
-  list: (params?: ReportQueryParams) =>
-    api.get<ListPayload<ReportDto>>(`/reports?${new URLSearchParams(params as Record<string, string>).toString()}`),
+  // [W4] 列表归一化: api.getList → 消费方始终拿到 { items, total }
+  // [W4] 查询参数映射 (real 模式后端 /reports 直读 skip/take/state):
+  //   - page/pageSize → skip/take; 同时保留 page/pageSize 兼容 MSW parseQuery 分页
+  //   - 已有 skip/take/state 等后端原生参数原样透传
+  list: (params?: ReportQueryParams) => {
+    const sp = new URLSearchParams()
+    if (params) {
+      const { page, pageSize, ...rest } = params
+      Object.entries(rest).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') sp.set(k, String(v))
+      })
+      if (page !== undefined) {
+        sp.set('page', String(page))
+        if (params.skip === undefined) {
+          sp.set('skip', String((page - 1) * (Number(pageSize) || 20)))
+        }
+      }
+      if (pageSize !== undefined) {
+        sp.set('pageSize', String(pageSize))
+        if (params.take === undefined) sp.set('take', String(pageSize))
+      }
+    }
+    const qs = sp.toString()
+    return api.getList<ReportDto>(`/reports${qs ? `?${qs}` : ''}`)
+  },
 
   getById: (id: string) =>
     api.get<ReportDto>(`/reports/${id}`),
@@ -350,10 +373,11 @@ export const reportApi = {
 
   // [W6] 已归档报告列表 (只读): GET /reports?state=ARCHIVED
   //   复用后端 GET /reports 的 state 过滤 (ReportStateEnum 含 ARCHIVED), 免新增后端路由。
+  //   [W4] 归一化为 { items, total }
   listArchived: (params?: { keyword?: string }) => {
     const sp = new URLSearchParams({ state: 'ARCHIVED', take: '200' })
     if (params?.keyword) sp.set('keyword', params.keyword)
-    return api.get<ListPayload<ReportDto>>(`/reports?${sp.toString()}`)
+    return api.getList<ReportDto>(`/reports?${sp.toString()}`)
   },
 
   // [v3.0.6.11-103 Wave 2A] 报告总览: GET /reports/overview (各状态/今日完成/平均时效)

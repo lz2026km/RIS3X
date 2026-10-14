@@ -635,7 +635,7 @@ function IndicatorsTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo
       </Space>
 
       <StateView loading={loading} error={error} empty={!loading && !error && indicators.length === 0} onRetry={load} minHeight={280}>
-        <DataTable<ComputedIndicator> rowKey="code" columns={columns} dataSource={indicators} pagination={{ pageSize: 20, showSizeChanger: false }} scroll={{ x: 900 }} />
+        <DataTable<ComputedIndicator> rowKey="code" columns={columns} dataSource={indicators} pagination={{ pageSize: 20, showSizeChanger: false }} scroll={{ x: 710 }} />
       </StateView>
     </div>
   )
@@ -1026,7 +1026,7 @@ function ReportQcTasksTab() {
       </Space>
 
       <StateView loading={loading} error={error} empty={!loading && !error && tasks.length === 0} onRetry={load} minHeight={240}>
-        <DataTable<QcTask> rowKey="id" columns={columns} dataSource={tasks} pagination={{ pageSize: 15, showSizeChanger: false }} scroll={{ x: 1000 }} />
+        <DataTable<QcTask> rowKey="id" columns={columns} dataSource={tasks} pagination={{ pageSize: 15, showSizeChanger: false }} scroll={{ x: 950 }} />
       </StateView>
     </div>
   )

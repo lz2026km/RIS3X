@@ -50,6 +50,7 @@ import {
   Upload as UploadIcon,
   Database as DatabaseIcon,
   Layers as LayersIcon,
+  Eye,
 } from 'lucide-react'
 import { Inbox, Trash2, ArrowRight } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts'
@@ -469,8 +470,8 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
 
   const actionRender = (obj: VnaObject) => (
     <Space size={4}>
-      <Button size="small" type="link" onClick={() => void openDetail(obj)}>{t('vnaPage.view')}</Button>
-      <Button size="small" type="link" icon={<Download size={14} />} onClick={() => void handleDownload(obj)}>{t('vnaPage.download')}</Button>
+      <Button size="small" type="link" icon={<Eye size={14} />} title={t('vnaPage.view')} onClick={() => void openDetail(obj)} />
+      <Button size="small" type="link" icon={<Download size={14} />} title={t('vnaPage.download')} onClick={() => void handleDownload(obj)} />
       {!obj.wormLocked && (
         <Popconfirm
           title={t('vnaPage.wormLockTitle')}
@@ -479,7 +480,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
           cancelText={t('vnaPage.cancel')}
           onConfirm={() => void handleLock(obj)}
         >
-          <Button size="small" type="link" icon={<Lock size={14} />}>{t('vnaPage.lock')}</Button>
+          <Button size="small" type="link" icon={<Lock size={14} />} title={t('vnaPage.lock')} />
         </Popconfirm>
       )}
       {!obj.wormLocked && (
@@ -491,17 +492,17 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
           okButtonProps={{ danger: true }}
           onConfirm={() => void handleDelete(obj)}
         >
-          <Button size="small" type="link" danger icon={<Trash2 size={12} />}>{t('vnaPage.delete')}</Button>
+          <Button size="small" type="link" danger icon={<Trash2 size={12} />} title={t('vnaPage.delete')} />
         </Popconfirm>
       )}
     </Space>
   )
 
   const objectColumns = [
-    { title: t('vnaPage.name'), dataIndex: 'name', key: 'name', width: 260, ellipsis: true, render: (v: string, r: VnaObject) => (
+    { title: t('vnaPage.name'), dataIndex: 'name', key: 'name', width: 200, ellipsis: true, render: (v: string, r: VnaObject) => (
       <Space>
         {r.objectType === 'image' ? <ImageIcon size={15} color="#0ea5e9" /> : <FileText size={15} color="var(--color-warning-500)" />}
-        <Text ellipsis style={{ maxWidth: 220 }}>{v}</Text>
+        <Text ellipsis style={{ maxWidth: 160 }}>{v}</Text>
       </Space>
     ) },
     { title: t('vnaPage.type'), dataIndex: 'objectType', key: 'type', width: 80, render: (v: VnaObjectType) => (
@@ -509,7 +510,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
     ) },
     { title: t('vnaPage.patientId'), dataIndex: 'patientId', key: 'patientId', width: 100, render: (v: string | null) => v ?? <Text type="secondary">-</Text> },
     { title: t('vnaPage.mimeType'), dataIndex: 'mimeType', key: 'mime', width: 150, ellipsis: true },
-    { title: t('vnaPage.size'), dataIndex: 'size', key: 'size', width: 90, render: (v: number) => formatSize(v) },
+    { title: t('vnaPage.size'), dataIndex: 'size', key: 'size', width: 90, align: 'right' as const, render: (v: number) => formatSize(v) },
     { title: t('vnaPage.archivedAt'), dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => formatDate(v) },
     { title: 'WORM', dataIndex: 'wormLocked', key: 'worm', width: 90, render: (v: boolean) => v
       ? <Tag color="purple" icon={<Lock size={12} />}>{t('vnaPage.locked')}</Tag>
@@ -520,26 +521,24 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
       const conf = TIER_TAG[tier]
       return <Tag color={conf.color}>{t(conf.label)}</Tag>
     } },
-    { title: t('vnaPage.actions'), key: 'actions', width: 340, render: (_: unknown, r: VnaObject) => (
+    { title: t('vnaPage.actions'), key: 'actions', width: 180, render: (_: unknown, r: VnaObject) => (
       <Space size={4}>
         {actionRender(r)}
         <Button
           size="small"
           type="link"
           icon={<LayersIcon size={13} />}
+          title={t('vnaPage.migrate')}
           onClick={() => setMigrateTarget({ object: r, tier: 'warm' })}
-        >
-          {t('vnaPage.migrate')}
-        </Button>
+        />
         <Button
           size="small"
           type="link"
           icon={<ShieldCheck size={13} />}
           loading={verifyingId === r.id}
+          title={t('vnaPage.verify')}
           onClick={() => void handleVerify(r)}
-        >
-          {t('vnaPage.verify')}
-        </Button>
+        />
       </Space>
     ) },
   ]

@@ -136,8 +136,8 @@ export default function DoctorMobileWorkstation() {
     if (rp.status === 'fulfilled' && rp.value.success && Array.isArray(rp.value.data)) setReports(rp.value.data)
     else { setReports(MOCK_REPORTS); fallback = true }
     if (rv.status === 'fulfilled' && rv.value.success) {
-      const raw = rv.value.data as unknown
-      const items = Array.isArray(raw) ? raw : (raw as { items?: ReportDto[] } | null)?.items ?? []
+      // [W4] api.getList 已归一化为 { items, total }
+      const items = rv.value.data?.items ?? []
       setPendingReviews(items.filter((x): x is ReportDto => !!x && typeof x === 'object'))
     } else { setPendingReviews(MOCK_REVIEWS); fallback = true }
     setUsingMock(fallback)

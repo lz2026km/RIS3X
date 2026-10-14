@@ -97,7 +97,8 @@ const RemoteReadingPage: React.FC = () => {
     setAssignLoading(true)
     try {
       const res = await examApi.list({ pageSize: 50 })
-      const list: ExamDto[] = Array.isArray(res.data) ? res.data : ((res.data as { items?: ExamDto[] }).items ?? [])
+      // [W4] api.getList 已归一化为 { items, total }
+      const list: ExamDto[] = res.data?.items ?? []
       setExamOptions(
         list
           .filter((e) => e.status === '已登记' || e.status === '已报到' || e.status === '待检查' || e.status === 'SCHEDULED' || e.status === 'ARRIVED' || e.status === 'IN_PROGRESS')

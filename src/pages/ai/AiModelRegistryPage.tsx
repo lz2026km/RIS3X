@@ -266,6 +266,7 @@ const AiModelRegistryPage: React.FC = () => {
         dataIndex: ["metrics", "accuracy"],
         key: "accuracy",
         width: 160,
+        align: "right",
         sorter: (a: AiModelEntry, b: AiModelEntry) =>
           a.metrics.accuracy - b.metrics.accuracy,
         render: (_: unknown, r: AiModelEntry) => <MetricBar value={r.metrics.accuracy} />,
@@ -275,6 +276,7 @@ const AiModelRegistryPage: React.FC = () => {
         dataIndex: ["metrics", "sensitivity"],
         key: "sensitivity",
         width: 84,
+        align: "right",
         render: (_: unknown, r: AiModelEntry) => `${r.metrics.sensitivity.toFixed(1)}%`,
       },
       {
@@ -282,6 +284,7 @@ const AiModelRegistryPage: React.FC = () => {
         dataIndex: ["metrics", "specificity"],
         key: "specificity",
         width: 84,
+        align: "right",
         render: (_: unknown, r: AiModelEntry) => `${r.metrics.specificity.toFixed(1)}%`,
       },
       {
@@ -296,6 +299,7 @@ const AiModelRegistryPage: React.FC = () => {
         dataIndex: ["metrics", "auc"],
         key: "auc",
         width: 80,
+        align: "right",
         render: (_: unknown, r: AiModelEntry) => (
           <Text strong style={{ color: "var(--color-primary-600)" }}>
             {r.metrics.auc.toFixed(3)}
@@ -311,7 +315,7 @@ const AiModelRegistryPage: React.FC = () => {
       {
         title: t("w4ai.col.actions"),
         key: "actions",
-        width: 360,
+        width: 180,
         fixed: "right",
         render: (_: unknown, r: AiModelEntry) => (
           <Space size={[6, 6]} wrap>
@@ -320,61 +324,55 @@ const AiModelRegistryPage: React.FC = () => {
                 action="create"
                 size="compact"
                 icon={<Rocket size={13} />}
+                title={t("w4ai.act.deploy")}
                 onClick={() => onDeploy(r)}
                 testId={`reg-deploy-${r.id}`}
-              >
-                {t("w4ai.act.deploy")}
-              </ActionButton>
+              />
             )}
             {r.status === "deployed" && (
               <ActionButton
                 action="edit"
                 size="compact"
+                title={t("w4ai.act.gray")}
                 onClick={() => onGray(r)}
                 testId={`reg-gray-${r.id}`}
-              >
-                {t("w4ai.act.gray")}
-              </ActionButton>
+              />
             )}
             {r.status !== "offline" && (
               <ActionButton
                 action="delete"
                 size="compact"
                 icon={<StopCircle size={13} />}
+                title={t("w4ai.act.offline")}
                 onClick={() => onOffline(r)}
                 testId={`reg-offline-${r.id}`}
-              >
-                {t("w4ai.act.offline")}
-              </ActionButton>
+              />
             )}
             <ActionButton
               action="refresh"
               size="compact"
               icon={<RotateCcw size={13} />}
               disabled={r.versions.length < 2}
+              title={t("w4ai.act.rollback")}
               onClick={() => onRollback(r)}
               testId={`reg-rollback-${r.id}`}
-            >
-              {t("w4ai.act.rollback")}
-            </ActionButton>
+            />
             <ActionButton
               action="refresh"
               size="compact"
               icon={<GitCompare size={13} />}
+              title={t("w4ai.act.compare")}
               onClick={() => openCompare(r)}
               testId={`reg-compare-${r.id}`}
-            >
-              {t("w4ai.act.compare")}
-            </ActionButton>
+            />
             <ActionButton
               action="edit"
               size="compact"
               icon={<Info size={13} />}
+              title={t("w4ai.act.detail")}
               onClick={() => setDetailModel(r)}
               testId={`reg-detail-${r.id}`}
-            >
-              {t("w4ai.act.detail")}
-            </ActionButton>
+            />
           </Space>
         ),
       },

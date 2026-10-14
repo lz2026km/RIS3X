@@ -151,7 +151,7 @@ const SnomedEncoderPage: React.FC = () => {
       title: t('snomedEncoder.colConfidence'),
       dataIndex: 'confidence',
       key: 'confidence',
-      sorter: (a: SnomedCode, b: SnomedCode) => a.confidence - b.confidence,
+      sorter: (a: SnomedCode, b: SnomedCode) => (a.confidence ?? 0) - (b.confidence ?? 0),
       render: (c: number) => (
         <Tag color={c > 0.9 ? 'green' : c > 0.7 ? 'orange' : 'red'}>
           {(c * 100).toFixed(0)}%

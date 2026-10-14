@@ -501,7 +501,7 @@ export function ListView({
       dataIndex: "createdTime",
       key: "sla",
       width: 100,
-      sorter: (a, b) => getSLAInfo(a.createdTime).elapsedMinutes - getSLAInfo(b.createdTime).elapsedMinutes,
+      sorter: (a, b) => (getSLAInfo(a.createdTime).elapsedMinutes ?? 0) - (getSLAInfo(b.createdTime).elapsedMinutes ?? 0),
       render: (_value, exam) => {
         const sla = getSLAInfo(exam.createdTime);
         const priority = calculatePriority(exam);
@@ -518,7 +518,7 @@ export function ListView({
       title: t("wl.colActions"),
       dataIndex: "id",
       key: "actions",
-      width: 340,
+      width: 180,
       fixed: "right",
       render: (_value, exam) => (
         <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -527,69 +527,63 @@ export function ListView({
             type="link"
             size="small"
             icon={<ImageIcon size={12} />}
+            title={t("wl.actionRead")}
             onClick={(event) => {
               event.stopPropagation();
               navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`);
             }}
-          >
-            {t("wl.actionRead")}
-          </Button>
+          />
           <Button
             type="link"
             size="small"
             icon={<Eye size={12} />}
+            title={t("wl.actionView")}
             onClick={(event) => {
               event.stopPropagation();
               onRowClick(exam);
             }}
-          >
-            {t("wl.actionView")}
-          </Button>
+          />
           {/* [v3.0.6.11-96 Wave 3A P1] 详情 → 独立路由 /exam/:id (新标签打开) */}
           <Button
             type="link"
             size="small"
             icon={<ExternalLink size={12} />}
+            title={t("wl.actionDetail")}
             onClick={(event) => {
               event.stopPropagation();
               window.open(`/exam/${encodeURIComponent(exam.id)}`, "_blank");
             }}
-          >
-            {t("wl.actionDetail")}
-          </Button>
+          />
           <Button
             type="link"
             size="small"
             icon={<UserCheck size={12} />}
+            title={t("wl.actionAssignDoctor")}
             onClick={(event) => {
               event.stopPropagation();
               onAssignDoctor?.(exam);
             }}
-          >
-            {t("wl.actionAssignDoctor")}
-          </Button>
+          />
           <Button
             type="link"
             size="small"
             icon={<FileText size={12} />}
+            title={t("wl.actionRequisition")}
             onClick={(event) => {
               event.stopPropagation();
               onViewRequisition?.(exam);
             }}
-          >
-            {t("wl.actionRequisition")}
-          </Button>
+          />
           <Button
             type="link"
             size="small"
             icon={<History size={12} />}
+            title={t("wl.actionHistory")}
             onClick={(event) => {
               event.stopPropagation();
               onViewHistory?.(exam);
             }}
-          >
-            {t("wl.actionHistory")}
-          </Button>
+          />
         </div>
       ),
     },
@@ -613,7 +607,7 @@ export function ListView({
         loading={{ spinning: loading, indicator: <div style={{ padding: 'var(--space-6, 24px)' }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
         sticky
         pagination={listPagination.pagination}
-        scroll={{ x: 1800, y: "calc(100vh - 320px)" }}
+        scroll={{ x: 2200, y: "calc(100vh - 320px)" }}
         rowSelection={{
           preserveSelectedRowKeys: true,
           selectedRowKeys: [...selectedIds],

@@ -21,7 +21,7 @@ import { t } from '../../i18n/appI18n';
 import { ActionButton } from '../../components/common/ActionButton';
 import { DataTable, ExportButton } from "../../components/common";
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi';
-import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
+import { appointmentApi } from '../../services/api/appointmentApi';
 import { paymentApi, satisfactionApi, wechatApi, type PaymentOrderDto, type SurveyDto } from '../../services/api/w12PatientApi';
 import { PageContainer } from "../../components/common";
 
@@ -86,7 +86,8 @@ export const PatientPortalPage: React.FC = () => {
       }
 
       if (apptRes.status === 'fulfilled' && apptRes.value.success) {
-        const data = apptRes.value.data as AppointmentDto[];
+        // [W4] api.getList 归一化为 { items, total }
+        const data = apptRes.value.data?.items ?? []
         if (Array.isArray(data)) {
           setNextAppts(data.slice(0, 10).map((a) => ({
             id: a.id,

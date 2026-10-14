@@ -126,7 +126,7 @@ export default function FollowUpPage() {
     try {
       const res = await followupApi.list({ search: searchKeyword || undefined });
       if (res.success) {
-        setFollowUpList(res.data.data.map(mapPlan));
+        setFollowUpList(res.data.items.map(mapPlan));
         setDataSource('real');
         return true;
       } else {
@@ -190,7 +190,7 @@ export default function FollowUpPage() {
     setFromExamTemplates([]);
     try {
       const res = await followupTemplatesApi.list();
-      if (res.success) setFromExamTemplates(res.data.data);
+      if (res.success) setFromExamTemplates(res.data.items);
     } catch { /* 模板不可用允许空 */ }
   };
 
@@ -351,7 +351,7 @@ export default function FollowUpPage() {
     setTplError(null);
     try {
       const res = await followupTemplatesApi.list();
-      if (res.success) setTemplates(res.data.data);
+      if (res.success) setTemplates(res.data.items);
       else setTplError(res.error?.message ?? t('followUp.templateLoadFailed'));
     } catch (err) {
       setTplError((err as Error)?.message ?? t('followUp.templateLoadFailed'));

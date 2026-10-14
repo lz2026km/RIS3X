@@ -140,7 +140,7 @@ export const FusionManagerPage: React.FC = () => {
           <Card size="small" title={t('fusionMgr.availableSeries')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <DataTable
               dataSource={series}
-              rowKey={(_, i) => `${i}`}
+              rowKey={(s) => `${s.modality}-${s.seriesDescription}`}
               pagination={false}
               scroll={{ x: 'max-content' }}
               columns={[

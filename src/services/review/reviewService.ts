@@ -408,9 +408,10 @@ export const reviewService = {
       const pendingCosign = Array.isArray(cosignPending.data) ? cosignPending.data.length : 0;
       const kpi: ReviewKPI = {
         totalToday: (stats?.total ?? 0) + pendingCosign,
-        pendingInitial: initialRes.meta?.total ?? 0,
+        // [W4] getList 归一化后 total 位于 data.total (meta 不再透传)
+        pendingInitial: initialRes.data?.total ?? initialRes.meta?.total ?? 0,
         inProgressInitial: 0,
-        pendingFinal: finalRes.meta?.total ?? 0,
+        pendingFinal: finalRes.data?.total ?? finalRes.meta?.total ?? 0,
         inProgressFinal: 0,
         pendingCosign,
         pendingSign: stats?.pending ?? 0,

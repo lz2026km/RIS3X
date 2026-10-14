@@ -22,8 +22,8 @@ const mockStudies: StudyInfo[] = [
   { uid: '1.2.3.4.5.3', patientName: 'Wang Wu', patientId: 'P003', modality: 'DX', date: '2026-07-12', description: '胸部X光' },
 ]
 
+// [W4] patientApi/examApi 均已归一化为 { items, total }
 const toListItems = (raw: unknown): unknown[] => {
-  if (Array.isArray(raw)) return raw
   if (raw && typeof raw === 'object' && Array.isArray((raw as { items?: unknown[] }).items)) {
     return (raw as { items: unknown[] }).items
   }

@@ -227,6 +227,8 @@ export interface AppointmentRulesDto {
 }
 
 export const appointmentApi = {
+  // [W4] 列表归一化: api.getList → 消费方始终拿到 { items, total }
+  //   (兼容 Nest 查询分页与 MSW 裸数组 { success, data: [...] } 两种响应形状)
   list: (params?: AppointmentListParams) => {
     const query = new URLSearchParams()
     if (params?.skip != null) query.set('skip', String(params.skip))
@@ -237,7 +239,7 @@ export const appointmentApi = {
     if (params?.dateTo) query.set('dateTo', params.dateTo)
     if (params?.patientId) query.set('patientId', params.patientId)
     const qs = query.toString()
-    return api.get<AppointmentDto[]>(`/appointments${qs ? '?' + qs : ''}`)
+    return api.getList<AppointmentDto>(`/appointments${qs ? '?' + qs : ''}`)
   },
 
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */

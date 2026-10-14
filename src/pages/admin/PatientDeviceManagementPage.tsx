@@ -57,7 +57,8 @@ export const PatientDeviceManagementPage: React.FC = () => {
   const loadPatients = async () => {
     try {
       const r = await patientApi.list({ pageSize: 50 });
-      if (r.success) setPatients(Array.isArray(r.data) ? r.data : r.data?.items ?? []);
+      // [W4] api.getList 已归一化为 { items, total }
+      if (r.success) setPatients(r.data?.items ?? []);
     } catch (e: any) { message.error(e.message); }
   };
   const loadDevices = async () => {
@@ -168,7 +169,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                       onChange={v => setPatientFilter({ ...patientFilter, gender: v })}
                       allowClear
                       style={{ width: 80 }}
-                      options={[{ value: 'M', label: t('patientDevice.male') }, { value: 'F', label: t('patientDevice.female') }]}
+                      options={[{ value: 'MALE', label: t('patientDevice.male') }, { value: 'FEMALE', label: t('patientDevice.female') }]}
                     />
                     <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setPatientModal({ type: 'create', data: {} })}>{t('patientDevice.add')}</Button>
                   </Space>
@@ -384,7 +385,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
         <Form layout="vertical" size="small">
           <Row gutter={8}>
             <Col span={12}><Form.Item label={t('patientDevice.name')}><Input value={patientModal.data.name} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, name: e.target.value } })} /></Form.Item></Col>
-            <Col span={6}><Form.Item label={t('patientDevice.gender')}><Select value={patientModal.data.gender} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, gender: v } })} options={[{value:'M',label:t('patientDevice.male')},{value:'F',label:t('patientDevice.female')}]} /></Form.Item></Col>
+            <Col span={6}><Form.Item label={t('patientDevice.gender')}><Select value={patientModal.data.gender} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, gender: v } })} options={[{value:'MALE',label:t('patientDevice.male')},{value:'FEMALE',label:t('patientDevice.female')}]} /></Form.Item></Col>
             <Col span={6}><Form.Item label={t('patientDevice.age')}><InputNumber value={patientModal.data.age} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, age: v } })} style={{ width: '100%' }} /></Form.Item></Col>
             <Col span={12}><Form.Item label={t('patientDevice.phone')}><Input value={patientModal.data.phone} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, phone: e.target.value } })} /></Form.Item></Col>
             <Col span={12}><Form.Item label={t('patientDevice.bloodType')}><Select value={patientModal.data.bloodType} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, bloodType: v } })} options={['A','B','AB','O'].map(b=>({value:b,label:b}))} /></Form.Item></Col>

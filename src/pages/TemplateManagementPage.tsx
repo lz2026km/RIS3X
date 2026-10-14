@@ -717,7 +717,7 @@ export default function TemplateManagementPage() {
         </div>
         <DataTable
           dataSource={filteredEntries}
-          rowKey={(_, index) => String(index ?? 0)}
+          rowKey={(e) => `${e.templateId}-${e.sharedWith}`}
           pagination={false}
           columns={[
             { title: t9('templateMgmt.shTemplate'), key: 'template', render: (_: unknown, e: ShareEntry) => <span style={{ fontWeight: 600, color: C.textDark }}>{templates.find(t => t.id === e.templateId)?.name}</span> },

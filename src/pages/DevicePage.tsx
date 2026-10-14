@@ -736,8 +736,8 @@ export default function DevicePage() {
         deviceMgmtApi.maintenanceDue(30),
       ])
       if (listRes.success) {
-        setMaintenancePlans(listRes.data.data.map(mapMaintenancePlan))
-        const completed = (listRes.data.data as any[]).filter(p => p.status === 'COMPLETED' || p.completedAt)
+        setMaintenancePlans(listRes.data.items.map(mapMaintenancePlan))
+        const completed = (listRes.data.items as any[]).filter(p => p.status === 'COMPLETED' || p.completedAt)
         if (completed.length > 0) {
           setMaintHistory(completed.map(p => ({
             id: p.id,
@@ -1196,7 +1196,7 @@ export default function DevicePage() {
           rowKey="rank"
           showPagination={false}
           columns={[
-            { title: t('devicePage.thRank'), dataIndex: 'rank', key: 'rank', width: 70, align: 'center', sorter: (a, b) => a.rank - b.rank, render: (_: unknown, item: (typeof TODAY_RANKING)[number]) => (
+            { title: t('devicePage.thRank'), dataIndex: 'rank', key: 'rank', width: 70, align: 'center', sorter: (a, b) => (a.rank ?? 0) - (b.rank ?? 0), render: (_: unknown, item: (typeof TODAY_RANKING)[number]) => (
               <span style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 width: 22, height: 22, borderRadius: '50%',
@@ -1206,9 +1206,9 @@ export default function DevicePage() {
             ) },
             { title: t('devicePage.thDeviceName'), dataIndex: 'deviceName', key: 'deviceName', sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v.split('（')[0]}</span> },
             { title: t('devicePage.thType'), dataIndex: 'modality', key: 'modality', width: 90, align: 'center', render: (v: string) => <ModalityBadge modality={v} /> },
-            { title: t('devicePage.thTodayExams'), dataIndex: 'examCount', key: 'examCount', width: 110, align: 'center', sorter: (a, b) => a.examCount - b.examCount, render: (v: number) => <span style={{ fontWeight: 700, color: C.accent }}>{v}</span> },
-            { title: t('devicePage.thWaiting'), dataIndex: 'waitingCount', key: 'waitingCount', width: 90, align: 'center', sorter: (a, b) => a.waitingCount - b.waitingCount, render: (v: number) => <span style={{ color: v > 8 ? C.warning : C.textMid }}>{v}</span> },
-            { title: t('devicePage.thAvgWait'), dataIndex: 'avgWaitTime', key: 'avgWaitTime', width: 110, align: 'center', sorter: (a, b) => a.avgWaitTime - b.avgWaitTime, render: (v: number) => <span style={{ color: v > 20 ? C.danger : v > 10 ? C.warning : C.success }}>{t('devicePage.minutesSuffix', { count: v })}</span> },
+            { title: t('devicePage.thTodayExams'), dataIndex: 'examCount', key: 'examCount', width: 110, align: 'center', sorter: (a, b) => (a.examCount ?? 0) - (b.examCount ?? 0), render: (v: number) => <span style={{ fontWeight: 700, color: C.accent }}>{v}</span> },
+            { title: t('devicePage.thWaiting'), dataIndex: 'waitingCount', key: 'waitingCount', width: 90, align: 'center', sorter: (a, b) => (a.waitingCount ?? 0) - (b.waitingCount ?? 0), render: (v: number) => <span style={{ color: v > 8 ? C.warning : C.textMid }}>{v}</span> },
+            { title: t('devicePage.thAvgWait'), dataIndex: 'avgWaitTime', key: 'avgWaitTime', width: 110, align: 'center', sorter: (a, b) => (a.avgWaitTime ?? 0) - (b.avgWaitTime ?? 0), render: (v: number) => <span style={{ color: v > 20 ? C.danger : v > 10 ? C.warning : C.success }}>{t('devicePage.minutesSuffix', { count: v })}</span> },
           ]}
           dataSource={TODAY_RANKING}
         />
@@ -1537,8 +1537,8 @@ export default function DevicePage() {
             { title: t('devicePage.thCategory'), dataIndex: 'category', key: 'category', width: 110, align: 'center', render: (v: string) => (<span style={{ padding: '2px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: `${C.primary}10`, color: C.primary }}>{v}</span>) },
             { title: t('devicePage.thDesc'), dataIndex: 'description', key: 'description', render: (v: string) => <span style={{ color: C.textDark, fontWeight: 600, fontSize: 12 }}>{v}</span> },
             { title: t('devicePage.thSeverity'), dataIndex: 'severity', key: 'severity', width: 100, align: 'center', sorter: (a, b) => a.severity.localeCompare(b.severity), render: (v: string) => (<span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: v === 'critical' ? `${C.danger}15` : v === 'major' ? `${C.warning}15` : `${C.info}15`, color: v === 'critical' ? C.danger : v === 'major' ? C.warning : C.info }}>{v === 'critical' ? t('devicePage.sevCritical') : v === 'major' ? t('devicePage.sevMajor') : t('devicePage.sevMinor')}</span>) },
-            { title: t('devicePage.thMtbf'), dataIndex: 'mtbf', key: 'mtbf', width: 90, align: 'center', sorter: (a, b) => a.mtbf - b.mtbf, render: (v: number) => <span style={{ color: C.textMid }}>{v}</span> },
-            { title: t('devicePage.thCount'), dataIndex: 'count', key: 'count', width: 90, align: 'center', sorter: (a, b) => a.count - b.count, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 4 ? C.danger : v >= 2 ? C.warning : C.success }}>{v}</span> },
+            { title: t('devicePage.thMtbf'), dataIndex: 'mtbf', key: 'mtbf', width: 90, align: 'center', sorter: (a, b) => (a.mtbf ?? 0) - (b.mtbf ?? 0), render: (v: number) => <span style={{ color: C.textMid }}>{v}</span> },
+            { title: t('devicePage.thCount'), dataIndex: 'count', key: 'count', width: 90, align: 'center', sorter: (a, b) => (a.count ?? 0) - (b.count ?? 0), render: (v: number) => <span style={{ fontWeight: 700, color: v >= 4 ? C.danger : v >= 2 ? C.warning : C.success }}>{v}</span> },
             { title: t('devicePage.thDevices'), dataIndex: 'devices', key: 'devices', width: 160, align: 'center', render: (v: string[]) => <span style={{ color: C.textMid }}>{v.join(', ')}</span> },
           ]}
           dataSource={FAULT_CODES}
@@ -1700,9 +1700,9 @@ export default function DevicePage() {
           showPagination={false}
           columns={[
             { title: t('devicePage.roiThDevice'), dataIndex: 'deviceName', key: 'deviceName', width: 100, sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v}</span> },
-            { title: t('devicePage.roiThCost'), dataIndex: 'purchaseCost', key: 'purchaseCost', width: 110, align: 'right', sorter: (a, b) => a.purchaseCost - b.purchaseCost, render: (v: number) => <span style={{ color: C.textMid }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
-            { title: t('devicePage.roiThRevenue'), dataIndex: 'annualRevenue', key: 'annualRevenue', width: 110, align: 'right', sorter: (a, b) => a.annualRevenue - b.annualRevenue, render: (v: number) => <span style={{ color: C.success }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
-            { title: t('devicePage.roiThMaint'), dataIndex: 'annualMaintCost', key: 'annualMaintCost', width: 110, align: 'right', sorter: (a, b) => a.annualMaintCost - b.annualMaintCost, render: (v: number) => <span style={{ color: C.warning }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
+            { title: t('devicePage.roiThCost'), dataIndex: 'purchaseCost', key: 'purchaseCost', width: 110, align: 'right', sorter: (a, b) => (a.purchaseCost ?? 0) - (b.purchaseCost ?? 0), render: (v: number) => <span style={{ color: C.textMid }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
+            { title: t('devicePage.roiThRevenue'), dataIndex: 'annualRevenue', key: 'annualRevenue', width: 110, align: 'right', sorter: (a, b) => (a.annualRevenue ?? 0) - (b.annualRevenue ?? 0), render: (v: number) => <span style={{ color: C.success }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
+            { title: t('devicePage.roiThMaint'), dataIndex: 'annualMaintCost', key: 'annualMaintCost', width: 110, align: 'right', sorter: (a, b) => (a.annualMaintCost ?? 0) - (b.annualMaintCost ?? 0), render: (v: number) => <span style={{ color: C.warning }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
             { title: t('devicePage.roiThOther'), dataIndex: 'annualOtherCost', key: 'annualOtherCost', width: 110, align: 'right', render: (v: number) => <span style={{ color: C.textMid }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
             { title: t('devicePage.roiThProfit'), key: 'profit', width: 120, align: 'right', sorter: (a, b) => computeRoi(a).annualProfit - computeRoi(b).annualProfit, render: (_: unknown, d: (typeof ROI_DEVICE_DATA)[number]) => { const { annualProfit } = computeRoi(d); return <span style={{ fontWeight: 700, color: annualProfit > 0 ? C.success : C.danger }}>¥{(annualProfit / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> } },
             { title: t('devicePage.roiThDeprMethod'), dataIndex: 'depreciationMethod', key: 'depreciationMethod', width: 100, align: 'center', render: (v: string) => <span style={{ color: C.textMid }}>{v === 'straight' ? t('devicePage.deprStraight') : t('devicePage.deprAccelerated')}</span> },

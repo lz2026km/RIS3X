@@ -200,13 +200,13 @@ export default function DeptDashboardPage() {
       title: t('deptDash.reportCount'),
       dataIndex: 'reportCount',
       key: 'reportCount',
-      sorter: (a, b) => a.reportCount - b.reportCount,
+      sorter: (a, b) => (a.reportCount ?? 0) - (b.reportCount ?? 0),
     },
     {
       title: t('deptDash.rvuWorkload'),
       dataIndex: 'rvu',
       key: 'rvu',
-      sorter: (a, b) => a.rvu - b.rvu,
+      sorter: (a, b) => (a.rvu ?? 0) - (b.rvu ?? 0),
       render: (v: number) => <Text strong>{v.toFixed(1)}</Text>,
     },
     {
@@ -226,7 +226,7 @@ export default function DeptDashboardPage() {
       title: t('deptDash.oee'),
       dataIndex: 'avgOee',
       key: 'avgOee',
-      sorter: (a, b) => a.avgOee - b.avgOee,
+      sorter: (a, b) => (a.avgOee ?? 0) - (b.avgOee ?? 0),
       render: (v: number) => <Tag color={oeeColor(v)}>{v.toFixed(1)}%</Tag>,
     },
     {

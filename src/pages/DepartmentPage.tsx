@@ -252,13 +252,20 @@ export default function DepartmentPage() {
         const gradeDist = quality.gradeDistribution || {};
         const aCount = Number(gradeDist["A"] ?? gradeDist["甲"] ?? 0);
         const total = Number(quality.totalReports ?? quality.totalScored ?? 0);
+        const timelyRate = quality.timelyRate != null && quality.timelyRate !== "" ? Number(quality.timelyRate) : null;
+        const defectRate = quality.defectRate != null && quality.defectRate !== "" ? Number(quality.defectRate) : null;
+        const gradeRate = total > 0 ? (aCount / total) * 100 : null;
+        const fmtPct = (v: number | null, digits = 1) => (v == null || !Number.isFinite(v) ? "-" : `${v.toFixed(digits)}%`);
+        const judge = (v: number | null, min?: number, max?: number): string =>
+          v == null || !Number.isFinite(v) ? "unknown" : (min !== undefined && v < min) || (max !== undefined && v > max) ? "fail" : "pass";
+        const completeness = avg > 0 ? avg : null;
         setQcStandards([
-          { id: "QC001", item: "报告书写完整率", target: "≥98%", current: avg ? `${avg.toFixed(1)}%` : "98.5%", status: "pass" },
-          { id: "QC002", item: "报告及时率", target: "≥95%", current: quality.timelyRate != null ? `${quality.timelyRate}%` : "96.2%", status: "pass" },
-          { id: "QC003", item: "危急值报告率", target: "100%", current: "100%", status: "pass" },
-          { id: "QC004", item: "甲级片率", target: "≥85%", current: total > 0 ? `${((aCount / total) * 100).toFixed(1)}%` : "88.3%", status: "pass" },
-          { id: "QC005", item: "报告缺陷率", target: "≤5%", current: quality.defectRate != null ? `${Number(quality.defectRate).toFixed(1)}%` : "3.2%", status: "pass" },
-          { id: "QC006", item: "患者满意度", target: "≥90%", current: "92.5%", status: "pass" },
+          { id: "QC001", item: "报告书写完整率", target: "≥98%", current: fmtPct(completeness), status: judge(completeness, 98) },
+          { id: "QC002", item: "报告及时率", target: "≥95%", current: timelyRate != null ? `${timelyRate}%` : "-", status: judge(timelyRate, 95) },
+          { id: "QC003", item: "危急值报告率", target: "100%", current: "-", status: "unknown" },
+          { id: "QC004", item: "甲级片率", target: "≥85%", current: fmtPct(gradeRate), status: judge(gradeRate, 85) },
+          { id: "QC005", item: "报告缺陷率", target: "≤5%", current: defectRate != null ? `${defectRate.toFixed(1)}%` : "-", status: judge(defectRate, undefined, 5) },
+          { id: "QC006", item: "患者满意度", target: "≥90%", current: "-", status: "unknown" },
         ]);
       }
     } catch (e) {
@@ -501,7 +508,7 @@ export default function DepartmentPage() {
         [],
         ["质控标准"],
         ["指标", "目标", "当前", "状态"],
-        ...qcStandards.map((q) => [q.item, q.target, q.current, q.status === "pass" ? "达标" : "不达标"]),
+        ...qcStandards.map((q) => [q.item, q.target, q.current, q.status === "pass" ? "达标" : q.status === "fail" ? "不达标" : "-"]),
         [],
         ["危急值规则"],
         ["名称", "检查类型", "阈值", "等级", "说明"],
@@ -591,7 +598,7 @@ export default function DepartmentPage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
             <div style={panel}>
-              <div style={pH}><span>{t("deptPage.qcConfig")}</span><span style={{ fontSize: 12, color: C.success }}>{dataSource === 'api' ? t("deptPage.apiLive") : t("deptPage.demoData")} · {t("deptPage.allPass")}</span></div>
+              <div style={pH}><span>{t("deptPage.qcConfig")}</span><span style={{ fontSize: 12, color: C.success }}>{dataSource === 'api' ? t("deptPage.apiLive") : t("deptPage.demoData")}{qcStandards.length > 0 && qcStandards.every((q) => q.status === "pass") ? ` · ${t("deptPage.allPass")}` : ""}</span></div>
               <div style={pB}>
                 <DataTable
                   dataSource={qcStandards}
@@ -601,7 +608,11 @@ export default function DepartmentPage() {
                     { title: t("deptPage.metric"), dataIndex: "item", render: (v: string) => <span style={{ color: C.textDark }}>{v}</span> },
                     { title: t("deptPage.target"), dataIndex: "target", align: "center", render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
                     { title: t("deptPage.current"), dataIndex: "current", align: "center", render: (v: string) => <span style={{ color: C.textDark, fontWeight: 500 }}>{v}</span> },
-                    { title: t("deptPage.status"), key: "status", align: "center", render: () => <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: C.successBg, color: C.success }}>{t("deptPage.pass")}</span> },
+                    { title: t("deptPage.status"), key: "status", align: "center", render: (_: unknown, q: (typeof qcStandards)[number]) => q.status === "pass"
+                      ? <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: C.successBg, color: C.success }}>{t("deptPage.pass")}</span>
+                      : q.status === "fail"
+                        ? <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: C.dangerBg, color: C.danger }}>不达标</span>
+                        : <span style={{ color: C.textLight }}>-</span> },
                   ]}
                 />
               </div>

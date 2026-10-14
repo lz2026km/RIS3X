@@ -424,7 +424,7 @@ const ComplianceTab: React.FC = () => {
     { title: t('w13Sec.cp.col.name'), dataIndex: 'name', ellipsis: true },
     { title: t('w13Sec.cp.col.level'), dataIndex: 'level', width: 70, render: (v: string) => <Tag>{v}</Tag> },
     { title: t('w13Sec.cp.col.required'), dataIndex: 'required', width: 70, render: (v: boolean) => v ? <Tag color="blue">{t('w13Sec.cp.required')}</Tag> : <Tag>{t('w13Sec.cp.optional')}</Tag> },
-    { title: t('w13Sec.cp.col.score'), dataIndex: 'score', width: 90, sorter: (a, b) => a.score - b.score, render: (v: number) => <Progress percent={v} size="small" status={v >= 90 ? 'success' : v >= 60 ? 'normal' : 'exception'} format={() => `${v}`} /> },
+    { title: t('w13Sec.cp.col.score'), dataIndex: 'score', width: 90, sorter: (a, b) => (a.score ?? 0) - (b.score ?? 0), render: (v: number) => <Progress percent={v} size="small" status={v >= 90 ? 'success' : v >= 60 ? 'normal' : 'exception'} format={() => `${v}`} /> },
     { title: t('w13Sec.cp.col.status'), dataIndex: 'implemented', width: 90, render: (v: boolean) => v ? <Tag color="green">{t('w13Sec.cp.status.implemented')}</Tag> : <Tag color="gold">{t('w13Sec.cp.status.gap')}</Tag> },
     { title: t('w13Sec.cp.col.evidence'), dataIndex: 'evidence', ellipsis: true },
   ]

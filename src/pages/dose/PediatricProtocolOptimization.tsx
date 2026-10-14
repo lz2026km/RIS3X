@@ -160,7 +160,7 @@ export default function PediatricProtocolOptimization() {
           ))}
         </div>
         <DataTable
-          rowKey={(p, index) => `${p.ageGroup}-${p.protocolName}-${index ?? 0}`}
+          rowKey={(p) => `${p.ageGroup}-${p.protocolName}`}
           dataSource={filteredProtocols}
           showPagination={false}
           showExport={false}

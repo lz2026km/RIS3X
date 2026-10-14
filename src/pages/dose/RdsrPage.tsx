@@ -200,7 +200,7 @@ export default function RdsrPage() {
               <DataTable<DrlEntry>
                 columns={drlColumns}
                 dataSource={drls}
-                rowKey={(_, i) => String(i)}
+                rowKey={(d) => `${d.modality}:${d.bodyPart}:${d.ageGroup ?? "adult"}`}
               />
             </div>
             {rdsrResult && (

@@ -478,8 +478,8 @@ export default function PatientPage() {
       }
       const res = await patientApi.list({});
       if (cancelled) return;
-      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
-      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+      // [W4] api.getList 已归一化为 { items, total }
+      const list = res.data?.items ?? [];
       if (res.success && Array.isArray(list) && list.length > 0) {
         setPatients(list as Patient[]);
         setLoadError(null);
@@ -868,7 +868,7 @@ export default function PatientPage() {
       }
       void (async () => {
         const r = await patientApi.list({});
-        const list = Array.isArray(r.data) ? r.data : (r.data?.items ?? []);
+        const list = r.data?.items ?? [];
         if (r.success && Array.isArray(list) && list.length > 0) setPatients(list as Patient[]);
       })();
     } catch (e) {
@@ -993,7 +993,7 @@ export default function PatientPage() {
       setImporting(false);
       void (async () => {
         const r = await patientApi.list({});
-        const list = Array.isArray(r.data) ? r.data : (r.data?.items ?? []);
+        const list = r.data?.items ?? [];
         if (r.success && Array.isArray(list) && list.length > 0) setPatients(list as Patient[]);
       })();
     }

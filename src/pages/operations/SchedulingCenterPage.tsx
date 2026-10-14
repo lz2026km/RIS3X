@@ -69,7 +69,7 @@ export const SchedulingCenterPage: React.FC = () => {
         deviceApi.getTodayStats(),
       ]);
       if (aptRes.status === 'fulfilled' && aptRes.value.success) {
-        setAppointments(aptRes.value.data ?? []);
+        setAppointments(aptRes.value.data?.items ?? []);
       } else {
         setAppointments([]);
         if (aptRes.status === 'fulfilled') setError(aptRes.value.error?.message ?? '');

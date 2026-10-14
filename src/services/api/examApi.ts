@@ -118,8 +118,30 @@ export interface ExamNotesResult {
 }
 
 export const examApi = {
-  list: (params?: ExamQueryParams) =>
-    api.get<ListPayload<ExamDto>>(`/exams?${new URLSearchParams(params as Record<string, string>).toString()}`),
+  // [W4] 列表归一化: api.getList → 消费方始终拿到 { items, total }
+  // [W4] 查询参数映射 (real 模式后端 ExamListQuerySchema):
+  //   - status → state (后端仅识别 state; 旧 status 参数会被 zod 剥离且 service 不消费)
+  //   - page/pageSize → skip/take (后端 resolvePagination; 同时保留 page/pageSize 兼容 MSW parseQuery)
+  list: (params?: ExamQueryParams) => {
+    const sp = new URLSearchParams()
+    if (params) {
+      const { status, page, pageSize, ...rest } = params
+      Object.entries(rest).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') sp.set(k, String(v))
+      })
+      if (status) sp.set('state', status)
+      if (page !== undefined) {
+        sp.set('page', String(page))
+        sp.set('skip', String((page - 1) * (pageSize ?? 20)))
+      }
+      if (pageSize !== undefined) {
+        sp.set('pageSize', String(pageSize))
+        sp.set('take', String(pageSize))
+      }
+    }
+    const qs = sp.toString()
+    return api.getList<ExamDto>(`/exams${qs ? `?${qs}` : ''}`)
+  },
 
   getById: (id: string) =>
     api.get<ExamDto>(`/exams/${id}`),

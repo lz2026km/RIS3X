@@ -43,8 +43,8 @@ export default function DicomViewerPage() {
       setLoading(true)
       const res = await examApi.list({})
       if (cancelled) return
-      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
-      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+      // [W4] api.getList 已归一化为 { items, total }
+      const list = res.data?.items ?? []
       if (res.success && Array.isArray(list) && list.length > 0) {
         setExams(list as unknown as typeof initialRadiologyExams)
         setLoadError(null)
@@ -68,7 +68,8 @@ export default function DicomViewerPage() {
       try {
         const res = await examApi.list({ patientId: exam.patientId, pageSize: 50 } as never)
         if (cancelled) return
-        const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        // [W4] api.getList 已归一化为 { items, total }
+        const list = res.data?.items ?? []
         const mapped: HistoryExam[] = (list as Array<Record<string, any>>)
           .filter((e) => String(e.id ?? e.examId ?? '') !== String(exam.id))
           .map((e) => ({

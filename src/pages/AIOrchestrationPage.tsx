@@ -754,6 +754,7 @@ export default function AIOrchestrationPage() {
     },
     {
       title: t('aiOrch.colExam'), key: 'studyId',
+      ellipsis: { showTitle: true },
       render: (_v: unknown, r) => {
         const sid = detailOf(r, 'studyId');
         return sid ? <Tag color="default">{String(sid)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;

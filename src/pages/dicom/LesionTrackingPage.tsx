@@ -32,7 +32,7 @@ import {
 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 import { ChartContainer, chartDefaults } from '../../components/charts'
-import { patientApi, type ListPayload } from '../../services/api/patientApi'
+import { patientApi } from '../../services/api/patientApi'
 import {
   lesionTrackingApi,
   type TrackedLesion,
@@ -128,8 +128,8 @@ const LesionTrackingPage: React.FC = () => {
     setPatientLoading(true)
     try {
       const res = await patientApi.list({ page: 1, pageSize: 50 })
-      const payload = res.data as ListPayload<PatientDto>
-      const list = Array.isArray(payload) ? payload : (payload?.items ?? [])
+      // [W4] api.getList 已归一化为 { items, total }
+      const list = res.data?.items ?? []
       setPatients(list)
       if (!patientId && list.length > 0) setPatientId(list[0]!.id ?? '')
     } catch {

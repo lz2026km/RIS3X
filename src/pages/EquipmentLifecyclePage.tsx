@@ -182,8 +182,8 @@ export default function EquipmentLifecyclePage() {
   const loadMaintPlans = useCallback(async () => {
     try {
       const res = await deviceMgmtApi.listMaintenancePlans()
-      if (res.success && res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
-        setMaintPlans(res.data.data)
+      if (res.success && res.data && Array.isArray(res.data.items) && res.data.items.length > 0) {
+        setMaintPlans(res.data.items)
         setMaintPlansReal(true)
         return
       }
@@ -199,8 +199,8 @@ export default function EquipmentLifecyclePage() {
   const loadMaintRecords = useCallback(async () => {
     try {
       const res = await deviceMgmtApi.listMaintenancePlans({ status: 'COMPLETED' })
-      if (res.success && res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
-        setMaintRecords(res.data.data)
+      if (res.success && res.data && Array.isArray(res.data.items) && res.data.items.length > 0) {
+        setMaintRecords(res.data.items)
         setMaintRecordsReal(true)
         return
       }

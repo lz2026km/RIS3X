@@ -851,7 +851,7 @@ export default function ReportRulesPage() {
     { title: t('w4a.tiers.thCode'), dataIndex: 'code', width: 130, render: (code: string) => <Tag>{code}</Tag> },
     { title: t('w4a.tiers.thName'), dataIndex: 'name', width: 180 },
     { title: t('w4a.tiers.thTier'), dataIndex: 'tier', width: 100, render: (tier: ReviewTier) => <Tag color={TIER_COLORS[tier]}>{t(TIER_LABEL_KEYS[tier])}</Tag> },
-    { title: t('w4a.tiers.thPriority'), dataIndex: 'priority', width: 80, sorter: (a, b) => a.priority - b.priority },
+    { title: t('w4a.tiers.thPriority'), dataIndex: 'priority', width: 80, sorter: (a, b) => (a.priority ?? 0) - (b.priority ?? 0) },
     { title: t('w4a.tiers.thWhen'), key: 'when', ellipsis: true, render: (_, r) => <span style={{ fontSize: 12 }}>{tierWhenSummary(r)}</span> },
     { title: t('w4a.tiers.thEnabled'), dataIndex: 'enabled', width: 80, render: (enabled: boolean, r) => <Switch size="small" checked={enabled} onChange={(v) => void toggleTier(r, v)} /> },
     {

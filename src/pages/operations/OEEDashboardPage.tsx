@@ -103,7 +103,7 @@ export const OEEDashboardPage: React.FC = () => {
     { title: t('oeePage.colName'), dataIndex: 'name', key: 'name' },
     { title: t('oeePage.colModel'), dataIndex: 'model', key: 'model' },
     { title: t('oeePage.colModality'), dataIndex: 'modality', key: 'modality' },
-    { title: 'OEE%', dataIndex: 'oee', key: 'oee', render: (v: number) => <span style={{ color: oeeColor(v), fontWeight: 600 }}>{v}%</span>, sorter: (a: OeeDeviceMetric, b: OeeDeviceMetric) => a.oee - b.oee },
+    { title: 'OEE%', dataIndex: 'oee', key: 'oee', render: (v: number) => <span style={{ color: oeeColor(v), fontWeight: 600 }}>{v}%</span>, sorter: (a: OeeDeviceMetric, b: OeeDeviceMetric) => (a.oee ?? 0) - (b.oee ?? 0) },
     { title: t('oeePage.colAvailability'), dataIndex: 'availability', key: 'availability', render: (v: number) => `${v}%` },
     { title: t('oeePage.colPerformance'), dataIndex: 'performance', key: 'performance', render: (v: number) => `${v}%` },
     { title: t('oeePage.colQuality'), dataIndex: 'quality', key: 'quality', render: (v: number) => `${v}%` },

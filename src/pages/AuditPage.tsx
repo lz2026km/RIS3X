@@ -345,7 +345,7 @@ export default function AuditPage() {
                       columns={[
                         { title: t('auditPage.colAction'), dataIndex: 'action', key: 'action', render: (v: unknown) => <Tag color={toneToAntd('critical')} style={{ fontFamily: 'monospace' }}>{String(v)}</Tag> },
                         { title: t('auditPage.colCategory'), dataIndex: 'patternZh', key: 'pattern', width: 110, render: (v: unknown) => <Tag>{String(v)}</Tag> },
-                        { title: t('auditPage.colCount'), dataIndex: 'count', key: 'count', width: 90, sorter: (a, b) => a.count - b.count },
+                        { title: t('auditPage.colCount'), dataIndex: 'count', key: 'count', width: 90, sorter: (a, b) => (a.count ?? 0) - (b.count ?? 0) },
                         { title: t('auditPage.colLastAt'), dataIndex: 'lastAt', key: 'lastAt', width: 170, render: (v: unknown) => (v ? new Date(String(v)).toLocaleString('zh-CN') : '-') },
                         { title: t('auditPage.colUsers'), dataIndex: 'recentUsers', key: 'users', render: (v: unknown) => (Array.isArray(v) ? (v as string[]).slice(0, 3).join('、') : '-') },
                       ]}
@@ -450,7 +450,7 @@ export default function AuditPage() {
                             columns={[
                               { title: t('auditPage.colAction'), dataIndex: 'action', key: 'action', render: (v) => <Tag color="red" style={{ fontFamily: 'monospace' }}>{String(v)}</Tag> },
                               { title: t('auditPage.colCategory'), dataIndex: 'patternZh', key: 'pattern', width: 90, render: (v) => <Tag>{String(v)}</Tag> },
-                              { title: t('auditPage.colCount'), dataIndex: 'count', key: 'count', width: 70, sorter: (a, b) => a.count - b.count },
+                              { title: t('auditPage.colCount'), dataIndex: 'count', key: 'count', width: 70, sorter: (a, b) => (a.count ?? 0) - (b.count ?? 0) },
                               { title: t('auditPage.colLastAt'), dataIndex: 'lastAt', key: 'lastAt', width: 150, render: (v) => v ? new Date(String(v)).toLocaleString('zh-CN') : '-' },
                               { title: t('auditPage.colUsers'), dataIndex: 'recentUsers', key: 'users', render: (v) => Array.isArray(v) ? (v as string[]).slice(0, 3).join('、') : '-' },
                             ]}

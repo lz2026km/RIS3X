@@ -222,7 +222,7 @@ export default function DeviceOpsCenterPage() {
   const assetColumns = [
     { title: t('w11Device.asset.device'), dataIndex: 'deviceName', key: 'device', ellipsis: true },
     { title: t('w11Device.asset.vendor'), dataIndex: 'vendor', key: 'vendor', width: 150 },
-    { title: t('w11Device.asset.cost'), dataIndex: 'procurementCost', key: 'cost', width: 130, render: fmtMoney, sorter: (a: Asset, b: Asset) => a.procurementCost - b.procurementCost },
+    { title: t('w11Device.asset.cost'), dataIndex: 'procurementCost', key: 'cost', width: 130, render: fmtMoney, sorter: (a: Asset, b: Asset) => (a.procurementCost ?? 0) - (b.procurementCost ?? 0) },
     { title: t('w11Device.asset.bookValue'), dataIndex: 'bookValue', key: 'bookValue', width: 130, render: fmtMoney },
     { title: t('w11Device.asset.accumulated'), dataIndex: 'accumulatedDepreciation', key: 'accumulated', width: 130, render: fmtMoney },
     { title: t('w11Device.asset.method'), dataIndex: 'method', key: 'method', width: 130, render: (v: string) => <Tag>{t(v === 'declining' ? 'w11Device.asset.declining' : 'w11Device.asset.straightLine')}</Tag> },
@@ -245,7 +245,7 @@ export default function DeviceOpsCenterPage() {
     { title: t('w11Device.oee.availability'), dataIndex: 'availability', key: 'availability', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor={v < 70 ? 'var(--color-error-600)' : 'var(--color-primary-600)'} /> },
     { title: t('w11Device.oee.performance'), dataIndex: 'performance', key: 'performance', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor="var(--color-info-600)" /> },
     { title: t('w11Device.oee.quality'), dataIndex: 'quality', key: 'quality', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor="var(--color-success-600)" /> },
-    { title: t('w11Device.oee.oee'), dataIndex: 'oee', key: 'oee', width: 90, sorter: (a: OeeDeviceLoss, b: OeeDeviceLoss) => a.oee - b.oee, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 70 ? 'var(--color-success-600)' : v >= 50 ? 'var(--color-warning-600)' : 'var(--color-error-600)' }}>{v}%</span> },
+    { title: t('w11Device.oee.oee'), dataIndex: 'oee', key: 'oee', width: 90, sorter: (a: OeeDeviceLoss, b: OeeDeviceLoss) => (a.oee ?? 0) - (b.oee ?? 0), render: (v: number) => <span style={{ fontWeight: 700, color: v >= 70 ? 'var(--color-success-600)' : v >= 50 ? 'var(--color-warning-600)' : 'var(--color-error-600)' }}>{v}%</span> },
     { title: t('w11Device.oee.loss'), dataIndex: 'downtimeMinutes', key: 'downtime', width: 110, render: (v: number) => `${v} min` },
   ]
 

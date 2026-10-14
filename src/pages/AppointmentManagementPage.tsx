@@ -206,8 +206,9 @@ export default function AppointmentManagementPage() {
     try {
       const { appointmentApi } = await import('../services/api/appointmentApi')
       const res = await appointmentApi.list({ take: 100 })
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setAppointments(res.data.map(mapAppointmentDto))
+      const items = res.data?.items ?? []
+      if (res.success && items.length > 0) {
+        setAppointments(items.map(mapAppointmentDto))
         setDataSource('real')
         setListError(null)
       } else {

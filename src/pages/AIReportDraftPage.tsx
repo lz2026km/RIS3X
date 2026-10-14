@@ -110,7 +110,8 @@ export default function AIReportDraftPage() {
           examApi.list({ pageSize: 200 }),
         ]);
         if (cancelled) return;
-        const toArr = (d: unknown): any[] => Array.isArray(d) ? d : ((d as { items?: unknown[] })?.items ?? []);
+        // [W4] patientApi/examApi 均已归一化为 { items, total }
+        const toArr = (d: unknown): any[] => ((d as { items?: unknown[] })?.items ?? []);
         const patients = toArr(patientRes.data).filter((p: any) => p?.id);
         const exams = toArr(examRes.data).filter((e: any) => e?.id && e?.patientId);
         const patientById = new Map(patients.map((p: any) => [p.id, p]));
@@ -332,15 +333,13 @@ export default function AIReportDraftPage() {
     }
     const user = getCurrentUser();
     try {
+      // [W4] 对齐后端 CreateReportSchema: 仅 patientId/examId/radiologistId/findings/conclusion/htmlContent
+      //   (patientName/modality/bodyPart/impression 不在 schema 内, 发送会被剥离)
       const res = await reportApi.create({
         patientId: currentExam.patientId,
         examId: currentExam.examId,
-        patientName: currentExam.patientName,
-        modality: currentExam.modality,
-        bodyPart: currentExam.bodyPart,
         radiologistId: user?.id,
         findings: editedFindings,
-        impression: editedImpression,
         conclusion: editedImpression || editedDiagnosis,
       });
       if (res.success && res.data) {

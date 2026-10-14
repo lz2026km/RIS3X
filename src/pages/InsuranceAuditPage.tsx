@@ -4563,6 +4563,7 @@ export default function InsuranceAuditPage() {
               pagination={false}
               showExport={false}
               showDensity={false}
+              scroll={{ x: 1400 }}
               columns={[
                 { title: t("history.auditTime"), dataIndex: "auditTime", key: "auditTime" },
                 { title: t("history.patientName"), dataIndex: "patientName", key: "patientName" },
@@ -4911,6 +4912,7 @@ export default function InsuranceAuditPage() {
               pagination={false}
               showExport={false}
               showDensity={false}
+              scroll={{ x: 1400 }}
               columns={[
                 { title: t("insuranceAudit.voucherId"), dataIndex: "id", key: "id" },
                 { title: t("insuranceAudit.linkedAuditId"), dataIndex: "relatedAuditId", key: "relatedAuditId" },
@@ -5063,6 +5065,7 @@ export default function InsuranceAuditPage() {
               pagination={false}
               showExport={false}
               showDensity={false}
+              scroll={{ x: 1400 }}
               columns={[
                 { title: t("insuranceAudit.claimId"), key: "id", render: (_v, c) => <span style={{ color: GRAY }}>{c.id}</span> },
                 { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, c) => <span style={{ fontWeight: 700, color: PRIMARY }}>{c.patientName}</span> },
@@ -5107,6 +5110,7 @@ export default function InsuranceAuditPage() {
               pagination={false}
               showExport={false}
               showDensity={false}
+              scroll={{ x: 1400 }}
               columns={[
                 { title: "ICD-10", key: "icd10", render: (_v, m) => <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{m.icd10}</span> },
                 { title: t("insuranceAudit.description"), key: "description", render: (_v, m) => <span style={{ fontSize: 12 }}>{m.description}</span> },
@@ -5245,6 +5249,7 @@ export default function InsuranceAuditPage() {
                 pagination={false}
                 showExport={false}
                 showDensity={false}
+                scroll={{ x: 1400 }}
                 columns={[
                   { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, d) => <span style={{ fontWeight: 600, color: PRIMARY }}>{d.patientName}</span> },
                   { title: t("insuranceAudit.exam"), key: "examItem", render: (_v, d) => <span style={{ fontSize: 12 }}>{d.examItem}</span> },
@@ -5775,6 +5780,7 @@ export default function InsuranceAuditPage() {
               pagination={false}
               showExport={false}
               showDensity={false}
+              scroll={{ x: 1400 }}
               columns={[
                 { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, d) => <span style={{ fontWeight: 600, color: PRIMARY }}>{d.patientName}</span> },
                 { title: t("insuranceAudit.drgIcdCode"), key: "icdCodes", render: (_v, d) => <span style={{ fontFamily: "monospace", fontSize: 12 }}>{d.icdCodes}</span> },
@@ -6012,6 +6018,7 @@ export default function InsuranceAuditPage() {
                 pagination={false}
                 showExport={false}
                 showDensity={false}
+                scroll={{ x: 1400 }}
                 columns={[
                   { title: t("insuranceAudit.drugName"), key: "name", render: (_v, drug) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{drug.name}</span> },
                   {

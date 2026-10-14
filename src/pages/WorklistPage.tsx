@@ -383,7 +383,10 @@ export default function WorklistPage() {
       const wlItems = extractExamItems(wlRaw)
       if (!wl.success || wlItems === null) break
       collected.push(...wlItems)
-      if (wlRaw && typeof wlRaw === 'object') {
+      // [W4] getList 归一化后 total 位于 data.total (旧 meta.total 兜底保留)
+      if (wl.data && typeof wl.data.total === 'number') {
+        total = wl.data.total
+      } else if (wlRaw && typeof wlRaw === 'object') {
         const meta = (wlRaw as { meta?: { total?: number } }).meta
         if (typeof meta?.total === 'number') total = meta.total
       }
@@ -1148,7 +1151,8 @@ export default function WorklistPage() {
     try {
       if (action === 'room') {
         recordBatchActivity(t('worklistPage.actionLabel.roomAssign'), ids.length, 'api')
-        const res = await worklistApi.batchAssign(ids, { roomId: batch.roomValue })
+        // [W4] 后端 AssignBodySchema 仅接受 doctorId/deviceId (roomId 不被接受, 之前也被 zod 剥离)
+        const res = await worklistApi.batchAssign(ids, {})
         if (res.success) {
           okCount = Number((res.data as { updated?: number } | null)?.updated ?? ids.length)
           results.push(t('worklistPage.roomAssigned'))

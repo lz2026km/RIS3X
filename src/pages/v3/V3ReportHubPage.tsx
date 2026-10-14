@@ -102,11 +102,12 @@ export const V3ReportHubPage: React.FC = () => {
   const loadReports = useCallback(async (p: number = reportPage) => {
     setReportsLoading(true);
     try {
+      // [W4] api 层已映射 page/pageSize → skip/take 并归一化为 { items, total }
       const res = await reportApi.list({ page: p, pageSize: REPORT_PAGE_SIZE });
       if (res.success) {
-        const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+        const list = res.data?.items ?? [];
         setReports(list);
-        setReportTotal(res.meta?.total ?? list.length ?? 0);
+        setReportTotal(res.data?.total ?? res.meta?.total ?? list.length ?? 0);
       }
     } catch {
       setReports([]);

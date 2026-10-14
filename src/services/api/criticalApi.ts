@@ -215,6 +215,7 @@ async function applyCriticalTransition(
 }
 
 export const criticalApi = {
+  // [W4] 列表归一化: 改用 api.getList (兼容 { items, total } 与裸数组), 再叠加 state→status 归一
   list: async (params?: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string; patientId?: string }) => {
     const searchParams = new URLSearchParams()
     if (params) {
@@ -227,14 +228,13 @@ export const criticalApi = {
       if (params.patientId) searchParams.set('patientId', params.patientId)
     }
     const qs = searchParams.toString()
-    const res = await api.get<CriticalValueDto[] | { items?: CriticalValueDto[]; total?: number }>(`/criticals${qs ? `?${qs}` : ''}`)
-    const raw = res.data
-    const items = Array.isArray(raw) ? raw : (raw?.items ?? [])
+    const res = await api.getList<CriticalValueDto>(`/criticals${qs ? `?${qs}` : ''}`)
+    const items = res.data?.items ?? []
     return {
       ...res,
       data: {
         items: items.map(normalizeCritical),
-        total: Array.isArray(raw) ? raw.length : (raw?.total ?? items.length),
+        total: res.data?.total ?? items.length,
       },
     }
   },

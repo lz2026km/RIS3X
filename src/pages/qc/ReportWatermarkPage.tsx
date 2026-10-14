@@ -567,7 +567,7 @@ export default function ReportWatermarkPage() {
                     </Button>
                   }
                 >
-                  <DataTable rowKey="id" loading={signLoading} columns={signColumns} dataSource={signs} pagination={{ pageSize: 6 }} scroll={{ x: 1000 }} />
+                  <DataTable rowKey="id" loading={signLoading} columns={signColumns} dataSource={signs} pagination={{ pageSize: 6 }} scroll={{ x: 1100 }} />
                 </Card>
               </Space>
             ),

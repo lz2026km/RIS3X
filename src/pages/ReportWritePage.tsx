@@ -1206,11 +1206,8 @@ export default function ReportWritePage() {
       if (!target && presetExamId) {
         try {
           const listRes = await reportApi.list({ take: '100' });
-          const arr = listRes.success
-            ? (Array.isArray(listRes.data)
-                ? listRes.data
-                : ((listRes.data as { items?: unknown[] })?.items ?? []))
-            : [];
+          // [W4] api.getList 已归一化为 { items, total }
+          const arr = listRes.success ? (listRes.data?.items ?? []) : [];
           const byExam = arr.find((r) => String((r as any)?.examId ?? '') === presetExamId);
           if (byExam) {
             target = (byExam as any).reportId || (byExam as any).id;
@@ -1238,8 +1235,10 @@ export default function ReportWritePage() {
       }
       if (!target) {
         const listRes = await reportApi.list({ take: '20' });
-        if (listRes.success && Array.isArray(listRes.data) && listRes.data.length > 0) {
-          const prefer = listRes.data.find((r) => !/(已发布|已审核|已双签|published|reviewed|signed|REVIEWED|PUBLISHED|SIGNED)/i.test(r.status ?? '')) ?? listRes.data[0];
+        // [W4] getList 归一化为 { items, total }
+        const listItems = listRes.data?.items ?? [];
+        if (listRes.success && listItems.length > 0) {
+          const prefer = listItems.find((r) => !/(已发布|已审核|已双签|published|reviewed|signed|REVIEWED|PUBLISHED|SIGNED)/i.test(r.status ?? '')) ?? listItems[0];
           if (prefer) target = prefer.reportId || prefer.id;
         }
       }
@@ -1323,11 +1322,8 @@ export default function ReportWritePage() {
         if (d.patientId) {
           try {
             const listRes = await reportApi.list({ take: '200' });
-            const arr = listRes.success
-              ? (Array.isArray(listRes.data)
-                  ? listRes.data
-                  : ((listRes.data as { items?: unknown[] })?.items ?? []))
-              : [];
+            // [W4] api.getList 已归一化为 { items, total }
+            const arr = listRes.success ? (listRes.data?.items ?? []) : [];
             const curId = String(d.reportId || d.id);
             const samePatient = (arr as any[]).filter((x: any) =>
               String(x?.patientId ?? '') === String(d.patientId) && String(x?.reportId || x?.id) !== curId);
@@ -1354,8 +1350,10 @@ export default function ReportWritePage() {
         }
       }
       const draftsRes = await reportApi.list({ take: '20' });
-      if (draftsRes.success && Array.isArray(draftsRes.data)) {
-        setDrafts(draftsRes.data.map((r, i) => ({
+      // [W4] getList 归一化为 { items, total }
+      const draftItems = draftsRes.data?.items ?? [];
+      if (draftsRes.success && draftItems.length > 0) {
+        setDrafts(draftItems.map((r, i) => ({
           id: `${r.reportId || r.id}-${i}`,
           reportId: r.reportId || r.id,
           versionLabel: `v${i + 1}`,
@@ -1456,7 +1454,8 @@ export default function ReportWritePage() {
     let cancelled = false;
     reportApi.list({ take: '100' }).then((res) => {
       if (cancelled || !res.success) return;
-      const arr = Array.isArray(res.data) ? res.data : ((res.data as any)?.items ?? []);
+      // [W4] api.getList 已归一化为 { items, total }
+      const arr = res.data?.items ?? [];
       if (arr.length > 0) setReportList(arr);
     }).catch(() => { /* 列表加载失败时禁用上下例 */ });
     return () => { cancelled = true; };
@@ -1862,9 +1861,8 @@ export default function ReportWritePage() {
     setPrevCopyLoading(true);
     try {
       const res = await reportApi.list({ take: '50', patientId: pid });
-      const arr = res.success
-        ? (Array.isArray(res.data) ? res.data : ((res.data as { items?: unknown[] })?.items ?? []))
-        : [];
+      // [W4] api.getList 已归一化为 { items, total }
+      const arr = res.success ? (res.data?.items ?? []) : [];
       const curId = String(reportId ?? context.reportId ?? '');
       const curModality = String(context.modality ?? '');
       const others = (arr as any[]).filter((x) => {
@@ -1897,9 +1895,8 @@ export default function ReportWritePage() {
       let arr: any[] = priorSource === 'api' ? priorReports : (context.priorReports ?? []);
       if (arr.length === 0) {
         const res = await reportApi.list({ take: '50', patientId: pid });
-        const list = res.success
-          ? (Array.isArray(res.data) ? res.data : ((res.data as { items?: unknown[] })?.items ?? []))
-          : [];
+        // [W4] api.getList 已归一化为 { items, total }
+        const list = res.success ? (res.data?.items ?? []) : [];
         arr = (list as any[]).filter((x) => String(x?.reportId || x?.id) !== String(reportId ?? context.reportId ?? ''));
       }
       if (arr.length === 0) { message.info(t('w12.write.priorCompareEmpty')); return; }

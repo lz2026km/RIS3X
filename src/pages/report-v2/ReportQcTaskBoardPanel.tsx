@@ -384,7 +384,7 @@ const ReportQcTaskBoardPanel: React.FC = () => {
             dataSource={tasks}
             pagination={{ pageSize: 10, showSizeChanger: false }}
             columnConfigKey="w-d7-qc-tasks"
-            scroll={{ x: 1200 }}
+            scroll={{ x: 1230 }}
             exportFileName="report-qc-tasks"
           />
         </StateView>
@@ -395,7 +395,7 @@ const ReportQcTaskBoardPanel: React.FC = () => {
           rowKey="id"
           columns={scoreColumns}
           dataSource={scores}
-          pagination={{ pageSize: 5, showSizeChanger: false }}
+          pagination={{ pageSize: 10, showSizeChanger: false }}
           columnConfigKey="w-d7-qc-scores"
           exportFileName="report-qc-scores"
         />

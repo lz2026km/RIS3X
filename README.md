@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.15-1
+# G005 放射科 RIS 系统 v3.0.6.15-2
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.15-1（**全面 BUG 修复 + 演示数据扩充**：3 个 P0 观察器崩溃修复、54 处 `validateFields` 非法提交保护、ID 命名空间统一 753 条、分诊/MWL/急诊 105 条关联数据、报告 QC/病理/治疗 90 条、CDS 70+ 规则/告警、心脏 25 例/乳腺 30 例、FHIR 120 资源、Prisma seed 3→30 患者；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.15-2（**表格 UI 修复**：CSS 选择器反转修复、scroll.x 比例修正、空值安全工具、前后端契约归一化；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.15-1**  | **全面 BUG 修复 + 演示数据扩充**：3 个 P0 观察器崩溃修复（`require('three')`/`frame-` loader/ohif CORS）；54 处 `validateFields` 非法提交保护；5 个 dental MSW 端点补齐；ID 命名空间统一 753 条（appointments/dental/eye → master）；分诊 30 例 + MWL 60 条 + 急诊 15 条 + QC 30 任务 + radpath 25 对 + 治疗 20 例 + 电签 15 会话 + CDS 40 规则/30 告警 + 心脏 25 例 + 乳腺 30 例 + FHIR 120 资源 + dose 30 条 + 对比剂 50 条 + 设备维护 10/校准 8/故障 5；Prisma seed 3→30 患者 / 5→60 检查 / 5→45 报告 / 5→15 危急值 | ✅ **当前** |
+| **v3.0.6.15-2**  | **表格 UI 修复**：`data-table.css` 选择器反转修复（密度/斑马纹/nowrap/等宽数字全局生效）；`src/utils/format.ts` 空值安全工具；3 处页面崩溃修复；`scroll.x` 与列宽和匹配（Worklist/PatientTable/ExamPage）；操作列 300-360→180 图标化；59 个数字列补 align；前后端契约归一化（8 API + 5 请求形状 + CSRF + 查询参数） | ✅ **当前** |
+| v3.0.6.15-1     | **全面 BUG 修复 + 演示数据扩充**：3 个 P0 观察器崩溃、54 处 validateFields 保护、ID 命名空间统一 753 条、Prisma seed 3→30 患者 | ✅ 完成 |
 | v3.0.6.14-0     | **表格紧凑化**：工具栏按需、分页精简、密度令牌生效、Card small、PageContainer 16px | ✅ 完成 |
 | v3.0.6.13-13    | **全量 E2E 验收**：409 路由——390 通过 + 9 flaky + 10 已知外部依赖缺陷；GitHub Pages 部署 | ✅ 完成 |
 | v3.0.6.13-12     | **后端能力前端化**：4 新页（不良事件/RCA、报告语义检索 V2、报告对比 V2、HL7 消息控制台）+ 16 面板 | ✅ 完成 |

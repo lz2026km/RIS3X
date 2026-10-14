@@ -1580,7 +1580,7 @@ function OlapExplorer() {
         <DataTable<Record<string, unknown>>
           columns={resultColumns}
           dataSource={result?.rows ?? []}
-          rowKey={(_row, index) => `row-${index ?? 0}`}
+          rowKey={(row) => (result ? result.columns.map((c) => String(row[c.code] ?? '')).join('|') : JSON.stringify(row))}
           loading={loading}
           exportFileName={`olap-${cubeId || 'query'}`}
           emptyText="执行查询或下钻后展示结果"

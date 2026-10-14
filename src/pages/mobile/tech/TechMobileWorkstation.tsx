@@ -174,20 +174,21 @@ export default function TechMobileWorkstation() {
       }
 
       // [v3.0.6.11-95 Wave1B] 数据源优先级: /worklist (含 room/device/age) → 预约 → /mobile/worklist
-      // 响应形状兼容: 后端 { items, total } / MSW 裸数组
+      // [W4] api.getList 已归一化为 { items, total }
       const wl = await worklistApi.list({ page: 1, pageSize: 200 })
-      const wlItems = wl.data && Array.isArray(wl.data) ? wl.data : (wl.data as { items?: WorklistItemDto[] } | null)?.items
+      const wlItems = wl.data?.items ?? []
       if (!cancelled && wl.success && Array.isArray(wlItems)) {
         setExams(wlItems.map(mapWorklistDto))
         return
       }
       const examRes = await appointmentApi.list()
-      if (!cancelled && examRes.success && Array.isArray(examRes.data)) {
+      const aptItems = examRes.data?.items ?? []
+      if (!cancelled && examRes.success && Array.isArray(aptItems)) {
         const stateMap: Record<string, TechExamItem['status']> = {
           SCHEDULED: 'scheduled', CONFIRMED: 'scheduled', CHECKED_IN: 'arrived',
           IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled',
         }
-        setExams(examRes.data.map((a: AppointmentDto) => ({
+        setExams(aptItems.map((a: AppointmentDto) => ({
           id: a.id,
           patientName: a.patientName || '未知患者',
           gender: '未知',

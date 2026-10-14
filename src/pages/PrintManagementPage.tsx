@@ -2395,9 +2395,9 @@ export default function PrintManagementPage() {
     { title: t("printMgmt.filmUsage"), dataIndex: 'films', key: 'films', align: 'center' as const, render: (v: number) => <span style={{ color: C.textMid }}>{v}</span> },
     { title: t("printMgmt.perSheetCost"), dataIndex: 'costPerPrint', key: 'costPerPrint', align: 'center' as const, render: (v: number) => <span style={{ color: C.success }}>¥{v.toFixed(1)}</span> },
     { title: t("printMgmt.totalCost"), dataIndex: 'totalCost', key: 'totalCost', align: 'center' as const, render: (v: number) => <span style={{ fontWeight: 700, color: C.textDark }}>¥{v.toFixed(0)}</span> },
-    { title: t("printMgmt.roomCt"), key: 'deptCt', align: 'center' as const, render: (_v, p) => <span style={{ color: C.textMid }}>¥{p.deptCost.CT.toFixed(0)}</span> },
-    { title: t("printMgmt.roomMr2"), key: 'deptMr', align: 'center' as const, render: (_v, p) => <span style={{ color: C.textMid }}>¥{p.deptCost.MR.toFixed(0)}</span> },
-    { title: t("printMgmt.roomDr2"), key: 'deptDr', align: 'center' as const, render: (_v, p) => <span style={{ color: C.textMid }}>¥{p.deptCost.DR.toFixed(0)}</span> },
+    { title: t("printMgmt.roomCt"), key: 'deptCt', align: 'center' as const, render: (_v, p) => <span style={{ color: C.textMid }}>¥{p.deptCost?.CT?.toFixed(0) ?? '-'}</span> },
+    { title: t("printMgmt.roomMr2"), key: 'deptMr', align: 'center' as const, render: (_v, p) => <span style={{ color: C.textMid }}>¥{p.deptCost?.MR?.toFixed(0) ?? '-'}</span> },
+    { title: t("printMgmt.roomDr2"), key: 'deptDr', align: 'center' as const, render: (_v, p) => <span style={{ color: C.textMid }}>¥{p.deptCost?.DR?.toFixed(0) ?? '-'}</span> },
   ]
 
   const renderCostTracking = () => (

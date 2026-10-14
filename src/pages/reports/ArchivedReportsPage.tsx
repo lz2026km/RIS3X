@@ -10,15 +10,15 @@ import {
   message,
 } from "antd";
 import { Archive, RotateCcw, Search } from 'lucide-react'
-import { reportApi, type ListPayload } from '../../services/api/reportApi'
+import { reportApi } from '../../services/api/reportApi'
 import { ErrorBanner } from '../../components/feedback'
 import type { ReportDto } from '../../types/dto'
 import { t } from '../../i18n/appI18n'
 import { PageContainer } from "../../components/common";
 
-function unwrap(payload: ListPayload<ReportDto> | undefined): ReportDto[] {
-  if (!payload) return []
-  return Array.isArray(payload) ? payload : (payload.items ?? [])
+// [W4] api.getList 已归一化为 { items, total }
+function unwrap(payload: { items?: ReportDto[] } | undefined): ReportDto[] {
+  return payload?.items ?? []
 }
 
 export default function ArchivedReportsPage() {

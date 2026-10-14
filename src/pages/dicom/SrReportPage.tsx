@@ -679,7 +679,7 @@ const GenerateSrModal: React.FC<{
     setLoadError("");
     try {
       const res = await reportApi.list({ pageSize: 100 } as never);
-      const items = (Array.isArray(res.data) ? res.data : [])
+      const items = (res.data?.items ?? [])
         .filter((r) => r && typeof r === "object" && "id" in r)
         .map((r) => ({
           id: String((r as { id: string }).id),

@@ -747,10 +747,8 @@ const Patient360View = () => {
   const loadPatients = useCallback(async () => {
     try {
       const res = await patientApi.list({ skip: 0, take: 200 } as unknown as import('../services/api/types').PatientQueryParams)
-      const raw: any = res.data
-      const rows = Array.isArray(raw)
-        ? raw
-        : raw && Array.isArray(raw.items) ? raw.items : []
+      // [W4] api.getList 已归一化为 { items, total }
+      const rows = res.data?.items ?? []
       if (rows.length > 0) {
         setApiPatients(rows.map((p: any) => ({
           id: p.id ?? '',

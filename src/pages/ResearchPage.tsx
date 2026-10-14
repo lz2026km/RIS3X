@@ -393,6 +393,7 @@ function ExtractTab() {
           pagination={false}
           showExport={false}
           showDensity={false}
+          scroll={{ x: 1200 }}
           emptyText={t('common.empty.noData')}
           columns={[
             { title: t('researchPage.thPatientId'), key: 'patientId', render: (_v, record) => <span style={{ color: COLORS.textSecondary }}>{record.patientId}</span> },
@@ -707,7 +708,7 @@ function DeidEngineTab() {
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Tag size={16} /> {t('researchPage.deidTagRules')}</div>
         <DataTable
           dataSource={phiTags}
-          rowKey={(_pt, idx) => String(idx)}
+          rowKey={(pt) => pt.tag}
           pagination={false}
           showExport={false}
           showDensity={false}
@@ -1217,7 +1218,7 @@ function DataQualityTab() {
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Target size={16} /> {t('researchPage.fieldQualityScore')}</div>
         <DataTable
           dataSource={scores}
-          rowKey={(_f, idx) => String(idx)}
+          rowKey={(f) => f.field}
           pagination={false}
           showExport={false}
           showDensity={false}

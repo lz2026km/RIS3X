@@ -144,7 +144,7 @@ export default function TechSchedulePage() {
       setStats(statsRes.data ?? EMPTY_STATS)
       setTechnicians(metaRes.data?.technicians ?? [])
       setRooms(metaRes.data?.rooms ?? [])
-      setSchedules(listRes.data?.data ?? [])
+      setSchedules(listRes.data?.items ?? [])
       setDataSource('api')
     } catch {
       // 回退本地演示数据
