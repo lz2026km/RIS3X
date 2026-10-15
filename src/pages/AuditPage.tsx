@@ -442,7 +442,7 @@ export default function AuditPage() {
                     {/* [Wave 4B] 高危操作清单 (GET /audit/high-risk) */}
                     <Col span={12}>
                       <Card type="inner" size="small" title={<span><AlertTriangle /> {t('auditPage.highRiskTitle')}</span>} extra={highRisk ? <Tag color="red">{t('auditPage.totalTimes', { total: highRisk.total })}</Tag> : null}>
-                        {!highRisk || highRisk.actions.length === 0 ? (
+                        {!highRisk?.actions || highRisk.actions.length === 0 ? (
                           <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 'var(--space-4, 16px)' }}>{t('auditPage.noHighRisk')}</div>
                         ) : (
                           <ProTable<AuditHighRiskActionDto>

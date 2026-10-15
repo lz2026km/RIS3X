@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.15-3
+# G005 放射科 RIS 系统 v3.0.6.15-4
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.15-3（**演示部署修复**：生产环境切换 mock 模式（自带 MSW，消除 HTTPS→localhost 混合内容拦截导致的空白页）+ 深链接 SPA 404 回退验证；线上 23 路由实测通过；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.15-4（**入口双实例修复**：移除 `vite.config` 对入口脚本的 `?v=` 查询串戳，根除 Vite chunk 图与 HTML 入口 URL 不一致导致的**入口二次求值 → 双 React root → `removeChild` 崩溃**（偶发于审计页）；`#root` 专属化；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.15-3**  | **演示部署修复**：`.env.production` 切 `VITE_API_MODE=mock` + `VITE_USE_MSW=true`（演示站自带 mock 后端，修复 HTTPS 页面请求 `http://localhost:3001` 被混合内容拦截 → 全站空白）；E2E 增加 GitHub Pages 深链接 SPA 404 回退判据；线上 23 路由实测 21 通过 + 1 flaky + 1 重跑通过 | ✅ **当前** |
+| **v3.0.6.15-4**  | **入口双实例修复**：移除 `vite.config` 对入口脚本的 `?v=` 查询串戳（Vite chunk 图以无 query URL 解析入口 → 入口被求值两次 → 双 React root → 审计页 `removeChild` 崩溃）；`#root` 专属化；audit mock handler 对齐 DTO | ✅ **当前** |
+| v3.0.6.15-3      | **演示部署修复**：`.env.production` 切 `VITE_API_MODE=mock` + `VITE_USE_MSW=true`（演示站自带 mock 后端，修复 HTTPS 页面请求 `http://localhost:3001` 被混合内容拦截 → 全站空白）；E2E 增加 GitHub Pages 深链接 SPA 404 回退判据；线上 23 路由实测 21 通过 + 1 flaky + 1 重跑通过 | ✅ 完成 |
 | v3.0.6.15-2     | **表格 UI 修复**：CSS 选择器反转、scroll.x 比例、空值安全工具、前后端契约归一化 | ✅ 完成 |
 | v3.0.6.15-1     | **全面 BUG 修复 + 演示数据扩充**：3 个 P0 观察器崩溃、54 处 validateFields 保护、ID 命名空间统一 753 条、Prisma seed 3→30 患者 | ✅ 完成 |
 | v3.0.6.14-0     | **表格紧凑化**：工具栏按需、分页精简、密度令牌生效、Card small、PageContainer 16px | ✅ 完成 |

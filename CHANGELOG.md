@@ -1,3 +1,21 @@
+## v3.0.6.15-4 (2026-10-15) — 修复入口双实例加载（审计页 `removeChild` 崩溃）
+
+> **根因**: `vite.config.ts` 的 `version-stamp` 插件在 `writeBundle` 给 `dist/index.html` 里所有
+> `/assets/*.js|css` 追加 `?v=<version>` 查询串。Vite 运行时/预加载（chunk 图）以**无 query** 的
+> `/assets/index-*.js` 解析入口 → 同一入口被浏览器视为**两个模块标识**并**求值两次** →
+> `bootstrap()` 运行两次 → `createRoot` 建了**两个 React root** → 第二个 root 的 `clearContainer`
+> 破坏第一个 root 已挂载节点的 DOM 引用 → React commit 阶段 `removeChild` 抛
+> `NotFoundError: The node to be removed is not a child of this node`（偶发于 `/audit`、`/system/audit`）。
+> **定位**: 运行时补丁 `Node.prototype.removeChild` + `Document.prototype.getElementById` 取证，
+> 证实入口被求值两次（堆栈含 `index-*.js` 与 `index-*.js?v=3.0.0` 两个 URL）。
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试 0 失败** / `guard:ui` 全绿；入口求值次数 2→1。
+
+### 修复
+- `vite.config.ts`：移除 `version-stamp` 对 `/assets/*.js|css` 的 `?v=` 重写（资源文件名本身已含内容哈希，缓存失效由文件名负责，`?v=` 纯冗余且有害）
+- `index.html`：`<noscript>` 与 `#loading-placeholder` 移出 `#root`，使 React 容器专属于 React（避免容器内含外部子节点）
+- `src/services/mockBackend/w5MissingHandlers.ts`：4 个 audit handler 对齐 DTO（`overview`/`high-risk`/`action-trend`/`user-activity`），修复 `highRisk.actions.length` 崩溃；`DOCTORS` 仅 3 项时按取模取值
+- `src/pages/AuditPage.tsx`：`highRisk?.actions` 防御性访问
+
 ## v3.0.6.15-3 (2026-10-10) — 演示部署修复（生产 mock 模式 + 深链接 SPA 回退）
 
 > **根因**: `.env.production` 长期为 `VITE_API_MODE=real` + `VITE_API_BASE_URL=http://localhost:3001/api`。

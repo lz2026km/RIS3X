@@ -91,11 +91,15 @@ export default defineConfig({
       writeBundle() {
         const htmlPath = 'dist/index.html';
         if (!fs.existsSync(htmlPath)) return;
-        let html = fs.readFileSync(htmlPath, 'utf-8');
-        html = html.replace(/(src|href)="(\/assets\/[^"]+\.js)"/g, `$1="$2?v=${VERSION}"`);
-        html = html.replace(/(src|href)="(\/assets\/[^"]+\.css)"/g, `$1="$2?v=${VERSION}"`);
+        const html = fs.readFileSync(htmlPath, 'utf-8');
+        // [P0 修复] 不再给 /assets/*.js 追加 ?v= 查询串。
+        // 原因: Vite 运行时/预加载(chunk 图)以无 query 的 /assets/index-*.js 解析入口,
+        // 而 HTML 若写成 index-*.js?v=xxx 会形成第二个模块标识 → 入口被求值两次 →
+        // bootstrap() 运行两次 → 创建两个 React root → 第二个 root 的 clearContainer
+        // 破坏第一个 root 的 DOM 引用, 触发 "removeChild ... not a child" 崩溃。
+        // 资源文件名本身已含内容哈希, 缓存失效由文件名负责, ?v= 纯属冗余。
         fs.writeFileSync(htmlPath, html);
-        console.log(`[Build] Version stamp v${VERSION} applied`);
+        console.log(`[Build] Version ${VERSION} (asset filenames are content-hashed; no ?v= stamp)`);
       },
     },
 

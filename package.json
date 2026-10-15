@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.15-3",
-  "description": "G005 Radiology RIS v3.0.6.15-3 - Demo Deployment Fix (mock mode + SPA deep-link verification)",
+  "version": "3.0.6.15-4",
+  "description": "G005 Radiology RIS v3.0.6.15-4 - Demo Deployment Fix (mock mode + SPA deep-link verification)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

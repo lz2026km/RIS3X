@@ -564,15 +564,75 @@ const aiDraftHandlers = [
 // 8) Audit (overview / high-risk / action-trend / user-activity)
 // ═══════════════════════════════════════════════════════════════════════════
 const auditHandlers = [
-  http.get(`${API_BASE}/audit/overview`, () => HttpResponse.json({ total: 1280, today: 42, highRisk: 3, byAction: { create: 320, update: 540, delete: 60, login: 360 }, byActor: { D001: 120, D002: 98, D003: 76 } })),
-  http.get(`${API_BASE}/audit/high-risk`, () => HttpResponse.json({ total: 3, items: [{ id: 'AU-H1', action: 'DELETE', entity: 'report', entityId: 'RPT-0004', actor: 'D003', riskLevel: 'high', createdAt: nowIso() }, { id: 'AU-H2', action: 'EXPORT', entity: 'patient', entityId: 'P001', actor: 'D001', riskLevel: 'medium', createdAt: nowIso() }] })),
+  // [fix v3.0.6.15-4] 与 backend audit.service / auditApi.ts DTO 对齐 (原形状漂移导致 /audit 页崩溃)
+  http.get(`${API_BASE}/audit/overview`, () => {
+    const topActions = [
+      { action: 'UPDATE_REPORT', count: 540 },
+      { action: 'LOGIN', count: 360 },
+      { action: 'CREATE_REPORT', count: 320 },
+      { action: 'DELETE_REPORT', count: 60 },
+    ]
+    const totalOperations = topActions.reduce((s, a) => s + a.count, 0)
+    const failedCount = 26
+    const successCount = totalOperations - failedCount
+    return HttpResponse.json({
+      date: dateOnly(0),
+      todayOperations: 42,
+      activeUsers: DOCTORS.length,
+      highRiskCount: 3,
+      successCount,
+      failedCount,
+      successRate: Math.round((successCount / totalOperations) * 1000) / 10,
+      totalOperations,
+      topActions,
+      seeded: true,
+    })
+  }),
+  http.get(`${API_BASE}/audit/high-risk`, () => {
+    const dn = (i: number) => DOCTORS[i % DOCTORS.length]!.name
+    const actions = [
+      { action: 'DELETE_REPORT', pattern: 'delete', patternZh: '删除', count: 12, lastAt: nowIso(), recentUsers: [dn(0), dn(1)] },
+      { action: 'EXPORT_CSV', pattern: 'export', patternZh: '导出', count: 34, lastAt: nowIso(), recentUsers: [dn(2)] },
+      { action: 'BATCH_UPDATE', pattern: 'batch', patternZh: '批量', count: 8, lastAt: nowIso(), recentUsers: [dn(0), dn(2)] },
+      { action: 'DELETE_PATIENT', pattern: 'delete', patternZh: '删除', count: 3, lastAt: nowIso(), recentUsers: [dn(1)] },
+    ]
+    return HttpResponse.json({
+      total: actions.reduce((s, a) => s + a.count, 0),
+      byPattern: [
+        { pattern: 'delete', patternZh: '删除', count: 15 },
+        { pattern: 'export', patternZh: '导出', count: 34 },
+        { pattern: 'batch', patternZh: '批量', count: 8 },
+      ],
+      actions,
+      seeded: true,
+    })
+  }),
   http.get(`${API_BASE}/audit/action-trend`, ({ request }) => {
     const days = clampDays(new URL(request.url).searchParams.get('days'))
-    return HttpResponse.json(range(days, (i) => ({ date: dateOnly(i - days + 1), count: (i * 5) % 40 })))
+    return HttpResponse.json(range(days, (i) => {
+      const d = dateOnly(i - days + 1)
+      return {
+        date: d,
+        label: d.slice(5),
+        total: 20 + ((i * 7) % 40),
+        highRisk: i % 5 === 0 ? 3 : 0,
+        failed: i % 7 === 0 ? 2 : 0,
+        seeded: true,
+      }
+    }))
   }),
   http.get(`${API_BASE}/audit/user-activity`, ({ request }) => {
     const limit = clampDays(new URL(request.url).searchParams.get('limit'), 20)
-    return HttpResponse.json(range(limit, (i) => ({ userId: DOCTORS[i % DOCTORS.length]!.id, name: DOCTORS[i % DOCTORS.length]!.name, action: i % 2 ? 'update' : 'create', count: (i * 3) % 20, lastAt: nowIso() })))
+    return HttpResponse.json(range(limit, (i) => {
+      const doc = DOCTORS[i % DOCTORS.length]!
+      return {
+        userId: doc.id,
+        userName: doc.name,
+        count: 40 - ((i * 3) % 30),
+        lastActive: nowIso(),
+        successRate: 88 + (i % 12),
+      }
+    }))
   }),
 ]
 
