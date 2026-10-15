@@ -185,7 +185,10 @@ async function runRouteTest(page: Page, route: string): Promise<RouteResult> {
     const s = resp.status();
     if (s >= 400) {
       const u = (resp.url() ?? '').slice(0, 200);
-      if (!u.includes('/@vite/') && !u.includes('.tsx')) {
+      // [部署校验] GitHub Pages 静态托管深链接: 文档导航本身返回 404 (由 404.html 客户端重定向恢复),
+      // 该 404 不计入资源错误。
+      const isDocNav404 = s === 404 && u.includes(route.split('?')[0]!);
+      if (!u.includes('/@vite/') && !u.includes('.tsx') && !isDocNav404) {
         resErrs.push({ phase, status: s, url: u });
       }
     }
@@ -352,7 +355,10 @@ async function runRouteTest(page: Page, route: string): Promise<RouteResult> {
   page.off('crash', onCrash);
   page.off('dialog', onDialog);
 
-  const okStatus = result.status === 0 || result.status < 400;
+  // [部署校验] GitHub Pages 静态托管: 深链接首次响应 404, 由 404.html 客户端重定向恢复。
+  // 若页面实际渲染成功 (hasRender + 有内容) 则视为通过 (初始 404 状态码为托管平台特性)。
+  const spaRedirectOk = result.status === 404 && result.hasRender && result.bodyLen > 50;
+  const okStatus = result.status === 0 || result.status < 400 || spaRedirectOk;
   const okPE = result.pageErrors.length === 0;
   const okCE = result.consoleErrors.length === 0;
   const okBody = result.bodyLen > 50;

@@ -1,3 +1,16 @@
+## v3.0.6.15-3 (2026-10-10) — 演示部署修复（生产 mock 模式 + 深链接 SPA 回退）
+
+> **根因**: `.env.production` 长期为 `VITE_API_MODE=real` + `VITE_API_BASE_URL=http://localhost:3001/api`。
+> 部署站为 HTTPS，浏览器**混合内容拦截** HTTP 后端 → 外部访客打开全站空白（API 全部失败）。
+> **验证**: 线上 23 路由实测 21 通过 + 1 flaky + 1 重跑通过；前端 tsc **0** / vitest **47 文件 831 测试**
+
+### 修复
+- `.env.production`：`VITE_API_MODE=mock` + `VITE_USE_MSW=true`（演示站**自带 MSW mock 后端**，无需外部服务即可完整演示；已注释说明真实后端部署时如何改回）
+- E2E `click-all-pages` 增加 **GitHub Pages 深链接 SPA 404 回退判据**：
+  - 文档导航 404 不计入资源错误（`404.html` 客户端重定向恢复属平台特性）
+  - `status=404 && hasRender && bodyLen>50` 视为通过（页面实际渲染成功）
+- 线上实测覆盖：工作台/分诊/登记/检查/患者/报告/书写/危急值/统计/字典/质控/口腔/眼科/剂量/用户/系统/通知/HL7控制台/不良事件/报告检索 V2 等 23 路由
+
 ## v3.0.6.15-2 (2026-10-10) — 表格 UI 修复（W1-W4）
 
 > **根因**: `data-table.css` 选择器 `.ant-table-wrapper .data-table` 与实际 DOM `div.data-table > div.ant-table-wrapper` 父子关系不匹配，90% 密度/斑马纹/nowrap/等宽数字规则失效。

@@ -2573,7 +2573,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.15-2 · 表格 UI 修复: CSS 选择器 + 比例 + 空值安全 + 前后端契约",
+      "v3.0.6.15-3 · 演示部署修复: 生产 mock 模式 + 深链接 SPA 回退",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -31413,7 +31413,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.15-2 · table UI fixes (CSS selector, proportions, null-safety, contract)",
+      "v3.0.6.15-3 · demo deployment fix (production mock mode + SPA deep-link)",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
