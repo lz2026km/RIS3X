@@ -6,7 +6,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Card, Table, Tag, Space, Row, Col, Statistic, Button, Input, Select, Switch, Modal,
+  Card, Tag, Space, Row, Col, Statistic, Button, Input, Select, Switch, Modal,
   message, Empty, Tooltip, Timeline, Segmented, Badge, Divider,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -23,6 +23,7 @@ import {
   type EvaluateInputV2,
 } from '../../../services/api/criticalV2Api'
 import { t } from '../../../i18n/appI18n'
+import { DataTable } from '../../common/DataTable';
 
 const { TextArea } = Input
 
@@ -363,8 +364,8 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
               options={categories.map((c) => ({ label: c, value: c }))}
             />
           </Space>
-          <Table
-            rowKey="id" size="small" loading={loading} dataSource={filteredRules} columns={ruleColumns}
+          <DataTable
+            rowKey="id" loading={loading} dataSource={filteredRules} columns={ruleColumns}
             pagination={{ pageSize: 8, showSizeChanger: false, showTotal: (total) => `${t('criticalValueV2.totalPrefix')} ${total} ${t('criticalValueV2.rulesUnit')}` }}
             scroll={{ x: 'max-content' }}
             locale={{ emptyText: <Empty description={t('criticalValueV2.noRules')} /> }}
@@ -461,8 +462,8 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
         <Row gutter={12}>
           <Col span={10}>
             <Card size="small" title={<Space><Bell size={14} color="var(--color-error-600)" />{t('criticalValueV2.triggerRecords')}</Space>}>
-              <Table
-                rowKey="id" size="small" loading={loading} dataSource={triggers} columns={triggerColumns}
+              <DataTable
+                rowKey="id" loading={loading} dataSource={triggers} columns={triggerColumns}
                 pagination={{ pageSize: 6, showSizeChanger: false }}
                 onRow={(record) => ({ onClick: () => setSelectedTriggerId(record.id), style: { cursor: 'pointer' } })}
                 rowClassName={(record) => (record.id === selectedTriggerId ? 'ant-table-row-selected' : '')}
@@ -508,8 +509,8 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                       <div style={{ color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{t('criticalValueV2.remark')} {selectedTrigger.confirmComment}</div>
                     )}
                   </div>
-                  <Table
-                    rowKey="id" size="small" dataSource={selectedNotifications} columns={notifColumns}
+                  <DataTable
+                    rowKey="id" dataSource={selectedNotifications} columns={notifColumns}
                     pagination={false} scroll={{ x: 'max-content' }}
                     locale={{ emptyText: <Empty description={t('criticalValueV2.noNotifRecords')} /> }}
                   />

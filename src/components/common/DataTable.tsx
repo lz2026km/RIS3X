@@ -34,6 +34,8 @@ export interface DataTableProps<RecordType extends object>
   columns: TableColumnsType<RecordType>;
   dataSource: RecordType[];
   rowKey: TableProps<RecordType>["rowKey"];
+  /** 行 className 回调 (与斑马纹共存: 选中行等场景) */
+  rowClassName?: TableProps<RecordType>["rowClassName"];
   /** 分页配置 (antd TablePaginationConfig 或 false; 默认统一配置) */
   pagination?: TableProps<RecordType>["pagination"];
   /** 分页器 locale 覆盖 (空态等; 默认 EmptyState) */
@@ -80,6 +82,18 @@ export interface DataTableProps<RecordType extends object>
   onDensityChange?: (density: TableDensity) => void;
   /** [UI-4] 关闭数值列自动右对齐 */
   disableAutoNumericAlign?: boolean;
+  /**
+   * [v3.0.6.15-5] 单元格文本溢出策略:
+   *  - `ellipsis` (默认): 单元格单行 + 省略号 + tooltip, 行高整齐
+   *  - `wrap`: 允许换行 (整表关闭截断)
+   * 单列可用 `className="dt-wrap"` 单独退出。
+   */
+  cellWrap?: "ellipsis" | "wrap";
+  /**
+   * [v3.0.6.15-5] 列宽归一基准容器宽度 (px)。默认取 1200,
+   * 弹窗内表格可传更小的值以获得更紧凑的列宽。
+   */
+  layoutWidth?: number;
 }
 
 export type TableDensity = "compact" | "comfortable";
@@ -91,9 +105,18 @@ export const TABLE_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 const NUMERIC_SUFFIX_RE =
   /(amount|count|rate|score|qty|quantity|total|num|number|percent|ratio|数量|总数|金额|次数|例数|率|分|量|数)$/i;
 
+/** [v3.0.6.15-5] 归一列宽时的最小列宽 (px) */
+const MIN_COL_WIDTH = 120;
+/** [v3.0.6.15-5] 归一列宽时的最大列宽 (px), 防止少量列时单列过宽 */
+const MAX_COL_WIDTH = 420;
+
 function lastDataIndexSegment(dataIndex: unknown): string {
   if (Array.isArray(dataIndex)) return String(dataIndex[dataIndex.length - 1] ?? "");
   return dataIndex === undefined || dataIndex === null ? "" : String(dataIndex);
+}
+
+function hasWrapOptOut<RecordType extends object>(col: AnyColumn<RecordType>): boolean {
+  return String((col as TableColumnType<RecordType>).className ?? "").includes("dt-wrap");
 }
 
 function isNumericColumn<RecordType extends object>(col: AnyColumn<RecordType>): boolean {
@@ -128,28 +151,108 @@ function applyNumericAlign<RecordType extends object>(
   }) as TableColumnsType<RecordType>;
 }
 
-/** [W-C3] 为无 render / ellipsis 的字符串列补齐默认 ellipsis (超长省略 + tooltip), 递归处理分组列 */
-function applyDefaultEllipsis<RecordType extends object>(
+/**
+ * [v3.0.6.15-5] 为文本类列补齐默认 ellipsis (超长省略 + tooltip)。
+ *
+ * 变更要点: 此前对 **所有带 render 的列** 直接跳过 (旧实现 `return col`),
+ * 而 render 列恰是绝大多数 (Tag / 状态 / 操作 / 组合文本), 这些单元格
+ * 因无 nowrap 约束会换行, 导致同一张表内行高 36px~120px 混杂 ("不均匀")。
+ * 现在 render 列同样纳入, 仅以下情况退出:
+ *   - 操作列 (右侧图标按钮组)
+ *   - 数值列 (右对齐 + tabular-nums, 省略会干扰读数)
+ *   - 显式声明 ellipsis 的列
+ *   - 列 className 含 dt-wrap (确需多行的单元格)
+ * 递归处理分组列。
+ */
+export function applyDefaultEllipsis<RecordType extends object>(
   columns: TableColumnsType<RecordType>,
+  enabled: boolean,
 ): TableColumnsType<RecordType> {
+  if (!enabled) return columns;
   return columns.map((col) => {
     const anyCol = col as TableColumnType<RecordType> & {
       children?: TableColumnsType<RecordType>;
     };
     if (Array.isArray(anyCol.children)) {
       const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
-      next.children = applyDefaultEllipsis(anyCol.children);
+      next.children = applyDefaultEllipsis(anyCol.children, enabled);
       return next;
     }
-    if (anyCol.render !== undefined || anyCol.ellipsis !== undefined) return col;
-    const dataIndex = anyCol.dataIndex;
-    if (typeof dataIndex !== "string" || dataIndex.length === 0) return col;
+    if (anyCol.ellipsis !== undefined) return col;
+    if (isActionColumn(anyCol as AnyColumn<object>)) return col;
     if (isNumericColumn(anyCol)) return col;
+    if (hasWrapOptOut(anyCol)) return col;
     const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
     next.ellipsis = { showTitle: true };
     return next;
   }) as TableColumnsType<RecordType>;
 }
+
+/**
+ * [v3.0.6.15-5] 列宽归一化。
+ *
+ * 背景: 全站此前 **0 处** 设置 tableLayout, 约 346 张表也没有 scroll.x,
+ * antd 回退 tableLayout="auto" 由浏览器按内容分配列宽 —— 长短列剧烈波动
+ * ("不均匀")。归一后:
+ *   - 叶子列总宽固定, 未声明 width 的列按可用空间等分 (夹在 120~420px)
+ *   - 已声明 width 的列原样保留, 剩余空间分配给未声明的列
+ * 返回归一后的列宽总和, 供 scroll.x 取代 'max-content'。
+ */
+export function normalizeColumnWidths<RecordType extends object>(
+  columns: TableColumnsType<RecordType>,
+  containerWidth: number,
+): { columns: TableColumnsType<RecordType>; totalWidth: number } {
+  type Flat = { col: AnyColumn<RecordType>; declared: number | null };
+  const leaves: Flat[] = [];
+  const walk = (cols: TableColumnsType<RecordType>): void => {
+    for (const col of cols) {
+      const anyCol = col as TableColumnType<RecordType> & {
+        children?: TableColumnsType<RecordType>;
+      };
+      if (Array.isArray(anyCol.children)) {
+        walk(anyCol.children);
+        continue;
+      }
+      const w = (anyCol as { width?: number | string }).width;
+      leaves.push({
+        col,
+        declared: typeof w === "number" && w > 0 ? w : null,
+      });
+    }
+  };
+  walk(columns);
+  if (leaves.length === 0) return { columns, totalWidth: 0 };
+
+  const declaredSum = leaves.reduce((s, l) => s + (l.declared ?? 0), 0);
+  const undeclared = leaves.filter((l) => l.declared === null);
+
+  // 全部列都声明了宽度 -> 直接采用声明值之和
+  if (undeclared.length === 0) {
+    return { columns, totalWidth: declaredSum };
+  }
+
+  const available = Math.max(containerWidth, MIN_COL_WIDTH * leaves.length);
+  const remaining = Math.max(available - declaredSum, MIN_COL_WIDTH * undeclared.length);
+  const each = Math.min(Math.max(Math.floor(remaining / undeclared.length), MIN_COL_WIDTH), MAX_COL_WIDTH);
+
+  const nextColumns = columns.map((col) => {
+    const anyCol = col as TableColumnType<RecordType> & {
+      children?: TableColumnsType<RecordType>;
+    };
+    if (Array.isArray(anyCol.children)) {
+      const n: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
+      n.children = normalizeColumnWidths(anyCol.children, containerWidth).columns;
+      return n;
+    }
+    const w = (anyCol as { width?: number | string }).width;
+    if (typeof w === "number" && w > 0) return col;
+    if (hasWrapOptOut(anyCol)) return col;
+    return { ...anyCol, width: each };
+  }) as TableColumnsType<RecordType>;
+
+  return { columns: nextColumns, totalWidth: declaredSum + each * undeclared.length };
+}
+
 
 function getColumnValue(row: object, dataIndex: unknown): unknown {
   if (dataIndex === undefined || dataIndex === null) return undefined;
@@ -237,11 +340,15 @@ export function DataTable<RecordType extends object>({
   density: densityProp,
   defaultDensity = "compact",
   disableAutoNumericAlign = false,
+  cellWrap = "ellipsis",
+  layoutWidth = 1200,
+  tableLayout = "fixed",
   pagination: paginationProp,
   locale,
   scroll,
   loading,
   className,
+  rowClassName: rowClassNameProp,
   onRow: onRowProp,
   ...restProps
 }: DataTableProps<RecordType>) {
@@ -260,10 +367,30 @@ export function DataTable<RecordType extends object>({
   const baseColumns = columnConfigKey
     ? (columnConfig.visibleColumns as unknown as TableColumnsType<RecordType>)
     : columns;
-  const effectiveColumns = useMemo(
-    () => applyDefaultEllipsis(applyNumericAlign(baseColumns, !disableAutoNumericAlign)),
-    [baseColumns, disableAutoNumericAlign],
+  // [v3.0.6.15-5] 列宽归一 -> 消除 tableLayout:auto 的列宽波动
+  const normalized = useMemo(
+    () => normalizeColumnWidths(baseColumns, layoutWidth),
+    [baseColumns, layoutWidth],
   );
+  const effectiveColumns = useMemo(
+    () =>
+      applyDefaultEllipsis(
+        applyNumericAlign(normalized.columns, !disableAutoNumericAlign),
+        cellWrap === "ellipsis",
+      ),
+    [normalized.columns, disableAutoNumericAlign, cellWrap],
+  );
+  // [v3.0.6.15-5] 调用方普遍传 scroll.x='max-content' (全站 299 处),
+  // 它会让表格按内容撑开、忽略容器, 且使 ellipsis 永远不触发 —— 这正是
+  // "表格肥大 / 弹窗内不协调" 的主因。此处统一替换为归一后的列宽总和。
+  const resolvedScroll = useMemo(() => {
+    const next = { ...scroll } as NonNullable<TableProps<RecordType>["scroll"]>;
+    if (next.x === "max-content" && normalized.totalWidth > 0) {
+      next.x = normalized.totalWidth;
+    }
+    return next;
+  }, [scroll, normalized.totalWidth]);
+
   // [W14-UX] 右键上下文菜单
   const { open: openContextMenu, menu: contextMenuNode } = useContextMenu(
     contextMenuTestId ?? "data-table-context-menu",
@@ -330,7 +457,8 @@ export function DataTable<RecordType extends object>({
           ),
           ...locale,
         }}
-        scroll={{ y: fixedHeader, ...scroll }}
+        scroll={{ y: fixedHeader, ...resolvedScroll }}
+        tableLayout={tableLayout}
         size={density === "compact" ? "small" : "middle"}
         loading={
           loading
@@ -346,8 +474,15 @@ export function DataTable<RecordType extends object>({
             : false
         }
         rowClassName={
-          zebra
-            ? (_record, index) => (index % 2 === 1 ? "dt-zebra" : "")
+          zebra || rowClassNameProp
+            ? (record, index) => {
+                const zebraCls = zebra && index % 2 === 1 ? "dt-zebra" : "";
+                const custom =
+                  typeof rowClassNameProp === "function"
+                    ? (rowClassNameProp as (r: RecordType, i: number, s: number) => string)(record, index, -1)
+                    : rowClassNameProp ?? "";
+                return [zebraCls, custom].filter(Boolean).join(" ");
+              }
             : undefined
         }
         onRow={(record, index) => {

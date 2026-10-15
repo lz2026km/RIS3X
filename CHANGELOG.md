@@ -1,3 +1,40 @@
+## v3.0.6.15-5 (2026-10-15) — 表格紧凑化与列宽归一（行高 231px→37px）
+
+> **用户反馈**: 「有些表格肥大、不均匀、不合乎逻辑」「点击某些按钮跳出来的表格肥大、不协调、不紧凑」。
+> **实测根因**: 全站 679 个表格实例中，大量表格因 antd 徽标(Tag/Badge)的 `line-height` 在单元格内
+> 被解析成行高，形成「徽标撑高行 → 行更高 → 徽标 line-height 更大」的正反馈，
+> 导致 **4 行数据的表格高 957px / 10 行高 2339px（行高 231px）**。
+> **验证**: 修复后 `/audit` 231px→36px、`/cosign` 231px→37px、`/qc/rqi-report-center` 231px→48-65px；
+> tsc **0** / vitest **47 文件 831 测试** / `guard:ui` **13 项** / E2E **0 失败**。
+
+### 批次 A — 基础设施统一
+- **A1 `styles/data-table.css`**
+  - 单元格 `white-space: nowrap`（此前仅 `th` 有，td 无约束 → render 列长文本换行、行高 36px~120px 混杂）
+  - **关键修复** `td > * { line-height: 1.4 }` — 切断徽标 line-height 正反馈，行高回归 ~37px
+  - 列级退出通道 `.dt-wrap`（允许多行）
+  - **弹窗/抽屉紧凑密度**（CSS 祖先选择器，78 处弹窗内表格零改动自动生效）：行高 32px、字号 12px、分页器/工具栏边距收紧
+- **A2 `components/common/DataTable.tsx`**
+  - `normalizeColumnWidths()` 列宽归一：未声明 `width` 的列按剩余空间等分（120~420px），消除 `tableLayout:auto` 列宽波动
+  - `tableLayout` 默认 `"fixed"`
+  - `scroll.x='max-content'`（全站 339 处）运行时替换为归一后列宽总和 —— 单行修正 299+ 处撑破容器
+  - `applyDefaultEllipsis` 扩展至含 `render` 的列（此前直接跳过，导致 render 列无省略号）
+  - 新增 `cellWrap` / `layoutWidth` 逃生舱；`rowClassName` 与斑马纹合并
+- **A3** 标记确需多行的列：`<br>` 单元格、标签流（flexWrap）→ `className="dt-wrap"`
+
+### 批次 B — ProTable 对齐（10 处调用）
+- `size` 默认 `middle`→`small`；移除硬编码 `scroll.x='max-content'`
+- 复用 DataTable 的 ellipsis / 斑马纹 / 列宽归一（此前三者全缺 → 与 645 处 DataTable 视觉不一致）
+- 工具栏 padding 16px→8px 12px；原生 `<button>`→antd `<Button size="small">`；分页器精简
+
+### 批次 C — 24 处裸 `<Table>` 收口到 `<DataTable>`
+- `components/report/**`：CriticalValuePanelV2(3)、ReportQcV2Panel(4)、QualityDimensionCard(3)、
+  ReportExportCenterPanelV2(3)、TemplateLibraryPanelV2(3)、TemplateApprovalPanelV2(2)、
+  IHEXDSRegistry(2)、PatientReportPortal/DicomSRExporter/CriticalEscalationV2/ReviewWorkloadStats(各1)
+
+### 批次 D — 防回退加固 `scripts/ui-guard.mjs`
+- walk 扩展至 `src/components`（此前 components 完全未检查，24 处裸表长期失守）
+- 新增 3 项只减不增预算：`tableComponentsBare`(0) / `maxContentScroll`(339) / `scrollYNumeric`(44)
+
 ## v3.0.6.15-4 (2026-10-15) — 修复入口双实例加载（审计页 `removeChild` 崩溃）
 
 > **根因**: `vite.config.ts` 的 `version-stamp` 插件在 `writeBundle` 给 `dist/index.html` 里所有

@@ -6,7 +6,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Card, Table, Tag, Space, Row, Col, Statistic, Button, Input, Select,
+  Card, Tag, Space, Row, Col, Statistic, Button, Input, Select,
   message, Empty, Tooltip, Segmented, Tree,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -27,6 +27,7 @@ import {
   type TemplateUsageStatsV2,
 } from '../../../services/api/templateLibraryV2Api'
 import { t } from '../../../i18n/appI18n'
+import { DataTable } from '../../common/DataTable';
 
 const PURPOSE_OPTIONS = Object.entries(PURPOSE_LABEL_V2).map(([value, label]) => ({ value, label }))
 
@@ -364,8 +365,8 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
                   <Tag color="gold" closable onClose={() => setSelectedKeys([])}>{t('templateLibrary.filteredByCategory')}</Tag>
                 )}
               </Space>
-              <Table
-                rowKey="id" size="small" loading={loading} dataSource={displayed} columns={columns}
+              <DataTable
+                rowKey="id" loading={loading} dataSource={displayed} columns={columns}
                 pagination={{ pageSize: compact ? 6 : 8, showSizeChanger: false, showTotal: (total) => t('templateLibrary.showTotal', { count: total }) }}
                 scroll={{ x: 'max-content' }}
                 locale={{ emptyText: <Empty description={t('templateLibrary.noTemplates')} /> }}
@@ -377,8 +378,8 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
 
       {tab === 'favorites' && (
         <Card size="small" title={<Space><Star size={14} color="var(--color-warning-500)" />{t('templateLibrary.myFavorites', { count: favorites.length })}</Space>}>
-          <Table
-            rowKey="id" size="small" loading={loading} dataSource={favorites} columns={columns}
+          <DataTable
+            rowKey="id" loading={loading} dataSource={favorites} columns={columns}
             pagination={{ pageSize: 8, showSizeChanger: false }}
             scroll={{ x: 'max-content' }}
             locale={{ emptyText: <Empty description={t('templateLibrary.noFavorites')} /> }}
@@ -417,8 +418,8 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
           </Col>
           <Col span={10}>
             <Card size="small" title={<Space><Eye size={14} color="#0e7490" />{t('templateLibrary.usageOverview')}</Space>}>
-              <Table
-                rowKey="id" size="small" loading={loading}
+              <DataTable
+                rowKey="id" loading={loading}
                 dataSource={displayed.slice(0, 10)}
                 columns={[
                   { title: t('templateLibrary.col.template'), dataIndex: 'name', ellipsis: true, width: 140 },

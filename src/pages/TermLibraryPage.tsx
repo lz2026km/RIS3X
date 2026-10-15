@@ -1188,7 +1188,7 @@ export default function TermLibraryPage() {
                       { title: t9('termLibrary.thCode'), dataIndex: 'code', render: (v: string) => <StatusTag status="info" style={{ fontFamily: 'monospace', fontWeight: 700 }}>{v}</StatusTag> },
                       { title: t9('termLibrary.thStandardName'), dataIndex: 'standardName', render: (v: string) => <span style={{ fontWeight: 600, color: 'var(--color-primary-800)' }}>{v}</span> },
                       {
-                        title: t9('termLibrary.thAliases'), dataIndex: 'aliases',
+                        title: t9('termLibrary.thAliases'), dataIndex: 'aliases', className: 'dt-wrap',
                         render: (v: string[]) => <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>{v.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)' }}>{a}</span>)}</div>,
                       },
                       {

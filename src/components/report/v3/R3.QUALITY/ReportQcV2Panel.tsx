@@ -21,7 +21,7 @@ import {
   Select,
   Switch,
   Slider,
-  Table,
+  
   Progress,
   message,
   Spin,
@@ -36,6 +36,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { FileCheck2, Gauge, ListChecks, Users, Clock, Award, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { t } from '../../../../i18n/appI18n';
+import { DataTable } from '../../../common/DataTable';
 
 const GRADE_COLOR: Record<QcGrade, string> = {
   A: '#10b981',
@@ -482,8 +483,8 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
         ))}
       </Row>
       {result.defects.length > 0 && (
-        <Table
-          size="small"
+        <DataTable
+         
           rowKey="code"
           columns={defectColumns}
           dataSource={result.defects}
@@ -552,7 +553,7 @@ const TaskFlowTable: React.FC<{
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={8}>
-      <Table size="small" rowKey="id" columns={columns} dataSource={tasks} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }} />
+      <DataTable rowKey="id" columns={columns} dataSource={tasks} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }} />
       <Modal title={t('w9e.reportQcV2.taskHistoryTitle', { id: detail?.id ?? '' })} open={!!detail} footer={null} onCancel={() => setDetail(null)} width={560}>
         {detail && (
           <List
@@ -653,8 +654,8 @@ const StatsView: React.FC<{ stats: QcStatsData; records: QcRecord[] }> = ({ stat
         })}
         <Tag color="purple">{stats.taskByStatus.closed ?? 0} {t('reportQcV2.closedLoop')}</Tag>
       </Space>
-      <Table size="small" rowKey="key" columns={columns} dataSource={stats.defectDistribution} pagination={false} title={() => <strong style={{ fontSize: 12 }}>{t('reportQcV2.defectDistribution')}</strong>} />
-      <Table size="small" rowKey="month" columns={trendColumns} dataSource={stats.monthlyTrend} pagination={false} title={() => <strong style={{ fontSize: 12 }}>{t('reportQcV2.monthlyTrend')}</strong>} />
+      <DataTable rowKey="key" columns={columns} dataSource={stats.defectDistribution} pagination={false} title={() => <strong style={{ fontSize: 12 }}>{t('reportQcV2.defectDistribution')}</strong>} />
+      <DataTable rowKey="month" columns={trendColumns} dataSource={stats.monthlyTrend} pagination={false} title={() => <strong style={{ fontSize: 12 }}>{t('reportQcV2.monthlyTrend')}</strong>} />
       <div style={{ fontSize: 12, color: '#94a3b8' }}>
         {t('reportQcV2.recentRecords')} {records.slice(0, 3).map((r) => r.id).join(' / ') || '-'}
       </div>

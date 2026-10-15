@@ -414,7 +414,7 @@ export default function AuditPage() {
                       </Row>
                     </Card>
                   )}
-                  <Row gutter={16} style={{ marginTop: 'var(--space-3, 12px)' }}>
+                  <Row gutter={16} align="top" style={{ marginTop: 'var(--space-3, 12px)' }}>
                     {/* [Wave 4B] 用户活跃排行 (GET /audit/user-activity) */}
                     <Col span={12}>
                       <Card type="inner" size="small" title={<span><User /> {t('auditPage.userActivityTitle')}</span>}>

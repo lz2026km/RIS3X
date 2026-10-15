@@ -6,11 +6,12 @@
 import { DICOM_SR_DOCUMENTS_MOCK, DICOM_SR_MOCK } from '@data/reportIntegrationMock';
 import { generateDicomSr, downloadDicomSr, sendDicomSr, dumpDicomSr, validateDicomSr } from '@services/integration/dicomSrService';
 import type { DicomSrDocument } from '@/types/R3/R3.INTEGRATION';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider, Tag as AntTag } from 'antd';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Empty, Statistic, Row, Col, Divider, Tag as AntTag } from 'antd';
 import { Database, Download, CheckCircle2, Copy, Send, Layers, Server, Braces, Plus } from 'lucide-react';
 import React, { useState, useCallback, useMemo } from 'react';
 import { Inbox } from 'lucide-react'
 import { t } from '../../../../i18n/appI18n';
+import { DataTable } from '../../../common/DataTable';
 
 interface Props {
   reportId?: string;
@@ -217,8 +218,8 @@ export const DicomSRExporter: React.FC<Props> = ({ reportId, patientId, onExport
                   key: 'elements',
                   label: t('reportIntegration.dicomSr.dataElements', { count: selected.dataElements.length }),
                   children: (
-                    <Table
-                      size="small"
+                    <DataTable
+                     
                       rowKey="tag"
                       dataSource={selected.dataElements}
                       pagination={false}

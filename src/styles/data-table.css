@@ -62,6 +62,11 @@
   color: var(--text-primary, #1e293b);
 }
 
+/* [v3.0.6.15-5] 单元格默认单行: 消除同一张表内行高 36px~120px 混杂
+   (此前只有 th 设了 nowrap, td 无约束 -> render 列长文本换行撑高整行)
+   溢出裁剪与省略号交给 antd 的 ellipsis 列属性统一处理 (applyDefaultEllipsis
+   现已覆盖 render 列), 此处只负责禁止文本换行。
+   需要多行的列在列上标 className="dt-wrap" 退出。 */
 .data-table .ant-table-tbody > tr > td {
   padding: var(--dt-cell-pad-y) var(--dt-cell-pad-x);
   height: var(--dt-row-height);
@@ -69,6 +74,29 @@
   border-bottom: 1px solid var(--border-light, #f1f5f9);
   background: transparent;
   transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+/* 列级退出通道: 允许多行 (竖排 Space / Descriptions / 标签流 / 含 <br> 的单元格) */
+.data-table .ant-table-tbody > tr > td.dt-wrap {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* 单元格内的纵向组合容器即使在单行模式下也保持竖排 */
+.data-table .ant-table-tbody > tr > td .ant-space-vertical {
+  white-space: normal;
+}
+
+/* [v3.0.6.15-5] 关键修复 — 单元格直接子元素的 line-height 上限约束。
+   现象: antd Tag/Badge 等 inline-block 徽标在表格单元格内会把 line-height 解析成
+   单元格行高 (实测 216px), 形成"徽标撑高行 → 行更高 → 徽标 line-height 更大"的
+   正反馈, 导致 4 行数据的表格高度膨胀到 957px / 10 行膨胀到 2339px (行高 231px),
+   即用户反馈的"表格肥大 / 不均匀"。
+   修复: 给单元格直接子元素设定有界 line-height, 切断该反馈环, 行高回到 ~37px。
+   (已验证: td line-height / ant-tag / td>* 三种写法均能生效, 此处取最通用的 td>*)。 */
+.data-table .ant-table-tbody > tr > td > * {
+  line-height: 1.4;
 }
 
 /* ---------- 斑马纹 ---------- */
@@ -123,4 +151,55 @@
 /* ---------- 工具栏 ---------- */
 [data-theme="dark"] .data-table [data-testid="data-table-toolbar"] {
   border-bottom-color: var(--border-default, rgba(255, 255, 255, 0.1)) !important;
+}
+
+/* =====================================================================
+   [v3.0.6.15-5] 弹窗 / 抽屉内表格紧凑密度
+   背景: 78 处表格位于 Modal/Drawer 内 (29 个文件)。此前这些表格沿用页面级
+   行高(36px)/字号(13px)/分页器边距(8px 16px), 且 Modal body 的 24px
+   padding 与单元格 padding 叠加, 导致弹窗内表格"肥大、不协调、不紧凑"。
+   本块为 CSS 祖先选择器驱动 —— 无需改动 78 处调用点即全站自动生效。
+   ===================================================================== */
+.ant-modal-body .data-table,
+.ant-drawer-body .data-table {
+  --dt-row-height: 32px;
+  --dt-cell-pad-y: 4px;
+  --dt-cell-pad-x: 10px;
+}
+
+/* 抵消 Modal/Drawer body 的默认内边距, 让表格贴合弹窗可用宽度 */
+.ant-modal-body .data-table,
+.ant-drawer-body .data-table {
+  margin: 0 -8px;
+}
+
+.ant-modal-body .data-table .ant-table,
+.ant-drawer-body .data-table .ant-table {
+  font-size: 12px;
+}
+
+.ant-modal-body .data-table .ant-table-thead > tr > th,
+.ant-modal-body .data-table .ant-table-thead > tr > td,
+.ant-drawer-body .data-table .ant-table-thead > tr > th,
+.ant-drawer-body .data-table .ant-table-thead > tr > td {
+  font-size: 11px;
+  padding: 4px var(--dt-cell-pad-x);
+}
+
+/* 弹窗内分页器: 收紧边距, 避免占用过多可视高度 */
+.ant-modal-body .data-table .ant-table-pagination.ant-pagination,
+.ant-drawer-body .data-table .ant-table-pagination.ant-pagination {
+  margin: 4px 8px;
+}
+
+/* 弹窗内工具栏同样收紧 */
+.ant-modal-body .data-table [data-testid="data-table-toolbar"],
+.ant-drawer-body .data-table [data-testid="data-table-toolbar"] {
+  padding: 4px 8px;
+}
+
+/* 弹窗内空态压缩 */
+.ant-modal-body .data-table .ant-table-placeholder > td .ant-empty,
+.ant-drawer-body .data-table .ant-table-placeholder > td .ant-empty {
+  margin-block: 8px;
 }

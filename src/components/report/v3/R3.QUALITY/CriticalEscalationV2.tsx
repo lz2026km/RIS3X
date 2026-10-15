@@ -17,7 +17,7 @@ import {
   Statistic,
   Button,
   InputNumber,
-  Table,
+  
   Steps,
   message,
   Spin,
@@ -32,6 +32,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { Siren, Clock, ArrowUp, CheckCircle2, XCircle, Settings, Activity, ShieldAlert } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../../../i18n/appI18n';
+import { DataTable } from '../../../common/DataTable';
 
 const STATUS_META: Record<ChainStatus, { label: string; color: string }> = {
   NOTIFYING: { label: t('criticalEscalation.status.notifying'), color: 'blue' },
@@ -419,7 +420,7 @@ export const CriticalEscalationV2: React.FC = () => {
         {chains.length === 0 ? (
           <Empty description={t('criticalEscalation.noChains')} />
         ) : (
-          <Table size="small" rowKey="id" columns={columns} dataSource={chains} pagination={{ pageSize: 6, showSizeChanger: false }} scroll={{ x: 'max-content' }} />
+          <DataTable rowKey="id" columns={columns} dataSource={chains} pagination={{ pageSize: 6, showSizeChanger: false }} scroll={{ x: 'max-content' }} />
         )}
       </Card>
 

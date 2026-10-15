@@ -292,7 +292,7 @@ const MedicalAlliancePage: React.FC = () => {
                 { title: t('medicalAlliance.levelType'), key: 'levelType', render: (_: unknown, m: AllianceMember) => `${m.level} / ${m.type}` },
                 { title: t('medicalAlliance.region'), dataIndex: 'region' },
                 {
-                  title: t('medicalAlliance.contact'), key: 'contact',
+                  title: t('medicalAlliance.contact'), key: 'contact', className: 'dt-wrap',
                   render: (_: unknown, m: AllianceMember) => <>{m.contactPerson}<br /><small>{m.contactPhone}</small></>,
                 },
                 {
@@ -336,7 +336,7 @@ const MedicalAlliancePage: React.FC = () => {
               pagination={false}
               columns={[
                 {
-                  title: t('medicalAlliance.patient'), key: 'patient',
+                  title: t('medicalAlliance.patient'), key: 'patient', className: 'dt-wrap',
                   render: (_: unknown, r: AllianceReferral) => <><strong>{r.patientName}</strong><br /><small>{r.patientId}</small></>,
                 },
                 { title: t('medicalAlliance.fromOrg'), dataIndex: 'fromMemberName' },

@@ -6,6 +6,7 @@
 import { useDebounce } from '@utils/performance';
 import {
   Table,
+  Button,
   Statistic as AntStatistic,
   Descriptions,
   Tabs,
@@ -22,6 +23,7 @@ import { useState, useMemo, type ReactNode, type ComponentType, type ComponentPr
 import { useTranslation } from 'react-i18next';
 import { Inbox, Search, RefreshCw, Download } from 'lucide-react'
 import { useTableColumnConfig } from './useTableColumnConfig';
+import { applyDefaultEllipsis, normalizeColumnWidths } from '../common/DataTable';
 import '../../styles/data-table.css';
 
 // antd Statistic 类型未声明 children, 但运行时支持 (趋势区); 放宽类型以保留原渲染
@@ -52,6 +54,8 @@ export interface ProTableProps<T extends object = Record<string, unknown>> exten
   applyViewState?: (state: Record<string, unknown>) => void;
   /** [W14-UX] 侧栏额外工具栏内容 (显示在列配置按钮左侧) */
   toolbarExtra?: ReactNode;
+  /** [v3.0.6.15-5] 列宽归一基准容器宽度 (px), 默认与 DataTable 一致 */
+  layoutWidth?: number;
 }
 
 export interface ProColumn<T extends object = Record<string, unknown>> {
@@ -59,6 +63,8 @@ export interface ProColumn<T extends object = Record<string, unknown>> {
   dataIndex?: keyof T | string | readonly string[];
   key?: string;
   width?: number | string;
+  /** [v3.0.6.15-5] 列 className; 含 dt-wrap 表示该列允许多行换行 */
+  className?: string;
   fixed?: 'left' | 'right';
   sorter?: ColumnType<T>['sorter'];
   sortOrder?: ColumnType<T>['sortOrder'];
@@ -106,10 +112,11 @@ export function ProTable<T extends object = Record<string, unknown>>({
   getViewState,
   applyViewState,
   toolbarExtra,
+  layoutWidth = 1200,
   pagination: paginationProp,
   locale,
   scroll,
-  size = 'middle',
+  size = 'small',
   ...restProps
 }: ProTableProps<T>) {
   const { t } = useTranslation();
@@ -157,12 +164,30 @@ export function ProTable<T extends object = Record<string, unknown>>({
     [baseColumns]
   );
 
+  // [v3.0.6.15-5] 与 DataTable 对齐: 列宽归一 + 默认 ellipsis + tableLayout=fixed
+  const normalized = useMemo(
+    () => normalizeColumnWidths(visibleColumns as never, layoutWidth),
+    [visibleColumns, layoutWidth],
+  );
+  const finalColumns = useMemo(
+    () => applyDefaultEllipsis(normalized.columns as never, true),
+    [normalized.columns],
+  );
+  // [v3.0.6.15-5] 取代硬编码的 x:'max-content' (该值会让表格按内容撑开、
+  // 忽略容器宽度, 且使 ellipsis 永远不触发)
+  const resolvedScroll = useMemo(() => {
+    const next = { ...scroll } as NonNullable<TableProps<T>['scroll']>;
+    if (next.x === 'max-content' && normalized.totalWidth > 0) {
+      next.x = normalized.totalWidth;
+    }
+    return next;
+  }, [scroll, normalized.totalWidth]);
+
   const pagination = useMemo<TablePaginationConfig | false>(() => {
     if (paginationProp === false) return false;
     return {
       pageSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
+      showSizeChanger: false,
       showTotal: (total) => `${t('common.total')} ${total} ${t('common.records')}`,
       pageSizeOptions: [...TABLE_PAGE_SIZE_OPTIONS],
       ...paginationProp,
@@ -176,7 +201,8 @@ export function ProTable<T extends object = Record<string, unknown>>({
           style={{
             display: 'flex',
             gap: 'var(--space-2, 8px)',
-            padding: 'var(--space-4, 16px)',
+            // [v3.0.6.15-5] 与 DataTable 工具栏一致 (原为 16px, 偏高)
+            padding: '8px 12px',
             borderBottom: '1px solid var(--border-subtle)',
             alignItems: 'center',
             flexWrap: 'wrap',
@@ -188,49 +214,32 @@ export function ProTable<T extends object = Record<string, unknown>>({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             allowClear
-            style={{ width: 280 }}
+            size="small"
+            style={{ width: 220 }}
             aria-label={t('common.search')}
           />
           <div style={{ flex: 1 }} />
           {toolbarExtra}
           {columnConfigKey && columnConfig.toolbar}
           {onRefresh && (
-            <button
-              type="button"
+            <Button
+              size="small"
               onClick={onRefresh}
-              style={{
-                border: '1px solid var(--border-default)',
-                background: 'transparent',
-                padding: '4px 12px',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-1, 4px)',
-              }}
+              icon={<RefreshCw />}
               aria-label={t('common.refresh')}
             >
-              <RefreshCw /> {t('common.refresh')}
-            </button>
+              {t('common.refresh')}
+            </Button>
           )}
           {onExport && filteredData.length > 0 && (
-            <button
-              type="button"
+            <Button
+              size="small"
               onClick={() => onExport(filteredData)}
-              style={{
-                border: '1px solid var(--border-default)',
-                background: 'transparent',
-                padding: '4px 12px',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-1, 4px)',
-              }}
+              icon={<Download />}
               aria-label={t('common.export')}
             >
-              <Download /> {t('common.export')}
-            </button>
+              {t('common.export')}
+            </Button>
           )}
         </div>
       )}
@@ -238,12 +247,15 @@ export function ProTable<T extends object = Record<string, unknown>>({
       <Table<T>
         {...restProps}
         rowKey={rowKey}
-        columns={visibleColumns as never}
+        columns={finalColumns as never}
         dataSource={filteredData}
         pagination={pagination}
         rowSelection={rowSelection}
-        scroll={{ x: 'max-content', ...scroll }}
+        scroll={resolvedScroll}
+        tableLayout="fixed"
         size={size}
+        // [v3.0.6.15-5] 斑马纹与 DataTable 对齐 (此前 ProTable 缺失, 同页两表风格不一)
+        rowClassName={(_r, i) => (i % 2 === 1 ? 'dt-zebra' : '')}
         locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('common.noData')} />, ...locale }}
       />
     </div>

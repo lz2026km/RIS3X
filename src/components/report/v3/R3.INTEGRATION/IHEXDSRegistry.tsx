@@ -6,11 +6,12 @@
 import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK } from '@data/reportIntegrationMock';
 import { registerToXds, queryXdsRegistry, buildXdsSubmitTransactionRequest, buildFindDocumentsQuery, validateXds } from '@services/integration/iheXdsService';
 import type { XdsRegistry, XdsDocumentEntry } from '@/types/R3/R3.INTEGRATION';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Empty, Statistic, Row, Col, Divider } from 'antd';
 import { Server, Download, Copy, Eye, CheckCircle2, FileText, Braces, Globe, FolderTree, Link2, Plus, Search } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo } from 'react';
 import { t } from '../../../../i18n/appI18n';
+import { DataTable } from '../../../common/DataTable';
 
 interface Props {
   reportId?: string;
@@ -182,8 +183,8 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                       </div>
 
                       <h5 className="text-sm font-semibold mt-2">{t('reportIntegration.xds.documentEntryCount', { count: selected.documentEntries.length })}</h5>
-                      <Table
-                        size="small"
+                      <DataTable
+                       
                         rowKey="entryUUID"
                         dataSource={selected.documentEntries}
                         pagination={false}
@@ -246,7 +247,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                         <Button type="primary" icon={<Search className="w-3 h-3" />} onClick={handleQuery}>{t('reportIntegration.query')}</Button>
                       </div>
                       {queryResults.length > 0 && (
-                        <Table size="small" rowKey="entryUUID" dataSource={queryResults} pagination={false} scroll={{ x: 'max-content' }} columns={[
+                        <DataTable rowKey="entryUUID" dataSource={queryResults} pagination={false} scroll={{ x: 'max-content' }} columns={[
                           { title: 'EntryUUID', dataIndex: 'entryUUID', key: 'entryUUID', render: (v) => <span className="font-mono text-[10px]">{v.split(':').pop()}</span> },
                           { title: 'Title', dataIndex: 'titleEn', key: 'titleEn' },
                           { title: 'Class', dataIndex: 'classCode', key: 'classCode', render: (c) => c.code },

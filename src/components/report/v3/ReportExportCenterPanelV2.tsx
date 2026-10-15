@@ -6,7 +6,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Card, Table, Tag, Space, Row, Col, Statistic, Button, Select, Radio, Input,
+  Card, Tag, Space, Row, Col, Statistic, Button, Select, Radio, Input,
   message, Empty, Tooltip, Segmented, Progress,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -25,6 +25,7 @@ import {
   type ReportRecordV2,
 } from '../../../services/api/reportExportCenterV2Api'
 import { t } from '../../../i18n/appI18n'
+import { DataTable } from '../../common/DataTable';
 
 const STATE_META: Record<ExportTaskStateV2, { color: string; label: string }> = {
   PENDING: { color: 'default', label: t('reportExport.state.pending') },
@@ -295,8 +296,8 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
                 <Input.Search allowClear placeholder={t('reportExport.searchPlaceholder')} style={{ width: 180 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
                 <Select allowClear placeholder={t('reportExport.examTypePlaceholder')} style={{ width: 110 }} value={examFilter} onChange={(v) => setExamFilter(v)} options={Array.from(new Set(reports.map((r) => r.examType))).map((m) => ({ value: m, label: m }))} />
               </Space>
-              <Table
-                rowKey="id" size="small" loading={loading} dataSource={filteredReports}
+              <DataTable
+                rowKey="id" loading={loading} dataSource={filteredReports}
                 pagination={{ pageSize: 6, showSizeChanger: false }}
                 scroll={{ y: 300 }}
                 rowSelection={{
@@ -364,8 +365,8 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
               </Space>
             </Card>
             <Card size="small" title={<Space><Play size={14} color="#7c3aed" />{t('reportExport.taskList', { count: tasks.length })}</Space>} style={{ marginTop: 'var(--space-3, 12px)' }}>
-              <Table
-                rowKey="id" size="small" loading={loading} dataSource={tasks} columns={taskColumns}
+              <DataTable
+                rowKey="id" loading={loading} dataSource={tasks} columns={taskColumns}
                 pagination={{ pageSize: 5, showSizeChanger: false }}
                 scroll={{ x: 'max-content' }}
                 locale={{ emptyText: <Empty description={t('reportExport.noTasks')} /> }}
@@ -377,8 +378,8 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
 
       {tab === 'history' && (
         <Card size="small" title={<Space><History size={14} color="#7c3aed" />{t('reportExport.historyTitle', { count: history.length })}</Space>}>
-          <Table
-            rowKey="id" size="small" loading={loading} dataSource={history} columns={historyColumns}
+          <DataTable
+            rowKey="id" loading={loading} dataSource={history} columns={historyColumns}
             pagination={{ pageSize: 8, showSizeChanger: false }}
             scroll={{ x: 'max-content' }}
             locale={{ emptyText: <Empty description={t('reportExport.noHistory')} /> }}

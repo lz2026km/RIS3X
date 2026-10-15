@@ -34,7 +34,7 @@ import {
   Progress,
   message,
   Spin,
-  Table,
+  
   Tooltip,
   Modal,
   Alert,
@@ -62,6 +62,7 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import { BarChart3 } from 'lucide-react'
 import { t } from '../../../../i18n/appI18n'
+import { DataTable } from '../../../common/DataTable';
 
 const CATEGORY_META: Record<
   ScoringDimensionCategory,
@@ -717,7 +718,7 @@ const HistoryTab: React.FC = () => {
         </Row>
       </Card>
       <Card size="small" title={t('w9e.qualityDimensionCard.scoreHistoryTitle', { count: total })}>
-        <Table scroll={{ x: 'max-content' }}
+        <DataTable scroll={{ x: 'max-content' }}
           rowKey="id"
           columns={columns}
           dataSource={history}
@@ -729,7 +730,7 @@ const HistoryTab: React.FC = () => {
             onChange: setPage,
             showSizeChanger: false,
           }}
-          size="small"
+         
         />
       </Card>
       <Modal
@@ -786,8 +787,8 @@ const HistoryTab: React.FC = () => {
             {detail.result && (
               <div style={{ marginTop: 'var(--space-3, 12px)' }}>
                 <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('reportQuality.dimensionDetail15')}</div>
-                <Table
-                  size="small"
+                <DataTable
+                 
                   rowKey="key"
                   pagination={false}
                   scroll={{ x: 'max-content' }}
@@ -1286,8 +1287,8 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
               style={{ marginTop: 'var(--space-3, 12px)' }}
             />
             {result.details.length > 0 && (
-              <Table scroll={{ x: 'max-content' }}
-                size="small"
+              <DataTable scroll={{ x: 'max-content' }}
+               
                 style={{ marginTop: 'var(--space-3, 12px)' }}
                 rowKey="dimension"
                 pagination={false}

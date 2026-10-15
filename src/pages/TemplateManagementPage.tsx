@@ -897,7 +897,7 @@ export default function TemplateManagementPage() {
                 { title: t9('templateMgmt.thName'), key: 'name', render: (_: unknown, tpl: TemplateRecord) => <div style={styles.nameCell}><span style={styles.name}>{tpl.name}</span><span style={styles.version}>{tpl.version}</span></div> },
                 { title: t9('templateMgmt.thModality'), key: 'modality', render: (_: unknown, tpl: TemplateRecord) => <div style={styles.modalityCell}>{getModalityIcon(tpl.modality)}<span style={styles.modalityText}>{tpl.modality}</span></div> },
                 { title: t9('templateMgmt.thCategory'), key: 'category', render: (_: unknown, tpl: TemplateRecord) => <><span style={styles.categoryText}>{tpl.category}</span><span style={styles.subCategoryText}> / {tpl.subCategory}</span></> },
-                { title: t9('templateMgmt.thTags'), key: 'tags', render: (_: unknown, tpl: TemplateRecord) => <div style={styles.tagsCell}>{tpl.tags.slice(0, 3).map(tag => <span key={tag} style={styles.tag}>{tag}</span>)}{tpl.tags.length > 3 && <span style={styles.tagMore}>+{tpl.tags.length - 3}</span>}</div> },
+                { title: t9('templateMgmt.thTags'), key: 'tags', className: 'dt-wrap', render: (_: unknown, tpl: TemplateRecord) => <div style={styles.tagsCell}>{tpl.tags.slice(0, 3).map(tag => <span key={tag} style={styles.tag}>{tag}</span>)}{tpl.tags.length > 3 && <span style={styles.tagMore}>+{tpl.tags.length - 3}</span>}</div> },
                 { title: t9('templateMgmt.thUsage'), dataIndex: 'usageCount', render: (v: number) => <span style={styles.usageCount}>{v}</span> },
                 {
                   title: t9('templateMgmt.thStatus'), dataIndex: 'status',

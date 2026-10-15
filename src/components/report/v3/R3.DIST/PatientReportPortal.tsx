@@ -6,11 +6,12 @@
 import { PATIENT_PORTAL_LINKS_MOCK } from '@data/reportDistributionMock';
 import { createPatientLink, revokePatientLink, listPatientViews } from '@services/distribution/distributionService';
 import type { PatientPortalLink, PatientPortalStatus, PatientReportView, PatientPortalLang } from '@/types/R3/R3.DIST';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Empty, Statistic, Row, Col, Divider } from 'antd';
 import { Globe, Eye, Plus, Link2, Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import React, { useState, useMemo, useCallback } from 'react';
 import { Inbox } from 'lucide-react'
 import { t } from '../../../../i18n/appI18n';
+import { DataTable } from '../../../common/DataTable';
 
 interface Props {
   reportId?: string;
@@ -187,7 +188,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
         width={560}
       >
         {views.length > 0 ? (
-          <Table size="small" rowKey="id" dataSource={views} pagination={false} scroll={{ x: 'max-content' }} columns={[
+          <DataTable rowKey="id" dataSource={views} pagination={false} scroll={{ x: 'max-content' }} columns={[
             { title: t('reportDist.portal.col.time'), dataIndex: 'viewedAt', key: 'viewedAt', render: (v) => new Date(v).toLocaleString() },
             { title: 'IP', dataIndex: 'ip', key: 'ip', render: (v) => <Tag>{v}</Tag> },
             { title: t('reportDist.portal.col.device'), dataIndex: 'device', key: 'device', render: (d) => <Tag color={d === 'mobile' ? 'blue' : d === 'tablet' ? 'cyan' : 'purple'}>{d}</Tag> },

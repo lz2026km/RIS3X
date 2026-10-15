@@ -404,7 +404,7 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
     { title: t('regionalReport.colPatientInfo'), key: 'patient', render: (_: unknown, cs: CoSignRecord) => (<div><div>{cs.patientName}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{cs.gender} {cs.age}{t('regionalReport.yearsUnit')}</div></div>) },
     { title: t('regionalReport.colExamType'), dataIndex: 'examType', key: 'examType' },
     {
-      title: t('regionalReport.colParticipatingInstitutions'), dataIndex: 'participatingInstitutions', key: 'participatingInstitutions',
+      title: t('regionalReport.colParticipatingInstitutions'), dataIndex: 'participatingInstitutions', key: 'participatingInstitutions', className: 'dt-wrap',
       render: (v: string[]) => <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>{v.map((inst, idx) => <span key={idx} style={{ ...styles.badge, backgroundColor: '#e0e7ff', color: COLORS.primary, fontSize: 10 }}>{inst}</span>)}</div>,
     },
     { title: t('regionalReport.colSignStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}><Circle size={6} fill={getStatusColor(v)} /> {v}</span> },

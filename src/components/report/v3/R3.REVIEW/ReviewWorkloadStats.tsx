@@ -2,7 +2,7 @@
  * G005 RIS v3.0.5.1 - R3.REVIEW.246 R3.REVIEW.247 R3.REVIEW.248 R3.REVIEW.249 R3.REVIEW.250 ReviewWorkloadStats 工作量统计
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Space, Select, Progress, message } from 'antd';
+import { Card, Row, Col, Statistic, Tag, Space, Select, Progress, message } from 'antd';
 import {
   BarChart3,
   Clock,
@@ -31,6 +31,7 @@ import {
 } from 'recharts';
 import ChartContainer from '../../../charts/ChartContainer';
 import { t } from '../../../../i18n/appI18n';
+import { DataTable } from '../../../common/DataTable';
 
 const STAGE_COLORS: Record<ReviewStage, string> = {
   initial: 'var(--color-warning-500)',
@@ -361,12 +362,12 @@ export const ReviewWorkloadStats: React.FC = () => {
         size="small"
         loading={loading}
       >
-        <Table
+        <DataTable
           dataSource={stats}
           columns={columns}
           rowKey="reviewerId"
           pagination={false}
-          size="small"
+         
         />
       </Card>
     </div>

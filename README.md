@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.15-4
+# G005 放射科 RIS 系统 v3.0.6.15-5
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.15-4（**入口双实例修复**：移除 `vite.config` 对入口脚本的 `?v=` 查询串戳，根除 Vite chunk 图与 HTML 入口 URL 不一致导致的**入口二次求值 → 双 React root → `removeChild` 崩溃**（偶发于审计页）；`#root` 专属化；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.15-5（**表格紧凑化与列宽归一**：根治 antd 徽标 line-height 正反馈导致的行高膨胀（4 行 957px / 10 行 2339px，行高 231px → 37px）；列宽归一 + `tableLayout=fixed` + `max-content` 运行时替换；弹窗/抽屉内表格紧凑密度（78 处零改动生效）；24 处裸 `<Table>` 收口；`ui-guard` 扩展 components 扫描 + 3 项新预算；**tsc 0 / 47 文件 831 测试 0 失败 / guard:ui 13 项 / E2E 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.15-4**  | **入口双实例修复**：移除 `vite.config` 对入口脚本的 `?v=` 查询串戳（Vite chunk 图以无 query URL 解析入口 → 入口被求值两次 → 双 React root → 审计页 `removeChild` 崩溃）；`#root` 专属化；audit mock handler 对齐 DTO | ✅ **当前** |
+| **v3.0.6.15-5**  | **表格紧凑化与列宽归一**：根治徽标 line-height 正反馈（行高 231px→37px，`/audit` 957px→145px）；`normalizeColumnWidths` 列宽归一 + `tableLayout=fixed` + `scroll.x='max-content'` 运行时替换（339 处）；弹窗/抽屉表格紧凑密度（78 处 CSS 零改动生效）；`applyDefaultEllipsis` 覆盖 render 列；24 处裸 `<Table>` 收口；`ui-guard` 扩展 components + 3 项新预算 | ✅ **当前** |
+| v3.0.6.15-4      | **入口双实例修复**：移除 `vite.config` 对入口脚本的 `?v=` 查询串戳（Vite chunk 图以无 query URL 解析入口 → 入口被求值两次 → 双 React root → 审计页 `removeChild` 崩溃）；`#root` 专属化；audit mock handler 对齐 DTO | ✅ 完成 |
 | v3.0.6.15-3      | **演示部署修复**：`.env.production` 切 `VITE_API_MODE=mock` + `VITE_USE_MSW=true`（演示站自带 mock 后端，修复 HTTPS 页面请求 `http://localhost:3001` 被混合内容拦截 → 全站空白）；E2E 增加 GitHub Pages 深链接 SPA 404 回退判据；线上 23 路由实测 21 通过 + 1 flaky + 1 重跑通过 | ✅ 完成 |
 | v3.0.6.15-2     | **表格 UI 修复**：CSS 选择器反转、scroll.x 比例、空值安全工具、前后端契约归一化 | ✅ 完成 |
 | v3.0.6.15-1     | **全面 BUG 修复 + 演示数据扩充**：3 个 P0 观察器崩溃、54 处 validateFields 保护、ID 命名空间统一 753 条、Prisma seed 3→30 患者 | ✅ 完成 |

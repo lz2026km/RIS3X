@@ -18,6 +18,8 @@ function walk(dir, out) {
 
 const pages = [];
 walk("src/pages", pages);
+const components = [];
+walk("src/components", components);
 const allSrc = [];
 walk("src", allSrc);
 
@@ -31,6 +33,9 @@ let nativeTable = 0;
 let offScaleFont = 0;
 let rawHeading = 0;
 let spacingTokens = 0;
+let maxContentScroll = 0;
+let tableComponentsBare = 0;
+let scrollYNumeric = 0;
 const FONT_SCALE = new Set(["10", "11", "12", "14", "16", "18", "20", "24", "30", "36", "48"]);
 const SPACE_SCALE = new Set([4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96]);
 const SPACING_KEYS = ["marginTop", "marginBottom", "marginLeft", "marginRight", "margin", "paddingTop", "paddingBottom", "paddingLeft", "paddingRight", "padding", "gap", "rowGap", "columnGap"];
@@ -67,6 +72,23 @@ for (const f of pages) {
 for (const f of allSrc) {
   mojibake += (readFileSync(f, "utf8").match(/\uFFFD/g) || []).length;
 }
+// [v3.0.6.15-5] 表格专项: components/ 此前完全未被扫描, 导致 24 处裸 <Table> 长期失守
+for (const f of components) {
+  const c = readFileSync(f, "utf8");
+  // 基础设施自身 (DataTable/ProTable/VirtualTable/StateView) 内部使用 antd Table 属正常
+  const INFRA = ["components/common/DataTable.tsx", "components/common/VirtualTable.tsx", "components/common/StateView.tsx", "components/data/ProTable.tsx"];
+  if (!INFRA.some((p) => f.replace(/\\/g, "/").endsWith(p))) {
+    tableComponentsBare += (c.match(/<Table\b/g) || []).length;
+  }
+  // scroll.x='max-content' 会被 DataTable/ProTable 在运行时替换为归一列宽总和, 此处冻结增量
+  maxContentScroll += (c.match(/x:\s*['"]max-content['"]/g) || []).length;
+  scrollYNumeric += (c.match(/\by:\s*\d{2,}\b/g) || []).length;
+}
+for (const f of pages) {
+  const c = readFileSync(f, "utf8");
+  maxContentScroll += (c.match(/x:\s*['"]max-content['"]/g) || []).length;
+  scrollYNumeric += (c.match(/\by:\s*\d{2,}\b/g) || []).length;
+}
 
 const BUDGET = {
   antdTable: 0,
@@ -79,6 +101,9 @@ const BUDGET = {
   offScaleFont: 42, // 只减不增 (仅允许设计刻度 10/11/12/14/16/18/20/24/30/36/48)
   rawHeading: 13, // 只减不增 (剩余为打印 HTML 模板串)
   spacingTokens: 0, // 只减不增 (已刻度的数字间距应全部令牌化为 var(--space-N))
+  tableComponentsBare: 0, // 只减不增 (src/components 内禁止裸 <Table>; v3.0.6.15-5 已清零)
+  maxContentScroll: 339, // 只减不增 (scroll.x='max-content'; 运行时已被归一列宽替换, 逐页清理)
+  scrollYNumeric: 44, // 只减不增 (scroll.y 固定像素; 应改为容器自适应)
 };
 
 const checks = [
@@ -92,6 +117,9 @@ const checks = [
   ["spacingTokens", spacingTokens, "落在 --space 刻度的数字间距 (请用 var(--space-N, Npx))"],
   ["mojibake", mojibake, "U+FFFD 乱码"],
   ["clickableNoRole", clickableNoRole, "可点击 div/span 缺 role (交互元素需键盘可达)"],
+  ["tableComponentsBare", tableComponentsBare, "src/components 内裸 <Table> (请改用 <DataTable>)"],
+  ["maxContentScroll", maxContentScroll, "scroll.x='max-content' (会撑破容器且抑制 ellipsis)"],
+  ["scrollYNumeric", scrollYNumeric, "scroll.y 固定像素 (应改为容器/视口自适应)"],
 ];
 
 let failed = false;

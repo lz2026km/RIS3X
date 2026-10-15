@@ -6,7 +6,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Card, Table, Tag, Space, Row, Col, Statistic, Button, Input, Select, Modal,
+  Card, Tag, Space, Row, Col, Statistic, Button, Input, Select, Modal,
   message, Empty, Tooltip, Timeline, Segmented, Drawer,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -23,6 +23,7 @@ import {
   type TemplateApprovalStatsV2,
 } from '../../../services/api/templateApprovalApi'
 import { t } from '../../../i18n/appI18n'
+import { DataTable } from '../../common/DataTable';
 
 const { TextArea } = Input
 
@@ -351,8 +352,8 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
               options={(Object.keys(STATE_META) as TemplateStateV2[]).map((s) => ({ label: STATE_META[s].label, value: s }))}
             />
           </Space>
-          <Table
-            rowKey="id" size="small" loading={loading} dataSource={filtered} columns={columns}
+          <DataTable
+            rowKey="id" loading={loading} dataSource={filtered} columns={columns}
             pagination={{ pageSize: 8, showSizeChanger: false, showTotal: (total) => t('templateApproval.showTotal', { count: total }) }}
             scroll={{ x: 'max-content' }}
             locale={{ emptyText: <Empty description={t('templateApproval.noTemplates')} /> }}
@@ -364,8 +365,8 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
         <Row gutter={12}>
           <Col span={10}>
             <Card size="small" title={<Space><History size={14} color="#4f46e5" />{t('templateApproval.selectTemplate')}</Space>}>
-              <Table
-                rowKey="id" size="small" loading={loading} dataSource={templates} columns={[
+              <DataTable
+                rowKey="id" loading={loading} dataSource={templates} columns={[
                   { title: t('templateApproval.col.name'), dataIndex: 'name', ellipsis: true },
                   { title: t('templateApproval.col.state'), dataIndex: 'state', width: 90, render: (v: TemplateStateV2) => <Tag color={STATE_META[v]?.color}>{STATE_META[v]?.label}</Tag> },
                   { title: t('templateApproval.col.version'), dataIndex: 'version', width: 70, render: (v: number) => `v${v}` },
