@@ -3,9 +3,9 @@
 // 功能：课题管理 / 数据抽取 / 标签管理 / 导出管理
 // 新增：DICOM脱敏引擎 / 队列构建器 / IRB工作流 / 数据导出管线 / 数据质量看板
 // ============================================================
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Select, Typography } from 'antd'
-import { Checkbox } from 'antd'
+import { Checkbox, Alert } from 'antd'
 import {
   FlaskConical, Plus, X, Search, Edit2, Trash2, Download, Tag, Folder, FileText, Calendar, User, Clock,
   Eye, EyeOff, AlertCircle,
@@ -13,13 +13,14 @@ import {
   Filter, Users, Save,
   Activity, CheckCircle as CheckCircleIcon,
   Layers, FileSignature, ClipboardList,
-  Target, Sigma
+  Target, Sigma, Upload
 } from 'lucide-react'
 import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { StatusTag } from '../components/common/StatusTag'
 import { DataTable } from '../components/common/DataTable'
 import { researchApi, type ResearchProjectDto, type ResearchLabelDto, type CohortDefinitionDto as CohortDefinition, type IRBSubmissionDto as IRBSubmission, type ExportAuditDto as ExportAudit, type DataQualityScoreDto as DataQualityScore } from '../services/api/researchApi'
 import { researchExportApi } from '../services/api/researchExportApi'
+import { deidentifyFiles, base64ToBlob, readFileAsBytes, type DeidResultDto } from '../services/api/privacyApi'
 import { t } from '../i18n/appI18n'
 import { PageContainer } from "../components/common";
 
@@ -675,21 +676,63 @@ function ExportTab() {
 // ==================== 新增: DICOM脱敏引擎 ====================
 function DeidEngineTab() {
   const { showToast } = useToast()
-  const [deidProfile, setDeidProfile] = useState('hipaa')
+  const [deidProfile, setDeidProfile] = useState<'hipaa' | 'expert'>('hipaa')
   const [showPreview, setShowPreview] = useState(false)
   const [deidRunning, setDeidRunning] = useState(false)
-  const [deidFileCount, setDeidFileCount] = useState(50)
-  const [deidResult, setDeidResult] = useState<string | null>(null)
-  const [phiTags] = useState([
-    { tag: 'PatientName', status: 'remove' },
-    { tag: 'PatientID', status: 'remove' },
-    { tag: 'PatientBirthDate', status: 'remove' },
-    { tag: 'PatientAddress', status: 'remove' },
-    { tag: 'PatientPhone', status: 'remove' },
-    { tag: 'MedicalRecordLocator', status: 'remove' },
-    { tag: 'InstitutionName', status: 'keep' },
-    { tag: 'AccessionNumber', status: 'keep' },
-  ])
+  const [deidResult, setDeidResult] = useState<DeidResultDto | null>(null)
+  const [picked, setPicked] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  // [v3.0.6.16-0] 真实执行后端 PS3.15 去标识化 (此前是 setTimeout 伪造)
+  const runDeid = useCallback(async () => {
+    if (picked.length === 0) {
+      showToast(t('researchPage.deidSelectFirst'), 'info')
+      return
+    }
+    setDeidRunning(true)
+    try {
+      const inputs = await Promise.all(picked.map(async (f) => ({ name: f.name, bytes: await readFileAsBytes(f) })))
+      const { result, files } = await deidentifyFiles(inputs, deidProfile)
+      setDeidResult(result)
+      // 触发下载脱敏后的文件
+      for (const f of files) {
+        const blob = base64ToBlob(f.dataBase64)
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = f.name
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }
+      showToast(
+        `${t('researchPage.deidDone')}: ${result.files.length} / ${picked.length} · ${result.cleanedTagCount} ${t('researchPage.deidTagsCleaned')}`,
+        'success',
+      )
+    } catch (err) {
+      showToast(`${t('researchPage.deidFailed')}: ${(err as Error)?.message ?? 'unknown'}`, 'error')
+    } finally {
+      setDeidRunning(false)
+    }
+  }, [picked, deidProfile, showToast])
+
+  const phiTags = useMemo(() => {
+    const rows = deidResult?.files[0]?.actions ?? []
+    if (rows.length === 0) {
+      return [
+        { tag: 'PatientName', status: 'remove' },
+        { tag: 'PatientID', status: 'remove' },
+        { tag: 'PatientBirthDate', status: 'remove' },
+        { tag: 'PatientAddress', status: 'remove' },
+        { tag: 'PatientPhone', status: 'remove' },
+        { tag: 'MedicalRecordLocator', status: 'remove' },
+        { tag: 'InstitutionName', status: 'remove' },
+        { tag: 'AccessionNumber', status: 'remove' },
+      ]
+    }
+    return rows.map((a) => ({ tag: `${a.keyword} (${a.tag})`, status: a.action }))
+  }, [deidResult])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
@@ -697,12 +740,19 @@ function DeidEngineTab() {
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Shield size={16} /> {t('researchPage.deidProfile')}</div>
         <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           {[{ id: 'hipaa', label: t('researchPage.hipaaLabel'), desc: t('researchPage.hipaaDesc') }, { id: 'expert', label: t('researchPage.expertLabel'), desc: t('researchPage.expertDesc') }].map(p => (
-            <div key={p.id} role="button" tabIndex={0} onClick={() => setDeidProfile(p.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDeidProfile(p.id) } }} style={{ flex: 1, padding: 'var(--space-4, 16px)', borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
+            <div key={p.id} role="button" tabIndex={0} onClick={() => setDeidProfile(p.id as 'hipaa' | 'expert')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDeidProfile(p.id as 'hipaa' | 'expert') } }} style={{ flex: 1, padding: 'var(--space-4, 16px)', borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: deidProfile === p.id ? COLORS.primary : COLORS.textPrimary }}>{p.label}</div>
               <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 'var(--space-1, 4px)' }}>{p.desc}</div>
             </div>
           ))}
         </div>
+        <Alert
+          type="info"
+          showIcon
+          message={t('researchPage.deidStandard')}
+          description={t('researchPage.deidDisclaimer')}
+          style={{ fontSize: 12 }}
+        />
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Tag size={16} /> {t('researchPage.deidTagRules')}</div>
@@ -715,7 +765,7 @@ function DeidEngineTab() {
           emptyText={t('common.empty.noData')}
           columns={[
             { title: t('researchPage.thTagName'), key: 'tag', render: (_v, pt) => <span style={{ fontSize: 12, fontFamily: 'monospace', color: COLORS.textPrimary }}>{pt.tag}</span> },
-            { title: t('researchPage.thOperation'), key: 'status', render: (_v, pt) => <StatusTag status={pt.status === 'remove' ? 'critical' : 'success'}>{pt.status === 'remove' ? t('researchPage.remove') : t('researchPage.keep')}</StatusTag> },
+            { title: t('researchPage.thOperation'), key: 'status', render: (_v, pt) => <StatusTag status={pt.status === 'remove' || pt.status === 'empty' ? 'critical' : 'success'}>{pt.status}</StatusTag> },
           ]}
         />
       </div>
@@ -740,17 +790,64 @@ function DeidEngineTab() {
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-3, 12px)' }}>
-        <button disabled={deidRunning} onClick={() => { showToast(t('researchPage.deidEndpointToast'), 'info'); setDeidRunning(true); setTimeout(() => { setDeidRunning(false); setDeidResult(`脱敏完成: ${deidFileCount} 个 DICOM 文件已按 ${deidProfile === 'hipaa' ? 'HIPAA 安全港' : '专家判定'} 配置处理 (本地模拟)`); showToast(t('researchPage.deidDoneLocal'), 'success') }, 1500) }} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '12px 32px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, opacity: deidRunning ? 0.6 : 1 }}><Shield size={16} /> {deidRunning ? t('researchPage.deidProcessing') : t('researchPage.runDeid')}</button>
+      {/* [v3.0.6.16-0] 真实脱敏入口: 选择 DICOM 文件 -> 调后端 PS3.15 引擎 -> 自动下载 */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".dcm,application/dicom"
+        multiple
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const list = Array.from(e.target.files ?? [])
+          setPicked(list)
+          setDeidResult(null)
+        }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '12px 24px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+        >
+          <Upload size={16} /> {t('researchPage.deidSelectFiles')}
+        </button>
+        <button
+          disabled={deidRunning || picked.length === 0}
+          onClick={() => void runDeid()}
+          style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '12px 32px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: deidRunning || picked.length === 0 ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: 600, opacity: deidRunning || picked.length === 0 ? 0.6 : 1 }}
+        >
+          <Shield size={16} /> {deidRunning ? t('researchPage.deidProcessing') : t('researchPage.runDeid')}
+        </button>
         <button onClick={() => setShowPreview(!showPreview)} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '12px 32px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Eye size={16} /> {t('researchPage.previewCompare')}</button>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-4, 16px)', fontSize: 12, color: COLORS.textSecondary }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>{t('researchPage.fileCount')}
-          <input type="number" min={1} max={500} value={deidFileCount} onChange={e => setDeidFileCount(Number(e.target.value) || 0)} style={{ width: 70, padding: '4px 8px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 12 }} />
-        </label>
-        {deidResult && <span style={{ color: COLORS.success, fontWeight: 600 }}>{deidResult}</span>}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-4, 16px)', fontSize: 12, color: COLORS.textSecondary, flexWrap: 'wrap' }}>
+        <span>
+          {t('researchPage.deidSelected')}: <b style={{ color: picked.length > 0 ? COLORS.primary : COLORS.textSecondary }}>{picked.length}</b>
+        </span>
+        {deidResult && (
+          <span style={{ color: COLORS.success, fontWeight: 600 }}>
+            {t('researchPage.deidDone')}: {deidResult.files.length} {t('researchPage.deidFiles')} · {deidResult.cleanedTagCount} {t('researchPage.deidTagsCleaned')} · {deidResult.dateShiftDays}d
+          </span>
+        )}
         <span style={{ color: COLORS.warning }}>{t('researchPage.deidNote')}</span>
       </div>
+      {deidResult && deidResult.files.length > 0 && (
+        <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-4, 16px)' }}>
+          <DataTable
+            dataSource={deidResult.files}
+            rowKey="fileName"
+            pagination={false}
+            showExport={false}
+            showDensity={false}
+            emptyText={t('common.empty.noData')}
+            columns={[
+              { title: t('researchPage.thFileName'), dataIndex: 'fileName', key: 'fileName' },
+              { title: t('researchPage.thNewSopUid'), dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', width: 220 },
+              { title: t('researchPage.thPixelPreserved'), key: 'pixel', width: 120, render: (_v, r) => <StatusTag status={r.pixelDataPreserved ? 'success' : 'warning'}>{r.pixelDataPreserved ? t('researchPage.deidPixelOk') : t('researchPage.deidPixelNo')}</StatusTag> },
+              { title: t('researchPage.thCleanedCount'), key: 'cnt', width: 100, align: 'right', render: (_v, r) => r.actions.length },
+            ]}
+          />
+        </div>
+      )}
     </div>
   )
 }

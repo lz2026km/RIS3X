@@ -229,6 +229,7 @@ import { SatisfactionModule } from "./modules/satisfaction/satisfaction.module";
 import { SelfRegistrationModule } from "./modules/self-registration/self-registration.module";
 // [G005 W13-Security] 安全与合规中心: RA/OCSP/HSM/字段加密/等保评估/灾难恢复/审计链
 import { SecurityCenterModule } from "./modules/security-center/security-center.module";
+import { PrivacyModule } from "./modules/privacy/privacy.module";
 
 @Module({
   imports: [
@@ -347,6 +348,7 @@ import { SecurityCenterModule } from "./modules/security-center/security-center.
     WorklistSmartModule,
     WorklistModule,
     DicomSrModule,
+    PrivacyModule,
     HangingModule,
     VnaModule,
     TenantModule,

@@ -25,6 +25,7 @@ import { w9QcHandlers } from './w9QcHandlers';
 import { w13SecurityHandlers } from './w13SecurityHandlers';
 // [G005 W1-Controls] P0 无效果按钮真实化 (EMR 新建/XDS 文档调阅/自助凭证/报告签名) — 最前置注册
 import { w1ControlsHandlers } from './w1ControlsHandlers';
+import { privacyHandlers } from './privacyHandlers';
 // [G005 W4A] 报告/审计域 孤儿端点 (审计链/分级审核规则/互评缺陷/缺陷库单项/报告补发/预签校验) — 必须最前置注册
 import { w4aOrphansHandlers } from './w4aOrphansHandlers';
 // [G005 W4B] 临床/集成域 孤儿端点 (检查号解析/改期历史/XDS 文档调阅/传输队列处理/DR 演练详情/字段加密自检) — 必须更前置注册
@@ -5495,6 +5496,8 @@ export const handlers = [
     ...w4bOrphansHandlers,
     // [G005 W4A] 最最最最最最先注册: 报告/审计域孤儿端点 (审计链/分级审核规则/互评缺陷/缺陷库单项/报告补发/预签校验)
     ...w4aOrphansHandlers,
+    // [G005 v3.0.6.16-0] 隐私 / DICOM 脱敏 (真实实现在后端 privacy 模块, 此处为演示态兜底)
+    ...privacyHandlers,
     // [G005 W1-Controls] 最最最最最最先注册: P0 控件真实化 (EMR 新建/XDS 文档调阅/自助凭证/报告签名)
     ...w1ControlsHandlers,
     // [G005 W13-Security] 最最最最最先注册: 安全与合规中心 (RA/OCSP/HSM/字段加密/等保/灾难恢复/审计链)
