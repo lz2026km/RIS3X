@@ -1,6 +1,6 @@
 // [G005 W4-AI] AI 模型注册表 / 市场 (概念 UI, 确定性模拟)
 // 数据来源: src/services/ai/aiPlatformData.ts (seeded by id, 无 Math.random)
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   Descriptions,
@@ -36,6 +36,7 @@ import {
 } from "../../components/common";
 import { DataTable } from "../../components/common/DataTable";
 import { t } from "../../i18n/appI18n";
+import { aiPlatformApi } from "../../services/api/aiPlatformApi";
 import { severityToAntd } from "../../theme/statusTokens";
 import {
   AI_STATUS_KEYS,
@@ -111,8 +112,43 @@ const MetricBar: React.FC<{ value: number; color?: string }> = ({
   </Space>
 );
 
+/**
+ * [G005 v3.0.6.16-0] 后端 AiModel DTO -> 页面 AiModelEntry 适配
+ *
+ * 页面展示所需的富字段 (nameEn / indication / modality / metrics / regulatory /
+ * trainingSet / versions ...) 后端 AiModel 表并未全部落库, 因此这里以
+ * **真实可得的字段为准**, 缺失的富字段从本地目录补齐并显式标记数据来源。
+ * 关键点: status/version/updatedAt 一律采用后端返回值, 保证"上线/下线"真的生效。
+ */
+function fromBackendModel(
+  raw: Record<string, unknown>,
+  catalog: AiModelEntry[],
+): AiModelEntry {
+  const base = catalog.find((m) => m.id === raw['id']);
+  const rawStatus = String(raw['status'] ?? '').toUpperCase();
+  const statusMap: Record<string, AiModelStatus> = {
+    REGISTERED: "offline",
+    DEPLOYED: "deployed",
+    GRAY: "gray",
+    OFFLINE: "offline",
+  };
+  return {
+    ...(base ?? getAiModelCatalog()[0]),
+    id: String(raw['id'] ?? base?.id ?? 'unknown'),
+    name: String(raw['name'] ?? base?.name ?? '未命名模型'),
+    version: String(raw['version'] ?? base?.version ?? '-'),
+    // REGISTERED 在后端表示"已注册未部署", 页面三态里对应 offline
+    status: statusMap[rawStatus] ?? base?.status ?? "offline",
+    updatedAt: String(raw['updatedAt'] ?? raw['createdAt'] ?? base?.updatedAt ?? ''),
+    ...(typeof raw['endpoint'] === 'string' && raw['endpoint'] ? { endpoint: raw['endpoint'] } : {}),
+  } as AiModelEntry;
+}
+
 const AiModelRegistryPage: React.FC = () => {
   const [models, setModels] = useState<AiModelEntry[]>(() => getAiModelCatalog());
+  const [liveSource, setLiveSource] = useState<'backend' | 'catalog'>('catalog');
+  const [loading, setLoading] = useState(false);
+  const [actingId, setActingId] = useState<string | null>(null);
   const [keyword, setKeyword] = useState("");
   const [vendorFilter, setVendorFilter] = useState<"all" | AiVendorKey>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | AiModelStatus>("all");
@@ -148,19 +184,67 @@ const AiModelRegistryPage: React.FC = () => {
     });
   }, [models, keyword, vendorFilter, statusFilter, modalityFilter]);
 
-  const patchModel = useCallback(
-    (id: string, patch: Partial<AiModelEntry>) => {
-      setModels((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+  // [G005 v3.0.6.16-0] 从后端拉取真实模型注册表 (此前完全用本地静态目录)
+  const loadModels = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await aiPlatformApi.listModels();
+      const list = (res?.data ?? []) as unknown as Record<string, unknown>[];
+      if (Array.isArray(list) && list.length > 0) {
+        setModels(list.map((m) => fromBackendModel(m, getAiModelCatalog())));
+        setLiveSource('backend');
+      } else {
+        setLiveSource('catalog');
+      }
+    } catch {
+      // 拉取失败: 保留本地目录并明确标记来源, 不伪装成"后端数据"
+      setLiveSource('catalog');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadModels();
+  }, [loadModels]);
+
+  /** 统一的模型操作执行器: 调真后端 -> 成功后重新拉取, 失败只报错不伪造成功 */
+  const runModelAction = useCallback(
+    async (
+      m: AiModelEntry,
+      kind: 'deploy' | 'undeploy',
+      okKey: string,
+      onOk?: (m: AiModelEntry) => void,
+    ) => {
+      if (actingId) return;
+      setActingId(m.id);
+      try {
+        if (kind === 'deploy') {
+          // 后端 POST /ai-platform/models/:id/deploy (经 updateModel 映射)
+          await aiPlatformApi.updateModel(m.id, {
+            endpoint: (m as unknown as { endpoint?: string }).endpoint ?? '',
+          });
+        } else {
+          // 后端无 DELETE /models/:id; 语义映射为 undeploy
+          await aiPlatformApi.deleteModel(m.id);
+        }
+        message.success(t(okKey, { name: m.name }));
+        onOk?.(m);
+        await loadModels();
+      } catch (err) {
+        message.error(
+          `${t('w4ai.msg.actionFailed')}: ${(err as Error)?.message ?? 'unknown'}`,
+        );
+      } finally {
+        setActingId(null);
+      }
     },
-    [],
+    [actingId, loadModels],
   );
 
   const onDeploy = useCallback(
-    (m: AiModelEntry) => {
-      patchModel(m.id, { status: "deployed" });
-      message.success(t("w4ai.msg.deployOk", { name: m.name, version: m.version }));
-    },
-    [patchModel],
+    (m: AiModelEntry) => void runModelAction(m, 'deploy', 'w4ai.msg.deployOk'),
+    [runModelAction],
   );
 
   const onGray = useCallback(
@@ -169,31 +253,29 @@ const AiModelRegistryPage: React.FC = () => {
         message.warning(t("w4ai.msg.actionBlocked"));
         return;
       }
-      patchModel(m.id, { status: "gray" });
-      message.success(t("w4ai.msg.grayOk", { name: m.name }));
+      // 后端无独立的"灰度"状态端点; 灰度即已部署且配置灰度比例, 这里走部署 + 重新拉取
+      void runModelAction(m, 'deploy', 'w4ai.msg.grayOk');
     },
-    [patchModel],
+    [runModelAction],
   );
 
   const onOffline = useCallback(
-    (m: AiModelEntry) => {
-      patchModel(m.id, { status: "offline" });
-      message.success(t("w4ai.msg.offlineOk", { name: m.name }));
-    },
-    [patchModel],
+    (m: AiModelEntry) => void runModelAction(m, 'undeploy', 'w4ai.msg.offlineOk'),
+    [runModelAction],
   );
 
   const onRollback = useCallback(
     (m: AiModelEntry) => {
-      const target = m.versions[1];
+      const target = m.versions?.[1];
       if (!target) {
         message.warning(t("w4ai.msg.actionBlocked"));
         return;
       }
-      patchModel(m.id, { version: target.version, status: "deployed", metrics: target.metrics });
-      message.success(t("w4ai.msg.rollbackOk", { name: m.name, version: target.version }));
+      // [G005 v3.0.16-0] 诚实处理: 后端 ai-platform **没有** 版本回滚端点,
+      // 旧实现仅改本地 state 却弹绿色成功提示。改为明确告知未实现。
+      message.warning(t("w4ai.msg.rollbackNotSupported", { version: target.version }));
     },
-    [patchModel],
+    [],
   );
 
   const openCompare = useCallback((m: AiModelEntry) => {
@@ -409,12 +491,16 @@ const AiModelRegistryPage: React.FC = () => {
         subtitle={t("w4ai.reg.subtitle")}
         actions={
           <Space>
+            {/* [G005 v3.0.6.16-0] 如实标注数据来源: 后端真实数据 vs 本地目录 */}
+            <Tag color={liveSource === 'backend' ? 'green' : 'orange'} data-testid="reg-source-badge">
+              {liveSource === 'backend' ? t('w4ai.reg.sourceBackend') : t('w4ai.reg.sourceCatalog')}
+            </Tag>
             <Tag color="purple" data-testid="reg-badge">
               {t("w4ai.badge")}
             </Tag>
             <ActionButton
               action="refresh"
-              onClick={() => setModels(getAiModelCatalog())}
+              onClick={() => void loadModels()}
               testId="reg-refresh"
             >
               {t("w4ai.refresh")}
@@ -505,14 +591,15 @@ const AiModelRegistryPage: React.FC = () => {
           </ActionButton>
         </Space>
 
-        <DataTable<AiModelEntry>
-          rowKey="id"
-          columns={columns}
-          dataSource={filtered}
-          showPagination={false}
-          scroll={{ x: "max-content" }}
-          emptyText={t("w4ai.empty")}
-        />
+      <DataTable<AiModelEntry>
+        rowKey="id"
+        columns={columns}
+        dataSource={filtered}
+        showPagination={false}
+        scroll={{ x: "max-content" }}
+        loading={loading}
+        emptyText={t("w4ai.empty")}
+      />
       </Card>
 
       {/* 版本对比 */}

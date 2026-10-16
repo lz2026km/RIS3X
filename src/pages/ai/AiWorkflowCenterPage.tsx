@@ -318,8 +318,10 @@ const TriageTab: React.FC = () => {
               title={t("w4ai.triage.hold")}
               aria-label={t("w4ai.triage.hold")}
               onClick={() => {
-                setStatus(r.id, "holded");
-                message.success(t("w4ai.triage.holdOk", { name: r.patientName }));
+                // [G005 v3.0.6.16-0] 后端无"挂起/复核/采纳"状态流转端点
+                // (POST /triage/assign 需要检查级临床输入 ESI/生命体征, 不是队列项状态切换),
+                // 旧实现仅改本地 state 却弹绿色成功提示。改为明确告知未接入, 不再伪造成功。
+                message.warning(t("w4ai.triage.holdNotSupported", { name: r.patientName }));
               }}
             />
             <ActionButton
@@ -329,8 +331,7 @@ const TriageTab: React.FC = () => {
               title={t("w4ai.triage.review")}
               aria-label={t("w4ai.triage.review")}
               onClick={() => {
-                setStatus(r.id, "reviewing");
-                message.success(t("w4ai.triage.reviewOk", { name: r.patientName }));
+                message.warning(t("w4ai.triage.reviewNotSupported", { name: r.patientName }));
               }}
             />
             <ActionButton
@@ -340,8 +341,7 @@ const TriageTab: React.FC = () => {
               title={t("w4ai.triage.adopt")}
               aria-label={t("w4ai.triage.adopt")}
               onClick={() => {
-                setStatus(r.id, "adopted");
-                message.success(t("w4ai.triage.adoptOk", { name: r.patientName }));
+                message.warning(t("w4ai.triage.adoptNotSupported", { name: r.patientName }));
               }}
             />
           </Space>
