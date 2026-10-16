@@ -1,3 +1,60 @@
+## v3.0.6.16-0 (2026-10-16) — 全项目商业化深度审查整改（拆雷 + 表格算法回归 + 下拉地基 + 门禁）
+
+> **审查范围**: 后端 172 controller / 2126 端点、前端 679 个表格实例、723 个 `<Select>`。
+> **发现问题**: 36 孤儿端点、6 真实死调用、233 个 mock-only(3 个已进生产页面)、11 个零接线页面、
+> 27 个假成功按钮、33 处 modality 硬编码(19 个版本)、表格算法 6 个缺陷。
+> **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 /
+> 后端 tsc 0 / jest **359 suites 3807 tests**(原 357/3770,+2/+37) / E2E 改动相关 16/16 全绿。
+
+### 批次 0 — 拆雷（🔴 会被客户当场戳穿）
+
+- **0.1 DICOM 脱敏真实实现**（新增 `backend/src/modules/privacy/`）
+  此前是前端 `setTimeout` 伪造(1.5 秒弹绿色"脱敏完成(本地模拟)"), HIPAA 合规功能。
+  现实现 **DICOM PS3.15 Annex E 基础配置文件**: 清空 40+ 身份标签、UID 重生成
+  (批次内同检查共享同一新 UID)、日期偏移 + 时间归一; **像素数据逐字节不变**、文件长度不变。
+  27 个用例打真实 CT/MR/DR/DBT 样例回归; 前端改为选文件 → 真实调用 → 结果表 → 自动下载。
+- **0.2 FHIR 伪造消除**（新增 `backend/src/fhir/fhir-capability.service.ts` + `GET /fhir/r4/metadata`）
+  此前前端硬编码 CapabilityStatement(含并不存在的 `tokenEndpoint: '/oauth2/token'`),
+  查询失败还 `setQueryResult` 伪造 3 条"查询结果"。改为**由实际路由推导**, SMART 据实声明,
+  未实现项进 gaps 清单; 10 个用例锁死"不得超报"。
+- **0.3 补齐 3 个 mock-only 生产端点**(演示通/上线 404):
+  `GET /contrast/quality-compliance`(指标由真实记录计算)、
+  `POST /self-registration/voucher`(凭证签发)、`GET /regional/imaging/document-registry/:id/retrieve`(XDS-I 调阅)。
+- **0.4 AI 模型注册/工作流 9 处假按钮**: 接线 `ai-platform` 26 端点;
+  后端确无的(灰度/回滚/队列状态流转)**明确 warning, 不再伪造成功**。
+
+### 批次 1 — 表格列宽算法 T1–T6（修正上轮引入的回归）
+
+只改 `DataTable.tsx` / `ProTable.tsx`, 收益覆盖 679 表:
+- **T1** `scroll.x` 无条件覆盖(原只替换 `max-content`, 41 处字面量数字导致列被压到 ~78px)
+- **T2** water-filling 加权分配(原 MAX 截断后剩余空间丢弃 → 61 表永久留白)
+- **T3** 去掉 `Math.max(cw, MIN*n)` 反向撑爆(13 表)
+- **T4** `dt-wrap` 列计数/赋值一致(5 表)
+- **T5** ResizeObserver 实测容器宽替代硬编码 1200(29 张 Modal 表 + 61 张半宽 Col)
+- **T6** `columnWeight` 列类型加权 + 操作列保底 160px + `dt-actions` CSS 放行(111 操作列)
+- `VirtualTable` 接入同一归一(7 调用点)
+
+### 批次 2 — 下拉地基
+
+- 新增 `constants/modality.ts`(modality 单一真源, 收敛 33 处/19 版本)、
+  `constants/drlModality.ts`(DRL 补齐 DR/MG/US/DSA)、`hooks/useDict.ts`(消费后端字典 + 拼音搜索)、
+  `components/common/AppSelectField.tsx`(统一下拉, 兑现设计文档承诺但从未实现的封装)。
+- 修复: 无 label 显示英文枚举(4→1)、`MwlManagerPage` 假 AE Title(筛选实际不可用)、
+  设备/部位手输改下拉、质控设备 ID 手输改真实 `deviceApi`。
+
+### 批次 3 — 清理与治理
+
+- 删除死代码 `DictionaryPage.initialDictionaries`(78 条硬编码字典, 全仓 0 引用)。
+- `RegionalReportList` 6 处静默空下拉改为如实提示。
+- 新增 `VITE_ALLOW_DEMO_FALLBACK`: 生产接口失败走真实错误态, 防客户拿到假数据。
+
+### 批次 4 — 防回退门禁
+
+- `pnpm guard:api`(`api-contract-guard.mjs`): 前后端 + MSW 三方对账, 输出真死调用 / 死调用 / 孤儿端点。
+- `pnpm guard:select`: 冻结 label-less options / 硬编码主数据下拉 / showSearch 无过滤 / 裸日期输入。
+- `pnpm guard:table`: 冻结组件外裸 Table / VirtualTable 未归一 / 手写数字 scroll.x。
+- `pnpm guard:all` 一次跑全部门禁。
+
 ## v3.0.6.15-5 (2026-10-15) — 表格紧凑化与列宽归一（行高 231px→37px）
 
 > **用户反馈**: 「有些表格肥大、不均匀、不合乎逻辑」「点击某些按钮跳出来的表格肥大、不协调、不紧凑」。

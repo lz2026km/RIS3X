@@ -2573,7 +2573,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.15-5 · 表格紧凑化与列宽归一(行高 231px→37px)",
+      "v3.0.6.16-0 · 商业化深度审查整改(DICOM脱敏/FHIR真实/表格算法/下拉地基)",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -31431,7 +31431,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.15-5 · table density & column-width normalization (row height 231px→37px)",
+      "v3.0.6.16-0 · commercial audit remediation (DICOM de-id / real FHIR / table algo / dropdown base)",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
