@@ -88,6 +88,17 @@
   white-space: normal;
 }
 
+/* [v3.0.6.16-0] 操作列放行: 操作列被 applyDefaultEllipsis 排除, 而 td 又被
+   全局 nowrap 锁住 —— 按钮组既不能省略也不能换行, 只能溢出到相邻单元格。
+   这里允许操作列自行换行/横向滚动, 使 111 个未声明宽度的操作列不再失衡。 */
+.data-table .ant-table-tbody > tr > td.dt-actions {
+  white-space: normal;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* 归一算法会自动给操作列加 dt-actions (无需逐页声明) */
+
 /* [v3.0.6.15-5] 关键修复 — 单元格直接子元素的 line-height 上限约束。
    现象: antd Tag/Badge 等 inline-block 徽标在表格单元格内会把 line-height 解析成
    单元格行高 (实测 216px), 形成"徽标撑高行 → 行更高 → 徽标 line-height 更大"的

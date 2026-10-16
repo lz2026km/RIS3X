@@ -19,7 +19,7 @@ import {
   type TablePaginationConfig,
 } from 'antd';
 import type { ColumnType } from 'antd/es/table';
-import { useState, useMemo, type ReactNode, type ComponentType, type ComponentProps } from 'react';
+import { useState, useMemo, useEffect, useRef, type ReactNode, type ComponentType, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Inbox, Search, RefreshCw, Download } from 'lucide-react'
 import { useTableColumnConfig } from './useTableColumnConfig';
@@ -164,24 +164,42 @@ export function ProTable<T extends object = Record<string, unknown>>({
     [baseColumns]
   );
 
+  // [v3.0.6.16-0] 与 DataTable 保持一致: ResizeObserver 实测容器宽度 (T5)
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [measuredWidth, setMeasuredWidth] = useState(0);
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const measure = () => {
+      const w = Math.round(el.getBoundingClientRect().width);
+      if (w > 0) setMeasuredWidth(w);
+    };
+    measure();
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const effectiveLayoutWidth = measuredWidth > 0 ? measuredWidth : layoutWidth;
+
   // [v3.0.6.15-5] 与 DataTable 对齐: 列宽归一 + 默认 ellipsis + tableLayout=fixed
   const normalized = useMemo(
-    () => normalizeColumnWidths(visibleColumns as never, layoutWidth),
-    [visibleColumns, layoutWidth],
+    () => normalizeColumnWidths(visibleColumns as never, effectiveLayoutWidth),
+    [visibleColumns, effectiveLayoutWidth],
   );
   const finalColumns = useMemo(
     () => applyDefaultEllipsis(normalized.columns as never, true),
     [normalized.columns],
   );
-  // [v3.0.6.15-5] 取代硬编码的 x:'max-content' (该值会让表格按内容撑开、
-  // 忽略容器宽度, 且使 ellipsis 永远不触发)
+  // [v3.0.6.16-0] T1 修复: 无条件覆盖 scroll.x (含调用方传的字面量数字),
+  // 否则 table-layout:fixed 会把列按比例压缩到远小于归一宽度。
   const resolvedScroll = useMemo(() => {
     const next = { ...scroll } as NonNullable<TableProps<T>['scroll']>;
-    if (next.x === 'max-content' && normalized.totalWidth > 0) {
-      next.x = normalized.totalWidth;
+    if (normalized.totalWidth > 0) {
+      const extra = (rowSelection ? 48 : 0) + (restProps.expandable ? 48 : 0);
+      next.x = normalized.totalWidth + extra;
     }
     return next;
-  }, [scroll, normalized.totalWidth]);
+  }, [scroll, normalized.totalWidth, rowSelection, restProps.expandable]);
 
   const pagination = useMemo<TablePaginationConfig | false>(() => {
     if (paginationProp === false) return false;
@@ -195,7 +213,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
   }, [pageSize, paginationProp, t]);
 
   return (
-    <div className="data-table pro-table" style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)' }}>
+      <div ref={wrapRef} className="data-table pro-table" style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)' }}>
       {showToolbar && (
         <div
           style={{

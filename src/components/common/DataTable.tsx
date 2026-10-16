@@ -8,7 +8,7 @@
  *   - 内置工具栏: 导出 CSV (当前视图) + 密度切换 (compact/comfortable)
  * 兼容 ProTable / VirtualTable 常用调用方式。
  */
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Table, Skeleton, Button, Tooltip } from "antd";
 import type {
   TableProps,
@@ -107,8 +107,9 @@ const NUMERIC_SUFFIX_RE =
 
 /** [v3.0.6.15-5] 归一列宽时的最小列宽 (px) */
 const MIN_COL_WIDTH = 120;
-/** [v3.0.6.15-5] 归一列宽时的最大列宽 (px), 防止少量列时单列过宽 */
-const MAX_COL_WIDTH = 420;
+/** [v3.0.6.16-0] 单轮加权增量的步长 (px)。water-filling 逐轮分配, 避免一次性
+ * 取模造成的列宽抖动; 该值仅影响分配粒度, 不构成上限。 */
+const WIDTH_STEP = 20;
 
 function lastDataIndexSegment(dataIndex: unknown): string {
   if (Array.isArray(dataIndex)) return String(dataIndex[dataIndex.length - 1] ?? "");
@@ -198,11 +199,57 @@ export function applyDefaultEllipsis<RecordType extends object>(
  *   - 已声明 width 的列原样保留, 剩余空间分配给未声明的列
  * 返回归一后的列宽总和, 供 scroll.x 取代 'max-content'。
  */
+/**
+ * [v3.0.6.16-0] 列类型权重 —— 等分不再"一刀切"
+ *
+ * v3.0.6.15-5 的等分算法给所有未声明 width 的列同一个 `each`, 导致
+ * "操作列(按钮组) / 短 Tag / 长文本" 共享同一宽度 —— 实测 111 个操作列
+ * 被等分到 120~200px 而按钮组本身需要 230px+, 只能溢出。
+ * 现按列语义分配权重:
+ *   - 操作列 (key = action/操作/…) 权重最高, 且有保底宽度
+ *   - 状态/Tag 列权重低 (内容只有几个字)
+ *   - 短 ID / 数字列权重低
+ *   - 长文本 (声明了 ellipsis) 权重高
+ */
+const ACTION_COLUMN_MIN_WIDTH = 160;
+
+function columnWeight<RecordType extends object>(col: AnyColumn<RecordType>): number {
+  const c = col as TableColumnType<RecordType>;
+  if (isActionColumn(c as AnyColumn<object>)) return 2.2;
+  if (c.ellipsis !== undefined) return 1.8;
+  if (isNumericColumn(c)) return 0.7;
+  // 标题很短 + 无 ellipsis 的列, 通常是状态/Tag, 给窄一些
+  const titleText = typeof c.title === "string" ? c.title : "";
+  if (titleText.length > 0 && titleText.length <= 6 && c.ellipsis === undefined && !c.render) {
+    return 0.85;
+  }
+  return 1;
+}
+
+/**
+ * [v3.0.6.16-0] 列宽归一化 (water-filling 加权分配)
+ *
+ * 相对 v3.0.6.15-5 修掉 4 个算法缺陷:
+ *  - **T2 截断不回收**: 旧实现 `Math.min(..., MAX_COL_WIDTH)` 之后剩余空间直接
+ *    丢弃, 61 张表右侧永久留白。现改为 water-filling: 先给每列 MIN, 再按权重
+ *    逐轮 +10px 分配, 直到预算用尽 —— 不存在"丢弃"。
+ *  - **T3 反向撑爆**: 旧实现 `Math.max(containerWidth, MIN*n)`, 列数 ≥11 时
+ *    1200 被 120×11=1320 反超。现直接以 containerWidth 为预算。
+ *  - **T4 dt-wrap 计数不一致**: dt-wrap 列原先计入除数与 totalWidth 却不被赋值,
+ *    现从分配中完全排除。
+ *  - **T5/T6 无列类型感知**: 现按 columnWeight 分配, 操作列有保底宽度。
+ */
 export function normalizeColumnWidths<RecordType extends object>(
   columns: TableColumnsType<RecordType>,
   containerWidth: number,
 ): { columns: TableColumnsType<RecordType>; totalWidth: number } {
-  type Flat = { col: AnyColumn<RecordType>; declared: number | null };
+  type Flat = {
+    col: AnyColumn<RecordType>;
+    declared: number | null;
+    weight: number;
+    /** dt-wrap 列不参与分配, 也不计入 totalWidth */
+    wrap: boolean;
+  };
   const leaves: Flat[] = [];
   const walk = (cols: TableColumnsType<RecordType>): void => {
     for (const col of cols) {
@@ -214,43 +261,96 @@ export function normalizeColumnWidths<RecordType extends object>(
         continue;
       }
       const w = (anyCol as { width?: number | string }).width;
+      const wrap = hasWrapOptOut(anyCol);
       leaves.push({
         col,
         declared: typeof w === "number" && w > 0 ? w : null,
+        weight: wrap ? 0 : columnWeight(anyCol),
+        wrap,
       });
     }
   };
   walk(columns);
   if (leaves.length === 0) return { columns, totalWidth: 0 };
 
-  const declaredSum = leaves.reduce((s, l) => s + (l.declared ?? 0), 0);
-  const undeclared = leaves.filter((l) => l.declared === null);
+  // 预算 = 容器宽度 (不再用 MIN*n 反超)
+  let budget = Math.max(containerWidth, 0);
+  const assigned = new Map<AnyColumn<RecordType>, number>();
 
-  // 全部列都声明了宽度 -> 直接采用声明值之和
-  if (undeclared.length === 0) {
-    return { columns, totalWidth: declaredSum };
+  // ---- 1) 已声明宽度的列直接落位 ----
+  for (const l of leaves) {
+    if (l.declared !== null) {
+      assigned.set(l.col, l.declared);
+      budget -= l.declared;
+    }
   }
 
-  const available = Math.max(containerWidth, MIN_COL_WIDTH * leaves.length);
-  const remaining = Math.max(available - declaredSum, MIN_COL_WIDTH * undeclared.length);
-  const each = Math.min(Math.max(Math.floor(remaining / undeclared.length), MIN_COL_WIDTH), MAX_COL_WIDTH);
+  // ---- 2) 未声明宽度的列: water-filling 加权分配 ----
+  const pending = leaves.filter((l) => l.declared === null && !l.wrap);
+  if (pending.length > 0) {
+    // 操作列保底
+    let left = budget;
+    for (const l of pending) {
+      if (isActionColumn(l.col as AnyColumn<object>)) {
+        assigned.set(l.col, ACTION_COLUMN_MIN_WIDTH);
+        left -= ACTION_COLUMN_MIN_WIDTH;
+      }
+    }
+    let rest = pending.filter((l) => assigned.get(l.col) === undefined);
+    if (rest.length > 0) {
+      let remaining = Math.max(left, MIN_COL_WIDTH * rest.length);
+      // 每列先取 MIN
+      for (const l of rest) assigned.set(l.col, MIN_COL_WIDTH);
+      remaining -= MIN_COL_WIDTH * rest.length;
+      // 加权增量: 每轮 +20px, 按权重比例分配, 直到预算耗尽
+      const STEP = WIDTH_STEP;
+      const totalWeight = rest.reduce((s, l) => s + l.weight, 0) || 1;
+      while (remaining > 0 && totalWeight > 0) {
+        let distributed = 0;
+        for (const l of rest) {
+          const add = Math.max(1, Math.round((remaining * l.weight) / totalWeight));
+          const cur = assigned.get(l.col) ?? MIN_COL_WIDTH;
+          const next = Math.min(cur + add, cur + STEP);
+          if (next > cur) {
+            assigned.set(l.col, next);
+            remaining -= next - cur;
+            distributed += next - cur;
+          }
+        }
+        if (distributed === 0) break; // 全部触顶, 退出避免死循环
+      }
+    }
+  }
 
+  // ---- 3) 回写 columns (含分组列递归) ----
+  const totalWidth = Array.from(assigned.values()).reduce((s, v) => s + v, 0);
   const nextColumns = columns.map((col) => {
     const anyCol = col as TableColumnType<RecordType> & {
       children?: TableColumnsType<RecordType>;
     };
     if (Array.isArray(anyCol.children)) {
+      // 分组列: 子列共享父级配额, 避免"整表 containerWidth 传入子列"导致撑爆
+      const childBudget = Array.from(assigned.values()).reduce((s, v) => s + v, 0);
       const n: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
-      n.children = normalizeColumnWidths(anyCol.children, containerWidth).columns;
+      n.children = normalizeColumnWidths(anyCol.children, Math.max(childBudget, MIN_COL_WIDTH)).columns;
       return n;
     }
-    const w = (anyCol as { width?: number | string }).width;
-    if (typeof w === "number" && w > 0) return col;
-    if (hasWrapOptOut(anyCol)) return col;
-    return { ...anyCol, width: each };
+    const w = assigned.get(col);
+    if (w === undefined) return col; // dt-wrap / 无法确定宽度
+    const current = (anyCol as { width?: number | string }).width;
+    if (typeof current === "number" && current > 0) return col; // 已声明, 保持原样
+    // [v3.0.6.16-0] T6: 操作列统一打上 dt-actions, 由 CSS 放行换行/横向滚动,
+    // 避免"被排除 ellipsis + 全局 nowrap"导致的按钮组溢出。
+    const next: TableColumnType<RecordType> = { ...anyCol, width: w };
+    if (isActionColumn(anyCol as AnyColumn<object>)) {
+      next.className = anyCol.className
+        ? `${anyCol.className} dt-actions`
+        : 'dt-actions';
+    }
+    return next;
   }) as TableColumnsType<RecordType>;
 
-  return { columns: nextColumns, totalWidth: declaredSum + each * undeclared.length };
+  return { columns: nextColumns, totalWidth };
 }
 
 
@@ -350,6 +450,7 @@ export function DataTable<RecordType extends object>({
   className,
   rowClassName: rowClassNameProp,
   onRow: onRowProp,
+  rowSelection,
   ...restProps
 }: DataTableProps<RecordType>) {
   const density = densityProp ?? "compact";
@@ -367,10 +468,30 @@ export function DataTable<RecordType extends object>({
   const baseColumns = columnConfigKey
     ? (columnConfig.visibleColumns as unknown as TableColumnsType<RecordType>)
     : columns;
+  // [v3.0.6.16-0] T5: 用 ResizeObserver 实测容器宽度替代硬编码 1200。
+  // 29 张表位于 420~960px 的 Modal 内、61 张位于半宽 Col 内, 按 1200 预算算
+  // 会造成 1.3~2 倍横向溢出。首帧用 layoutWidth 兜底, 挂载后立即以实测值覆盖。
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [measuredWidth, setMeasuredWidth] = useState(0);
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const w = Math.round(el.getBoundingClientRect().width);
+      // 忽略 0 与明显异常值, 避免隐藏态/未布局时把预算压成 0
+      if (w > 0) setMeasuredWidth(w);
+    };
+    measure();
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const effectiveLayoutWidth = measuredWidth > 0 ? measuredWidth : layoutWidth;
+
   // [v3.0.6.15-5] 列宽归一 -> 消除 tableLayout:auto 的列宽波动
   const normalized = useMemo(
-    () => normalizeColumnWidths(baseColumns, layoutWidth),
-    [baseColumns, layoutWidth],
+    () => normalizeColumnWidths(baseColumns, effectiveLayoutWidth),
+    [baseColumns, effectiveLayoutWidth],
   );
   const effectiveColumns = useMemo(
     () =>
@@ -380,16 +501,20 @@ export function DataTable<RecordType extends object>({
       ),
     [normalized.columns, disableAutoNumericAlign, cellWrap],
   );
-  // [v3.0.6.15-5] 调用方普遍传 scroll.x='max-content' (全站 299 处),
-  // 它会让表格按内容撑开、忽略容器, 且使 ellipsis 永远不触发 —— 这正是
-  // "表格肥大 / 弹窗内不协调" 的主因。此处统一替换为归一后的列宽总和。
+  // [v3.0.6.16-0] T1 修复: **无条件**用归一后的列宽总和覆盖 scroll.x。
+  // v3.0.6.15-5 只替换 x === 'max-content', 而全站还有 41 处调用点传了
+  // 字面量数字 (如 scroll={{x:390}}); 归一后列宽总和与该数字严重不符时,
+  // table-layout:fixed 会把列按比例压缩 (实测有表格被压到 ~78px/列)。
   const resolvedScroll = useMemo(() => {
     const next = { ...scroll } as NonNullable<TableProps<RecordType>["scroll"]>;
-    if (next.x === "max-content" && normalized.totalWidth > 0) {
-      next.x = normalized.totalWidth;
+    if (normalized.totalWidth > 0) {
+      // rowSelection / expandable 会额外插入列, 必须计入否则右侧留缝
+      const extra =
+        (rowSelection ? 48 : 0) + (restProps.expandable ? 48 : 0);
+      next.x = normalized.totalWidth + extra;
     }
     return next;
-  }, [scroll, normalized.totalWidth]);
+  }, [scroll, normalized.totalWidth, rowSelection, restProps.expandable]);
 
   // [W14-UX] 右键上下文菜单
   const { open: openContextMenu, menu: contextMenuNode } = useContextMenu(
@@ -417,7 +542,7 @@ export function DataTable<RecordType extends object>({
   };
 
   return (
-    <div className={`data-table data-table--${density} ${className ?? ""}`}>
+    <div ref={wrapRef} className={`data-table data-table--${density} ${className ?? ""}`}>
       {contextMenuNode}
       {showToolbar && (
         <div style={toolbarStyle} data-testid="data-table-toolbar">
