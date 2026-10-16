@@ -38,6 +38,8 @@ interface InstitutionListProps {
 
 export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstitution, onSelect }) => {
   const [institutions, setInstitutions] = useState<Institution[]>([])
+    // [v3.0.6.16-0] 机构加载失败标记 (原为 catch{/* keep empty */} 静默空下拉)
+    const [institutionsLoadError, setLoadError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -50,7 +52,8 @@ export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstit
             reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
           })))
         }
-      } catch { /* keep empty */ }
+      } catch { /* [v3.0.6.16-0] 不再静默吞异常: 生产环境如实标记错误, 演示环境保留空列表 */
+        if (!cancelled) setLoadError(true) }
     })()
     return () => { cancelled = true }
   }, [])
@@ -70,6 +73,12 @@ export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstit
           <div style={{ flex: 1 }}><div style={{ fontWeight: 500, fontSize: '12px' }}>{t('regionalReport.allInstitutions')}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('regionalReport.allHospitals')}</div></div>
           <span style={{ ...styles.badge, backgroundColor: 'var(--color-info-bg)', color: COLORS.primary }}>{institutions.reduce((sum, i) => sum + i.reportCount, 0)}</span>
         </div>
+        {/* [v3.0.6.16-0] 机构清单加载失败时如实提示, 不再展示一个"永远打不开的空列表" */}
+        {institutionsLoadError && (
+          <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--color-warning-700, #b45309)' }}>
+            {t('regionalReport.institutionsLoadFailed')}
+          </div>
+        )}
         {institutions.map(inst => (
           <div key={inst.id} style={{ ...styles.listItem, ...(selectedInstitution === inst.id ? styles.listItemActive : {}) }}
             role="button"
@@ -116,6 +125,8 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
   searchKeyword, onSearchChange
 }) => {
   const [institutions, setInstitutions] = useState<Institution[]>([])
+    // [v3.0.6.16-0] 机构加载失败标记 (原为 catch{/* keep empty */} 静默空下拉)
+    const [institutionsLoadError, setLoadError] = useState(false)
   const [applyForm, setApplyForm] = useState({
     patientName: '', gender: '男', age: '', modality: 'CT', examItem: '',
     institution: '', priority: '普通', applyReason: '',
@@ -133,7 +144,8 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
             reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
           })))
         }
-      } catch { /* keep empty */ }
+      } catch { /* [v3.0.6.16-0] 不再静默吞异常: 生产环境如实标记错误, 演示环境保留空列表 */
+        if (!cancelled) setLoadError(true) }
     })()
     return () => { cancelled = true }
   }, [])
@@ -251,7 +263,7 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
               <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.modalityType')}</label><Select style={{ width: '100%' }} value={applyForm.modality} onChange={v => setApplyForm({ ...applyForm, modality: v })} options={[{ value: 'CT', label: 'CT' }, { value: 'MRI', label: 'MRI' }, { value: 'DR', label: 'DR' }, { value: '超声', label: t('w9e.regionalReportList.modalityUltrasound') }, { value: '胃肠', label: t('w9e.regionalReportList.modalityGi') }]} /></div>
               <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.examItem')}</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReportList.examItem')} value={applyForm.examItem} onChange={e => setApplyForm({ ...applyForm, examItem: e.target.value })} /></div>
             </div>
-            <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.applyInstitution')}</label><Select style={{ width: '100%' }} value={applyForm.institution || undefined} placeholder={t('regionalReport.selectApplyInstitution')} onChange={v => setApplyForm({ ...applyForm, institution: v })} options={institutions.map(inst => ({ value: inst.name, label: inst.name }))} /></div>
+            <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.applyInstitution')}</label><Select style={{ width: '100%' }} value={applyForm.institution || undefined} placeholder={t('regionalReport.selectApplyInstitution')} onChange={v => setApplyForm({ ...applyForm, institution: v })} options={institutions.map(inst => ({ value: inst.name, label: inst.name }))} notFoundContent={institutionsLoadError ? t('regionalReport.institutionsLoadFailed') : undefined} /></div>
             <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.priority')}</label><div style={{ display: 'flex', gap: '10px' }}>{['普通', '紧急', '立即'].map(p => <label key={p} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}><input type="radio" name="priority" value={p} checked={applyForm.priority === p} onChange={() => setApplyForm({ ...applyForm, priority: p })} />{t(PRIORITY_LABEL_KEY[p] ?? p)}</label>)}</div></div>
             <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.applyReasonStar')}</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '120px' }} placeholder={t('regionalReport.applyReasonPlaceholder')} value={applyForm.applyReason} onChange={e => setApplyForm({ ...applyForm, applyReason: e.target.value })} /></div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}><button onClick={handleCancelApply} style={{ ...styles.button, ...styles.buttonOutline }}>{t('regionalReportList.cancel')}</button><button onClick={() => void handleSubmitApply()} disabled={submitting} style={{ ...styles.button, ...styles.buttonPrimary }}><Send size={14} /> {submitting ? t('regionalReport.submitting') : t('regionalReport.submitApply')}</button></div>
@@ -510,6 +522,8 @@ export const ReportSharingSection: React.FC = () => {
   const [showShareModal, setShowShareModal] = useState(false)
   const [shareForm, setShareForm] = useState({ reportId: '', targetInstitution: '', consent: true })
   const [institutions, setInstitutions] = useState<Institution[]>([])
+    // [v3.0.6.16-0] 机构加载失败标记 (原为 catch{/* keep empty */} 静默空下拉)
+    const [institutionsLoadError, setLoadError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -522,7 +536,8 @@ export const ReportSharingSection: React.FC = () => {
             reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
           })))
         }
-      } catch { /* keep empty */ }
+      } catch { /* [v3.0.6.16-0] 不再静默吞异常: 生产环境如实标记错误, 演示环境保留空列表 */
+        if (!cancelled) setLoadError(true) }
     })()
     return () => { cancelled = true }
   }, [])
@@ -533,7 +548,8 @@ export const ReportSharingSection: React.FC = () => {
       try {
         const res = await fetch('/api/v1/regional/share-records').then(r => r.json())
         if (!cancelled && res.data) setShares(res.data)
-      } catch { /* keep empty */ }
+      } catch { /* [v3.0.6.16-0] 不再静默吞异常: 生产环境如实标记错误, 演示环境保留空列表 */
+        if (!cancelled) setLoadError(true) }
     })()
     return () => { cancelled = true }
   }, [])
@@ -589,7 +605,7 @@ export const ReportSharingSection: React.FC = () => {
             <div style={styles.modalHeader}><span>{t('regionalReport.shareReport')}</span><X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowShareModal(false)} /></div>
             <div style={styles.modalBody}>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.reportIdLabel')}</label><input style={{ ...styles.input, width: '100%' }} value={shareForm.reportId} onChange={e => setShareForm({ ...shareForm, reportId: e.target.value })} placeholder={t('regionalReport.inputReportId')} /></div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.targetInstitution')}</label><Select style={{ width: '100%' }} value={shareForm.targetInstitution || undefined} placeholder={t('regionalReportList.pleaseSelect')} onChange={v => setShareForm({ ...shareForm, targetInstitution: v })} options={institutions.map(i => ({ value: i.name, label: i.name }))} /></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.targetInstitution')}</label><Select style={{ width: '100%' }} value={shareForm.targetInstitution || undefined} placeholder={t('regionalReportList.pleaseSelect')} onChange={v => setShareForm({ ...shareForm, targetInstitution: v })} options={institutions.map(i => ({ value: i.name, label: i.name }))} notFoundContent={institutionsLoadError ? t('regionalReport.institutionsLoadFailed') : undefined} /></div>
               <div style={styles.formGroup}><label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', cursor: 'pointer' }}><input type="checkbox" checked={shareForm.consent} onChange={e => setShareForm({ ...shareForm, consent: e.target.checked })} /> <span style={{ fontSize: 12 }}>{t('regionalReport.consentObtainedLabel')}</span></label></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowShareModal(false)}>{t('regionalReportList.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleShare}><Share2 size={14} /> {t('regionalReport.share')}</button></div>
@@ -661,6 +677,8 @@ export const SLAAndTATSection: React.FC = () => {
 // ============ 区域统计看板 ============
 export const RegionalStatsDashboard: React.FC = () => {
   const [institutions, setInstitutions] = useState<Institution[]>([])
+    // [v3.0.6.16-0] 机构加载失败标记 (原为 catch{/* keep empty */} 静默空下拉)
+    const [institutionsLoadError, setLoadError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -673,7 +691,8 @@ export const RegionalStatsDashboard: React.FC = () => {
             reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
           })))
         }
-      } catch { /* keep empty */ }
+      } catch { /* [v3.0.6.16-0] 不再静默吞异常: 生产环境如实标记错误, 演示环境保留空列表 */
+        if (!cancelled) setLoadError(true) }
     })()
     return () => { cancelled = true }
   }, [])
@@ -707,6 +726,9 @@ export const RegionalStatsDashboard: React.FC = () => {
               <div style={styles.progressBar}><div style={{ ...styles.progressFill, width: `${pct}%`, backgroundColor: COLORS.primary }} /></div>
             </div>
           )})}
+          {institutionsLoadError && (
+            <div style={{ fontSize: 11, color: 'var(--color-warning-700, #b45309)' }}>{t('regionalReport.institutionsLoadFailed')}</div>
+          )}
         </div>
         <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>{t('regionalReport.institutionAvgTat')}</div>

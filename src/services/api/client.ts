@@ -47,8 +47,29 @@ function resolveApiMode(): ApiMode {
   return "mock";
 }
 
-function resolveApiBaseUrl(): string | undefined {
-  if (typeof window !== "undefined") {
+/**
+ * [G005 v3.0.6.16-0] 是否允许"接口失败 -> 回退演示数据"
+ *
+ * 背景: 全站 333 个页面存在 "catch { 保持演示数据 }" 模式。在**功能演示**时这是
+ * 加分项 (页面永不空白); 但在**生产验收**时是风险 —— 客户输入一个不存在的
+ * 患者号/检查号, 系统返回 mock 数据而不是"未找到", 会直接摧毁对数据真实性的信任。
+ *
+ * 治理: 由环境开关控制, 生产 (.env.production) 默认 **false**,
+ * 即接口失败时页面进入真实错误态, 而不是悄悄展示假数据。
+ * 演示环境 (.env.development) 保持 true 以维持演示流畅度。
+ */
+export function allowDemoFallback(): boolean {
+  const raw = import.meta.env.VITE_ALLOW_DEMO_FALLBACK;
+  if (raw === undefined || raw === null || raw === '') {
+    // 未显式配置时按 API 模式推断: mock 演示环境允许回退, real 生产环境不允许
+    return currentApiMode() === 'mock';
+  }
+  const v = String(raw).trim().toLowerCase();
+  if (v === 'false' || v === '0' || v === 'off' || v === 'no') return false;
+  return true;
+}
+
+function resolveApiBaseUrl(): string | undefined {  if (typeof window !== "undefined") {
     try {
       const ls = window.localStorage.getItem("ris_api_base_url");
       if (ls) return ls;
