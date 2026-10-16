@@ -51,6 +51,19 @@ const QueueSchema = z.object({
   priority: z.enum(['NORMAL', 'URGENT', 'EMERGENCY']).optional(),
 })
 
+// [G005 v3.0.6.16-0] 领取凭证: 至少要有一个可识别标识
+const VoucherSchema = z
+  .object({
+    patientId: z.string().optional(),
+    patientName: z.string().optional(),
+    idCard: z.string().optional(),
+    phone: z.string().optional(),
+  })
+  .refine(
+    (v) => Boolean(v.patientId?.trim() || v.patientName?.trim() || v.idCard?.trim() || v.phone?.trim()),
+    { message: '需至少提供 patientId / idCard / phone / patientName 之一' },
+  )
+
 @ApiTags('self-registration')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN', 'NURSE')
@@ -101,6 +114,20 @@ export class SelfRegistrationController {
   @Get('queue/:modality')
   listQueue(@Param('modality') modality: string) {
     return { items: this.service.listQueue(modality), total: this.service.listQueue(modality).length }
+  }
+
+  // [G005 v3.0.6.16-0] 自助影像/报告领取凭证
+  // 此前该端点仅存在于 MSW (mock-only), real 模式 404 —— 患者端核心动线断裂。
+  @Post('voucher')
+  @Public()
+  issueVoucher(@Body(new ZodValidationPipe(VoucherSchema)) body: z.infer<typeof VoucherSchema>) {
+    return this.service.issueVoucher(body)
+  }
+
+  @Get('voucher/:code')
+  getVoucher(@Param('code') code: string) {
+    const voucher = this.service.getVoucherByCode(code)
+    return voucher ?? { found: false }
   }
 
   @Get('status/:patientId')

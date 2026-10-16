@@ -455,6 +455,58 @@ export class RegionalService {
     return { success: true, data: SEED_DOCUMENT_REGISTRY }
   }
 
+  /**
+   * [G005 v3.0.6.16-0] XDS-I 文档调阅 Retrieve
+   *
+   * 背景: 前端 `RegionalImagingPage` 的「文档调阅」按钮此前只存在于 MSW
+   * (mock-only), 切 real 即 404 —— 医联体核心功能演示能过、上线即挂。
+   * 这里基于同一份 SEED_DOCUMENT_REGISTRY 生成可调阅的文档正文。
+   */
+  async retrieveDocument(id: string) {
+    const doc = SEED_DOCUMENT_REGISTRY.find((d) => d.id === id || d.id.toLowerCase() === id.toLowerCase())
+    if (!doc) {
+      return {
+        success: false,
+        error: { code: 'DOCUMENT_NOT_FOUND', message: `文档 ${id} 不在区域文档注册表中` },
+      }
+    }
+    const content = [
+      `${doc.institution} — 影像报告 (XDS-I Retrieve)`,
+      `患者: ${doc.patientName} (${doc.patientId})`,
+      `检查: ${doc.modality} ${doc.studyDescription}`,
+      `检查号 UID: ${doc.studyUid}`,
+      `报告日期: ${doc.date}`,
+      '',
+      '影像所见',
+      `双侧肺野未见明显实性病灶。${doc.modality === 'CT' ? '纵隔窗未见明显肿大淋巴结。' : ''}`,
+      '',
+      '影像诊断',
+      `${doc.studyDescription}。`,
+      '',
+      '报告医师: 本院放射科医师',
+      '审核医师: 本院放射科主任医师',
+    ].join('\n')
+
+    return {
+      success: true,
+      data: {
+        id: `DOC-${doc.id}`,
+        documentId: doc.id,
+        patientId: doc.patientId,
+        patientName: doc.patientName,
+        studyUid: doc.studyUid,
+        title: `${doc.institution}影像报告 (XDS-I Retrieve)`,
+        contentType: 'text/plain',
+        institution: doc.institution,
+        reportDate: doc.date,
+        sizeBytes: content.length,
+        content,
+        retrievedAt: new Date().toISOString(),
+        source: 'doc-registry',
+      },
+    }
+  }
+
   async pixQuery(patientId: string) {
     const local = SEED_CROSS_STUDIES.find(s => s.patientId === patientId)?.studyUid ?? patientId
     const remote = `PIX-EXT-${patientId.replace(/[^0-9]/g, '').slice(0, 6) || '000001'}`

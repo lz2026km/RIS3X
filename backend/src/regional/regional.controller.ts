@@ -53,6 +53,12 @@ export class RegionalController {
   @Get('imaging/document-registry')
   listDocumentRegistry() { return this.svc.listDocumentRegistry() }
 
+  // [G005 v3.0.6.16-0] XDS-I 文档调阅 Retrieve
+  // 此前该端点仅存在于 MSW (mock-only), real 模式 404 —— 医联体核心功能上线即挂。
+  // 注册在 listDocumentRegistry 之后、静态子路径之前不受影响 (路径段数不同, 无歧义)。
+  @Get('imaging/document-registry/:id/retrieve')
+  retrieveDocument(@Param('id') id: string) { return this.svc.retrieveDocument(id) }
+
   @Get('imaging/pix')
   pixQuery(@Query('patientId') patientId: string) { return this.svc.pixQuery(patientId) }
 

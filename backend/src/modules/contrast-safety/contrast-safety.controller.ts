@@ -122,4 +122,11 @@ export class ContrastSafetyController {
   ) {
     return this.svc.handleExtravasation(id, body ?? {})
   }
+
+  // [G005 v3.0.6.16-0] 对比剂质量与合规
+  // 此前该端点仅存在于 MSW (mock-only), real 模式 404, 而前端路由已开放。
+  @Get('quality-compliance')
+  qualityCompliance(@Query('start') start?: string, @Query('end') end?: string) {
+    return this.svc.qualityCompliance(start ?? '', end ?? '')
+  }
 }

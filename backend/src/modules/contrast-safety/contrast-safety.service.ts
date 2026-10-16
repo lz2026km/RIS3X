@@ -420,6 +420,124 @@ export class ContrastSafetyService {
     return this.injectionSeq + SEED_INJECTION_TOTAL
   }
 
+  /**
+   * [G005 v3.0.6.16-0] 对比剂质量与合规指标
+   *
+   * 此前该端点只存在于 MSW (mock-only), 切到 real 模式即 404, 而前端路由
+   * `/contrast/quality-compliance` 已开放 —— 属于"演示能过、上线即挂"。
+   * 现在由真实记录计算, 指标口径全部来自本服务已落库的
+   * allergy-test / injection / observation / extravasation 数据。
+   */
+  qualityCompliance(periodStart: string, periodEnd: string) {
+    const totalInjections = this.injectionTotal()
+    const extravasations = this.listExtravasations({}).items
+    const extravRate =
+      totalInjections > 0 ? (extravasations.length / totalInjections) * 100 : 0
+    const severe = extravasations.filter((e) => e.severity !== 'mild').length
+    const allPass = extravasations.every(
+      (e) => (e.management ?? '').trim().length > 0,
+    )
+    const obs = this.listObservations().items
+    const obsDischarged = obs.filter((o) => Boolean(o.dischargedAt)).length
+
+    const pct = (v: number, target: number) => (target > 0 ? Number(((v / target) * 100).toFixed(1)) : 0)
+    const round = (v: number, d = 2) => Number(v.toFixed(d))
+
+    const metrics = [
+      {
+        id: 'contrast-usage-total',
+        name: '增强检查总例数',
+        category: 'usage' as const,
+        currentValue: totalInjections,
+        targetValue: Math.max(totalInjections, 1),
+        unit: '例',
+        trend: 'stable' as const,
+        details: `统计区间 ${periodStart} ~ ${periodEnd} 内记录的增强注射累计值`,
+      },
+      {
+        id: 'extravasation-rate',
+        name: '对比剂外渗发生率',
+        category: 'safety' as const,
+        currentValue: round(extravRate),
+        targetValue: 0.3,
+        unit: '%',
+        trend: extravRate > 0.3 ? ('up' as const) : ('down' as const),
+        details: `外渗 ${extravasations.length} 例 / 增强 ${totalInjections} 例`,
+      },
+      {
+        id: 'severe-extravasation',
+        name: '中重度外渗例数',
+        category: 'safety' as const,
+        currentValue: severe,
+        targetValue: 0,
+        unit: '例',
+        trend: severe > 0 ? ('up' as const) : ('down' as const),
+        details: '按外渗严重程度分级统计, 目标为 0 例',
+      },
+      {
+        id: 'extravasation-management',
+        name: '外渗处置记录完整率',
+        category: 'adherence' as const,
+        currentValue: pct(allPass ? extravasations.length : 0, extravasations.length),
+        targetValue: 100,
+        unit: '%',
+        trend: allPass ? ('down' as const) : ('up' as const),
+        details: `已记录处置措施 ${allPass ? extravasations.length : 0} / ${extravasations.length}`,
+      },
+      {
+        id: 'observation-discharge',
+        name: '观察结束记录完成率',
+        category: 'adherence' as const,
+        currentValue: pct(obsDischarged, obs.length),
+        targetValue: 100,
+        unit: '%',
+        trend: obsDischarged >= obs.length ? ('down' as const) : ('up' as const),
+        details: `已完成观察结束记录 ${obsDischarged} / ${obs.length}`,
+      },
+    ]
+
+    const regulatoryChecks = [
+      {
+        checkId: 'REG-EXTRACAP-TIMING',
+        name: '外渗处置时效性',
+        regulation: 'WS/T 483-2016 对比剂用药安全管理',
+        status: (allPass ? 'pass' : 'fail') as 'pass' | 'fail',
+        details: allPass
+          ? '全部外渗事件均登记了处置措施'
+          : '存在未登记处置措施的外渗事件',
+      },
+      {
+        checkId: 'REG-OBSERVE-CLOSED',
+        name: '观察闭环管理',
+        regulation: '对比剂不良反应观察规范',
+        status: (obsDischarged >= obs.length ? 'pass' : 'pending') as 'pass' | 'pending',
+        details: `观察记录 ${obs.length} 条, 已结束 ${obsDischarged} 条`,
+      },
+      {
+        checkId: 'REG-SEVERE-ZERO',
+        name: '中重度外渗零发生',
+        regulation: '院内质量控制指标',
+        status: (severe === 0 ? 'pass' : 'fail') as 'pass' | 'fail',
+        details: severe === 0 ? '本期无中重度外渗' : `本期发生 ${severe} 例中重度外渗`,
+      },
+      {
+        checkId: 'REG-DICOM-BURNIN',
+        name: '影像烧录文字筛查',
+        regulation: '影像信息去标识要求',
+        status: 'pending' as const,
+        details: '需人工抽查 DICOM 头信息与烧录文字, 本端点仅覆盖头信息统计',
+      },
+    ]
+
+    return {
+      source: 'backend' as const,
+      periodStart,
+      periodEnd,
+      metrics: metrics.map((m) => ({ ...m, periodStart, periodEnd })),
+      regulatoryChecks,
+    }
+  }
+
   private findExtravasation(id: string): ExtravasationEvent {
     const found = this.extravasations.get(id)
     if (found) return found

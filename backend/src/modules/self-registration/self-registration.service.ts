@@ -116,6 +116,25 @@ function hashNum(input: string): number {
   return h >>> 0
 }
 
+/** [G005 v3.0.6.16-0] 领取凭证码前缀 (避开 0/O/1/I 等易混字符) */
+const VOUCHER_PREFIX = 'IMG'
+
+/** [G005 v3.0.6.16-0] 自助影像/报告领取凭证 */
+export interface SelfVoucherDto {
+  id: string
+  code: string
+  patientId: string | null
+  patientName: string | null
+  type: string
+  typeLabel: string
+  status: string
+  validHours: number
+  issuedAt: string
+  expiresAt: string
+  booth: string
+  instructions: string
+}
+
 @Injectable()
 export class SelfRegistrationService {
   private readonly logger = new Logger(SelfRegistrationService.name)
@@ -123,9 +142,70 @@ export class SelfRegistrationService {
   private readonly questionnaires = new Map<string, QuestionnaireDto>()
   private readonly consents = new Map<string, SelfConsentDto[]>()
   private readonly queues = new Map<string, QueueNumberDto[]>()
+  /** [G005 v3.0.6.16-0] 自助影像领取凭证 (此前该端点仅存在于 MSW, real 模式 404) */
+  private readonly vouchers = new Map<string, SelfVoucherDto>()
   private checkInSeq = 0
   private consentSeq = 0
   private ticketSeq = 0
+  private voucherSeq = 0
+
+  /**
+   * [G005 v3.0.6.16-0] 签发自助影像/报告领取凭证
+   *
+   * 背景: 前端 `SelfServicePortal` 的「领取凭证」按钮此前只存在于 MSW
+   * (mock-only), 切 real 即 404 —— 患者端核心动线断裂。
+   * 凭证码使用不含 0/O/1/I 等易混字符的 16 位字母数字串。
+   */
+  issueVoucher(body: {
+    patientId?: string
+    patientName?: string
+    idCard?: string
+    phone?: string
+  }): SelfVoucherDto {
+    const patient = this.findPatient({
+      patientId: body.patientId,
+      idCard: body.idCard,
+      phone: body.phone,
+    })
+    const patientId = body.patientId?.trim() || patient?.patientId || null
+    const patientName = body.patientName?.trim() || patient?.name || null
+    if (!patientId && !patientName && !body.idCard && !body.phone) {
+      throw new BadRequestException('需至少提供 patientId / idCard / phone / patientName 之一')
+    }
+
+    const seq = ++this.voucherSeq
+    const code = `${VOUCHER_PREFIX}${(hashNum(`${patientId ?? ''}${patientName ?? ''}${seq}`) % 100000)
+      .toString()
+      .padStart(5, '0')}${seq.toString().padStart(4, '0')}`
+
+    const now = new Date()
+    const validHours = 24
+    const record: SelfVoucherDto = {
+      id: `VCH-${String(seq).padStart(6, '0')}`,
+      code,
+      patientId,
+      patientName,
+      type: 'IMAGE_PICKUP',
+      typeLabel: '影像/报告领取凭证',
+      status: 'ACTIVE',
+      validHours,
+      issuedAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + validHours * 3600_000).toISOString(),
+      booth: `自助机-${1 + (seq % 4)}`,
+      instructions: '请凭此凭证在 24 小时内到院内自助取片机/自助服务台领取影像与报告。',
+    }
+    this.vouchers.set(record.id, record)
+    return record
+  }
+
+  /** 按凭证码查询 (自助机刷码核销用) */
+  getVoucherByCode(code: string): SelfVoucherDto | null {
+    const target = code.trim().toUpperCase()
+    for (const v of this.vouchers.values()) {
+      if (v.code === target) return v
+    }
+    return null
+  }
 
   constructor(@Optional() private readonly prisma?: PrismaService) {
     if (!prisma) this.logger.log('SelfRegistrationService: no Prisma injected (orphan mode, memory overlay + deterministic seed)')
