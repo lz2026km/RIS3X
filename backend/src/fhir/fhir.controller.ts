@@ -1,8 +1,9 @@
-﻿import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Res } from '@nestjs/common'
+﻿import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req, Res } from '@nestjs/common'
 import type { Response } from 'express'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { FhirService } from './fhir.service'
+import { FhirCapabilityService } from './fhir-capability.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { CreatePatientSchema, CreateSubscriptionSchema, UpdatePatientSchema } from './fhir.schema'
 import { z } from 'zod'
@@ -16,7 +17,26 @@ type CreateSubscriptionDto = z.infer<typeof CreateSubscriptionSchema>
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 export class FhirController {
-  constructor(private readonly service: FhirService) {}
+  constructor(
+    private readonly service: FhirService,
+    private readonly capability: FhirCapabilityService,
+  ) {}
+
+  // --- CapabilityStatement ---
+  // [G005 v3.0.6.16-0] 此前后端没有 metadata 端点, 前端硬编码了一份含
+  // `SMART: true` / `create` / `update` 的 CapabilityStatement 对客户超报能力。
+  // 现改为由实际路由推导, 并且 SMART 显式为 false。
+  @Get('metadata')
+  metadata(@Req() req?: { protocol?: string; get?: (k: string) => string | undefined }) {
+    const proto = req?.protocol ?? 'https'
+    const host = req?.get?.('host') ?? 'localhost'
+    const baseUrl = `${proto}://${host}`
+    return {
+      ...this.capability.capabilityStatement(baseUrl),
+      gaps: this.capability.gaps(),
+      supportedResourceTypes: this.capability.supportedResourceTypes(),
+    }
+  }
 
   // --- Patient ---
   @Get('Patient/:id')

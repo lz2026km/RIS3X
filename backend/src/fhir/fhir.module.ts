@@ -7,6 +7,7 @@ import { QueueModule } from '../queue/queue.module'
 import { NotificationsModule } from '../notifications/notifications.module'
 import { FhirController } from './fhir.controller'
 import { FhirService } from './fhir.service'
+import { FhirCapabilityService } from './fhir-capability.service'
 import { SmartAuthController } from './smart-auth.controller'
 import { SmartAuthService } from './smart-auth.service'
 
@@ -29,6 +30,6 @@ import { SmartAuthService } from './smart-auth.service'
     NotificationsModule,
   ],
   controllers: [FhirController, SmartAuthController],
-  providers: [FhirService, SmartAuthService],
+  providers: [FhirService, FhirCapabilityService, SmartAuthService],
 })
 export class FhirModule {}

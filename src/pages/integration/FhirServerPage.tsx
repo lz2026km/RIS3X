@@ -28,6 +28,9 @@ export const FhirServerPage: React.FC = () => {
   const [resources, setResources] = useState<any[]>([]);
   const [resourceType, setResourceType] = useState('Patient');
   const [capability, setCapability] = useState<any>(null);
+  // [G005 v3.0.6.16-0] 以下三项均由后端 /fhir/r4/metadata 真实下发
+  const [supportedTypes, setSupportedTypes] = useState<string[]>([]);
+  const [gaps, setGaps] = useState<Array<{ code: string; reason: string }>>([]);
   const [sendModal, setSendModal] = useState(false);
   const [fhirQuery, setFhirQuery] = useState('');
   const [queryResult, setQueryResult] = useState<any>(null);
@@ -39,17 +42,12 @@ export const FhirServerPage: React.FC = () => {
   const [newResourceBody, setNewResourceBody] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const demoRows = (type: string) => Array.from({ length: 5 }, (_, i) => ({
-    id: `demo-${i}`, resourceType: type,
-    name: [{ text: ['患者 A', '患者 B', '患者 C', '患者 D', '患者 E'][i] }],
-    gender: ['male', 'female'][i % 2],
-    birthDate: `197${i}-01-01`,
-  }));
-
-  // [G005 W7] 走 fhirApi / api client; 不可达时回退演示数据并展示「演示数据」徽标
+  // [G005 v3.0.6.16-0] 不再伪造资源数据: 后端查询失败即如实提示, 不展示编造行。
+  // 演示环境由 MSW 提供真实形状的数据; 生产环境失败就显示错误态。
   const loadResources = useCallback(async (type: string) => {
     setLoading(true);
     setLoadError(null);
+    setUsingDemo(false);
     try {
       let entries: { resource: any }[] | null = null;
       if (type === 'Patient') {
@@ -65,46 +63,39 @@ export const FhirServerPage: React.FC = () => {
         const res = await fhirApi.searchImagingStudy({ _count: '20' });
         entries = res.success ? (res.data?.entry ?? null) : null;
       } else {
-        // Practitioner / Bundle 等无专用 api 方法 → 走通用 client (MSW 兜底)
+        // Subscription / Bundle 走通用 client
         const res = await api.get<{ entry?: { resource: any }[] }>(`/fhir/r4/${type}`);
         entries = res.success ? (res.data?.entry ?? null) : null;
       }
-      if (entries && entries.length > 0) {
-        setResources(entries.map((e) => e.resource));
-        setUsingDemo(false);
-      } else {
-        setResources(demoRows(type));
-        setUsingDemo(true);
-      }
+      setResources((entries ?? []).map((e) => e.resource));
     } catch {
-      setResources(demoRows(type));
-      setUsingDemo(true);
-      setLoadError(t('w7demo.loadError'));
+      setResources([]);
+      setLoadError(t('fhirServer.queryNotConfigured'));
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    // [W3-C] CapabilityStatement 为静态声明文档 (对齐 FHIR R4 规范, 后端未提供 /fhir/metadata 端点)
-    setCapability({
-      fhirVersion: '4.0.1',
-      status: 'active',
-      publisher: 'G005 Radiology RIS',
-      static: true,
-      rest: [{
-        mode: 'server',
-        resource: [
-          { type: 'Patient', profile: 'http://hl7.org/fhir/StructureDefinition/Patient' },
-          { type: 'Observation', profile: 'http://hl7.org/fhir/StructureDefinition/Observation' },
-          { type: 'DiagnosticReport', profile: 'http://hl7.org/fhir/R4/DiagnosticReport' },
-          { type: 'Practitioner', profile: 'http://hl7.org/fhir/StructureDefinition/Practitioner' },
-          { type: 'ImagingStudy', profile: 'http://hl7.org/fhir/StructureDefinition/ImagingStudy' },
-        ],
-        security: { cors: true, tokenEndpoint: '/oauth2/token', SMART: true },
-        interaction: ['read', 'search-type', 'create', 'update'],
-      }],
-    });
+    // [v3.0.6.16-0] CapabilityStatement 改为从后端 /fhir/r4/metadata 真实读取。
+    // 旧实现硬编码了一份声明 (含并不存在的 tokenEndpoint: '/oauth2/token'),
+    // 后端当时根本没有 metadata 端点 —— 属于对客户的虚假能力声明。
+    void (async () => {
+      try {
+        const res = await api.get<any>('/fhir/r4/metadata');
+        if (res.success && res.data?.resourceType === 'CapabilityStatement') {
+          setCapability(res.data);
+          setSupportedTypes(res.data.supportedResourceTypes ?? []);
+          setGaps(res.data.gaps ?? []);
+        } else {
+          setCapability(null);
+          setLoadError(t('fhirServer.metadataUnavailable'));
+        }
+      } catch {
+        setCapability(null);
+        setLoadError(t('fhirServer.metadataUnavailable'));
+      }
+    })();
     void loadResources('Patient');
   }, [loadResources]);
 
@@ -118,12 +109,15 @@ export const FhirServerPage: React.FC = () => {
         throw new Error('QUERY_FAILED');
       }
     } catch {
+      // [v3.0.6.16-0] 旧实现在此伪造 3 条"查询结果 1/2/3" 展示给用户。
+      // 现改为如实提示, 不展示任何编造数据。
       message.warning(t('fhirServer.queryNotConfigured'));
-      setQueryResult({ entry: Array.from({ length: 3 }, (_, i) => ({ resource: { id: `q-${i}`, resourceType, name: `查询结果 ${i + 1}` } })) });
+      setQueryResult(null);
     }
   };
 
-  const resourceTypes = ['Patient', 'Observation', 'DiagnosticReport', 'Practitioner', 'ImagingStudy', 'Bundle'];
+  // [v3.0.6.16-0] 资源类型仅取后端 metadata 声明支持的; 未取到时不渲染下拉, 避免展示不可用类型
+  const resourceTypes = supportedTypes.length > 0 ? supportedTypes : ['Patient'];
 
   // [G005] 创建 FHIR 资源: 解析 JSON 请求体 → POST /fhir/r4/{type} (fhirApi.createResource)
   const handleCreateResource = async () => {
@@ -179,17 +173,36 @@ export const FhirServerPage: React.FC = () => {
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
           { key:'capability', label:t('fhirServer.tabCapability'), children:
-            capability ? <Card size="small" title={<Space>{t('fhirServer.capabilityTitle', { version: capability.fhirVersion })} <Tag color="orange">{t('fhirServer.staticDeclaration')}</Tag></Space>}>
+            capability ? <Card size="small" title={<Space>{t('fhirServer.capabilityTitle', { version: capability.fhirVersion })} <Tag color="blue">{t('fhirServer.liveDeclaration')}</Tag></Space>}>
               <Descriptions column={2} size="small">
                 <Descriptions.Item label={t('fhirServer.status')}><Tag color="green">{({active: t('w9e.fhirServer.statusActive'), draft: t('w9e.fhirServer.statusDraft'), retired: t('w9e.fhirServer.statusRetired')} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label={t('fhirServer.publisher')}>{capability.publisher}</Descriptions.Item>
-                <Descriptions.Item label={t('fhirServer.interaction')}>{capability.rest?.[0]?.interaction?.join(', ') ?? '-'}</Descriptions.Item>
-                <Descriptions.Item label={t('fhirServer.security')}>{capability.rest?.[0]?.security?.cors ? t('fhirServer.corsSmart') : t('fhirServer.none')}</Descriptions.Item>
+                <Descriptions.Item label={t('fhirServer.interaction')}>{(capability.rest?.[0]?.interaction ?? []).map((i:any)=>i.code).join(', ') || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('fhirServer.security')}>{(capability.rest?.[0]?.security?.service ?? []).map((s:any)=>s.coding?.[0]?.code).join(', ') || t('fhirServer.none')}</Descriptions.Item>
               </Descriptions>
               <div style={{fontWeight:600,marginTop:'var(--space-3, 12px)',marginBottom:'var(--space-1, 4px)'}}>{t('fhirServer.resourceTypes')}</div>
-              {(capability.rest?.[0]?.resource ?? []).map((r: any) => <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>)}
+              {(capability.rest?.[0]?.resource ?? []).map((r: any) => (
+                <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>
+              ))}
+              {/* [v3.0.6.16-0] 诚实的能力缺口清单: 由后端下发, 不隐藏未实现项 */}
+              {gaps.length > 0 && (
+                <>
+                  <div style={{fontWeight:600,marginTop:'var(--space-3, 12px)',marginBottom:'var(--space-1, 4px)'}}>{t('fhirServer.capabilityGaps')}</div>
+                  <DataTable
+                    dataSource={gaps}
+                    rowKey="code"
+                    pagination={false}
+                    showExport={false}
+                    showDensity={false}
+                    columns={[
+                      { title: t('fhirServer.colCapability'), dataIndex: 'code', width: 220 },
+                      { title: t('fhirServer.colGapReason'), dataIndex: 'reason' },
+                    ]}
+                  />
+                </>
+              )}
               <Alert type="info" showIcon style={{ marginTop: 'var(--space-3, 12px)' }} message={t('fhirServer.capabilityAlert')} />
-            </Card> : null
+            </Card> : <Card size="small"><Alert type="warning" showIcon message={t('fhirServer.metadataUnavailable')} description={t('fhirServer.metadataUnavailableDesc')} /></Card>
           },
           { key:'browse', label:t('fhirServer.tabBrowse'), children:
             <Card size="small" extra={

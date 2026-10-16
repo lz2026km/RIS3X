@@ -479,6 +479,57 @@ const bundle = (entries: any[]) => ({
   entry: entries.map((e) => ({ resource: e, fullUrl: `${API}/${e.resourceType}/${e.id}` })),
 });
 
+/** [v3.0.6.16-0] 后端 fhir.controller.ts 真实支持的资源类型 (不多报一个) */
+const SUPPORTED_TYPES = ["Patient", "Observation", "DiagnosticReport", "ImagingStudy", "Subscription", "Bundle"];
+
+/** 与后端 fhir-capability.service.ts 同源的演示态 CapabilityStatement (含诚实的能力缺口) */
+function capabilityStatement() {
+  const resource = [
+    {
+      type: "Patient",
+      interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }, { code: "create" }, { code: "update" }, { code: "delete" }],
+    },
+    { type: "Observation", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }] },
+    { type: "DiagnosticReport", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }] },
+    { type: "ImagingStudy", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }] },
+    { type: "Subscription", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }, { code: "create" }, { code: "delete" }] },
+    { type: "Bundle", interaction: [{ code: "read" }] },
+  ];
+  const interaction = Array.from(new Set(resource.flatMap((r) => r.interaction.map((i: any) => i.code)))).map((code) => ({ code }));
+  return {
+    resourceType: "CapabilityStatement",
+    id: "g005-ris-fhir-r4",
+    status: "active",
+    date: new Date().toISOString(),
+    publisher: "G005 Radiology RIS",
+    kind: "instance",
+    fhirVersion: "4.0.1",
+    format: ["application/fhir+json", "json"],
+    rest: [
+      {
+        mode: "server",
+        security: {
+          cors: true,
+          service: [{ coding: [{ system: "http://terminology.hl7.org/CodeSystem/restful-security-service", code: "SMART on FHIR" }] }],
+        },
+        resource,
+        interaction,
+      },
+    ],
+    supportedResourceTypes: SUPPORTED_TYPES,
+    gaps: [
+      { code: "transaction", reason: "批量事务未实现" },
+      { code: "batch", reason: "批量事务未实现" },
+      { code: "conditional-create", reason: "条件创建未实现" },
+      { code: "conditional-update", reason: "条件更新未实现" },
+      { code: "conditional-delete", reason: "条件删除未实现" },
+      { code: "patch", reason: "PATCH 未实现" },
+      { code: "Practitioner 资源", reason: "未实现 (前端资源类型下拉中不应出现该选项)" },
+      { code: "Bundle 写事务", reason: "仅支持只读 Bundle, 不支持 transaction/batch 写入" },
+    ],
+  };
+}
+
 const ensureSeeded = (key: string, seed: any[]) => {
   try {
     const existing = list<any>(key as any);
@@ -737,10 +788,21 @@ export const fhirHandlers = [
     return HttpResponse.json({ success: true, data: { success: true } });
   }),
 
+  // [v3.0.6.16-0] 无 /r4 前缀的 CapabilityStatement —— 必须注册在 `${API_NO_R4}/:type`
+  // 之前, 否则会被通配路由当成"名为 metadata 的资源类型"吞掉。
+  http.get(`${API_NO_R4}/metadata`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(capabilityStatement());
+  }),
+
   // [W2-B-3] 无 /r4 前缀的资源浏览 (FhirServerPage raw fetch, 直接返回 Bundle 本体)
   http.get(`${API_NO_R4}/:type`, async ({ params, request }) => {
     await delay(delayMs());
     const type = String(params.type ?? "Patient");
+    // 未实现的资源类型返回空 Bundle, 而不是编造数据
+    if (!SUPPORTED_TYPES.includes(type)) {
+      return HttpResponse.json(bundle([]));
+    }
     const items = genericResourceItems(type);
     const sp = urlParams(request);
     const name = sp.get("name")?.toLowerCase();
@@ -750,8 +812,15 @@ export const fhirHandlers = [
   }),
   http.post(`${API_NO_R4}/:type`, async ({ params, request }) => {
     await delay(delayMs());
-    const body = (await request.json().catch(() => ({}))) as any;
     const type = String(params.type ?? "Patient");
+    // 仅 Patient 支持创建 (与后端 fhir.controller.ts 一致)
+    if (type !== "Patient") {
+      return HttpResponse.json(
+        { resourceType: "OperationOutcome", issue: [{ severity: "error", code: "not-supported", details: { text: `${type} create not supported` } }] },
+        { status: 400 },
+      );
+    }
+    const body = (await request.json().catch(() => ({}))) as any;
     const resource = { resourceType: type, id: uuidv4(), ...body };
     return HttpResponse.json(resource, { status: 201 });
   }),
