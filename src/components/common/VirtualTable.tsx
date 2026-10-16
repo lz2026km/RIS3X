@@ -8,6 +8,8 @@
 import { Table } from "antd";
 import type { TableColumnsType, TablePaginationConfig } from "antd";
 import type { ReactNode } from "react";
+import { useMemo } from "react";
+import { normalizeColumnWidths, applyDefaultEllipsis } from "./DataTable";
 import "../../styles/data-table.css";
 
 export interface VirtualTableProps<RecordType extends object> {
@@ -57,20 +59,38 @@ export function VirtualTable<RecordType extends object>({
       }
     : false;
 
+  // [v3.0.6.16-0] 接入列宽归一: 此前 VirtualTable 完全不调用 normalizeColumnWidths
+  // 也不设 tableLayout, 7 个调用点的表格游离在统一规范之外 (无紧凑密度 / 无
+  // 列宽分层 / 可被 scroll.x 压扁)。现与 DataTable 共用同一归一算法。
+  const normalized = useMemo(
+    () => normalizeColumnWidths(columns, typeof width === 'number' ? width : 1200),
+    [columns, width],
+  );
+  const finalColumns = useMemo(
+    () => applyDefaultEllipsis(normalized.columns, true),
+    [normalized.columns],
+  );
+  const resolvedX = useMemo(() => {
+    const declared = width === '100%' ? undefined : width;
+    if (normalized.totalWidth > 0 && declared === undefined) return normalized.totalWidth;
+    return declared as number | string | undefined;
+  }, [width, normalized.totalWidth]);
+
   return (
-    <div className="data-table virtual-table" style={{ width: "100%" }}>
+    <div className="data-table virtual-table" style={{ width: '100%' }}>
       <Table<RecordType>
         rowKey={rowKey}
-        columns={columns}
+        columns={finalColumns}
         dataSource={dataSource}
         rowSelection={rowSelection}
         loading={loading}
         onRow={onRow}
         pagination={pagination}
         locale={emptyText ? { emptyText } : undefined}
-        scroll={{ y: height, x: width === "100%" ? undefined : width }}
+        scroll={{ y: height, x: resolvedX }}
+        tableLayout="fixed"
         size="small"
-        style={{ width: "100%" }}
+        style={{ width: '100%' }}
       />
     </div>
   );
