@@ -29,6 +29,8 @@ import { Bell, FileText, Plus, RefreshCw, CalendarClock } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
+import { AppSelectField } from "../../components/common/AppSelectField"
+import { DICT_CATEGORY } from "../../hooks/useDict"
 import {
   wechatApi, paymentApi, notificationChannelApi, satisfactionApi, selfRegistrationApi,
 } from '../../services/api/w12PatientApi'
@@ -839,8 +841,14 @@ export default function PatientServiceCenterPage() {
               </Form.Item>
             </Col>
             <Col span={12}>
+              {/* [v3.0.6.16-0] 设备/部位由自由输入改为字典下拉 (支持拼音搜索)。
+                  原实现手输 "CT-01" / "胸部", 拼写不一致直接导致查询落空。 */}
               <Form.Item name="deviceName" label="检查设备">
-                <Input placeholder="如 CT-01" />
+                <AppSelectField
+                  allowClear
+                  placeholder="选择检查设备"
+                  dictCategory={DICT_CATEGORY.deviceType}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -854,7 +862,11 @@ export default function PatientServiceCenterPage() {
             </Col>
             <Col span={8}>
               <Form.Item name="bodyPart" label="检查部位">
-                <Input placeholder="如 胸部" />
+                <AppSelectField
+                  allowClear
+                  placeholder="选择检查部位"
+                  dictCategory={DICT_CATEGORY.bodyPart}
+                />
               </Form.Item>
             </Col>
           </Row>

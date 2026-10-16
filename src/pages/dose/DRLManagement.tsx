@@ -11,6 +11,7 @@ import {
 } from "antd";
 import { rdsrApi, type DrlEntry, type DoseAlert, type DrlCheckRecordInput, type DrlCheckResult } from "../../services/api/rdsrApi";
 import { criticalAlertApi } from "../../services/api/criticalAlertApi";
+import { DRL_MODALITY_OPTIONS } from "../../constants/drlModality";
 import { drlRecords } from "./mockData";
 import type { DRLRecord } from "./types";
 import { usePagination } from "../../hooks/usePagination";
@@ -345,7 +346,16 @@ export default function DRLManagement() {
         {checkDrafts.map((d) => (
           <div key={d.key} style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', flexWrap: "wrap", alignItems: "center" }}>
             <Input placeholder={t('drl.patientNamePlaceholder')} value={d.patientName} onChange={(e) => patchDraft(d.key, { patientName: e.target.value })} style={{ width: 120 }} />
-            <Select value={d.modality} onChange={(v) => patchDraft(d.key, { modality: v })} options={[{ value: "CT", label: "CT" }, { value: "MR", label: "MR" }]} style={{ width: 80 }} />
+            {/* [v3.0.6.16-0] 原实现仅支持 CT/MR, 而诊断参考水平(DRL)本身正是为
+                X 线建立的 —— DR/MG/US/DSA 患者无法录入。改用统一模态单一口径。 */}
+            <Select
+              showSearch
+              optionFilterProp="label"
+              value={d.modality}
+              onChange={(v) => patchDraft(d.key, { modality: v })}
+              options={DRL_MODALITY_OPTIONS}
+              style={{ width: 110 }}
+            />
             <Select value={d.bodyPart} onChange={(v) => patchDraft(d.key, { bodyPart: v })} options={BODY_PARTS.map((b) => ({ value: b, label: BODY_PART_KEYS[b] ? t(BODY_PART_KEYS[b]) : b }))} style={{ width: 90 }} />
             <InputNumber addonBefore="CTDIvol" placeholder="mGy" value={d.ctdivol} onChange={(v) => patchDraft(d.key, { ctdivol: v ?? undefined })} style={{ width: 160 }} />
             <InputNumber addonBefore="DLP" placeholder="mGy·cm" value={d.dlp} onChange={(v) => patchDraft(d.key, { dlp: v ?? undefined })} style={{ width: 180 }} />

@@ -70,6 +70,8 @@ import {
   type QcFrequency,
 } from '../../services/api/qualityScoringCenterApi'
 import { reportQcV2Api, type QcTask, type QcTaskStatus } from '../../services/api/reportQcV2Api'
+import { deviceApi } from '../../services/api/deviceApi'
+import { MODALITY_OPTIONS } from '../../constants/modality'
 import { t } from '../../i18n/appI18n'
 import { severityColor, severityToAntd, toneToAntd } from '../../theme/statusTokens'
 
@@ -250,14 +252,27 @@ function RubricTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo' | 
         <Form form={form} layout="vertical" size="small">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
             <Form.Item name="reportId" label={t('w9Qc.rubric.reportId')}><Input placeholder="RPT-QC-DEMO" /></Form.Item>
-            <Form.Item name="modality" label={t('w9Qc.rubric.modality')}><Input placeholder="CT" /></Form.Item>
+            {/* [v3.0.6.16-0] 模态由自由输入改为下拉 (单一真源 constants/modality) */}
+            <Form.Item name="modality" label={t('w9Qc.rubric.modality')}>
+              <Select allowClear placeholder={t('w9Qc.sampling.modality')} options={MODALITY_OPTIONS} />
+            </Form.Item>
             <Form.Item name="structuredFieldsComplete" label={t('w9Qc.rubric.structured')}><InputNumber min={0} max={1} step={0.05} style={{ width: '100%' }} /></Form.Item>
             <Form.Item name="onTimeRate" label={t('w9Qc.rubric.onTimeRate')}><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item>
             <Form.Item name="findings" label={t('w9Qc.rubric.findings')} style={{ gridColumn: 'span 4' }}><Input.TextArea rows={2} /></Form.Item>
             <Form.Item name="impression" label={t('w9Qc.rubric.impression')} style={{ gridColumn: 'span 4' }}><Input.TextArea rows={2} /></Form.Item>
             <Form.Item name="diagnosis" label={t('w9Qc.rubric.diagnosis')} style={{ gridColumn: 'span 2' }}><Input /></Form.Item>
             <Form.Item name="recommendation" label={t('w9Qc.rubric.recommendation')} style={{ gridColumn: 'span 2' }}><Input /></Form.Item>
-            <Form.Item name="priority" label={t('w9Qc.rubric.priority')}><Select options={[{ value: 'stat' }, { value: 'urgent' }, { value: 'routine' }]} /></Form.Item>
+            {/* [v3.0.6.16-0] 原 options 只有 value 没有 label, antd 直接显示英文
+                stat/urgent/routine; 现补中文标签。 */}
+            <Form.Item name="priority" label={t('w9Qc.rubric.priority')}>
+              <Select
+                options={[
+                  { value: 'stat', label: t('w9Qc.rubric.priorityStat') },
+                  { value: 'urgent', label: t('w9Qc.rubric.priorityUrgent') },
+                  { value: 'routine', label: t('w9Qc.rubric.priorityRoutine') },
+                ]}
+              />
+            </Form.Item>
             <Form.Item name="signed" label={t('w9Qc.rubric.signed')}><Select options={[{ value: true, label: t('w9Qc.yes') }, { value: false, label: t('w9Qc.no') }]} /></Form.Item>
             <Form.Item name="hasReviewerSignature" label={t('w9Qc.rubric.reviewerSig')}><Select options={[{ value: true, label: t('w9Qc.yes') }, { value: false, label: t('w9Qc.no') }]} /></Form.Item>
             <Form.Item name="leftRightOk" label={t('w9Qc.rubric.leftRight')}><Select options={[{ value: true, label: t('w9Qc.yes') }, { value: false, label: t('w9Qc.no') }]} /></Form.Item>
@@ -833,7 +848,7 @@ function SamplingTab() {
           <Form.Item name="name" label={t('w9Qc.sampling.batch')}><Input placeholder="2026-08 QC 抽查" /></Form.Item>
           <Form.Item name="method" label={t('w9Qc.sampling.method')} initialValue="random"><Select options={[{ value: 'random', label: METHOD_LABELS.random }, { value: 'low_yield', label: METHOD_LABELS.low_yield }, { value: 'stratified', label: METHOD_LABELS.stratified }]} /></Form.Item>
           <Form.Item name="size" label={t('w9Qc.sampling.size')} initialValue={20}><InputNumber min={1} max={100} style={{ width: '100%' }} /></Form.Item>
-          <Form.Item name="modality" label={t('w9Qc.sampling.modality')}><Select allowClear options={['CT', 'MR', 'DR', 'MG'].map((v) => ({ value: v }))} /></Form.Item>
+          <Form.Item name="modality" label={t('w9Qc.sampling.modality')}><Select allowClear options={MODALITY_OPTIONS} /></Form.Item>
           <Form.Item name="blind" label={t('w9Qc.sampling.blind')} initialValue={true}><Radio.Group options={[{ value: true, label: t('w9Qc.sampling.blindOn') }, { value: false, label: t('w9Qc.sampling.blindOff') }]} /></Form.Item>
         </Form>
       </Modal>
@@ -1048,6 +1063,31 @@ function EquipmentTab() {
   const [itemDetail, setItemDetail] = useState<PhantomTestItem | null>(null)
   const [itemDetailOpen, setItemDetailOpen] = useState(false)
   const [itemDetailLoading, setItemDetailLoading] = useState(false)
+  // [v3.0.6.16-0] 设备改为真实下拉 (此前是自由输入 "DEV-CT-01", 打错即无法保存)
+  const [deviceOptions, setDeviceOptions] = useState<Array<{ value: string; label: string }>>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await deviceApi.list({ take: 200 })
+        const list = Array.isArray(res?.data) ? res.data : []
+        if (cancelled) return
+        setDeviceOptions(
+          list.map((d) => ({
+            value: d.id,
+            label: `${d.code ?? d.id}${d.name ? ` · ${d.name}` : ''}${d.modality ? ` (${d.modality})` : ''}`,
+          })),
+        )
+      } catch {
+        // 设备清单拉取失败时保持空列表, 由 Select 的空态提示, 不伪造设备
+        if (!cancelled) setDeviceOptions([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const openItemDetail = async (id: string) => {
     setItemDetailOpen(true)
@@ -1136,8 +1176,9 @@ function EquipmentTab() {
 
       <Modal title={t('w9Qc.equipment.record')} open={recordOpen} onOk={createRecord} confirmLoading={recordSaving} onCancel={() => setRecordOpen(false)} okText={t('w9Qc.save')}>
         <Form form={form} layout="vertical">
-          <Form.Item name="modality" label={t('w9Qc.equipment.modality')} initialValue="CT" rules={[{ required: true }]}><Select options={(['CT', 'DR', 'MRI', 'MG'] as EquipmentModality[]).map((v) => ({ value: v }))} /></Form.Item>
-          <Form.Item name="deviceId" label={t('w9Qc.equipment.device')} rules={[{ required: true }]}><Input placeholder="DEV-CT-01" /></Form.Item>
+          <Form.Item name="modality" label={t('w9Qc.equipment.modality')} initialValue="CT" rules={[{ required: true }]}><Select options={MODALITY_OPTIONS} /></Form.Item>
+          {/* [v3.0.6.16-0] 设备 ID 由自由输入改为下拉 (此前"DEV-CT-01" 打错即无法保存) */}
+          <Form.Item name="deviceId" label={t('w9Qc.equipment.device')} rules={[{ required: true }]}><Select allowClear showSearch optionFilterProp="label" placeholder={t('w9Qc.equipment.device')} options={deviceOptions} /></Form.Item>
           <Form.Item name="testItemId" label={t('w9Qc.equipment.item')} rules={[{ required: true }]}><Select options={items.map((i) => ({ value: i.id, label: `${i.id} ${i.name}` }))} showSearch optionFilterProp="label" /></Form.Item>
           <Form.Item name="value" label={t('w9Qc.equipment.value')} rules={[{ required: true }]}><InputNumber style={{ width: '100%' }} /></Form.Item>
           <Form.Item name="testerName" label={t('w9Qc.equipment.tester')} initialValue="王技师"><Input /></Form.Item>

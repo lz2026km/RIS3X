@@ -9,6 +9,8 @@ import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 import { mwlApi, type MwlItemState, type MwlWorklistItemDto } from '../../services/api/execApi'
+import { pacsAdminApi } from '../../services/api/pacsAdminApi'
+import { MODALITY_OPTIONS } from '../../constants/modality'
 
 const STATE_COLOR: Record<string, string> = {
   SCHEDULED: 'blue',
@@ -40,6 +42,34 @@ export default function MwlManagerPage() {
     date: '',
     patientName: '',
   })
+
+  // [v3.0.6.16-0] 真实 PACS 节点 (AE Title) 来源, 替换硬编码站点列表
+  const [nodesLoading, setNodesLoading] = useState(false)
+  const [stationOptions, setStationOptions] = useState<Array<{ value: string; label: string }>>([])
+
+  useEffect(() => {
+    let cancelled = false
+    setNodesLoading(true)
+    void (async () => {
+      try {
+        const res = await pacsAdminApi.listNodes()
+        const list = Array.isArray(res?.data) ? res.data : []
+        if (cancelled) return
+        setStationOptions(
+          list
+            .filter((n) => Boolean(n.aeTitle))
+            .map((n) => ({ value: n.aeTitle, label: `${n.aeTitle} · ${n.name}` })),
+        )
+      } catch {
+        if (!cancelled) setStationOptions([])
+      } finally {
+        if (!cancelled) setNodesLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const fetchItems = useCallback(async () => {
     setLoading(true)
@@ -125,17 +155,23 @@ export default function MwlManagerPage() {
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '12px 16px', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* [v3.0.6.16-0] 站点下拉改为真实 PACS 节点 AE Title。
+              原实现硬编码 5 个并不存在的 AE Title (CT_SCANNER_01 等),
+              与本页拉取的真实 MWL 数据永不相交 —— 筛选功能实际不可用。 */}
           <Select
-            size="small" style={{ width: 160 }} placeholder={t('w7exec.queryStation')} allowClear
+            size="small" style={{ width: 200 }} placeholder={t('w7exec.queryStation')} allowClear
+            showSearch optionFilterProp="label"
             value={filters.stationAE || undefined}
             onChange={(v) => setFilters((f) => ({ ...f, stationAE: v ?? '' }))}
-            options={['CT_SCANNER_01', 'MR_SCANNER_02', 'DR_ROOM_01', 'US_UNIT_01', 'MG_UNIT_01'].map((s) => ({ value: s, label: s }))}
+            loading={nodesLoading}
+            notFoundContent={nodesLoading ? undefined : t('w7exec.noStations')}
+            options={stationOptions}
           />
           <Select
             size="small" style={{ width: 110 }} placeholder={t('w7exec.queryModality')} allowClear
             value={filters.modality || undefined}
             onChange={(v) => setFilters((f) => ({ ...f, modality: v ?? '' }))}
-            options={['CT', 'MR', 'DR', 'US', 'MG'].map((m) => ({ value: m, label: m }))}
+            options={MODALITY_OPTIONS}
           />
           <Input size="small" style={{ width: 150 }} type="date" value={filters.date} onChange={(e) => setFilters((f) => ({ ...f, date: e.target.value }))} />
           <Input size="small" style={{ width: 150 }} placeholder={t('w7exec.queryPatient')} value={filters.patientName} onChange={(e) => setFilters((f) => ({ ...f, patientName: e.target.value }))} />
