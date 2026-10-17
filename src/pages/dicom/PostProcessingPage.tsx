@@ -1,9 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { DataSourceBadge } from '../../components/common/DataSourceBadge';
-import { Card, Row, Col, Slider, Tag, Button } from 'antd'
+import { Card, Row, Col, Slider, Tag, Button, Select, Alert, message } from 'antd'
+import { DataTable } from '../../components/common/DataTable'
 import { Layers, Save, Download } from 'lucide-react'
 import { seededUnit } from '../../utils/seededRandom'
 import { t } from '../../i18n/appI18n'
+import {
+  dicomCompressApi,
+  type CompressInstance,
+  type DicomCompressTask,
+  type DicomCompressStats,
+} from '../../services/api/dicomCompressApi'
 
 const BLUE = 'var(--color-primary-500)'
 const CARD_BG = '#0f172a'
@@ -53,6 +60,70 @@ const PostProcessingPage: React.FC = () => {
   const [processing, setProcessing] = useState(false)
   const [history, setHistory] = useState<string[]>([])
   const [sliceStats, setSliceStats] = useState<{ mean: number; sigma: number } | null>(null)
+
+  // [v3.0.6.16-5] 真实后端压缩后处理 (dicom/compress): 实例 / 语法 / 任务 / 统计
+  const [instances, setInstances] = useState<CompressInstance[]>([])
+  const [syntaxes, setSyntaxes] = useState<Array<{ uid: string; name: string; lossy: boolean }>>([])
+  const [tasks, setTasks] = useState<DicomCompressTask[]>([])
+  const [compressStats, setCompressStats] = useState<DicomCompressStats | null>(null)
+  const [selectedInstance, setSelectedInstance] = useState<string | undefined>(undefined)
+  const [selectedSyntax, setSelectedSyntax] = useState<string | undefined>(undefined)
+  const [transcoding, setTranscoding] = useState(false)
+  const [compressError, setCompressError] = useState<string | null>(null)
+  const [compressLoading, setCompressLoading] = useState(false)
+
+  const loadCompressData = React.useCallback(async () => {
+    setCompressLoading(true)
+    setCompressError(null)
+    try {
+      const [inst, syn, tsk, st] = await Promise.all([
+        dicomCompressApi.listInstances(),
+        dicomCompressApi.getSyntaxes(),
+        dicomCompressApi.listTasks({ page: 1, pageSize: 10 }),
+        dicomCompressApi.getStats(),
+      ])
+      setInstances(Array.isArray(inst?.data) ? inst.data : [])
+      setSyntaxes(Array.isArray(syn?.data) ? syn.data : [])
+      const tskData = tsk?.data as unknown
+      const list = Array.isArray(tskData)
+        ? (tskData as DicomCompressTask[])
+        : ((tskData as { items?: DicomCompressTask[] })?.items ?? [])
+      setTasks(list)
+      setCompressStats((st?.data as DicomCompressStats) ?? null)
+    } catch (e) {
+      setCompressError((e as Error)?.message ?? t('w9d.postproc.compress.loadFailed'))
+    } finally {
+      setCompressLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadCompressData()
+  }, [loadCompressData])
+
+  const handleTranscode = async () => {
+    if (!selectedInstance || !selectedSyntax) {
+      message.warning(t('w9d.postproc.compress.needSelection'))
+      return
+    }
+    setTranscoding(true)
+    try {
+      const res = await dicomCompressApi.transcode({
+        fileId: selectedInstance,
+        targetSyntax: selectedSyntax,
+      })
+      if (res.success) {
+        message.success(t('w9d.postproc.compress.taskCreated'))
+        await loadCompressData()
+      } else {
+        message.error(res.error?.message ?? t('w9d.postproc.compress.taskFailed'))
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? t('w9d.postproc.compress.taskFailed'))
+    } finally {
+      setTranscoding(false)
+    }
+  }
 
   const renderFrame = (type: ProcessingType, intensityVal: number) => {
     const canvas = canvasRef.current
@@ -116,9 +187,9 @@ const PostProcessingPage: React.FC = () => {
 
   return (
     <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
-    {/* [v3.0.6.16-3] 后处理结果为浏览器端合成像素, 未接 dicom/compress 后端 */}
+    {/* [v3.0.6.16-5] 上方像素滤波为本地计算, 下方压缩任务接真实 dicom/compress 后端 */}
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
-      <DataSourceBadge kind="concept" />
+      <DataSourceBadge kind="hybrid" />
     </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Layers size={18} color={BLUE} />
@@ -167,6 +238,89 @@ const PostProcessingPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* [v3.0.6.16-5] 真实后端压缩后处理 (dicom/compress):
+          上方为浏览器端像素滤波预览 (本地计算), 下方为真实压缩/转码任务 (后端)。 */}
+      <Card
+        size="small"
+        title={t('w9d.postproc.compress.title')}
+        style={{ marginTop: 'var(--space-3, 12px)', background: PANEL_BG, border: '1px solid #334155' }}
+        extra={
+          <Button size="small" loading={compressLoading} onClick={() => void loadCompressData()}>
+            {t('w9d.postproc.compress.refresh')}
+          </Button>
+        }
+      >
+        {compressError && (
+          <Alert type="warning" showIcon style={{ marginBottom: 'var(--space-2, 8px)' }}
+            message={t('w9d.postproc.compress.loadFailed')} description={compressError} />
+        )}
+        {compressStats && (
+          <div style={{ marginBottom: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
+            {t('w9d.postproc.compress.stats', {
+              tasks: compressStats.totalTasks ?? 0,
+              ratio: compressStats.avgRatio != null ? compressStats.avgRatio.toFixed(2) : '-',
+              saved: Math.round((compressStats.totalSavedBytes ?? 0) / 1024),
+            })}
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
+          <Select
+            size="small"
+            style={{ minWidth: 320 }}
+            placeholder={t('w9d.postproc.compress.pickInstance')}
+            value={selectedInstance}
+            onChange={setSelectedInstance}
+            showSearch
+            optionFilterProp="label"
+            loading={compressLoading}
+            options={instances.map((i) => ({
+              value: i.fileId,
+              label: `${i.fileName} · ${i.modality} · ${i.patientName}`,
+            }))}
+          />
+          <Select
+            size="small"
+            style={{ minWidth: 280 }}
+            placeholder={t('w9d.postproc.compress.pickSyntax')}
+            value={selectedSyntax}
+            onChange={setSelectedSyntax}
+            showSearch
+            optionFilterProp="label"
+            options={syntaxes.map((s) => ({
+              value: s.uid,
+              label: `${s.name}${s.lossy ? ' (lossy)' : ' (lossless)'}`,
+            }))}
+          />
+          <Button size="small" type="primary" loading={transcoding} onClick={() => void handleTranscode()}>
+            {t('w9d.postproc.compress.run')}
+          </Button>
+        </div>
+        <DataTable<DicomCompressTask>
+          rowKey="id"
+          dataSource={tasks}
+          pagination={false}
+          locale={{ emptyText: t('w9d.postproc.compress.noTasks') }}
+          columns={[
+            { title: t('w9d.postproc.compress.colId'), dataIndex: 'id', key: 'id', width: 160, ellipsis: true },
+            { title: t('w9d.postproc.compress.colSyntax'), dataIndex: 'transferSyntax', key: 'ts', ellipsis: true },
+            {
+              title: t('w9d.postproc.compress.colStatus'), dataIndex: 'status', key: 'status', width: 110,
+              render: (v: string) => (
+                <Tag color={v === 'done' ? 'green' : v === 'failed' ? 'red' : v === 'processing' ? 'blue' : 'default'}>{v}</Tag>
+              ),
+            },
+            {
+              title: t('w9d.postproc.compress.colRatio'), key: 'ratio', width: 110, align: 'right',
+              render: (_v, r) => (r.ratio != null ? r.ratio.toFixed(2) : '-'),
+            },
+            {
+              title: t('w9d.postproc.compress.colSize'), key: 'size', width: 150, align: 'right',
+              render: (_v, r) => `${Math.round((r.originalSize ?? 0) / 1024)} KB → ${r.compressedSize != null ? Math.round(r.compressedSize / 1024) + ' KB' : '-'}`,
+            },
+          ]}
+        />
+      </Card>
     </div>
   )
 }
