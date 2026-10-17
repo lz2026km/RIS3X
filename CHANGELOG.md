@@ -1,3 +1,23 @@
+## v3.0.6.16-4 (2026-10-16) — IHE 连通性自检接入真实服务状态
+
+> **承接**: v3.0.16-3 继续推进"零接线页面能接的接"。
+> **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 13 项全绿 / E2E 相关路由 2/2 全绿。
+
+### IheConnectathonPage 部分真实化（concept → hybrid）
+- 此前整页完全不调后端, 服务状态与归属域均为本地硬编码展示。
+- 后端 `ihe` 模块实际已实现 `GET /ihe/status` 与 `GET /ihe/affinity-domain`,
+  前端 `integrationApi` 也早有 `iheApi.getStatus()` / `getAffinityDomain()` 封装, 但本页未使用。
+- 现接入: 顶部展示真实 IHE profile + PIX/PDQ 指标, 以及真实 Affinity Domain(HCID + 名称);
+  提供刷新按钮; 加载失败时如实告警并降级标识。
+- 连通性用例本身仍是本地确定性模拟(connectathon 自检属合理本地行为),
+  故数据来源标识由 `concept` 调整为 `hybrid`(部分真实 + 本地模拟)。
+
+### 未做(明确留待专项)
+- `PostProcessingPage` 的"后处理"是 canvas 像素预览, 后端 `dicom/compress` 是压缩转码任务,
+  领域不同, 直接接线需重构而非改接线, 本轮仅保留 `concept` 标识。
+
+**guard**: 本轮无指标变化。
+
 ## v3.0.6.16-3 (2026-10-16) — 日期控件统一 DatePicker + 零接线页面来源标识全覆盖
 
 > **承接**: v3.0.16-2 继续治理控件一致性与数据可信度。
