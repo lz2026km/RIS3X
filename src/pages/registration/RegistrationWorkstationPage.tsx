@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { AppStaffField } from '../../components/common/AppStaffField'
+import { useStaff } from '../../hooks/useStaff'
 import {
   Card,
   Row,
@@ -45,12 +47,6 @@ const DEFAULT_PREP: PrepItemDto[] = [
   { key: 'isolation', label: '隔离 / 感染防护确认', required: false, checked: false },
   { key: 'prep', label: '检查前准备 (禁食/肠道准备/金属物品)', required: false, checked: false },
   { key: 'barcode', label: '条码 / 腕带打印', required: false, checked: false },
-]
-
-const NURSES = [
-  { value: 'N001', label: t('w6Reg.triage.nurseA') },
-  { value: 'N002', label: t('w6Reg.triage.nurseB') },
-  { value: 'N003', label: t('w6Reg.triage.nurseC') },
 ]
 
 const idTypeLabel: Record<string, string> = {
@@ -114,6 +110,8 @@ const RegistrationWorkstationPage: React.FC = () => {
   const [paying, setPaying] = useState(false)
 
   const [nurseId, setNurseId] = useState<string | undefined>(undefined)
+  // [v3.0.6.16-1] 护士清单 (用于派发时回填姓名)
+  const { options: nurseOptions } = useStaff('NURSE')
   const [triageResult, setTriageResult] = useState<TriageScoreResult | null>(null)
   const [triaging, setTriaging] = useState(false)
 
@@ -266,8 +264,9 @@ const RegistrationWorkstationPage: React.FC = () => {
     try {
       const result = await suggestEsi()
       if (nurseId) {
-        const nurse = NURSES.find((n) => n.value === nurseId)
-        await triageApi.assignNurse(examId, nurseId, nurse?.label)
+        // [v3.0.6.16-1] 人员姓名改从真实清单解析 (原从写死数组反查)
+        const nurseName = nurseOptions.find((n) => n.value === nurseId)?.label ?? nurseId
+        await triageApi.assignNurse(examId, nurseId, nurseName)
       }
       if (result) message.success(t('w6Reg.triage.success'))
       else message.error(t('w6Reg.loadFailed'))
@@ -616,13 +615,15 @@ const RegistrationWorkstationPage: React.FC = () => {
                       ))}
                     </Row>
                     <Space style={{ marginTop: 'var(--space-3, 12px)' }}>
-                      <Select
-                        style={{ width: 180 }}
+                      {/* [v3.0.6.16-1] 护士下拉改接真实人员清单 (原写死 3 位护士,
+                          分诊派发的 nurseId 在系统中并不存在) */}
+                      <AppStaffField
+                        role="NURSE"
+                        style={{ width: 200 }}
                         placeholder={t('w6Reg.triage.selectNurse')}
-                        value={nurseId}
-                        onChange={setNurseId}
+                        value={nurseId || undefined}
+                        onChange={(v) => setNurseId(v ?? '')}
                         allowClear
-                        options={NURSES}
                         data-testid="triage-nurse-select"
                       />
                       <Button onClick={async () => { const r = await suggestEsi(); if (r) message.info(esiLabel(r.esiLevel)) }} data-testid="triage-esi-btn">
@@ -649,7 +650,7 @@ const RegistrationWorkstationPage: React.FC = () => {
                           <Alert type="warning" showIcon message={t('w6Reg.triage.breach')} description={triageResult.vitalsBreaches.join('；')} />
                         )}
                         {triageResult.reTriageAt && <Text type="secondary" style={{ fontSize: 12 }}>{t('w6Reg.triage.reTriageAt')}: {new Date(triageResult.reTriageAt).toLocaleString()}</Text>}
-                        {nurseId && <Text type="secondary">{t('w6Reg.triage.nurse')}: {NURSES.find((n) => n.value === nurseId)?.label}</Text>}
+                        {nurseId && <Text type="secondary">{t('w6Reg.triage.nurse')}: {nurseOptions.find((n) => n.value === nurseId)?.label ?? nurseId}</Text>}
                         <Text type="secondary" style={{ fontSize: 12 }}>{t('w6Reg.triage.autoSuggested')}</Text>
                       </Space>
                     ) : (

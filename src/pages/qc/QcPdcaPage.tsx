@@ -38,6 +38,7 @@ import {
 } from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from "../../components/common/PageContainer"
+import { AppStaffField } from "../../components/common/AppStaffField"
 import { PageHeader } from "../../components/common/PageHeader"
 import { ErrorBanner } from "../../components/feedback"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
@@ -76,11 +77,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const CATEGORY_OPTIONS = ['报告质控', '图像质控', '流程质控', '服务质控']
-const OWNER_OPTIONS = [
-  { value: 'u-001', label: '张主任' },
-  { value: 'u-002', label: '李医生' },
-  { value: 'u-003', label: '王技师' },
-]
 
 const STATUS_COLORS: Record<string, string> = {
   open: toneToAntd('open'),
@@ -499,7 +495,9 @@ export default function QcPdcaPage() {
           </Form.Item>
           <Space size={12} style={{ width: '100%' }} align="start">
             <Form.Item name="ownerId" label={t('qcPdca.formOwner')} style={{ flex: 1 }}>
-              <Select options={OWNER_OPTIONS} />
+              {/* [v3.0.6.16-1] 责任人改接真实人员清单 (原写死 3 人, 提交的
+                  ownerId='u-001' 等在系统中并不存在, 质控 PDCA 责任链失真) */}
+              <AppStaffField role="ALL" allowClear />
             </Form.Item>
             <Form.Item name="dueDate" label={t('qcPdca.formDueDate')} style={{ flex: 1 }}>
               <Input type="date" />

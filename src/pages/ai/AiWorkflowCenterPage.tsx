@@ -8,7 +8,6 @@ import {
   Empty,
   Progress,
   Row,
-  Select,
   Space,
   Tabs,
   Tag,
@@ -45,6 +44,7 @@ import {
 } from "../../components/common";
 import { DataTable } from "../../components/common/DataTable";
 import { t } from "../../i18n/appI18n";
+import { AppStaffField } from "../../components/common/AppStaffField";
 import { severityColor, severityToAntd, toneToAntd } from "../../theme/statusTokens";
 import {
   getAiModelCatalog,
@@ -120,12 +120,6 @@ const METRIC_I18N: Record<DriftAlert["metric"], string> = {
   specificity: "w4ai.qc.metric.specificity",
 };
 
-const DOCTORS: { value: string; label: string }[] = [
-  { value: "D1008", label: "D1008 · 张医师" },
-  { value: "D1012", label: "D1012 · 李医师" },
-  { value: "D1015", label: "D1015 · 王医师" },
-];
-
 function scoreColor(score: number): string {
   if (score >= 70) return severityColor("critical");
   if (score >= 42) return severityColor("warning");
@@ -176,7 +170,7 @@ const TriageTab: React.FC = () => {
     message.success(
       t("w4ai.triage.assignOk", {
         count: selectedKeys.length,
-        doctor: DOCTORS.find((d) => d.value === doctor)?.label ?? doctor,
+        doctor: doctor || '-',
       }),
     );
     setSelectedKeys([]);
@@ -366,12 +360,15 @@ const TriageTab: React.FC = () => {
             <Text type="secondary" style={{ fontSize: 12 }}>
               {t("w4ai.triage.selected", { count: selectedKeys.length })}
             </Text>
-            <Select
-              style={{ width: 160 }}
-              value={doctor}
-              onChange={setDoctor}
-              options={DOCTORS}
-              aria-label={t("w4ai.triage.assignDoctor")}
+            {/* [v3.0.6.16-1] 医生下拉改接真实人员清单 (原写死 3 位医生,
+                机构新增医生后永远看不到; 指派出去的 doctor ID 也不存在) */}
+            <AppStaffField
+              role="DOCTOR"
+              style={{ width: 200 }}
+              value={doctor || undefined}
+              onChange={(v) => setDoctor(v ?? '')}
+              placeholder={t('w4ai.triage.assignDoctor')}
+              allowClear={false}
             />
             <ActionButton
               action="submit"

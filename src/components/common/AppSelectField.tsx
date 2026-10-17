@@ -18,13 +18,21 @@ import { Select, Alert } from 'antd';
 import type { SelectProps } from 'antd';
 import { useDict, dictFilter, type DictOption } from '../../hooks/useDict';
 
-export interface AppSelectFieldProps<T = unknown> extends Omit<SelectProps<T>, 'options' | 'filterOption'> {
+export interface AppSelectFieldProps<T = unknown>
+  extends Omit<SelectProps<T>, 'options' | 'filterOption'> {
   /** 静态选项 (与 dictCategory 二选一) */
   options?: Array<{ value: string; label: string; [k: string]: unknown }>;
   /** 字典分类: 传入后自动从后端加载, 优先级高于 options */
   dictCategory?: string;
   /** 是否开启搜索 (默认跟随字典/静态选项规模) */
   searchable?: boolean;
+  /**
+   * 自定义搜索过滤。传入后覆盖内部默认实现 ——
+   * 供 AppStaffField 等按业务字段(姓名/用户名/科室)过滤的下拉使用。
+   */
+  filterOption?: (input: string, option?: unknown) => boolean;
+  /** 便于 E2E 定位 (Select 不透传任意 data-* 属性) */
+  'data-testid'?: string;
 }
 
 /**
@@ -46,6 +54,7 @@ export function AppSelectField<T = unknown>({
   dictCategory,
   searchable,
   placeholder,
+  filterOption,
   ...rest
 }: AppSelectFieldProps<T>) {
   const dict = useDict(dictCategory);
@@ -80,9 +89,10 @@ export function AppSelectField<T = unknown>({
       loading={dictCategory ? dict.loading : undefined}
       showSearch={shouldSearch}
       options={finalOptions}
-      // 字典走拼音过滤; 静态列表至少保证"按 label 也能搜到"
+      // 显式传入的 filterOption 优先; 否则字典走拼音过滤, 静态列表至少保证按 label 可搜
       filterOption={
-        dictCategory
+        filterOption ??
+        (dictCategory
           ? (input, option) => dictFilter(input, option)
           : shouldSearch
             ? (input, option) => {
@@ -94,7 +104,7 @@ export function AppSelectField<T = unknown>({
                   String(o?.value ?? '').toLowerCase().includes(q)
                 );
               }
-            : undefined
+            : undefined)
       }
       notFoundContent={
         dictCategory && dict.loading ? undefined : finalOptions.length === 0 ? '暂无可选项' : undefined
