@@ -2572,6 +2572,10 @@ export const translations: Translations = {
     "notifExt.channel.EMAIL": "邮件",
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
+    "demoFallback.title": "后端接口异常, 当前 {count} 个数据源可能显示演示数据",
+    "demoFallback.dismiss": "我知道了",
+    "demoFallback.detailLabel": "查看受影响的接口",
+    "demoFallback.more": "… 另有 {count} 个接口",
     "app.version":
       "v3.0.6.16-4 · IHE 连通性自检接入真实服务状态",
     "app.loading": "放射RIS系统加载中...",
@@ -31435,6 +31439,10 @@ export const translations: Translations = {
     "notifExt.channel.EMAIL": "Email",
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
+    "demoFallback.title": "Backend errors detected; {count} data source(s) may show demo data",
+    "demoFallback.dismiss": "Got it",
+    "demoFallback.detailLabel": "Show affected endpoints",
+    "demoFallback.more": "… and {count} more",
     "app.version":
       "v3.0.6.16-4 · IHE connectathon wired to real service status",
     "app.loading": "Loading RIS...",

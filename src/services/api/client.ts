@@ -69,6 +69,57 @@ export function allowDemoFallback(): boolean {
   return true;
 }
 
+/**
+ * [G005 v3.0.6.16-5] 数据源回退登记表
+ *
+ * 背景: 全站大量页面在接口失败时"保持演示数据" (catch 后不改变初始 demo state)。
+ * 演示环境这是加分项 (页面永不空白), 但**生产环境会静默展示假数据**, 直接摧毁
+ * 客户对数据真实性的信任。
+ *
+ * 治理策略: 生产环境 (`allowDemoFallback() === false`) 下, 任何失败的请求都会
+ * 登记到本表, 并由全局横幅显式告知用户"后端不可用, 当前展示可能含演示数据" ——
+ * 使回退**永不静默**。演示环境不登记 (保持演示流畅)。
+ */
+export interface DemoFallbackRecord {
+  url: string;
+  code: string;
+  message: string;
+  at: number;
+}
+
+const fallbackRegistry: DemoFallbackRecord[] = [];
+const fallbackSubscribers = new Set<(records: DemoFallbackRecord[]) => void>();
+const FALLBACK_LIMIT = 200;
+
+/** 登记一次接口失败 (仅当演示回退被禁用时) */
+export function recordDemoFallback(url: string, code: string, message: string): void {
+  if (allowDemoFallback()) return; // 演示环境: 回退是预期行为, 不打扰
+  const key = `${url}|${code}`;
+  if (fallbackRegistry.some((r) => `${r.url}|${r.code}` === key)) return; // 去重
+  fallbackRegistry.push({ url, code, message, at: Date.now() });
+  if (fallbackRegistry.length > FALLBACK_LIMIT) fallbackRegistry.shift();
+  fallbackSubscribers.forEach((fn) => fn([...fallbackRegistry]));
+}
+
+/** 读取当前会话的回退记录 */
+export function getDemoFallbackRecords(): DemoFallbackRecord[] {
+  return [...fallbackRegistry];
+}
+
+/** 清空 (用户确认后调用) */
+export function clearDemoFallbackRecords(): void {
+  fallbackRegistry.length = 0;
+  fallbackSubscribers.forEach((fn) => fn([]));
+}
+
+/** 订阅回退记录变化 */
+export function subscribeDemoFallback(fn: (records: DemoFallbackRecord[]) => void): () => void {
+  fallbackSubscribers.add(fn);
+  return () => {
+    fallbackSubscribers.delete(fn);
+  };
+}
+
 function resolveApiBaseUrl(): string | undefined {  if (typeof window !== "undefined") {
     try {
       const ls = window.localStorage.getItem("ris_api_base_url");
@@ -392,24 +443,27 @@ async function request<T>(
       name?: string;
     };
     if (value.status || value.code) {
+      const fbCode = value.code ?? `HTTP_${value.status}`;
+      const fbMessage = value.message ?? `请求失败 (${value.status})`;
+      recordDemoFallback(url, fbCode, fbMessage);
       return {
         success: false,
         data: null as unknown as T,
-        error: {
-          code: value.code ?? `HTTP_${value.status}`,
-          message: value.message ?? `请求失败 (${value.status})`,
-        },
+        error: { code: fbCode, message: fbMessage },
       };
     }
     const timedOut = value.name === "AbortError";
+    const netCode = timedOut ? "TIMEOUT" : "NETWORK_ERROR";
+    const netMessage = timedOut
+      ? "请求超时，请稍后重试"
+      : value.message || "网络错误，请检查连接";
+    recordDemoFallback(url, netCode, netMessage);
     return {
       success: false,
       data: null as unknown as T,
       error: {
-        code: timedOut ? "TIMEOUT" : "NETWORK_ERROR",
-        message: timedOut
-          ? "请求超时，请稍后重试"
-          : value.message || "网络错误，请检查连接",
+        code: netCode,
+        message: netMessage,
       },
     };
   } finally {
@@ -610,24 +664,27 @@ async function requestBlob<T = Blob>(
       name?: string;
     };
     if (value.status || value.code) {
+      const fbCode = value.code ?? `HTTP_${value.status}`;
+      const fbMessage = value.message ?? `请求失败 (${value.status})`;
+      recordDemoFallback(url, fbCode, fbMessage);
       return {
         success: false,
         data: null as unknown as T,
-        error: {
-          code: value.code ?? `HTTP_${value.status}`,
-          message: value.message ?? `请求失败 (${value.status})`,
-        },
+        error: { code: fbCode, message: fbMessage },
       };
     }
     const timedOut = value.name === "AbortError";
+    const netCode = timedOut ? "TIMEOUT" : "NETWORK_ERROR";
+    const netMessage = timedOut
+      ? "请求超时，请稍后重试"
+      : value.message || "网络错误，请检查连接";
+    recordDemoFallback(url, netCode, netMessage);
     return {
       success: false,
       data: null as unknown as T,
       error: {
-        code: timedOut ? "TIMEOUT" : "NETWORK_ERROR",
-        message: timedOut
-          ? "请求超时，请稍后重试"
-          : value.message || "网络错误，请检查连接",
+        code: netCode,
+        message: netMessage,
       },
     };
   } finally {

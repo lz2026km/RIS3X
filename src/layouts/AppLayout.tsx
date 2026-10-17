@@ -59,6 +59,7 @@ import { ShortcutHelpModal } from "../components/common/ShortcutHelpModal";
 import { SettingsPanel } from "../components/feedback/SettingsPanel";
 import { NetworkOfflineBanner } from "../components/feedback/NetworkOfflineBanner";
 import { SkipLink } from "../a11y/SkipLink";
+import { DemoFallbackBanner } from "../components/feedback/DemoFallbackBanner";
 // [W1-B] 铃铛未读数: notificationsApi.getUnread (GET /notifications/unread/:userId)
 import { notificationsApi } from "../services/api/notificationsApi";
 
@@ -1155,6 +1156,8 @@ export function AppLayout() {
           </div>
         </header>
         {!isOnline && <NetworkOfflineBanner />}
+        {/* [v3.0.6.16-5] 生产环境接口失败导致"保持演示数据"时显式告知, 不再静默 */}
+        <DemoFallbackBanner />
         <div
           id="main-content"
           key={location.pathname}
