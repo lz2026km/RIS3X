@@ -883,7 +883,7 @@ export default function CustomReportPage() {
                 onChange={setScheduleText}
                 style={{ width: '100%' }}
                 options={SCHEDULE_OPTIONS}
-                showSearch
+                showSearch optionFilterProp="label"
                 allowClear={false}
               />
               <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 'var(--space-1, 4px)' }}>

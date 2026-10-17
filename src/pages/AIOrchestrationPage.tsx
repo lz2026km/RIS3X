@@ -1348,7 +1348,7 @@ export default function AIOrchestrationPage() {
           </Row>
           <Form.Item name="targetWorkflow" label={t('aiOrch.fldTargetWorkflow')} rules={[{ required: true, message: t('aiOrch.msgTargetWorkflow') }]}>
             <Select
-              showSearch
+              showSearch optionFilterProp="label"
               mode="tags"
               maxCount={1}
               placeholder={t('aiOrch.phWorkflowId')}
@@ -1439,7 +1439,7 @@ export default function AIOrchestrationPage() {
           </Form.Item>
           <Form.Item name="templateId" label={t('aiOrch.fldReportTemplate')} rules={[{ required: true, message: t('aiOrch.msgSelectTemplate') }]}>
             <Select
-              showSearch
+              showSearch optionFilterProp="label"
               placeholder={t('aiOrch.phSelectSrTemplate')}
               options={[
                 { label: t('aiOrch.tplChestCt'), value: 'TPL-CHEST-CT' },

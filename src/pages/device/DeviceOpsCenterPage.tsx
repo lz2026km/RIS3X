@@ -456,7 +456,7 @@ export default function DeviceOpsCenterPage() {
             <Input />
           </Form.Item>
           <Form.Item name="deviceId" label={t('w11Device.wo.device')} rules={[{ required: true }]}>
-            <Select showSearch options={DEVICE_OPTIONS} />
+            <Select showSearch optionFilterProp="label" options={DEVICE_OPTIONS} />
           </Form.Item>
           <Form.Item name="priority" label={t('w11Device.wo.priority')}>
             <Select options={['critical', 'high', 'medium', 'low'].map((v) => ({ value: v, label: t(WO_PRI_LABEL[v] ?? v) }))} />

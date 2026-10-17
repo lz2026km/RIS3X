@@ -263,7 +263,7 @@ export const DentalBillingPage: React.FC = () => {
             <Row gutter={12}>
               <Col span={8}>
                 <Card type="inner" size="small" title={t('dentalBilling.feeItemSelect')}>
-                  <Select showSearch placeholder={t('dentalBilling.searchItemPlaceholder')} style={{width:'100%',marginBottom:'var(--space-2, 8px)'}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
+                  <Select showSearch optionFilterProp="label" placeholder={t('dentalBilling.searchItemPlaceholder')} style={{width:'100%',marginBottom:'var(--space-2, 8px)'}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
                   <DataTable dataSource={pagedCatalog} rowKey="code" pagination={catalogPagination} scroll={{ x: 'max-content' }}
                     columns={[{title:t('dentalBilling.colItem'),dataIndex:'name',width:140},{title:t('dentalBilling.colPrice'),dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:t('dentalBilling.colInsurance'),dataIndex:'insuranceType',render:(v:string)=><Tag color={v==='甲类'?'green':v==='乙类'?'blue':'red'}>{v}</Tag>},{title:'',render:(_,r:any)=><Button size="small" icon={<Plus size={14}/>} onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})} aria-label={t('dentalBilling.addItem')} />}]} />
                 </Card>

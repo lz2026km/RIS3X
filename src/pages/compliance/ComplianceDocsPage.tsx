@@ -334,7 +334,7 @@ export const ComplianceDocsPage: React.FC = () => {
             <Col span={8}>
               <Form.Item name="category" label={t('complianceDocs.colCategory')} rules={[{ required: true, message: t('complianceDocs.categoryRequired') }]}>
                 <Select
-                  showSearch placeholder={t('complianceDocs.categoryPlaceholder')}
+                  showSearch optionFilterProp="label" placeholder={t('complianceDocs.categoryPlaceholder')}
                   options={categories.map((c) => ({ value: c, label: c }))}
                 />
               </Form.Item>

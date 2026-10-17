@@ -542,7 +542,7 @@ export default function ReportSearchV2Page() {
                   {options.length > 0 ? (
                     <Select
                       style={{ width: 190 }}
-                      showSearch
+                      showSearch optionFilterProp="label"
                       allowClear
                       value={row.value || undefined}
                       placeholder={t("wD2.search.filter.valuePlaceholder")}

@@ -178,7 +178,7 @@ const AIAssistPage: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="bodyPart" label={t('aiAssist.form.bodyPart')} rules={[{ required: true }]}>
-                    <Select options={BODYPART_OPTIONS} showSearch />
+                    <Select options={BODYPART_OPTIONS} showSearch optionFilterProp="label" />
                   </Form.Item>
                 </Col>
               </Row>

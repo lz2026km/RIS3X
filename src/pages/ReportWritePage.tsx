@@ -207,7 +207,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
         <span className="text-xs text-slate-500">{cases.length > 0 ? t("w9a.reportWrite.basedOnDraft", { count: cases.length }) : t("reportWrite.searchHint2")}</span>
         <Space size={4}>
           <Select
-            size="small" allowClear showSearch placeholder={t("reportWrite.linkExams")}
+            size="small" allowClear showSearch optionFilterProp="label" placeholder={t("reportWrite.linkExams")}
             style={{ width: 180 }} value={selectedSeries} onChange={setSelectedSeries}
             options={seriesList.map((s) => ({ label: `${s.modality}·${s.bodyPart}`, value: s.seriesUid }))}
           />

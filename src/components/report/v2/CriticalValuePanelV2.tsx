@@ -395,7 +395,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                 <div>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('criticalValueV2.examType')}</div>
                   <Select
-                    showSearch allowClear placeholder={t('criticalValueV2.examTypePlaceholder')} style={{ width: '100%' }} value={evalForm.examType || undefined}
+                    showSearch optionFilterProp="label" allowClear placeholder={t('criticalValueV2.examTypePlaceholder')} style={{ width: '100%' }} value={evalForm.examType || undefined}
                     onChange={(v) => setEvalForm({ ...evalForm, examType: v ?? '' })}
                     options={examTypes.map((et) => ({ label: et, value: et }))}
                   />

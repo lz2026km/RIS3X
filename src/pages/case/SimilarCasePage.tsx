@@ -119,7 +119,7 @@ function ImageSearchTab() {
       <Card style={{ marginBottom: 'var(--space-4, 16px)' }} size="small">
         <Space wrap>
           <Select
-            placeholder={t('similarCase.selectExamPh')} showSearch allowClear style={{ width: 380 }}
+            placeholder={t('similarCase.selectExamPh')} showSearch optionFilterProp="label" allowClear style={{ width: 380 }}
             value={selected}
             onChange={setSelected}
             options={seriesList.map((s) => ({
@@ -272,7 +272,7 @@ function HybridSearchTab() {
               options={DEMO_REPORTS.map((r) => ({ label: r, value: r }))}
             />
             <Select
-              placeholder={t('similarCase.selectExamOptional')} showSearch allowClear style={{ width: 360 }}
+              placeholder={t('similarCase.selectExamOptional')} showSearch optionFilterProp="label" allowClear style={{ width: 360 }}
               value={selected}
               onChange={setSelected}
               options={seriesList.map((s) => ({

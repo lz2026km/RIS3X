@@ -904,7 +904,7 @@ export const CosignSchedule: React.FC = () => {
             <Select allowClear showSearch optionFilterProp="label" placeholder="CT/MR/..." options={MODALITY_OPTIONS} />
           </Form.Item>
           <Form.Item name="departmentId" label={t('reportReview.cosign.fieldDeptOptional')}>
-            <Select allowClear showSearch placeholder={t('reportReview.cosign.fieldDeptOptional')} options={departmentOptions} />
+            <Select allowClear showSearch optionFilterProp="label" placeholder={t('reportReview.cosign.fieldDeptOptional')} options={departmentOptions} />
           </Form.Item>
           <Form.Item name="reason" label={t('reportReview.cosign.fieldAuthReason')} rules={[{ required: true, min: 5 }]}><Input.TextArea rows={2} /></Form.Item>
           <Row gutter={12}>
