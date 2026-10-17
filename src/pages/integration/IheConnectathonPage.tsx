@@ -22,6 +22,7 @@ import {
   Progress,
   Select,
   Input,
+  Alert,
 } from "antd";
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import {
@@ -38,8 +39,9 @@ import {
   FileText,
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { DataSourceBadge } from "../../components/common/DataSourceBadge";
+import { iheApi, type IheStatus, type AffinityDomain } from "../../services/api/integrationApi";
 import { useNavigate } from "react-router-dom";
 import { seededUnit } from "../../utils/seededRandom";
 import { t } from "../../i18n/appI18n";
@@ -163,12 +165,63 @@ export const IheConnectathonPage: React.FC = () => {
     return Math.round((session.passCount / session.totalCount) * 100);
   }, [session]);
 
+  // [v3.0.6.16-4] 真实 IHE 服务状态与 Affinity Domain (来自后端 /ihe/status、/ihe/affinity-domain);
+  // 连通性自检用例本身仍为本地确定性模拟, 故标识为 hybrid。
+  const [iheStatus, setIheStatus] = useState<IheStatus | null>(null);
+  const [affinity, setAffinity] = useState<AffinityDomain | null>(null);
+  const [iheLoadError, setIheLoadError] = useState<string | null>(null);
+  const [iheLoading, setIheLoading] = useState(false);
+
+  const loadIheLive = useCallback(async () => {
+    setIheLoading(true);
+    setIheLoadError(null);
+    try {
+      const [st, ad] = await Promise.all([
+        iheApi.getStatus(),
+        iheApi.getAffinityDomain(),
+      ]);
+      setIheStatus(st.success ? st.data : null);
+      setAffinity(ad.success ? ad.data : null);
+      if (!st.success || !ad.success) {
+        setIheLoadError(t('iheConn.conn.loadFailed'));
+      }
+    } catch (e) {
+      setIheStatus(null);
+      setAffinity(null);
+      setIheLoadError((e as Error)?.message ?? t('iheConn.conn.loadFailed'));
+    } finally {
+      setIheLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadIheLive();
+  }, [loadIheLive]);
+
+  const liveStatusKind: 'backend' | 'hybrid' | 'concept' = iheLoadError || !iheStatus ? 'concept' : 'hybrid';
+
   return (
           <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" className="p-4 space-y-3">
-          {/* [v3.0.6.16-2] 连通性自检为本地确定性判定, 未接 IHE 后端 */}
-          <div className="flex justify-end">
-            <DataSourceBadge kind="concept" />
+          <div className="flex justify-end items-center gap-2">
+            {iheStatus && (
+              <Tag color="blue" data-testid="ihe-live-status">
+                {t('iheConn.live.service')}: {iheStatus.profile}
+                {iheStatus.metrics ? ` · PIX ${iheStatus.metrics.pixRecords} / PDQ ${iheStatus.metrics.pdqCache}` : ''}
+              </Tag>
+            )}
+            {affinity && (
+              <Tag color="cyan" data-testid="ihe-affinity-domain">
+                {t('iheConn.live.affinity')}: {affinity.name} ({affinity.homeCommunityId})
+              </Tag>
+            )}
+            <Button size="small" loading={iheLoading} onClick={() => void loadIheLive()} data-testid="ihe-live-refresh">
+              {t('iheConn.live.refresh')}
+            </Button>
+            <DataSourceBadge kind={liveStatusKind} />
           </div>
+          {iheLoadError && (
+            <Alert type="warning" showIcon message={t('iheConn.conn.loadFailed')} style={{ marginBottom: 'var(--space-2, 8px)' }} />
+          )}
           <Card size="small" className="shadow-sm">
         <div className="flex items-center justify-between">
           <Space>

@@ -27242,6 +27242,10 @@ export const translations: Translations = {
     "rex.templateQuickRef": "模板用途速查",
     // [v3.0.6.11-106 Wave 12B] Page residual i18n cleanup
     "iheConn.title": "IHE Connectathon 测试",
+    "iheConn.live.service": "IHE 服务",
+    "iheConn.live.affinity": "归属域",
+    "iheConn.live.refresh": "刷新状态",
+    "iheConn.conn.loadFailed": "未能读取后端 IHE 服务状态, 下方用例结果为本地模拟。",
     "iheConn.subtitle": "XDS.b / PIX / PDQ / ATNA / PAM 测试执行框架",
     "iheConn.mockBadge": "模拟工具 · 测试结果本地生成",
     "iheConn.viewProfile": "查看 Profile",
@@ -56115,6 +56119,10 @@ export const translations: Translations = {
     "rex.templateQuickRef": "Template Quick Reference",
     // [v3.0.6.11-106 Wave 12B] Page residual i18n cleanup
     "iheConn.title": "IHE Connectathon Test",
+    "iheConn.live.service": "IHE service",
+    "iheConn.live.affinity": "Affinity domain",
+    "iheConn.live.refresh": "Refresh status",
+    "iheConn.conn.loadFailed": "Could not read backend IHE service status; the case results below are locally simulated.",
     "iheConn.subtitle": "XDS.b / PIX / PDQ / ATNA / PAM Test Execution Framework",
     "iheConn.mockBadge": "Simulation Tool · Results Generated Locally",
     "iheConn.viewProfile": "View Profile",
