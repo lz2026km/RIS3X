@@ -1,6 +1,7 @@
 // [G005 W3] AI 定量分析中心 (概念 UI, 确定性模拟输出)
 // 所有结果由 quantEngine 基于 studyId 的种子生成, 刷新后保持一致。
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { DataSourceBadge } from "../../components/common/DataSourceBadge";
 import {
   Alert,
   Button,
@@ -1005,6 +1006,10 @@ const AiQuantCenterPage: React.FC = () => {
 
   return (
     <PageContainer maxWidth="full" padding="var(--space-5, 20px)" testId="ai-quant-center">
+      {/* [v3.0.6.16-2] 本页模型目录与队列为本地确定性种子, 未接后端 */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
+        <DataSourceBadge kind="concept" />
+      </div>
       <Space orientation="vertical" size={16} style={{ width: "100%" }}>
         <Card size="small">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 'var(--space-3, 12px)', alignItems: "center" }}>

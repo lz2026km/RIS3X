@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo } from "react";
+import { DataSourceBadge } from "../../components/common/DataSourceBadge";
 import { useNavigate } from "react-router-dom";
 import { seededUnit } from "../../utils/seededRandom";
 import { t } from "../../i18n/appI18n";
@@ -163,8 +164,12 @@ export const IheConnectathonPage: React.FC = () => {
   }, [session]);
 
   return (
-    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" className="p-4 space-y-3">
-      <Card size="small" className="shadow-sm">
+          <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" className="p-4 space-y-3">
+          {/* [v3.0.6.16-2] 连通性自检为本地确定性判定, 未接 IHE 后端 */}
+          <div className="flex justify-end">
+            <DataSourceBadge kind="concept" />
+          </div>
+          <Card size="small" className="shadow-sm">
         <div className="flex items-center justify-between">
           <Space>
             <Trophy className="w-5 h-5 text-yellow-600" />

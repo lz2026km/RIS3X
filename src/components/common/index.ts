@@ -62,6 +62,8 @@ export type { VirtualTableProps } from "./VirtualTable";
 // [UI-A v3.0.6.13-0] 统一数据表格 (裸 Table 迁移目标)
 export { DataTable, DEFAULT_TABLE_PAGE_SIZE, TABLE_PAGE_SIZE_OPTIONS } from "./DataTable";
 export type { DataTableProps, TableDensity } from "./DataTable";
+export { DataSourceBadge } from "./DataSourceBadge";
+export type { DataSourceBadgeProps, DataSourceKind } from "./DataSourceBadge";
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps, EmptyStateType } from "./EmptyState";
 export type { StatCardColor, StatCardTrend } from "./StatCard";

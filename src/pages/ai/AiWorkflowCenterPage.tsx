@@ -2,6 +2,7 @@
 // 分诊队列 / 审核采纳统计 / 质量控制 / 多模态报告助手
 // 数据来源: src/services/ai/aiPlatformData.ts (seeded by id, 无 Math.random)
 import React, { useCallback, useMemo, useState } from "react";
+import { DataSourceBadge } from "../../components/common/DataSourceBadge";
 import {
   Card,
   Col,
@@ -1057,6 +1058,10 @@ const AiWorkflowCenterPage: React.FC = () => {
 
   return (
     <PageContainer testId="ai-workflow-center">
+      {/* [v3.0.6.16-2] 分诊队列等数据来自本地确定性种子, 未接后端 */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
+        <DataSourceBadge kind="concept" />
+      </div>
       <PageHeader
         icon={<Brain size={22} color="var(--color-primary-600)" />}
         title={t("w4ai.wf.title")}
