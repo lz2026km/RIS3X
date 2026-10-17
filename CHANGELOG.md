@@ -1,3 +1,26 @@
+## v3.0.6.16-3 (2026-10-16) — 日期控件统一 DatePicker + 零接线页面来源标识全覆盖
+
+> **承接**: v3.0.16-2 继续治理控件一致性与数据可信度。
+> **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 40/40 全绿。
+
+### 日期控件统一
+- **31 处**非表单(筛选栏 / 工具条)的裸 `<input type="date">` 迁移为 antd `DatePicker`,
+  覆盖 15 个文件: `TechSchedulePage`(6)、`SchedulePage`(5)、`DepartmentSchedule`(4)、
+  `ResearchPage`(4)、`AIQCPage`/`ReportSearchPage`/`DepartmentPage`/`ReportHeader`/
+  `QcImageAiPage`/`LogStats`/`ResourceGantt`/`PatientSafetyGoalsPage`/`TechRotationPage`/
+  `CriticalValueFollowUp`/`CriticalValueList`/`BreastSpecialtyPage`。
+- 覆盖三种 onChange 模式(直接 setter / 对象展开 / 计算属性), 值统一以
+  `YYYY-MM-DD` 字符串回写, 不改变既有数据结构。
+- 剩余 42 处位于 `Form.Item` 内, 提交时值形态需从 Dayjs 转字符串, 留待专项一轮。
+
+### 数据来源标识全覆盖
+- 补齐 5 个零后端接线页面: `PostProcessingPage`(合成像素)、
+  `PanoramicAnnotatorPage`(标注演示)、`OfflineReportsPage`(静态数据) → `concept`;
+  `IolCalculatorPage`、`ClinicalCalculatorHubPage`(公式计算) → `computed`。
+- 至此 **8 个**零接线页面全部完成诚实披露。
+
+**guard 指标变化**: `rawDateInput` 79 → **42**。
+
 ## v3.0.6.16-2 (2026-10-16) — 设备下拉真实化 + 日期区间控件 + 数据来源标识
 
 > **承接**: v3.0.16-1 继续治理审查遗留项。
