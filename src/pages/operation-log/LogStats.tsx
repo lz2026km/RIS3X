@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import dayjs from 'dayjs'
+import { DatePicker } from 'antd'
 import type { OperationLog, HipaaStats } from './types'
 import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, GRAY, WHITE, ACTION_COLORS, ACTION_ICONS, HIPAA_ACTION_TYPES } from './constants'
 import { formatDate, formatTime } from './utils'
@@ -374,9 +376,9 @@ function HipaaExportPanel({
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>{t('logStats.dateRange')}</span>
-        <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={inputStyle} />
+        <DatePicker size="small" value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} style={inputStyle} />
         <span style={{ color: GRAY }}>-</span>
-        <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={inputStyle} />
+        <DatePicker size="small" value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} style={inputStyle} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

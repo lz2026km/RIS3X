@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
+import dayjs from 'dayjs'
 import { Search, X, Calendar, Settings, Filter, CheckCircle, Send, Edit3, Eye, Phone, CheckSquare, Square, Bell, ArrowUpRight, ShieldAlert, ArrowUp, Archive, Trash2 } from 'lucide-react'
-import { Popconfirm } from 'antd'
+import { Popconfirm, DatePicker } from 'antd'
 import type { CriticalValue } from './types'
 import { STATUS_CONFIG, SEVERITY_CONFIG, CN_STATUS_TO_STORE } from './types'
 // v3.0.6.11: 导入 criticalStore 导出的 MACHINE_STATE_TO_STORE,
@@ -69,7 +70,7 @@ export const FilterBar = ({
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Calendar size={14} style={{ color: 'var(--text-muted, #64748b)' }} />
-        <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)',}} />
+        <DatePicker size="small" value={dateRange ? dayjs(dateRange) : null} onChange={(d) => setDateRange(d ? d.format('YYYY-MM-DD') : '')} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)',}} />
       </div>
       <button onClick={onOpenSettings} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
         <Settings size={14} />

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { message } from "antd";
+import dayjs from 'dayjs'
+import { message, DatePicker } from "antd";
 import { AlertTriangle, Clock, Plus } from "lucide-react";
 import { regionalApi } from "../../services/api";
 import { Send } from "lucide-react";
@@ -174,9 +175,9 @@ export default function DepartmentSchedule() {
         <div style={panelHeaderStyle}>
           <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbeb)', color: 'var(--color-warning-600)', border: '1px solid var(--color-warning-300, #fcd34d)', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
           <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
-            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+            <DatePicker size="small" value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
             <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
-            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+            <DatePicker size="small" value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
             <button onClick={() => void handleQuery()} disabled={querying} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: querying ? "wait" : "pointer", fontSize: 12 }}>{querying ? t("deptSched.querying") : t("deptSched.query")}</button>
           </div>
         </div>
@@ -237,9 +238,9 @@ export default function DepartmentSchedule() {
                 </select>
               </div>
               <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
-                <input type="date" value={newLeave.startDate} onChange={e => setNewLeave({ ...newLeave, startDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+                <DatePicker size="small" value={newLeave.startDate ? dayjs(newLeave.startDate) : null} onChange={(d) => setNewLeave({ ...newLeave, startDate: d ? d.format('YYYY-MM-DD') : '' })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
                 <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
-                <input type="date" value={newLeave.endDate} onChange={e => setNewLeave({ ...newLeave, endDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+                <DatePicker size="small" value={newLeave.endDate ? dayjs(newLeave.endDate) : null} onChange={(d) => setNewLeave({ ...newLeave, endDate: d ? d.format('YYYY-MM-DD') : '' })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               </div>
               <input placeholder={t("deptSched.reasonPlaceholder")} value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 'var(--space-2, 8px)' }}>

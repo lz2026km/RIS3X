@@ -4,9 +4,10 @@
 // Phase 2: 接入 reportApi 真实数据 + 关键词高亮
 
 import { FEATURED_TERMS, REPORT_PHRASES } from '../data/knowledgeStatsMock';
+import dayjs from 'dayjs'
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
-import { Spin, Alert, Empty, message, Typography, Button } from 'antd';
+import { Spin, Alert, Empty, message, Typography, Button, DatePicker } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   Search,
@@ -473,11 +474,11 @@ export default function ReportSearchPage() {
             </div>
             <div>
               <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportSearch.dateFrom')}</label>
-              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
+              <DatePicker size="small" value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div>
               <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('reportSearch.dateTo')}</label>
-              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
+              <DatePicker size="small" value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-end', gap: 6 }}>
               <button onClick={handleSearch} style={{ padding: '6px 14px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>{t('reportSearch.applyFilter')}</button>

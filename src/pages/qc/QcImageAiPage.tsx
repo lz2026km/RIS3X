@@ -1,4 +1,5 @@
 import { PageContainer } from "../../components/common/PageContainer"
+import dayjs from 'dayjs'
 import { PageHeader } from "../../components/common/PageHeader"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
 import { DataTable } from "../../components/common"
@@ -7,7 +8,7 @@ import { QcImageAiScoreV2Result, QcImageAiScoreV1Result, QcImageAiStatsV2 } from
 import { t as tr } from "../../i18n/appI18n"
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-IIA-01 图像伪影率
 import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink"
-import { Button, Input, Select, Space, Alert, Spin, Tag } from 'antd'
+import { Button, Input, Select, Space, Alert, Spin, Tag, DatePicker } from 'antd'
 import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, Zap, Target, Eye, Sparkles, RefreshCw, Search } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from "react-i18next"
@@ -209,9 +210,9 @@ export default function QcImageAiPage() {
           ))}
           <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center", marginLeft: "auto" }}>
             <Calendar size={14} color="#64748b" />
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
+            <DatePicker size="small" value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} style={{ padding: "4px 8px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
             <span style={{ color: 'var(--text-muted, #94a3b8)' }}>~</span>
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ padding: "4px 8px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
+            <DatePicker size="small" value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} style={{ padding: "4px 8px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
           </div>
         </div>
 

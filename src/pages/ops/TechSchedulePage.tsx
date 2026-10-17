@@ -2,7 +2,8 @@
 // G005 放射RIS系统 v3.0.6.11-99 Wave 6B (tech-schedule) - 技师排班管理
 // 功能: 月历矩阵(日期×技师) + 统计卡 + 新建/批量生成/筛选 + 单元格操作(确认/换班/请假/编辑/删除)
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Empty, message, Modal, Select, Spin, Tag, Tooltip } from 'antd'
+import dayjs from 'dayjs'
+import { Button, Empty, message, Modal, Select, Spin, Tag, Tooltip, DatePicker } from 'antd'
 import {
   CalendarDays, CheckCircle2, ChevronLeft, ChevronRight,
   ClipboardList, Coffee, Moon, Pencil, Plus, RefreshCw,
@@ -454,10 +455,7 @@ export default function TechSchedulePage() {
             <span style={{ fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <ClipboardList size={16} color={C.blue} /> 技师排班规则
             </span>
-            <input
-              type="date"
-              value={rotStartDate}
-              onChange={(e) => setRotStartDate(e.target.value)}
+            <DatePicker size="small" value={rotStartDate ? dayjs(rotStartDate) : null} onChange={(d) => setRotStartDate(d ? d.format('YYYY-MM-DD') : '')}
               style={inputStyle}
               data-testid="rot-start-date"
             />
@@ -664,8 +662,7 @@ export default function TechSchedulePage() {
           <Button size="small" onClick={() => setMonth(monthStr())}>{t('techSchedule.thisMonth')}</Button>
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', flexWrap: 'wrap' }}>
-          <input
-            type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)}
+          <DatePicker size="small" value={filterDate ? dayjs(filterDate) : null} onChange={(d) => setFilterDate(d ? d.format('YYYY-MM-DD') : '')}
             style={inputStyle} data-testid="ts-filter-date"
           />
           <Select
@@ -869,7 +866,7 @@ export default function TechSchedulePage() {
       <Modal title={t('techSchedule.createScheduleTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreate()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.date')}</label>
-          <input type="date" value={createForm.date} onChange={(e) => setCreateForm({ ...createForm, date: e.target.value })} style={inputStyle} data-testid="ts-create-date" />
+          <DatePicker size="small" value={createForm.date ? dayjs(createForm.date) : null} onChange={(d) => setCreateForm({ ...createForm, date: d ? d.format('YYYY-MM-DD') : '' })} style={inputStyle} data-testid="ts-create-date" />
           <label style={labelStyle}>{t('techSchedule.shift')}</label>
           <Select size="small" value={createForm.shift} onChange={(v) => setCreateForm({ ...createForm, shift: v })} style={{ width: '100%' }}
             options={SHIFT_LIST.map((s) => ({ value: s, label: `${t(SHIFT_CONFIG[s].label)} (${s})` }))} />
@@ -891,9 +888,9 @@ export default function TechSchedulePage() {
       <Modal title={t('techSchedule.batchGenerateTitle')} open={batchOpen} onCancel={() => setBatchOpen(false)} onOk={() => void handleBatch()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.startDate')}</label>
-          <input type="date" value={batchForm.startDate} onChange={(e) => setBatchForm({ ...batchForm, startDate: e.target.value })} style={inputStyle} />
+          <DatePicker size="small" value={batchForm.startDate ? dayjs(batchForm.startDate) : null} onChange={(d) => setBatchForm({ ...batchForm, startDate: d ? d.format('YYYY-MM-DD') : '' })} style={inputStyle} />
           <label style={labelStyle}>{t('techSchedule.endDate')}</label>
-          <input type="date" value={batchForm.endDate} onChange={(e) => setBatchForm({ ...batchForm, endDate: e.target.value })} style={inputStyle} />
+          <DatePicker size="small" value={batchForm.endDate ? dayjs(batchForm.endDate) : null} onChange={(d) => setBatchForm({ ...batchForm, endDate: d ? d.format('YYYY-MM-DD') : '' })} style={inputStyle} />
           <label style={labelStyle}>{t('techSchedule.shiftPattern')}</label>
           <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
             {SHIFT_LIST.map((s) => {
@@ -939,7 +936,7 @@ export default function TechSchedulePage() {
       <Modal title={t('techSchedule.editScheduleTitle')} open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => void handleEdit()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.date')}</label>
-          <input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} style={inputStyle} />
+          <DatePicker size="small" value={editForm.date ? dayjs(editForm.date) : null} onChange={(d) => setEditForm({ ...editForm, date: d ? d.format('YYYY-MM-DD') : '' })} style={inputStyle} />
           <label style={labelStyle}>{t('techSchedule.shift')}</label>
           <Select size="small" value={editForm.shift} onChange={(v) => setEditForm({ ...editForm, shift: v })} style={{ width: '100%' }}
             options={SHIFT_LIST.map((s) => ({ value: s, label: `${t(SHIFT_CONFIG[s].label)} (${s})` }))} />

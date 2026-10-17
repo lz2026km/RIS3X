@@ -4,9 +4,10 @@
 // v1.0.4 (R4) 集成：跳转至 AIReportDraftPage 一键自动初稿
 // [v3.0.6.11-75] W1-2: 接入 aiPlatformApi.listQcResults (GET /ai-platform/qc, 后端 auditLog resource=ai-qc)
 import { useState, useEffect } from 'react'
+import dayjs from 'dayjs'
 import type { ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Typography, Tooltip } from 'antd'
+import { Typography, Tooltip, DatePicker } from 'antd'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import { DataTable } from '../components/common'
 import { qcImageAiApi } from '../services/api/qcImageAiApi'
@@ -942,10 +943,7 @@ export default function AIQCPage() {
 
           {/* 日期范围 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-            <input
-              type="date"
-              value={dateRange.start}
-              onChange={e => setDateRange({ ...dateRange, start: e.target.value })}
+            <DatePicker size="small" value={dateRange.start ? dayjs(dateRange.start) : null} onChange={(d) => setDateRange({ ...dateRange, start: d ? d.format('YYYY-MM-DD') : '' })}
               style={{
                 padding: '10px 12px',
                 borderRadius: 8,
@@ -955,10 +953,7 @@ export default function AIQCPage() {
                 fontSize: 12, }}
             />
             <span style={{ color: GRAY }}>{t('aiQcPage.to')}</span>
-            <input
-              type="date"
-              value={dateRange.end}
-              onChange={e => setDateRange({ ...dateRange, end: e.target.value })}
+            <DatePicker size="small" value={dateRange.end ? dayjs(dateRange.end) : null} onChange={(d) => setDateRange({ ...dateRange, end: d ? d.format('YYYY-MM-DD') : '' })}
               style={{
                 padding: '10px 12px',
                 borderRadius: 8,

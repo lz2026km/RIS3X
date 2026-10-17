@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { message } from "antd";
+import dayjs from 'dayjs'
+import { message, DatePicker } from "antd";
 import {
   Plus,
   PhoneOutgoing,
@@ -175,10 +176,7 @@ export const TransferToFollowUpModal = ({
             >
               计划随访日期
             </div>
-            <input
-              type="date"
-              value={followUpDate}
-              onChange={(e) => setFollowUpDate(e.target.value)}
+            <DatePicker size="small" value={followUpDate ? dayjs(followUpDate) : null} onChange={(d) => setFollowUpDate(d ? d.format('YYYY-MM-DD') : '')}
               style={{
                 width: "100%",
                 padding: "10px 14px",

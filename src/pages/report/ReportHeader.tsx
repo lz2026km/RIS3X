@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import dayjs from 'dayjs'
+import { DatePicker } from 'antd'
 import { Search, Filter, X, Download, Printer } from 'lucide-react'
 import { userApi } from '../../services/api/userApi'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
@@ -157,10 +159,10 @@ export default function ReportHeader({
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>日期:</span>
-          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+          <DatePicker size="small" value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')}
             style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12,}} />
           <span style={{ fontSize: 12, color: GRAY }}>—</span>
-          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+          <DatePicker size="small" value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')}
             style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12,}} />
         </div>
         <button onClick={() => setCriticalOnly(!criticalOnly)} style={btnStyle(criticalOnly, 'var(--color-error-600)')}>

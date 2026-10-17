@@ -1,6 +1,7 @@
 // G005 放射科RIS系统 - 科室排班管理页面 v1.0.0
 // 功能：技师/医师班次管理、节假日配置、代班换班、排班统计
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import dayjs from 'dayjs'
 import {
   Calendar, Clock, Settings, ChevronLeft, ChevronRight,
   Plus, X, Check, Search, RefreshCw, AlertCircle, CheckCircle,
@@ -12,7 +13,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart as RePieChart, Pie, Cell, Legend
 } from 'recharts'
-import { Typography } from 'antd'
+import { Typography, DatePicker } from 'antd'
 import { initialUsers } from '../data/initialData'
 import { deviceApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -2375,10 +2376,7 @@ export default function SchedulePage() {
                 <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.requesterDate')}
                 </label>
-                <input
-                  type="date"
-                  value={swapForm.requesterDate}
-                  onChange={e => setSwapForm({ ...swapForm, requesterDate: e.target.value })}
+                <DatePicker size="small" value={swapForm.requesterDate ? dayjs(swapForm.requesterDate) : null} onChange={(d) => setSwapForm({ ...swapForm, requesterDate: d ? d.format('YYYY-MM-DD') : '' })}
                   style={{
                     width: '100%',
                     padding: '8px 12px',
@@ -2440,10 +2438,7 @@ export default function SchedulePage() {
                 <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.targetDate')}
                 </label>
-                <input
-                  type="date"
-                  value={swapForm.targetDate}
-                  onChange={e => setSwapForm({ ...swapForm, targetDate: e.target.value })}
+                <DatePicker size="small" value={swapForm.targetDate ? dayjs(swapForm.targetDate) : null} onChange={(d) => setSwapForm({ ...swapForm, targetDate: d ? d.format('YYYY-MM-DD') : '' })}
                   style={{
                     width: '100%',
                     padding: '8px 12px',
@@ -2564,10 +2559,7 @@ export default function SchedulePage() {
                 <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.holidayDate')}
                 </label>
-                <input
-                  type="date"
-                  value={holidayForm.date}
-                  onChange={e => setHolidayForm({ ...holidayForm, date: e.target.value })}
+                <DatePicker size="small" value={holidayForm.date ? dayjs(holidayForm.date) : null} onChange={(d) => setHolidayForm({ ...holidayForm, date: d ? d.format('YYYY-MM-DD') : '' })}
                   style={{
                     width: '100%',
                     padding: '8px 12px',
@@ -2722,12 +2714,12 @@ export default function SchedulePage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveStartDate')}</label>
-                  <input type="date" value={leaveForm.startDate} onChange={e => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
+                  <DatePicker size="small" value={leaveForm.startDate ? dayjs(leaveForm.startDate) : null} onChange={(d) => setLeaveForm({ ...leaveForm, startDate: d ? d.format('YYYY-MM-DD') : '' })}
                     style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveEndDate')}</label>
-                  <input type="date" value={leaveForm.endDate} onChange={e => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
+                  <DatePicker size="small" value={leaveForm.endDate ? dayjs(leaveForm.endDate) : null} onChange={(d) => setLeaveForm({ ...leaveForm, endDate: d ? d.format('YYYY-MM-DD') : '' })}
                     style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
               </div>

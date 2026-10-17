@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import dayjs from 'dayjs'
 import {
   Users, BarChart3, Calendar, Settings,
   AlertTriangle, X, Plus, ChevronRight, ChevronUp, ChevronDown,
@@ -6,7 +7,7 @@ import {
   Megaphone, CalendarClock, Pin, PinOff, Trash2,
 } from "lucide-react";
 import { PageContainer, DataTable } from "../components/common";
-import { message } from "antd";
+import { message, DatePicker } from "antd";
 // [W2-A] 真实 API: userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
 import { userApi } from "../services/api/userApi";
 import { deviceApi } from "../services/api/deviceApi";
@@ -981,7 +982,7 @@ export default function DepartmentPage() {
                   </select>
                 </div>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.expiresAt")}</label>
-                  <input type="date" value={announceForm.expiresAt} onChange={(e) => setAnnounceForm({ ...announceForm, expiresAt: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
+                  <DatePicker size="small" value={announceForm.expiresAt ? dayjs(announceForm.expiresAt) : null} onChange={(d) => setAnnounceForm({ ...announceForm, expiresAt: d ? d.format('YYYY-MM-DD') : '' })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
                 </div>
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', fontSize: 12, color: C.textMid }}>
@@ -1008,7 +1009,7 @@ export default function DepartmentPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.dateRequired")}</label>
-                  <input type="date" value={onCallForm.date} onChange={(e) => setOnCallForm({ ...onCallForm, date: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
+                  <DatePicker size="small" value={onCallForm.date ? dayjs(onCallForm.date) : null} onChange={(d) => setOnCallForm({ ...onCallForm, date: d ? d.format('YYYY-MM-DD') : '' })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
                 </div>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.shiftRequired")}</label>
                   <select value={onCallForm.shift} onChange={(e) => setOnCallForm({ ...onCallForm, shift: e.target.value as OnCallShiftType })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}>

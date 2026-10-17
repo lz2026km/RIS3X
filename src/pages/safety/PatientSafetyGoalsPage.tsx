@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
+import dayjs from 'dayjs'
+import { DatePicker } from 'antd'
 import {
   BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
@@ -242,7 +244,7 @@ export default function PatientSafetyGoalsPage() {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('safetyGoals.deadline')}</label>
-                  <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({ ...newGoal, deadline: e.target.value })} style={{ width: '100%', padding: '8px 12px', background: 'var(--bg-primary, #0d1117)', border: '1px solid var(--border-default, #30363d)', borderRadius: 6, color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }} />
+                  <DatePicker size="small" value={newGoal.deadline ? dayjs(newGoal.deadline) : null} onChange={(d) => setNewGoal({ ...newGoal, deadline: d ? d.format('YYYY-MM-DD') : '' })} style={{ width: '100%', padding: '8px 12px', background: 'var(--bg-primary, #0d1117)', border: '1px solid var(--border-default, #30363d)', borderRadius: 6, color: 'var(--text-primary, #f0f6fc)', fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div>

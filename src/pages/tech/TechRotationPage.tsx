@@ -1,7 +1,8 @@
 // G005 放射RIS系统 v3.0.6.11-101 Wave 4A (tech-v2) - 技师工作站 V2: 双检间轮转 + 工作量预测
 // 功能: 轮转计划甘特图 (房间×时段格子显示技师) + 工作量均衡条形图 + 7 天预测 (实际 vs 预测 + 置信带)
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, message, Modal, Select, Spin, Tag, Tooltip } from 'antd'
+import dayjs from 'dayjs'
+import { Button, message, Modal, Select, Spin, Tag, Tooltip, DatePicker } from 'antd'
 import {
   Area, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RTooltip, Legend, ComposedChart, ReferenceLine,
@@ -376,8 +377,7 @@ export default function TechRotationPage() {
         actions={
           <>
             <CalendarRange size={14} color="var(--text-secondary)" />
-            <input
-              type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+            <DatePicker size="small" value={startDate ? dayjs(startDate) : null} onChange={(d) => setStartDate(d ? d.format('YYYY-MM-DD') : '')}
               style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
               data-testid="trv-start-date"
             />

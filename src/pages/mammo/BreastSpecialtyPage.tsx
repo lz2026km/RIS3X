@@ -5,6 +5,7 @@
 // [v3.0.6.11-96] Wave3B G-21 P2: 新增「双阅」Tab (dualReadApi list/assign/arbitrate 真实,
 //               失败回退演示 + 徽标); density/screening DBT 行加「{t('breastSpecialty.dbtRead')}」→ /dicom/dbt?studyId=
 import { useState, useMemo, useEffect } from 'react';
+import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom';
 import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, TrendingUp, Stethoscope, Microscope, FileText, BarChart3, X, BrainCircuit, GitBranch, UserCheck } from 'lucide-react';
 import type { BreastDensity, ScreeningOutcome } from '@/services/api/breastSpecialtyApi';
@@ -18,7 +19,7 @@ import { SeverityTag } from '../../components/common/SeverityTag';
 import { DataTable } from '../../components/common';
 import type { TableColumnsType } from 'antd';
 import { uniqueId } from '../../utils/uniqueId';
-import { Typography, message } from 'antd';
+import { Typography, message, DatePicker } from 'antd';
 
 const { Title } = Typography
 
@@ -826,7 +827,7 @@ const BreastSpecialtyPage = () => {
               <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.riskStratification')}</label><div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{([['average', t('breastSpecialty.riskAverage')], ['intermediate', t('breastSpecialty.riskIntermediate')], ['high', t('breastSpecialty.riskHigh')]] as const).map(([v, l]) => (
                 <button key={v} onClick={() => setNewForm({ ...newForm, risk: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${newForm.risk === v ? '#be185d' : 'var(--border-color, #e2e8f0)'}`, background: newForm.risk === v ? 'var(--color-error-bg)' : 'var(--bg-card)', color: newForm.risk === v ? '#be185d' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
               ))}</div></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.examDate')}</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('breastSpecialty.examDate')}</label><DatePicker size="small" value={newForm.date ? dayjs(newForm.date) : null} onChange={(d) => setNewForm({ ...newForm, date: d ? d.format('YYYY-MM-DD') : '' })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-2, 8px)' }}>
                 <button onClick={() => setShowNewModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
                 <button onClick={() => void handleCreateScreening()} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 12, fontWeight: 600, cursor: saving ? 'wait' : 'pointer' }}>{saving ? t('breastSpecialty.saving') : t('breastSpecialty.createScreening')}</button>

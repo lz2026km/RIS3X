@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import dayjs from 'dayjs'
+import { DatePicker } from 'antd'
 import { GanttChartSquare, AlertTriangle, RefreshCw } from 'lucide-react'
 import { initialModalityDevices } from '../../data/initialData'
 import { formatDateObj } from '../../utils/date'
@@ -147,7 +149,7 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
           <GanttChartSquare size={15} /> {t('w5Appt.ganttTitle')}
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>{dimBtn('DEVICE', t('w5Appt.ganttByDevice'))}{dimBtn('ROOM', t('w5Appt.ganttByRoom'))}{dimBtn('TECH', t('w5Appt.ganttByTech'))}</div>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: '4px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: 'var(--color-primary-800)' }} />
+        <DatePicker size="small" value={date ? dayjs(date) : null} onChange={(d) => setDate(d ? d.format('YYYY-MM-DD') : '')} style={{ padding: '4px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: 'var(--color-primary-800)' }} />
         <button onClick={() => void loadResources()} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: '#64748b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <RefreshCw size={12} /> {loading ? '...' : t('w5Appt.opsRefresh')}
         </button>
