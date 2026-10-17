@@ -109,6 +109,32 @@ npm test:coverage          # 覆盖率
 npm run storybook          # Storybook(6006)
 ```
 
+### 双构建：mock 演示版 / real 真实后端版
+
+系统提供**两套构建产物**，用途不同，互不影响：
+
+| 命令 | 环境文件 | API 模式 | 用途 |
+|---|---|---|---|
+| `pnpm build` | `.env.production` | `mock`（浏览器内 MSW） | **对外演示站**（GitHub Pages）。无需任何后端即可完整点击演示 |
+| `pnpm build:real` | `.env.real` | `real`（NestJS 后端） | **商业演示/联调验收**。完美展现 2100+ 后端端点 |
+
+**运行 real 版**：
+
+```bash
+# 1) 启动后端 (NestJS, 默认 http://localhost:3001)
+cd backend && npm run start:dev
+
+# 2) 构建并预览前端 (real 模式)
+pnpm build:real
+pnpm preview:real        # http://localhost:4173
+```
+
+**部署 real 版到服务器**：修改 `.env.real` 的 `VITE_API_BASE_URL` 为同源或 HTTPS 域名
+（如 `https://ris.example.com/api`），并同步配置后端的 `CORS_ORIGINS`。
+
+> 说明：real 模式下 `.env.real` 的 `VITE_ALLOW_DEMO_FALLBACK=false`，接口失败会
+> 显示真实错误态与「数据源回退横幅」，不会静默返回演示数据。
+
 ---
 
 ## 🏗️ 技术栈

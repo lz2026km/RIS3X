@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --port 5191",
     "build": "node --max-old-space-size=8192 node_modules/vite/bin/vite.js build",
+    "build:real": "node --max-old-space-size=8192 node_modules/vite/bin/vite.js build --mode real",
+    "preview:real": "vite preview --port 4173",
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",

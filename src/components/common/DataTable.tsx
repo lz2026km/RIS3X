@@ -94,6 +94,16 @@ export interface DataTableProps<RecordType extends object>
    * 弹窗内表格可传更小的值以获得更紧凑的列宽。
    */
   layoutWidth?: number;
+  /**
+   * [v3.0.6.16-6] 完全隐藏工具栏 (导出 + 列设置)。
+   * 默认 false —— 全站表格默认提供导出与列配置。
+   */
+  hideToolbar?: boolean;
+  /**
+   * [v3.0.6.16-6] 关闭自动列配置 (列显隐/排序/保存视图)。
+   * 默认 false —— 未传 columnConfigKey 时按「路由 + 列签名」自动派生存储键。
+   */
+  disableColumnConfig?: boolean;
 }
 
 export type TableDensity = "compact" | "comfortable";
@@ -101,9 +111,42 @@ export type TableDensity = "compact" | "comfortable";
 export const DEFAULT_TABLE_PAGE_SIZE = 20;
 export const TABLE_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 
-/** 数值列识别: dataIndex 以 Amount/Count/Rate/Score/数量/率/分/量 等结尾 */
+/** [v3.0.6.16-6] 数值列识别: dataIndex 以 Amount/Count/Rate/Score/数量/率/分/量 等结尾 */
 const NUMERIC_SUFFIX_RE =
   /(amount|count|rate|score|qty|quantity|total|num|number|percent|ratio|数量|总数|金额|次数|例数|率|分|量|数)$/i;
+
+/** FNV-1a 字符串散列 (用于自动生成稳定的列配置 storageKey) */
+function hashKey(input: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
+/**
+ * [v3.0.6.16-6] 自动派生列配置 storageKey。
+ *
+ * 背景: 全站 672 张表只有 9 张传了 `columnConfigKey`, 导致「列设置」在
+ * 98.7% 的表格上不可用 —— 客户点进长尾页会发现"这不是同一个产品"。
+ * 这里按「当前路由 + 列 key 集合」派生稳定键: 同一张表刷新/重进保持配置,
+ * 不同表互不干扰。
+ */
+function deriveColumnConfigKey(columns: TableColumnsType<object>): string {
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  const colSig = columns
+    .map((c, i) => {
+      const anyCol = c as TableColumnType<object> & { children?: TableColumnsType<object> };
+      if (Array.isArray(anyCol.children)) {
+        return anyCol.children.map((ch, j) => String((ch as { key?: unknown }).key ?? (ch as { dataIndex?: unknown }).dataIndex ?? j)).join("+");
+      }
+      return String(anyCol.key ?? anyCol.dataIndex ?? i);
+    })
+    .join("|");
+  return `dt:${path}:${hashKey(colSig)}`;
+}
+
 
 /** [v3.0.6.15-5] 归一列宽时的最小列宽 (px) */
 const MIN_COL_WIDTH = 120;
@@ -442,6 +485,8 @@ export function DataTable<RecordType extends object>({
   disableAutoNumericAlign = false,
   cellWrap = "ellipsis",
   layoutWidth = 1200,
+  hideToolbar = false,
+  disableColumnConfig = false,
   tableLayout = "fixed",
   pagination: paginationProp,
   locale,
@@ -456,16 +501,23 @@ export function DataTable<RecordType extends object>({
   const density = densityProp ?? "compact";
 
   const pagination = useMemoPagination(showPagination, paginationProp, pageSize, paginationSize);
+  // [v3.0.6.16-6] 列配置默认启用: 未显式传 columnConfigKey 时按「路由 + 列签名」自动派生,
+  // 使全站 672 张表都具备「列显隐 / 列排序 / 保存视图」(此前仅 9 张表可用)。
+  const autoColumnConfigKey = useMemo(
+    () => deriveColumnConfigKey(columns as unknown as TableColumnsType<object>),
+    [columns],
+  );
+  const resolvedColumnConfigKey = disableColumnConfig ? null : (columnConfigKey ?? autoColumnConfigKey);
   // [W14-UX] 列配置 + 保存视图
   const columnConfig = useTableColumnConfig<ColumnLike>({
     columns: columns as unknown as ColumnLike[],
-    storageKey: columnConfigKey ?? "__datatable_default__",
+    storageKey: resolvedColumnConfigKey ?? "__datatable_default__",
     getTitle: (c) => c.title ?? "",
     alwaysVisible: alwaysVisibleColumns,
     getViewState,
     applyViewState,
   });
-  const baseColumns = columnConfigKey
+  const baseColumns = resolvedColumnConfigKey
     ? (columnConfig.visibleColumns as unknown as TableColumnsType<RecordType>)
     : columns;
   // [v3.0.6.16-0] T5: 用 ResizeObserver 实测容器宽度替代硬编码 1200。
@@ -527,9 +579,11 @@ export function DataTable<RecordType extends object>({
   }, [effectiveColumns, dataSource, exportFileName]);
 
   const showExportBtn = showExport && hasData;
-  // [K-1] 工具栏仅在用户显式传入 toolbar/toolbarExtra/columnConfigKey 时显示
-  // 密度切换已移除（受控 prop density 仍可用）；导出按钮随工具栏显隐
-  const showToolbar = Boolean(toolbar || toolbarExtra || columnConfigKey);
+  // [v3.0.6.16-6] 工具栏默认显示: 全站 672 张表此前 0 处传 toolbar, 导致
+  // 「导出 CSV」按钮 (showExportBtn 挂在 showToolbar 内) 在 98.7% 的表格上
+  // 永不渲染 —— 客户在任意页面右上角找不到导出。现默认渲染工具栏, 内含
+  // 导出 + 列设置; 需要完全隐藏时传 hideToolbar。
+  const showToolbar = !hideToolbar;
 
   const toolbarStyle: CSSProperties = {
     display: "flex",
@@ -549,7 +603,7 @@ export function DataTable<RecordType extends object>({
           {toolbar}
           <div style={{ flex: 1 }} />
           {toolbarExtra}
-          {columnConfigKey && columnConfig.toolbar}
+          {resolvedColumnConfigKey && columnConfig.toolbar}
           {showExportBtn && (
             <Tooltip title={t("ui4Tables.export.tooltip")}>
               <Button
