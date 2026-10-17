@@ -1,5 +1,6 @@
 // [v3.0.6.8-55] 全景片标注工具 (Canvas)
 import React, { useState, useRef, useEffect } from 'react';
+import { DataSourceBadge } from '../../components/common/DataSourceBadge';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Space, Tag, Button, Row, Col, Select, message } from 'antd';
 import { Ruler, Square, Circle, Type, Trash2, Save } from 'lucide-react';
@@ -112,6 +113,10 @@ export const PanoramicAnnotatorPage: React.FC = () => {
 
   return (
     <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+    {/* [v3.0.6.16-3] 全景标注为前端标注演示, 未接后端存储 */}
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
+      <DataSourceBadge kind="concept" />
+    </div>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Ruler size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.panoramic.title')}</span>

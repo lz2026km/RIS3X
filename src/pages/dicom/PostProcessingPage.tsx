@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { DataSourceBadge } from '../../components/common/DataSourceBadge';
 import { Card, Row, Col, Slider, Tag, Button } from 'antd'
 import { Layers, Save, Download } from 'lucide-react'
 import { seededUnit } from '../../utils/seededRandom'
@@ -115,6 +116,10 @@ const PostProcessingPage: React.FC = () => {
 
   return (
     <div style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
+    {/* [v3.0.6.16-3] 后处理结果为浏览器端合成像素, 未接 dicom/compress 后端 */}
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
+      <DataSourceBadge kind="concept" />
+    </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('w9d.postproc.title')}</span>

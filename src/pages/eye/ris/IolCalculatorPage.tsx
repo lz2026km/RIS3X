@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { DataSourceBadge } from '../../../components/common/DataSourceBadge';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Row, Col, Form, InputNumber, Select, Button, Alert, Descriptions, Statistic, Tag, Space } from 'antd';
 import { ArrowLeft, Save, RotateCcw, CheckCircle2 } from 'lucide-react';
@@ -88,7 +89,11 @@ const IolCalculatorPage: React.FC = () => {
 
   return (
     <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }} data-testid="iol-calculator-page">
-      <Row gutter={16}>
+    {/* [v3.0.6.16-3] IOL 计算为浏览器端公式实时计算, 不依赖后端 */}
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
+      <DataSourceBadge kind="computed" />
+    </div>
+    <Row gutter={16}>
         <Col xs={24} xl={16}>
           <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <Button

@@ -3,6 +3,7 @@
 // 报告列表「离线保存」→ IndexedDB 快照; 断网时优先展示离线副本并标注「离线副本」
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
+import { DataSourceBadge } from '../components/common/DataSourceBadge';
 import { useNavigate } from 'react-router-dom'
 import { message, Popconfirm } from 'antd'
 import { FileText, Trash2, ArrowLeft, WifiOff, CheckCircle, RefreshCw } from 'lucide-react'
@@ -81,6 +82,10 @@ export default function OfflineReportsPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' }}>
+    {/* [v3.0.6.16-3] 离线报告为本地静态数据, 未接后端 */}
+    <div style={{ display: 'flex', justifyContent: 'flex-end', padding: 'var(--space-2, 8px)' }}>
+      <DataSourceBadge kind="concept" />
+    </div>
       <div style={{ background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))', color: '#fff', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <FileText size={20} />

@@ -1,5 +1,6 @@
 // [v3.0.6.8-78] 临床计算器中心
 import React, { useState } from 'react';
+import { DataSourceBadge } from '../../components/common/DataSourceBadge';
 import {
   Card,
   Space,
@@ -149,6 +150,10 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
+    {/* [v3.0.6.16-3] 临床计算器为浏览器端公式实时计算, 不依赖后端 */}
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
+      <DataSourceBadge kind="computed" />
+    </div>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Calculator size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('clinicalCalc.title')}</span>
