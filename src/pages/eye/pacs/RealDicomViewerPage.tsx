@@ -51,7 +51,7 @@ let frameSchemeRegistered = false;
 
 function buildSyntheticFrameImage(imageId: string, genericMetadataProvider: any): any {
   const SIZE = 512;
-  const match = /frame-(\d+)/.exec(imageId);
+  const match = /frame[:\-](\d+)/.exec(imageId);
   const frame = match ? Number.parseInt(match[1]!, 10) : 1;
   const pixelData = new Uint8Array(SIZE * SIZE);
   const cx = SIZE / 2;
@@ -167,8 +167,12 @@ export const RealDicomViewerPage: React.FC = () => {
     };
   }, []);
 
+  // [v3.0.6.16-5] 修复: imageId 必须是 `scheme:path` 格式。
+  // cornerstone 用 `imageId.split(':')[0]` 取 scheme —— 旧写法 `frame-1` 无冒号,
+  // scheme 被解析成 `frame-1`, 与注册的 `frame` 不匹配, 报
+  // "No image loader found for scheme 'frame-1'" 并导致视口空白。
   const imageIds = useMemo(
-    () => (frameLoaderReady ? Array.from({ length: 30 }, (_, i) => `frame-${i + 1}`) : []),
+    () => (frameLoaderReady ? Array.from({ length: 30 }, (_, i) => `frame:${i + 1}`) : []),
     [frameLoaderReady],
   );
   const { elementRef, currentIndex, activeTool, scroll, setWWWC, setTool } =
