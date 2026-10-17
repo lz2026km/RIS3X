@@ -1,3 +1,28 @@
+## v3.0.6.16-2 (2026-10-16) — 设备下拉真实化 + 日期区间控件 + 数据来源标识
+
+> **承接**: v3.0.16-1 继续治理审查遗留项。
+> **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 14/14 全绿。
+
+### 设备下拉真实化
+- `DeviceOpsCenterPage` 工单设备选择: 由写死 8 台(CT-01/MR-01/…) 改为 `deviceApi.list`
+  真实设备清单(自动过滤已报废设备), 修复机构新增/报废设备后选不到、
+  提交不存在的 deviceId。
+- `IntraocularPressurePage` 的 `DEVICE_OPTIONS` 确认为**临床枚举**(眼压计型号
+  NCT/Goldmann/iCare/TonoPen), 非机构主数据, 加入 `select-guard` 豁免名单。
+
+### 日期区间控件
+- `WorklistToolbar`(检查日期) 与 `PatientSearchPanel`(建档日期) 的成对裸
+  `<input type="date">` 合并为 antd `RangePicker`: 支持快捷区间、locale 跟随、
+  站内样式一致。
+
+### 数据来源标识（诚实披露）
+- 新增 `components/common/DataSourceBadge`: `backend`(不渲染) / `hybrid` /
+  `computed` / `concept` 四态 + Tooltip 说明口径。
+- 应用到 `AiQuantCenterPage`、`IheConnectathonPage`、`AiWorkflowCenterPage` ——
+  这三页以表格/看板呈现却完全不调后端, 不标识会让客户误认为是生产数据。
+
+**guard 指标变化**: `hardcodedMasterSelect` 2→**0**; `rawDateInput` 83→79。
+
 ## v3.0.6.16-1 (2026-10-16) — 下拉真实数据源 + 停止伪造成功（承接 v3.0.16-0 审查整改）
 
 > **背景**: v3.0.16-0 完成拆雷与基建后, 继续治理审查 P0/P1 中"手输/写死/假成功"三类。
