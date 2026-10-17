@@ -24,6 +24,9 @@ import type { Dayjs } from 'dayjs';
 import { CalendarDays, Clock, Monitor, Users, Plus, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../i18n/appI18n';
+import { AppPatientField } from '../../components/common/AppPatientField';
+import { useDict, DICT_CATEGORY } from '../../hooks/useDict';
+import { MODALITY_OPTIONS } from '../../constants/modality';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import { PageContainer } from "../../components/common";
 
@@ -59,6 +62,41 @@ export const SchedulingCenterPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [deviceStats, setDeviceStats] = useState<{ total?: number; inUse?: number; maintenance?: number }>({});
   const [form] = Form.useForm();
+
+  // [v3.0.6.16-1] 检查项目接后端字典 (原为 6 条写死)
+  const ctItems = useDict(DICT_CATEGORY.ctExam);
+  const mrItems = useDict(DICT_CATEGORY.mrSequence);
+  const xrayItems = useDict(DICT_CATEGORY.xrayExam);
+  const examItemOptions = useMemo(() => {
+    const pick = (o: Array<{ value: string; label: string }>) =>
+      o.map((x) => ({ value: x.value, label: x.label }));
+    return [...pick(ctItems.options), ...pick(mrItems.options), ...pick(xrayItems.options)];
+  }, [ctItems.options, mrItems.options, xrayItems.options]);
+
+  // [v3.0.6.16-1] 检查室改接真实房间清单 (原写死 5 间)
+  const [roomOptions, setRoomOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [roomsLoading, setRoomsLoading] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setRoomsLoading(true);
+    void (async () => {
+      try {
+        const res = await appointmentApi.getRooms();
+        const list = Array.isArray(res?.data) ? res.data : [];
+        if (cancelled) return;
+        setRoomOptions(
+          list.map((r) => ({ value: String(r.id ?? r.name ?? ''), label: String(r.name ?? r.id ?? '') })).filter((x) => x.value),
+        );
+      } catch {
+        if (!cancelled) setRoomOptions([]);
+      } finally {
+        if (!cancelled) setRoomsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -235,18 +273,21 @@ export const SchedulingCenterPage: React.FC = () => {
         <Form form={form} layout="vertical" size="small">
           <Row gutter={12}>
             <Col span={12}>
+              {/* [v3.0.6.16-1] 患者改远程检索: 原为 6 个写死中文姓名, 且 value 直接
+                  用姓名作主键 —— 真实患者超 6 人就选不到, 预约单患者字段也非合法 patientId */}
               <Form.Item label={t('sch.patientName')} name="patientName" rules={[{ required: true, message: t('sch.patientNameRequired') }]}>
-                <Select showSearch placeholder={t('sch.selectPatient')} options={['张伟', '李娜', '王芳', '赵敏', '陈杰', '刘洋'].map(n => ({ value: n, label: n }))} />
+                <AppPatientField placeholder={t('sch.selectPatient')} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item label={t('sch.colItem')} name="bodyPart">
-                <Select placeholder={t('sch.selectItem')} options={['胸部CT平扫', '头颅MRI增强', '腹部CT增强', '颈椎DR', '口腔CBCT', '乳腺钼靶'].map(n => ({ value: n, label: n }))} />
+                {/* 检查项目接后端字典 (CT检查项目/MRI序列/X线检查) */}
+                <Select placeholder={t('sch.selectItem')} options={examItemOptions} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item label={t('sch.modality')} name="modality" initialValue="CT">
-                <Select options={['CT', 'MR', 'DR', 'CBCT', 'MG', 'PET-CT'].map(m => ({ value: m, label: m }))} />
+                <Select showSearch optionFilterProp="label" options={MODALITY_OPTIONS} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -260,8 +301,9 @@ export const SchedulingCenterPage: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
+              {/* [v3.0.6.16-1] 检查室改接真实房间清单 (原写死 5 间) */}
               <Form.Item label={t('sch.roomNote')} name="note">
-                <Select allowClear placeholder={t('sch.selectRoom')} options={['CT 检查室 1', 'CT 检查室 2', 'MR 检查室 1', 'DR 检查室 1', 'CBCT 检查室'].map(n => ({ value: n, label: n }))} />
+                <Select allowClear placeholder={t('sch.selectRoom')} loading={roomsLoading} options={roomOptions} />
               </Form.Item>
             </Col>
           </Row>

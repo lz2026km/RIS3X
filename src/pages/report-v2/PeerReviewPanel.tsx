@@ -28,6 +28,7 @@ import {
   type PeerScores,
 } from '../../services/api/reportPeerReviewApi'
 import { useAuth } from '../../hooks/useAuth'
+import { qualityScoringCenterApi } from '../../services/api/qualityScoringCenterApi'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { AppText } from '../../components/common/AppText'
 import { VirtualTable } from '../../components/common/VirtualTable'
@@ -79,6 +80,38 @@ const PeerReviewPanel: React.FC = () => {
   const [defectLoading, setDefectLoading] = useState(false)
   const [defectCodes, setDefectCodes] = useState<string[]>([])
   const [defectSaving, setDefectSaving] = useState(false)
+
+  // [v3.0.6.16-1] 缺陷编码候选来自真实缺陷库, 而非自由输入
+  const [defectOptions, setDefectOptions] = useState<Array<{ value: string; label: string }>>([])
+  const [defectLibLoading, setDefectLibLoading] = useState(false)
+  const [defectLibError, setDefectLibError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setDefectLibLoading(true)
+    void (async () => {
+      try {
+        const res = await qualityScoringCenterApi.listDefectItems({})
+        const list = Array.isArray(res?.data) ? res.data : []
+        if (cancelled) return
+        setDefectOptions(
+          list.map((d) => ({ value: d.code, label: `${d.code} · ${d.name}` })),
+        )
+        setDefectLibError(null)
+      } catch (err) {
+        // 加载失败时保留为空 + 明确提示, 允许用户手工录入(仍可保存)
+        if (!cancelled) {
+          setDefectOptions([])
+          setDefectLibError((err as Error)?.message ?? 'unknown')
+        }
+      } finally {
+        if (!cancelled) setDefectLibLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -373,8 +406,12 @@ const PeerReviewPanel: React.FC = () => {
                 placeholder={t('w4a.peer.defectCodesPlaceholder')}
                 value={defectCodes}
                 onChange={(v) => setDefectCodes(v)}
+                loading={defectLibLoading}
+                showSearch
+                optionFilterProp="label"
+                options={defectOptions}
                 tokenSeparators={[',', ' ', '，']}
-                notFoundContent={null}
+                notFoundContent={defectLibError ? '缺陷库加载失败，请检查质控服务后重试' : null}
               />
               <Button type="primary" loading={defectSaving} onClick={() => void handleAddDefects()}>{t('w4a.peer.addDefect')}</Button>
             </Space>

@@ -29,8 +29,9 @@ export interface AppSelectFieldProps<T = unknown>
   /**
    * 自定义搜索过滤。传入后覆盖内部默认实现 ——
    * 供 AppStaffField 等按业务字段(姓名/用户名/科室)过滤的下拉使用。
+   * 传 `false` 表示不做客户端过滤 (按需远程搜索场景)。
    */
-  filterOption?: (input: string, option?: unknown) => boolean;
+  filterOption?: ((input: string, option?: unknown) => boolean) | false;
   /** 便于 E2E 定位 (Select 不透传任意 data-* 属性) */
   'data-testid'?: string;
 }
@@ -89,22 +90,24 @@ export function AppSelectField<T = unknown>({
       loading={dictCategory ? dict.loading : undefined}
       showSearch={shouldSearch}
       options={finalOptions}
-      // 显式传入的 filterOption 优先; 否则字典走拼音过滤, 静态列表至少保证按 label 可搜
+      // 显式传入的 filterOption 优先 (false = 关闭客户端过滤, 用于远程搜索);
+      // 否则字典走拼音过滤, 静态列表至少保证按 label 可搜
       filterOption={
-        filterOption ??
-        (dictCategory
-          ? (input, option) => dictFilter(input, option)
-          : shouldSearch
-            ? (input, option) => {
-                const q = input.trim().toLowerCase();
-                if (!q) return true;
-                const o = option as DictOption | { value?: string; label?: string } | undefined;
-                return (
-                  String(o?.label ?? '').toLowerCase().includes(q) ||
-                  String(o?.value ?? '').toLowerCase().includes(q)
-                );
-              }
-            : undefined)
+        filterOption !== undefined
+          ? filterOption
+          : dictCategory
+            ? (input, option) => dictFilter(input, option)
+            : shouldSearch
+              ? (input, option) => {
+                  const q = input.trim().toLowerCase();
+                  if (!q) return true;
+                  const o = option as DictOption | { value?: string; label?: string } | undefined;
+                  return (
+                    String(o?.label ?? '').toLowerCase().includes(q) ||
+                    String(o?.value ?? '').toLowerCase().includes(q)
+                  );
+                }
+              : undefined
       }
       notFoundContent={
         dictCategory && dict.loading ? undefined : finalOptions.length === 0 ? '暂无可选项' : undefined

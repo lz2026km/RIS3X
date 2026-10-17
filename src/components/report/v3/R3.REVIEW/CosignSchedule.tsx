@@ -57,6 +57,8 @@ import {
   Drawer,
 } from 'antd';
 import { DataTable } from '../../../common';
+import { MODALITY_OPTIONS } from '../../../../constants/modality';
+import { useDepartments } from '../../../../hooks/useStaff';
 import {
   Calendar as CalIcon,
   Users,
@@ -164,6 +166,8 @@ export const CosignSchedule: React.FC = () => {
   // 临时授权
   const [tempAuthModal, setTempAuthModal] = useState(false);
   const [tempAuthForm] = Form.useForm();
+  // [v3.0.6.16-1] 临时授权的科室范围改为真实科室清单 (原为手输 DEPT-CT)
+  const departmentOptions = useDepartments('ALL').map((d) => ({ value: d, label: d }));
 
   // 批量签
   const [batchModal, setBatchModal] = useState(false);
@@ -893,8 +897,15 @@ export const CosignSchedule: React.FC = () => {
           <Form.Item name="scope" label={t('reportReview.cosign.fieldScope')} rules={[{ required: true }]} initialValue="modality-cosign">
             <Select options={Object.entries(TEMP_AUTH_SCOPE_LABEL).map(([k, v]) => ({ value: k, label: t(v) }))} />
           </Form.Item>
-          <Form.Item name="modality" label={t('reportReview.cosign.fieldModalityOptional')}><Input placeholder="CT/MR/..." /></Form.Item>
-          <Form.Item name="departmentId" label={t('reportReview.cosign.fieldDeptOptional')}><Input placeholder="DEPT-CT" /></Form.Item>
+          {/* [v3.0.6.16-1] 临时授权的作用范围由自由文本改为下拉:
+              原为 Input 手输 "CT/MR/..." 与 "DEPT-CT", 拼错即授权失效,
+              且科室名不存在于系统字典。改为 modality 单一真源 + 真实科室清单。 */}
+          <Form.Item name="modality" label={t('reportReview.cosign.fieldModalityOptional')}>
+            <Select allowClear showSearch optionFilterProp="label" placeholder="CT/MR/..." options={MODALITY_OPTIONS} />
+          </Form.Item>
+          <Form.Item name="departmentId" label={t('reportReview.cosign.fieldDeptOptional')}>
+            <Select allowClear showSearch placeholder={t('reportReview.cosign.fieldDeptOptional')} options={departmentOptions} />
+          </Form.Item>
           <Form.Item name="reason" label={t('reportReview.cosign.fieldAuthReason')} rules={[{ required: true, min: 5 }]}><Input.TextArea rows={2} /></Form.Item>
           <Row gutter={12}>
             <Col span={12}><Form.Item name="startAt" label={t('reportReview.cosign.fieldStart')} rules={[{ required: true }]}><Input type="datetime-local" /></Form.Item></Col>
