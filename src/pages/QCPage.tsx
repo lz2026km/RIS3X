@@ -1,5 +1,5 @@
 import { t } from '../i18n/appI18n'
-import { Switch, Typography } from 'antd'
+import { Switch, Typography, Alert } from 'antd'
 // NOTE: 未解决 - 此文件超过 2000 行（2933行），需要拆分为子组件
 // v3.0.4 重构目标：
 // 1. 提取页面头部 (title + breadcrumb + actions)
@@ -3253,10 +3253,16 @@ export default function QCPage() {
               <Title level={5} style={{ margin: 0 }}>{formModal.title}</Title>
               <button aria-label="关闭" onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
             </div>
-            <div style={{ fontSize: 12, color: GRAY, textAlign: 'center', padding: '20px 0' }}>{t("qcPage.formContentDemo")}</div>
+            {/* [v3.0.6.16-1] 诚实处理: 该"质控登记"表单此前内容区写着
+                "表单内容(模拟)", 点"确定"只弹 `${title}成功` 绿色对勾却**完全不落库** ——
+                客户录了一条质控记录, 刷新就没了。此处改为明确告知该能力未接后端,
+                并禁用"确定", 不再伪造成功。接入真实 create 端点后再启用。 */}
+            <Alert type="warning" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }}
+              message={t('qcPage.formNotWiredTitle')}
+              description={t('qcPage.formNotWiredDesc')} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
               <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('dc.cancel')}</button>
-              <button onClick={() => { setFormModal(f => ({ ...f, show: false })); showToast(`${formModal.title}成功`, 'success') }} style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.confirm')}</button>
+              <button disabled style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'not-allowed', opacity: 0.55 }}>{t('qc.confirm')}</button>
             </div>
           </div>
         </div>
