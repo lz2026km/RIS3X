@@ -1,3 +1,5 @@
+import { DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import type { QuickTimeValue } from './types'
 import {
   ACCENT, GRAY, WHITE, ACTION_TYPES, MODULES, LOG_SOURCES, QUICK_TIME_FILTERS
@@ -151,22 +153,23 @@ export default function LogFilter({
           </select>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>日期:</span>
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={e => onDateFromChange(e.target.value)}
-            style={inputStyle}
-          />
-          <span style={{ color: GRAY }}>-</span>
-          <input
-            type="date"
-            value={dateTo}
-            onChange={e => onDateToChange(e.target.value)}
-            style={inputStyle}
-          />
-        </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>日期:</span>
+      {/* [v3.0.6.16-5] 裸 date 输入改 DatePicker (快捷区间/locale/键盘可达) */}
+      <DatePicker
+        size="small"
+        value={dateFrom ? dayjs(dateFrom) : null}
+        onChange={(d) => onDateFromChange(d ? d.format('YYYY-MM-DD') : '')}
+        style={inputStyle}
+      />
+      <span style={{ color: GRAY }}>-</span>
+      <DatePicker
+        size="small"
+        value={dateTo ? dayjs(dateTo) : null}
+        onChange={(d) => onDateToChange(d ? d.format('YYYY-MM-DD') : '')}
+        style={inputStyle}
+      />
+    </div>
 
         <button
           onClick={onReset}

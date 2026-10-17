@@ -1,5 +1,6 @@
 // [v3.0.6.8-51] PR7: 眼料 (IOL 库存 + 接触镜库) 综合页面
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs'
 import {
   Card,
   Space,
@@ -16,6 +17,7 @@ import {
   InputNumber,
   Modal,
   Switch,
+  DatePicker,
 } from "antd";
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Box, Eye, AlertTriangle, Calendar, Plus, Edit3, Trash2 } from 'lucide-react';
@@ -371,7 +373,7 @@ export const MaterialsPage: React.FC = () => {
               <Col span={12}><Form.Item label={t('materialsPage.supplier')}><Input value={iolModal.data.supplier} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, supplier: e.target.value } })} placeholder="Alcon" /></Form.Item></Col>
               <Col span={12}><Form.Item label={t('materialsPage.batchNumber')}><Input value={iolModal.data.batchNumber} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, batchNumber: e.target.value } })} /></Form.Item></Col>
               <Col span={12}><Form.Item label={t('materialsPage.stockLocation')}><Input value={iolModal.data.stockLocation} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, stockLocation: e.target.value } })} placeholder="A-01" /></Form.Item></Col>
-              <Col span={12}><Form.Item label={t('materialsPage.expiryDate')}><Input type="date" onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, expiryDate: e.target.value } })} /></Form.Item></Col>
+              <Col span={12}><Form.Item label={t('materialsPage.expiryDate')}><DatePicker value={iolModal.data.expiryDate ? dayjs(iolModal.data.expiryDate) : null} onChange={(d) => setIolModal({ ...iolModal, data: { ...iolModal.data, expiryDate: d ? d.format('YYYY-MM-DD') : '' } })} /></Form.Item></Col>
               <Col span={12}><Form.Item label={t('materialsPage.unitPrice')}><InputNumber value={iolModal.data.unitPrice} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, unitPrice: v } })} style={{ width: '100%' }} /></Form.Item></Col>
             </Row>
           </Form>

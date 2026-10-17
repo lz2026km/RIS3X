@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, type CSSProperties } from 'react'
-import { Select } from 'antd'
+import dayjs from 'dayjs'
+import { Select, DatePicker } from 'antd'
 import {
   AlertTriangle, CheckCircle, ClipboardList, Plus, RefreshCw, Search,
 } from 'lucide-react'
@@ -453,23 +454,11 @@ export default function AdverseEventPage() {
             <label style={{ fontSize: '12px', color: 'var(--text-secondary, #57606a)' }} htmlFor="ade-date-from">
               {t('ade.filterFrom')}
             </label>
-            <input
-              id="ade-date-from"
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              style={{ ...FIELD_STYLE, width: 'auto' }}
-            />
+            <DatePicker id="ade-date-from" style={{ ...FIELD_STYLE, width: 'auto' }} value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} />
             <label style={{ fontSize: '12px', color: 'var(--text-secondary, #57606a)' }} htmlFor="ade-date-to">
               {t('ade.filterTo')}
             </label>
-            <input
-              id="ade-date-to"
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              style={{ ...FIELD_STYLE, width: 'auto' }}
-            />
+            <DatePicker id="ade-date-to" style={{ ...FIELD_STYLE, width: 'auto' }} value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} />
             <button
               type="button"
               onClick={resetFilters}
@@ -938,12 +927,7 @@ export default function AdverseEventPage() {
             />
           </FormField>
           <FormField label={t('ade.rcaOccurred')} layout="vertical">
-            <input
-              type="date"
-              style={FIELD_STYLE}
-              value={rcaForm.dateOccurred}
-              onChange={(e) => setRcaForm({ ...rcaForm, dateOccurred: e.target.value })}
-            />
+            <DatePicker style={FIELD_STYLE} value={rcaForm.dateOccurred ? dayjs(rcaForm.dateOccurred) : null} onChange={(d) => setRcaForm({ ...rcaForm, dateOccurred: d ? d.format('YYYY-MM-DD') : '' })} />
           </FormField>
           <FormField label={t('ade.rcaDescription')} layout="vertical">
             <textarea

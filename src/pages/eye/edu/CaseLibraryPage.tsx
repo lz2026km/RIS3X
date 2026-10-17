@@ -1,6 +1,7 @@
 // [v3.0.6.8-42] PR 9: 教学病例?
 // 对标: Heidelberg 病例?+ 科研 DICOM 标注 + DICOM PS 3.15 脱敏
 import React, { useState, useEffect } from "react";
+import dayjs from 'dayjs'
 import {
   Card,
   Space,
@@ -22,8 +23,7 @@ import {
   Avatar,
   Drawer,
   Descriptions,
-  Modal,
-} from "antd";
+  Modal, DatePicker } from "antd";
 import {
   BookOpen,
   Save,
@@ -773,7 +773,7 @@ export const CaseLibraryPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item label={t("eyeCaseLibrary.examDate")}>
-                <Input type="date" value={newCase.studyDate} onChange={(e) => setNewCase({ ...newCase, studyDate: e.target.value })} />
+                <DatePicker value={newCase.studyDate ? dayjs(newCase.studyDate) : null} onChange={(d) => setNewCase({ ...newCase, studyDate: d ? d.format('YYYY-MM-DD') : '' })} />
               </Form.Item>
             </Col>
             <Col span={24}>

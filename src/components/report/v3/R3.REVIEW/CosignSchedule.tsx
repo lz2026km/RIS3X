@@ -54,8 +54,7 @@ import {
   Input,
   Form,
   Popconfirm,
-  Drawer,
-} from 'antd';
+  Drawer, DatePicker } from 'antd';
 import { DataTable } from '../../../common';
 import { MODALITY_OPTIONS } from '../../../../constants/modality';
 import { useDepartments } from '../../../../hooks/useStaff';
@@ -833,7 +832,7 @@ export const CosignSchedule: React.FC = () => {
       >
         <Form form={calendarForm} layout="vertical">
           <Row gutter={12}>
-            <Col span={12}><Form.Item name="date" label={t('reportReview.cosign.fieldDate')} rules={[{ required: true }]}><Input type="date" /></Form.Item></Col>
+            <Col span={12}><Form.Item name="date" label={t('reportReview.cosign.fieldDate')} rules={[{ required: true }]}><DatePicker /></Form.Item></Col>
             <Col span={12}>
               <Form.Item name="shiftType" label={t('reportReview.cosign.fieldShift')} rules={[{ required: true }]} initialValue="morning">
                 <Select options={Object.entries(SHIFT_META).map(([k, v]) => ({ value: k, label: t(v.label) }))} />
@@ -908,8 +907,8 @@ export const CosignSchedule: React.FC = () => {
           </Form.Item>
           <Form.Item name="reason" label={t('reportReview.cosign.fieldAuthReason')} rules={[{ required: true, min: 5 }]}><Input.TextArea rows={2} /></Form.Item>
           <Row gutter={12}>
-            <Col span={12}><Form.Item name="startAt" label={t('reportReview.cosign.fieldStart')} rules={[{ required: true }]}><Input type="datetime-local" /></Form.Item></Col>
-            <Col span={12}><Form.Item name="endAt" label={t('reportReview.cosign.fieldEnd')} rules={[{ required: true }]}><Input type="datetime-local" /></Form.Item></Col>
+            <Col span={12}><Form.Item name="startAt" label={t('reportReview.cosign.fieldStart')} rules={[{ required: true }]}><DatePicker showTime format="YYYY-MM-DD HH:mm" /></Form.Item></Col>
+            <Col span={12}><Form.Item name="endAt" label={t('reportReview.cosign.fieldEnd')} rules={[{ required: true }]}><DatePicker showTime format="YYYY-MM-DD HH:mm" /></Form.Item></Col>
           </Row>
         </Form>
       </Modal>

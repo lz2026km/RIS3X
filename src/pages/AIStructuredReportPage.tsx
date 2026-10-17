@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import dayjs from 'dayjs'
 import { Save, Printer, Mic, Square } from "lucide-react";
 import { PageHeader } from "../components/common/PageHeader";
 import { t } from "../i18n/appI18n";
 // [G005 Wave2A P1] 真实保存: aiPlatformApi.createStructuredReport (POST /ai-platform/structured-reports, 后端 GenerateStructuredReportSchema)
 import { aiPlatformApi } from "../services/api/aiPlatformApi";
 import { uniqueId } from "../utils/uniqueId";
-import { Typography } from "antd";
+import { Typography, DatePicker } from "antd";
 
 const { Title } = Typography
 
@@ -1382,11 +1383,12 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{t("aiStructured.examDate")}</label>
-                  <input
-                    type="date"
-                    name="examDate"
-                    value={formData.examDate}
-                    onChange={handleInputChange}
+                  {/* [v3.0.6.16-5] 裸 date 输入改 DatePicker (原用共享 handleInputChange 读取 name) */}
+                  <DatePicker
+                    value={formData.examDate ? dayjs(formData.examDate) : null}
+                    onChange={(d) =>
+                      setFormData((prev) => ({ ...prev, examDate: d ? d.format('YYYY-MM-DD') : '' }))
+                    }
                     style={styles.input}
                   />
                 </div>

@@ -1,7 +1,7 @@
 // [G005 W7-Exec] MWL 管理页: Modality Worklist 查询 / 工作列表项 / MPPS 状态联动
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { HTMLAttributes } from 'react'
-import { Button, Empty, Input, Select, Spin, Tag, message } from 'antd'
+import { Button, Empty, Input, Select, Spin, Tag, message, DatePicker } from 'antd'
 import { Activity, ClipboardList, RefreshCw, RadioTower, Search } from 'lucide-react'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -10,6 +10,7 @@ import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 import { mwlApi, type MwlItemState, type MwlWorklistItemDto } from '../../services/api/execApi'
 import { pacsAdminApi } from '../../services/api/pacsAdminApi'
+import dayjs from 'dayjs'
 import { MODALITY_OPTIONS } from '../../constants/modality'
 
 const STATE_COLOR: Record<string, string> = {
@@ -173,7 +174,13 @@ export default function MwlManagerPage() {
             onChange={(v) => setFilters((f) => ({ ...f, modality: v ?? '' }))}
             options={MODALITY_OPTIONS}
           />
-          <Input size="small" style={{ width: 150 }} type="date" value={filters.date} onChange={(e) => setFilters((f) => ({ ...f, date: e.target.value }))} />
+          {/* [v3.0.6.16-5] 裸 date 输入改 DatePicker */}
+          <DatePicker
+            size="small"
+            style={{ width: 150 }}
+            value={filters.date ? dayjs(filters.date) : null}
+            onChange={(d) => setFilters((f) => ({ ...f, date: d ? d.format('YYYY-MM-DD') : '' }))}
+          />
           <Input size="small" style={{ width: 150 }} placeholder={t('w7exec.queryPatient')} value={filters.patientName} onChange={(e) => setFilters((f) => ({ ...f, patientName: e.target.value }))} />
           <Button size="small" type="primary" icon={<Search size={12} />} loading={loading} onClick={() => void fetchItems()}>
             {t('w7exec.query')}

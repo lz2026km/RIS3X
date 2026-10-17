@@ -34,8 +34,7 @@ import {
   Popconfirm,
   message,
   Timeline,
-  Empty,
-} from "antd";
+  Empty, DatePicker } from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from "../../components/common/PageContainer"
 import { AppStaffField } from "../../components/common/AppStaffField"
@@ -500,7 +499,7 @@ export default function QcPdcaPage() {
               <AppStaffField role="ALL" allowClear />
             </Form.Item>
             <Form.Item name="dueDate" label={t('qcPdca.formDueDate')} style={{ flex: 1 }}>
-              <Input type="date" />
+              <DatePicker />
             </Form.Item>
           </Space>
           {pendingDefectId && (

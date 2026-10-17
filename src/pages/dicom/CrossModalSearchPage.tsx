@@ -3,10 +3,10 @@
  * 搜索表单(关键词/患者/模态/日期) → crossModalApi → 结果分组(exam/report/dicom) → 跳转详情
  */
 import { crossModalApi } from '../../services/api'
+import dayjs from 'dayjs'
 import type { CrossModalSearchResult, CrossModalSimilarResult } from '../../services/api/crossModalApi'
 import {
-  Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Spin, Alert, Select, Tabs, message,
-} from 'antd'
+  Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Spin, Alert, Select, Tabs, message, DatePicker } from 'antd'
 import { EmptyState } from '../../components/common/EmptyState'
 import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
 import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw, DatabaseZap } from 'lucide-react'
@@ -223,10 +223,10 @@ const CrossModalSearchPage: React.FC = () => {
             />
           </Col>
           <Col xs={12} md={5}>
-            <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+            <DatePicker value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} />
           </Col>
           <Col xs={12} md={5}>
-            <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+            <DatePicker value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} />
           </Col>
           <Col xs={24} md={14}>
             <Space>

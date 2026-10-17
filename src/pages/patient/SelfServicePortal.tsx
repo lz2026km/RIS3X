@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import dayjs from 'dayjs'
 import { Printer, Download } from 'lucide-react'
-import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer, Card, Typography } from 'antd'
+import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer, Card, Typography, DatePicker } from 'antd'
 import type { TableColumnsType } from 'antd'
 
 const { Title } = Typography
@@ -1344,7 +1345,7 @@ export default function SelfServicePortal() {
             <div style={styles.grid2}>
               <div>
                 <div style={styles.label}>{t('selfService.followup.dateLabel')}</div>
-                <Input type="date" value={followupForm.date} onChange={e => setFollowupForm({ ...followupForm, date: e.target.value })} style={{ width: '100%' }} />
+                <DatePicker style={{ width: '100%' }} value={followupForm.date ? dayjs(followupForm.date) : null} onChange={(d) => setFollowupForm({ ...followupForm, date: d ? d.format('YYYY-MM-DD') : '' })} />
               </div>
               <div>
                 <div style={styles.label}>{t('selfService.followup.typeLabel')}</div>

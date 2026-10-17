@@ -1647,9 +1647,6 @@ export default function AIQCPage() {
         .spin-icon {
           animation: spin 1s linear infinite;
         }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-          filter: invert(0.7);
-        }
       `}</style>
     </PageContainer>
   )

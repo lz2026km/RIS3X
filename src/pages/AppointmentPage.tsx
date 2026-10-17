@@ -1,5 +1,6 @@
-﻿import { Card, message, Button, Modal, Tabs, Input, Select, Empty, Tooltip, Tag, Space, Spin } from 'antd'
+﻿import { Card, message, Button, Modal, Tabs, Input, Select, Empty, Tooltip, Tag, Space, Spin, DatePicker } from 'antd'
 import type { TableColumnsType } from 'antd'
+import dayjs from 'dayjs'
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
@@ -3749,13 +3750,7 @@ function AppointmentResourcePanel() {
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
                         <span style={RES_LABEL}>期望日期</span>
-                        <Input
-                          size="small"
-                          type="date"
-                          style={{ width: 150 }}
-                          value={waitForm.preferredDate}
-                          onChange={(e) => setWaitForm({ ...waitForm, preferredDate: e.target.value })}
-                        />
+                        <DatePicker size="small" style={{ width: 150 }} value={waitForm.preferredDate ? dayjs(waitForm.preferredDate) : null} onChange={(d) => setWaitForm({ ...waitForm, preferredDate: d ? d.format('YYYY-MM-DD') : '' })} />
                       </div>
                       <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => void handleAddWaitlist()}>
                         加入候补
@@ -3922,7 +3917,7 @@ function AppointmentResourcePanel() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
             <span style={RES_LABEL}>提醒时间 *</span>
-            <Input size="small" type="datetime-local" value={remForm.scheduledAt} onChange={(e) => setRemForm({ ...remForm, scheduledAt: e.target.value })} data-testid="reminder-time" />
+            <DatePicker showTime format="YYYY-MM-DD HH:mm" size="small" data-testid="reminder-time" value={remForm.scheduledAt ? dayjs(remForm.scheduledAt) : null} onChange={(d) => setRemForm({ ...remForm, scheduledAt: d ? d.format('YYYY-MM-DD HH:mm') : '' })} />
           </div>
         </div>
       </Modal>
@@ -3960,7 +3955,7 @@ function AppointmentResourcePanel() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
             <span style={RES_LABEL}>预留开始时间</span>
-            <Input size="small" type="datetime-local" value={greenForm.startAt} onChange={(e) => setGreenForm({ ...greenForm, startAt: e.target.value })} />
+            <DatePicker showTime format="YYYY-MM-DD HH:mm" size="small" value={greenForm.startAt ? dayjs(greenForm.startAt) : null} onChange={(d) => setGreenForm({ ...greenForm, startAt: d ? d.format('YYYY-MM-DD HH:mm') : '' })} />
           </div>
         </div>
       </Modal>

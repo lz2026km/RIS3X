@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
+import dayjs from 'dayjs'
+import { DatePicker } from 'antd'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
@@ -256,7 +258,7 @@ export default function RiskManagementPage() {
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-4, 16px)' }}>{t('riskMgmt.mitigationPlanTitle')}</div>
               <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 60, marginBottom: 'var(--space-3, 12px)' }} placeholder={t('riskMgmt.mitigationPlan')} value={mitigateData.plan} onChange={e => setMitigateData({ ...mitigateData, plan: e.target.value })} />
               <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 'var(--space-3, 12px)' }} placeholder={t('riskMgmt.owner')} value={mitigateData.owner} onChange={e => setMitigateData({ ...mitigateData, owner: e.target.value })} />
-              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 'var(--space-3, 12px)' }} type="date" value={mitigateData.deadline} onChange={e => setMitigateData({ ...mitigateData, deadline: e.target.value })} />
+              <DatePicker style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 'var(--space-3, 12px)' }} value={mitigateData.deadline ? dayjs(mitigateData.deadline) : null} onChange={(d) => setMitigateData({ ...mitigateData, deadline: d ? d.format('YYYY-MM-DD') : '' })} />
               <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <button onClick={() => handleMitigate(showMitigate)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#e11d48', color: '#fff', cursor: 'pointer' }}>{t('riskMgmt.submit')}</button>
                 <button onClick={() => setShowMitigate(null)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer' }}>{t('riskMgmt.cancel')}</button>

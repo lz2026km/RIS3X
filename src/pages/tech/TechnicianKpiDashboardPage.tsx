@@ -1,7 +1,8 @@
 // [G005 v3.0.6.11-100 Wave 1A] 技师 KPI/绩效看板 (运营组 /tech/kpi)
 // 功能: 日期范围 + 技师 KPI 卡网格 + 排行 Top10 三榜 + 近 7/30 日完成量趋势 (recharts) + 数据源徽标
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Select, Spin, Tag } from 'antd'
+import { Select, Spin, Tag, DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
@@ -115,19 +116,20 @@ export default function TechnicianKpiDashboardPage() {
               options={RANGE_PRESETS.map((r) => ({ value: r.label, label: r.label }))}
               data-testid="tech-kpi-range-preset"
             />
-            <input
-              type="date"
-              value={from}
-              onChange={(e) => { setFrom(e.target.value); setPreset('自定义') }}
-              style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            {/* [v3.0.6.16-5] 裸 date 输入改 DatePicker; 选择后同步切到"自定义"预设 */}
+            <DatePicker
+              size="small"
+              value={from ? dayjs(from) : null}
+              onChange={(d) => { setFrom(d ? d.format('YYYY-MM-DD') : ''); setPreset('自定义') }}
+              style={{ width: 140 }}
               data-testid="tech-kpi-from"
             />
             <AppText size="xs" color="secondary">至</AppText>
-            <input
-              type="date"
-              value={to}
-              onChange={(e) => { setTo(e.target.value); setPreset('自定义') }}
-              style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            <DatePicker
+              size="small"
+              value={to ? dayjs(to) : null}
+              onChange={(d) => { setTo(d ? d.format('YYYY-MM-DD') : ''); setPreset('自定义') }}
+              style={{ width: 140 }}
               data-testid="tech-kpi-to"
             />
             <Select

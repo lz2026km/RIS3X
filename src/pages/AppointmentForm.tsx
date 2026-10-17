@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import { Checkbox } from 'antd'
 import { Plus, X, Monitor, User, Scan, ShieldCheck, CreditCard, ClipboardCheck, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { initialModalityDevices, initialExamItems, initialUsers } from '../data/initialData'
@@ -208,7 +210,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
               <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Monitor size={12} />{t('w8.appointmentForm.timeDevice')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
                 <FormField label={`${t('w8.appointmentForm.examDate')}*`} required error={fieldError('examDate')}>
-                  <input type="date" value={formData.examDate || ''} onChange={(e) => set({ examDate: e.target.value })} style={inputStyle(bc('examDate'))} />
+                  <DatePicker value={formData.examDate ? dayjs(formData.examDate) : null} onChange={(d) => set({ examDate: d ? d.format('YYYY-MM-DD') : '' })} style={inputStyle(bc('examDate'))} />
                 </FormField>
                 <FormField label={`${t('w8.appointmentForm.timeSlot')}*`} required error={fieldError('examTime')}>
                   <select value={formData.examTime} onChange={(e) => set({ examTime: e.target.value })} style={inputStyle(bc('examTime'))}>

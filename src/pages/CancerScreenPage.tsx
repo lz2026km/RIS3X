@@ -3,7 +3,8 @@
 // 放射科早癌筛查 - 肺癌LDCT/乳腺癌/消化道癌筛查管理
 // ============================================================
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Spin, message as antdMessage, Select, Typography } from 'antd'
+import dayjs from 'dayjs'
+import { Spin, message as antdMessage, Select, Typography, DatePicker } from 'antd'
 import {
   AlertTriangle, Target, Heart, MapPin, TrendingUp,
   Plus, Search, Filter, Download, RefreshCw,
@@ -1072,7 +1073,7 @@ const CancerScreenPage = () => {
               <div><div style={s.formLabel}>{t('cancerScreen.screenType')}</div>
                 <Select style={{ width: '100%' }} value={regForm.screenType} onChange={(v) => setRegForm({ ...regForm, screenType: v })} options={['LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
-              <div><div style={s.formLabel}>{t('cancerScreen.screenDate')}</div><input type="date" style={{ ...s.formSelect, width: '100%' }} value={regForm.screenDate} onChange={e => setRegForm({ ...regForm, screenDate: e.target.value })} /></div>
+              <div><div style={s.formLabel}>{t('cancerScreen.screenDate')}</div><DatePicker style={{ ...s.formSelect, width: '100%' }} value={regForm.screenDate ? dayjs(regForm.screenDate) : null} onChange={(d) => setRegForm({ ...regForm, screenDate: d ? d.format('YYYY-MM-DD') : '' })} /></div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-5, 20px)', justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowRegisterModal(false)}>{t('cancerScreen.cancel')}</button>

@@ -6,6 +6,7 @@
 // 4. 提取对话框/编辑面板为独立组件
 // G005 放射科RIS系统 - 设备管理页面 v3.0.4-refactored
 import { useState, useEffect } from 'react'
+import dayjs from 'dayjs'
 import {
   Monitor, Wrench, AlertCircle, CheckCircle, Clock, Activity,
   Settings, TrendingUp, BarChart2, Calendar, AlertTriangle, Timer,
@@ -26,7 +27,7 @@ import { t } from '../i18n/appI18n'
 import { ChartContainer } from '../components/charts'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { DataTable } from '../components/common/DataTable'
-import { Select, Tag, message } from 'antd'
+import { Select, Tag, message, DatePicker } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
 import { PageTemplate } from '../components/common/PageTemplate'
 import { ActionButton } from '../components/common/ActionButton'
@@ -1785,10 +1786,10 @@ export default function DevicePage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('devicePage.planDateRequired')}</label>
-                <input type="date" value={maintForm.planDate} onChange={e => setMaintForm(f => ({ ...f, planDate: e.target.value }))} style={{
+                <DatePicker style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, boxSizing: 'border-box'
-                }} />
+                }} value={maintForm.planDate ? dayjs(maintForm.planDate) : null} onChange={(d) => setMaintForm((f) => ({ ...f, planDate: d ? d.format('YYYY-MM-DD') : '' }))} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('devicePage.maintType')}</label>

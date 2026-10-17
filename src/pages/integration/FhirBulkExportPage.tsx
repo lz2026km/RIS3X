@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Space, Tag, Button, Form, Select, message, Alert, Input, Typography, List, Row, Col } from 'antd';
+import dayjs from 'dayjs'
+import { Card, Space, Tag, Button, Form, Select, message, Alert, Typography, List, Row, Col, DatePicker } from 'antd';
 import { Globe, Download, Activity, Loader2 } from 'lucide-react';
 import { fhirApi, type BulkExportJob } from '../../services/api/fhirApi';
 import { t } from '../../i18n/appI18n';
@@ -128,7 +129,7 @@ export const FhirBulkExportPage: React.FC = () => {
           <Card size="small" title={t('fhirExport.paramsTitle')}>
             <Form layout="vertical" size="small">
               <Form.Item label={t('fhirExport.sinceLabel')}>
-                <Input type="date" value={since} onChange={e => setSince(e.target.value)} placeholder="YYYY-MM-DD" />
+                <DatePicker placeholder="YYYY-MM-DD" value={since ? dayjs(since) : null} onChange={(d) => setSince(d ? d.format('YYYY-MM-DD') : '')} />
               </Form.Item>
               <Form.Item label={t('fhirExport.typeLabel')}>
                 <Select mode="multiple" value={types} onChange={setTypes} placeholder={t('fhirExport.selectTypePlaceholder')} options={RESOURCE_TYPES} />

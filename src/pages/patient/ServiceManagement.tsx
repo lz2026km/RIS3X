@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import dayjs from 'dayjs'
 import { appointmentApi } from '../../services/api/appointmentApi'
 import { templatesApi } from '../../services/api/templatesApi'
 import { getCurrentUser } from '../../utils/auth'
-import { Card } from 'antd'
+import { Card, DatePicker } from 'antd'
 import { AppEmpty } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
@@ -238,7 +239,7 @@ export default function ServiceManagement() {
               </div>
               <div>
                 <label style={s.label}>{t('serviceMgmt.appointmentDate')}</label>
-                <input type="date" value={bookingForm.date} onChange={e => setBookingForm(p => ({ ...p, date: e.target.value }))} style={s.input} />
+                <DatePicker style={s.input} value={bookingForm.date ? dayjs(bookingForm.date) : null} onChange={(d) => setBookingForm((f) => ({ ...f, date: d ? d.format('YYYY-MM-DD') : '' }))} />
               </div>
               <div>
                 <label style={s.label}>{t('serviceMgmt.timeSlot')}</label>

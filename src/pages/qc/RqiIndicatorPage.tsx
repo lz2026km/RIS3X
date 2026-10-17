@@ -31,7 +31,7 @@ import {
   ScrollText,
   XCircle,
 } from 'lucide-react'
-import { Button, Tag, Space, Input, InputNumber, Drawer, message, Tabs, Select, Segmented } from 'antd'
+import { Button, Tag, Space, Input, InputNumber, Drawer, message, Tabs, Select, Segmented, DatePicker } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -678,21 +678,9 @@ export default function RqiIndicatorPage() {
           />
           <Space size={6}>
             <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('rqi2024.dateRange')}</span>
-            <Input
-              size="small"
-              type="date"
-              style={{ width: 150 }}
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
+            <DatePicker size="small" style={{ width: 150 }} value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} />
             <span style={{ color: 'var(--text-muted, #94a3b8)' }}>~</span>
-            <Input
-              size="small"
-              type="date"
-              style={{ width: 150 }}
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-            />
+            <DatePicker size="small" style={{ width: 150 }} value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} />
             {rangeActive && (
               <Button
                 size="small"

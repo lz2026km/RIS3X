@@ -2,6 +2,8 @@
 // 影像预约管理系统 - 患者影像检查预约管理
 // 功能：预约列表、改约/取消、冲突检测、预约统计
 import { useState, useMemo, useCallback, useEffect } from 'react'
+import dayjs from 'dayjs'
+import { DatePicker } from 'antd'
 import { replayOrderEvent } from '../utils/orderStateAdapter'
 import { uniqueId } from '../utils/uniqueId'
 import {
@@ -938,12 +940,7 @@ export default function AppointmentManagementPage() {
               <option value="completed">{t('apptMgmt.completed')}</option>
               <option value="cancelled">{t('apptMgmt.cancelled')}</option>
             </select>
-            <input
-              type="date"
-              style={styles.select}
-              value={filterDate}
-              onChange={e => setFilterDate(e.target.value)}
-            />
+            <DatePicker style={styles.select} value={filterDate ? dayjs(filterDate) : null} onChange={(d) => setFilterDate(d ? d.format('YYYY-MM-DD') : '')} />
             {(filterModality !== '全部' || filterStatus !== 'all' || filterDate) && (
               <button
                 style={{ ...styles.actionBtn('secondary'), display: 'flex', alignItems: 'center', gap: '4px' }}
@@ -1406,12 +1403,7 @@ export default function AppointmentManagementPage() {
 
             <div style={styles.formGroup}>
               <label style={styles.formLabel}>{t('apptMgmt.newDate')}</label>
-              <input
-                type="date"
-                style={styles.formInput}
-                value={rescheduleData.examDate}
-                onChange={e => setRescheduleData({ ...rescheduleData, examDate: e.target.value })}
-              />
+              <DatePicker style={styles.formInput} value={rescheduleData.examDate ? dayjs(rescheduleData.examDate) : null} onChange={(d) => setRescheduleData({ ...rescheduleData, examDate: d ? d.format('YYYY-MM-DD') : '' })} />
             </div>
 
             <div style={styles.formGroup}>
@@ -1591,7 +1583,7 @@ export default function AppointmentManagementPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
                 <div style={styles.formGroup}>
                   <label style={styles.formLabel}>{t('apptMgmt.dateLabel')}</label>
-                  <input type="date" style={styles.formInput} value={createForm.examDate} onChange={e => setCreateForm({ ...createForm, examDate: e.target.value })} />
+                  <DatePicker style={styles.formInput} value={createForm.examDate ? dayjs(createForm.examDate) : null} onChange={(d) => setCreateForm({ ...createForm, examDate: d ? d.format('YYYY-MM-DD') : '' })} />
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.formLabel}>{t('apptMgmt.timeLabel')}</label>

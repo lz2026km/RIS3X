@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom';
-import { message, Modal, Input, Select, Typography } from 'antd';
+import { message, Modal, Input, Select, Typography, DatePicker } from 'antd';
 import type { TableColumnsType } from 'antd';
 import {
   ShieldCheck, Stamp, CheckCircle2, AlertTriangle, XCircle,
@@ -681,7 +682,7 @@ export default function CASignaturePage() {
             </div>
             <div>
               <div style={fieldLabelStyle}>{t('caSignature.validToLabel')}</div>
-              <Input size="small" type="date" value={uploadForm.validTo} onChange={e => setUploadForm(f => ({ ...f, validTo: e.target.value }))} />
+              <DatePicker size="small" value={uploadForm.validTo ? dayjs(uploadForm.validTo) : null} onChange={(d) => setUploadForm((f) => ({ ...f, validTo: d ? d.format('YYYY-MM-DD') : '' }))} />
             </div>
           </div>
           <div>

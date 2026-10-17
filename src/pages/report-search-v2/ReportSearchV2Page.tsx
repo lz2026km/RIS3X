@@ -3,8 +3,9 @@
 // - 自然语言: POST /report-search-v2/natural-language (解析条件回显)
 // - 结果 DataTable + 聚合 + KPI 卡片 (GET /report-search-v2/stats, 检索耗时前端实测)
 import { useCallback, useEffect, useMemo, useState } from "react";
+import dayjs from 'dayjs'
 import type { ReactNode } from "react";
-import { Alert, Button, Card, Input, Segmented, Select, Space, Tag, message } from "antd";
+import { Alert, Button, Card, Input, Segmented, Select, Space, Tag, message, DatePicker } from "antd";
 import {
   Clock,
   Database,
@@ -549,15 +550,15 @@ export default function ReportSearchV2Page() {
                       options={options}
                       onChange={(v) => updateFilter(row.id, { value: v ?? "" })}
                     />
-                  ) : isDate ? (
-                    <Input
-                      type="date"
-                      style={{ width: 170 }}
-                      value={row.value}
-                      aria-label={t("wD2.search.filter.value")}
-                      onChange={(e) => updateFilter(row.id, { value: e.target.value })}
-                    />
-                  ) : (
+          ) : isDate ? (
+            <DatePicker
+              size="small"
+              style={{ width: 170 }}
+              value={row.value ? dayjs(String(row.value)) : null}
+              aria-label={t("wD2.search.filter.value")}
+              onChange={(d) => updateFilter(row.id, { value: d ? d.format('YYYY-MM-DD') : '' })}
+            />
+          ) : (
                     <Input
                       allowClear
                       style={{ width: 200 }}

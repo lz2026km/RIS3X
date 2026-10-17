@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import dayjs from 'dayjs'
 import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar, FileText } from 'lucide-react';
 import { followupApi, FOLLOWUP_RESULT_OPTIONS, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue, type FollowUpResult } from '../services/api/followupApi';
 import { DataTable } from '../components/common/DataTable';
-import { Select, Typography, message } from 'antd';
+import { Select, Typography, message, DatePicker } from 'antd';
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
 import { worklistApi } from '../services/api/worklistApi';
@@ -1754,12 +1755,7 @@ export default function FollowUpPage() {
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>{t('followUp.followUpDate')} *</label>
-                <input
-                  type="date"
-                  value={newPlan.planDate}
-                  onChange={e => setNewPlan(f => ({ ...f, planDate: e.target.value }))}
-                  style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
-                />
+                <DatePicker style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }} value={newPlan.planDate ? dayjs(newPlan.planDate) : null} onChange={(d) => setNewPlan((f) => ({ ...f, planDate: d ? d.format('YYYY-MM-DD') : '' }))} />
               </div>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>{t('followUp.intervalDays')}</label>
@@ -2009,12 +2005,7 @@ export default function FollowUpPage() {
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('followUp.baseDate')} *</label>
-              <input
-                type="date"
-                value={tplApplyForm.planDate}
-                onChange={e => setTplApplyForm(f => ({ ...f, planDate: e.target.value }))}
-                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
-              />
+              <DatePicker style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }} value={tplApplyForm.planDate ? dayjs(tplApplyForm.planDate) : null} onChange={(d) => setTplApplyForm((f) => ({ ...f, planDate: d ? d.format('YYYY-MM-DD') : '' }))} />
             </div>
 
             <div style={modalButtonContainer}>
@@ -2098,12 +2089,7 @@ export default function FollowUpPage() {
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>{t('followUp.followUpDate')} *</label>
-                <input
-                  type="date"
-                  value={editForm.planDate}
-                  onChange={e => setEditForm(f => ({ ...f, planDate: e.target.value }))}
-                  style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
-                />
+                <DatePicker style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }} value={editForm.planDate ? dayjs(editForm.planDate) : null} onChange={(d) => setEditForm((f) => ({ ...f, planDate: d ? d.format('YYYY-MM-DD') : '' }))} />
               </div>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>{t('followUp.intervalDays')}</label>

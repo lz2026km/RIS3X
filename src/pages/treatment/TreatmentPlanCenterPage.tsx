@@ -1,25 +1,7 @@
 // [W3-2] 跨科室治疗计划中心: treatmentPlanApi 真实 CRUD + 状态流转 + 时间线
 import { usePagination } from '../../hooks/usePagination';
 import { treatmentPlanApi, type TreatmentPlan, type PlanStatus } from '../../services/api/treatmentPlanApi';
-import {
-  Card,
-  Space,
-  Tag,
-  Button,
-  Select,
-  Input,
-  message,
-  Tabs,
-  Modal,
-  Form,
-  Badge,
-  Steps,
-  Popconfirm,
-  Alert,
-  Empty,
-  Spin,
-  Descriptions,
-} from "antd";
+import { Card, Space, Tag, Button, Select, message, Tabs, Modal, Form, Badge, Steps, Popconfirm, Alert, Empty, Spin, Descriptions, Input, DatePicker } from "antd";
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Plus, ClipboardList, RefreshCw, PlayCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -297,7 +279,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
             <Select mode="multiple" options={DEPT_OPTIONS} />
           </Form.Item>
           <Form.Item label={t('treatmentPlan.startDateLabel')} name="startDate">
-            <Input type="date" />
+            <DatePicker />
           </Form.Item>
           <Form.Item label={t('treatmentPlan.descLabel')} name="desc" rules={[{ required: true, message: t('treatmentPlan.descRequired') }]}>
             <TextArea rows={3} placeholder={t('treatmentPlan.descPh')} />
@@ -365,7 +347,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
             <Select mode="multiple" options={DEPT_OPTIONS} />
           </Form.Item>
           <Form.Item label={t('treatmentPlan.startDateLabel')} name="startDate">
-            <Input type="date" />
+            <DatePicker />
           </Form.Item>
           <Form.Item label={t('treatmentPlan.descLabel')} name="desc" rules={[{ required: true, message: t('treatmentPlan.descRequired') }]}>
             <TextArea rows={3} placeholder={t('treatmentPlan.descPh')} />

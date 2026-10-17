@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import dayjs from 'dayjs'
 import {
   Activity,
   AlertTriangle,
@@ -22,7 +23,7 @@ import {
   Line,
   ReferenceLine,
 } from "recharts";
-import { Select } from "antd";
+import { Select, DatePicker } from "antd";
 import type { TableColumnsType } from "antd";
 import { rdsrApi } from "../../services/api/rdsrApi";
 import { ChartContainer } from "../../components/charts";
@@ -590,19 +591,9 @@ export default function DoseLiveMonitor() {
             <BarChart3 size={14} /> {t('doseLive.statsTitle')}
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', fontWeight: 400 }}>
-            <input
-              type="date"
-              style={{ ...input, width: 150 }}
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
+            <DatePicker style={{ ...input, width: 150 }} value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} />
             <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('doseLive.to')}</span>
-            <input
-              type="date"
-              style={{ ...input, width: 150 }}
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-            />
+            <DatePicker style={{ ...input, width: 150 }} value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} />
             <button style={btnPrimary} onClick={() => void loadStats()} disabled={statsLoading}>
               <BarChart3 size={13} /> {statsLoading ? t('doseLive.calculating') : t('doseLive.query')}
             </button>
