@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import {
   Search, Filter, RefreshCw, Clock, AlertTriangle, CheckCircle,
   X, Calendar, Check, ChevronDown, ChevronUp, Zap, User, Stethoscope,
@@ -6,6 +8,7 @@ import {
   XCircle, LayoutList, Printer, ArrowRight, ListChecks, FileText, Save,
 } from 'lucide-react'
 import { initialUsers, initialExamRooms } from '../../data/initialData'
+const { RangePicker } = DatePicker
 import { t } from '../../i18n/appI18n'
 
 const patientTypeLabel = (v: string): string => ({
@@ -183,32 +186,21 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             <Calendar size={14} style={{ color: 'var(--text-secondary)' }} />
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('worklistToolbar.date')}</span>
           </div>
-          <input
-            type="date"
-            value={filters.dateStart}
-            onChange={e => updateFilter('dateStart', e.target.value)}
-            style={{
-              border: '1px solid var(--border-color)',
-              borderRadius: 6,
-              padding: '6px 10px',
-              fontSize: 12,
-              color: 'var(--text-primary)',
-              background: 'var(--bg-card)',
+          {/* [v3.0.6.16-2] 起止日期由两个裸 <input type=date> 合并为 RangePicker:
+              原生 date 控件无快捷区间(如"近 7 天")、locale 不跟随系统、
+              且在部分浏览器上样式与站内不一致。 */}
+          <RangePicker
+            size="small"
+            value={[
+              filters.dateStart ? dayjs(filters.dateStart) : null,
+              filters.dateEnd ? dayjs(filters.dateEnd) : null,
+            ]}
+            onChange={(v) => {
+              updateFilter('dateStart', v?.[0] ? v[0].format('YYYY-MM-DD') : '');
+              updateFilter('dateEnd', v?.[1] ? v[1].format('YYYY-MM-DD') : '');
             }}
-          />
-          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('worklistToolbar.to')}</span>
-          <input
-            type="date"
-            value={filters.dateEnd}
-            onChange={e => updateFilter('dateEnd', e.target.value)}
-            style={{
-              border: '1px solid var(--border-color)',
-              borderRadius: 6,
-              padding: '6px 10px',
-              fontSize: 12,
-              color: 'var(--text-primary)',
-              background: 'var(--bg-card)',
-            }}
+            allowClear
+            style={{ fontSize: 12 }}
           />
         </div>
 

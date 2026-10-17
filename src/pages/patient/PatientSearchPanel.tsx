@@ -1,5 +1,8 @@
 import { Search, Filter, ChevronDown, ChevronUp, RefreshCw, Bookmark, BookmarkCheck, X, Save } from 'lucide-react'
-import type { AdvancedFilters, GenderFilter, PatientTypeFilter } from './types'
+import { DatePicker } from 'antd'
+import dayjs from 'dayjs'
+import type { AdvancedFilters } from './types'
+const { RangePicker } = DatePicker
 
 interface AdvancedFilterPanelProps {
   filters: AdvancedFilters
@@ -16,7 +19,6 @@ interface AdvancedFilterPanelProps {
 }
 
 function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPreset, onSavePreset, onDeletePreset, showSavePreset, savePresetName, onSavePresetNameChange, onToggleSavePreset }: AdvancedFilterPanelProps) {
-  const modalities = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI']
   const diagnosisCategories = ['全部', '呼吸系统', '消化系统', '骨骼肌肉', '神经系统', '心血管', '肿瘤', '其他']
 
   return (
@@ -29,66 +31,24 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>性别</label>
-          <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
-            {(['全部', '男', '女'] as GenderFilter[]).map(g => (
-              <button
-                key={g}
-                onClick={() => onChange({ ...filters, gender: g })}
-                style={{
-                  flex: 1, padding: '6px 0', borderRadius: 6, border: '1px solid',
-                  borderColor: filters.gender === g ? 'var(--color-primary-800)' : 'var(--border-color)',
-                  background: filters.gender === g ? 'var(--color-primary-800)' : 'var(--bg-card)',
-                  color: filters.gender === g ? '#fff' : '#64748b',
-                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                }}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>年龄范围</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <input type="number" value={filters.ageMin} onChange={e => onChange({ ...filters, ageMin: e.target.value })} placeholder="最小"
-              style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, width: '100%' }} />
-            <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>-</span>
-            <input type="number" value={filters.ageMax} onChange={e => onChange({ ...filters, ageMax: e.target.value })} placeholder="最大"
-              style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, width: '100%' }} />
-          </div>
-        </div>
-
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>患者类型</label>
-          <select value={filters.patientType} onChange={e => onChange({ ...filters, patientType: e.target.value as PatientTypeFilter })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
-            {(['全部', '门诊', '住院', '体检', '急诊'] as PatientTypeFilter[]).map(t => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>检查设备</label>
-          <select value={filters.modality} onChange={e => onChange({ ...filters, modality: e.target.value })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
-            {modalities.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>建档日期从</label>
-          <input type="date" value={filters.dateFrom} onChange={e => onChange({ ...filters, dateFrom: e.target.value })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
-        </div>
-
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>建档日期至</label>
-          <input type="date" value={filters.dateTo} onChange={e => onChange({ ...filters, dateTo: e.target.value })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
-        </div>
+        <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>建档日期</label>
+        {/* [v3.0.6.16-2] 两个裸 date 输入合并为 RangePicker (支持快捷区间/locale 跟随) */}
+        <RangePicker
+          size="small"
+          style={{ width: '100%' }}
+          value={[
+            filters.dateFrom ? dayjs(filters.dateFrom) : null,
+            filters.dateTo ? dayjs(filters.dateTo) : null,
+          ]}
+          onChange={(v) =>
+            onChange({
+              ...filters,
+              dateFrom: v?.[0] ? v[0].format('YYYY-MM-DD') : '',
+              dateTo: v?.[1] ? v[1].format('YYYY-MM-DD') : '',
+            })
+          }
+        />
+      </div>
 
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>诊断分类</label>

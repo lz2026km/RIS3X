@@ -32,6 +32,7 @@ import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, Tooltip as RTool
 import { ChartContainer, chartDefaults } from '../../components/charts'
 import { DataTable, ExportButton, StatCard, StatCardGrid } from "../../components/common"
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
+import { deviceApi } from '../../services/api/deviceApi'
 import type {
   Asset, CalibrationRecord, CalibrationStats, CostSummary, DepreciationResult, DrgGroups,
   DowntimeLossRow, OeeDeviceLoss, OeeOverview, OeeTrendPoint,
@@ -69,7 +70,6 @@ const ASSET_STATUS_LABEL: Record<string, string> = {
   in_use: 'w11Device.asset.statusInUse', maintenance: 'w11Device.asset.statusMaintenance',
   retired: 'w11Device.asset.statusRetired', scrapped: 'w11Device.asset.statusScrapped',
 }
-const DEVICE_OPTIONS = ['CT-01', 'CT-02', 'MR-01', 'MR-02', 'DR-01', 'DR-02', 'MG-01', 'DSA-01'].map((id) => ({ value: id, label: id }))
 
 const fmtDate = (v?: string) => (v ? String(v).replace('T', ' ').slice(0, 16) : t('w11Device.dash'))
 const fmtMoney = (v?: number) => (typeof v === 'number' ? `¥${v.toLocaleString()}` : t('w11Device.dash'))
@@ -78,6 +78,33 @@ export default function DeviceOpsCenterPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [source, setSource] = useState<'api' | 'demo'>('api')
+
+  // [v3.0.6.16-2] 工单设备选择改接真实设备清单 (原写死 CT-01/MR-01/... 8 台,
+  // 机构新增或报废设备后工单选不到, 提交的 deviceId 也可能不存在)
+  const [deviceOptions, setDeviceOptions] = useState<Array<{ value: string; label: string }>>([])
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await deviceApi.list({ take: 300 })
+        const list = Array.isArray(res?.data) ? res.data : []
+        if (cancelled) return
+        setDeviceOptions(
+          list
+            .filter((d) => d.status !== 'SCRAPPED')
+            .map((d) => ({
+              value: d.id,
+              label: `${d.code ?? d.id}${d.name ? ` · ${d.name}` : ''}${d.modality ? ` (${d.modality})` : ''}`,
+            })),
+        )
+      } catch {
+        if (!cancelled) setDeviceOptions([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
   const [woStats, setWoStats] = useState<WorkOrderStats | null>(null)
@@ -456,7 +483,7 @@ export default function DeviceOpsCenterPage() {
             <Input />
           </Form.Item>
           <Form.Item name="deviceId" label={t('w11Device.wo.device')} rules={[{ required: true }]}>
-            <Select showSearch optionFilterProp="label" options={DEVICE_OPTIONS} />
+            <Select showSearch optionFilterProp="label" loading={deviceOptions.length === 0} options={deviceOptions} />
           </Form.Item>
           <Form.Item name="priority" label={t('w11Device.wo.priority')}>
             <Select options={['critical', 'high', 'medium', 'low'].map((v) => ({ value: v, label: t(WO_PRI_LABEL[v] ?? v) }))} />

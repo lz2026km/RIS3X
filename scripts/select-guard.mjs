@@ -47,6 +47,8 @@ let rawDateInput = 0;
 const dateEx = [];
 
 const MASTER_KEYS = ['DOCTORS', 'OWNER_OPTIONS', 'DEVICE_OPTIONS', 'NURSES', 'STAFF', 'USERS', 'DEPARTMENTS_LIST'];
+// 合法的临床枚举(非机构主数据): 眼压计型号等检查手段枚举, 不应接 deviceApi
+const CLINICAL_ENUM_ALLOWLIST = ['src/pages/eye/ris/IntraocularPressurePage.tsx'];
 
 for (const f of files) {
   const src = readFileSync(f, 'utf8');
@@ -61,10 +63,12 @@ for (const f of files) {
   }
 
   // 硬编码主数据下拉: 出现 *_OPTIONS/DOCTORS 常量且带 options= 引用
-  for (const k of MASTER_KEYS) {
-    if (new RegExp(`const\\s+${k}\\b`).test(src) && new RegExp(`options=\\{${k}`).test(src)) {
-      hardcodedMaster++;
-      masterEx.push({ file: relF, k });
+  if (!CLINICAL_ENUM_ALLOWLIST.includes(relF)) {
+    for (const k of MASTER_KEYS) {
+      if (new RegExp(`const\\s+${k}\\b`).test(src) && new RegExp(`options=\\{${k}`).test(src)) {
+        hardcodedMaster++;
+        masterEx.push({ file: relF, k });
+      }
     }
   }
 
