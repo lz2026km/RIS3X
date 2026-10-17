@@ -46,9 +46,9 @@ for (const f of backendFiles) {
   const ctrlEmpty = [...src.matchAll(/@Controller\(\s*\)\s*$/gm)].length;
   const prefixes = [...ctrlPrefixes, ...Array(ctrlEmpty).fill('')];
 
-  const handlers = [...src.matchAll(/@(Get|Post|Put|Patch|Delete)\(\s*(['"])([^'"]*)\2\s*\)/g)];
+  const handlers = [...src.matchAll(/@(Get|Post|Put|Patch|Delete)\(\s*(?:['"]([^'"]*)['"]\s*)?\)/g)];
   for (const h of handlers) {
-    const sub = h[3];
+    const sub = h[2] ?? ''; // @Post() 空前缀也需收录 (如 dicom/compress 的 POST /)
     for (const pre of prefixes) {
       const parts = [pre, sub].filter(Boolean).join('/');
       backendRoutes.add(parts.replace(/^\/+/, ''));
@@ -62,18 +62,74 @@ for (const f of backendFiles) {
 const apiFiles = walk(join(ROOT, 'src', 'services', 'api')).filter((f) => /\.(ts|tsx)$/.test(f));
 const pageFiles = walk(join(ROOT, 'src')).filter((f) => /\.(ts|tsx)$/.test(f) && !f.includes(`${ROOT}${norm('/src/services')}` ? 'services' : 'services'));
 
-/** 从 api.get/post/put/patch/delete(...) 抽取路径字符串 (含反引号模板) */
+/** 从 start 处的反引号起扫描完整模板字面量 (正确处理嵌套 ${} 与内层反引号) */
+function readTemplateLiteral(s, start) {
+  let j = start + 1;
+  while (j < s.length) {
+    const c = s[j];
+    if (c === '\\') { j += 2; continue; }
+    if (c === '`') return { value: s.slice(start + 1, j), end: j + 1 };
+    if (c === '$' && s[j + 1] === '{') {
+      let depth = 0;
+      let k = j + 1;
+      for (; k < s.length; k++) {
+        if (s[k] === '`') {
+          const r = readTemplateLiteral(s, k);
+          if (!r) break;
+          k = r.end - 1;
+          continue;
+        }
+        if (s[k] === '{') depth++;
+        else if (s[k] === '}') { depth--; if (depth === 0) break; }
+      }
+      j = k + 1;
+      continue;
+    }
+    j++;
+  }
+  return null;
+}
+
+/** 从 api.get/post/... 抽取路径字符串 (含反引号模板; 支持嵌套) */
 function extractPaths(text) {
   const out = [];
-  const re = /\.(?:get|post|put|patch|delete)(?:<[^>]*>)?\s*\(\s*(`[^`]*`|'[^']*'|"[^"]*")/g;
+  const re = /\.(?:get|post|put|patch|delete)(?:<[^>]*>)?\s*\(\s*/g;
   let m;
   while ((m = re.exec(text))) {
-    let lit = m[1];
-    if (lit[0] === '`') lit = lit.slice(1, -1);
-    else lit = lit.slice(1, -1);
-    if (lit) out.push(lit);
+    const i = m.index + m[0].length;
+    const c = text[i];
+    if (c === '`') {
+      const r = readTemplateLiteral(text, i);
+      if (r && r.value) out.push(r.value);
+      if (r) re.lastIndex = r.end;
+    } else if (c === "'" || c === '"') {
+      const end = text.indexOf(c, i + 1);
+      if (end > 0) {
+        out.push(text.slice(i + 1, end));
+        re.lastIndex = end + 1;
+      }
+    }
   }
   return out;
+}
+
+/** 收集文件内的路径前缀常量: const XXX_API = '/xxx' */
+function collectPrefixConstants(src) {
+  const map = new Map();
+  for (const m of src.matchAll(/const\s+([A-Za-z_$][\w$]*)\s*=\s*['"]([^'"]*)['"]/g)) {
+    map.set(m[1], m[2]);
+  }
+  return map;
+}
+
+/** 用已知常量替换 ${CONST} (仅当常量值看起来像路径) */
+function substituteConstants(p, consts) {
+  return p.replace(/\$\{([A-Za-z_$][\w$]*)\}/g, (m, name) => {
+    const v = consts.get(name);
+    if (v === undefined) return m;
+    // 仅替换形如 /xxx 或 xxx 的路径常量, 避免把函数调用当路径
+    return /^\/?[A-Za-z0-9_\-/]*$/.test(v) ? v : m;
+  });
 }
 
 // 路径归一:
@@ -81,9 +137,34 @@ function extractPaths(text) {
 //  2) 去掉 query string (search 部分不属于路由契约)
 //  3) 去掉结尾斜杠
 //  4) 去掉 API_BASE 前缀常量拼接产生的残留
+// 路径归一:
+//  1) 模板表达式 ${...} 需**花括号平衡**扫描 (内容可能含嵌套 {} 如 ${qs({a:1})});
+//     前面是 '/' 的视为路径参数 -> '/*' ; 否则视为 query/后缀拼接 -> 删除
+//  2) 去掉 query string
+//  3) 去掉结尾斜杠
+function stripTemplates(p) {
+  let out = '';
+  for (let i = 0; i < p.length; i++) {
+    if (p[i] === '$' && p[i + 1] === '{') {
+      let depth = 0;
+      let j = i + 1;
+      for (; j < p.length; j++) {
+        if (p[j] === '{') depth++;
+        else if (p[j] === '}') { depth--; if (depth === 0) break; }
+      }
+      if (j >= p.length) { out += p.slice(i); break; }
+      const prev = out.slice(-1);
+      if (prev === '/') out += '*';
+      i = j;
+    } else {
+      out += p[i];
+    }
+  }
+  return out;
+}
+
 function templatize(p) {
-  return p
-    .replace(/\$\{[^}]*\}/g, '*') // 先折叠模板, 再切 query
+  return stripTemplates(p)
     .split('?')[0]
     .replace(/`[^`]*$/g, '')
     .replace(/\/+/g, '/')
@@ -119,9 +200,12 @@ function matchesBackend(route, backendSet) {
 
 const frontendCalls = new Map(); // path -> Set<file>
 for (const f of [...apiFiles, ...pageFiles]) {
-  const src = readFileSync(f, 'utf8');
+  let src = readFileSync(f, 'utf8');
+  // 去掉注释, 避免 JSDoc @example 里的示例路径被当成真实调用
+  src = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  const consts = collectPrefixConstants(src);
   for (const raw of extractPaths(src)) {
-    const p = templatize(raw);
+    const p = templatize(substituteConstants(raw, consts));
     // 过滤: 不含 '/' 的裸段 (通常是 mock 常量/资源路径, 非 REST 路由), 以及空
     if (!p || !p.includes('/')) continue;
     if (!frontendCalls.has(p)) frontendCalls.set(p, new Set());
@@ -136,11 +220,15 @@ const mswFiles = walk(join(ROOT, 'src', 'services', 'mockBackend')).filter((f) =
 const mswOnly = new Map(); // path -> Set<file>
 for (const f of mswFiles) {
   const src = readFileSync(f, 'utf8');
-  // 覆盖 ${API} / ${API_BASE} / ${API_NO_R4} / ${API_R4} 等常量名
-  const re = /http\.(?:get|post|put|patch|delete)\(\s*`\$\{[A-Za-z_][A-Za-z0-9_]*\}([^`]*)`/g;
+  const consts = collectPrefixConstants(src);
+  const re = /http\.(?:get|post|put|patch|delete)\(\s*`([^`]*)`/g;
   let m;
   while ((m = re.exec(src))) {
-    const p = templatize(m[1]);
+    // 解析 ${API} 等前缀常量 -> 得到形如 /api/v1/dental/xxx 的完整路径
+    let full = substituteConstants(m[1], consts);
+    // 去掉 API 基础前缀 (/api/v1 或 /api), 只留业务路径以便与后端路由比对
+    full = full.replace(/^\/?api(\/v\d+)?\/?/, '');
+    const p = templatize(full);
     if (!p || !p.includes('/')) continue;
     if (!mswOnly.has(p)) mswOnly.set(p, new Set());
     mswOnly.get(p).add(stripIndex(f));
@@ -204,8 +292,8 @@ const realDeadCalls = deadCalls.filter(({ path }) => {
 // 5. 预算输出
 // ============================================================================
 const BUDGET = {
-  deadCalls: Number(process.env['GUARD_DEAD_CALLS'] ?? 40),
-  realDeadCalls: Number(process.env['GUARD_REAL_DEAD_CALLS'] ?? 12),
+  deadCalls: Number(process.env['GUARD_DEAD_CALLS'] ?? 0),
+  realDeadCalls: Number(process.env['GUARD_REAL_DEAD_CALLS'] ?? 0),
 };
 
 console.log('[api-contract-guard] 前后端 API 契约检查');
