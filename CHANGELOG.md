@@ -1,3 +1,34 @@
+## v3.0.6.16-5 (2026-10-16) — 五项遗留全清（DICOM 加载器 / 日期控件 / 压缩接线 / 契约守卫 / 回退可见）
+
+> **背景**: 收口前四轮审查遗留的 5 项。
+> **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 69/69 全绿。
+
+### 1. 修复 `/eye/pacs/real-viewer` DICOM image loader（长期遗留缺陷）
+- **根因**: cornerstone 用 `imageId.split(':')[0]` 取 scheme。页面把 imageId 构造为
+  `frame-1`（无冒号），scheme 被解析为 `frame-1`，而 loader 注册的是 `frame`
+  → `No image loader found for scheme 'frame-1'` → 视口空白（E2E 唯一持续失败路由）。
+- **修复**: imageId 改为 `frame:<n>`（符合 `scheme:path` 规范）；帧号解析正则兼容两种写法。
+- **结果**: `/eye/pacs/real-viewer` pass=true，pageErrors=[]。
+
+### 2. 全部 83 处裸日期输入迁移为 antd `DatePicker`（`rawDateInput` 83 → **0**）
+- 覆盖 4 类 onChange 形态（直接 setter / 对象展开 / 计算属性 / 函数式更新），
+  另人工处理 6 处异构写法（回调 prop、块体 onChange、嵌套对象、共享 handler、`set` setter）。
+- `datetime-local` → `DatePicker showTime`；移除已失效的深色主题 `input[type=date]` CSS。
+
+### 3. `PostProcessingPage` 接入真实 `dicom/compress` 后端（concept → hybrid）
+- 新增「压缩后处理」面板：实例列表 / 目标传输语法 / 创建转码任务 / 任务状态与压缩比 / 统计，
+  全部走真实后端端点（此前整页仅本地合成像素，标 concept）。
+
+### 4. `api-contract-guard` 精度修复 — 死调用 33 → **0**
+- 修掉 5 个解析缺陷：模板花括号不平衡、反引号嵌套截断、前缀常量未解析、注释污染、
+  `@Post()` 空前缀未收录。MSW 侧同样解析前缀常量（误报 586 → 36）。
+- **结论**: 前端 api 层已 100% 有后端路由覆盖。预算收紧为 `deadCalls=0 / realDeadCalls=0`。
+
+### 5. 演示数据回退不再静默（生产环境全局横幅）
+- `client.ts` 新增回退登记表（仅生产登记、按 url+code 去重）；`request()` 两处失败分支接入。
+- 新增 `DemoFallbackBanner`：生产环境一旦接口失败即显式告知"当前 N 个数据源可能显示演示数据"，
+  可展开查看受影响端点，支持关闭；演示环境不渲染。挂载于 `AppLayout`。
+
 ## v3.0.6.16-4 (2026-10-16) — IHE 连通性自检接入真实服务状态
 
 > **承接**: v3.0.16-3 继续推进"零接线页面能接的接"。
