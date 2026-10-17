@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.16-0",
-  "description": "G005 Radiology RIS v3.0.6.16-0 - Table Density & Column-Width Normalization (row height 231px→37px)",
+  "version": "3.0.6.16-1",
+  "description": "G005 Radiology RIS v3.0.6.16-1 - Table Density & Column-Width Normalization (row height 231px→37px)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

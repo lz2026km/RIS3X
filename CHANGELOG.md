@@ -1,3 +1,32 @@
+## v3.0.6.16-1 (2026-10-16) — 下拉真实数据源 + 停止伪造成功（承接 v3.0.16-0 审查整改）
+
+> **背景**: v3.0.16-0 完成拆雷与基建后, 继续治理审查 P0/P1 中"手输/写死/假成功"三类。
+> **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 16/16 全绿。
+
+### 人员下拉真实化（新增 useStaff / AppStaffField）
+- 审查发现 12 文件 / ≈25 个下拉把医生/护士/技师写死, 机构新增人员后永远看不到,
+  提交的 ID 在系统中并不存在。
+- 新增 `hooks/useStaff.ts`(消费 `GET /users`, module 级缓存 + 订阅 +
+  姓名/用户名/科室三态搜索 + `useDepartments()`) 与 `AppStaffField`(失败时明确提示)。
+- 迁移: `AiWorkflowCenterPage` 医生、`QcPdcaPage` 质控责任人(修复 ownerId 失真)、
+  `RegistrationWorkstationPage` 护士(派发回填真实姓名)。
+
+### 手输/写死下拉改真实数据源（新增 usePatients / AppPatientField）
+- `CosignSchedule`: 临时授权的模态/科室由 `Input` 手输(拼错即授权失效)改为下拉。
+- `PeerReviewPanel`: 缺陷编码由纯自由输入接入真实缺陷库(修复随手敲编码致统计失真)。
+- `SchedulingCenterPage`: 患者(6 写死姓名, 且拿姓名当主键)→ 远程检索;
+  检查项目 → 后端字典; 检查室 → `appointmentApi.getRooms()`; 模态 → 单一真源。
+
+### 停止伪造成功
+- `QCPage`「新增质控抽样 / 问题追踪」弹窗: 此前点"确定"只弹"成功"绿勾却不落库,
+  改为明确告知端点未实现并禁用"确定"。
+
+### 搜索可用性
+- 15 处 `<Select showSearch>` 补 `optionFilterProp="label"`(此前按 value 过滤,
+  中文名搜不到)。
+
+**guard 指标变化**: `hardcodedMasterSelect` 5→2; `showSearchNoFilter` 13→0。
+
 ## v3.0.6.16-0 (2026-10-16) — 全项目商业化深度审查整改（拆雷 + 表格算法回归 + 下拉地基 + 门禁）
 
 > **审查范围**: 后端 172 controller / 2126 端点、前端 679 个表格实例、723 个 `<Select>`。

@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.16-0
+# G005 放射科 RIS 系统 v3.0.6.16-1
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.16-0（**全项目商业化深度审查整改**：①**DICOM 脱敏真实实现**（替换前端 setTimeout 伪造的 HIPAA 合规假功能，后端 PS3.15 Annex E + 27 用例）；②**FHIR 伪造消除**（CapabilityStatement 改由实际路由推导 + `/fhir/r4/metadata`）；③补齐 3 个 mock-only 生产端点；④AI 模型 9 处假按钮接线或明确告知；⑤**表格列宽算法 T1–T6 修复**（上轮引入的回归：scroll.x 无条件覆盖/water-filling/ResizeObserver 实测容器宽/列类型加权）；⑥**下拉地基**（`modality` 单一真源 + `useDict` 消费后端字典 + `AppSelectField`）；⑦删除死代码 + `VITE_ALLOW_DEMO_FALLBACK` 治理；⑧**三套防回退门禁** `guard:api/select/table`；**后端 359 suites 3807 tests / 前端 tsc 0 · 47 文件 831 测试 · guard 4 套 / E2E 改动相关 16/16**）
+**版本迭代**: v3.0.0 → v3.0.6.16-1（**全项目商业化深度审查整改**：①**DICOM 脱敏真实实现**（替换前端 setTimeout 伪造的 HIPAA 合规假功能，后端 PS3.15 Annex E + 27 用例）；②**FHIR 伪造消除**（CapabilityStatement 改由实际路由推导 + `/fhir/r4/metadata`）；③补齐 3 个 mock-only 生产端点；④AI 模型 9 处假按钮接线或明确告知；⑤**表格列宽算法 T1–T6 修复**（上轮引入的回归：scroll.x 无条件覆盖/water-filling/ResizeObserver 实测容器宽/列类型加权）；⑥**下拉真实数据源**（`useStaff`/`usePatients` 接真实人员与患者，医生/护士/责任人/患者/检查项目/检查室/科室/缺陷编码改真实来源；`hardcodedMasterSelect` 5→2、`showSearchNoFilter` 13→0）；⑦`QCPage` 质控登记停止伪造成功；⑧删除死代码 + `VITE_ALLOW_DEMO_FALLBACK` 治理；⑨**三套防回退门禁** `guard:api/select/table`；**后端 359 suites 3807 tests / 前端 tsc 0 · 47 文件 831 测试 · guard 4 套 / E2E 相关路由全绿**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,8 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.16-0**  | **全项目商业化深度审查整改**：① DICOM 脱敏真实实现（PS3.15 Annex E 后端模块 + 27 用例，替换前端 setTimeout 伪造的合规假功能）；② FHIR CapabilityStatement 改由实际路由推导，消除对客户的虚假能力声明；③ 补齐 3 个 mock-only 生产端点（对比剂质量合规/自助凭证/区域文档调阅）；④ AI 模型注册/工作流 9 处假按钮接线或明确告知；⑤ 表格列宽算法 T1–T6 修复（scroll.x 无条件覆盖、water-filling、ResizeObserver 实测容器宽、列类型加权、操作列保底）；⑥ 下拉地基（`modality` 单一真源 / `useDict` 消费后端字典 / `AppSelectField`）；⑦ 删除 78 条死代码字典 + `VITE_ALLOW_DEMO_FALLBACK` 治理；⑧ 三套防回退门禁 `guard:api` / `guard:select` / `guard:table` | ✅ **当前** |
-| v3.0.6.15-5  | **表格紧凑化与列宽归一**：根治徽标 line-height 正反馈（行高 231px→37px）；列宽归一 + `tableLayout=fixed` + `max-content` 运行时替换；弹窗/抽屉紧凑密度（78 处零改动）；24 处裸 `<Table>` 收口；`ui-guard` 扩展 components | ✅ 完成 |
+| **v3.0.6.16-1**  | **下拉真实数据源 + 停止伪造成功**：新增 `useStaff`/`AppStaffField`（人员）、`usePatients`/`AppPatientField`（患者）；医生/护士/质控责任人/患者/检查项目/检查室/临时授权科室/缺陷编码改接真实数据源；`QCPage` 质控登记停止伪造成功；15 处 `showSearch` 补 `optionFilterProp`（中文可搜）；guard `hardcodedMasterSelect` 5→2、`showSearchNoFilter` 13→0 | ✅ **当前** |：① DICOM 脱敏真实实现（PS3.15 Annex E 后端模块 + 27 用例，替换前端 setTimeout 伪造的合规假功能）；② FHIR CapabilityStatement 改由实际路由推导，消除对客户的虚假能力声明；③ 补齐 3 个 mock-only 生产端点（对比剂质量合规/自助凭证/区域文档调阅）；④ AI 模型注册/工作流 9 处假按钮接线或明确告知；⑤ 表格列宽算法 T1–T6 修复（scroll.x 无条件覆盖、water-filling、ResizeObserver 实测容器宽、列类型加权、操作列保底）；⑥ 下拉地基（`modality` 单一真源 / `useDict` 消费后端字典 / `AppSelectField`）；⑦ 删除 78 条死代码字典 + `VITE_ALLOW_DEMO_FALLBACK` 治理；⑧ 三套防回退门禁 `guard:api` / `guard:select` / `guard:table` | ✅ **当前** |
+| v3.0.6.16-0  | **全项目商业化深度审查整改**：DICOM 脱敏真实实现 / FHIR 伪造消除 / 3 个 mock-only 端点补齐 / AI 9 处假按钮 / 表格列宽算法 T1–T6 / 下拉地基 / 死代码清理 / 三套防回退门禁 | ✅ 完成 | **表格紧凑化与列宽归一**：根治徽标 line-height 正反馈（行高 231px→37px）；列宽归一 + `tableLayout=fixed` + `max-content` 运行时替换；弹窗/抽屉紧凑密度（78 处零改动）；24 处裸 `<Table>` 收口；`ui-guard` 扩展 components | ✅ 完成 |
 | v3.0.6.15-4      | **入口双实例修复**：移除 `vite.config` 对入口脚本的 `?v=` 查询串戳（Vite chunk 图以无 query URL 解析入口 → 入口被求值两次 → 双 React root → 审计页 `removeChild` 崩溃）；`#root` 专属化；audit mock handler 对齐 DTO | ✅ 完成 |
 | v3.0.6.15-3      | **演示部署修复**：`.env.production` 切 `VITE_API_MODE=mock` + `VITE_USE_MSW=true`（演示站自带 mock 后端，修复 HTTPS 页面请求 `http://localhost:3001` 被混合内容拦截 → 全站空白）；E2E 增加 GitHub Pages 深链接 SPA 404 回退判据；线上 23 路由实测 21 通过 + 1 flaky + 1 重跑通过 | ✅ 完成 |
 | v3.0.6.15-2     | **表格 UI 修复**：CSS 选择器反转、scroll.x 比例、空值安全工具、前后端契约归一化 | ✅ 完成 |
