@@ -3,11 +3,16 @@
  *
  * 20 点: 缺陷分类 / 缺陷模板 / 缺陷记录 / 缺陷统计 / 严重度分级
  */
-import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
-import { defectService } from '../../../../services/quality/defectService';
-import { qualityScoringCenterApi } from '../../../../services/api/qualityScoringCenterApi';
-import type { DefectDetail, DefectSeverityLevel, DefectStatus, DefectFilter } from '../../../../types/R3/R3.DEFECT';
-import type { DefectCategoryCode } from '../../../../types/R3/R3.QUALITY';
+import { DEFECT_CATEGORIES } from "../../../../data/defectLibraryMock";
+import { defectService } from "../../../../services/quality/defectService";
+import { qualityScoringCenterApi } from "../../../../services/api/qualityScoringCenterApi";
+import type {
+  DefectDetail,
+  DefectSeverityLevel,
+  DefectStatus,
+  DefectFilter,
+} from "../../../../types/R3/R3.DEFECT";
+import type { DefectCategoryCode } from "../../../../types/R3/R3.QUALITY";
 import {
   Card,
   Tag,
@@ -26,7 +31,7 @@ import {
   Drawer,
   Tooltip,
   Badge,
-} from 'antd';
+} from "antd";
 import {
   AlertOctagon,
   Search,
@@ -40,22 +45,29 @@ import {
   FileText,
   Star,
   Activity,
-} from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Inbox, SearchX } from 'lucide-react'
-import { t } from '../../../../i18n/appI18n';
+} from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Inbox, SearchX } from "lucide-react";
+import { t } from "../../../../i18n/appI18n";
 
-const SEVERITY_META: Record<DefectSeverityLevel, { color: string; label: string; rank: number }> = {
-  minor: { color: 'gold', label: t('defectLibrary.severity.minor'), rank: 1 },
-  major: { color: 'orange', label: t('defectLibrary.severity.major'), rank: 2 },
-  critical: { color: 'red', label: t('defectLibrary.severity.critical'), rank: 3 },
+const SEVERITY_META: Record<
+  DefectSeverityLevel,
+  { color: string; label: string; rank: number }
+> = {
+  minor: { color: "gold", label: t("defectLibrary.severity.minor"), rank: 1 },
+  major: { color: "orange", label: t("defectLibrary.severity.major"), rank: 2 },
+  critical: {
+    color: "red",
+    label: t("defectLibrary.severity.critical"),
+    rank: 3,
+  },
 };
 
 const STATUS_META: Record<DefectStatus, { color: string; label: string }> = {
-  active: { color: 'green', label: t('defectLibrary.status.active') },
-  deprecated: { color: 'default', label: t('defectLibrary.status.deprecated') },
-  draft: { color: 'blue', label: t('defectLibrary.status.draft') },
-  reviewing: { color: 'purple', label: t('defectLibrary.status.reviewing') },
+  active: { color: "green", label: t("defectLibrary.status.active") },
+  deprecated: { color: "default", label: t("defectLibrary.status.deprecated") },
+  draft: { color: "blue", label: t("defectLibrary.status.draft") },
+  reviewing: { color: "purple", label: t("defectLibrary.status.reviewing") },
 };
 
 // [G005] 编辑/新增缺陷弹窗受控表单 (原 9 个 defaultValue 输入的取值会被静默丢弃)
@@ -65,43 +77,50 @@ interface DefectDraft {
   category: DefectCategoryCode;
   severity: DefectSeverityLevel;
   sla: number;
-  trainingRequired: 'yes' | 'no';
+  trainingRequired: "yes" | "no";
   description: string;
   solution: string;
   examples: string;
 }
 
 // 本地严重度 → 后端 defect-library 严重度 (PATCH /defect-library/items/:id)
-const SEVERITY_TO_API: Record<DefectSeverityLevel, 'low' | 'medium' | 'high' | 'critical'> = {
-  minor: 'low',
-  major: 'medium',
-  critical: 'critical',
+const SEVERITY_TO_API: Record<
+  DefectSeverityLevel,
+  "low" | "medium" | "high" | "critical"
+> = {
+  minor: "low",
+  major: "medium",
+  critical: "critical",
 };
 
 const createDraft = (): DefectDraft => ({
-  code: '',
-  name: '',
-  category: DEFECT_CATEGORIES[0]?.code ?? 'DSC',
-  severity: 'major',
+  code: "",
+  name: "",
+  category: DEFECT_CATEGORIES[0]?.code ?? "DSC",
+  severity: "major",
   sla: 24,
-  trainingRequired: 'no',
-  description: '',
-  solution: '',
-  examples: '',
+  trainingRequired: "no",
+  description: "",
+  solution: "",
+  examples: "",
 });
 
-export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({ onSelect }) => {
+export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
+  onSelect,
+}) => {
   const [defects, setDefects] = useState<DefectDetail[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<DefectCategoryCode | 'all'>('all');
-  const [severity, setSeverity] = useState<DefectSeverityLevel | 'all'>('all');
-  const [status, setStatus] = useState<DefectStatus | 'all'>('all');
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<DefectCategoryCode | "all">("all");
+  const [severity, setSeverity] = useState<DefectSeverityLevel | "all">("all");
+  const [status, setStatus] = useState<DefectStatus | "all">("all");
   const [customOnly, setCustomOnly] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [editing, setEditing] = useState<DefectDetail | null>(null);
   const [detailDrawer, setDetailDrawer] = useState<DefectDetail | null>(null);
-  const [activeTab, setActiveTab] = useState<'list' | 'template' | 'stats'>('list');
+  const [activeTab, setActiveTab] = useState<"list" | "template" | "stats">(
+    "list",
+  );
   const [draft, setDraft] = useState<DefectDraft>(createDraft);
   const [saving, setSaving] = useState(false);
 
@@ -110,15 +129,15 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
     try {
       const filter: DefectFilter = {
         search: search || undefined,
-        category: category === 'all' ? undefined : category,
-        severity: severity === 'all' ? undefined : severity,
-        status: status === 'all' ? undefined : status,
+        category: category === "all" ? undefined : category,
+        severity: severity === "all" ? undefined : severity,
+        status: status === "all" ? undefined : status,
         customOnly: customOnly || undefined,
       };
       const data = await defectService.listDefects(filter);
       setDefects(data);
     } catch (e) {
-      message.error(t('defectLibrary.loadFailed'));
+      message.error(t("defectLibrary.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -134,11 +153,14 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
       total: defects.length,
       active: defects.filter((d) => d.isActive).length,
       custom: defects.filter((d) => d.customDefect).length,
-      critical: defects.filter((d) => d.severity === 'critical').length,
+      critical: defects.filter((d) => d.severity === "critical").length,
       totalHits: defects.reduce((s, d) => s + d.count, 0),
-      avgFix: defects.length > 0 ? (defects.reduce((s, d) => s + d.sla, 0) / defects.length).toFixed(1) : '0',
+      avgFix:
+        defects.length > 0
+          ? (defects.reduce((s, d) => s + d.sla, 0) / defects.length).toFixed(1)
+          : "0",
     }),
-    [defects]
+    [defects],
   );
 
   const byCategory = useMemo(() => {
@@ -149,19 +171,20 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
     return m;
   }, [defects]);
 
-  const handleDelete = async (code: string) => {
+  const handleDelete = (target: DefectDetail) => {
     Modal.confirm({
-      title: t('defectLibrary.deleteConfirmTitle'),
-      content: t('w9e.defectLibrary.deleteConfirm', { code }),
-      okText: t('defectLibrary.delete'),
-      okType: 'danger',
-      cancelText: t('defectLibrary.cancel'),
+      title: t("defectLibrary.deleteConfirmTitle"),
+      content: t("w9e.defectLibrary.deleteConfirm", { code: target.code }),
+      okText: t("defectLibrary.delete"),
+      okType: "danger",
+      cancelText: t("defectLibrary.cancel"),
       onOk: async () => {
-        try {
-          message.success(t('defectLibrary.deleted') + code);
-          load();
-        } catch (e) {
-          message.error(t('defectLibrary.deleteFailed'));
+        const res = await defectService.deleteDefect(target.id);
+        if (res.ok) {
+          message.success(t("defectLibrary.deleted") + target.code);
+          setDefects((prev) => prev.filter((x) => x.id !== target.id));
+        } else {
+          message.error(res.message ?? t("defectLibrary.deleteFailed"));
         }
       },
     });
@@ -181,17 +204,17 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
       category: d.category,
       severity: d.severity,
       sla: d.sla,
-      trainingRequired: d.trainingRequired ? 'yes' : 'no',
+      trainingRequired: d.trainingRequired ? "yes" : "no",
       description: d.description,
       solution: d.solution,
-      examples: d.examples.join('；'),
+      examples: d.examples.join("；"),
     });
     setEditModal(true);
   };
 
   const splitExamples = (value: string) =>
     value
-      .split('；')
+      .split("；")
       .map((s) => s.trim())
       .filter(Boolean);
 
@@ -199,7 +222,8 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
   //   接口成功 → 同步本地列表; 接口不可用 → 保留本地修改并如实提示 (不谎称已写入后端)。
   //   新增无对应 wrapper → 仅本地缺陷库生效 (与 defectService 数据源一致)。
   const handleSave = async () => {
-    if (saving || !draft.name.trim() || (!editing && !draft.code.trim())) return;
+    if (saving || !draft.name.trim() || (!editing && !draft.code.trim()))
+      return;
     setSaving(true);
     try {
       if (editing) {
@@ -219,7 +243,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                   category: draft.category,
                   severity: draft.severity,
                   sla: draft.sla,
-                  trainingRequired: draft.trainingRequired === 'yes',
+                  trainingRequired: draft.trainingRequired === "yes",
                   description: draft.description,
                   solution: draft.solution,
                   examples: splitExamples(draft.examples),
@@ -229,9 +253,11 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           ),
         );
         if (res.success) {
-          message.success(t('defectLibrary.saved'));
+          message.success(t("defectLibrary.saved"));
         } else {
-          message.warning(`${res.error?.message ?? '后端更新失败'}, 修改已在本地生效`);
+          message.warning(
+            `${res.error?.message ?? "后端更新失败"}, 修改已在本地生效`,
+          );
         }
       } else {
         const now = new Date().toISOString();
@@ -239,28 +265,28 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           id: `defect-${Date.now()}`,
           code: draft.code.trim().toUpperCase(),
           name: draft.name.trim(),
-          nameEn: '',
+          nameEn: "",
           category: draft.category,
           severity: draft.severity,
           description: draft.description,
-          descriptionEn: '',
+          descriptionEn: "",
           examples: splitExamples(draft.examples),
           solution: draft.solution,
-          solutionEn: '',
+          solutionEn: "",
           references: [],
           count: 0,
           isActive: true,
           customDefect: true,
           level: 2,
           tags: [],
-          createdBy: 'current-user',
+          createdBy: "current-user",
           createdAt: now,
           updatedAt: now,
           sla: draft.sla,
-          trainingRequired: draft.trainingRequired === 'yes',
+          trainingRequired: draft.trainingRequired === "yes",
         };
         setDefects((prev) => [created, ...prev]);
-        message.success(t('defectLibrary.saved'));
+        message.success(t("defectLibrary.saved"));
       }
       setEditModal(false);
       setEditing(null);
@@ -270,81 +296,112 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
   };
 
   return (
-    <div data-testid="defect-library" role="region" aria-label={t('defectLibrary.title')}>
+    <div
+      data-testid="defect-library"
+      role="region"
+      aria-label={t("defectLibrary.title")}
+    >
       <div
         style={{
-          background: 'linear-gradient(135deg, #7f1d1d 0%, var(--color-error-600) 100%)',
-          color: '#fff',
-          padding: '12px 16px',
+          background:
+            "linear-gradient(135deg, #7f1d1d 0%, var(--color-error-600) 100%)",
+          color: "#fff",
+          padding: "12px 16px",
           borderRadius: 8,
-          marginBottom: 'var(--space-3, 12px)',
+          marginBottom: "var(--space-3, 12px)",
         }}
       >
-        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+        <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Space>
             <AlertOctagon size={18} />
-            <strong style={{ fontSize: 16 }}>{t('defectLibrary.title')}</strong>
+            <strong style={{ fontSize: 16 }}>{t("defectLibrary.title")}</strong>
             <Tag color="purple">R3.QUALITY.101-135</Tag>
-            <Tag color="cyan">{DEFECT_CATEGORIES.length} {t('defectLibrary.categoryUnit')}</Tag>
+            <Tag color="cyan">
+              {DEFECT_CATEGORIES.length} {t("defectLibrary.categoryUnit")}
+            </Tag>
           </Space>
           <Space>
             <Button size="small" icon={<Plus size={12} />} onClick={openCreate}>
-              {t('defectLibrary.addDefect')}
+              {t("defectLibrary.addDefect")}
             </Button>
             <Button
               size="small"
               icon={<BarChart3 size={12} />}
-              onClick={() => setActiveTab('stats')}
+              onClick={() => setActiveTab("stats")}
             >
-              {t('defectLibrary.stats')}
+              {t("defectLibrary.stats")}
             </Button>
           </Space>
         </Space>
-        <Row gutter={12} style={{ marginTop: 'var(--space-3, 12px)' }}>
+        <Row gutter={12} style={{ marginTop: "var(--space-3, 12px)" }}>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('defectLibrary.totalDefects')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("defectLibrary.totalDefects")}
+                </span>
+              }
               value={stats.total}
-              styles={{ content: {  color: '#fff', fontSize: 18  } }}
+              styles={{ content: { color: "#fff", fontSize: 18 } }}
               prefix={<BookOpen size={14} />}
             />
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('defectLibrary.status.active')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("defectLibrary.status.active")}
+                </span>
+              }
               value={stats.active}
-              styles={{ content: {  color: '#fff', fontSize: 18  } }}
+              styles={{ content: { color: "#fff", fontSize: 18 } }}
               prefix={<TagIcon size={14} />}
             />
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('defectLibrary.custom')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("defectLibrary.custom")}
+                </span>
+              }
               value={stats.custom}
-              styles={{ content: {  color: '#fff', fontSize: 18  } }}
+              styles={{ content: { color: "#fff", fontSize: 18 } }}
             />
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('defectLibrary.severity.critical')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("defectLibrary.severity.critical")}
+                </span>
+              }
               value={stats.critical}
-              styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
+              styles={{ content: { color: "#fca5a5", fontSize: 18 } }}
               prefix={<AlertOctagon size={14} />}
             />
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('defectLibrary.totalHits')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("defectLibrary.totalHits")}
+                </span>
+              }
               value={stats.totalHits}
-              styles={{ content: {  color: '#fff', fontSize: 18  } }}
+              styles={{ content: { color: "#fff", fontSize: 18 } }}
               prefix={<Activity size={14} />}
             />
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('defectLibrary.avgSla')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("defectLibrary.avgSla")}
+                </span>
+              }
               value={stats.avgFix}
-              styles={{ content: {  color: '#fff', fontSize: 18  } }}
+              styles={{ content: { color: "#fff", fontSize: 18 } }}
               prefix={<Star size={14} />}
             />
           </Col>
@@ -353,109 +410,129 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
 
       <Tabs
         activeKey={activeTab}
-        onChange={(k) => setActiveTab(k as 'list' | 'template' | 'stats')}
+        onChange={(k) => setActiveTab(k as "list" | "template" | "stats")}
         items={[
           {
-            key: 'list',
+            key: "list",
             label: (
               <span>
-                <FileText size={12} /> {t('defectLibrary.tab.records')}
+                <FileText size={12} /> {t("defectLibrary.tab.records")}
               </span>
             ),
           },
           {
-            key: 'template',
+            key: "template",
             label: (
               <span>
-                <BookOpen size={12} /> {t('defectLibrary.tab.template')}
+                <BookOpen size={12} /> {t("defectLibrary.tab.template")}
               </span>
             ),
           },
           {
-            key: 'stats',
+            key: "stats",
             label: (
               <span>
-                <BarChart3 size={12} /> {t('defectLibrary.tab.stats')}
+                <BarChart3 size={12} /> {t("defectLibrary.tab.stats")}
               </span>
             ),
           },
         ]}
       />
 
-      <Card size="small" style={{ marginBottom: 'var(--space-2, 8px)' }}>
+      <Card size="small" style={{ marginBottom: "var(--space-2, 8px)" }}>
         <Space wrap>
           <Input
             prefix={<Search size={12} />}
-            placeholder={t('defectLibrary.searchPlaceholder')}
+            placeholder={t("defectLibrary.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onPressEnter={load}
             style={{ width: 240 }}
-            aria-label={t('defectLibrary.searchAria')}
+            aria-label={t("defectLibrary.searchAria")}
           />
           <Select
             value={category}
             onChange={setCategory}
             style={{ width: 150 }}
             options={[
-              { value: 'all', label: t('defectLibrary.allCategories') },
-              ...DEFECT_CATEGORIES.map((c) => ({ value: c.code, label: c.name })),
+              { value: "all", label: t("defectLibrary.allCategories") },
+              ...DEFECT_CATEGORIES.map((c) => ({
+                value: c.code,
+                label: c.name,
+              })),
             ]}
-            aria-label={t('defectLibrary.categoryFilter')}
+            aria-label={t("defectLibrary.categoryFilter")}
           />
           <Select
             value={severity}
             onChange={setSeverity}
             style={{ width: 120 }}
             options={[
-              { value: 'all', label: t('defectLibrary.allSeverities') },
-              { value: 'minor', label: t('defectLibrary.severity.minor') },
-              { value: 'major', label: t('defectLibrary.severity.major') },
-              { value: 'critical', label: t('defectLibrary.severity.critical') },
+              { value: "all", label: t("defectLibrary.allSeverities") },
+              { value: "minor", label: t("defectLibrary.severity.minor") },
+              { value: "major", label: t("defectLibrary.severity.major") },
+              {
+                value: "critical",
+                label: t("defectLibrary.severity.critical"),
+              },
             ]}
-            aria-label={t('defectLibrary.severityFilter')}
+            aria-label={t("defectLibrary.severityFilter")}
           />
           <Select
             value={status}
             onChange={setStatus}
             style={{ width: 120 }}
             options={[
-              { value: 'all', label: t('defectLibrary.allStatus') },
-              { value: 'active', label: t('defectLibrary.status.active') },
-              { value: 'deprecated', label: t('defectLibrary.statusDeprecatedShort') },
-              { value: 'draft', label: t('defectLibrary.status.draft') },
-              { value: 'reviewing', label: t('defectLibrary.status.reviewing') },
+              { value: "all", label: t("defectLibrary.allStatus") },
+              { value: "active", label: t("defectLibrary.status.active") },
+              {
+                value: "deprecated",
+                label: t("defectLibrary.statusDeprecatedShort"),
+              },
+              { value: "draft", label: t("defectLibrary.status.draft") },
+              {
+                value: "reviewing",
+                label: t("defectLibrary.status.reviewing"),
+              },
             ]}
-            aria-label={t('defectLibrary.statusFilter')}
+            aria-label={t("defectLibrary.statusFilter")}
           />
           <Button
             size="small"
-            type={customOnly ? 'primary' : 'default'}
+            type={customOnly ? "primary" : "default"}
             onClick={() => setCustomOnly(!customOnly)}
             icon={<Filter size={12} />}
           >
-            {t('defectLibrary.customOnly')}
+            {t("defectLibrary.customOnly")}
           </Button>
           <Button size="small" onClick={load} type="primary">
-            {t('defectLibrary.query')}
+            {t("defectLibrary.query")}
           </Button>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            {t('defectLibrary.showing')} {defects.length} {t('defectLibrary.itemsUnit')}
+          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            {t("defectLibrary.showing")} {defects.length}{" "}
+            {t("defectLibrary.itemsUnit")}
           </span>
         </Space>
       </Card>
 
-      {activeTab === 'list' && (
+      {activeTab === "list" && (
         <List
           loading={loading}
           dataSource={defects}
-          locale={{ emptyText: <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('defectLibrary.noMatch')} /> }}
+          locale={{
+            emptyText: (
+              <Empty
+                image={<SearchX size={48} style={{ opacity: 0.4 }} />}
+                description={t("defectLibrary.noMatch")}
+              />
+            ),
+          }}
           style={{
-            background: 'var(--bg-card)',
+            background: "var(--bg-card)",
             borderRadius: 8,
-            padding: 'var(--space-1, 4px)',
+            padding: "var(--space-1, 4px)",
             maxHeight: 600,
-            overflowY: 'auto',
+            overflowY: "auto",
           }}
           renderItem={(d) => {
             const sm = SEVERITY_META[d.severity];
@@ -466,18 +543,24 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                 data-testid={`defect-${d.code}`}
                 style={{
                   padding: 10,
-                  marginBottom: 'var(--space-1, 4px)',
-                  background: d.isActive ? 'var(--bg-card)' : 'var(--bg-primary)',
+                  marginBottom: "var(--space-1, 4px)",
+                  background: d.isActive
+                    ? "var(--bg-card)"
+                    : "var(--bg-primary)",
                   borderRadius: 6,
-                  border: '1px solid var(--border-color)',
-                  cursor: 'pointer',
+                  border: "1px solid var(--border-color)",
+                  cursor: "pointer",
                 }}
                 onClick={() => setDetailDrawer(d)}
               >
                 <List.Item.Meta
                   title={
                     <Space wrap>
-                      <Badge count={sm.rank} showZero={false} color={sm.color} />
+                      <Badge
+                        count={sm.rank}
+                        showZero={false}
+                        color={sm.color}
+                      />
                       <Tag color={sm.color}>{sm.label}</Tag>
                       <strong>{d.name}</strong>
                       <Tag>{d.code}</Tag>
@@ -486,32 +569,74 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                           {cat.icon} {cat.name}
                         </Tag>
                       )}
-                      {d.customDefect && <Tag color="purple">{t('defectLibrary.custom')}</Tag>}
-                      {!d.isActive && <Tag color="default">{t('defectLibrary.status.deprecated')}</Tag>}
-                      {d.trainingRequired && <Tag color="orange">{t('defectLibrary.trainingRequired')}</Tag>}
+                      {d.customDefect && (
+                        <Tag color="purple">{t("defectLibrary.custom")}</Tag>
+                      )}
+                      {!d.isActive && (
+                        <Tag color="default">
+                          {t("defectLibrary.status.deprecated")}
+                        </Tag>
+                      )}
+                      {d.trainingRequired && (
+                        <Tag color="orange">
+                          {t("defectLibrary.trainingRequired")}
+                        </Tag>
+                      )}
                     </Space>
                   }
                   description={
                     <div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.description}</div>
+                      <div
+                        style={{ fontSize: 12, color: "var(--text-secondary)" }}
+                      >
+                        {d.description}
+                      </div>
                       {d.examples.length > 0 && (
-                        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }}>
-                          {t('defectLibrary.examplesPrefix')}{d.examples.join('；')}
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "var(--text-muted)",
+                            marginTop: "var(--space-1, 4px)",
+                          }}
+                        >
+                          {t("defectLibrary.examplesPrefix")}
+                          {d.examples.join("；")}
                         </div>
                       )}
-                      <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 'var(--space-1, 4px)' }}>
-                        {t('defectLibrary.solutionPrefix')}{d.solution}
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--color-info-600)",
+                          marginTop: "var(--space-1, 4px)",
+                        }}
+                      >
+                        {t("defectLibrary.solutionPrefix")}
+                        {d.solution}
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-1, 4px)' }}>
-                        {t('defectLibrary.trigger')} {d.count} {t('defectLibrary.timesUnit')} · {t('defectLibrary.remediationSla')} {d.sla}h · {t('defectLibrary.updated')} {new Date(d.updatedAt).toLocaleDateString()}
-                        {d.tags.length > 0 && t('w9e.defectLibrary.tagsPrefix', { tags: d.tags.join(', ') })}
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted)",
+                          marginTop: "var(--space-1, 4px)",
+                        }}
+                      >
+                        {t("defectLibrary.trigger")} {d.count}{" "}
+                        {t("defectLibrary.timesUnit")} ·{" "}
+                        {t("defectLibrary.remediationSla")} {d.sla}h ·{" "}
+                        {t("defectLibrary.updated")}{" "}
+                        {new Date(d.updatedAt).toLocaleDateString()}
+                        {d.tags.length > 0 &&
+                          t("w9e.defectLibrary.tagsPrefix", {
+                            tags: d.tags.join(", "),
+                          })}
                       </div>
                     </div>
                   }
                 />
                 <Space onClick={(e) => e.stopPropagation()}>
-                  <Tooltip title={t('defectLibrary.detail')}>
-                    <Button aria-label="查看详情"
+                  <Tooltip title={t("defectLibrary.detail")}>
+                    <Button
+                      aria-label="查看详情"
                       size="small"
                       icon={<FileText size={10} />}
                       onClick={() => {
@@ -525,16 +650,16 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                     icon={<Edit size={10} />}
                     onClick={() => openEdit(d)}
                   >
-                    {t('defectLibrary.edit')}
+                    {t("defectLibrary.edit")}
                   </Button>
                   {d.customDefect && (
                     <Button
                       size="small"
                       danger
                       icon={<Trash2 size={10} />}
-                      onClick={() => handleDelete(d.code)}
+                      onClick={() => handleDelete(d)}
                     >
-                      {t('defectLibrary.delete')}
+                      {t("defectLibrary.delete")}
                     </Button>
                   )}
                 </Space>
@@ -544,10 +669,12 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         />
       )}
 
-      {activeTab === 'template' && (
+      {activeTab === "template" && (
         <Row gutter={[12, 12]}>
           {DEFECT_CATEGORIES.slice(0, 6).map((cat) => {
-            const items = defects.filter((d) => d.category === cat.code).slice(0, 4);
+            const items = defects
+              .filter((d) => d.category === cat.code)
+              .slice(0, 4);
             return (
               <Col span={8} key={cat.code}>
                 <Card
@@ -559,18 +686,29 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                       <Tag>{cat.code}</Tag>
                     </Space>
                   }
-                  extra={<Tag color="cyan">{items.length} {t('defectLibrary.templatesUnit')}</Tag>}
+                  extra={
+                    <Tag color="cyan">
+                      {items.length} {t("defectLibrary.templatesUnit")}
+                    </Tag>
+                  }
                 >
                   {items.length === 0 ? (
-                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('defectLibrary.noTemplateInCategory')} />
+                    <Empty
+                      image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                      description={t("defectLibrary.noTemplateInCategory")}
+                    />
                   ) : (
-                    <Space orientation="vertical" style={{ width: '100%' }} size={6}>
+                    <Space
+                      orientation="vertical"
+                      style={{ width: "100%" }}
+                      size={6}
+                    >
                       {items.map((d) => (
                         <div
                           key={d.id}
                           style={{
                             padding: 6,
-                            background: 'var(--bg-primary)',
+                            background: "var(--bg-primary)",
                             borderRadius: 4,
                             borderLeft: `3px solid ${cat.color}`,
                           }}
@@ -579,10 +717,19 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                             <Tag color={SEVERITY_META[d.severity].color}>
                               {SEVERITY_META[d.severity].label}
                             </Tag>
-                            <span style={{ fontSize: 12, fontWeight: 600 }}>{d.name}</span>
+                            <span style={{ fontSize: 12, fontWeight: 600 }}>
+                              {d.name}
+                            </span>
                           </Space>
-                          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                            {t('defectLibrary.templatePrefix')}{d.solution}
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: "var(--text-muted)",
+                              marginTop: 2,
+                            }}
+                          >
+                            {t("defectLibrary.templatePrefix")}
+                            {d.solution}
                           </div>
                         </div>
                       ))}
@@ -595,37 +742,44 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         </Row>
       )}
 
-      {activeTab === 'stats' && (
+      {activeTab === "stats" && (
         <Row gutter={[12, 12]}>
           <Col span={14}>
-            <Card size="small" title={t('defectLibrary.byCategory')}>
-              <Space orientation="vertical" style={{ width: '100%' }} size={8}>
+            <Card size="small" title={t("defectLibrary.byCategory")}>
+              <Space orientation="vertical" style={{ width: "100%" }} size={8}>
                 {DEFECT_CATEGORIES.map((cat) => {
                   const c = byCategory[cat.code] ?? 0;
                   const max = Math.max(1, ...Object.values(byCategory));
                   return (
                     <div key={cat.code}>
-                      <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                      <Space
+                        style={{
+                          width: "100%",
+                          justifyContent: "space-between",
+                        }}
+                      >
                         <Space>
                           <span>{cat.icon}</span>
                           <span style={{ fontSize: 12 }}>{cat.name}</span>
                           <Tag>{cat.code}</Tag>
                         </Space>
-                        <strong>{c} {t('defectLibrary.timesUnit')}</strong>
+                        <strong>
+                          {c} {t("defectLibrary.timesUnit")}
+                        </strong>
                       </Space>
                       <div
                         style={{
                           height: 6,
-                          background: 'var(--border-light)',
+                          background: "var(--border-light)",
                           borderRadius: 3,
-                          marginTop: 'var(--space-1, 4px)',
-                          overflow: 'hidden',
+                          marginTop: "var(--space-1, 4px)",
+                          overflow: "hidden",
                         }}
                       >
                         <div
                           style={{
-                            width: ((c / max) * 100).toFixed(1) + '%',
-                            height: '100%',
+                            width: ((c / max) * 100).toFixed(1) + "%",
+                            height: "100%",
                             background: cat.color,
                           }}
                         />
@@ -637,25 +791,46 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </Card>
           </Col>
           <Col span={10}>
-            <Card size="small" title={t('defectLibrary.bySeverity')}>
-              <Space orientation="vertical" style={{ width: '100%' }}>
-                {(['critical', 'major', 'minor'] as DefectSeverityLevel[]).map((s) => {
-                  const c = defects.filter((d) => d.severity === s).length;
-                  return (
-                    <Card key={s} size="small" style={{ background: SEVERITY_META[s].color + '10' }}>
-                      <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                        <Tag color={SEVERITY_META[s].color}>{SEVERITY_META[s].label}</Tag>
-                        <strong>{c} {t('defectLibrary.entriesUnit')}</strong>
-                      </Space>
-                    </Card>
-                  );
-                })}
+            <Card size="small" title={t("defectLibrary.bySeverity")}>
+              <Space orientation="vertical" style={{ width: "100%" }}>
+                {(["critical", "major", "minor"] as DefectSeverityLevel[]).map(
+                  (s) => {
+                    const c = defects.filter((d) => d.severity === s).length;
+                    return (
+                      <Card
+                        key={s}
+                        size="small"
+                        style={{ background: SEVERITY_META[s].color + "10" }}
+                      >
+                        <Space
+                          style={{
+                            width: "100%",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Tag color={SEVERITY_META[s].color}>
+                            {SEVERITY_META[s].label}
+                          </Tag>
+                          <strong>
+                            {c} {t("defectLibrary.entriesUnit")}
+                          </strong>
+                        </Space>
+                      </Card>
+                    );
+                  },
+                )}
               </Space>
             </Card>
-            <Card size="small" title={t('defectLibrary.top5')} style={{ marginTop: 'var(--space-3, 12px)' }}>
+            <Card
+              size="small"
+              title={t("defectLibrary.top5")}
+              style={{ marginTop: "var(--space-3, 12px)" }}
+            >
               <List
                 size="small"
-                dataSource={[...defects].sort((a, b) => b.count - a.count).slice(0, 5)}
+                dataSource={[...defects]
+                  .sort((a, b) => b.count - a.count)
+                  .slice(0, 5)}
                 renderItem={(d, i) => (
                   <List.Item>
                     <Space>
@@ -672,7 +847,11 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
       )}
 
       <Modal
-        title={editing ? `${t('defectLibrary.editDefectTitle')} - ${editing.code}` : t('defectLibrary.createDefectTitle')}
+        title={
+          editing
+            ? `${t("defectLibrary.editDefectTitle")} - ${editing.code}`
+            : t("defectLibrary.createDefectTitle")
+        }
         open={editModal}
         onCancel={() => {
           setEditModal(false);
@@ -683,84 +862,135 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         }}
         confirmLoading={saving}
         okButtonProps={{
-          disabled: saving || !draft.name.trim() || (!editing && !draft.code.trim()),
+          disabled:
+            saving || !draft.name.trim() || (!editing && !draft.code.trim()),
         }}
-        okText={t('defectLibrary.save')}
-        cancelText={t('defectLibrary.cancel')}
+        okText={t("defectLibrary.save")}
+        cancelText={t("defectLibrary.cancel")}
         width={720}
       >
-        <Space orientation="vertical" style={{ width: '100%' }} size={10}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
+        <Space orientation="vertical" style={{ width: "100%" }} size={10}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
             <div>
-              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.code')}</div>
+              <div
+                style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}
+              >
+                {t("defectLibrary.field.code")}
+              </div>
               <Input
                 value={draft.code}
                 onChange={(e) => setDraft({ ...draft, code: e.target.value })}
                 disabled={!!editing}
-                placeholder={t('defectLibrary.codePlaceholder')}
+                placeholder={t("defectLibrary.codePlaceholder")}
               />
             </div>
             <div>
-              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.name')}</div>
+              <div
+                style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}
+              >
+                {t("defectLibrary.field.name")}
+              </div>
               <Input
                 value={draft.name}
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                placeholder={t('defectLibrary.namePlaceholder')}
+                placeholder={t("defectLibrary.namePlaceholder")}
               />
             </div>
             <div>
-              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.category')}</div>
+              <div
+                style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}
+              >
+                {t("defectLibrary.field.category")}
+              </div>
               <Select
                 value={draft.category}
-                onChange={(v) => setDraft({ ...draft, category: v as DefectCategoryCode })}
-                options={DEFECT_CATEGORIES.map((c) => ({ value: c.code, label: c.name }))}
-                style={{ width: '100%' }}
+                onChange={(v) =>
+                  setDraft({ ...draft, category: v as DefectCategoryCode })
+                }
+                options={DEFECT_CATEGORIES.map((c) => ({
+                  value: c.code,
+                  label: c.name,
+                }))}
+                style={{ width: "100%" }}
               />
             </div>
             <div>
-              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.severity')}</div>
+              <div
+                style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}
+              >
+                {t("defectLibrary.field.severity")}
+              </div>
               <Select
                 value={draft.severity}
-                onChange={(v) => setDraft({ ...draft, severity: v as DefectSeverityLevel })}
+                onChange={(v) =>
+                  setDraft({ ...draft, severity: v as DefectSeverityLevel })
+                }
                 options={[
-                  { value: 'minor', label: t('defectLibrary.severity.minor') },
-                  { value: 'major', label: t('defectLibrary.severity.major') },
-                  { value: 'critical', label: t('defectLibrary.severity.critical') },
+                  { value: "minor", label: t("defectLibrary.severity.minor") },
+                  { value: "major", label: t("defectLibrary.severity.major") },
+                  {
+                    value: "critical",
+                    label: t("defectLibrary.severity.critical"),
+                  },
                 ]}
-                style={{ width: '100%' }}
+                style={{ width: "100%" }}
               />
             </div>
             <div>
-              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.slaHours')}</div>
+              <div
+                style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}
+              >
+                {t("defectLibrary.field.slaHours")}
+              </div>
               <Input
                 type="number"
                 value={draft.sla}
-                onChange={(e) => setDraft({ ...draft, sla: Number(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setDraft({ ...draft, sla: Number(e.target.value) || 0 })
+                }
               />
             </div>
             <div>
-              <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.trainingRequired')}</div>
+              <div
+                style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}
+              >
+                {t("defectLibrary.field.trainingRequired")}
+              </div>
               <Select
                 value={draft.trainingRequired}
-                onChange={(v) => setDraft({ ...draft, trainingRequired: v as 'yes' | 'no' })}
+                onChange={(v) =>
+                  setDraft({ ...draft, trainingRequired: v as "yes" | "no" })
+                }
                 options={[
-                  { value: 'yes', label: t('defectLibrary.yes') },
-                  { value: 'no', label: t('defectLibrary.no') },
+                  { value: "yes", label: t("defectLibrary.yes") },
+                  { value: "no", label: t("defectLibrary.no") },
                 ]}
-                style={{ width: '100%' }}
+                style={{ width: "100%" }}
               />
             </div>
           </div>
           <div>
-            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.description')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}>
+              {t("defectLibrary.field.description")}
+            </div>
             <Input.TextArea
               value={draft.description}
-              onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+              onChange={(e) =>
+                setDraft({ ...draft, description: e.target.value })
+              }
               rows={2}
             />
           </div>
           <div>
-            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.solution')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}>
+              {t("defectLibrary.field.solution")}
+            </div>
             <Input.TextArea
               value={draft.solution}
               onChange={(e) => setDraft({ ...draft, solution: e.target.value })}
@@ -768,40 +998,63 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             />
           </div>
           <div>
-            <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.examples')}</div>
-            <Input value={draft.examples} onChange={(e) => setDraft({ ...draft, examples: e.target.value })} />
+            <div style={{ marginBottom: "var(--space-1, 4px)", fontSize: 12 }}>
+              {t("defectLibrary.field.examples")}
+            </div>
+            <Input
+              value={draft.examples}
+              onChange={(e) => setDraft({ ...draft, examples: e.target.value })}
+            />
           </div>
         </Space>
       </Modal>
 
       <Drawer
-        title={detailDrawer ? `${detailDrawer.name} (${detailDrawer.code})` : ''}
+        title={
+          detailDrawer ? `${detailDrawer.name} (${detailDrawer.code})` : ""
+        }
         open={!!detailDrawer}
         onClose={() => setDetailDrawer(null)}
         width={420}
       >
         {detailDrawer && (
-          <Space orientation="vertical" style={{ width: '100%' }} size={12}>
+          <Space orientation="vertical" style={{ width: "100%" }} size={12}>
             <Space>
               <Tag color={SEVERITY_META[detailDrawer.severity].color}>
                 {SEVERITY_META[detailDrawer.severity].label}
               </Tag>
-              <Tag color={STATUS_META[detailDrawer.isActive ? 'active' : 'deprecated'].color}>
-                {STATUS_META[detailDrawer.isActive ? 'active' : 'deprecated'].label}
+              <Tag
+                color={
+                  STATUS_META[detailDrawer.isActive ? "active" : "deprecated"]
+                    .color
+                }
+              >
+                {
+                  STATUS_META[detailDrawer.isActive ? "active" : "deprecated"]
+                    .label
+                }
               </Tag>
               <Tag color="blue">{detailDrawer.category}</Tag>
             </Space>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.description')}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                {t("defectLibrary.description")}
+              </div>
               <div style={{ fontSize: 12 }}>{detailDrawer.description}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.solution')}</div>
-              <div style={{ fontSize: 12, color: 'var(--color-info-600)' }}>{detailDrawer.solution}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                {t("defectLibrary.solution")}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--color-info-600)" }}>
+                {detailDrawer.solution}
+              </div>
             </div>
             {detailDrawer.examples.length > 0 && (
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.examples')}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {t("defectLibrary.examples")}
+                </div>
                 <ul style={{ paddingLeft: 18, margin: 0 }}>
                   {detailDrawer.examples.map((e, i) => (
                     <li key={i} style={{ fontSize: 12 }}>
@@ -811,24 +1064,39 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                 </ul>
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)' }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
               <div>
-                <Tag>{t('defectLibrary.triggerCount')}</Tag> <strong>{detailDrawer.count}</strong>
+                <Tag>{t("defectLibrary.triggerCount")}</Tag>{" "}
+                <strong>{detailDrawer.count}</strong>
               </div>
               <div>
-                <Tag>{t('defectLibrary.remediationSla')}</Tag> <strong>{detailDrawer.sla}h</strong>
+                <Tag>{t("defectLibrary.remediationSla")}</Tag>{" "}
+                <strong>{detailDrawer.sla}h</strong>
               </div>
               <div>
-                <Tag>{t('defectLibrary.tags')}</Tag> <strong>{detailDrawer.tags.join(', ') || '-'}</strong>
+                <Tag>{t("defectLibrary.tags")}</Tag>{" "}
+                <strong>{detailDrawer.tags.join(", ") || "-"}</strong>
               </div>
               <div>
-                <Tag>{t('defectLibrary.trainingRequired')}</Tag>{' '}
-                <strong>{detailDrawer.trainingRequired ? t('defectLibrary.yes') : t('defectLibrary.no')}</strong>
+                <Tag>{t("defectLibrary.trainingRequired")}</Tag>{" "}
+                <strong>
+                  {detailDrawer.trainingRequired
+                    ? t("defectLibrary.yes")
+                    : t("defectLibrary.no")}
+                </strong>
               </div>
             </div>
             {detailDrawer.references.length > 0 && (
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.references')}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {t("defectLibrary.references")}
+                </div>
                 <Space wrap>
                   {detailDrawer.references.map((r, i) => (
                     <Tag key={i}>{r}</Tag>

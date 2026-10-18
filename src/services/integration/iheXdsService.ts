@@ -2,17 +2,44 @@
  * G005 放射RIS系统 v3.0.5.1 - IHE XDS.b Registry Service
  */
 
-import type { XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet, XdsAssociation, IntegrationExportEnvelope } from '../../types/R3/R3.INTEGRATION';
-import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK, INTEGRATION_ENVELOPES_MOCK } from '../../data/reportIntegrationMock';
+import type {
+  XdsRegistry,
+  XdsDocumentEntry,
+  XdsFolder,
+  XdsSubmissionSet,
+  XdsAssociation,
+  IntegrationExportEnvelope,
+} from "../../types/R3/R3.INTEGRATION";
+import {
+  XDS_REGISTRY_MOCK,
+  XDS_REGISTRIES_MOCK,
+  INTEGRATION_ENVELOPES_MOCK,
+} from "../../data/reportIntegrationMock";
+import {
+  xdsApi,
+  XDS_HOME_COMMUNITY,
+  XDS_HOME_REPOSITORY,
+  type XdsDocumentEntry as XdsDocumentEntryDto,
+} from "../api/integrationApi";
 
-const SIM_LATENCY_MS = 100;
+// [v3.0.6.16-7] 真实化: 注册走 ITI-41 (POST /ihe/xds/provide), 查询走 GET /ihe/xds/documents。
 
 // ============================================================
 // 1. 完整 ebXML 2.1 提交(Submission Request)
 // ============================================================
-export function buildXdsSubmitTransactionRequest(registry: XdsRegistry): string {
-  const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const docEntries = registry.documentEntries.map((d) => `      <ExtrinsicObject id="${d.entryUUID}" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" mimeType="${d.mimetype}" status="${d.status}">
+export function buildXdsSubmitTransactionRequest(
+  registry: XdsRegistry,
+): string {
+  const esc = (s: string) =>
+    String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  const docEntries = registry.documentEntries
+    .map(
+      (
+        d,
+      ) => `      <ExtrinsicObject id="${d.entryUUID}" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" mimeType="${d.mimetype}" status="${d.status}">
         <Slot name="creationTime">
           <ValueList><Value>${d.creationTime}</Value></ValueList>
         </Slot>
@@ -51,26 +78,40 @@ export function buildXdsSubmitTransactionRequest(registry: XdsRegistry): string 
         <Classification classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c9639f9d1a5" nodeRepresentation="${d.formatCode.code}" displayName="${esc(d.formatCode.display)}" classifiedObject="${d.entryUUID}"/>
         <Classification classificationScheme="urn:uuid:f33fb8ac-18af-42bd-a25d-fc1a86c1d4ed" nodeRepresentation="${d.healthcareFacilityType.code}" displayName="${esc(d.healthcareFacilityType.display)}" classifiedObject="${d.entryUUID}"/>
         <Classification classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="${d.practiceSetting.code}" displayName="${esc(d.practiceSetting.display)}" classifiedObject="${d.entryUUID}"/>
-        ${d.eventCodeList.map((e) => `<Classification classificationScheme="urn:uuid:2c6b8cb7-8b5a-4241-8d04-7f2c4c5e6f7a" nodeRepresentation="${e.code}" displayName="${esc(e.display)}" classifiedObject="${d.entryUUID}"/>`).join('\n        ')}
-        ${d.classifications.map((c) => `<Classification classificationScheme="${c.classificationScheme}" nodeRepresentation="${c.nodeRepresentation}" displayName="${esc(c.name)}" classifiedObject="${d.entryUUID}"/>`).join('\n        ')}
+        ${d.eventCodeList.map((e) => `<Classification classificationScheme="urn:uuid:2c6b8cb7-8b5a-4241-8d04-7f2c4c5e6f7a" nodeRepresentation="${e.code}" displayName="${esc(e.display)}" classifiedObject="${d.entryUUID}"/>`).join("\n        ")}
+        ${d.classifications.map((c) => `<Classification classificationScheme="${c.classificationScheme}" nodeRepresentation="${c.nodeRepresentation}" displayName="${esc(c.name)}" classifiedObject="${d.entryUUID}"/>`).join("\n        ")}
         <ExternalIdentifier identificationScheme="urn:uuid:6b5ae5d2-8b5a-4241-8d04-7f2c4c5e6f7a" value="${d.patientId}" displayName="XDSDocumentEntry.patientId" registryObject="${d.entryUUID}"/>
         <ExternalIdentifier identificationScheme="urn:uuid:58a6e8b0-2b5b-4251-b3f0-2a4c1a4f3b5d" value="${d.uniqueId}" displayName="XDSDocumentEntry.uniqueId" registryObject="${d.entryUUID}"/>
         <Name><LocalizedString value="${esc(d.titleEn)}"/></Name>
         <Description><LocalizedString value="${esc(d.comments)}"/></Description>
-      </ExtrinsicObject>`).join('\n');
-  const folders = registry.folders.map((f) => `      <RegistryPackage id="${f.entryUUID}" objectType="urn:uuid:d9d542f3-6cc4-48b6-8870-e2b1a98d2c0c" status="${f.status}">
+      </ExtrinsicObject>`,
+    )
+    .join("\n");
+  const folders = registry.folders
+    .map(
+      (
+        f,
+      ) => `      <RegistryPackage id="${f.entryUUID}" objectType="urn:uuid:d9d542f3-6cc4-48b6-8870-e2b1a98d2c0c" status="${f.status}">
         <Slot name="lastUpdateTime">
           <ValueList><Value>${f.lastUpdateTime}</Value></ValueList>
         </Slot>
-        ${f.codeList.map((c) => `<Classification classificationScheme="urn:uuid:1ba97051-7806-41a8-a48b-8fce7af5c1f5" nodeRepresentation="${c.code}" displayName="${esc(c.display)}" classifiedObject="${f.entryUUID}"/>`).join('\n        ')}
+        ${f.codeList.map((c) => `<Classification classificationScheme="urn:uuid:1ba97051-7806-41a8-a48b-8fce7af5c1f5" nodeRepresentation="${c.code}" displayName="${esc(c.display)}" classifiedObject="${f.entryUUID}"/>`).join("\n        ")}
         <Name><LocalizedString value="${esc(f.titleEn)}"/></Name>
         <Description><LocalizedString value="${esc(f.comments)}"/></Description>
-      </RegistryPackage>`).join('\n');
-  const associations = registry.associations.map((a) => `      <Association id="${a.entryUUID}" associationType="${a.associationType}" sourceObject="${a.sourceObject}" targetObject="${a.targetObject}" status="${a.availabilityStatus}">
+      </RegistryPackage>`,
+    )
+    .join("\n");
+  const associations = registry.associations
+    .map(
+      (
+        a,
+      ) => `      <Association id="${a.entryUUID}" associationType="${a.associationType}" sourceObject="${a.sourceObject}" targetObject="${a.targetObject}" status="${a.availabilityStatus}">
         <Slot name="SubmissionSetStatus">
           <ValueList><Value>${a.submissionSetStatus}</Value></ValueList>
         </Slot>
-      </Association>`).join('\n');
+      </Association>`,
+    )
+    .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <soapenv:Header>
@@ -104,7 +145,10 @@ ${associations}
 // ============================================================
 // 2. Stored Query 构造
 // ============================================================
-export function buildFindDocumentsQuery(patientId: string, status: string): string {
+export function buildFindDocumentsQuery(
+  patientId: string,
+  status: string,
+): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
   <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
@@ -122,117 +166,269 @@ export function buildFindDocumentsQuery(patientId: string, status: string): stri
 // ============================================================
 // 3. XDS 验证
 // ============================================================
-export function validateXds(registry: XdsRegistry): { passed: boolean; errors: string[]; warnings: string[] } {
+export function validateXds(registry: XdsRegistry): {
+  passed: boolean;
+  errors: string[];
+  warnings: string[];
+} {
   const errors: string[] = [];
   const warnings: string[] = [];
-  if (!registry.submissionSet) errors.push('缺少 SubmissionSet');
-  if (registry.documentEntries.length === 0) errors.push('DocumentEntry 不能为空');
-  if (!registry.repositoryUniqueIds || registry.repositoryUniqueIds.length === 0) errors.push('缺少 RepositoryUniqueId');
+  if (!registry.submissionSet) errors.push("缺少 SubmissionSet");
+  if (registry.documentEntries.length === 0)
+    errors.push("DocumentEntry 不能为空");
+  if (
+    !registry.repositoryUniqueIds ||
+    registry.repositoryUniqueIds.length === 0
+  )
+    errors.push("缺少 RepositoryUniqueId");
   registry.documentEntries.forEach((d, i) => {
-    if (!d.entryUUID) errors.push(`第 ${i + 1} 个 DocumentEntry 缺少 entryUUID`);
-    if (!d.patientId) errors.push(`第 ${i + 1} 个 DocumentEntry 缺少 patientId`);
+    if (!d.entryUUID)
+      errors.push(`第 ${i + 1} 个 DocumentEntry 缺少 entryUUID`);
+    if (!d.patientId)
+      errors.push(`第 ${i + 1} 个 DocumentEntry 缺少 patientId`);
     if (!d.uniqueId) errors.push(`第 ${i + 1} 个 DocumentEntry 缺少 uniqueId`);
   });
-  if (!registry.homeCommunityId) warnings.push('缺少 homeCommunityId');
+  if (!registry.homeCommunityId) warnings.push("缺少 homeCommunityId");
   return { passed: errors.length === 0, errors, warnings };
 }
 
 // ============================================================
-// 4. Service 接口
+// 4. Service 接口 (真实后端 /ihe/xds)
 // ============================================================
+const HL7_TS = (iso?: string) =>
+  iso
+    ? iso.replace(/[-:TZ.]/g, "").slice(0, 14)
+    : new Date()
+        .toISOString()
+        .replace(/[-:TZ.]/g, "")
+        .slice(0, 14);
+
+const ALLOWED_MIME = [
+  "application/pdf",
+  "text/xml",
+  "application/cda+xml",
+  "application/fhir+json",
+  "application/dicom",
+] as const;
+
+function mapXdsEntry(
+  e: XdsDocumentEntryDto,
+  source: "live" | "demo" = "live",
+): XdsDocumentEntry {
+  const time = HL7_TS(e.creationTime);
+  const mime = (ALLOWED_MIME as readonly string[]).includes(e.mimeType ?? "")
+    ? (e.mimeType as XdsDocumentEntry["mimetype"])
+    : "text/xml";
+  return {
+    id: e.uniqueId,
+    entryUUID: `urn:uuid:${e.uniqueId}`,
+    patientId: e.patientId,
+    uniqueId: e.uniqueId,
+    title: e.title ?? "",
+    titleEn: e.title ?? "",
+    comments: "",
+    confidentiality: "N",
+    creationTime: time,
+    languageCode: "zh-CN",
+    legalAuthenticator: e.authorPerson ?? "",
+    serviceStartTime: time,
+    serviceStopTime: time,
+    sourcePatientId: e.patientId,
+    sourcePatientInfo: { name: "", gender: "", birthDate: "", id: e.patientId },
+    repositoryUniqueId: e.repositoryUniqueId ?? XDS_HOME_REPOSITORY,
+    size: e.size ?? 0,
+    hash: e.hash ?? "",
+    mimetype: mime,
+    status: e.availabilityStatus === "DEPRECATED" ? "deprecated" : "approved",
+    availability: "Online",
+    classifications: [],
+    externalIdentifiers: [],
+    slots: [],
+    formatCode: {
+      code: e.formatCode ?? "",
+      display: e.formatCode ?? "",
+      scheme: "",
+    },
+    typeCode: { code: e.typeCode ?? "", display: e.typeCode ?? "", scheme: "" },
+    classCode: {
+      code: e.classCode ?? "",
+      display: e.classCode ?? "",
+      scheme: "",
+    },
+    healthcareFacilityType: { code: "", display: "", scheme: "" },
+    practiceSetting: { code: "", display: "", scheme: "" },
+    eventCodeList: [],
+    source,
+  };
+}
+
 export async function listXdsRegistries(): Promise<XdsRegistry[]> {
-  await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
-  return XDS_REGISTRIES_MOCK;
+  // 后端无"注册中心列表"端点 -> 演示数据, 显式标记 demo
+  return XDS_REGISTRIES_MOCK.map((r) => ({ ...r, source: "demo" as const }));
 }
 
 export async function getXdsRegistry(id: string): Promise<XdsRegistry | null> {
-  await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
-  return XDS_REGISTRIES_MOCK.find((r) => r.id === id) ?? null;
+  const demo = XDS_REGISTRIES_MOCK.find((r) => r.id === id) ?? null;
+  return demo ? { ...demo, source: "demo" } : null;
 }
 
 export async function registerToXds(input: {
-  reportId: string; patientId: string; patientName: string; modality: string; bodyPart: string;
-  sourceId: string; title: string; titleEn: string; comments: string;
+  reportId: string;
+  patientId: string;
+  patientName: string;
+  modality: string;
+  bodyPart: string;
+  sourceId: string;
+  title: string;
+  titleEn: string;
+  comments: string;
   classCode: { code: string; display: string; scheme?: string };
   typeCode: { code: string; display: string; scheme?: string };
   formatCode: { code: string; display: string; scheme?: string };
 }): Promise<XdsRegistry> {
-  await new Promise((r) => setTimeout(r, 800));
-  const id = `xds-${input.reportId}-${Date.now()}`;
-  const entryUUID = `urn:uuid:${id}-entry`;
-  const docEntry: XdsDocumentEntry = {
-    id, entryUUID,
-    patientId: input.patientId, uniqueId: `1.2.840.113556.1.8000.2554.${id}`,
-    title: input.title, titleEn: input.titleEn,
-    comments: input.comments, confidentiality: 'N',
-    creationTime: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
-    languageCode: 'zh-CN',
-    legalAuthenticator: '王主任^MD^^^汉东省人民医院',
-    serviceStartTime: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
-    serviceStopTime: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
-    sourcePatientId: input.patientId,
-    sourcePatientInfo: { name: input.patientName, gender: 'M', birthDate: '19680101', id: input.patientId },
-    repositoryUniqueId: '1.2.840.113556.1.8000.2554.1.100',
-    size: 256000,
-    hash: '2jmj7l5rSw0yVb/vlWAYkK/YBwk=',
-    mimetype: 'application/pdf',
-    status: 'approved', availability: 'Online',
-    classifications: [],
-    externalIdentifiers: [
-      { identificationScheme: 'urn:uuid:6b5ae5d2-8b5a-4241-8d04-7f2c4c5e6f7a', value: input.patientId, name: '患者 ID', nameEn: 'Patient ID' },
-      { identificationScheme: 'urn:uuid:58a6e8b0-2b5b-4251-b3f0-2a4c1a4f3b5d', value: `RP${id}`, name: '报告 ID', nameEn: 'Report ID' },
+  // [v3.0.6.16-7] 真实 ITI-41 ProvideAndRegisterDocumentSet-b
+  const res = await xdsApi.provide({
+    patientId: input.patientId,
+    documents: [
+      {
+        uniqueId: `1.2.840.113556.1.8000.2554.${input.reportId}`,
+        title: input.title,
+        mimeType: "text/xml",
+        classCode: input.classCode.code,
+        formatCode: input.formatCode.code,
+        typeCode: input.typeCode.code,
+      },
     ],
-    slots: [],
-    formatCode: { ...input.formatCode, scheme: input.formatCode.scheme ?? '1.2.840.10008.2.16.4' },
-    typeCode: { ...input.typeCode, scheme: input.typeCode.scheme ?? '2.16.840.1.113883.6.1' },
-    classCode: { ...input.classCode, scheme: input.classCode.scheme ?? '1.2.840.10008.2.16.4' },
-    healthcareFacilityType: { code: 'HOSP', display: '医院', scheme: '2.16.840.1.113883.5.11' },
-    practiceSetting: { code: '394802001', display: '放射学', scheme: '2.16.840.1.113883.6.96' },
-    eventCodeList: [],
+  });
+  if (!res.success || !res.data) {
+    throw new Error(`XDS 注册失败: ${res.error?.message ?? "后端未返回结果"}`);
+  }
+  const result = res.data;
+  const liveEntries = (result.documents ?? []).map((d) =>
+    mapXdsEntry(d, "live"),
+  );
+  const entries: XdsDocumentEntry[] =
+    liveEntries.length > 0
+      ? liveEntries
+      : result.documentIds.map((uid) =>
+          mapXdsEntry(
+            {
+              uniqueId: uid,
+              id: uid,
+              patientId: input.patientId,
+              repositoryUniqueId:
+                result.repositoryUniqueId ?? XDS_HOME_REPOSITORY,
+              homeCommunityId: result.homeCommunityId ?? XDS_HOME_COMMUNITY,
+              title: input.title,
+              classCode: input.classCode.code,
+              formatCode: input.formatCode.code,
+              typeCode: input.typeCode.code,
+              mimeType: "text/xml",
+              size: 0,
+              hash: "",
+              creationTime: new Date().toISOString(),
+              availabilityStatus: "APPROVED",
+              source: "SUBMISSION",
+            },
+            "live",
+          ),
+        );
+
+  const id = `xds-${input.reportId}-${Date.now()}`;
+  const submissionSet: XdsSubmissionSet = {
+    id: `ss-${id}`,
+    entryUUID: `urn:uuid:ss-${id}`,
+    patientId: input.patientId,
+    uniqueId: `1.2.840.113556.1.8000.2554.ss-${id}`,
+    sourceId: input.sourceId,
+    submissionTime: HL7_TS(result.submittedAt),
+    title: input.title,
+    titleEn: input.titleEn,
+    comments: input.comments,
+    contentTypeCode: {
+      ...input.classCode,
+      scheme: input.classCode.scheme ?? "1.2.840.10008.2.16.4",
+    },
+    author: [],
+    intendedRecipient: [],
+    submissionSetType: "new",
   };
   const folder: XdsFolder = {
-    id: `fld-${id}`, entryUUID: `urn:uuid:fld-${id}`,
-    patientId: input.patientId, uniqueId: `1.2.840.113556.1.8000.2554.fld-${id}`,
-    title: `${input.bodyPart} 影像`, titleEn: `${input.bodyPart} Imaging`,
-    comments: '影像资料', codeList: [], lastUpdateTime: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
-    folderType: 'study', status: 'approved',
+    id: `fld-${id}`,
+    entryUUID: `urn:uuid:fld-${id}`,
+    patientId: input.patientId,
+    uniqueId: `1.2.840.113556.1.8000.2554.fld-${id}`,
+    title: `${input.bodyPart} 影像`,
+    titleEn: `${input.bodyPart} Imaging`,
+    comments: "影像资料",
+    codeList: [],
+    lastUpdateTime: HL7_TS(),
+    folderType: "study",
+    status: "approved",
   };
-  const submissionSet: XdsSubmissionSet = {
-    id: `ss-${id}`, entryUUID: `urn:uuid:ss-${id}`,
-    patientId: input.patientId, uniqueId: `1.2.840.113556.1.8000.2554.ss-${id}`,
-    sourceId: input.sourceId,
-    submissionTime: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
-    title: input.title, titleEn: input.titleEn, comments: input.comments,
-    contentTypeCode: { ...input.classCode, scheme: input.classCode.scheme ?? '1.2.840.10008.2.16.4' },
-    author: [{ authorPerson: '陈医师^MD', authorInstitution: ['汉东省人民医院'], authorRole: '主治医师', authorSpecialty: '放射学' }],
-    intendedRecipient: [], submissionSetType: 'new',
-  };
-  const associations: XdsAssociation[] = [
-    { id: `assoc-1-${id}`, entryUUID: `urn:uuid:assoc-1-${id}`, sourceObject: submissionSet.entryUUID, targetObject: docEntry.entryUUID, associationType: 'HASMEMBER', submissionSetStatus: 'approved', availabilityStatus: 'approved', slots: [] },
-  ];
+  const associations: XdsAssociation[] = entries.map((e, i) => ({
+    id: `assoc-${i + 1}-${id}`,
+    entryUUID: `urn:uuid:assoc-${i + 1}-${id}`,
+    sourceObject: submissionSet.entryUUID,
+    targetObject: e.entryUUID,
+    associationType: "HASMEMBER",
+    submissionSetStatus: "approved",
+    availabilityStatus: "approved",
+    slots: [],
+  }));
   const registry: XdsRegistry = {
-    id, registryId: `REG-${Date.now()}`,
-    patientId: input.patientId, sourceId: input.sourceId,
-    submissionSet, documentEntries: [docEntry], folders: [folder], associations,
-    registryStoredQuery: [], responses: [{ rs: 'Success', status: 200, timestamp: new Date().toISOString() }],
-    registeredAt: new Date().toISOString(), registeredBy: 'G005-XDS-Registry-Node-1',
-    repositoryUniqueIds: ['1.2.840.113556.1.8000.2554.1.100'],
-    homeCommunityId: 'urn:oid:1.2.840.113556.1.8000.2554.1',
-    size: 0, validation: { passed: true, errors: [], warnings: [] },
+    id,
+    registryId: `REG-${Date.now()}`,
+    patientId: input.patientId,
+    sourceId: input.sourceId,
+    submissionSet,
+    documentEntries: entries,
+    folders: [folder],
+    associations,
+    registryStoredQuery: [],
+    responses: [
+      {
+        rs: result.success ? "Success" : "Failure",
+        status: 200,
+        timestamp: new Date().toISOString(),
+      },
+    ],
+    registeredAt: new Date().toISOString(),
+    registeredBy: "G005-XDS-Registry-Node-1",
+    repositoryUniqueIds: [result.repositoryUniqueId ?? XDS_HOME_REPOSITORY],
+    homeCommunityId: result.homeCommunityId ?? XDS_HOME_COMMUNITY,
+    size: 0,
+    validation: { passed: true, errors: [], warnings: [] },
+    source: "live",
   };
   registry.size = new Blob([buildXdsSubmitTransactionRequest(registry)]).size;
   registry.validation = validateXds(registry);
   return registry;
 }
 
-export async function queryXdsRegistry(patientId: string): Promise<XdsDocumentEntry[]> {
-  await new Promise((r) => setTimeout(r, 300));
-  return XDS_REGISTRIES_MOCK.flatMap((r) => r.documentEntries.filter((d) => d.patientId === patientId));
+export async function queryXdsRegistry(
+  patientId: string,
+): Promise<XdsDocumentEntry[]> {
+  try {
+    const res = await xdsApi.documents({ patientId });
+    if (!res.success) throw new Error(res.error?.message ?? "XDS 查询失败");
+    const docs = res.data?.documents ?? [];
+    if (docs.length === 0) throw new Error("empty");
+    return docs.map((d) => mapXdsEntry(d, "live"));
+  } catch {
+    return XDS_REGISTRIES_MOCK.flatMap((r) =>
+      r.documentEntries.filter((d) => d.patientId === patientId),
+    ).map((d) => ({ ...d, source: "demo" as const }));
+  }
 }
 
-export async function listIntegrationEnvelopes(): Promise<IntegrationExportEnvelope[]> {
-  await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
-  return INTEGRATION_ENVELOPES_MOCK;
+export async function listIntegrationEnvelopes(): Promise<
+  IntegrationExportEnvelope[]
+> {
+  return INTEGRATION_ENVELOPES_MOCK.map((e) => ({
+    ...e,
+    source: "demo" as const,
+  }));
 }
 
 export const XDS_REGISTRY_MOCK_REF = XDS_REGISTRY_MOCK;

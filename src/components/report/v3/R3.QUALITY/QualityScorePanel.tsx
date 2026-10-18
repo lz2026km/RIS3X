@@ -3,8 +3,14 @@
  *
  * 60 点: 5 完整 + 5 准确 + 5 时效 = 15 维度评分
  */
-import { scoringService } from '../../../../services/quality/scoringService';
-import type { ScoringDimension, ScoringEvaluationResult, ScoringThresholdConfig, ScoringDimensionCategory, QualityScoreReport } from '../../../../types/R3/R3.QUALITY.SCORING';
+import { scoringService } from "../../../../services/quality/scoringService";
+import type {
+  ScoringDimension,
+  ScoringEvaluationResult,
+  ScoringThresholdConfig,
+  ScoringDimensionCategory,
+  QualityScoreReport,
+} from "../../../../types/R3/R3.QUALITY.SCORING";
 import {
   Card,
   Tag,
@@ -20,7 +26,7 @@ import {
   Select,
   message,
   Spin,
-} from 'antd';
+} from "antd";
 import {
   Award,
   CheckCircle2,
@@ -35,9 +41,9 @@ import {
   Clock,
   Target,
   Zap,
-} from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { t } from '../../../../i18n/appI18n';
+} from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { t } from "../../../../i18n/appI18n";
 import {
   RadarChart,
   Radar,
@@ -53,27 +59,62 @@ import {
   Cell,
   LineChart,
   Line,
-} from 'recharts';
-import { ChartContainer } from '../../../charts';
-import { Inbox } from 'lucide-react'
+} from "recharts";
+import { ChartContainer } from "../../../charts";
+import { Inbox } from "lucide-react";
 
 const CATEGORY_META: Record<
   ScoringDimensionCategory,
   { label: string; labelEn: string; color: string; icon: React.ReactNode }
 > = {
-  completeness: { label: t('qualityScore.category.completeness'), labelEn: 'Completeness', color: 'var(--color-primary-500)', icon: <FileText size={14} /> },
-  accuracy: { label: t('qualityScore.category.accuracy'), labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
-  timeliness: { label: t('qualityScore.category.timeliness'), labelEn: 'Timeliness', color: 'var(--color-warning-500)', icon: <Clock size={14} /> },
+  completeness: {
+    label: t("qualityScore.category.completeness"),
+    labelEn: "Completeness",
+    color: "var(--color-primary-500)",
+    icon: <FileText size={14} />,
+  },
+  accuracy: {
+    label: t("qualityScore.category.accuracy"),
+    labelEn: "Accuracy",
+    color: "#10b981",
+    icon: <Target size={14} />,
+  },
+  timeliness: {
+    label: t("qualityScore.category.timeliness"),
+    labelEn: "Timeliness",
+    color: "var(--color-warning-500)",
+    icon: <Clock size={14} />,
+  },
 };
 
 const GRADE_META: Record<
-  ScoringThresholdConfig['grade'],
+  ScoringThresholdConfig["grade"],
   { color: string; bg: string; border: string; label: string }
 > = {
-  A: { color: '#047857', bg: '#d1fae5', border: '#6ee7b7', label: t('qualityScore.grade.A') },
-  B: { color: 'var(--color-primary-800)', bg: '#dbeafe', border: '#93c5fd', label: t('qualityScore.grade.B') },
-  C: { color: '#92400e', bg: '#fef3c7', border: '#fcd34d', label: t('qualityScore.grade.C') },
-  D: { color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', label: t('qualityScore.grade.D') },
+  A: {
+    color: "#047857",
+    bg: "#d1fae5",
+    border: "#6ee7b7",
+    label: t("qualityScore.grade.A"),
+  },
+  B: {
+    color: "var(--color-primary-800)",
+    bg: "#dbeafe",
+    border: "#93c5fd",
+    label: t("qualityScore.grade.B"),
+  },
+  C: {
+    color: "#92400e",
+    bg: "#fef3c7",
+    border: "#fcd34d",
+    label: t("qualityScore.grade.C"),
+  },
+  D: {
+    color: "#7f1d1d",
+    bg: "#fee2e2",
+    border: "#fca5a5",
+    label: t("qualityScore.grade.D"),
+  },
 };
 
 export const QualityScorePanel: React.FC<{
@@ -84,12 +125,26 @@ export const QualityScorePanel: React.FC<{
 }> = ({ score: initialScore, reportId, onRescore, onGenerateReport }) => {
   const [dimensions, setDimensions] = useState<ScoringDimension[]>([]);
   const [thresholds, setThresholds] = useState<ScoringThresholdConfig[]>([]);
-  const [score, setScore] = useState<ScoringEvaluationResult | null>(initialScore ?? null);
+  const [score, setScore] = useState<ScoringEvaluationResult | null>(
+    initialScore ?? null,
+  );
   const [loading, setLoading] = useState(true);
   const [evaluating, setEvaluating] = useState(false);
   const [sampleIndex, setSampleIndex] = useState(0);
   const [generating, setGenerating] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<ScoringDimensionCategory>('completeness');
+  const [activeCategory, setActiveCategory] =
+    useState<ScoringDimensionCategory>("completeness");
+  const [trend, setTrend] = useState<Array<{ idx: number; v: number }>>([]);
+
+  const refreshTrend = async () => {
+    const hist = await scoringService.getHistory({ pageSize: 10 });
+    setTrend(
+      hist.items
+        .slice()
+        .reverse()
+        .map((h, i) => ({ idx: i + 1, v: h.totalScore })),
+    );
+  };
 
   const load = async () => {
     setLoading(true);
@@ -108,6 +163,9 @@ export const QualityScorePanel: React.FC<{
           setScore(ev);
         }
       }
+      await refreshTrend();
+    } catch (e) {
+      message.error((e as Error).message || t("qualityScore.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -130,22 +188,40 @@ export const QualityScorePanel: React.FC<{
       const ev = await scoringService.evaluate(samples[idx]!);
       setScore(ev);
       setSampleIndex(idx + 1);
-      message.success(t('w9e.qualityScorePanel.scoreDone', { score: ev.totalScore, grade: ev.grade }));
+      await refreshTrend();
+      message.success(
+        t("w9e.qualityScorePanel.scoreDone", {
+          score: ev.totalScore,
+          grade: ev.grade,
+        }),
+      );
+    } catch (e) {
+      message.error((e as Error).message || t("qualityScore.loadFailed"));
     } finally {
       setEvaluating(false);
     }
   };
 
-  const handleGenerateReport = async (format: QualityScoreReport['format']) => {
+  const handleGenerateReport = async (format: QualityScoreReport["format"]) => {
     if (!score) {
-      message.warning(t('qualityScore.noScoreForReport'));
+      message.warning(t("qualityScore.noScoreForReport"));
       return;
     }
     setGenerating(true);
     try {
-      const report = await scoringService.generateReport(score.scoreId, format, 'D001');
+      const report = await scoringService.generateReport(
+        score.scoreId,
+        format,
+        "D001",
+      );
       onGenerateReport?.(report);
-      message.success(t('w9e.qualityScorePanel.reportGenerated', { format: format.toUpperCase() }));
+      message.success(
+        t("w9e.qualityScorePanel.reportGenerated", {
+          format: format.toUpperCase(),
+        }),
+      );
+    } catch (e) {
+      message.error((e as Error).message || t("qualityScore.noScoreForReport"));
     } finally {
       setGenerating(false);
     }
@@ -166,7 +242,9 @@ export const QualityScorePanel: React.FC<{
 
   const categoryRadar = useMemo(
     () =>
-      (['completeness', 'accuracy', 'timeliness'] as ScoringDimensionCategory[]).map((cat) => ({
+      (
+        ["completeness", "accuracy", "timeliness"] as ScoringDimensionCategory[]
+      ).map((cat) => ({
         category: CATEGORY_META[cat].label,
         score: score?.categoryScores[cat] ?? 0,
         fullMark: 100,
@@ -189,13 +267,21 @@ export const QualityScorePanel: React.FC<{
 
   const categoryBarData = useMemo(
     () =>
-      (['completeness', 'accuracy', 'timeliness'] as ScoringDimensionCategory[]).map((cat) => {
+      (
+        ["completeness", "accuracy", "timeliness"] as ScoringDimensionCategory[]
+      ).map((cat) => {
         const dims = dimensions.filter((d) => d.category === cat && d.enabled);
         const totalWeight = dims.reduce((a, d) => a + d.weight, 0);
-        const weighted = dims.reduce((a, d) => a + (score?.dimensionScores[d.key] ?? 0) * d.weight, 0);
+        const weighted = dims.reduce(
+          (a, d) => a + (score?.dimensionScores[d.key] ?? 0) * d.weight,
+          0,
+        );
         return {
           category: CATEGORY_META[cat].label,
-          score: totalWeight > 0 ? Math.round((weighted / totalWeight) * 10) / 10 : 0,
+          score:
+            totalWeight > 0
+              ? Math.round((weighted / totalWeight) * 10) / 10
+              : 0,
           fill: CATEGORY_META[cat].color,
         };
       }),
@@ -210,8 +296,11 @@ export const QualityScorePanel: React.FC<{
   if (loading) {
     return (
       <Card>
-        <div style={{ textAlign: 'center', padding: 60 }}>
-          <Spin /> <div style={{ marginTop: 'var(--space-3, 12px)', color: '#64748b' }}>{t('qualityScore.loading')}</div>
+        <div style={{ textAlign: "center", padding: 60 }}>
+          <Spin />{" "}
+          <div style={{ marginTop: "var(--space-3, 12px)", color: "#64748b" }}>
+            {t("qualityScore.loading")}
+          </div>
         </div>
       </Card>
     );
@@ -219,8 +308,15 @@ export const QualityScorePanel: React.FC<{
 
   if (!score) {
     return (
-      <Card data-testid="quality-score-panel" role="region" aria-label={t('qualityScore.ariaLabel')}>
-        <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('qualityScore.noScore')} />
+      <Card
+        data-testid="quality-score-panel"
+        role="region"
+        aria-label={t("qualityScore.ariaLabel")}
+      >
+        <Empty
+          image={<BarChart3 size={48} style={{ opacity: 0.4 }} />}
+          description={t("qualityScore.noScore")}
+        />
       </Card>
     );
   }
@@ -228,23 +324,33 @@ export const QualityScorePanel: React.FC<{
   const gradeMeta = GRADE_META[score.grade];
 
   return (
-    <div data-testid="quality-score-panel" role="region" aria-label={t('qualityScore.ariaLabel')}>
+    <div
+      data-testid="quality-score-panel"
+      role="region"
+      aria-label={t("qualityScore.ariaLabel")}
+    >
       <div
         style={{
-          background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 50%, #db2777 100%)',
-          color: '#fff',
-          padding: '14px 18px',
+          background:
+            "linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 50%, #db2777 100%)",
+          color: "#fff",
+          padding: "14px 18px",
           borderRadius: 10,
           marginBottom: 14,
         }}
       >
-        <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
+        <Space style={{ width: "100%", justifyContent: "space-between" }} wrap>
           <Space size="middle" wrap>
             <Award size={20} />
-            <strong style={{ fontSize: 16 }}>{t('qualityScore.title')}</strong>
+            <strong style={{ fontSize: 16 }}>{t("qualityScore.title")}</strong>
             <Tag color="purple">R3.QUALITY.SCORING</Tag>
             <Tag color="cyan">{score.modelVersion}</Tag>
-            {reportId && <Tag color="blue">{t('qualityScore.reportPrefix')}{reportId}</Tag>}
+            {reportId && (
+              <Tag color="blue">
+                {t("qualityScore.reportPrefix")}
+                {reportId}
+              </Tag>
+            )}
           </Space>
           <Space wrap>
             <Button
@@ -253,19 +359,21 @@ export const QualityScorePanel: React.FC<{
               onClick={onRescore ?? handleEvaluate}
               loading={evaluating}
             >
-              {t('qualityScore.rescore')}
+              {t("qualityScore.rescore")}
             </Button>
             <Select
               size="small"
-              value={"report" as QualityScoreReport['format']}
+              value={"report" as QualityScoreReport["format"]}
               style={{ width: 110 }}
-              onChange={(v: QualityScoreReport['format']) => handleGenerateReport(v)}
+              onChange={(v: QualityScoreReport["format"]) =>
+                handleGenerateReport(v)
+              }
               loading={generating}
               options={[
-                { value: 'pdf', label: t('qualityScore.reportFormat.pdf') },
-                { value: 'word', label: t('qualityScore.reportFormat.word') },
-                { value: 'excel', label: t('qualityScore.reportFormat.excel') },
-                { value: 'html', label: t('qualityScore.reportFormat.html') },
+                { value: "pdf", label: t("qualityScore.reportFormat.pdf") },
+                { value: "word", label: t("qualityScore.reportFormat.word") },
+                { value: "excel", label: t("qualityScore.reportFormat.excel") },
+                { value: "html", label: t("qualityScore.reportFormat.html") },
               ]}
               suffixIcon={<Download size={12} />}
             />
@@ -275,13 +383,20 @@ export const QualityScorePanel: React.FC<{
           <Col xs={12} sm={6}>
             <div
               style={{
-                background: 'rgba(255,255,255,0.18)',
-                padding: 'var(--space-3, 12px)',
+                background: "rgba(255,255,255,0.18)",
+                padding: "var(--space-3, 12px)",
                 borderRadius: 8,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
-              <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+              <div
+                style={{
+                  fontSize: 36,
+                  fontWeight: 800,
+                  color: "#fff",
+                  lineHeight: 1,
+                }}
+              >
                 {score.totalScore}
               </div>
               <Tag
@@ -295,70 +410,118 @@ export const QualityScorePanel: React.FC<{
               >
                 {gradeMeta.label}
               </Tag>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 'var(--space-1, 4px)' }}>
-                {t('qualityScore.fullScore100')}
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.85)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                {t("qualityScore.fullScore100")}
               </div>
             </div>
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('qualityScore.completenessAvg')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("qualityScore.completenessAvg")}
+                </span>
+              }
               value={score.categoryScores.completeness}
               precision={1}
-              styles={{ content: {  color: '#fff', fontSize: 20  } }}
+              styles={{ content: { color: "#fff", fontSize: 20 } }}
               prefix={<FileText size={14} />}
               suffix="/100"
             />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('qualityScore.accuracyAvg')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("qualityScore.accuracyAvg")}
+                </span>
+              }
               value={score.categoryScores.accuracy}
               precision={1}
-              styles={{ content: {  color: '#fff', fontSize: 20  } }}
+              styles={{ content: { color: "#fff", fontSize: 20 } }}
               prefix={<Target size={14} />}
               suffix="/100"
             />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('qualityScore.timelinessAvg')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("qualityScore.timelinessAvg")}
+                </span>
+              }
               value={score.categoryScores.timeliness}
               precision={1}
-              styles={{ content: {  color: '#fff', fontSize: 20  } }}
+              styles={{ content: { color: "#fff", fontSize: 20 } }}
               prefix={<Clock size={14} />}
               suffix="/100"
             />
           </Col>
         </Row>
-        <Row gutter={12} style={{ marginTop: 'var(--space-2, 8px)' }}>
+        <Row gutter={12} style={{ marginTop: "var(--space-2, 8px)" }}>
           <Col xs={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('qualityScore.publishable')}</span>}
-              value={score.publishable ? t('qualityScore.yes') : t('qualityScore.no')}
-              styles={{ content: { 
-                color: score.publishable ? '#bbf7d0' : '#fca5a5',
-                fontSize: 18,
-               } }}
-              prefix={score.publishable ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("qualityScore.publishable")}
+                </span>
+              }
+              value={
+                score.publishable ? t("qualityScore.yes") : t("qualityScore.no")
+              }
+              styles={{
+                content: {
+                  color: score.publishable ? "#bbf7d0" : "#fca5a5",
+                  fontSize: 18,
+                },
+              }}
+              prefix={
+                score.publishable ? (
+                  <CheckCircle2 size={14} />
+                ) : (
+                  <AlertTriangle size={14} />
+                )
+              }
             />
           </Col>
           <Col xs={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('qualityScore.bonusEligible')}</span>}
-              value={score.bonusEligible ? t('qualityScore.yes') : t('qualityScore.no')}
-              styles={{ content: { 
-                color: score.bonusEligible ? '#bbf7d0' : '#fcd34d',
-                fontSize: 18,
-               } }}
-              prefix={score.bonusEligible ? <Sparkles size={14} /> : <Zap size={14} />}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("qualityScore.bonusEligible")}
+                </span>
+              }
+              value={
+                score.bonusEligible
+                  ? t("qualityScore.yes")
+                  : t("qualityScore.no")
+              }
+              styles={{
+                content: {
+                  color: score.bonusEligible ? "#bbf7d0" : "#fcd34d",
+                  fontSize: 18,
+                },
+              }}
+              prefix={
+                score.bonusEligible ? <Sparkles size={14} /> : <Zap size={14} />
+              }
             />
           </Col>
           <Col xs={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('qualityScore.evalDuration')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("qualityScore.evalDuration")}
+                </span>
+              }
               value={score.durationMs}
-              styles={{ content: {  color: '#fff', fontSize: 18  } }}
+              styles={{ content: { color: "#fff", fontSize: 18 } }}
               prefix={<Activity size={14} />}
               suffix="ms"
             />
@@ -370,9 +533,9 @@ export const QualityScorePanel: React.FC<{
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 'var(--space-3, 12px)' }}
-          title={`${t('qualityScore.hardFailTriggered')} ${score.hardFailTriggered.join(', ')}`}
-          description={t('qualityScore.hardFailDescription')}
+          style={{ marginBottom: "var(--space-3, 12px)" }}
+          title={`${t("qualityScore.hardFailTriggered")} ${score.hardFailTriggered.join(", ")}`}
+          description={t("qualityScore.hardFailDescription")}
         />
       )}
 
@@ -380,19 +543,30 @@ export const QualityScorePanel: React.FC<{
         defaultActiveKey="radar"
         items={[
           {
-            key: 'radar',
-            label: <span><BarChart3 size={12} /> {t('qualityScore.tab.radar')}</span>,
+            key: "radar",
+            label: (
+              <span>
+                <BarChart3 size={12} /> {t("qualityScore.tab.radar")}
+              </span>
+            ),
             children: (
-              <Card size="small" title={t('qualityScore.radarTitle')}>
+              <Card size="small" title={t("qualityScore.radarTitle")}>
                 <Row gutter={12}>
                   <Col xs={24} md={14}>
                     <ChartContainer type="radar" height={320}>
                       <RadarChart data={radarData}>
                         <PolarGrid stroke="#cbd5e1" />
-                        <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 12 }} />
+                        <PolarAngleAxis
+                          dataKey="dimension"
+                          tick={{ fontSize: 12 }}
+                        />
+                        <PolarRadiusAxis
+                          angle={30}
+                          domain={[0, 100]}
+                          tick={{ fontSize: 12 }}
+                        />
                         <Radar
-                          name={t('qualityScore.series.score')}
+                          name={t("qualityScore.series.score")}
                           dataKey="score"
                           stroke="#7c3aed"
                           fill="#7c3aed"
@@ -406,10 +580,17 @@ export const QualityScorePanel: React.FC<{
                     <ChartContainer type="radar" height={320}>
                       <RadarChart data={categoryRadar}>
                         <PolarGrid stroke="#cbd5e1" />
-                        <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 12 }} />
+                        <PolarAngleAxis
+                          dataKey="category"
+                          tick={{ fontSize: 12 }}
+                        />
+                        <PolarRadiusAxis
+                          angle={30}
+                          domain={[0, 100]}
+                          tick={{ fontSize: 12 }}
+                        />
                         <Radar
-                          name={t('qualityScore.series.categoryAvg')}
+                          name={t("qualityScore.series.categoryAvg")}
                           dataKey="score"
                           stroke="#10b981"
                           fill="#10b981"
@@ -424,33 +605,60 @@ export const QualityScorePanel: React.FC<{
             ),
           },
           {
-            key: 'bar',
-            label: <span><BarChart3 size={12} /> {t('qualityScore.tab.bar')}</span>,
+            key: "bar",
+            label: (
+              <span>
+                <BarChart3 size={12} /> {t("qualityScore.tab.bar")}
+              </span>
+            ),
             children: (
-              <Card size="small" title={t('qualityScore.barTitle')}>
+              <Card size="small" title={t("qualityScore.barTitle")}>
                 <ChartContainer type="bar" height={360}>
-                  <BarChart data={barData} layout="vertical" margin={{ top: 8, right: 16, bottom: 24, left: 48 }}>
+                  <BarChart
+                    data={barData}
+                    layout="vertical"
+                    margin={{ top: 8, right: 16, bottom: 24, left: 48 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} />
-                    <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={130} />
+                    <XAxis
+                      type="number"
+                      domain={[0, 100]}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      tick={{ fontSize: 12 }}
+                      width={130}
+                    />
                     <RTooltip />
-                    <Bar dataKey="score" name={t('qualityScore.series.score')}>
+                    <Bar dataKey="score" name={t("qualityScore.series.score")}>
                       {barData.map((d, i) => (
                         <Cell
                           key={i}
-                          fill={CATEGORY_META[d.category as ScoringDimensionCategory].color}
+                          fill={
+                            CATEGORY_META[
+                              d.category as ScoringDimensionCategory
+                            ].color
+                          }
                         />
                       ))}
                     </Bar>
                   </BarChart>
                 </ChartContainer>
                 <ChartContainer type="bar" height={220}>
-                  <BarChart data={categoryBarData} margin={{ top: 8, right: 16, bottom: 24, left: 48 }}>
+                  <BarChart
+                    data={categoryBarData}
+                    margin={{ top: 8, right: 16, bottom: 24, left: 48 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="category" tick={{ fontSize: 12 }} />
                     <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
                     <RTooltip />
-                    <Bar dataKey="score" name={t('qualityScore.series.categoryAvg')}>
+                    <Bar
+                      dataKey="score"
+                      name={t("qualityScore.series.categoryAvg")}
+                    >
                       {categoryBarData.map((d, i) => (
                         <Cell key={i} fill={d.fill} />
                       ))}
@@ -461,20 +669,30 @@ export const QualityScorePanel: React.FC<{
             ),
           },
           {
-            key: 'category',
-            label: <span><FileText size={12} /> {t('qualityScore.tab.category')}</span>,
+            key: "category",
+            label: (
+              <span>
+                <FileText size={12} /> {t("qualityScore.tab.category")}
+              </span>
+            ),
             children: (
               <Card
                 size="small"
                 title={
                   <Space>
-                    <span>{t('qualityScore.viewByCategory')}</span>
+                    <span>{t("qualityScore.viewByCategory")}</span>
                     <Select
                       size="small"
                       value={activeCategory}
                       onChange={setActiveCategory}
                       style={{ width: 120 }}
-                      options={(['completeness', 'accuracy', 'timeliness'] as ScoringDimensionCategory[]).map((c) => ({
+                      options={(
+                        [
+                          "completeness",
+                          "accuracy",
+                          "timeliness",
+                        ] as ScoringDimensionCategory[]
+                      ).map((c) => ({
                         value: c,
                         label: CATEGORY_META[c].label,
                       }))}
@@ -490,8 +708,19 @@ export const QualityScorePanel: React.FC<{
                     );
                     return (
                       <Col xs={24} sm={12} md={8} key={d.key}>
-                        <div data-testid={`dim-${d.key}`} style={{ padding: 12, borderTop: `3px solid ${CATEGORY_META[d.category].color}` }}>
-                          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                        <div
+                          data-testid={`dim-${d.key}`}
+                          style={{
+                            padding: 12,
+                            borderTop: `3px solid ${CATEGORY_META[d.category].color}`,
+                          }}
+                        >
+                          <Space
+                            style={{
+                              width: "100%",
+                              justifyContent: "space-between",
+                            }}
+                          >
                             <Space>
                               <span style={{ fontSize: 20 }}>{d.icon}</span>
                               <strong style={{ fontSize: 12 }}>{d.name}</strong>
@@ -511,13 +740,27 @@ export const QualityScorePanel: React.FC<{
                           <Progress
                             percent={s}
                             strokeColor={CATEGORY_META[d.category].color}
-                            style={{ marginTop: 'var(--space-2, 8px)' }}
+                            style={{ marginTop: "var(--space-2, 8px)" }}
                           />
-                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
-                            {t('qualityScore.weight')} {(d.weight * 100).toFixed(1)}% · {t('qualityScore.score')} {s.toFixed(1)}/100
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: "#64748b",
+                              marginTop: "var(--space-1, 4px)",
+                            }}
+                          >
+                            {t("qualityScore.weight")}{" "}
+                            {(d.weight * 100).toFixed(1)}% ·{" "}
+                            {t("qualityScore.score")} {s.toFixed(1)}/100
                           </div>
-                          <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 'var(--space-1, 4px)' }}>
-                            {t('qualityScore.rule')} {d.passingRule}
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: "var(--color-info-600)",
+                              marginTop: "var(--space-1, 4px)",
+                            }}
+                          >
+                            {t("qualityScore.rule")} {d.passingRule}
                           </div>
                         </div>
                       </Col>
@@ -528,20 +771,37 @@ export const QualityScorePanel: React.FC<{
             ),
           },
           {
-            key: 'evidence',
-            label: <span><Sparkles size={12} /> {t('qualityScore.tab.evidence')}</span>,
+            key: "evidence",
+            label: (
+              <span>
+                <Sparkles size={12} /> {t("qualityScore.tab.evidence")}
+              </span>
+            ),
             children: (
-              <Card size="small" title={t('w9e.qualityScorePanel.evidenceTitle', { count: score.evidence.length })}>
+              <Card
+                size="small"
+                title={t("w9e.qualityScorePanel.evidenceTitle", {
+                  count: score.evidence.length,
+                })}
+              >
                 {score.evidence.length === 0 ? (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('qualityScore.noEvidence')} />
+                  <Empty
+                    image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                    description={t("qualityScore.noEvidence")}
+                  />
                 ) : (
                   score.evidence.map((e, i) => (
                     <div
                       key={i}
                       style={{
-                        padding: 'var(--space-2, 8px)',
-                        marginBottom: 'var(--space-1, 4px)',
-                        background: e.score >= 90 ? '#d1fae5' : e.score >= 75 ? '#dbeafe' : '#fef3c7',
+                        padding: "var(--space-2, 8px)",
+                        marginBottom: "var(--space-1, 4px)",
+                        background:
+                          e.score >= 90
+                            ? "#d1fae5"
+                            : e.score >= 75
+                              ? "#dbeafe"
+                              : "#fef3c7",
                         borderRadius: 4,
                         fontSize: 12,
                       }}
@@ -549,9 +809,18 @@ export const QualityScorePanel: React.FC<{
                       <Space>
                         <Tag color="purple">{e.dimension}</Tag>
                         <Tag color="cyan">{e.rule}</Tag>
-                        <strong>{e.score} {t('qualityScore.pointsUnit')}</strong>
+                        <strong>
+                          {e.score} {t("qualityScore.pointsUnit")}
+                        </strong>
                       </Space>
-                      <div style={{ color: '#475569', marginTop: 'var(--space-1, 4px)' }}>{e.explanation}</div>
+                      <div
+                        style={{
+                          color: "#475569",
+                          marginTop: "var(--space-1, 4px)",
+                        }}
+                      >
+                        {e.explanation}
+                      </div>
                     </div>
                   ))
                 )}
@@ -559,29 +828,56 @@ export const QualityScorePanel: React.FC<{
             ),
           },
           {
-            key: 'threshold',
-            label: <span><TrendingUp size={12} /> {t('qualityScore.tab.threshold')}</span>,
+            key: "threshold",
+            label: (
+              <span>
+                <TrendingUp size={12} /> {t("qualityScore.tab.threshold")}
+              </span>
+            ),
             children: (
-              <Card size="small" title={t('qualityScore.thresholdTable')}>
+              <Card size="small" title={t("qualityScore.thresholdTable")}>
                 <Row gutter={[12, 12]}>
                   {thresholds.map((th) => (
                     <Col xs={12} sm={6} key={th.grade}>
-                      <div style={{ padding: 12, borderTop: `4px solid ${th.color}`, background: th.bg }}>
-                        <div style={{ fontSize: 30, fontWeight: 800, color: th.color }}>
+                      <div
+                        style={{
+                          padding: 12,
+                          borderTop: `4px solid ${th.color}`,
+                          background: th.bg,
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: 30,
+                            fontWeight: 800,
+                            color: th.color,
+                          }}
+                        >
                           {th.grade}
                         </div>
                         <div style={{ fontSize: 12, color: th.color }}>
-                          {th.minScore} - {th.maxScore} {t('qualityScore.pointsUnit')}
+                          {th.minScore} - {th.maxScore}{" "}
+                          {t("qualityScore.pointsUnit")}
                         </div>
-                        <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "#475569",
+                            marginTop: "var(--space-1, 4px)",
+                          }}
+                        >
                           {th.description}
                         </div>
                         <Space style={{ marginTop: 6 }}>
-                          <Tag color={th.publishable ? 'green' : 'red'}>
-                            {th.publishable ? t('qualityScore.publishable') : t('qualityScore.notPublishable')}
+                          <Tag color={th.publishable ? "green" : "red"}>
+                            {th.publishable
+                              ? t("qualityScore.publishable")
+                              : t("qualityScore.notPublishable")}
                           </Tag>
-                          <Tag color={th.bonusEligible ? 'gold' : 'default'}>
-                            {th.bonusEligible ? t('qualityScore.bonus') : t('qualityScore.noBonus')}
+                          <Tag color={th.bonusEligible ? "gold" : "default"}>
+                            {th.bonusEligible
+                              ? t("qualityScore.bonus")
+                              : t("qualityScore.noBonus")}
                           </Tag>
                         </Space>
                       </div>
@@ -599,17 +895,14 @@ export const QualityScorePanel: React.FC<{
           size="small"
           title={
             <Space>
-              <Activity size={14} /> {t('qualityScore.trendPreview')}
+              <Activity size={14} /> {t("qualityScore.trendPreview")}
             </Space>
           }
-          style={{ marginTop: 'var(--space-3, 12px)' }}
+          style={{ marginTop: "var(--space-3, 12px)" }}
         >
           <ChartContainer type="line" height={160}>
             <LineChart
-              data={Array.from({ length: 10 }, (_, i) => ({
-                idx: i + 1,
-                v: 80 + Math.round(Math.random() * 15),
-              }))}
+              data={trend}
               margin={{ top: 8, right: 16, bottom: 24, left: 48 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -622,7 +915,7 @@ export const QualityScorePanel: React.FC<{
                 stroke="#7c3aed"
                 strokeWidth={2}
                 dot={{ r: 3 }}
-                name={t('qualityScore.recent10Scores')}
+                name={t("qualityScore.recent10Scores")}
               />
             </LineChart>
           </ChartContainer>

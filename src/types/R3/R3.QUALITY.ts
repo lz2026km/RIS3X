@@ -1,16 +1,16 @@
 /**
  * G005 RIS v3.0.5.1 - R3.QUALITY 质控类型定义
  */
-export type QualityGrade = '甲' | '乙' | '丙' | '丁';
+export type QualityGrade = "甲" | "乙" | "丙" | "丁";
 export type QualityDimensionKey =
-  | 'completeness'
-  | 'standardization'
-  | 'accuracy'
-  | 'timeliness'
-  | 'terminology'
-  | 'criticalMarking'
-  | 'consistency'
-  | 'imageQuality';
+  | "completeness"
+  | "standardization"
+  | "accuracy"
+  | "timeliness"
+  | "terminology"
+  | "criticalMarking"
+  | "consistency"
+  | "imageQuality";
 
 export interface QualityDimension {
   key: QualityDimensionKey;
@@ -31,7 +31,7 @@ export interface QualitySubCriterion {
   nameEn: string;
   weight: number;
   description: string;
-  evaluator: 'auto' | 'manual' | 'ai';
+  evaluator: "auto" | "manual" | "ai";
   passingRule: string;
 }
 
@@ -52,7 +52,7 @@ export interface QualityScore {
   evaluatedBy: string;
   evaluatedAt: string;
   modelVersion: string;
-  reviewStatus: 'pending' | 'reviewed' | 're-reviewed' | 'overridden';
+  reviewStatus: "pending" | "reviewed" | "re-reviewed" | "overridden";
   overrideReason?: string;
   overriddenBy?: string;
   overriddenAt?: string;
@@ -107,11 +107,32 @@ export interface QualityKPI {
   p95Score: number;
   gradeDistribution: Record<QualityGrade, number>;
   gradeRate: Record<QualityGrade, number>;
-  defectTopList: Array<{ code: string; name: string; count: number; severity: string }>;
-  doctorRanking: Array<{ doctorId: string; doctorName: string; avgScore: number; totalReports: number; rank: number }>;
-  departmentRanking: Array<{ department: string; avgScore: number; totalReports: number; rank: number }>;
+  defectTopList: Array<{
+    code: string;
+    name: string;
+    count: number;
+    severity: string;
+  }>;
+  doctorRanking: Array<{
+    doctorId: string;
+    doctorName: string;
+    avgScore: number;
+    totalReports: number;
+    rank: number;
+  }>;
+  departmentRanking: Array<{
+    department: string;
+    avgScore: number;
+    totalReports: number;
+    rank: number;
+  }>;
   aiAcceptanceRate: number;
-  trend30d: Array<{ date: string; avgScore: number; evaluated: number; defectRate: number }>;
+  trend30d: Array<{
+    date: string;
+    avgScore: number;
+    evaluated: number;
+    defectRate: number;
+  }>;
   autoRate: number;
   retrainingNeeded: number;
   criticalMissedCount: number;
@@ -121,7 +142,7 @@ export interface QualityDefectHit {
   code: string;
   name: string;
   category: DefectCategoryCode;
-  severity: 'minor' | 'major' | 'critical';
+  severity: "minor" | "major" | "critical";
   location?: string;
   context?: string;
   suggestion: string;
@@ -130,7 +151,8 @@ export interface QualityDefectHit {
   resolvedAt?: string;
 }
 
-export type DefectCategoryCode = 'DSC' | 'TER' | 'FMT' | 'LOG' | 'CRI' | 'CMP' | 'CON' | 'IMG' | 'TIM' | 'OTH';
+export type DefectCategoryCode =
+  "DSC" | "TER" | "FMT" | "LOG" | "CRI" | "CMP" | "CON" | "IMG" | "TIM" | "OTH";
 
 export interface QualityDefect {
   id: string;
@@ -138,7 +160,7 @@ export interface QualityDefect {
   name: string;
   nameEn?: string;
   category: DefectCategoryCode;
-  severity: 'minor' | 'major' | 'critical';
+  severity: "minor" | "major" | "critical";
   description: string;
   descriptionEn: string;
   examples: string[];
@@ -168,10 +190,31 @@ export interface MonthlyQualityReport {
   avgScore: number;
   monthOverMonth: number;
   gradeDistribution: Record<QualityGrade, number>;
-  defectStatistics: Array<{ code: string; name: string; count: number; changeRate: number }>;
-  doctorRanking: Array<{ doctorId: string; doctorName: string; avgScore: number; total: number; rank: number }>;
-  departmentRanking: Array<{ department: string; avgScore: number; total: number; rank: number }>;
-  trends: Array<{ date: string; avgScore: number; evaluated: number; defects: number }>;
+  defectStatistics: Array<{
+    code: string;
+    name: string;
+    count: number;
+    changeRate: number;
+  }>;
+  doctorRanking: Array<{
+    doctorId: string;
+    doctorName: string;
+    avgScore: number;
+    total: number;
+    rank: number;
+  }>;
+  departmentRanking: Array<{
+    department: string;
+    avgScore: number;
+    total: number;
+    rank: number;
+  }>;
+  trends: Array<{
+    date: string;
+    avgScore: number;
+    evaluated: number;
+    defects: number;
+  }>;
   topDefects: Array<{ code: string; name: string; count: number }>;
   criticalMissed: number;
   fixRate: number;
@@ -186,7 +229,11 @@ export interface MonthlyReportSection {
   title: string;
   titleEn: string;
   content: string;
-  charts?: Array<{ type: 'line' | 'bar' | 'pie' | 'table'; data: unknown; config?: unknown }>;
+  charts?: Array<{
+    type: "line" | "bar" | "pie" | "table";
+    data: unknown;
+    config?: unknown;
+  }>;
 }
 
 export interface QualityDashboard {
@@ -196,11 +243,36 @@ export interface QualityDashboard {
     inProgressEvaluation: number;
     criticalMissedToday: number;
   };
-  byModality: Array<{ modality: string; count: number; avgScore: number; passRate: number }>;
-  byDoctor: Array<{ doctorId: string; doctorName: string; count: number; avgScore: number; passRate: number }>;
+  byModality: Array<{
+    modality: string;
+    count: number;
+    avgScore: number;
+    passRate: number;
+  }>;
+  byDoctor: Array<{
+    doctorId: string;
+    doctorName: string;
+    count: number;
+    avgScore: number;
+    passRate: number;
+  }>;
   byHour: Array<{ hour: number; count: number; avgScore: number }>;
-  recentScores: Array<{ id: string; reportId: string; patientName: string; doctorName: string; score: number; grade: QualityGrade; evaluatedAt: string }>;
-  alerts: Array<{ id: string; type: 'critical-miss' | 'low-score' | 'overdue-eval' | 'rejection-spike'; message: string; severity: 'warning' | 'critical'; timestamp: string }>;
+  recentScores: Array<{
+    id: string;
+    reportId: string;
+    patientName: string;
+    doctorName: string;
+    score: number;
+    grade: QualityGrade;
+    evaluatedAt: string;
+  }>;
+  alerts: Array<{
+    id: string;
+    type: "critical-miss" | "low-score" | "overdue-eval" | "rejection-spike";
+    message: string;
+    severity: "warning" | "critical";
+    timestamp: string;
+  }>;
 }
 
 export interface DefectRemediation {
@@ -214,8 +286,8 @@ export interface DefectRemediation {
   reportedBy: string;
   reportedAt: string;
   deadlineAt: string;
-  status: 'pending' | 'in-progress' | 'rectified' | 'overdue' | 'cancelled';
-  severity: 'minor' | 'major' | 'critical';
+  status: "pending" | "in-progress" | "rectified" | "overdue" | "cancelled";
+  severity: "minor" | "major" | "critical";
   description: string;
   suggestedFix: string;
   rectifiedAt?: string;
@@ -224,6 +296,7 @@ export interface DefectRemediation {
   verifiedAt?: string;
   evidenceUrl?: string;
   remindersSent: number;
+  source?: "demo" | "database";
 }
 
 export interface QualityRuleVersion {
@@ -232,8 +305,13 @@ export interface QualityRuleVersion {
   effectiveAt: string;
   createdBy: string;
   createdAt: string;
-  changes: Array<{ dimension: QualityDimensionKey; before: number; after: number; reason: string }>;
-  status: 'draft' | 'active' | 'rolled-back' | 'archived';
+  changes: Array<{
+    dimension: QualityDimensionKey;
+    before: number;
+    after: number;
+    reason: string;
+  }>;
+  status: "draft" | "active" | "rolled-back" | "archived";
   note?: string;
 }
 

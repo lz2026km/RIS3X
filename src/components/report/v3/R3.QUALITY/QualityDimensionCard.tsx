@@ -3,7 +3,7 @@
  *
  * 20 点: 阈值配置(4) + 评分历史(4) + 报告生成(4) + 奖励联动(4) + 模板评分(4)
  */
-import { scoringService } from '../../../../services/quality/scoringService';
+import { scoringService } from "../../../../services/quality/scoringService";
 import type {
   ScoringDimension,
   ScoringDimensionKey,
@@ -16,7 +16,7 @@ import type {
   ScoringThresholdConfig,
   ScoringGrade,
   ScoringEvaluationResult,
-} from '../../../../types/R3/R3.QUALITY.SCORING';
+} from "../../../../types/R3/R3.QUALITY.SCORING";
 import {
   Card,
   Tag,
@@ -34,13 +34,12 @@ import {
   Progress,
   message,
   Spin,
-  
   Tooltip,
   Modal,
   Alert,
   Descriptions,
-} from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
 import {
   Sliders,
   Target,
@@ -58,26 +57,41 @@ import {
   Zap,
   Eye,
   RefreshCw,
-} from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { BarChart3 } from 'lucide-react'
-import { t } from '../../../../i18n/appI18n'
-import { DataTable } from '../../../common/DataTable';
+} from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { BarChart3 } from "lucide-react";
+import { t } from "../../../../i18n/appI18n";
+import { DataTable } from "../../../common/DataTable";
 
 const CATEGORY_META: Record<
   ScoringDimensionCategory,
   { label: string; labelEn: string; color: string; icon: React.ReactNode }
 > = {
-  completeness: { label: t('w9e.qualityDimensionCard.dimCompleteness'), labelEn: 'Completeness', color: 'var(--color-primary-500)', icon: <FileText size={14} /> },
-  accuracy: { label: t('w9e.qualityDimensionCard.dimAccuracy'), labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
-  timeliness: { label: t('w9e.qualityDimensionCard.dimTimeliness'), labelEn: 'Timeliness', color: 'var(--color-warning-500)', icon: <TrendingUp size={14} /> },
+  completeness: {
+    label: t("w9e.qualityDimensionCard.dimCompleteness"),
+    labelEn: "Completeness",
+    color: "var(--color-primary-500)",
+    icon: <FileText size={14} />,
+  },
+  accuracy: {
+    label: t("w9e.qualityDimensionCard.dimAccuracy"),
+    labelEn: "Accuracy",
+    color: "#10b981",
+    icon: <Target size={14} />,
+  },
+  timeliness: {
+    label: t("w9e.qualityDimensionCard.dimTimeliness"),
+    labelEn: "Timeliness",
+    color: "var(--color-warning-500)",
+    icon: <TrendingUp size={14} />,
+  },
 };
 
 const GRADE_COLOR: Record<ScoringGrade, string> = {
-  A: '#047857',
-  B: 'var(--color-primary-800)',
-  C: '#92400e',
-  D: '#7f1d1d',
+  A: "#047857",
+  B: "var(--color-primary-800)",
+  C: "#92400e",
+  D: "#7f1d1d",
 };
 
 export const QualityDimensionCard: React.FC<{
@@ -85,22 +99,33 @@ export const QualityDimensionCard: React.FC<{
   onBonusTrigger?: (bonusId: string) => void;
   onReportGenerated?: (templateId: string, result: ScoreTemplateResult) => void;
 }> = ({ onWeightsChange, onBonusTrigger, onReportGenerated }) => {
-  const [activeTab, setActiveTab] = useState('weights');
+  const [activeTab, setActiveTab] = useState("weights");
 
   return (
-    <div data-testid="quality-dimension-card" role="region" aria-label={t('reportQuality.dimensionConfig')}>
+    <div
+      data-testid="quality-dimension-card"
+      role="region"
+      aria-label={t("reportQuality.dimensionConfig")}
+    >
       <Card
         size="small"
-        style={{ marginBottom: 'var(--space-2, 8px)', background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)', border: 'none' }}
-        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
+        style={{
+          marginBottom: "var(--space-2, 8px)",
+          background:
+            "linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)",
+          border: "none",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
       >
-        <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
+        <Space style={{ width: "100%", justifyContent: "space-between" }} wrap>
           <Space>
             <Sliders size={18} color="#fff" />
-            <strong style={{ color: '#fff', fontSize: 16, fontWeight: 600 }}>{t('reportQuality.dimensionConfig')}</strong>
+            <strong style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
+              {t("reportQuality.dimensionConfig")}
+            </strong>
             <Tag color="purple">R3.QUALITY.SCORING</Tag>
           </Space>
-          <Tag color="cyan">{t('reportQuality.pointsDomains')}</Tag>
+          <Tag color="cyan">{t("reportQuality.pointsDomains")}</Tag>
         </Space>
       </Card>
       <Tabs
@@ -108,33 +133,57 @@ export const QualityDimensionCard: React.FC<{
         onChange={setActiveTab}
         items={[
           {
-            key: 'weights',
-            label: <span><Sliders size={12} /> {t('reportQuality.tab.weights')}</span>,
+            key: "weights",
+            label: (
+              <span>
+                <Sliders size={12} /> {t("reportQuality.tab.weights")}
+              </span>
+            ),
             children: <WeightsTab onWeightsChange={onWeightsChange} />,
           },
           {
-            key: 'threshold',
-            label: <span><Settings size={12} /> {t('reportQuality.tab.threshold')}</span>,
+            key: "threshold",
+            label: (
+              <span>
+                <Settings size={12} /> {t("reportQuality.tab.threshold")}
+              </span>
+            ),
             children: <ThresholdTab />,
           },
           {
-            key: 'history',
-            label: <span><History size={12} /> {t('reportQuality.tab.history')}</span>,
+            key: "history",
+            label: (
+              <span>
+                <History size={12} /> {t("reportQuality.tab.history")}
+              </span>
+            ),
             children: <HistoryTab />,
           },
           {
-            key: 'report',
-            label: <span><FileText size={12} /> {t('reportQuality.tab.report')}</span>,
+            key: "report",
+            label: (
+              <span>
+                <FileText size={12} /> {t("reportQuality.tab.report")}
+              </span>
+            ),
             children: <ReportTab />,
           },
           {
-            key: 'bonus',
-            label: <span><Award size={12} /> {t('reportQuality.tab.bonus')}</span>,
+            key: "bonus",
+            label: (
+              <span>
+                <Award size={12} /> {t("reportQuality.tab.bonus")}
+              </span>
+            ),
             children: <BonusTab onTrigger={onBonusTrigger} />,
           },
           {
-            key: 'template',
-            label: <span><Layers size={12} /> {t('reportQuality.tab.template')}</span>,
+            key: "template",
+            label: (
+              <span>
+                <Layers size={12} /> {t("reportQuality.tab.template")}
+              </span>
+            ),
             children: <TemplateTab onGenerated={onReportGenerated} />,
           },
         ]}
@@ -144,10 +193,16 @@ export const QualityDimensionCard: React.FC<{
 };
 
 // ============= 维度权重 Tab =============
-const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> = ({ onWeightsChange }) => {
+const WeightsTab: React.FC<{
+  onWeightsChange?: (w: ThresholdConfig) => void;
+}> = ({ onWeightsChange }) => {
   const [dimensions, setDimensions] = useState<ScoringDimension[]>([]);
-  const [localWeights, setLocalWeights] = useState<Record<ScoringDimensionKey, number>>({} as Record<ScoringDimensionKey, number>);
-  const [enabled, setEnabled] = useState<Record<ScoringDimensionKey, boolean>>({} as Record<ScoringDimensionKey, boolean>);
+  const [localWeights, setLocalWeights] = useState<
+    Record<ScoringDimensionKey, number>
+  >({} as Record<ScoringDimensionKey, number>);
+  const [enabled, setEnabled] = useState<Record<ScoringDimensionKey, boolean>>(
+    {} as Record<ScoringDimensionKey, boolean>,
+  );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -170,7 +225,11 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
   }, []);
 
   const totalWeight = useMemo(
-    () => Object.entries(localWeights).reduce((a, [k, v]) => a + (enabled[k as ScoringDimensionKey] ? v : 0), 0),
+    () =>
+      Object.entries(localWeights).reduce(
+        (a, [k, v]) => a + (enabled[k as ScoringDimensionKey] ? v : 0),
+        0,
+      ),
     [localWeights, enabled],
   );
 
@@ -184,13 +243,20 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
 
   const save = async () => {
     if (Math.abs(totalWeight - 1) > 0.01) {
-      message.error(t('w9e.qualityDimensionCard.weightInvalid', { value: (totalWeight * 100).toFixed(1) }));
+      message.error(
+        t("w9e.qualityDimensionCard.weightInvalid", {
+          value: (totalWeight * 100).toFixed(1),
+        }),
+      );
       return;
     }
     setSaving(true);
     try {
-      message.success(t('reportQuality.weightsSaved'));
-      onWeightsChange?.(await scoringService.getThresholdConfig());
+      const cfg = await scoringService.getThresholdConfig();
+      onWeightsChange?.(cfg);
+      message.success(t("reportQuality.weightsSaved"));
+    } catch (e) {
+      message.error((e as Error).message || t("reportQuality.weightsSaved"));
     } finally {
       setSaving(false);
     }
@@ -208,9 +274,11 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
   };
 
   const distributeEvenly = () => {
-    const enabledKeys = dimensions.filter((d) => enabled[d.key]).map((d) => d.key);
+    const enabledKeys = dimensions
+      .filter((d) => enabled[d.key])
+      .map((d) => d.key);
     if (enabledKeys.length === 0) {
-      message.warning(t('reportQuality.enableAtLeastOne'));
+      message.warning(t("reportQuality.enableAtLeastOne"));
       return;
     }
     const even = 1 / enabledKeys.length;
@@ -225,45 +293,77 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
     <div data-testid="weights-tab">
       <Card
         size="small"
-        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)' }}
-        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
+        style={{
+          marginBottom: "var(--space-3, 12px)",
+          background:
+            "linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.dimensionTotal')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.dimensionTotal")}
+                </span>
+              }
               value={dimensions.length}
-              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
               prefix={<Target size={14} />}
             />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.enabled')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.enabled")}
+                </span>
+              }
               value={Object.values(enabled).filter(Boolean).length}
-              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.weightTotal')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.weightTotal")}
+                </span>
+              }
               value={Math.round(totalWeight * 100)}
               suffix="%"
-              styles={{ content: { 
-                color: Math.abs(totalWeight - 1) > 0.01 ? '#fca5a5' : '#bbf7d0',
-                fontSize: 24, fontWeight: 700,
-               } }}
+              styles={{
+                content: {
+                  color:
+                    Math.abs(totalWeight - 1) > 0.01 ? "#fca5a5" : "#bbf7d0",
+                  fontSize: 24,
+                  fontWeight: 700,
+                },
+              }}
               prefix={<Settings size={14} />}
             />
           </Col>
           <Col xs={12} sm={6}>
             <Space style={{ marginTop: 18 }}>
-              <Button size="small" icon={<RotateCcw size={12} />} onClick={reset}>
-                {t('reportQuality.reset')}
+              <Button
+                size="small"
+                icon={<RotateCcw size={12} />}
+                onClick={reset}
+              >
+                {t("reportQuality.reset")}
               </Button>
-              <Button size="small" icon={<Settings size={12} />} onClick={distributeEvenly}>
-                {t('reportQuality.splitEvenly')}
+              <Button
+                size="small"
+                icon={<Settings size={12} />}
+                onClick={distributeEvenly}
+              >
+                {t("reportQuality.splitEvenly")}
               </Button>
               <Button
                 size="small"
@@ -272,14 +372,14 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                 loading={saving}
                 onClick={save}
               >
-                {t('reportQuality.save')}
+                {t("reportQuality.save")}
               </Button>
             </Space>
           </Col>
         </Row>
       </Card>
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
+        <div style={{ textAlign: "center", padding: "var(--space-10, 40px)" }}>
           <Spin />
         </div>
       ) : (
@@ -307,14 +407,22 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                         size="small"
                         checked={enabled[d.key] ?? false}
                         onChange={() => toggleEnabled(d.key)}
-                        aria-label={t('w9e.qualityDimensionCard.ariaEnable', { name: d.name })}
+                        aria-label={t("w9e.qualityDimensionCard.ariaEnable", {
+                          name: d.name,
+                        })}
                       />
-                      <Tag color={w > 0 ? 'green' : 'default'}>{w}%</Tag>
+                      <Tag color={w > 0 ? "green" : "default"}>{w}%</Tag>
                     </Space>
                   }
                   data-testid={`dim-card-${d.key}`}
                 >
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "#64748b",
+                      marginBottom: "var(--space-2, 8px)",
+                    }}
+                  >
                     {d.description}
                   </div>
                   <Slider
@@ -325,14 +433,36 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                     disabled={!enabled[d.key]}
                     tooltip={{ formatter: (v) => `${v}%` }}
                     trackStyle={{ background: CATEGORY_META[d.category].color }}
-                    aria-label={t('w9e.qualityDimensionCard.ariaWeight', { name: d.name })}
+                    aria-label={t("w9e.qualityDimensionCard.ariaWeight", {
+                      name: d.name,
+                    })}
                   />
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>
-                    {t('reportQuality.subRules')} ({d.rules.length}): {d.passingRule}
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "#94a3b8",
+                      marginTop: "var(--space-1, 4px)",
+                    }}
+                  >
+                    {t("reportQuality.subRules")} ({d.rules.length}):{" "}
+                    {d.passingRule}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)', marginTop: 6 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "var(--space-1, 4px)",
+                      marginTop: 6,
+                    }}
+                  >
                     {d.rules.map((r) => (
-                      <Tooltip key={r.key} title={t('w9e.qualityDimensionCard.weightTooltip', { name: r.name, weight: (r.weight * 100).toFixed(0) })}>
+                      <Tooltip
+                        key={r.key}
+                        title={t("w9e.qualityDimensionCard.weightTooltip", {
+                          name: r.name,
+                          weight: (r.weight * 100).toFixed(0),
+                        })}
+                      >
                         <Tag color="blue" style={{ fontSize: 12 }}>
                           {r.name}
                         </Tag>
@@ -348,16 +478,18 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
       {Math.abs(totalWeight - 1) > 0.01 && (
         <div
           style={{
-            marginTop: 'var(--space-3, 12px)',
-            padding: 'var(--space-2, 8px)',
-            background: 'var(--color-error-bg)',
-            border: '1px solid var(--color-error-border)',
+            marginTop: "var(--space-3, 12px)",
+            padding: "var(--space-2, 8px)",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: 4,
-            color: 'var(--color-error-600)',
+            color: "var(--color-error-600)",
             fontSize: 12,
           }}
         >
-          {t('reportQuality.weightSumWarn', { percent: (totalWeight * 100).toFixed(1) })}
+          {t("reportQuality.weightSumWarn", {
+            percent: (totalWeight * 100).toFixed(1),
+          })}
         </div>
       )}
     </div>
@@ -393,16 +525,28 @@ const ThresholdTab: React.FC = () => {
 
   const save = async () => {
     if (!draft) return;
-    if (draft.criticalMaxMinutes <= 0 || draft.emergencyMaxHours <= 0 || draft.routineMaxHours <= 0) {
-      message.error(t('reportQuality.thresholdMustPositive'));
+    if (
+      draft.criticalMaxMinutes <= 0 ||
+      draft.emergencyMaxHours <= 0 ||
+      draft.routineMaxHours <= 0
+    ) {
+      message.error(t("reportQuality.thresholdMustPositive"));
       return;
     }
     setSaving(true);
     try {
-      const result = await scoringService.updateThresholdConfig(draft, 'D001');
+      const result = await scoringService.updateThresholdConfig(draft, "D001");
       setThreshold(result);
       setDraft(result);
-      message.success(t('w9e.qualityDimensionCard.thresholdSaved', { version: result.version }));
+      message.success(
+        t("w9e.qualityDimensionCard.thresholdSaved", {
+          version: result.version,
+        }),
+      );
+    } catch (e) {
+      message.error(
+        (e as Error).message || t("reportQuality.thresholdMustPositive"),
+      );
     } finally {
       setSaving(false);
     }
@@ -410,7 +554,7 @@ const ThresholdTab: React.FC = () => {
 
   if (loading || !threshold || !draft) {
     return (
-      <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
+      <div style={{ textAlign: "center", padding: "var(--space-10, 40px)" }}>
         <Spin />
       </div>
     );
@@ -420,148 +564,219 @@ const ThresholdTab: React.FC = () => {
     <div data-testid="threshold-tab">
       <Card
         size="small"
-        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #1e3a8a 0%, #0e7490 100%)' }}
-        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
+        style={{
+          marginBottom: "var(--space-3, 12px)",
+          background: "linear-gradient(135deg, #1e3a8a 0%, #0e7490 100%)",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.criticalMinutes')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.criticalMinutes")}
+                </span>
+              }
               value={draft.criticalMaxMinutes}
-              styles={{ content: {  color: '#fff', fontSize: 30  } }}
+              styles={{ content: { color: "#fff", fontSize: 30 } }}
               prefix={<Zap size={14} />}
               suffix=" min"
             />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.emergencyHours')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.emergencyHours")}
+                </span>
+              }
               value={draft.emergencyMaxHours}
-              styles={{ content: {  color: '#fff', fontSize: 30  } }}
+              styles={{ content: { color: "#fff", fontSize: 30 } }}
               prefix={<TrendingUp size={14} />}
               suffix=" h"
             />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.routineHours')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.routineHours")}
+                </span>
+              }
               value={draft.routineMaxHours}
-              styles={{ content: {  color: '#fff', fontSize: 30  } }}
+              styles={{ content: { color: "#fff", fontSize: 30 } }}
               prefix={<History size={14} />}
               suffix=" h"
             />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.publishThreshold')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.publishThreshold")}
+                </span>
+              }
               value={draft.publishBlockThreshold}
-              styles={{ content: {  color: '#fff', fontSize: 30  } }}
+              styles={{ content: { color: "#fff", fontSize: 30 } }}
               prefix={<Target size={14} />}
             />
           </Col>
         </Row>
       </Card>
-      <Card size="small" title={t('reportQuality.tatThreshold')}>
+      <Card size="small" title={t("reportQuality.tatThreshold")}>
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.criticalMin')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.criticalMin")}
+            </div>
             <InputNumber
               min={1}
               max={120}
               value={draft.criticalMaxMinutes}
-              onChange={(v) => setDraft({ ...draft, criticalMaxMinutes: Number(v ?? 0) })}
-              style={{ width: '100%' }}
+              onChange={(v) =>
+                setDraft({ ...draft, criticalMaxMinutes: Number(v ?? 0) })
+              }
+              style={{ width: "100%" }}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.emergencyH')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.emergencyH")}
+            </div>
             <InputNumber
               min={0.5}
               max={24}
               step={0.5}
               value={draft.emergencyMaxHours}
-              onChange={(v) => setDraft({ ...draft, emergencyMaxHours: Number(v ?? 0) })}
-              style={{ width: '100%' }}
+              onChange={(v) =>
+                setDraft({ ...draft, emergencyMaxHours: Number(v ?? 0) })
+              }
+              style={{ width: "100%" }}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.routineH')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.routineH")}
+            </div>
             <InputNumber
               min={1}
               max={96}
               value={draft.routineMaxHours}
-              onChange={(v) => setDraft({ ...draft, routineMaxHours: Number(v ?? 0) })}
-              style={{ width: '100%' }}
+              onChange={(v) =>
+                setDraft({ ...draft, routineMaxHours: Number(v ?? 0) })
+              }
+              style={{ width: "100%" }}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.inpatientH')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.inpatientH")}
+            </div>
             <InputNumber
               min={1}
               max={72}
               value={draft.inpatientMaxHours}
-              onChange={(v) => setDraft({ ...draft, inpatientMaxHours: Number(v ?? 0) })}
-              style={{ width: '100%' }}
+              onChange={(v) =>
+                setDraft({ ...draft, inpatientMaxHours: Number(v ?? 0) })
+              }
+              style={{ width: "100%" }}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.publishThresholdPts')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.publishThresholdPts")}
+            </div>
             <InputNumber
               min={0}
               max={100}
               value={draft.publishBlockThreshold}
-              onChange={(v) => setDraft({ ...draft, publishBlockThreshold: Number(v ?? 0) })}
-              style={{ width: '100%' }}
+              onChange={(v) =>
+                setDraft({ ...draft, publishBlockThreshold: Number(v ?? 0) })
+              }
+              style={{ width: "100%" }}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.bonusThresholdPts')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.bonusThresholdPts")}
+            </div>
             <InputNumber
               min={0}
               max={100}
               value={draft.bonusThreshold}
-              onChange={(v) => setDraft({ ...draft, bonusThreshold: Number(v ?? 0) })}
-              style={{ width: '100%' }}
+              onChange={(v) =>
+                setDraft({ ...draft, bonusThreshold: Number(v ?? 0) })
+              }
+              style={{ width: "100%" }}
             />
           </Col>
         </Row>
-        <Space style={{ marginTop: 'var(--space-4, 16px)' }}>
+        <Space style={{ marginTop: "var(--space-4, 16px)" }}>
           <Button
             type="primary"
             icon={<Save size={12} />}
             loading={saving}
             onClick={save}
           >
-            {t('reportQuality.saveThreshold')} (v{threshold.version + 1})
+            {t("reportQuality.saveThreshold")} (v{threshold.version + 1})
           </Button>
-          <Button icon={<RotateCcw size={12} />} onClick={() => setDraft(threshold)}>
-            {t('reportQuality.reset')}
+          <Button
+            icon={<RotateCcw size={12} />}
+            onClick={() => setDraft(threshold)}
+          >
+            {t("reportQuality.reset")}
           </Button>
-          <Tag color="blue">{t('reportQuality.versionPrefix')}{threshold.version}</Tag>
-          <Tag color="cyan">{t('reportQuality.updatedByPrefix')}{threshold.updatedBy}</Tag>
+          <Tag color="blue">
+            {t("reportQuality.versionPrefix")}
+            {threshold.version}
+          </Tag>
+          <Tag color="cyan">
+            {t("reportQuality.updatedByPrefix")}
+            {threshold.updatedBy}
+          </Tag>
         </Space>
       </Card>
-      <Card size="small" title={t('reportQuality.gradeThresholdMapping')} style={{ marginTop: 'var(--space-3, 12px)' }}>
+      <Card
+        size="small"
+        title={t("reportQuality.gradeThresholdMapping")}
+        style={{ marginTop: "var(--space-3, 12px)" }}
+      >
         <Row gutter={[12, 12]}>
           {thresholds.map((th) => (
             <Col xs={12} sm={6} key={th.grade}>
               <Card
                 size="small"
-                style={{ borderTop: `4px solid ${th.color}`, background: th.bg }}
+                style={{
+                  borderTop: `4px solid ${th.color}`,
+                  background: th.bg,
+                }}
               >
-                <div style={{ fontSize: 30, fontWeight: 700, color: th.color }}>{th.grade}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: th.color }}>
+                  {th.grade}
+                </div>
                 <div style={{ fontSize: 12, color: th.color }}>
                   {th.minScore} - {th.maxScore}
                 </div>
-                <div style={{ fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#475569",
+                    marginTop: "var(--space-1, 4px)",
+                  }}
+                >
                   {th.description}
                 </div>
-                <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
-                  <Tag color={th.publishable ? 'green' : 'red'}>
-                    {th.publishable ? t('reportQuality.publishable') : t('reportQuality.notPublishable')}
+                <Space style={{ marginTop: "var(--space-1, 4px)" }}>
+                  <Tag color={th.publishable ? "green" : "red"}>
+                    {th.publishable
+                      ? t("reportQuality.publishable")
+                      : t("reportQuality.notPublishable")}
                   </Tag>
-                  <Tag color={th.bonusEligible ? 'gold' : 'default'}>
-                    {th.bonusEligible ? t('reportQuality.bonusEligible') : t('reportQuality.bonusIneligible')}
+                  <Tag color={th.bonusEligible ? "gold" : "default"}>
+                    {th.bonusEligible
+                      ? t("reportQuality.bonusEligible")
+                      : t("reportQuality.bonusIneligible")}
                   </Tag>
                 </Space>
               </Card>
@@ -580,8 +795,13 @@ const HistoryTab: React.FC = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [filterGrade, setFilterGrade] = useState<ScoringGrade | undefined>();
-  const [filterTrigger, setFilterTrigger] = useState<ScoreHistoryEntry['trigger'] | undefined>();
-  const [detail, setDetail] = useState<{ entry: ScoreHistoryEntry; result: ScoringEvaluationResult | null } | null>(null);
+  const [filterTrigger, setFilterTrigger] = useState<
+    ScoreHistoryEntry["trigger"] | undefined
+  >();
+  const [detail, setDetail] = useState<{
+    entry: ScoreHistoryEntry;
+    result: ScoringEvaluationResult | null;
+  } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
   const openDetail = async (entry: ScoreHistoryEntry) => {
@@ -617,58 +837,126 @@ const HistoryTab: React.FC = () => {
   }, [page, filterGrade, filterTrigger]);
 
   const columns: ColumnsType<ScoreHistoryEntry> = [
-    { title: t('reportQuality.scoreId'), dataIndex: 'scoreId', key: 'scoreId', width: 110, render: (v) => <Tag color="purple">{v}</Tag> },
-    { title: t('reportQuality.patient'), dataIndex: 'patientName', key: 'patientName', width: 90 },
-    { title: t('reportQuality.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v) => <Tag color="cyan">{v}</Tag> },
-    { title: t('reportQuality.doctor'), dataIndex: 'doctorName', key: 'doctorName', width: 100 },
-    { title: t('reportQuality.department'), dataIndex: 'department', key: 'department', width: 130 },
     {
-      title: t('reportQuality.catAvg'),
-      key: 'cat',
+      title: t("reportQuality.scoreId"),
+      dataIndex: "scoreId",
+      key: "scoreId",
+      width: 110,
+      render: (v) => <Tag color="purple">{v}</Tag>,
+    },
+    {
+      title: t("reportQuality.patient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      width: 90,
+    },
+    {
+      title: t("reportQuality.modality"),
+      dataIndex: "modality",
+      key: "modality",
+      width: 70,
+      render: (v) => <Tag color="cyan">{v}</Tag>,
+    },
+    {
+      title: t("reportQuality.doctor"),
+      dataIndex: "doctorName",
+      key: "doctorName",
+      width: 100,
+    },
+    {
+      title: t("reportQuality.department"),
+      dataIndex: "department",
+      key: "department",
+      width: 130,
+    },
+    {
+      title: t("reportQuality.catAvg"),
+      key: "cat",
       width: 220,
       render: (_, r) => (
         <Space size={4}>
-          <Tag color="blue">{t('reportQuality.catShortCompleteness')} {r.categoryScores.completeness}</Tag>
-          <Tag color="green">{t('reportQuality.catShortAccuracy')} {r.categoryScores.accuracy}</Tag>
-          <Tag color="orange">{t('reportQuality.catShortTimeliness')} {r.categoryScores.timeliness}</Tag>
+          <Tag color="blue">
+            {t("reportQuality.catShortCompleteness")}{" "}
+            {r.categoryScores.completeness}
+          </Tag>
+          <Tag color="green">
+            {t("reportQuality.catShortAccuracy")} {r.categoryScores.accuracy}
+          </Tag>
+          <Tag color="orange">
+            {t("reportQuality.catShortTimeliness")}{" "}
+            {r.categoryScores.timeliness}
+          </Tag>
         </Space>
       ),
     },
     {
-      title: t('reportQuality.totalScore'),
-      dataIndex: 'totalScore',
-      key: 'totalScore',
+      title: t("reportQuality.totalScore"),
+      dataIndex: "totalScore",
+      key: "totalScore",
       width: 80,
       render: (v: number) => (
-        <strong style={{ color: v >= 90 ? GRADE_COLOR.A : v >= 75 ? GRADE_COLOR.B : v >= 60 ? GRADE_COLOR.C : GRADE_COLOR.D }}>
+        <strong
+          style={{
+            color:
+              v >= 90
+                ? GRADE_COLOR.A
+                : v >= 75
+                  ? GRADE_COLOR.B
+                  : v >= 60
+                    ? GRADE_COLOR.C
+                    : GRADE_COLOR.D,
+          }}
+        >
           {v}
         </strong>
       ),
     },
     {
-      title: t('reportQuality.grade'),
-      dataIndex: 'grade',
-      key: 'grade',
+      title: t("reportQuality.grade"),
+      dataIndex: "grade",
+      key: "grade",
       width: 70,
       render: (v: ScoringGrade) => (
-        <Tag color={v === 'A' ? 'green' : v === 'B' ? 'blue' : v === 'C' ? 'gold' : 'red'}>{v}</Tag>
+        <Tag
+          color={
+            v === "A"
+              ? "green"
+              : v === "B"
+                ? "blue"
+                : v === "C"
+                  ? "gold"
+                  : "red"
+          }
+        >
+          {v}
+        </Tag>
       ),
     },
-    { title: t('reportQuality.trigger'), dataIndex: 'trigger', key: 'trigger', width: 80, render: (v) => <Tag>{v}</Tag> },
     {
-      title: t('reportQuality.time'),
-      dataIndex: 'evaluatedAt',
-      key: 'evaluatedAt',
-      width: 130,
-      render: (v: string) => new Date(v).toLocaleString('zh-CN'),
+      title: t("reportQuality.trigger"),
+      dataIndex: "trigger",
+      key: "trigger",
+      width: 80,
+      render: (v) => <Tag>{v}</Tag>,
     },
     {
-      title: t('reportQuality.action'),
-      key: 'action',
+      title: t("reportQuality.time"),
+      dataIndex: "evaluatedAt",
+      key: "evaluatedAt",
+      width: 130,
+      render: (v: string) => new Date(v).toLocaleString("zh-CN"),
+    },
+    {
+      title: t("reportQuality.action"),
+      key: "action",
       width: 90,
       render: (_, r) => (
-        <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>
-          {t('reportQuality.detail')}
+        <Button
+          size="small"
+          icon={<Eye size={12} />}
+          onClick={() => openDetail(r)}
+        >
+          {t("reportQuality.detail")}
         </Button>
       ),
     },
@@ -678,47 +966,75 @@ const HistoryTab: React.FC = () => {
     <div data-testid="history-tab">
       <Card
         size="small"
-        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #0e7490 0%, var(--color-primary-800) 100%)' }}
-        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
+        style={{
+          marginBottom: "var(--space-3, 12px)",
+          background:
+            "linear-gradient(135deg, #0e7490 0%, var(--color-primary-800) 100%)",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
       >
         <Row gutter={12}>
           <Col xs={24} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.historyTotal')}</span>} value={total} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<History size={14} />} />
-          </Col>
-          <Col xs={12} sm={6}>
-            <Select
-              placeholder={t('reportQuality.filterGrade')}
-              allowClear
-              style={{ width: '100%', marginTop: 14 }}
-              value={filterGrade}
-              onChange={setFilterGrade}
-              options={(['A', 'B', 'C', 'D'] as ScoringGrade[]).map((g) => ({ value: g, label: t('w9e.qualityDimensionCard.gradeOption', { grade: g }) }))}
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.historyTotal")}
+                </span>
+              }
+              value={total}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
+              prefix={<History size={14} />}
             />
           </Col>
           <Col xs={12} sm={6}>
             <Select
-              placeholder={t('reportQuality.triggerPoint')}
+              placeholder={t("reportQuality.filterGrade")}
               allowClear
-              style={{ width: '100%', marginTop: 14 }}
+              style={{ width: "100%", marginTop: 14 }}
+              value={filterGrade}
+              onChange={setFilterGrade}
+              options={(["A", "B", "C", "D"] as ScoringGrade[]).map((g) => ({
+                value: g,
+                label: t("w9e.qualityDimensionCard.gradeOption", { grade: g }),
+              }))}
+            />
+          </Col>
+          <Col xs={12} sm={6}>
+            <Select
+              placeholder={t("reportQuality.triggerPoint")}
+              allowClear
+              style={{ width: "100%", marginTop: 14 }}
               value={filterTrigger}
               onChange={setFilterTrigger}
               options={[
-                { value: 'submit', label: t('reportQuality.trigger.submit') },
-                { value: 'review', label: t('reportQuality.trigger.review') },
-                { value: 'sign', label: t('reportQuality.trigger.sign') },
-                { value: 'manual', label: t('reportQuality.trigger.manual') },
+                { value: "submit", label: t("reportQuality.trigger.submit") },
+                { value: "review", label: t("reportQuality.trigger.review") },
+                { value: "sign", label: t("reportQuality.trigger.sign") },
+                { value: "manual", label: t("reportQuality.trigger.manual") },
               ]}
             />
           </Col>
           <Col xs={24} sm={6}>
-            <Button style={{ marginTop: 14, width: '100%' }} icon={<RefreshCw size={12} />} onClick={load}>
-              {t('reportQuality.refresh')}
+            <Button
+              style={{ marginTop: 14, width: "100%" }}
+              icon={<RefreshCw size={12} />}
+              onClick={load}
+            >
+              {t("reportQuality.refresh")}
             </Button>
           </Col>
         </Row>
       </Card>
-      <Card size="small" title={t('w9e.qualityDimensionCard.scoreHistoryTitle', { count: total })}>
-        <DataTable scroll={{ x: 'max-content' }}
+      <Card
+        size="small"
+        title={t("w9e.qualityDimensionCard.scoreHistoryTitle", {
+          count: total,
+        })}
+      >
+        <DataTable
+          scroll={{ x: "max-content" }}
           rowKey="id"
           columns={columns}
           dataSource={history}
@@ -730,11 +1046,12 @@ const HistoryTab: React.FC = () => {
             onChange: setPage,
             showSizeChanger: false,
           }}
-         
         />
       </Card>
       <Modal
-        title={t('w9e.qualityDimensionCard.scoreDetailTitle', { id: detail?.entry.scoreId ?? '' })}
+        title={t("w9e.qualityDimensionCard.scoreDetailTitle", {
+          id: detail?.entry.scoreId ?? "",
+        })}
         open={!!detail}
         footer={null}
         onCancel={() => setDetail(null)}
@@ -743,41 +1060,101 @@ const HistoryTab: React.FC = () => {
         {detail && (
           <Spin spinning={detailLoading}>
             <Descriptions bordered size="small" column={2}>
-              <Descriptions.Item label={t('reportQuality.patient')}>{detail.entry.patientName}</Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.modality')}>{detail.entry.modality}</Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.doctor')}>{detail.entry.doctorName}</Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.department')}>{detail.entry.department}</Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.trigger')}>{detail.entry.trigger}</Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.evalTime')}>
-                {new Date(detail.entry.evaluatedAt).toLocaleString('zh-CN')}
+              <Descriptions.Item label={t("reportQuality.patient")}>
+                {detail.entry.patientName}
               </Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.totalScore')}>
-                <strong style={{ color: (detail.result?.totalScore ?? detail.entry.totalScore) >= 90 ? 'var(--color-success-600)' : (detail.result?.totalScore ?? detail.entry.totalScore) >= 75 ? 'var(--color-primary-600)' : 'var(--color-error-600)' }}>
+              <Descriptions.Item label={t("reportQuality.modality")}>
+                {detail.entry.modality}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("reportQuality.doctor")}>
+                {detail.entry.doctorName}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("reportQuality.department")}>
+                {detail.entry.department}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("reportQuality.trigger")}>
+                {detail.entry.trigger}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("reportQuality.evalTime")}>
+                {new Date(detail.entry.evaluatedAt).toLocaleString("zh-CN")}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("reportQuality.totalScore")}>
+                <strong
+                  style={{
+                    color:
+                      (detail.result?.totalScore ?? detail.entry.totalScore) >=
+                      90
+                        ? "var(--color-success-600)"
+                        : (detail.result?.totalScore ??
+                              detail.entry.totalScore) >= 75
+                          ? "var(--color-primary-600)"
+                          : "var(--color-error-600)",
+                  }}
+                >
                   {detail.result?.totalScore ?? detail.entry.totalScore}
                 </strong>
               </Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.grade')}>
-                <Tag color={detail.result ? (detail.result.grade === 'A' ? 'green' : detail.result.grade === 'B' ? 'blue' : detail.result.grade === 'C' ? 'gold' : 'red') : undefined}>
+              <Descriptions.Item label={t("reportQuality.grade")}>
+                <Tag
+                  color={
+                    detail.result
+                      ? detail.result.grade === "A"
+                        ? "green"
+                        : detail.result.grade === "B"
+                          ? "blue"
+                          : detail.result.grade === "C"
+                            ? "gold"
+                            : "red"
+                      : undefined
+                  }
+                >
                   {detail.result?.grade ?? detail.entry.grade}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label={t('reportQuality.catAvg')} span={2}>
-                {t('reportQuality.completenessShort')} {detail.result?.categoryScores.completeness ?? detail.entry.categoryScores.completeness} / {t('reportQuality.accuracyShort')} {detail.result?.categoryScores.accuracy ?? detail.entry.categoryScores.accuracy} / {t('reportQuality.timelinessShort')} {detail.result?.categoryScores.timeliness ?? detail.entry.categoryScores.timeliness}
+              <Descriptions.Item label={t("reportQuality.catAvg")} span={2}>
+                {t("reportQuality.completenessShort")}{" "}
+                {detail.result?.categoryScores.completeness ??
+                  detail.entry.categoryScores.completeness}{" "}
+                / {t("reportQuality.accuracyShort")}{" "}
+                {detail.result?.categoryScores.accuracy ??
+                  detail.entry.categoryScores.accuracy}{" "}
+                / {t("reportQuality.timelinessShort")}{" "}
+                {detail.result?.categoryScores.timeliness ??
+                  detail.entry.categoryScores.timeliness}
               </Descriptions.Item>
               {detail.result && (
                 <>
-                  <Descriptions.Item label={t('reportQuality.publishable')}>
-                    <Tag color={detail.result.publishable ? 'green' : 'red'}>{detail.result.publishable ? t('reportQuality.yes') : t('reportQuality.no')}</Tag>
+                  <Descriptions.Item label={t("reportQuality.publishable")}>
+                    <Tag color={detail.result.publishable ? "green" : "red"}>
+                      {detail.result.publishable
+                        ? t("reportQuality.yes")
+                        : t("reportQuality.no")}
+                    </Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label={t('reportQuality.bonusEligible')}>
-                    <Tag color={detail.result.bonusEligible ? 'gold' : 'default'}>{detail.result.bonusEligible ? t('reportQuality.has') : t('reportQuality.none')}</Tag>
+                  <Descriptions.Item label={t("reportQuality.bonusEligible")}>
+                    <Tag
+                      color={detail.result.bonusEligible ? "gold" : "default"}
+                    >
+                      {detail.result.bonusEligible
+                        ? t("reportQuality.has")
+                        : t("reportQuality.none")}
+                    </Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label={t('reportQuality.modelVersion')}>{detail.result.modelVersion}</Descriptions.Item>
-                  <Descriptions.Item label={t('reportQuality.evalDuration')}>{detail.result.durationMs} ms</Descriptions.Item>
+                  <Descriptions.Item label={t("reportQuality.modelVersion")}>
+                    {detail.result.modelVersion}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t("reportQuality.evalDuration")}>
+                    {detail.result.durationMs} ms
+                  </Descriptions.Item>
                   {detail.result.hardFailTriggered.length > 0 && (
-                    <Descriptions.Item label={t('reportQuality.hardFail')} span={2}>
+                    <Descriptions.Item
+                      label={t("reportQuality.hardFail")}
+                      span={2}
+                    >
                       {detail.result.hardFailTriggered.map((h) => (
-                        <Tag color="red" key={h}>{h}</Tag>
+                        <Tag color="red" key={h}>
+                          {h}
+                        </Tag>
                       ))}
                     </Descriptions.Item>
                   )}
@@ -785,23 +1162,46 @@ const HistoryTab: React.FC = () => {
               )}
             </Descriptions>
             {detail.result && (
-              <div style={{ marginTop: 'var(--space-3, 12px)' }}>
-                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 'var(--space-2, 8px)' }}>{t('reportQuality.dimensionDetail15')}</div>
+              <div style={{ marginTop: "var(--space-3, 12px)" }}>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    marginBottom: "var(--space-2, 8px)",
+                  }}
+                >
+                  {t("reportQuality.dimensionDetail15")}
+                </div>
                 <DataTable
-                 
                   rowKey="key"
                   pagination={false}
-                  scroll={{ x: 'max-content' }}
-                  dataSource={Object.entries(detail.result.dimensionScores).map(([key, score]) => ({ key, score }))}
+                  scroll={{ x: "max-content" }}
+                  dataSource={Object.entries(detail.result.dimensionScores).map(
+                    ([key, score]) => ({ key, score }),
+                  )}
                   columns={[
-                    { title: t('reportQuality.dimension'), dataIndex: 'key', key: 'key' },
-                    { title: t('reportQuality.score'), dataIndex: 'score', key: 'score', width: 90 },
+                    {
+                      title: t("reportQuality.dimension"),
+                      dataIndex: "key",
+                      key: "key",
+                    },
+                    {
+                      title: t("reportQuality.score"),
+                      dataIndex: "score",
+                      key: "score",
+                      width: 90,
+                    },
                   ]}
                 />
               </div>
             )}
             {!detail.result && !detailLoading && (
-              <Alert style={{ marginTop: 'var(--space-3, 12px)' }} type="warning" showIcon message={t('reportQuality.noDetailArchive')} />
+              <Alert
+                style={{ marginTop: "var(--space-3, 12px)" }}
+                type="warning"
+                showIcon
+                message={t("reportQuality.noDetailArchive")}
+              />
             )}
           </Spin>
         )}
@@ -812,15 +1212,17 @@ const HistoryTab: React.FC = () => {
 
 // ============= 报告生成 Tab =============
 const ReportTab: React.FC = () => {
-  const [scoreId, setScoreId] = useState<string>('');
-  const [format, setFormat] = useState<'pdf' | 'word' | 'excel' | 'html'>('pdf');
+  const [scoreId, setScoreId] = useState<string>("");
+  const [format, setFormat] = useState<"pdf" | "word" | "excel" | "html">(
+    "pdf",
+  );
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [reportUrl, setReportUrl] = useState<string>('');
+  const [reportUrl, setReportUrl] = useState<string>("");
 
   const saveBlob = (blob: Blob, filename: string, note?: string) => {
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -831,7 +1233,7 @@ const ReportTab: React.FC = () => {
   };
 
   const buildMockHtml = () => {
-    const genAt = new Date().toLocaleString('zh-CN');
+    const genAt = new Date().toLocaleString("zh-CN");
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -865,15 +1267,21 @@ const ReportTab: React.FC = () => {
     setDownloading(true);
     try {
       const resp = await fetch(reportUrl);
-      if (!resp.ok) throw new Error('mock-url');
+      if (!resp.ok) throw new Error("mock-url");
       const blob = await resp.blob();
       saveBlob(blob, `quality-score-${scoreId}.${format}`);
-      message.success(t('w9e.qualityDimensionCard.reportDownloaded', { format: format.toUpperCase() }));
+      message.success(
+        t("w9e.qualityDimensionCard.reportDownloaded", {
+          format: format.toUpperCase(),
+        }),
+      );
     } catch {
       saveBlob(
-        new Blob([buildMockHtml()], { type: 'text/html;charset=utf-8' }),
+        new Blob([buildMockHtml()], { type: "text/html;charset=utf-8" }),
         `quality-score-${scoreId}-${format}.html`,
-        t('w9e.qualityDimensionCard.mockNote', { format: format.toUpperCase() }),
+        t("w9e.qualityDimensionCard.mockNote", {
+          format: format.toUpperCase(),
+        }),
       );
     } finally {
       setDownloading(false);
@@ -882,14 +1290,20 @@ const ReportTab: React.FC = () => {
 
   const generate = async () => {
     if (!scoreId) {
-      message.warning(t('reportQuality.enterScoreId'));
+      message.warning(t("reportQuality.enterScoreId"));
       return;
     }
     setGenerating(true);
     try {
-      const r = await scoringService.generateReport(scoreId, format, 'D001');
-      setReportUrl(r.downloadUrl ?? '');
-      message.success(t('w9e.qualityDimensionCard.reportGenerated', { format: format.toUpperCase() }));
+      const r = await scoringService.generateReport(scoreId, format, "D001");
+      setReportUrl(r.downloadUrl ?? "");
+      message.success(
+        t("w9e.qualityDimensionCard.reportGenerated", {
+          format: format.toUpperCase(),
+        }),
+      );
+    } catch (e) {
+      message.error((e as Error).message || t("reportQuality.enterScoreId"));
     } finally {
       setGenerating(false);
     }
@@ -899,93 +1313,172 @@ const ReportTab: React.FC = () => {
     <div data-testid="report-tab">
       <Card
         size="small"
-        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #047857 0%, #0d9488 100%)' }}
-        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
+        style={{
+          marginBottom: "var(--space-3, 12px)",
+          background: "linear-gradient(135deg, #047857 0%, #0d9488 100%)",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
       >
         <Row gutter={12}>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportFormat')}</span>} value={format.toUpperCase()} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<FileText size={14} />} />
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.reportFormat")}
+                </span>
+              }
+              value={format.toUpperCase()}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
+              prefix={<FileText size={14} />}
+            />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.generatedCount')}</span>} value={reportUrl ? '1' : '0'} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Download size={14} />} />
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.generatedCount")}
+                </span>
+              }
+              value={reportUrl ? "1" : "0"}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
+              prefix={<Download size={14} />}
+            />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportType')}</span>} value={t('reportQuality.dimension15')} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Sparkles size={14} />} />
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.reportType")}
+                </span>
+              }
+              value={t("reportQuality.dimension15")}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
+              prefix={<Sparkles size={14} />}
+            />
           </Col>
         </Row>
       </Card>
-      <Card size="small" title={t('reportQuality.generateReportTitle')}>
+      <Card size="small" title={t("reportQuality.generateReportTitle")}>
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={12}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.scoreId')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.scoreId")}
+            </div>
             <input
               type="text"
               value={scoreId}
               onChange={(e) => setScoreId(e.target.value)}
               placeholder="qs-xxxxxxxx"
               style={{
-                width: '100%',
-                padding: '6px 11px',
-                border: '1px solid var(--border-color)',
+                width: "100%",
+                padding: "6px 11px",
+                border: "1px solid var(--border-color)",
                 borderRadius: 6,
                 fontSize: 14,
               }}
             />
           </Col>
           <Col xs={24} sm={12}>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.format')}</div>
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("reportQuality.format")}
+            </div>
             <Select
               value={format}
               onChange={setFormat}
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               options={[
-                { value: 'pdf', label: 'PDF' },
-                { value: 'word', label: 'Word' },
-                { value: 'excel', label: 'Excel' },
-                { value: 'html', label: 'HTML' },
+                { value: "pdf", label: "PDF" },
+                { value: "word", label: "Word" },
+                { value: "excel", label: "Excel" },
+                { value: "html", label: "HTML" },
               ]}
             />
           </Col>
         </Row>
-        <Space style={{ marginTop: 'var(--space-4, 16px)' }}>
-          <Button type="primary" icon={<FileText size={12} />} loading={generating} onClick={generate}>
-            {t('reportQuality.generateReport')}
+        <Space style={{ marginTop: "var(--space-4, 16px)" }}>
+          <Button
+            type="primary"
+            icon={<FileText size={12} />}
+            loading={generating}
+            onClick={generate}
+          >
+            {t("reportQuality.generateReport")}
           </Button>
           {reportUrl && (
-            <Button icon={<Download size={12} />} loading={downloading} onClick={download}>
-              {t('reportQuality.download')} {format.toUpperCase()}
+            <Button
+              icon={<Download size={12} />}
+              loading={downloading}
+              onClick={download}
+            >
+              {t("reportQuality.download")} {format.toUpperCase()}
             </Button>
           )}
         </Space>
         {reportUrl && (
           <Alert
-            style={{ marginTop: 'var(--space-3, 12px)' }}
+            style={{ marginTop: "var(--space-3, 12px)" }}
             type="success"
             showIcon
-            title={t('reportQuality.reportGenerated')}
+            title={t("reportQuality.reportGenerated")}
             description={
               <Space direction="vertical" size={4}>
                 <code style={{ fontSize: 12 }}>{reportUrl}</code>
-                <Tag color="orange">{t('reportQuality.mockDataNote')}</Tag>
+                <Tag color="orange">{t("reportQuality.mockDataNote")}</Tag>
               </Space>
             }
           />
         )}
       </Card>
-      <Card size="small" title={t('reportQuality.reportPreview')} style={{ marginTop: 'var(--space-3, 12px)' }}>
+      <Card
+        size="small"
+        title={t("reportQuality.reportPreview")}
+        style={{ marginTop: "var(--space-3, 12px)" }}
+      >
         <Row gutter={[12, 12]}>
           {[
-            { k: t('reportQuality.preview.totalScore'), v: t('reportQuality.preview.totalScoreRange'), c: 'var(--color-primary-500)' },
-            { k: t('reportQuality.preview.grade'), v: t('reportQuality.preview.gradeRange'), c: '#10b981' },
-            { k: t('reportQuality.preview.dimension15'), v: t('reportQuality.preview.dimension15Count'), c: '#7c3aed' },
-            { k: t('reportQuality.preview.evidenceChain'), v: t('reportQuality.preview.evidenceCount'), c: 'var(--color-warning-500)' },
-            { k: t('reportQuality.preview.hardFail'), v: t('reportQuality.visible'), c: 'var(--color-error-600)' },
-            { k: t('reportQuality.preview.bonus'), v: t('reportQuality.visible'), c: 'var(--color-info-600)' },
+            {
+              k: t("reportQuality.preview.totalScore"),
+              v: t("reportQuality.preview.totalScoreRange"),
+              c: "var(--color-primary-500)",
+            },
+            {
+              k: t("reportQuality.preview.grade"),
+              v: t("reportQuality.preview.gradeRange"),
+              c: "#10b981",
+            },
+            {
+              k: t("reportQuality.preview.dimension15"),
+              v: t("reportQuality.preview.dimension15Count"),
+              c: "#7c3aed",
+            },
+            {
+              k: t("reportQuality.preview.evidenceChain"),
+              v: t("reportQuality.preview.evidenceCount"),
+              c: "var(--color-warning-500)",
+            },
+            {
+              k: t("reportQuality.preview.hardFail"),
+              v: t("reportQuality.visible"),
+              c: "var(--color-error-600)",
+            },
+            {
+              k: t("reportQuality.preview.bonus"),
+              v: t("reportQuality.visible"),
+              c: "var(--color-info-600)",
+            },
           ].map((item, i) => (
             <Col xs={12} sm={8} md={4} key={i}>
               <Card size="small" style={{ borderLeft: `3px solid ${item.c}` }}>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{item.k}</div>
-                <div style={{ fontSize: 30, fontWeight: 700, color: item.c }}>{item.v}</div>
+                <div style={{ fontSize: 12, color: "#64748b" }}>{item.k}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: item.c }}>
+                  {item.v}
+                </div>
               </Card>
             </Col>
           ))}
@@ -996,7 +1489,9 @@ const ReportTab: React.FC = () => {
 };
 
 // ============= 奖励联动 Tab =============
-const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger }) => {
+const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({
+  onTrigger,
+}) => {
   const [bonuses, setBonuses] = useState<BonusLinkage[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -1015,26 +1510,33 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
   }, []);
 
   const toggle = async (b: BonusLinkage) => {
-    const updated = await scoringService.updateBonusLinkage(b.id, { enabled: !b.enabled });
+    const updated = await scoringService.updateBonusLinkage(b.id, {
+      enabled: !b.enabled,
+    });
     setBonuses((prev) => prev.map((x) => (x.id === b.id ? updated : x)));
   };
 
   const trigger = async (b: BonusLinkage) => {
     Modal.confirm({
-      title: t('reportQuality.triggerBonusConfirm'),
-      content: t('w9e.qualityDimensionCard.rewardTriggerContent', { name: b.name, score: b.thresholdScore }),
+      title: t("reportQuality.triggerBonusConfirm"),
+      content: t("w9e.qualityDimensionCard.rewardTriggerContent", {
+        name: b.name,
+        score: b.thresholdScore,
+      }),
       onOk: async () => {
         const updated = await scoringService.triggerBonusLinkage(b.id);
         setBonuses((prev) => prev.map((x) => (x.id === b.id ? updated : x)));
         onTrigger?.(b.id);
-        message.success(t('w9e.qualityDimensionCard.rewardTriggered', { name: b.name }));
+        message.success(
+          t("w9e.qualityDimensionCard.rewardTriggered", { name: b.name }),
+        );
       },
     });
   };
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
+      <div style={{ textAlign: "center", padding: "var(--space-10, 40px)" }}>
         <Spin />
       </div>
     );
@@ -1044,39 +1546,67 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
     <div data-testid="bonus-tab">
       <Card
         size="small"
-        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, var(--color-warning-600) 0%, var(--color-error-600) 100%)' }}
-        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
+        style={{
+          marginBottom: "var(--space-3, 12px)",
+          background:
+            "linear-gradient(135deg, var(--color-warning-600) 0%, var(--color-error-600) 100%)",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
       >
         <Row gutter={12}>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.bonusTotal')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.bonusTotal")}
+                </span>
+              }
               value={bonuses.length}
-              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
               prefix={<Award size={14} />}
             />
           </Col>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.enabled')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.enabled")}
+                </span>
+              }
               value={bonuses.filter((b) => b.enabled).length}
-              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.bonusTriggered')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.bonusTriggered")}
+                </span>
+              }
               value={bonuses.reduce((a, b) => a + b.triggeredCount, 0)}
-              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
               prefix={<Sparkles size={14} />}
             />
           </Col>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>{t('reportQuality.beneficiaries')}</span>}
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.beneficiaries")}
+                </span>
+              }
               value={bonuses.reduce((a, b) => a + b.beneficiariesCount, 0)}
-              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -1088,7 +1618,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Card
               size="small"
               style={{
-                borderLeft: `4px solid ${b.enabled ? '#10b981' : '#94a3b8'}`,
+                borderLeft: `4px solid ${b.enabled ? "#10b981" : "#94a3b8"}`,
                 opacity: b.enabled ? 1 : 0.7,
               }}
               title={
@@ -1106,46 +1636,64 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
                 />
               }
             >
-              <div style={{ fontSize: 12, color: '#475569' }}>{b.description}</div>
-              <Row gutter={8} style={{ marginTop: 'var(--space-2, 8px)' }}>
+              <div style={{ fontSize: 12, color: "#475569" }}>
+                {b.description}
+              </div>
+              <Row gutter={8} style={{ marginTop: "var(--space-2, 8px)" }}>
                 <Col span={8}>
                   <Statistic
-                    title={t('reportQuality.threshold')}
+                    title={t("reportQuality.threshold")}
                     value={b.thresholdScore}
-                    suffix={t('reportQuality.scoreUnit')}
-                    styles={{ content: {  fontSize: 14  } }}
+                    suffix={t("reportQuality.scoreUnit")}
+                    styles={{ content: { fontSize: 14 } }}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title={t('reportQuality.triggered')}
+                    title={t("reportQuality.triggered")}
                     value={b.triggeredCount}
-                    styles={{ content: {  fontSize: 14  } }}
+                    styles={{ content: { fontSize: 14 } }}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title={t('reportQuality.benefit')}
+                    title={t("reportQuality.benefit")}
                     value={b.beneficiariesCount}
-                    styles={{ content: {  fontSize: 14  } }}
+                    styles={{ content: { fontSize: 14 } }}
                   />
                 </Col>
               </Row>
-              <div style={{ marginTop: 'var(--space-2, 8px)' }}>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('reportQuality.benefits')}</div>
+              <div style={{ marginTop: "var(--space-2, 8px)" }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#64748b",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("reportQuality.benefits")}
+                </div>
                 <Space wrap>
                   {b.benefits.map((ben) => (
-                    <Tag key={ben} color="blue" style={{ fontSize: 12 }}>{ben}</Tag>
+                    <Tag key={ben} color="blue" style={{ fontSize: 12 }}>
+                      {ben}
+                    </Tag>
                   ))}
                 </Space>
               </div>
-              <Space style={{ marginTop: 'var(--space-2, 8px)' }}>
-                <Button size="small" icon={<Sparkles size={12} />} onClick={() => trigger(b)} disabled={!b.enabled}>
-                  {t('reportQuality.manualTrigger')}
+              <Space style={{ marginTop: "var(--space-2, 8px)" }}>
+                <Button
+                  size="small"
+                  icon={<Sparkles size={12} />}
+                  onClick={() => trigger(b)}
+                  disabled={!b.enabled}
+                >
+                  {t("reportQuality.manualTrigger")}
                 </Button>
                 {b.lastTriggeredAt && (
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                    {t('reportQuality.lastTriggered')}{new Date(b.lastTriggeredAt).toLocaleString('zh-CN')}
+                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                    {t("reportQuality.lastTriggered")}
+                    {new Date(b.lastTriggeredAt).toLocaleString("zh-CN")}
                   </span>
                 )}
               </Space>
@@ -1158,9 +1706,11 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
 };
 
 // ============= 模板评分 Tab =============
-const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult) => void }> = ({ onGenerated }) => {
+const TemplateTab: React.FC<{
+  onGenerated?: (id: string, r: ScoreTemplateResult) => void;
+}> = ({ onGenerated }) => {
   const [templates, setTemplates] = useState<TemplateScoreRule[]>([]);
-  const [selectedId, setSelectedId] = useState<string>('');
+  const [selectedId, setSelectedId] = useState<string>("");
   const [result, setResult] = useState<ScoreTemplateResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [scoring, setScoring] = useState(false);
@@ -1187,7 +1737,11 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
       const r = await scoringService.scoreTemplate(selectedId);
       setResult(r);
       onGenerated?.(selectedId, r);
-      message.success(t('w9e.qualityDimensionCard.templateScoreDone', { score: r.finalScore }));
+      message.success(
+        t("w9e.qualityDimensionCard.templateScoreDone", {
+          score: r.finalScore,
+        }),
+      );
     } finally {
       setScoring(false);
     }
@@ -1195,7 +1749,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}>
+      <div style={{ textAlign: "center", padding: "var(--space-10, 40px)" }}>
         <Spin />
       </div>
     );
@@ -1205,131 +1759,315 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
     <div data-testid="template-tab">
       <Card
         size="small"
-        style={{ marginBottom: 'var(--space-3, 12px)', background: 'linear-gradient(135deg, #be185d 0%, #7c3aed 100%)' }}
-        styles={{ body: { padding: 'var(--space-3, 12px)' } }}
+        style={{
+          marginBottom: "var(--space-3, 12px)",
+          background: "linear-gradient(135deg, #be185d 0%, #7c3aed 100%)",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.templateTotal')}</span>} value={templates.length} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Layers size={14} />} />
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.templateTotal")}
+                </span>
+              }
+              value={templates.length}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
+              prefix={<Layers size={14} />}
+            />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.published')}</span>} value={templates.filter((tpl) => tpl.published).length} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<CheckCircle2 size={14} />} />
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.published")}
+                </span>
+              }
+              value={templates.filter((tpl) => tpl.published).length}
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
+              prefix={<CheckCircle2 size={14} />}
+            />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.baseScoreAvg')}</span>} value={Math.round((templates.reduce((a, tpl) => a + tpl.baseScore, 0) / templates.length) * 10) / 10} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Target size={14} />} />
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.baseScoreAvg")}
+                </span>
+              }
+              value={
+                Math.round(
+                  (templates.reduce((a, tpl) => a + tpl.baseScore, 0) /
+                    templates.length) *
+                    10,
+                ) / 10
+              }
+              styles={{
+                content: { color: "#fff", fontSize: 24, fontWeight: 700 },
+              }}
+              prefix={<Target size={14} />}
+            />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.currentTemplate')}</span>} value={templates.find((tpl) => tpl.templateId === selectedId)?.templateName ?? '-'} styles={{ content: {  color: '#fff', fontSize: 14  } }} prefix={<FileText size={14} />} />
+            <Statistic
+              title={
+                <span style={{ color: "#fff" }}>
+                  {t("reportQuality.currentTemplate")}
+                </span>
+              }
+              value={
+                templates.find((tpl) => tpl.templateId === selectedId)
+                  ?.templateName ?? "-"
+              }
+              styles={{ content: { color: "#fff", fontSize: 14 } }}
+              prefix={<FileText size={14} />}
+            />
           </Col>
         </Row>
       </Card>
-      <Card size="small" title={t('reportQuality.templateScoring')}>
+      <Card size="small" title={t("reportQuality.templateScoring")}>
         <Row gutter={12}>
           <Col xs={24} sm={16}>
             <Select
               value={selectedId}
               onChange={setSelectedId}
-              style={{ width: '100%' }}
-              options={templates.map((tpl) => ({ value: tpl.templateId, label: `${tpl.templateName} (${tpl.modality}/${tpl.bodyPart})` }))}
+              style={{ width: "100%" }}
+              options={templates.map((tpl) => ({
+                value: tpl.templateId,
+                label: `${tpl.templateName} (${tpl.modality}/${tpl.bodyPart})`,
+              }))}
             />
           </Col>
           <Col xs={24} sm={8}>
-            <Button type="primary" icon={<Sparkles size={12} />} loading={scoring} onClick={run} style={{ width: '100%' }}>
-              {t('reportQuality.scoreTemplate')}
+            <Button
+              type="primary"
+              icon={<Sparkles size={12} />}
+              loading={scoring}
+              onClick={run}
+              style={{ width: "100%" }}
+            >
+              {t("reportQuality.scoreTemplate")}
             </Button>
           </Col>
         </Row>
         {result && (
-          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ marginTop: "var(--space-4, 16px)" }}>
             <Row gutter={12}>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.baseScore')}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500)' }}>{result.baseScore}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                    {t("reportQuality.baseScore")}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-primary-500)",
+                    }}
+                  >
+                    {result.baseScore}
+                  </div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.bonusScore')}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: '#10b981' }}>+{result.bonusApplied}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                    {t("reportQuality.bonusScore")}
+                  </div>
+                  <div
+                    style={{ fontSize: 30, fontWeight: 700, color: "#10b981" }}
+                  >
+                    +{result.bonusApplied}
+                  </div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.penaltyScore')}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)' }}>-{result.penaltyApplied}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                    {t("reportQuality.penaltyScore")}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-error-600)",
+                    }}
+                  >
+                    -{result.penaltyApplied}
+                  </div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.finalScore')}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed' }}>{result.finalScore}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                    {t("reportQuality.finalScore")}
+                  </div>
+                  <div
+                    style={{ fontSize: 30, fontWeight: 700, color: "#7c3aed" }}
+                  >
+                    {result.finalScore}
+                  </div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.passingScore')}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: '#64748b' }}>{result.passingScore}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                    {t("reportQuality.passingScore")}
+                  </div>
+                  <div
+                    style={{ fontSize: 30, fontWeight: 700, color: "#64748b" }}
+                  >
+                    {result.passingScore}
+                  </div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
-                <Card size="small" style={{ background: result.passed ? 'var(--color-success-bg)' : 'var(--color-error-bg)' }}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.result')}</div>
-                  <Tag color={result.passed ? 'green' : 'red'} style={{ fontSize: 16, padding: '2px 10px' }}>
-                    {result.passed ? t('reportQuality.passed') : t('reportQuality.failed')}
+                <Card
+                  size="small"
+                  style={{
+                    background: result.passed
+                      ? "var(--color-success-bg)"
+                      : "var(--color-error-bg)",
+                  }}
+                >
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                    {t("reportQuality.result")}
+                  </div>
+                  <Tag
+                    color={result.passed ? "green" : "red"}
+                    style={{ fontSize: 16, padding: "2px 10px" }}
+                  >
+                    {result.passed
+                      ? t("reportQuality.passed")
+                      : t("reportQuality.failed")}
                   </Tag>
                 </Card>
               </Col>
             </Row>
             <Progress
               percent={result.finalScore}
-              strokeColor={result.passed ? '#10b981' : 'var(--color-error-600)'}
-              style={{ marginTop: 'var(--space-3, 12px)' }}
+              strokeColor={result.passed ? "#10b981" : "var(--color-error-600)"}
+              style={{ marginTop: "var(--space-3, 12px)" }}
             />
             {result.details.length > 0 && (
-              <DataTable scroll={{ x: 'max-content' }}
-               
-                style={{ marginTop: 'var(--space-3, 12px)' }}
+              <DataTable
+                scroll={{ x: "max-content" }}
+
+                style={{ marginTop: "var(--space-3, 12px)" }}
                 rowKey="dimension"
                 pagination={false}
                 dataSource={result.details}
                 columns={[
-                  { title: t('reportQuality.dimension'), dataIndex: 'dimension', key: 'dimension' },
-                  { title: t('reportQuality.baseScore'), dataIndex: 'base', key: 'base' },
-                  { title: t('reportQuality.bonusScore'), dataIndex: 'bonus', key: 'bonus', render: (v: number) => <span style={{ color: v > 0 ? '#10b981' : '#64748b' }}>+{v}</span> },
-                  { title: t('reportQuality.penaltyScore'), dataIndex: 'penalty', key: 'penalty', render: (v: number) => <span style={{ color: v > 0 ? 'var(--color-error-600)' : '#64748b' }}>-{v}</span> },
-                  { title: t('reportQuality.finalScore'), dataIndex: 'final', key: 'final', render: (v: number) => <strong>{v}</strong> },
+                  {
+                    title: t("reportQuality.dimension"),
+                    dataIndex: "dimension",
+                    key: "dimension",
+                  },
+                  {
+                    title: t("reportQuality.baseScore"),
+                    dataIndex: "base",
+                    key: "base",
+                  },
+                  {
+                    title: t("reportQuality.bonusScore"),
+                    dataIndex: "bonus",
+                    key: "bonus",
+                    render: (v: number) => (
+                      <span style={{ color: v > 0 ? "#10b981" : "#64748b" }}>
+                        +{v}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("reportQuality.penaltyScore"),
+                    dataIndex: "penalty",
+                    key: "penalty",
+                    render: (v: number) => (
+                      <span
+                        style={{
+                          color: v > 0 ? "var(--color-error-600)" : "#64748b",
+                        }}
+                      >
+                        -{v}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("reportQuality.finalScore"),
+                    dataIndex: "final",
+                    key: "final",
+                    render: (v: number) => <strong>{v}</strong>,
+                  },
                 ]}
               />
             )}
           </div>
         )}
-        {!result && <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('reportQuality.clickToScore')} style={{ marginTop: 'var(--space-6, 24px)' }} />}
+        {!result && (
+          <Empty
+            image={<BarChart3 size={48} style={{ opacity: 0.4 }} />}
+            description={t("reportQuality.clickToScore")}
+            style={{ marginTop: "var(--space-6, 24px)" }}
+          />
+        )}
       </Card>
-      <Card size="small" title={t('reportQuality.templateList')} style={{ marginTop: 'var(--space-3, 12px)' }}>
+      <Card
+        size="small"
+        title={t("reportQuality.templateList")}
+        style={{ marginTop: "var(--space-3, 12px)" }}
+      >
         <Row gutter={[12, 12]}>
           {templates.map((tpl) => (
             <Col xs={24} sm={12} md={8} key={tpl.templateId}>
               <Card
                 size="small"
                 style={{
-                  borderLeft: `4px solid ${tpl.published ? '#10b981' : '#94a3b8'}`,
-                  cursor: 'pointer',
+                  borderLeft: `4px solid ${tpl.published ? "#10b981" : "#94a3b8"}`,
+                  cursor: "pointer",
                 }}
                 onClick={() => setSelectedId(tpl.templateId)}
               >
                 <Space>
                   <Tag color="cyan">{tpl.modality}</Tag>
                   <Tag color="blue">{tpl.bodyPart}</Tag>
-                  {tpl.published ? <Tag color="green">{t('reportQuality.published')}</Tag> : <Tag>{t('reportQuality.unpublished')}</Tag>}
+                  {tpl.published ? (
+                    <Tag color="green">{t("reportQuality.published")}</Tag>
+                  ) : (
+                    <Tag>{t("reportQuality.unpublished")}</Tag>
+                  )}
                 </Space>
-                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>{tpl.templateName}</div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
-                  {t('reportQuality.basePrefix')} {tpl.baseScore} / {t('reportQuality.passPrefix')} {tpl.passingScore}
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    marginTop: "var(--space-1, 4px)",
+                  }}
+                >
+                  {tpl.templateName}
                 </div>
-                <Space size={4} style={{ marginTop: 'var(--space-1, 4px)' }}>
-                  <Tag color="green">{tpl.bonusRules.length} {t('reportQuality.bonusScore')}</Tag>
-                  <Tag color="red">{tpl.penaltyRules.length} {t('reportQuality.penaltyScore')}</Tag>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#64748b",
+                    marginTop: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("reportQuality.basePrefix")} {tpl.baseScore} /{" "}
+                  {t("reportQuality.passPrefix")} {tpl.passingScore}
+                </div>
+                <Space size={4} style={{ marginTop: "var(--space-1, 4px)" }}>
+                  <Tag color="green">
+                    {tpl.bonusRules.length} {t("reportQuality.bonusScore")}
+                  </Tag>
+                  <Tag color="red">
+                    {tpl.penaltyRules.length} {t("reportQuality.penaltyScore")}
+                  </Tag>
                 </Space>
               </Card>
             </Col>

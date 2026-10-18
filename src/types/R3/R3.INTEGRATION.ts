@@ -8,8 +8,16 @@
 
 // ---------- 1. HL7 CDA R2 ----------
 export type CdaSectionCode =
-  | '10164-2' | '29545-1' | '18776-5' | '10160-0' | '11369-6'
-  | '51852-2' | '29762-2' | '42349-1' | '8716-3' | '11369-6';
+  | "10164-2"
+  | "29545-1"
+  | "18776-5"
+  | "10160-0"
+  | "11369-6"
+  | "51852-2"
+  | "29762-2"
+  | "42349-1"
+  | "8716-3"
+  | "11369-6";
 
 export interface CdaCode {
   code: string;
@@ -19,7 +27,7 @@ export interface CdaCode {
 }
 
 export interface CdaEntry {
-  type: 'observation' | 'act' | 'procedure' | 'substanceAdministration';
+  type: "observation" | "act" | "procedure" | "substanceAdministration";
   code: CdaCode;
   value?: string | number;
   unit?: string;
@@ -39,14 +47,19 @@ export interface CdaSection {
 
 export interface CdaActor {
   id: string;
-  type: 'doctor' | 'patient' | 'organization' | 'device' | 'custodian';
+  type: "doctor" | "patient" | "organization" | "device" | "custodian";
   name: string;
   nameEn: string;
   idRoot: string;
   idExtension: string;
   telecom?: string;
   addr?: string;
-  representedOrganization?: { name: string; nameEn: string; idRoot: string; idExtension: string };
+  representedOrganization?: {
+    name: string;
+    nameEn: string;
+    idRoot: string;
+    idExtension: string;
+  };
 }
 
 export interface CdaDocument {
@@ -56,14 +69,19 @@ export interface CdaDocument {
   title: string;
   titleEn: string;
   effectiveTime: string;
-  confidentialityCode: 'N' | 'R' | 'V';
-  languageCode: 'zh-CN' | 'en-US';
+  confidentialityCode: "N" | "R" | "V";
+  languageCode: "zh-CN" | "en-US";
   recordTarget: CdaActor;
   author: CdaActor;
   custodian: CdaActor;
   legalAuthenticator: CdaActor;
   participants: CdaActor[];
-  relatedDocuments: { typeCode: string; id: string; setId: string; version: number }[];
+  relatedDocuments: {
+    typeCode: string;
+    id: string;
+    setId: string;
+    version: number;
+  }[];
   sections: CdaSection[];
   version: number;
   setId: string;
@@ -72,15 +90,45 @@ export interface CdaDocument {
   generatedAt: string;
   generator: string;
   validation: { passed: boolean; errors: string[]; warnings: string[] };
+  source?: "live" | "demo";
 }
 
 // ---------- 2. DICOM SR ----------
-export type DicomSrTemplateId = 'TID2000' | 'TID2010' | 'TID1500' | 'TID5000';
+export type DicomSrTemplateId = "TID2000" | "TID2010" | "TID1500" | "TID5000";
 export type DicomVrType =
-  | 'AE' | 'AS' | 'AT' | 'CS' | 'DA' | 'DS' | 'DT' | 'FL' | 'FD'
-  | 'IS' | 'LO' | 'LT' | 'OB' | 'OD' | 'OF' | 'OL' | 'OV' | 'OW'
-  | 'PN' | 'SH' | 'SL' | 'SQ' | 'SS' | 'ST' | 'SV' | 'TM' | 'UC'
-  | 'UI' | 'UL' | 'UN' | 'UR' | 'US' | 'UT';
+  | "AE"
+  | "AS"
+  | "AT"
+  | "CS"
+  | "DA"
+  | "DS"
+  | "DT"
+  | "FL"
+  | "FD"
+  | "IS"
+  | "LO"
+  | "LT"
+  | "OB"
+  | "OD"
+  | "OF"
+  | "OL"
+  | "OV"
+  | "OW"
+  | "PN"
+  | "SH"
+  | "SL"
+  | "SQ"
+  | "SS"
+  | "ST"
+  | "SV"
+  | "TM"
+  | "UC"
+  | "UI"
+  | "UL"
+  | "UN"
+  | "UR"
+  | "US"
+  | "UT";
 
 export interface DicomDataElement {
   tag: string;
@@ -93,13 +141,46 @@ export interface DicomDataElement {
 }
 
 export interface DicomContentItem {
-  relationshipType: 'CONTAINS' | 'HAS PROPERTIES' | 'HAS OBS CONTEXT' | 'INFERRED FROM' | 'SELECTED FROM' | 'HAS CONCEPT MOD';
-  conceptCode: { code: string; codeSchemeDesignator: string; codeMeaning: string; codeMeaningEn: string };
-  valueType: 'TEXT' | 'NUM' | 'CODE' | 'DATE' | 'TIME' | 'DATETIME' | 'UIDREF' | 'IMAGE' | 'CONTAINER' | 'PNAME' | 'COMPOSITE' | 'WAVEFORM';
+  relationshipType:
+    | "CONTAINS"
+    | "HAS PROPERTIES"
+    | "HAS OBS CONTEXT"
+    | "INFERRED FROM"
+    | "SELECTED FROM"
+    | "HAS CONCEPT MOD";
+  conceptCode: {
+    code: string;
+    codeSchemeDesignator: string;
+    codeMeaning: string;
+    codeMeaningEn: string;
+  };
+  valueType:
+    | "TEXT"
+    | "NUM"
+    | "CODE"
+    | "DATE"
+    | "TIME"
+    | "DATETIME"
+    | "UIDREF"
+    | "IMAGE"
+    | "CONTAINER"
+    | "PNAME"
+    | "COMPOSITE"
+    | "WAVEFORM";
   textValue?: string;
   numValue?: number;
-  unitCode?: { code: string; codeSchemeDesignator: string; codeMeaning: string; codeMeaningEn: string };
-  codeValue?: { code: string; codeSchemeDesignator: string; codeMeaning: string; codeMeaningEn: string };
+  unitCode?: {
+    code: string;
+    codeSchemeDesignator: string;
+    codeMeaning: string;
+    codeMeaningEn: string;
+  };
+  codeValue?: {
+    code: string;
+    codeSchemeDesignator: string;
+    codeMeaning: string;
+    codeMeaningEn: string;
+  };
   dateValue?: string;
   timeValue?: string;
   dateTimeValue?: string;
@@ -109,8 +190,13 @@ export interface DicomContentItem {
 }
 
 export interface DicomContentSequence {
-  conceptCode: { code: string; codeSchemeDesignator: string; codeMeaning: string; codeMeaningEn: string };
-  continuity: 'CONTINUOUS' | 'SEPARATE';
+  conceptCode: {
+    code: string;
+    codeSchemeDesignator: string;
+    codeMeaning: string;
+    codeMeaningEn: string;
+  };
+  continuity: "CONTINUOUS" | "SEPARATE";
   items: DicomContentItem[];
 }
 
@@ -122,25 +208,39 @@ export interface DicomSrDocument {
   seriesInstanceUID: string;
   instanceNumber: number;
   templateId: DicomSrTemplateId;
-  completionFlag: 'PARTIAL' | 'COMPLETE';
-  verificationFlag: 'UNVERIFIED' | 'VERIFIED';
+  completionFlag: "PARTIAL" | "COMPLETE";
+  verificationFlag: "UNVERIFIED" | "VERIFIED";
   contentSequence: DicomContentSequence[];
   dataElements: DicomDataElement[];
-  referencedInstances: { sopClassUID: string; sopInstanceUID: string; purpose: string }[];
+  referencedInstances: {
+    sopClassUID: string;
+    sopInstanceUID: string;
+    purpose: string;
+  }[];
   transferSyntaxUID: string;
   mediaStorageSOPInstanceUID: string;
   generatedAt: string;
   generator: string;
   size: number;
   validation: { passed: boolean; errors: string[]; warnings: string[] };
+  source?: "live" | "demo";
 }
 
 // ---------- 3. FHIR R4 DiagnosticReport ----------
 export type FhirResourceType =
-  | 'DiagnosticReport' | 'Patient' | 'Observation' | 'Practitioner'
-  | 'Organization' | 'ServiceRequest' | 'ImagingStudy' | 'Media'
-  | 'Encounter'
-  | 'Composition' | 'DocumentReference' | 'Bundle' | 'OperationOutcome';
+  | "DiagnosticReport"
+  | "Patient"
+  | "Observation"
+  | "Practitioner"
+  | "Organization"
+  | "ServiceRequest"
+  | "ImagingStudy"
+  | "Media"
+  | "Encounter"
+  | "Composition"
+  | "DocumentReference"
+  | "Bundle"
+  | "OperationOutcome";
 
 export interface FhirCoding {
   system: string;
@@ -173,7 +273,7 @@ export interface FhirPeriod {
   end?: string;
 }
 export interface FhirIdentifier {
-  use: 'usual' | 'official' | 'temp' | 'secondary' | 'old';
+  use: "usual" | "official" | "temp" | "secondary" | "old";
   system: string;
   value: string;
   type?: FhirCodeableConcept;
@@ -185,12 +285,27 @@ export interface FhirAnnotation {
   text: string;
 }
 export interface FhirDiagnosticReport {
-  resourceType: 'DiagnosticReport';
+  resourceType: "DiagnosticReport";
   id: string;
-  meta: { versionId: string; lastUpdated: string; profile: string[]; tag: { system: string; code: string; display: string }[] };
+  meta: {
+    versionId: string;
+    lastUpdated: string;
+    profile: string[];
+    tag: { system: string; code: string; display: string }[];
+  };
   identifier: FhirIdentifier[];
   basedOn: FhirReference[];
-  status: 'registered' | 'partial' | 'preliminary' | 'final' | 'amended' | 'corrected' | 'appended' | 'cancelled' | 'entered-in-error' | 'unknown';
+  status:
+    | "registered"
+    | "partial"
+    | "preliminary"
+    | "final"
+    | "amended"
+    | "corrected"
+    | "appended"
+    | "cancelled"
+    | "entered-in-error"
+    | "unknown";
   category: FhirCodeableConcept[];
   code: FhirCodeableConcept;
   subject: FhirReference;
@@ -212,15 +327,28 @@ export interface FhirDiagnosticReport {
   generatedAt: string;
   generator: string;
   validation: { passed: boolean; errors: string[]; warnings: string[] };
+  source?: "demo" | "database";
 }
 
 // ---------- 4. IHE XDS.b ----------
-export type XdsFolderType = 'episode' | 'study' | 'series' | 'patient' | 'institution';
-export type XdsSubmissionSetType = 'new' | 'amendment' | 'replacement' | 'transform' | 'addendum';
-export type XdsClassificationCode = 'department' | 'class' | 'type' | 'confidentiality' | 'format' | 'healthcareFacility' | 'practiceSetting' | 'eventCodeList';
-export type XdsAssociationType = 'APND' | 'XFRM' | 'RPLC' | 'SIGN' | 'HASMEMBER' | 'ISMEMBEROF';
-export type XdsStatus = 'approved' | 'deprecated';
-export type XdsDocumentAvailability = 'Online' | 'Offline' | 'Nearline' | 'Unavailable';
+export type XdsFolderType =
+  "episode" | "study" | "series" | "patient" | "institution";
+export type XdsSubmissionSetType =
+  "new" | "amendment" | "replacement" | "transform" | "addendum";
+export type XdsClassificationCode =
+  | "department"
+  | "class"
+  | "type"
+  | "confidentiality"
+  | "format"
+  | "healthcareFacility"
+  | "practiceSetting"
+  | "eventCodeList";
+export type XdsAssociationType =
+  "APND" | "XFRM" | "RPLC" | "SIGN" | "HASMEMBER" | "ISMEMBEROF";
+export type XdsStatus = "approved" | "deprecated";
+export type XdsDocumentAvailability =
+  "Online" | "Offline" | "Nearline" | "Unavailable";
 
 export interface XdsClassification {
   classificationScheme: string;
@@ -247,18 +375,28 @@ export interface XdsDocumentEntry {
   title: string;
   titleEn: string;
   comments: string;
-  confidentiality: 'N' | 'R' | 'V';
+  confidentiality: "N" | "R" | "V";
   creationTime: string;
-  languageCode: 'zh-CN' | 'en-US';
+  languageCode: "zh-CN" | "en-US";
   legalAuthenticator: string;
   serviceStartTime: string;
   serviceStopTime: string;
   sourcePatientId: string;
-  sourcePatientInfo: { name: string; gender: string; birthDate: string; id: string };
+  sourcePatientInfo: {
+    name: string;
+    gender: string;
+    birthDate: string;
+    id: string;
+  };
   repositoryUniqueId: string;
   size: number;
   hash: string;
-  mimetype: 'application/pdf' | 'text/xml' | 'application/cda+xml' | 'application/fhir+json' | 'application/dicom';
+  mimetype:
+    | "application/pdf"
+    | "text/xml"
+    | "application/cda+xml"
+    | "application/fhir+json"
+    | "application/dicom";
   status: XdsStatus;
   availability: XdsDocumentAvailability;
   classifications: XdsClassification[];
@@ -270,6 +408,7 @@ export interface XdsDocumentEntry {
   healthcareFacilityType: { code: string; display: string; scheme: string };
   practiceSetting: { code: string; display: string; scheme: string };
   eventCodeList: { code: string; display: string; scheme: string }[];
+  source?: "live" | "demo";
 }
 export interface XdsFolder {
   id: string;
@@ -295,7 +434,12 @@ export interface XdsSubmissionSet {
   titleEn: string;
   comments: string;
   contentTypeCode: { code: string; display: string; scheme: string };
-  author: { authorPerson: string; authorInstitution: string[]; authorRole: string; authorSpecialty: string }[];
+  author: {
+    authorPerson: string;
+    authorInstitution: string[];
+    authorRole: string;
+    authorSpecialty: string;
+  }[];
   intendedRecipient: { id: string; display: string }[];
   submissionSetType: XdsSubmissionSetType;
 }
@@ -320,12 +464,21 @@ export interface XdsRegistry {
   documentEntries: XdsDocumentEntry[];
   folders: XdsFolder[];
   associations: XdsAssociation[];
-  registryStoredQuery: { queryId: string; queryType: 'FindDocuments' | 'GetDocuments' | 'FindFolders' | 'GetFolderAndContents'; parameters: Record<string, string> }[];
+  registryStoredQuery: {
+    queryId: string;
+    queryType:
+      "FindDocuments" | "GetDocuments" | "FindFolders" | "GetFolderAndContents";
+    parameters: Record<string, string>;
+  }[];
   responses: {
-    rs: 'Success' | 'Failure' | 'PartialSuccess';
+    rs: "Success" | "Failure" | "PartialSuccess";
     status: number;
     timestamp: string;
-    errors?: { codeContext: string; errorCode: string; severity: 'error' | 'warning' };
+    errors?: {
+      codeContext: string;
+      errorCode: string;
+      severity: "error" | "warning";
+    };
   }[];
   registeredAt: string;
   registeredBy: string;
@@ -333,13 +486,14 @@ export interface XdsRegistry {
   homeCommunityId: string;
   size: number;
   validation: { passed: boolean; errors: string[]; warnings: string[] };
+  source?: "live" | "demo";
 }
 
 // ---------- 5. 通用响应 ----------
 export interface IntegrationExportEnvelope {
   id: string;
   reportId: string;
-  format: 'hl7-cda' | 'dicom-sr' | 'fhir-dr' | 'ihe-xds';
+  format: "hl7-cda" | "dicom-sr" | "fhir-dr" | "ihe-xds";
   formatLabel: string;
   formatLabelEn: string;
   filename: string;
@@ -351,17 +505,19 @@ export interface IntegrationExportEnvelope {
   validation: { passed: boolean; errors: string[]; warnings: string[] };
   storageUri: string;
   byteCount: number;
-  signatureAlgorithm: 'SM2' | 'SHA256withRSA' | 'SHA512withECDSA';
+  signatureAlgorithm: "SM2" | "SHA256withRSA" | "SHA512withECDSA";
   signedBy?: string;
   signedAt?: string;
+  source?: "live" | "demo";
 }
 
 // ---------- 6. 测试桩 ----------
-export type IntegrationTestId = 'I001' | 'I014' | 'I030' | 'I039' | 'I060' | 'I077' | 'I080';
+export type IntegrationTestId =
+  "I001" | "I014" | "I030" | "I039" | "I060" | "I077" | "I080";
 
 export const CDA_TEMPLATE_ROOTS = {
-  diagnosticImaging: '2.16.840.1.113883.10.20.22.1.1',
-  imaging: '1.2.840.10008.9.1',
-  dischargeSummary: '2.16.840.1.113883.10.20.22.1.8',
-  continuityOfCare: '2.16.840.1.113883.10.20.22.1.2',
+  diagnosticImaging: "2.16.840.1.113883.10.20.22.1.1",
+  imaging: "1.2.840.10008.9.1",
+  dischargeSummary: "2.16.840.1.113883.10.20.22.1.8",
+  continuityOfCare: "2.16.840.1.113883.10.20.22.1.2",
 };

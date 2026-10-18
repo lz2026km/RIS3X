@@ -7,13 +7,19 @@
 import { http, HttpResponse, delay } from "msw";
 import { list, create, update, remove } from "./store";
 import { v4 as uuidv4 } from "uuid";
-import { PATIENT_MASTER, PATIENT_BY_ID, DOCTOR_MASTER, type PatientMaster } from "../../data/master";
+import {
+  PATIENT_MASTER,
+  PATIENT_BY_ID,
+  DOCTOR_MASTER,
+  type PatientMaster,
+} from "../../data/master";
 import { EXAM_REPORT_PRE } from "../../data/_generators";
 
 const API = "/api/v1/fhir/r4";
 
 let delayTick = 0;
-const delayMs = (min = 30, max = 120) => min + ((delayTick++ * 37) % Math.max(1, max - min));
+const delayMs = (min = 30, max = 120) =>
+  min + ((delayTick++ * 37) % Math.max(1, max - min));
 
 function makeRng(seed: number): () => number {
   let s = seed >>> 0 || 1;
@@ -34,7 +40,8 @@ function fnv1a32(input: string): number {
 
 const COHORT_SIZE = 30;
 
-const toFhirGender = (g: string): string => (g === "男" ? "male" : g === "女" ? "female" : "other");
+const toFhirGender = (g: string): string =>
+  g === "男" ? "male" : g === "女" ? "female" : "other";
 
 function splitName(name: string): { family: string; given: string[] } {
   const family = name.slice(0, 1);
@@ -52,7 +59,8 @@ const MODALITY_SNOMED: Record<string, { code: string; display: string }> = {
   "PET-CT": { code: "422035007", display: "PET-CT whole body" },
 };
 
-const dicomModality = (modality: string): string => (modality === "PET-CT" ? "PT" : modality);
+const dicomModality = (modality: string): string =>
+  modality === "PET-CT" ? "PT" : modality;
 
 const REPORT_STATUS_MAP: Record<string, string> = {
   draft: "registered",
@@ -81,14 +89,94 @@ interface VitalRecipe {
 }
 
 const VITAL_RECIPES: VitalRecipe[] = [
-  { code: "8480-6", display: "Systolic blood pressure", unit: "mmHg", ucum: "mm[Hg]", low: 90, high: 140, base: 122, decimals: 0, category: "vital-signs" },
-  { code: "8867-4", display: "Heart rate", unit: "beats/min", ucum: "/min", low: 60, high: 100, base: 76, decimals: 0, category: "vital-signs" },
-  { code: "8310-5", display: "Body temperature", unit: "Cel", ucum: "Cel", low: 36, high: 37.3, base: 36.6, decimals: 1, category: "vital-signs" },
-  { code: "2339-0", display: "Glucose [Mass/volume] in Blood", unit: "mg/dL", ucum: "mg/dL", low: 70, high: 110, base: 93, decimals: 0, category: "laboratory" },
-  { code: "718-7", display: "Hemoglobin [Mass/volume] in Blood", unit: "g/dL", ucum: "g/dL", low: 12, high: 16, base: 13.8, decimals: 1, category: "laboratory" },
-  { code: "2160-0", display: "Creatinine [Mass/volume] in Serum or Plasma", unit: "mg/dL", ucum: "mg/dL", low: 0.6, high: 1.3, base: 0.9, decimals: 2, category: "laboratory" },
-  { code: "29463-7", display: "Body weight", unit: "kg", ucum: "kg", low: 45, high: 90, base: 64, decimals: 1, category: "vital-signs" },
-  { code: "8302-2", display: "Body height", unit: "cm", ucum: "cm", low: 150, high: 185, base: 168, decimals: 0, category: "vital-signs" },
+  {
+    code: "8480-6",
+    display: "Systolic blood pressure",
+    unit: "mmHg",
+    ucum: "mm[Hg]",
+    low: 90,
+    high: 140,
+    base: 122,
+    decimals: 0,
+    category: "vital-signs",
+  },
+  {
+    code: "8867-4",
+    display: "Heart rate",
+    unit: "beats/min",
+    ucum: "/min",
+    low: 60,
+    high: 100,
+    base: 76,
+    decimals: 0,
+    category: "vital-signs",
+  },
+  {
+    code: "8310-5",
+    display: "Body temperature",
+    unit: "Cel",
+    ucum: "Cel",
+    low: 36,
+    high: 37.3,
+    base: 36.6,
+    decimals: 1,
+    category: "vital-signs",
+  },
+  {
+    code: "2339-0",
+    display: "Glucose [Mass/volume] in Blood",
+    unit: "mg/dL",
+    ucum: "mg/dL",
+    low: 70,
+    high: 110,
+    base: 93,
+    decimals: 0,
+    category: "laboratory",
+  },
+  {
+    code: "718-7",
+    display: "Hemoglobin [Mass/volume] in Blood",
+    unit: "g/dL",
+    ucum: "g/dL",
+    low: 12,
+    high: 16,
+    base: 13.8,
+    decimals: 1,
+    category: "laboratory",
+  },
+  {
+    code: "2160-0",
+    display: "Creatinine [Mass/volume] in Serum or Plasma",
+    unit: "mg/dL",
+    ucum: "mg/dL",
+    low: 0.6,
+    high: 1.3,
+    base: 0.9,
+    decimals: 2,
+    category: "laboratory",
+  },
+  {
+    code: "29463-7",
+    display: "Body weight",
+    unit: "kg",
+    ucum: "kg",
+    low: 45,
+    high: 90,
+    base: 64,
+    decimals: 1,
+    category: "vital-signs",
+  },
+  {
+    code: "8302-2",
+    display: "Body height",
+    unit: "cm",
+    ucum: "cm",
+    low: 150,
+    high: 185,
+    base: 168,
+    decimals: 0,
+    category: "vital-signs",
+  },
 ];
 
 interface SeedExamRef {
@@ -139,17 +227,23 @@ function pickSeedExams(count: number): SeedExamRef[] {
   const usedPatients = new Set<string>();
   const push = (row: unknown): void => {
     const n = normalizeSeedExam(row);
-    if (!n || usedReports.has(n.reportId) || usedPatients.has(n.patientId)) return;
+    if (!n || usedReports.has(n.reportId) || usedPatients.has(n.patientId))
+      return;
     usedReports.add(n.reportId);
     usedPatients.add(n.patientId);
     out.push(n);
   };
   let raw: unknown[] = [];
-  try { raw = list<unknown>("exams"); } catch { raw = []; }
+  try {
+    raw = list<unknown>("exams");
+  } catch {
+    raw = [];
+  }
   if (raw.length > 0) {
     const strideCount = Math.min(count, raw.length);
     const step = raw.length / strideCount;
-    for (let i = 0; i < strideCount && out.length < count; i++) push(raw[Math.floor(i * step)]);
+    for (let i = 0; i < strideCount && out.length < count; i++)
+      push(raw[Math.floor(i * step)]);
   }
   if (out.length < count) {
     for (const row of EXAM_REPORT_PRE) {
@@ -199,7 +293,8 @@ function buildCohort(): FhirCohort {
   const studies: any[] = [];
 
   exams.forEach((exam, i) => {
-    const fallback: PatientMaster | undefined = PATIENT_MASTER[i % PATIENT_MASTER.length];
+    const fallback: PatientMaster | undefined =
+      PATIENT_MASTER[i % PATIENT_MASTER.length];
     const p: PatientMaster = PATIENT_BY_ID[exam.patientId] ?? fallback!;
     const { family, given } = splitName(p.name);
     const ref = `Patient/${p.id}`;
@@ -211,13 +306,29 @@ function buildCohort(): FhirCohort {
       identifier: [
         {
           use: "usual",
-          type: { coding: [{ system: "http://terminology.hl7.org/CodeSystem/v2-0203", code: "MR", display: "Medical record number" }] },
+          type: {
+            coding: [
+              {
+                system: "http://terminology.hl7.org/CodeSystem/v2-0203",
+                code: "MR",
+                display: "Medical record number",
+              },
+            ],
+          },
           system: "http://ris.local/mrn",
           value: p.id,
         },
         {
           use: "official",
-          type: { coding: [{ system: "http://terminology.hl7.org/CodeSystem/v2-0203", code: "SS", display: "Social Security Number" }] },
+          type: {
+            coding: [
+              {
+                system: "http://terminology.hl7.org/CodeSystem/v2-0203",
+                code: "SS",
+                display: "Social Security Number",
+              },
+            ],
+          },
           system: "urn:oid:1.2.36.146.595.217.0.1",
           value: p.idCard,
         },
@@ -225,20 +336,28 @@ function buildCohort(): FhirCohort {
       name: [{ use: "official", family, given }],
       gender: toFhirGender(p.gender),
       birthDate: p.birthDate,
-      telecom: p.phone ? [{ system: "phone", value: p.phone, use: "mobile" }] : [],
+      telecom: p.phone
+        ? [{ system: "phone", value: p.phone, use: "mobile" }]
+        : [],
       ...(p.deceased ? { deceasedBoolean: true } : {}),
       meta: { lastUpdated: p.registeredAt },
     });
 
     const recipe = VITAL_RECIPES[i % VITAL_RECIPES.length]!;
-    let value = Number((recipe.base * (0.88 + rng() * 0.24)).toFixed(recipe.decimals));
+    let value = Number(
+      (recipe.base * (0.88 + rng() * 0.24)).toFixed(recipe.decimals),
+    );
     let interp = "N";
     const roll = rng();
     if (roll < 0.1) {
-      value = Number((recipe.high * (1.05 + rng() * 0.15)).toFixed(recipe.decimals));
+      value = Number(
+        (recipe.high * (1.05 + rng() * 0.15)).toFixed(recipe.decimals),
+      );
       interp = "H";
     } else if (roll < 0.18) {
-      value = Number((recipe.low * (0.78 + rng() * 0.12)).toFixed(recipe.decimals));
+      value = Number(
+        (recipe.low * (0.78 + rng() * 0.12)).toFixed(recipe.decimals),
+      );
       interp = "L";
     }
     const obsId = `OBS-${exam.reportId}`;
@@ -246,33 +365,58 @@ function buildCohort(): FhirCohort {
       resourceType: "Observation",
       id: obsId,
       status: "final",
-      category: [{
-        coding: [{
-          system: "http://terminology.hl7.org/CodeSystem/observation-category",
-          code: recipe.category,
-          display: recipe.category === "laboratory" ? "Laboratory" : "Vital Signs",
-        }],
-      }],
+      category: [
+        {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/observation-category",
+              code: recipe.category,
+              display:
+                recipe.category === "laboratory" ? "Laboratory" : "Vital Signs",
+            },
+          ],
+        },
+      ],
       code: {
-        coding: [{ system: "http://loinc.org", code: recipe.code, display: recipe.display }],
+        coding: [
+          {
+            system: "http://loinc.org",
+            code: recipe.code,
+            display: recipe.display,
+          },
+        ],
         text: recipe.display,
       },
       subject: { reference: ref, display: p.name },
       ...(exam.examAt ? { effectiveDateTime: exam.examAt } : {}),
       ...(exam.reportAt ? { issued: exam.reportAt } : {}),
-      valueQuantity: { value, unit: recipe.unit, system: "http://unitsofmeasure.org", code: recipe.ucum },
-      interpretation: [{
-        coding: [{
-          system: "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
-          code: interp,
-          display: interp === "N" ? "Normal" : interp === "H" ? "High" : "Low",
-        }],
-      }],
-      referenceRange: [{
-        low: { value: recipe.low, unit: recipe.unit },
-        high: { value: recipe.high, unit: recipe.unit },
-        type: { text: "正常参考范围" },
-      }],
+      valueQuantity: {
+        value,
+        unit: recipe.unit,
+        system: "http://unitsofmeasure.org",
+        code: recipe.ucum,
+      },
+      interpretation: [
+        {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+              code: interp,
+              display:
+                interp === "N" ? "Normal" : interp === "H" ? "High" : "Low",
+            },
+          ],
+        },
+      ],
+      referenceRange: [
+        {
+          low: { value: recipe.low, unit: recipe.unit },
+          high: { value: recipe.high, unit: recipe.unit },
+          type: { text: "正常参考范围" },
+        },
+      ],
       performer: [{ reference: `Practitioner/${exam.reportDoctorId}` }],
     });
 
@@ -281,22 +425,38 @@ function buildCohort(): FhirCohort {
       resourceType: "DiagnosticReport",
       id: exam.reportId,
       status: REPORT_STATUS_MAP[exam.status] ?? "final",
-      category: [{
-        coding: [{
-          system: "http://dicom.nema.org/resources/ontology/DCM",
-          code: dicomModality(exam.modality),
-          display: exam.modality,
-        }],
-      }],
+      category: [
+        {
+          coding: [
+            {
+              system: "http://dicom.nema.org/resources/ontology/DCM",
+              code: dicomModality(exam.modality),
+              display: exam.modality,
+            },
+          ],
+        },
+      ],
       code: {
-        coding: [{ system: "http://snomed.info/sct", code: snomed.code, display: snomed.display }],
+        coding: [
+          {
+            system: "http://snomed.info/sct",
+            code: snomed.code,
+            display: snomed.display,
+          },
+        ],
         text: `${exam.modality} ${exam.bodyPart}`,
       },
       subject: { reference: ref, display: p.name },
       ...(exam.examAt ? { effectiveDateTime: exam.examAt } : {}),
       ...(exam.reportAt ? { issued: exam.reportAt } : {}),
       performer: [{ reference: `Practitioner/${exam.reportDoctorId}` }],
-      ...(exam.reviewDoctorId ? { resultsInterpreter: [{ reference: `Practitioner/${exam.reviewDoctorId}` }] } : {}),
+      ...(exam.reviewDoctorId
+        ? {
+            resultsInterpreter: [
+              { reference: `Practitioner/${exam.reviewDoctorId}` },
+            ],
+          }
+        : {}),
       result: [{ reference: `Observation/${obsId}` }],
       imagingStudy: [{ reference: `ImagingStudy/${exam.examId}` }],
     });
@@ -305,7 +465,14 @@ function buildCohort(): FhirCohort {
     const series = Array.from({ length: seriesCount }, (_, s) => ({
       uid: `1.2.826.0.1.3680043.8.498.${fnv1a32(`${exam.examId}#${s}`)}.${s + 1}`,
       number: s + 1,
-      modality: { coding: [{ system: "http://dicom.nema.org/resources/ontology/DCM", code: dicomModality(exam.modality) }] },
+      modality: {
+        coding: [
+          {
+            system: "http://dicom.nema.org/resources/ontology/DCM",
+            code: dicomModality(exam.modality),
+          },
+        ],
+      },
       description: `${exam.modality} ${exam.bodyPart}`,
       numberOfInstances: 40 + Math.floor(rng() * 260),
       bodySite: { text: exam.bodyPart },
@@ -314,18 +481,32 @@ function buildCohort(): FhirCohort {
       resourceType: "ImagingStudy",
       id: exam.examId,
       identifier: [
-        { system: "http://ris.local/accession", value: exam.accessionNumber ?? exam.reportId },
+        {
+          system: "http://ris.local/accession",
+          value: exam.accessionNumber ?? exam.reportId,
+        },
         { system: "http://ris.local/report", value: exam.reportId },
       ],
       status: "available",
       subject: { reference: ref, display: p.name },
       ...(exam.examAt ? { started: exam.examAt } : {}),
       numberOfSeries: seriesCount,
-      numberOfInstances: series.reduce((sum, ser) => sum + ser.numberOfInstances, 0),
-      procedureCode: [{
-        coding: [{ system: "http://snomed.info/sct", code: snomed.code, display: snomed.display }],
-        text: exam.examItem,
-      }],
+      numberOfInstances: series.reduce(
+        (sum, ser) => sum + ser.numberOfInstances,
+        0,
+      ),
+      procedureCode: [
+        {
+          coding: [
+            {
+              system: "http://snomed.info/sct",
+              code: snomed.code,
+              display: snomed.display,
+            },
+          ],
+          text: exam.examItem,
+        },
+      ],
       series,
     });
   });
@@ -361,7 +542,11 @@ const SEED_SUBSCRIPTIONS: any[] = [
     status: "active",
     reason: "监控新签发报告并推送外部 EMR",
     criteria: "DiagnosticReport?status=final",
-    channel: { type: "rest-hook", endpoint: "https://webhook.example.com/ris/fhir/reports", payload: "id-only" },
+    channel: {
+      type: "rest-hook",
+      endpoint: "https://webhook.example.com/ris/fhir/reports",
+      payload: "id-only",
+    },
     meta: { lastUpdated: "2026-08-01T08:00:00Z" },
   },
   {
@@ -370,7 +555,11 @@ const SEED_SUBSCRIPTIONS: any[] = [
     status: "active",
     reason: "实验室危急值全量资源推送",
     criteria: "Observation?category=laboratory",
-    channel: { type: "rest-hook", endpoint: "https://webhook.example.com/ris/fhir/observations", payload: "full-resource" },
+    channel: {
+      type: "rest-hook",
+      endpoint: "https://webhook.example.com/ris/fhir/observations",
+      payload: "full-resource",
+    },
     meta: { lastUpdated: "2026-08-01T08:05:00Z" },
   },
   {
@@ -379,7 +568,11 @@ const SEED_SUBSCRIPTIONS: any[] = [
     status: "inactive",
     reason: "患者主索引变更同步 (停用维护中)",
     criteria: "Patient?identifier=http://ris.local/mrn",
-    channel: { type: "rest-hook", endpoint: "https://webhook.example.com/ris/fhir/patients", payload: "id-only" },
+    channel: {
+      type: "rest-hook",
+      endpoint: "https://webhook.example.com/ris/fhir/patients",
+      payload: "id-only",
+    },
     meta: { lastUpdated: "2026-07-15T02:00:00Z" },
   },
   {
@@ -388,7 +581,11 @@ const SEED_SUBSCRIPTIONS: any[] = [
     status: "error",
     reason: "PACS 影像检查完成通知 (对端 503)",
     criteria: "ImagingStudy?modality=CT",
-    channel: { type: "rest-hook", endpoint: "https://pacs.example.com/fhir/hooks/studies", payload: "id-only" },
+    channel: {
+      type: "rest-hook",
+      endpoint: "https://pacs.example.com/fhir/hooks/studies",
+      payload: "id-only",
+    },
     meta: { lastUpdated: "2026-07-28T11:20:00Z" },
   },
   {
@@ -397,7 +594,11 @@ const SEED_SUBSCRIPTIONS: any[] = [
     status: "active",
     reason: "区域平台放射报告上报",
     criteria: "DiagnosticReport?category=RAD",
-    channel: { type: "rest-hook", endpoint: "https://region.example.com/fhir/hooks/reports", payload: "full-resource" },
+    channel: {
+      type: "rest-hook",
+      endpoint: "https://region.example.com/fhir/hooks/reports",
+      payload: "full-resource",
+    },
     meta: { lastUpdated: "2026-08-02T09:30:00Z" },
   },
 ];
@@ -423,32 +624,90 @@ interface ExportJobRecord {
   error?: string;
 }
 
-const staticExportOutput = (): Array<{ type: string; url: string; count: number }> => [
+const staticExportOutput = (): Array<{
+  type: string;
+  url: string;
+  count: number;
+}> => [
   { type: "Patient", url: `${API}/Patient`, count: COHORT_SIZE },
   { type: "Observation", url: `${API}/Observation`, count: COHORT_SIZE },
-  { type: "DiagnosticReport", url: `${API}/DiagnosticReport`, count: COHORT_SIZE },
+  {
+    type: "DiagnosticReport",
+    url: `${API}/DiagnosticReport`,
+    count: COHORT_SIZE,
+  },
   { type: "ImagingStudy", url: `${API}/ImagingStudy`, count: COHORT_SIZE },
-  { type: "Subscription", url: `${API}/Subscription`, count: SEED_SUBSCRIPTIONS.length },
+  {
+    type: "Subscription",
+    url: `${API}/Subscription`,
+    count: SEED_SUBSCRIPTIONS.length,
+  },
 ];
 
 const EXPORT_JOBS: ExportJobRecord[] = [
-  { jobId: "bulk-2026-001", status: "completed", requestTime: "2026-08-01T10:00:00Z", transactionTime: "2026-08-01T10:01:12Z", output: staticExportOutput() },
-  { jobId: "bulk-2026-002", status: "completed", requestTime: "2026-08-01T14:30:00Z", transactionTime: "2026-08-01T14:31:05Z", output: staticExportOutput() },
-  { jobId: "bulk-2026-003", status: "failed", requestTime: "2026-08-01T18:45:00Z", transactionTime: "2026-08-01T18:47:30Z", error: "源系统超时 (504), 导出任务终止" },
-  { jobId: "bulk-2026-004", status: "running", requestTime: "2026-08-02T09:00:00Z" },
+  {
+    jobId: "bulk-2026-001",
+    status: "completed",
+    requestTime: "2026-08-01T10:00:00Z",
+    transactionTime: "2026-08-01T10:01:12Z",
+    output: staticExportOutput(),
+  },
+  {
+    jobId: "bulk-2026-002",
+    status: "completed",
+    requestTime: "2026-08-01T14:30:00Z",
+    transactionTime: "2026-08-01T14:31:05Z",
+    output: staticExportOutput(),
+  },
+  {
+    jobId: "bulk-2026-003",
+    status: "failed",
+    requestTime: "2026-08-01T18:45:00Z",
+    transactionTime: "2026-08-01T18:47:30Z",
+    error: "源系统超时 (504), 导出任务终止",
+  },
+  {
+    jobId: "bulk-2026-004",
+    status: "running",
+    requestTime: "2026-08-02T09:00:00Z",
+  },
 ];
 let exportSeq = 5;
 
-function liveExportOutput(): Array<{ type: string; url: string; count: number }> {
+function liveExportOutput(): Array<{
+  type: string;
+  url: string;
+  count: number;
+}> {
   const countOf = (key: string): number => {
-    try { return list<any>(key as any).length; } catch { return 0; }
+    try {
+      return list<any>(key as any).length;
+    } catch {
+      return 0;
+    }
   };
   return [
     { type: "Patient", url: `${API}/Patient`, count: countOf("fhirPatients") },
-    { type: "Observation", url: `${API}/Observation`, count: countOf("fhirObservations") },
-    { type: "DiagnosticReport", url: `${API}/DiagnosticReport`, count: countOf("fhirReports") },
-    { type: "ImagingStudy", url: `${API}/ImagingStudy`, count: countOf("fhirStudies") },
-    { type: "Subscription", url: `${API}/Subscription`, count: countOf("fhirSubscriptions") },
+    {
+      type: "Observation",
+      url: `${API}/Observation`,
+      count: countOf("fhirObservations"),
+    },
+    {
+      type: "DiagnosticReport",
+      url: `${API}/DiagnosticReport`,
+      count: countOf("fhirReports"),
+    },
+    {
+      type: "ImagingStudy",
+      url: `${API}/ImagingStudy`,
+      count: countOf("fhirStudies"),
+    },
+    {
+      type: "Subscription",
+      url: `${API}/Subscription`,
+      count: countOf("fhirSubscriptions"),
+    },
   ];
 }
 
@@ -469,33 +728,86 @@ function genericResourceItems(type: string): any[] {
   };
   const col = colMap[type];
   if (!col) return [];
-  try { return list<any>(col as any); } catch { return []; }
+  try {
+    return list<any>(col as any);
+  } catch {
+    return [];
+  }
 }
 
 const bundle = (entries: any[]) => ({
   resourceType: "Bundle",
   type: "searchset",
   total: entries.length,
-  entry: entries.map((e) => ({ resource: e, fullUrl: `${API}/${e.resourceType}/${e.id}` })),
+  entry: entries.map((e) => ({
+    resource: e,
+    fullUrl: `${API}/${e.resourceType}/${e.id}`,
+  })),
 });
 
 /** [v3.0.6.16-0] 后端 fhir.controller.ts 真实支持的资源类型 (不多报一个) */
-const SUPPORTED_TYPES = ["Patient", "Observation", "DiagnosticReport", "ImagingStudy", "Subscription", "Bundle"];
+const SUPPORTED_TYPES = [
+  "Patient",
+  "Observation",
+  "DiagnosticReport",
+  "ImagingStudy",
+  "Subscription",
+  "Bundle",
+];
 
 /** 与后端 fhir-capability.service.ts 同源的演示态 CapabilityStatement (含诚实的能力缺口) */
 function capabilityStatement() {
   const resource = [
     {
       type: "Patient",
-      interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }, { code: "create" }, { code: "update" }, { code: "delete" }],
+      interaction: [
+        { code: "read" },
+        { code: "search-type" },
+        { code: "vread" },
+        { code: "create" },
+        { code: "update" },
+        { code: "delete" },
+      ],
     },
-    { type: "Observation", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }] },
-    { type: "DiagnosticReport", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }] },
-    { type: "ImagingStudy", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }] },
-    { type: "Subscription", interaction: [{ code: "read" }, { code: "search-type" }, { code: "vread" }, { code: "create" }, { code: "delete" }] },
+    {
+      type: "Observation",
+      interaction: [
+        { code: "read" },
+        { code: "search-type" },
+        { code: "vread" },
+      ],
+    },
+    {
+      type: "DiagnosticReport",
+      interaction: [
+        { code: "read" },
+        { code: "search-type" },
+        { code: "vread" },
+      ],
+    },
+    {
+      type: "ImagingStudy",
+      interaction: [
+        { code: "read" },
+        { code: "search-type" },
+        { code: "vread" },
+      ],
+    },
+    {
+      type: "Subscription",
+      interaction: [
+        { code: "read" },
+        { code: "search-type" },
+        { code: "vread" },
+        { code: "create" },
+        { code: "delete" },
+      ],
+    },
     { type: "Bundle", interaction: [{ code: "read" }] },
   ];
-  const interaction = Array.from(new Set(resource.flatMap((r) => r.interaction.map((i: any) => i.code)))).map((code) => ({ code }));
+  const interaction = Array.from(
+    new Set(resource.flatMap((r) => r.interaction.map((i: any) => i.code))),
+  ).map((code) => ({ code }));
   return {
     resourceType: "CapabilityStatement",
     id: "g005-ris-fhir-r4",
@@ -510,7 +822,17 @@ function capabilityStatement() {
         mode: "server",
         security: {
           cors: true,
-          service: [{ coding: [{ system: "http://terminology.hl7.org/CodeSystem/restful-security-service", code: "SMART on FHIR" }] }],
+          service: [
+            {
+              coding: [
+                {
+                  system:
+                    "http://terminology.hl7.org/CodeSystem/restful-security-service",
+                  code: "SMART on FHIR",
+                },
+              ],
+            },
+          ],
         },
         resource,
         interaction,
@@ -524,8 +846,14 @@ function capabilityStatement() {
       { code: "conditional-update", reason: "条件更新未实现" },
       { code: "conditional-delete", reason: "条件删除未实现" },
       { code: "patch", reason: "PATCH 未实现" },
-      { code: "Practitioner 资源", reason: "未实现 (前端资源类型下拉中不应出现该选项)" },
-      { code: "Bundle 写事务", reason: "仅支持只读 Bundle, 不支持 transaction/batch 写入" },
+      {
+        code: "Practitioner 资源",
+        reason: "未实现 (前端资源类型下拉中不应出现该选项)",
+      },
+      {
+        code: "Bundle 写事务",
+        reason: "仅支持只读 Bundle, 不支持 transaction/batch 写入",
+      },
     ],
   };
 }
@@ -546,8 +874,14 @@ export const fhirHandlers = [
   http.get(`${API}/Patient/:id`, async ({ params }) => {
     await delay(delayMs());
     ensureCohortSeeded();
-    const found = list<any>("fhirPatients" as any).find((p) => p.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND" } }, { status: 404 });
+    const found = list<any>("fhirPatients" as any).find(
+      (p) => p.id === params.id,
+    );
+    if (!found)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: found });
   }),
 
@@ -558,8 +892,14 @@ export const fhirHandlers = [
     const name = sp.get("name")?.toLowerCase();
     const identifier = sp.get("identifier");
     let items = list<any>("fhirPatients" as any);
-    if (name) items = items.filter((p) => JSON.stringify(p.name).toLowerCase().includes(name));
-    if (identifier) items = items.filter((p) => p.identifier?.some((i: any) => String(i.value).includes(identifier)));
+    if (name)
+      items = items.filter((p) =>
+        JSON.stringify(p.name).toLowerCase().includes(name),
+      );
+    if (identifier)
+      items = items.filter((p) =>
+        p.identifier?.some((i: any) => String(i.value).includes(identifier)),
+      );
     return HttpResponse.json({ success: true, data: bundle(items) });
   }),
 
@@ -567,44 +907,82 @@ export const fhirHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const resource = { resourceType: "Patient", id: uuidv4(), ...body };
-    try { create("fhirPatients" as any, resource); } catch {}
-    return HttpResponse.json({ success: true, data: resource }, { status: 201 });
+    try {
+      create("fhirPatients" as any, resource);
+    } catch {}
+    return HttpResponse.json(
+      { success: true, data: resource },
+      { status: 201 },
+    );
   }),
 
   http.put(`${API}/Patient/:id`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    const existing = list<any>("fhirPatients" as any).find((p) => p.id === params.id) ?? { id: params.id, resourceType: "Patient" };
+    const existing = list<any>("fhirPatients" as any).find(
+      (p) => p.id === params.id,
+    ) ?? { id: params.id, resourceType: "Patient" };
     const updated = { ...existing, ...body, id: params.id };
-    try { update("fhirPatients" as any, params.id as string, updated); } catch {}
+    try {
+      update("fhirPatients" as any, params.id as string, updated);
+    } catch {}
     return HttpResponse.json({ success: true, data: updated });
   }),
 
   http.delete(`${API}/Patient/:id`, async ({ params }) => {
     await delay(delayMs());
-    try { remove("fhirPatients" as any, params.id as string); } catch {}
-    return HttpResponse.json({ success: true, data: { resourceType: "OperationOutcome", issue: [{ severity: "information", code: "deleted" }] } });
+    try {
+      remove("fhirPatients" as any, params.id as string);
+    } catch {}
+    return HttpResponse.json({
+      success: true,
+      data: {
+        resourceType: "OperationOutcome",
+        issue: [{ severity: "information", code: "deleted" }],
+      },
+    });
   }),
 
   http.get(`${API}/Patient/:id/$everything`, async ({ params }) => {
     await delay(delayMs());
     ensureCohortSeeded();
-    const patient = list<any>("fhirPatients" as any).find((p) => p.id === params.id);
-    if (!patient) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND" } }, { status: 404 });
+    const patient = list<any>("fhirPatients" as any).find(
+      (p) => p.id === params.id,
+    );
+    if (!patient)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     const related = [
-      ...list<any>("fhirObservations" as any).filter((o) => o.subject?.reference === `Patient/${params.id}`),
-      ...list<any>("fhirReports" as any).filter((r) => r.subject?.reference === `Patient/${params.id}`),
-      ...list<any>("fhirStudies" as any).filter((s) => s.subject?.reference === `Patient/${params.id}`),
+      ...list<any>("fhirObservations" as any).filter(
+        (o) => o.subject?.reference === `Patient/${params.id}`,
+      ),
+      ...list<any>("fhirReports" as any).filter(
+        (r) => r.subject?.reference === `Patient/${params.id}`,
+      ),
+      ...list<any>("fhirStudies" as any).filter(
+        (s) => s.subject?.reference === `Patient/${params.id}`,
+      ),
     ];
-    return HttpResponse.json({ success: true, data: bundle([patient, ...related]) });
+    return HttpResponse.json({
+      success: true,
+      data: bundle([patient, ...related]),
+    });
   }),
 
   // ── Observation ──
   http.get(`${API}/Observation/:id`, async ({ params }) => {
     await delay(delayMs());
     ensureCohortSeeded();
-    const found = list<any>("fhirObservations" as any).find((o) => o.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND" } }, { status: 404 });
+    const found = list<any>("fhirObservations" as any).find(
+      (o) => o.id === params.id,
+    );
+    if (!found)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: found });
   }),
 
@@ -613,7 +991,10 @@ export const fhirHandlers = [
     ensureCohortSeeded();
     const patient = urlParams(request).get("patient");
     let items = list<any>("fhirObservations" as any);
-    if (patient) items = items.filter((o) => o.subject?.reference === `Patient/${patient}`);
+    if (patient)
+      items = items.filter(
+        (o) => o.subject?.reference === `Patient/${patient}`,
+      );
     return HttpResponse.json({ success: true, data: bundle(items) });
   }),
 
@@ -621,8 +1002,14 @@ export const fhirHandlers = [
   http.get(`${API}/DiagnosticReport/:id`, async ({ params }) => {
     await delay(delayMs());
     ensureCohortSeeded();
-    const found = list<any>("fhirReports" as any).find((r) => r.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND" } }, { status: 404 });
+    const found = list<any>("fhirReports" as any).find(
+      (r) => r.id === params.id,
+    );
+    if (!found)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: found });
   }),
 
@@ -633,7 +1020,10 @@ export const fhirHandlers = [
     const patient = sp.get("patient");
     const status = sp.get("status");
     let items = list<any>("fhirReports" as any);
-    if (patient) items = items.filter((r) => r.subject?.reference === `Patient/${patient}`);
+    if (patient)
+      items = items.filter(
+        (r) => r.subject?.reference === `Patient/${patient}`,
+      );
     if (status) items = items.filter((r) => r.status === status);
     return HttpResponse.json({ success: true, data: bundle(items) });
   }),
@@ -642,8 +1032,14 @@ export const fhirHandlers = [
   http.get(`${API}/ImagingStudy/:id`, async ({ params }) => {
     await delay(delayMs());
     ensureCohortSeeded();
-    const found = list<any>("fhirStudies" as any).find((s) => s.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND" } }, { status: 404 });
+    const found = list<any>("fhirStudies" as any).find(
+      (s) => s.id === params.id,
+    );
+    if (!found)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: found });
   }),
 
@@ -654,8 +1050,16 @@ export const fhirHandlers = [
     const patient = sp.get("patient");
     const modality = sp.get("modality");
     let items = list<any>("fhirStudies" as any);
-    if (patient) items = items.filter((s) => s.subject?.reference === `Patient/${patient}`);
-    if (modality) items = items.filter((s) => s.series?.some((ser: any) => ser.modality?.coding?.[0]?.code === modality));
+    if (patient)
+      items = items.filter(
+        (s) => s.subject?.reference === `Patient/${patient}`,
+      );
+    if (modality)
+      items = items.filter((s) =>
+        s.series?.some(
+          (ser: any) => ser.modality?.coding?.[0]?.code === modality,
+        ),
+      );
     return HttpResponse.json({ success: true, data: bundle(items) });
   }),
 
@@ -664,15 +1068,26 @@ export const fhirHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const resource = { resourceType: "Subscription", id: uuidv4(), ...body };
-    try { create("fhirSubscriptions" as any, resource); } catch {}
-    return HttpResponse.json({ success: true, data: resource }, { status: 201 });
+    try {
+      create("fhirSubscriptions" as any, resource);
+    } catch {}
+    return HttpResponse.json(
+      { success: true, data: resource },
+      { status: 201 },
+    );
   }),
 
   http.get(`${API}/Subscription/:id`, async ({ params }) => {
     await delay(delayMs());
     ensureSeeded("fhirSubscriptions", SEED_SUBSCRIPTIONS);
-    const found = list<any>("fhirSubscriptions" as any).find((s) => s.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND" } }, { status: 404 });
+    const found = list<any>("fhirSubscriptions" as any).find(
+      (s) => s.id === params.id,
+    );
+    if (!found)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: found });
   }),
 
@@ -680,13 +1095,52 @@ export const fhirHandlers = [
   http.get(`${API}/Subscription`, async () => {
     await delay(delayMs());
     ensureSeeded("fhirSubscriptions", SEED_SUBSCRIPTIONS);
-    return HttpResponse.json({ success: true, data: list<any>("fhirSubscriptions" as any) });
+    return HttpResponse.json({
+      success: true,
+      data: list<any>("fhirSubscriptions" as any),
+    });
   }),
 
   http.delete(`${API}/Subscription/:id`, async ({ params }) => {
     await delay(delayMs());
-    try { remove("fhirSubscriptions" as any, params.id as string); } catch {}
-    return HttpResponse.json({ success: true, data: { resourceType: "OperationOutcome", issue: [{ severity: "information", code: "deleted" }] } });
+    try {
+      remove("fhirSubscriptions" as any, params.id as string);
+    } catch {}
+    return HttpResponse.json({
+      success: true,
+      data: {
+        resourceType: "OperationOutcome",
+        issue: [{ severity: "information", code: "deleted" }],
+      },
+    });
+  }),
+
+  // ── 通用资源创建 (POST /fhir/r4/{type}) —— fhirApi.createResource / 报告推送到 FHIR 端点 ──
+  // 必须排在 Patient/Subscription 之后, 否则会吞掉既有字面量路由。
+  http.post(`${API}/:type`, async ({ params, request }) => {
+    await delay(delayMs());
+    const type = String(params.type ?? "Patient");
+    if (!SUPPORTED_TYPES.includes(type)) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "NOT_SUPPORTED",
+            message: `${type} create not supported`,
+          },
+        },
+        { status: 400 },
+      );
+    }
+    const body = (await request.json().catch(() => ({}))) as Record<
+      string,
+      unknown
+    >;
+    const resource = { resourceType: type, id: uuidv4(), ...body };
+    return HttpResponse.json(
+      { success: true, data: resource },
+      { status: 201 },
+    );
   }),
 
   // ── Bulk Export ($export / $export-status / $export-jobs) ──
@@ -694,7 +1148,11 @@ export const fhirHandlers = [
     await delay(delayMs(60, 150));
     ensureCohortSeeded();
     const jobId = `bulk-2026-${String(exportSeq++).padStart(3, "0")}`;
-    EXPORT_JOBS.push({ jobId, status: "running", requestTime: new Date().toISOString() });
+    EXPORT_JOBS.push({
+      jobId,
+      status: "running",
+      requestTime: new Date().toISOString(),
+    });
     return HttpResponse.json({ success: true, data: { jobId } });
   }),
 
@@ -733,7 +1191,11 @@ export const fhirHandlers = [
       data: {
         authorization_endpoint: `${API}/auth/authorize`,
         token_endpoint: `${API}/auth/token`,
-        capabilities: ["launch-standalone", "client-public", "context-standalone-patient"],
+        capabilities: [
+          "launch-standalone",
+          "client-public",
+          "context-standalone-patient",
+        ],
       },
     });
   }),
@@ -743,7 +1205,9 @@ export const fhirHandlers = [
     const sp = urlParams(request);
     return HttpResponse.json({
       success: true,
-      data: { redirectUrl: `${sp.get("redirect_uri") ?? "https://app.local/callback"}?code=mock-auth-code&state=${sp.get("state") ?? ""}` },
+      data: {
+        redirectUrl: `${sp.get("redirect_uri") ?? "https://app.local/callback"}?code=mock-auth-code&state=${sp.get("state") ?? ""}`,
+      },
     });
   }),
 
@@ -807,7 +1271,10 @@ export const fhirHandlers = [
     const sp = urlParams(request);
     const name = sp.get("name")?.toLowerCase();
     let result = items;
-    if (name) result = items.filter((r) => JSON.stringify(r).toLowerCase().includes(name));
+    if (name)
+      result = items.filter((r) =>
+        JSON.stringify(r).toLowerCase().includes(name),
+      );
     return HttpResponse.json(bundle(result));
   }),
   http.post(`${API_NO_R4}/:type`, async ({ params, request }) => {
@@ -816,7 +1283,16 @@ export const fhirHandlers = [
     // 仅 Patient 支持创建 (与后端 fhir.controller.ts 一致)
     if (type !== "Patient") {
       return HttpResponse.json(
-        { resourceType: "OperationOutcome", issue: [{ severity: "error", code: "not-supported", details: { text: `${type} create not supported` } }] },
+        {
+          resourceType: "OperationOutcome",
+          issue: [
+            {
+              severity: "error",
+              code: "not-supported",
+              details: { text: `${type} create not supported` },
+            },
+          ],
+        },
         { status: 400 },
       );
     }
