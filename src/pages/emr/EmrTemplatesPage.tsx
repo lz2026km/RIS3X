@@ -18,6 +18,7 @@ import {
 } from "antd";
 import { Plus, Edit3, Copy, FileText } from "lucide-react";
 import { templatesApi } from "../../services/api/templatesApi";
+import { getCurrentUser } from "../../utils/auth";
 import { t } from "../../i18n/appI18n";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { ActionButton } from "../../components/common/ActionButton";
@@ -103,6 +104,7 @@ export const EmrTemplatesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
   const [apiError, setApiError] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
 
   const loadTemplates = useCallback(async () => {
     setLoading(true);
@@ -172,50 +174,52 @@ export const EmrTemplatesPage: React.FC = () => {
     }
   };
 
-  // 编辑模板：Modal 保存到本地状态
-  const handleSaveTemplate = () => {
+  // [v3.0.6.16-8] 新建/编辑模板改走 templatesApi (后端 templates.controller + MSW 均有端点), 此前仅改本地 state 弹绿勾
+  const handleSaveTemplate = async () => {
     const values = form.getFieldsValue();
     if (!values.name?.trim()) {
       message.warning("请填写模板名称");
       return;
     }
-    const sections = String(values.sections || "")
+    const parsedTitles = String(values.sections || "")
       .split(/[,，]/)
       .map((s: string) => s.trim())
-      .filter(Boolean)
-      .map((title) => ({ title, required: true }));
-    if (templateModal?.type === "edit" && templateModal.data?.id) {
-      setTemplates((prev) =>
-        prev.map((t) =>
-          t.id === templateModal.data.id
-            ? {
-                ...t,
-                name: values.name.trim(),
-                category: values.category,
-                sections: sections.length > 0 ? sections : t.sections,
-              }
-            : t,
-        ),
-      );
-      message.success("模板已更新");
-    } else {
-      const newTpl = {
-        id: `tpl-${Date.now()}`,
-        name: values.name.trim(),
-        category: values.category || "Dental",
-        sections:
-          sections.length > 0
-            ? sections
-            : [
-                { title: "主诉", required: true },
-                { title: "诊断", required: true },
-              ],
-        usageCount: 0,
-      };
-      setTemplates((prev) => [...prev, newTpl]);
-      message.success("模板已保存");
+      .filter(Boolean);
+    const fallbackTitles: string[] = Array.isArray(
+      templateModal?.data?.sections,
+    )
+      ? templateModal.data.sections.map((s: any) => s.title)
+      : ["主诉", "诊断"];
+    const titles = parsedTitles.length > 0 ? parsedTitles : fallbackTitles;
+    const category = values.category || "Dental";
+    const isEdit = templateModal?.type === "edit" && !!templateModal.data?.id;
+    setSavingTemplate(true);
+    try {
+      const res = isEdit
+        ? await templatesApi.update(templateModal!.data.id, {
+            name: values.name.trim(),
+            category,
+            body: titles.join("\n"),
+          })
+        : await templatesApi.create({
+            name: values.name.trim(),
+            category,
+            bodyPart: category,
+            body: titles.join("\n"),
+            createdById: getCurrentUser()?.id ?? "u-001",
+          });
+      if (!res.success) {
+        message.error(res.error?.message ?? "模板保存失败");
+        return;
+      }
+      await loadTemplates();
+      message.success(isEdit ? "模板已更新" : "模板已保存");
+      setTemplateModal(null);
+    } catch (e) {
+      message.error((e as Error)?.message ?? "模板保存失败");
+    } finally {
+      setSavingTemplate(false);
     }
-    setTemplateModal(null);
   };
 
   // [v3.0.6.16-6] 复制模板改为调用真实后端 (此前只改本地 state + 弹绿勾)
@@ -493,6 +497,7 @@ export const EmrTemplatesPage: React.FC = () => {
         open={!!templateModal}
         onCancel={() => setTemplateModal(null)}
         onOk={handleSaveTemplate}
+        confirmLoading={savingTemplate}
         width={560}
       >
         <Form

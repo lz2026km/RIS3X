@@ -1,6 +1,6 @@
 // [v3.0.6.8-64] 系统管理后台 (用户+角色+配置)
 // [G005 Wave1A P0-2] 用户创建/删除改走真实 userApi (/users, 后端 users.module), 替代不存在的 /system/admin/users 写端点
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Space,
@@ -16,25 +16,39 @@ import {
   Badge,
   Spin,
 } from "antd";
-import { Plus, Edit3, Trash2, Settings, Save } from 'lucide-react';
-import { systemAdminApi, type SystemUserDto, type SystemRoleDto, type SystemConfigDto } from '../../services/api/systemAdminApi';
-import { userApi } from '../../services/api/userApi';
-import { usePagination } from '../../hooks/usePagination';
-import { t } from '../../i18n/appI18n';
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
-import { ErrorBanner } from '../../components/feedback';
+import { Plus, Edit3, Trash2, Settings, Save } from "lucide-react";
+import {
+  systemAdminApi,
+  type SystemUserDto,
+  type SystemRoleDto,
+  type SystemConfigDto,
+} from "../../services/api/systemAdminApi";
+import { userApi } from "../../services/api/userApi";
+import { usePagination } from "../../hooks/usePagination";
+import { t } from "../../i18n/appI18n";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+  DataSourceBadge,
+} from "../../components/common";
+import { ErrorBanner } from "../../components/feedback";
 
 // [G005 Wave1A P0-2] 中文角色 → userApi 英文枚举
-const ROLE_TO_ENUM: Record<string, 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'> = {
-  '主任医师': 'DOCTOR',
-  '主治医师': 'DOCTOR',
-  '技师': 'TECHNICIAN',
-  '护士': 'NURSE',
-  '管理员': 'ADMIN',
+const ROLE_TO_ENUM: Record<
+  string,
+  "DOCTOR" | "TECHNICIAN" | "NURSE" | "ADMIN" | "DIRECTOR"
+> = {
+  主任医师: "DOCTOR",
+  主治医师: "DOCTOR",
+  技师: "TECHNICIAN",
+  护士: "NURSE",
+  管理员: "ADMIN",
 };
 
 export const SystemAdminPage: React.FC = () => {
-  const [tab, setTab] = useState('users');
+  const [tab, setTab] = useState("users");
   const [users, setUsers] = useState<SystemUserDto[]>([]);
   const [roles, setRoles] = useState<SystemRoleDto[]>([]);
   const [configs, setConfigs] = useState<SystemConfigDto[]>([]);
@@ -44,49 +58,87 @@ export const SystemAdminPage: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
   const [userModal, setUserModal] = useState(false);
-  const [newUserName, setNewUserName] = useState('');
-  const [newUserRole, setNewUserRole] = useState('技师');
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserRole, setNewUserRole] = useState("技师");
   const [roleModal, setRoleModal] = useState(false);
   const [_configEditKey, _setConfigEditKey] = useState<string | null>(null);
   const [editUser, setEditUser] = useState<SystemUserDto | null>(null);
-  const [editUserName, setEditUserName] = useState('');
-  const [editUserRole, setEditUserRole] = useState('');
-  const [editUserDept, setEditUserDept] = useState('');
+  const [editUserName, setEditUserName] = useState("");
+  const [editUserRole, setEditUserRole] = useState("");
+  const [editUserDept, setEditUserDept] = useState("");
   const [editRole, setEditRole] = useState<SystemRoleDto | null>(null);
-  const [editRolePerms, setEditRolePerms] = useState('');
-  const { pageData: pagedUsers, pagination: usersPagination } = usePagination(users);
-  const { pageData: pagedRoles, pagination: rolesPagination } = usePagination(roles);
+  const [editRolePerms, setEditRolePerms] = useState("");
+  const { pageData: pagedUsers, pagination: usersPagination } =
+    usePagination(users);
+  const { pageData: pagedRoles, pagination: rolesPagination } =
+    usePagination(roles);
 
   const openEditUser = (record: SystemUserDto) => {
     setEditUser(record);
     setEditUserName(record.name);
     setEditUserRole(record.role);
-    setEditUserDept(record.dept || '');
+    setEditUserDept(record.dept || "");
     setUserModal(true);
   };
 
-  const handleSaveEditUser = () => {
+  // [v3.0.6.16-8] 用户角色/科室编辑改走 userApi.update (后端 users.controller @Patch(':id')), 此前仅改本地 state 弹绿勾
+  const handleSaveEditUser = async () => {
     if (!editUser) return;
-    const updated = { ...editUser, name: editUserName, role: editUserRole, dept: editUserDept };
-    setUsers(prev => prev.map(u => u.id === editUser.id ? updated : u));
-    setUserModal(false);
-    setEditUser(null);
-    message.success(t('sysAdmin.userUpdated'));
+    const roleEnum = ROLE_TO_ENUM[editUserRole];
+    try {
+      const res = await userApi.update(editUser.id, {
+        fullName: editUserName,
+        department: editUserDept,
+        ...(roleEnum ? { role: roleEnum } : {}),
+      });
+      if (!res.success) {
+        message.error(res.error?.message || t("sysAdmin.saveFailed"));
+        return;
+      }
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === editUser.id
+            ? {
+                ...u,
+                name: res.data?.fullName ?? editUserName,
+                role: editUserRole,
+                dept: res.data?.department ?? editUserDept,
+              }
+            : u,
+        ),
+      );
+      setUserModal(false);
+      setEditUser(null);
+      message.success(t("sysAdmin.userUpdated"));
+    } catch (err) {
+      console.error("[SystemAdmin] updateUser failed:", err);
+      message.error(t("sysAdmin.saveFailed"));
+    }
   };
 
   const openEditRole = (record: SystemRoleDto) => {
     setEditRole(record);
-    setEditRolePerms(record.permissions.join('、'));
+    setEditRolePerms(record.permissions.join("、"));
     setRoleModal(true);
   };
 
   const handleSaveEditRole = () => {
     if (!editRole) return;
-    const perms = editRolePerms.split(/[、,，]/).map(s => s.trim()).filter(Boolean);
-    setRoles(prev => prev.map(r => r.name === editRole.name ? { ...r, permissions: perms } : r));
+    const perms = editRolePerms
+      .split(/[、,，]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    setRoles((prev) =>
+      prev.map((r) =>
+        r.name === editRole.name ? { ...r, permissions: perms } : r,
+      ),
+    );
     setRoleModal(false);
     setEditRole(null);
-    message.success(t('sysAdmin.roleUpdated'));
+    // 后端不提供角色变更端点 (system-admin 只读派生) → 诚实标注为本地演示
+    message.success(
+      `${t("sysAdmin.roleUpdated")}（本地演示，未接入后端，刷新后不保留）`,
+    );
   };
 
   const loadConfigs = async () => {
@@ -105,18 +157,38 @@ export const SystemAdminPage: React.FC = () => {
       setLoading(true);
       setLoadError(null);
       // 用户/角色统计为装饰性数据, fire-and-forget 不阻塞配置加载 (W5)
-      void systemAdminApi.getUsers().then(res => {
-        if (!cancelled && res.success && Array.isArray(res.data)) setUsers(res.data);
-      }).catch(() => { /* noop */ });
-      void systemAdminApi.getRoles().then(res => {
-        if (!cancelled && res.success && Array.isArray(res.data)) setRoles(res.data);
-      }).catch(() => { /* noop */ });
+      void systemAdminApi
+        .getUsers()
+        .then((res) => {
+          if (!cancelled && res.success && Array.isArray(res.data))
+            setUsers(res.data);
+        })
+        .catch(() => {
+          /* noop */
+        });
+      void systemAdminApi
+        .getRoles()
+        .then((res) => {
+          if (!cancelled && res.success && Array.isArray(res.data))
+            setRoles(res.data);
+        })
+        .catch(() => {
+          /* noop */
+        });
       try {
         await loadConfigs();
-      } catch (err) { console.error('[SystemAdmin] load configs failed:', err); if (!cancelled) { setLoadError(t('sysAdmin.loadConfigsFailed')); message.error(t('sysAdmin.loadConfigsFailed')); } }
+      } catch (err) {
+        console.error("[SystemAdmin] load configs failed:", err);
+        if (!cancelled) {
+          setLoadError(t("sysAdmin.loadConfigsFailed"));
+          message.error(t("sysAdmin.loadConfigsFailed"));
+        }
+      }
       if (!cancelled) setLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [reloadTick]);
 
   // [W5] 单项配置保存
@@ -130,7 +202,10 @@ export const SystemAdminPage: React.FC = () => {
       } else {
         message.error(res.error?.message || `保存失败: ${c.key}`);
       }
-    } catch (err) { console.error('[SystemAdmin] saveConfig failed:', err); message.error(t('sysAdmin.saveConfigFailed')); }
+    } catch (err) {
+      console.error("[SystemAdmin] saveConfig failed:", err);
+      message.error(t("sysAdmin.saveConfigFailed"));
+    }
   };
 
   // [W5] 批量保存所有配置
@@ -138,15 +213,21 @@ export const SystemAdminPage: React.FC = () => {
     setSavingConfig(true);
     try {
       const res = await systemAdminApi.saveConfigs(
-        configs.map(c => ({ key: c.key, value: configValues[c.key] ?? c.value })),
+        configs.map((c) => ({
+          key: c.key,
+          value: configValues[c.key] ?? c.value,
+        })),
       );
       if (res.success) {
-        message.success(t('sysAdmin.allConfigsSaved'));
+        message.success(t("sysAdmin.allConfigsSaved"));
         void loadConfigs();
       } else {
-        message.error(res.error?.message || t('sysAdmin.saveFailed'));
+        message.error(res.error?.message || t("sysAdmin.saveFailed"));
       }
-    } catch (err) { console.error('[SystemAdmin] saveConfigs failed:', err); message.error(t('sysAdmin.saveAllFailed')); }
+    } catch (err) {
+      console.error("[SystemAdmin] saveConfigs failed:", err);
+      message.error(t("sysAdmin.saveAllFailed"));
+    }
     setSavingConfig(false);
   };
 
@@ -154,124 +235,371 @@ export const SystemAdminPage: React.FC = () => {
     try {
       const res = await userApi.create({
         username: `user_${Date.now().toString(36)}`,
-        password: 'Passw0rd!',
-        fullName: newUserName || '新用户',
-        role: ROLE_TO_ENUM[newUserRole] ?? 'TECHNICIAN',
+        password: "Passw0rd!",
+        fullName: newUserName || "新用户",
+        role: ROLE_TO_ENUM[newUserRole] ?? "TECHNICIAN",
       });
       if (res.success && res.data) {
-        setUsers(prev => [...prev, {
-          id: res.data.id,
-          name: res.data.fullName,
-          role: newUserRole,
-          dept: res.data.department ?? '',
-          status: res.data.active === false ? 'inactive' : 'active',
-          lastLogin: '',
-        }]);
-        setNewUserName('');
+        setUsers((prev) => [
+          ...prev,
+          {
+            id: res.data.id,
+            name: res.data.fullName,
+            role: newUserRole,
+            dept: res.data.department ?? "",
+            status: res.data.active === false ? "inactive" : "active",
+            lastLogin: "",
+          },
+        ]);
+        setNewUserName("");
         setUserModal(false);
-        message.success(t('sysAdmin.userCreated'));
+        message.success(t("sysAdmin.userCreated"));
       } else {
-        message.error(res.error?.message || t('sysAdmin.createFailed'));
+        message.error(res.error?.message || t("sysAdmin.createFailed"));
       }
-    } catch (err) { console.error('[SystemAdmin] createUser failed:', err); message.error(t('sysAdmin.createUserFailed')); }
+    } catch (err) {
+      console.error("[SystemAdmin] createUser failed:", err);
+      message.error(t("sysAdmin.createUserFailed"));
+    }
   };
 
   const handleDeleteUser = async (record: SystemUserDto) => {
     try {
       const res = await userApi.delete(record.id);
       if (res.success) {
-        setUsers(prev => prev.filter(u => u.id !== record.id));
-        message.success('已删除: ' + record.name);
+        setUsers((prev) => prev.filter((u) => u.id !== record.id));
+        message.success("已删除: " + record.name);
       } else {
-        message.error(res.error?.message || t('sysAdmin.deleteFailed'));
+        message.error(res.error?.message || t("sysAdmin.deleteFailed"));
       }
-    } catch (err) { console.error('[SystemAdmin] deleteUser failed:', err); message.error(t('sysAdmin.deleteUserFailed')); }
+    } catch (err) {
+      console.error("[SystemAdmin] deleteUser failed:", err);
+      message.error(t("sysAdmin.deleteUserFailed"));
+    }
   };
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <Settings size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sysAdmin.title')}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("sysAdmin.title")}
+        </span>
         <Tag color="cyan">v3.0.6.11-35</Tag>
       </Space>
 
-      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t('sysAdmin.statUsers')} value={users.length} />
-        <StatCard title={t('sysAdmin.statRoles')} value={roles.length} />
-        <StatCard title={t('sysAdmin.statOnline')} value="2" color="success" />
+      <StatCardGrid style={{ marginBottom: "var(--space-4, 16px)" }}>
+        <StatCard title={t("sysAdmin.statUsers")} value={users.length} />
+        <StatCard title={t("sysAdmin.statRoles")} value={roles.length} />
+        <StatCard title={t("sysAdmin.statOnline")} value="2" color="success" />
       </StatCardGrid>
 
-      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
+      {loadError && !loading && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
 
       {loading ? (
-        <Card><div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin tip={t('sysAdmin.loading')} /></div></Card>
+        <Card>
+          <div
+            style={{ textAlign: "center", padding: "var(--space-10, 40px)" }}
+          >
+            <Spin tip={t("sysAdmin.loading")} />
+          </div>
+        </Card>
       ) : (
-        <Tabs activeKey={tab} onChange={setTab} type="card"
+        <Tabs
+          activeKey={tab}
+          onChange={setTab}
+          type="card"
           items={[
-            { key:'users', label:t('sysAdmin.tabUsers'), children:
-              <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={() => { setEditUser(null); setUserModal(true) }}>{t('sysAdmin.addUser')}</Button>} title={`${users.length} 用户`}>
-                <DataTable dataSource={pagedUsers} rowKey="id" pagination={usersPagination}
-                  columns={[
-                    {title:t('sysAdmin.colId'),dataIndex:'id'},{title:t('sysAdmin.colName'),dataIndex:'name'},
-                    {title:t('sysAdmin.colRole'),dataIndex:'role',render:(r)=><Tag color="blue">{r}</Tag>},
-                    {title:t('sysAdmin.colDept'),dataIndex:'dept'},
-                    {title:t('sysAdmin.colStatus'),dataIndex:'status',render:(s)=><Badge status={s==='active'?'success':'default'} />},
-                    {title:t('sysAdmin.colLastLogin'),dataIndex:'lastLogin'},
-                    {title:t('sysAdmin.colActions'),render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => openEditUser(record)} title={t('sysAdmin.editUser')}/><Button aria-label="删除" size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
-                  ]} 
-                scroll={{ x: 'max-content' }}/>
-              </Card>
+            {
+              key: "users",
+              label: t("sysAdmin.tabUsers"),
+              children: (
+                <Card
+                  size="small"
+                  extra={
+                    <Button
+                      type="primary"
+                      icon={<Plus size={12} />}
+                      onClick={() => {
+                        setEditUser(null);
+                        setUserModal(true);
+                      }}
+                    >
+                      {t("sysAdmin.addUser")}
+                    </Button>
+                  }
+                  title={`${users.length} 用户`}
+                >
+                  <DataTable
+                    dataSource={pagedUsers}
+                    rowKey="id"
+                    pagination={usersPagination}
+                    columns={[
+                      { title: t("sysAdmin.colId"), dataIndex: "id" },
+                      { title: t("sysAdmin.colName"), dataIndex: "name" },
+                      {
+                        title: t("sysAdmin.colRole"),
+                        dataIndex: "role",
+                        render: (r) => <Tag color="blue">{r}</Tag>,
+                      },
+                      { title: t("sysAdmin.colDept"), dataIndex: "dept" },
+                      {
+                        title: t("sysAdmin.colStatus"),
+                        dataIndex: "status",
+                        render: (s) => (
+                          <Badge
+                            status={s === "active" ? "success" : "default"}
+                          />
+                        ),
+                      },
+                      {
+                        title: t("sysAdmin.colLastLogin"),
+                        dataIndex: "lastLogin",
+                      },
+                      {
+                        title: t("sysAdmin.colActions"),
+                        render: (_, record) => (
+                          <Space>
+                            <Button
+                              size="small"
+                              icon={<Edit3 size={10} />}
+                              onClick={() => openEditUser(record)}
+                              title={t("sysAdmin.editUser")}
+                            />
+                            <Button
+                              aria-label="删除"
+                              size="small"
+                              danger
+                              icon={<Trash2 size={10} />}
+                              onClick={() => handleDeleteUser(record)}
+                            />
+                          </Space>
+                        ),
+                      },
+                    ]}
+                    scroll={{ x: "max-content" }}
+                  />
+                </Card>
+              ),
             },
-            { key:'roles', label:t('sysAdmin.tabRoles'), children:
-              <Card size="small" title={`${roles.length} 角色`}>
-                <DataTable dataSource={pagedRoles} rowKey="name" pagination={rolesPagination} scroll={{ x: 'max-content' }}
-                  columns={[
-                    {title:t('sysAdmin.colRole'),dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
-                    {title:t('sysAdmin.colPermissions'),dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},
-                    {title:t('sysAdmin.colUserCount'),dataIndex:'userCount'},
-                    {title:t('sysAdmin.colActions'),render:(_,record)=><Button size="small" icon={<Edit3 size={10}/>} onClick={() => openEditRole(record)}>{t('sysAdmin.edit')}</Button>},
-                  ]} />
-              </Card>
+            {
+              key: "roles",
+              label: t("sysAdmin.tabRoles"),
+              children: (
+                <Card
+                  size="small"
+                  title={
+                    <Space>
+                      <span>{roles.length} 角色</span>
+                      <DataSourceBadge
+                        kind="hybrid"
+                        label="部分本地"
+                        detail="角色权限为后端只读派生数据，本页的权限编辑仅在前端本地生效，后端暂无角色变更端点。"
+                      />
+                    </Space>
+                  }
+                >
+                  <DataTable
+                    dataSource={pagedRoles}
+                    rowKey="name"
+                    pagination={rolesPagination}
+                    scroll={{ x: "max-content" }}
+                    columns={[
+                      {
+                        title: t("sysAdmin.colRole"),
+                        dataIndex: "name",
+                        render: (r) => <Tag color="purple">{r}</Tag>,
+                      },
+                      {
+                        title: t("sysAdmin.colPermissions"),
+                        dataIndex: "permissions",
+                        render: (p) => (
+                          <>
+                            {p.map((x: string) => (
+                              <Tag key={x} style={{ margin: 2 }}>
+                                {x}
+                              </Tag>
+                            ))}
+                          </>
+                        ),
+                      },
+                      {
+                        title: t("sysAdmin.colUserCount"),
+                        dataIndex: "userCount",
+                      },
+                      {
+                        title: t("sysAdmin.colActions"),
+                        render: (_, record) => (
+                          <Button
+                            size="small"
+                            icon={<Edit3 size={10} />}
+                            onClick={() => openEditRole(record)}
+                          >
+                            {t("sysAdmin.edit")}
+                          </Button>
+                        ),
+                      },
+                    ]}
+                  />
+                </Card>
+              ),
             },
-            { key:'config', label:t('sysAdmin.tabConfig'), children:
-              <Card size="small" title={`配置项 (${configs.length})`}>
-                <List dataSource={configs} renderItem={(c:any)=>(
-                  <List.Item actions={[
-                    <Button key="edit" size="small" type="primary" icon={<Edit3 size={10}/>} onClick={() => handleSaveConfig(c)}>{t('sysAdmin.save')}</Button>,
-                  ]}>
-                    <List.Item.Meta title={<Space wrap>
-                      <Tag color="blue" style={{ minWidth: 200 }}>{c.key}</Tag>
-                      <Input value={configValues[c.key] ?? c.value} onChange={e => setConfigValues(prev => ({ ...prev, [c.key]: e.target.value }))} size="small" style={{ width: 320 }} />
-                    </Space>}
-                      description={<span style={{fontSize:12,color:'#999'}}>{c.desc}</span>} />
-                  </List.Item>
-                )} />
-              </Card>
+            {
+              key: "config",
+              label: t("sysAdmin.tabConfig"),
+              children: (
+                <Card size="small" title={`配置项 (${configs.length})`}>
+                  <List
+                    dataSource={configs}
+                    renderItem={(c: any) => (
+                      <List.Item
+                        actions={[
+                          <Button
+                            key="edit"
+                            size="small"
+                            type="primary"
+                            icon={<Edit3 size={10} />}
+                            onClick={() => handleSaveConfig(c)}
+                          >
+                            {t("sysAdmin.save")}
+                          </Button>,
+                        ]}
+                      >
+                        <List.Item.Meta
+                          title={
+                            <Space wrap>
+                              <Tag color="blue" style={{ minWidth: 200 }}>
+                                {c.key}
+                              </Tag>
+                              <Input
+                                value={configValues[c.key] ?? c.value}
+                                onChange={(e) =>
+                                  setConfigValues((prev) => ({
+                                    ...prev,
+                                    [c.key]: e.target.value,
+                                  }))
+                                }
+                                size="small"
+                                style={{ width: 320 }}
+                              />
+                            </Space>
+                          }
+                          description={
+                            <span style={{ fontSize: 12, color: "#999" }}>
+                              {c.desc}
+                            </span>
+                          }
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+              ),
             },
           ]}
         />
       )}
-      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:'var(--space-4, 16px)'}} loading={savingConfig} onClick={handleSaveAllConfigs}>{t('sysAdmin.saveAllConfigs')}</Button>
-      <Modal title={t('sysAdmin.addUser')} open={userModal} onOk={handleCreateUser} onCancel={() => setUserModal(false)}>
+      <Button
+        type="primary"
+        icon={<Save size={14} />}
+        style={{ marginTop: "var(--space-4, 16px)" }}
+        loading={savingConfig}
+        onClick={handleSaveAllConfigs}
+      >
+        {t("sysAdmin.saveAllConfigs")}
+      </Button>
+      <Modal
+        title={t("sysAdmin.addUser")}
+        open={userModal}
+        onOk={handleCreateUser}
+        onCancel={() => setUserModal(false)}
+      >
         <Form layout="vertical">
-          <Form.Item label={t('sysAdmin.formName')}><Input value={newUserName} onChange={e => setNewUserName(e.target.value)} placeholder={t('sysAdmin.namePlaceholder')} /></Form.Item>
-          <Form.Item label={t('sysAdmin.formRole')}><Select value={newUserRole} onChange={setNewUserRole} options={[{value:'主任医师',label:t('sysAdmin.role.chief')},{value:'主治医师',label:t('sysAdmin.role.attending')},{value:'技师',label:t('sysAdmin.role.technician')},{value:'护士',label:t('sysAdmin.role.nurse')},{value:'管理员',label:t('sysAdmin.role.admin')}]} /></Form.Item>
+          <Form.Item label={t("sysAdmin.formName")}>
+            <Input
+              value={newUserName}
+              onChange={(e) => setNewUserName(e.target.value)}
+              placeholder={t("sysAdmin.namePlaceholder")}
+            />
+          </Form.Item>
+          <Form.Item label={t("sysAdmin.formRole")}>
+            <Select
+              value={newUserRole}
+              onChange={setNewUserRole}
+              options={[
+                { value: "主任医师", label: t("sysAdmin.role.chief") },
+                { value: "主治医师", label: t("sysAdmin.role.attending") },
+                { value: "技师", label: t("sysAdmin.role.technician") },
+                { value: "护士", label: t("sysAdmin.role.nurse") },
+                { value: "管理员", label: t("sysAdmin.role.admin") },
+              ]}
+            />
+          </Form.Item>
         </Form>
       </Modal>
       {editUser && (
-        <Modal title={`编辑用户 - ${editUser.id}`} open={userModal} onOk={handleSaveEditUser} onCancel={() => { setUserModal(false); setEditUser(null); }}>
+        <Modal
+          title={`编辑用户 - ${editUser.id}`}
+          open={userModal}
+          onOk={handleSaveEditUser}
+          onCancel={() => {
+            setUserModal(false);
+            setEditUser(null);
+          }}
+        >
           <Form layout="vertical">
-            <Form.Item label={t('sysAdmin.formName')}><Input value={editUserName} onChange={e => setEditUserName(e.target.value)} /></Form.Item>
-            <Form.Item label={t('sysAdmin.formRole')}><Select value={editUserRole} onChange={setEditUserRole} options={[{value:'主任医师',label:t('sysAdmin.role.chief')},{value:'主治医师',label:t('sysAdmin.role.attending')},{value:'技师',label:t('sysAdmin.role.technician')},{value:'护士',label:t('sysAdmin.role.nurse')},{value:'管理员',label:t('sysAdmin.role.admin')}]} /></Form.Item>
-            <Form.Item label={t('sysAdmin.formDept')}><Input value={editUserDept} onChange={e => setEditUserDept(e.target.value)} /></Form.Item>
+            <Form.Item label={t("sysAdmin.formName")}>
+              <Input
+                value={editUserName}
+                onChange={(e) => setEditUserName(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item label={t("sysAdmin.formRole")}>
+              <Select
+                value={editUserRole}
+                onChange={setEditUserRole}
+                options={[
+                  { value: "主任医师", label: t("sysAdmin.role.chief") },
+                  { value: "主治医师", label: t("sysAdmin.role.attending") },
+                  { value: "技师", label: t("sysAdmin.role.technician") },
+                  { value: "护士", label: t("sysAdmin.role.nurse") },
+                  { value: "管理员", label: t("sysAdmin.role.admin") },
+                ]}
+              />
+            </Form.Item>
+            <Form.Item label={t("sysAdmin.formDept")}>
+              <Input
+                value={editUserDept}
+                onChange={(e) => setEditUserDept(e.target.value)}
+              />
+            </Form.Item>
           </Form>
         </Modal>
       )}
-      <Modal title={t('sysAdmin.editRolePerms')} open={roleModal} onOk={handleSaveEditRole} onCancel={() => { setRoleModal(false); setEditRole(null); }} okText={t('sysAdmin.okSave')}>
+      <Modal
+        title={t("sysAdmin.editRolePerms")}
+        open={roleModal}
+        onOk={handleSaveEditRole}
+        onCancel={() => {
+          setRoleModal(false);
+          setEditRole(null);
+        }}
+        okText={t("sysAdmin.okSave")}
+      >
         <Form layout="vertical">
-          <Form.Item label={`角色: ${editRole?.name ?? ''}`}>
-            <Input.TextArea rows={4} value={editRolePerms} onChange={e => setEditRolePerms(e.target.value)} placeholder={t('sysAdmin.permsPlaceholder')} />
+          <Form.Item label={`角色: ${editRole?.name ?? ""}`}>
+            <Input.TextArea
+              rows={4}
+              value={editRolePerms}
+              onChange={(e) => setEditRolePerms(e.target.value)}
+              placeholder={t("sysAdmin.permsPlaceholder")}
+            />
           </Form.Item>
         </Form>
       </Modal>

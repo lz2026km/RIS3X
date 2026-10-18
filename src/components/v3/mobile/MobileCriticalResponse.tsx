@@ -2,113 +2,234 @@
  * G005 放射RIS系统 v3.0.2 - 移动端 危急值响应
  * 对标:医师手机端 危急值快速响应
  */
-import { Card, Tag, Space, Button, Empty, Statistic, Row, Col, Input, Badge, message, Modal, Form, Radio, List } from 'antd'
-import { Phone, MessageSquare, MapPin, Clock, User, Bell, AlertOctagon, CheckCircle, Volume2, WifiOff } from 'lucide-react'
-import React, { useState, useMemo } from 'react'
-import { BellOff } from 'lucide-react'
-import { t } from '../../../i18n/appI18n'
+import {
+  Card,
+  Tag,
+  Space,
+  Button,
+  Empty,
+  Statistic,
+  Row,
+  Col,
+  Input,
+  Badge,
+  message,
+  Modal,
+  Form,
+  Radio,
+  List,
+} from "antd";
+import {
+  Phone,
+  MessageSquare,
+  MapPin,
+  Clock,
+  User,
+  Bell,
+  AlertOctagon,
+  CheckCircle,
+  Volume2,
+  WifiOff,
+} from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { BellOff } from "lucide-react";
+import { t } from "../../../i18n/appI18n";
 
 export interface MobileCriticalItem {
-  id: string
-  patientName: string
-  patientId: string
-  age: number
-  gender: 'M' | 'F'
-  modality: string
-  bodyPart?: string
-  finding: string
-  category: 'LIFE_THREATENING' | 'URGENT' | 'IMPORTANT'
-  triggeredAt: string
-  triggeredBy: string
-  state: 'PENDING' | 'NOTIFIED' | 'ACKED' | 'COMPLETED'
+  id: string;
+  patientName: string;
+  patientId: string;
+  age: number;
+  gender: "M" | "F";
+  modality: string;
+  bodyPart?: string;
+  finding: string;
+  category: "LIFE_THREATENING" | "URGENT" | "IMPORTANT";
+  triggeredAt: string;
+  triggeredBy: string;
+  state: "PENDING" | "NOTIFIED" | "ACKED" | "COMPLETED";
   /** 接收方 */
-  recipientName: string
-  recipientDept: string
+  recipientName: string;
+  recipientDept: string;
   /** 床位 */
-  bedNumber?: string
+  bedNumber?: string;
   /** 病情 */
-  wardLocation?: string
+  wardLocation?: string;
+  /** 接收方电话 (存在时「一键呼叫」走 tel: 真实拨号) */
+  recipientPhone?: string;
 }
 
-const CATEGORY_META: Record<MobileCriticalItem['category'], { color: string; label: string; sla: number; sound: number }> = {
-  LIFE_THREATENING: { color: 'red', label: t('w9e.mobileCritical.catLifeThreatening'), sla: 300, sound: 3 },
-  URGENT: { color: 'orange', label: t('w9e.mobileCritical.catUrgent'), sla: 1800, sound: 2 },
-  IMPORTANT: { color: 'gold', label: t('w9e.mobileCritical.catImportant'), sla: 3600, sound: 1 },
-}
+const CATEGORY_META: Record<
+  MobileCriticalItem["category"],
+  { color: string; label: string; sla: number; sound: number }
+> = {
+  LIFE_THREATENING: {
+    color: "red",
+    label: t("w9e.mobileCritical.catLifeThreatening"),
+    sla: 300,
+    sound: 3,
+  },
+  URGENT: {
+    color: "orange",
+    label: t("w9e.mobileCritical.catUrgent"),
+    sla: 1800,
+    sound: 2,
+  },
+  IMPORTANT: {
+    color: "gold",
+    label: t("w9e.mobileCritical.catImportant"),
+    sla: 3600,
+    sound: 1,
+  },
+};
 
 export interface MobileCriticalResponseProps {
-  items: MobileCriticalItem[]
-  onAck?: (id: string, responder: string) => void
-  onCall?: (id: string) => void
-  onMessage?: (id: string, content: string) => void
+  items: MobileCriticalItem[];
+  /** 返回 false 表示操作失败 (组件不再弹成功提示) */
+  onAck?: (
+    id: string,
+    responder: string,
+  ) => boolean | void | Promise<boolean | void>;
+  onCall?: (id: string) => boolean | void | Promise<boolean | void>;
+  onMessage?: (
+    id: string,
+    content: string,
+  ) => boolean | void | Promise<boolean | void>;
   /** 当前用户 */
-  currentUser: string
-  offline?: boolean
+  currentUser: string;
+  offline?: boolean;
 }
 
-export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ items, onAck, onCall, onMessage, currentUser, offline }) => {
-  const [selected, setSelected] = useState<MobileCriticalItem | null>(null)
-  const [ackModal, setAckModal] = useState(false)
-  const [messageModal, setMessageModal] = useState(false)
-  const [ackResponder, setAckResponder] = useState(currentUser)
-  const [messageText, setMessageText] = useState('')
-  const [notifyMethod, setNotifyMethod] = useState<'CALL' | 'SMS' | 'WECHAT'>('CALL')
+export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({
+  items,
+  onAck,
+  onCall,
+  onMessage,
+  currentUser,
+  offline,
+}) => {
+  const [selected, setSelected] = useState<MobileCriticalItem | null>(null);
+  const [ackModal, setAckModal] = useState(false);
+  const [messageModal, setMessageModal] = useState(false);
+  const [ackResponder, setAckResponder] = useState(currentUser);
+  const [messageText, setMessageText] = useState("");
+  const [notifyMethod, setNotifyMethod] = useState<"CALL" | "SMS" | "WECHAT">(
+    "CALL",
+  );
 
   const stats = useMemo(() => {
     return {
-      pending: items.filter((i) => i.state === 'PENDING' || i.state === 'NOTIFIED').length,
-      lifeThreatening: items.filter((i) => i.category === 'LIFE_THREATENING' && i.state !== 'COMPLETED' && i.state !== 'ACKED').length,
-      acked: items.filter((i) => i.state === 'ACKED' || i.state === 'COMPLETED').length,
-    }
-  }, [items])
+      pending: items.filter(
+        (i) => i.state === "PENDING" || i.state === "NOTIFIED",
+      ).length,
+      lifeThreatening: items.filter(
+        (i) =>
+          i.category === "LIFE_THREATENING" &&
+          i.state !== "COMPLETED" &&
+          i.state !== "ACKED",
+      ).length,
+      acked: items.filter((i) => i.state === "ACKED" || i.state === "COMPLETED")
+        .length,
+    };
+  }, [items]);
 
-  const handleAck = () => {
-    if (selected && ackResponder) {
-      onAck?.(selected.id, ackResponder)
-      setAckModal(false)
-      setSelected(null)
-      void message.success(t('w9e.mobileCritical.ackReceived'))
+  const handleAck = async () => {
+    if (!selected) return;
+    if (!ackResponder) {
+      void message.warning(t("w9e.mobileCritical.ackNameRequired"));
+      return;
     }
-  }
+    if (!onAck) {
+      void message.warning(t("w9e.mobileCritical.ackUnavailable"));
+      return;
+    }
+    const ok = await onAck(selected.id, ackResponder);
+    if (ok === false) return;
+    setAckModal(false);
+    setSelected(null);
+    void message.success(t("w9e.mobileCritical.ackReceived"));
+  };
 
-  const handleSendMessage = () => {
-    if (selected && messageText) {
-      onMessage?.(selected.id, messageText)
-      setMessageText('')
-      setMessageModal(false)
-      void message.success(t('w9e.mobileCritical.sent'))
+  const handleSendMessage = async () => {
+    if (!selected || !messageText.trim()) return;
+    if (!onMessage) {
+      void message.warning(t("w9e.mobileCritical.messageUnavailable"));
+      return;
     }
-  }
+    const ok = await onMessage(selected.id, messageText);
+    if (ok === false) return;
+    setMessageText("");
+    setMessageModal(false);
+    void message.success(t("w9e.mobileCritical.sent"));
+  };
+
+  const handleCall = async () => {
+    if (!selected) return;
+    if (!onCall) {
+      void message.warning(t("w9e.mobileCritical.callUnavailable"));
+      return;
+    }
+    const ok = await onCall(selected.id);
+    if (ok === false) return;
+    void message.success(t("w9e.mobileCritical.callStarted"));
+  };
 
   return (
     <div
       data-testid="mobile-critical-response"
       style={{
         maxWidth: 480,
-        margin: '0 auto',
-        padding: 'var(--space-3, 12px)',
-        background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif',
+        margin: "0 auto",
+        padding: "var(--space-3, 12px)",
+        background: "var(--bg-primary)",
+        fontFamily: "-apple-system, sans-serif",
       }}
     >
       {offline && (
-        <div style={{ textAlign: 'center', marginBottom: 'var(--space-2, 8px)' }} data-testid="mob-cv-offline-badge">
-          <Tag icon={<WifiOff size={12} />} color="warning">{t('w9e.mobileCritical.offline')}</Tag>
+        <div
+          style={{ textAlign: "center", marginBottom: "var(--space-2, 8px)" }}
+          data-testid="mob-cv-offline-badge"
+        >
+          <Tag icon={<WifiOff size={12} />} color="warning">
+            {t("w9e.mobileCritical.offline")}
+          </Tag>
         </div>
       )}
-      <Row gutter={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+      <Row gutter={8} style={{ marginBottom: "var(--space-3, 12px)" }}>
         <Col span={8}>
           <Card>
-            <Statistic title={t('w9e.mobileCritical.pendingStat')} value={stats.pending} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} prefix={<Bell size={14} />} />
+            <Statistic
+              title={t("w9e.mobileCritical.pendingStat")}
+              value={stats.pending}
+              styles={{
+                content: { fontSize: 18, color: "var(--color-error-600)" },
+              }}
+              prefix={<Bell size={14} />}
+            />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic title={t('w9e.mobileCritical.lifeThreatening')} value={stats.lifeThreatening} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} prefix={<AlertOctagon size={14} />} />
+            <Statistic
+              title={t("w9e.mobileCritical.lifeThreatening")}
+              value={stats.lifeThreatening}
+              styles={{
+                content: { fontSize: 18, color: "var(--color-error-600)" },
+              }}
+              prefix={<AlertOctagon size={14} />}
+            />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic title={t('w9e.mobileCritical.acked')} value={stats.acked} styles={{ content: {  fontSize: 18, color: 'var(--color-success-600)'  } }} prefix={<CheckCircle size={14} />} />
+            <Statistic
+              title={t("w9e.mobileCritical.acked")}
+              value={stats.acked}
+              styles={{
+                content: { fontSize: 18, color: "var(--color-success-600)" },
+              }}
+              prefix={<CheckCircle size={14} />}
+            />
           </Card>
         </Col>
       </Row>
@@ -117,20 +238,28 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
         <div
           data-testid="mob-critical-alert-banner"
           style={{
-            background: '#fee2e2',
-            border: '1px solid var(--color-error-600)',
+            background: "#fee2e2",
+            border: "1px solid var(--color-error-600)",
             borderRadius: 6,
-            padding: 'var(--space-2, 8px)',
-            marginBottom: 'var(--space-3, 12px)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2, 8px)',
-            animation: 'pulse 1.5s infinite',
+            padding: "var(--space-2, 8px)",
+            marginBottom: "var(--space-3, 12px)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+            animation: "pulse 1.5s infinite",
           }}
         >
           <Volume2 size={20} color="var(--color-error-600)" />
-          <span style={{ fontSize: 14, color: 'var(--color-error-600)', fontWeight: 600 }}>
-            {t('w9e.mobileCritical.alertBanner', { count: stats.lifeThreatening })}
+          <span
+            style={{
+              fontSize: 14,
+              color: "var(--color-error-600)",
+              fontWeight: 600,
+            }}
+          >
+            {t("w9e.mobileCritical.alertBanner", {
+              count: stats.lifeThreatening,
+            })}
           </span>
         </div>
       )}
@@ -138,7 +267,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
       <List
         dataSource={items}
         renderItem={(i) => {
-          const c = CATEGORY_META[i.category]
+          const c = CATEGORY_META[i.category];
           return (
             <Card
               key={i.id}
@@ -147,35 +276,72 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               onClick={() => setSelected(i)}
               data-testid={`mob-cv-${i.id}`}
               style={{
-                marginBottom: 'var(--space-2, 8px)',
+                marginBottom: "var(--space-2, 8px)",
                 borderLeft: `4px solid`,
-                borderLeftColor: c.color === 'red' ? 'var(--color-error-600)' : c.color === 'orange' ? '#ca8a04' : '#ca8a04',
-                background: c.color === 'red' ? '#fef2f2' : undefined,
+                borderLeftColor:
+                  c.color === "red"
+                    ? "var(--color-error-600)"
+                    : c.color === "orange"
+                      ? "#ca8a04"
+                      : "#ca8a04",
+                background: c.color === "red" ? "#fef2f2" : undefined,
               }}
             >
               <Space size={4} wrap>
                 <Badge count={c.label} color={c.color} />
                 <Tag color="blue">{i.modality}</Tag>
                 {i.bodyPart && <Tag>{i.bodyPart}</Tag>}
-                <Tag color={i.state === 'PENDING' ? 'default' : i.state === 'ACKED' ? 'cyan' : i.state === 'COMPLETED' ? 'green' : 'blue'}>
-                  {i.state === 'PENDING' ? t('w9e.mobileCritical.statePending') : i.state === 'NOTIFIED' ? t('w9e.mobileCritical.stateNotified') : i.state === 'ACKED' ? t('w9e.mobileCritical.stateAcked') : t('w9e.mobileCritical.stateCompleted')}
+                <Tag
+                  color={
+                    i.state === "PENDING"
+                      ? "default"
+                      : i.state === "ACKED"
+                        ? "cyan"
+                        : i.state === "COMPLETED"
+                          ? "green"
+                          : "blue"
+                  }
+                >
+                  {i.state === "PENDING"
+                    ? t("w9e.mobileCritical.statePending")
+                    : i.state === "NOTIFIED"
+                      ? t("w9e.mobileCritical.stateNotified")
+                      : i.state === "ACKED"
+                        ? t("w9e.mobileCritical.stateAcked")
+                        : t("w9e.mobileCritical.stateCompleted")}
                 </Tag>
               </Space>
-              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 'var(--space-1, 4px)' }}>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: 600,
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
                 {i.patientName} <Tag>{i.patientId}</Tag>
               </div>
-              <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{i.finding}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-                <User size={10} /> {i.recipientName} ({i.recipientDept}) · <Clock size={10} /> {i.triggeredAt}
+              <div style={{ fontSize: 12, color: "#475569", marginTop: 2 }}>
+                {i.finding}
+              </div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                <User size={10} /> {i.recipientName} ({i.recipientDept}) ·{" "}
+                <Clock size={10} /> {i.triggeredAt}
               </div>
             </Card>
-          )
+          );
         }}
-        locale={{ emptyText: <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description={t('w9e.mobileCritical.noCritical')} /> }}
+        locale={{
+          emptyText: (
+            <Empty
+              image={<BellOff size={48} style={{ opacity: 0.4 }} />}
+              description={t("w9e.mobileCritical.noCritical")}
+            />
+          ),
+        }}
       />
 
       <Modal
-        title={t('w9e.mobileCritical.detailTitle')}
+        title={t("w9e.mobileCritical.detailTitle")}
         open={!!selected}
         onCancel={() => setSelected(null)}
         footer={null}
@@ -183,26 +349,50 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
         data-testid="mob-cv-modal"
       >
         {selected && (
-          <Space orientation="vertical" size={8} style={{ width: '100%' }}>
-            <Card size="small" style={{ background: '#fef2f2' }}>
-              <div style={{ fontSize: 16, fontWeight: 600 }}>{selected.patientName}</div>
-              <div style={{ fontSize: 12, color: '#475569' }}>
-                {selected.gender === 'M' ? t('w9e.mobileCritical.male') : t('w9e.mobileCritical.female')} · {t('w9e.mobileCritical.ageSuffix', { age: selected.age })} · {selected.modality} {selected.bodyPart ?? ''}
+          <Space orientation="vertical" size={8} style={{ width: "100%" }}>
+            <Card size="small" style={{ background: "#fef2f2" }}>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>
+                {selected.patientName}
               </div>
-              <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>
-                <MapPin size={10} /> {selected.wardLocation ?? t('w9e.mobileCritical.outpatient')} {selected.bedNumber ? t('w9e.mobileCritical.bedSuffix', { bed: selected.bedNumber }) : ''}
+              <div style={{ fontSize: 12, color: "#475569" }}>
+                {selected.gender === "M"
+                  ? t("w9e.mobileCritical.male")
+                  : t("w9e.mobileCritical.female")}{" "}
+                · {t("w9e.mobileCritical.ageSuffix", { age: selected.age })} ·{" "}
+                {selected.modality} {selected.bodyPart ?? ""}
+              </div>
+              <div style={{ fontSize: 12, marginTop: "var(--space-1, 4px)" }}>
+                <MapPin size={10} />{" "}
+                {selected.wardLocation ?? t("w9e.mobileCritical.outpatient")}{" "}
+                {selected.bedNumber
+                  ? t("w9e.mobileCritical.bedSuffix", {
+                      bed: selected.bedNumber,
+                    })
+                  : ""}
               </div>
             </Card>
-            <Card size="small" title={t('w9e.mobileCritical.finding')}>
-              <div style={{ fontSize: 14, color: 'var(--color-error-600)', fontWeight: 500 }}>{selected.finding}</div>
+            <Card size="small" title={t("w9e.mobileCritical.finding")}>
+              <div
+                style={{
+                  fontSize: 14,
+                  color: "var(--color-error-600)",
+                  fontWeight: 500,
+                }}
+              >
+                {selected.finding}
+              </div>
             </Card>
-            <Card size="small" title={t('w9e.mobileCritical.recipient')}>
+            <Card size="small" title={t("w9e.mobileCritical.recipient")}>
               <div style={{ fontSize: 12 }}>
-                <strong>{selected.recipientName}</strong> ({selected.recipientDept})
+                <strong>{selected.recipientName}</strong> (
+                {selected.recipientDept})
               </div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9e.mobileCritical.triggeredPrefix')}{selected.triggeredAt} · {selected.triggeredBy}</div>
+              <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                {t("w9e.mobileCritical.triggeredPrefix")}
+                {selected.triggeredAt} · {selected.triggeredBy}
+              </div>
             </Card>
-            <Space style={{ width: '100%' }} orientation="vertical" size={6}>
+            <Space style={{ width: "100%" }} orientation="vertical" size={6}>
               <Button
                 type="primary"
                 block
@@ -212,15 +402,15 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
                 onClick={() => setAckModal(true)}
                 data-testid="mob-cv-ack"
               >
-                {t('w9e.mobileCritical.iAck')}
+                {t("w9e.mobileCritical.iAck")}
               </Button>
               <Button
                 block
                 icon={<Phone size={14} />}
-                onClick={() => onCall?.(selected.id)}
+                onClick={() => void handleCall()}
                 data-testid="mob-cv-call"
               >
-                {t('w9e.mobileCritical.oneClickCall')}
+                {t("w9e.mobileCritical.oneClickCall")}
               </Button>
               <Button
                 block
@@ -228,7 +418,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
                 onClick={() => setMessageModal(true)}
                 data-testid="mob-cv-msg"
               >
-                {t('w9e.mobileCritical.sendMessage')}
+                {t("w9e.mobileCritical.sendMessage")}
               </Button>
             </Space>
           </Space>
@@ -236,14 +426,14 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
       </Modal>
 
       <Modal
-        title={t('w9e.mobileCritical.ackModalTitle')}
+        title={t("w9e.mobileCritical.ackModalTitle")}
         open={ackModal}
         onCancel={() => setAckModal(false)}
         onOk={handleAck}
         data-testid="mob-cv-ack-modal"
       >
         <Form layout="vertical">
-          <Form.Item label={t('w9e.mobileCritical.ackPerson')}>
+          <Form.Item label={t("w9e.mobileCritical.ackPerson")}>
             <Input
               value={ackResponder}
               onChange={(e) => setAckResponder(e.target.value)}
@@ -254,37 +444,40 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
       </Modal>
 
       <Modal
-        title={t('w9e.mobileCritical.sendMessage')}
+        title={t("w9e.mobileCritical.sendMessage")}
         open={messageModal}
         onCancel={() => setMessageModal(false)}
         onOk={handleSendMessage}
         data-testid="mob-cv-msg-modal"
       >
         <Form layout="vertical">
-          <Form.Item label={t('w9e.mobileCritical.notifyMethod')}>
+          <Form.Item label={t("w9e.mobileCritical.notifyMethod")}>
             <Radio.Group
               value={notifyMethod}
               onChange={(e) => setNotifyMethod(e.target.value)}
               options={[
-                { value: 'CALL', label: t('w9e.mobileCritical.methodCall') },
-                { value: 'SMS', label: t('w9e.mobileCritical.methodSms') },
-                { value: 'WECHAT', label: t('w9e.mobileCritical.methodWechat') },
+                { value: "CALL", label: t("w9e.mobileCritical.methodCall") },
+                { value: "SMS", label: t("w9e.mobileCritical.methodSms") },
+                {
+                  value: "WECHAT",
+                  label: t("w9e.mobileCritical.methodWechat"),
+                },
               ]}
             />
           </Form.Item>
-          <Form.Item label={t('w9e.mobileCritical.msgContent')}>
+          <Form.Item label={t("w9e.mobileCritical.msgContent")}>
             <Input.TextArea
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               rows={4}
-              placeholder={t('w9e.mobileCritical.msgPlaceholder')}
+              placeholder={t("w9e.mobileCritical.msgPlaceholder")}
               data-testid="mob-cv-msg-text"
             />
           </Form.Item>
         </Form>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default MobileCriticalResponse
+export default MobileCriticalResponse;

@@ -145,25 +145,22 @@ export const PixPage: React.FC = () => {
         gender: values.gender || "U",
       };
       const res = await iheApi.pixFeed(body);
-      if (res.success) {
+      const ack = res.success ? res.data?.ack : undefined;
+      if (res.success && ack === "AA") {
         setFeedResult({
           success: true,
-          ack: res.data.ack,
+          ack: "AA",
           storedPid: res.data.storedPid || pid,
         });
         message.success(t("pixPage.feedSuccess"));
       } else {
-        setFeedResult({ success: false, ack: "AE" });
+        setFeedResult({ success: false, ack: ack ?? "AE" });
         message.error(t("pixPage.feedFailed"));
       }
     } catch (err) {
-      console.warn("[PixPage] PIX Feed 服务不可用，已使用演示响应", err);
-      message.warning(t("pixPage.feedFallback"));
-      setFeedResult({
-        success: true,
-        ack: "AA",
-        storedPid: pid || feedForm.getFieldValue("patientId"),
-      });
+      console.warn("[PixPage] PIX Feed request failed", err);
+      setFeedResult({ success: false, ack: "AE" });
+      message.error(t("pixPage.feedFailed"));
     }
     setSending(false);
   }, [feedForm]);
@@ -171,7 +168,6 @@ export const PixPage: React.FC = () => {
   const handleQuery = useCallback(async () => {
     setQuerying(true);
     setQueryResult(null);
-    const qv = queryForm.getFieldsValue();
     try {
       const values = await queryForm.validateFields();
       const body = {
@@ -189,28 +185,8 @@ export const PixPage: React.FC = () => {
         message.error(t("pixPage.queryFailed"));
       }
     } catch (err) {
-      console.warn("[PixPage] PIX 查询服务不可用，已使用演示数据", err);
-      message.warning(t("pixPage.queryFallback"));
-      const mockPid = qv.patientId || "P001";
-      const mockSrc = qv.sourceDomain || "HOSPITAL_A";
-      const domains = (qv.targetDomains || "HOSPITAL_B")
-        .split("\n")
-        .filter(Boolean)
-        .map((s: string) => s.trim());
-      setQueryResult({
-        transaction: `TXN-${Date.now()}`,
-        count: domains.length,
-        patientId: mockPid,
-        sourceDomain: mockSrc,
-        results: domains.map((d: string) => ({
-          patientId: mockPid,
-          assigningAuthority: d,
-          identifiers: [
-            { domain: d, value: `${d}-${mockPid}`, assigningAuthority: d },
-          ],
-          name: { family: "张", given: ["三"] },
-        })),
-      });
+      console.warn("[PixPage] PIX query request failed", err);
+      message.error(t("pixPage.queryFailed"));
     }
     setQuerying(false);
   }, [queryForm]);
@@ -236,32 +212,8 @@ export const PixPage: React.FC = () => {
         message.error(t("pixPage.pdqFailed"));
       }
     } catch (err) {
-      console.warn("[PixPage] PDQ 服务不可用，已使用演示数据", err);
-      message.warning(t("pixPage.pdqFallback"));
-      setPdqResults([
-        {
-          patientId: "P001",
-          assigningAuthority: "HOSPITAL_A",
-          identifiers: [{ domain: "HOSPITAL_A", value: "P001" }],
-          name: { family: "张", given: ["三"] },
-          birthDate: "1985-06-15",
-          gender: "M",
-          address: "测试地址1",
-          phone: "13800138001",
-          confidence: 0.98,
-        },
-        {
-          patientId: "CL-1002",
-          assigningAuthority: "CLINIC_B",
-          identifiers: [{ domain: "CLINIC_B", value: "CL-1002" }],
-          name: { family: "张", given: ["三"] },
-          birthDate: "1985-06-15",
-          gender: "M",
-          address: "测试地址2",
-          phone: "13800138002",
-          confidence: 0.85,
-        },
-      ]);
+      console.warn("[PixPage] PDQ query request failed", err);
+      message.error(t("pixPage.pdqFailed"));
     }
     setPdqLoading(false);
   }, [pdqForm]);

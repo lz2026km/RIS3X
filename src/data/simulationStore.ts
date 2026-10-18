@@ -94,23 +94,16 @@ export const addDays = (days: number, fromDate: Date = new Date()): Date => {
 };
 
 // ==================== API 调用模拟 ====================
+// [G005 v3.0.6.16-7] 去掉 8% 随机失败: 本地模拟调用只做延时, 不再随机抛错
 export const simulateApiCall = <T>(
   data: T,
   options: ApiCallOptions = {},
 ): Promise<T> => {
-  const {
-    delay = 1500,
-    successRate = 0.92,
-    errorMessage = "操作失败，请稍后重试",
-  } = options;
+  const { delay = 1500 } = options;
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
-      if (Math.random() < successRate) {
-        resolve(data);
-      } else {
-        reject(new Error(errorMessage));
-      }
+      resolve(data);
     }, delay);
   });
 };

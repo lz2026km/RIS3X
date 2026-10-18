@@ -153,6 +153,10 @@ export default {
     "w9d.panoramic.annotationList": "标注列表",
     "w9d.panoramic.delete": "删",
     "w9d.panoramic.noAnnotations": "暂无标注",
+    "w9d.panoramic.color": "标注颜色",
+    "w9d.panoramic.imageLoading": "影像加载中...",
+    "w9d.panoramic.placeholderNotice":
+      "当前为演示占位影像，未加载真实 DICOM 影像",
 
     // ---- AnnotationOverlay ----
     "w9d.annotation.panelTitle": "标注工具",
@@ -1129,6 +1133,10 @@ export default {
     "w9d.panoramic.annotationList": "Annotation List",
     "w9d.panoramic.delete": "Del",
     "w9d.panoramic.noAnnotations": "No annotations",
+    "w9d.panoramic.color": "Annotation color",
+    "w9d.panoramic.imageLoading": "Loading image...",
+    "w9d.panoramic.placeholderNotice":
+      "Demo placeholder image: no real DICOM image loaded",
 
     // ---- AnnotationOverlay ----
     "w9d.annotation.panelTitle": "Annotation Tools",

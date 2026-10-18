@@ -227,12 +227,6 @@ const TriageTab: React.FC = () => {
     });
   }, []);
 
-  const setStatus = useCallback((id: string, status: TriageStatus) => {
-    setQueue((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status } : item)),
-    );
-  }, []);
-
   const handleAssign = useCallback(() => {
     if (selectedKeys.length === 0) {
       message.warning(t("w4ai.triage.selectFirst"));
@@ -394,20 +388,15 @@ const TriageTab: React.FC = () => {
                 title={t("w4ai.triage.moveDown")}
                 aria-label={t("w4ai.triage.moveDown")}
               />
+              {/* [G005 v3.0.6.16-7] 后端无队列状态流转端点: 禁用而非弹出"操作未生效" */}
               <ActionButton
                 action="edit"
                 size="compact"
                 icon={<Hand size={13} />}
                 title={t("w4ai.triage.hold")}
                 aria-label={t("w4ai.triage.hold")}
-                onClick={() => {
-                  // [G005 v3.0.6.16-0] 后端无"挂起/复核/采纳"状态流转端点
-                  // (POST /triage/assign 需要检查级临床输入 ESI/生命体征, 不是队列项状态切换),
-                  // 旧实现仅改本地 state 却弹绿色成功提示。改为明确告知未接入, 不再伪造成功。
-                  message.warning(
-                    t("w4ai.triage.holdNotSupported", { name: r.patientName }),
-                  );
-                }}
+                disabled
+                disabledReason={t("w4ai.disabled.triage")}
               />
               <ActionButton
                 action="edit"
@@ -415,13 +404,8 @@ const TriageTab: React.FC = () => {
                 icon={<Gauge size={13} />}
                 title={t("w4ai.triage.review")}
                 aria-label={t("w4ai.triage.review")}
-                onClick={() => {
-                  message.warning(
-                    t("w4ai.triage.reviewNotSupported", {
-                      name: r.patientName,
-                    }),
-                  );
-                }}
+                disabled
+                disabledReason={t("w4ai.disabled.triage")}
               />
               <ActionButton
                 action="submit"
@@ -429,18 +413,15 @@ const TriageTab: React.FC = () => {
                 icon={<CheckCircle2 size={13} />}
                 title={t("w4ai.triage.adopt")}
                 aria-label={t("w4ai.triage.adopt")}
-                onClick={() => {
-                  message.warning(
-                    t("w4ai.triage.adoptNotSupported", { name: r.patientName }),
-                  );
-                }}
+                disabled
+                disabledReason={t("w4ai.disabled.triage")}
               />
             </Space>
           );
         },
       },
     ],
-    [move, queue, setStatus],
+    [move, queue],
   );
 
   return (

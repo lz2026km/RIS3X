@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { reportQualityApi } from "../../services/api";
 import { ErrorBanner } from "../../components/feedback";
-import { DataTable } from "../../components/common";
+import { DataTable, DataSourceBadge } from "../../components/common";
 import { FilterBar } from "../../components/common/FilterBar";
 import { t } from "../../i18n/appI18n";
 
@@ -269,6 +269,12 @@ export default function DepartmentQualityPage() {
         >
           <CheckCircle size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>科室质量管理</span>
+          {/* [v3.0.6.16-8] 除「当前评分」来自后端统计外, 本页趋势/检查项/分布/最近检查均为内置演示数据 (诚实披露) */}
+          <DataSourceBadge
+            kind="hybrid"
+            label="部分本地"
+            detail="本页仅「当前评分」取自后端统计；评分趋势、检查项、等级分布、最近检查均为内置演示数据，不代表真实业务数据。"
+          />
         </div>
         <button
           onClick={handleExportQualityReport}

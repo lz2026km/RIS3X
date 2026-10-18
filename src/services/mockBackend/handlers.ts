@@ -7,300 +7,321 @@
  *   + 业务子模块 worklist / device / critical / appointment / print
  */
 
-import { w7ExecHandlers } from './w7ExecHandlers';
+import { w7ExecHandlers } from "./w7ExecHandlers";
 // [G005 W10-Interop] 集成/互操作: XDS.b/XCA/XDR + 接口监控/重试队列 + CDS Hooks + HL7 ORU 发布
 //   必须最前置注册 (静态子路径需先于既有 /ihe/* 参数路由)
-import { w10InteropHandlers } from './w10InteropHandlers';
+import { w10InteropHandlers } from "./w10InteropHandlers";
 // [G005 W11-DeviceOps] 设备运维中心: 工单状态机/校准认证/资产折旧/OEE/成本DRG/定时报表
 //   必须最前置注册 (静态子路径需先于既有通配路由)
-import { w11DeviceHandlers } from './w11DeviceHandlers';
+import { w11DeviceHandlers } from "./w11DeviceHandlers";
 // [G005 W12-PatientService] 患者服务专业化: 微信/支付/通知渠道/满意度/自助登记
 //   必须最前置注册 (新增前缀, 需先于既有通配/参数路由)
-import { w12PatientHandlers } from './w12PatientHandlers';
+import { w12PatientHandlers } from "./w12PatientHandlers";
 // [G005 W9-QC] 质量管理专业化: 统一量表/40指标计算/PDCA整改/抽查双盲/缺陷库/设备质控
 //   必须最前置注册 (静态子路径需先于既有 /quality-indicators/:code 、/qc-pdca/:id 参数路由)
-import { w9QcHandlers } from './w9QcHandlers';
+import { w9QcHandlers } from "./w9QcHandlers";
 // [G005 W13-Security] 安全与合规中心: RA/OCSP/HSM/字段加密/等保评估/灾难恢复/审计链
 //   必须最前置注册 (/security、/ocsp、/compliance 子路径需先于既有通配/参数路由)
-import { w13SecurityHandlers } from './w13SecurityHandlers';
+import { w13SecurityHandlers } from "./w13SecurityHandlers";
 // [G005 W1-Controls] P0 无效果按钮真实化 (EMR 新建/XDS 文档调阅/自助凭证/报告签名) — 最前置注册
-import { w1ControlsHandlers } from './w1ControlsHandlers';
-import { privacyHandlers } from './privacyHandlers';
+import { w1ControlsHandlers } from "./w1ControlsHandlers";
+import { privacyHandlers } from "./privacyHandlers";
 // [G005 W4A] 报告/审计域 孤儿端点 (审计链/分级审核规则/互评缺陷/缺陷库单项/报告补发/预签校验) — 必须最前置注册
-import { w4aOrphansHandlers } from './w4aOrphansHandlers';
+import { w4aOrphansHandlers } from "./w4aOrphansHandlers";
 // [G005 W4B] 临床/集成域 孤儿端点 (检查号解析/改期历史/XDS 文档调阅/传输队列处理/DR 演练详情/字段加密自检) — 必须更前置注册
-import { w4bOrphansHandlers } from './w4bOrphansHandlers';
-import { http, HttpResponse, delay } from 'msw';
-import { newPagesHandlers } from './newPagesHandlers';
+import { w4bOrphansHandlers } from "./w4bOrphansHandlers";
+import { http, HttpResponse, delay } from "msw";
+import { newPagesHandlers } from "./newPagesHandlers";
 // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
-import { emergencyChannelHandlers } from './emergencyChannelHandlers';
-import { deptHandlers } from './deptHandlers';
+import { emergencyChannelHandlers } from "./emergencyChannelHandlers";
+import { deptHandlers } from "./deptHandlers";
 // [G005 Wave 6B (tech-schedule)] 技师排班管理 (班次/换班/请假/统计/批量生成)
-import { techScheduleHandlers } from './techScheduleHandlers';
+import { techScheduleHandlers } from "./techScheduleHandlers";
 // [v3.0.6.11-79] W1-A 文件管理 (upload-url / upload / upload-complete / download)
-import { filesHandlers } from './filesHandlers';
-import { systemHandlers } from './systemHandlers'; // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config
+import { filesHandlers } from "./filesHandlers";
+import { systemHandlers } from "./systemHandlers"; // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config
 // [G005 Wave1A P0-验证] 通知中心 handlers (unread/:userId 等) — 已接入 handlers 数组
-import { notificationsHandlers } from './notificationsHandlers';
+import { notificationsHandlers } from "./notificationsHandlers";
 // [v3.0.6.11-79 W1-C] 合规文档库 7 端点 (CRUD + publish/archive)
-import { complianceDocsHandlers } from './complianceDocsHandlers';
+import { complianceDocsHandlers } from "./complianceDocsHandlers";
 // [v3.0.6.11-60] 多租户 SaaS 基础: /api/v1/tenant/*
-import { tenantHandlers } from './tenantHandlers';
-import { storageHandlers } from './storageHandlers'; // [v3.0.6.11-60] cloud-storage 配置
+import { tenantHandlers } from "./tenantHandlers";
+import { storageHandlers } from "./storageHandlers"; // [v3.0.6.11-60] cloud-storage 配置
 // [v3.0.6.8-32] 主数据池 + 业务逻辑
+import { list, get, create, update, remove, findOne } from "./store";
+import { parseQuery, applyQuery, groupBy, sumBy, avgBy } from "./queryBuilder";
 import {
-  list, get, create, update, remove, findOne,
-} from './store';
-import {
-  parseQuery, applyQuery, groupBy, sumBy, avgBy,
-} from './queryBuilder';
-import {
-  toPatientDto, toDeviceDto, toUserDto, toExamDto, toReportDto,
+  toPatientDto,
+  toDeviceDto,
+  toUserDto,
+  toExamDto,
+  toReportDto,
   toDailyKpiDto,
-} from './adapters';
-import { auditCreate, auditUpdate, auditDelete, auditStatusChange } from './audit';
+} from "./adapters";
 import {
-  canTransitionReport, canTransitionWorklist,
+  auditCreate,
+  auditUpdate,
+  auditDelete,
+  auditStatusChange,
+} from "./audit";
+import {
+  canTransitionReport,
+  canTransitionWorklist,
   getSlaMinutes,
   shouldEscalate,
   determineCosignTrigger,
-  recordWorkflowEvent, listWorkflowEvents,
+  recordWorkflowEvent,
+  listWorkflowEvents,
   markPendingAssignmentOnComplete,
   type ReportStatus,
-} from './businessLogic';
-import { v4 as uuidv4 } from 'uuid';
-import { TERM_CATEGORIES, FEATURED_TERMS } from '@data/knowledgeStatsMock';
-import { writingHandlers, distributionHandlers, integrationHandlers, otherHandlers, cosignHandlers, qualityReportHandlers, aiAssistHandlers } from './v3ReportHandlers';
-// [Phase 1.4] ASR 语音识别端点 (transcribe / transcribe/audio / feedback)
-import { asrHandlers, dictationHandlers } from './asrHandlers';import { qualityScoringHandlers } from './qualityScoringHandlers';
-// [Wave 6A v3.0.6.11-99] 语音工作站端点 (医学词库/会话/转写校正/纠正反馈/统计)
-import { voiceWorkstationHandlers } from './voiceWorkstationHandlers';
-import { doseHandlers } from './doseHandlers';
-// [W10-B] 本 wave 新页面真实 API 补齐 handlers (骨科等)
-import { w10MockFillHandlers } from './w10MockFillHandlers';
-import { reviewAssistHandlers } from './v3ReviewHandlers';
-// [v3.0.6.11-60] BI 仪表板 (报告时效/RVU/OEE/危急值SLA/趋势)
-import { biHandlers } from './biHandlers';
-// [Phase 2] 壳页面真实化 - 新增 MSW handlers
-import { kioskHandlers } from './kioskHandlers';
-import { fusionHandlers } from './fusionHandlers';
-import { dicom4dHandlers } from './dicom4dHandlers';
-import { dicomCompressHandlers } from './dicomCompressHandlers'; // [v3.0.6.11-60] DICOM 压缩真实化
-import { dbtHandlers } from './dbtHandlers'; // [v3.0.6.11-62] DBT 乳腺断层合成 (studies/slices/reconstruct/compare)
-import { screeningHandlers } from './screeningHandlers';
-import { searchHandlers } from './searchHandlers';
-// [v3.0.6.11-60] 相似病例检索 (POST /similar-case/search, GET /similar-case/:reportId, POST /similar-case/feedback)
-import { similarCaseHandlers } from './similarCaseHandlers';
-// [v3.0.6.8-83] 眼科专科 252 端点 (20 模块, 含 PR1-PR11)
-import { eyeHandlers } from './eyeHandlers';
-// [v3.0.6.8-53] 口腔专科 (Day 1: PACS 24 端点)
-import { dentalNewHandlers } from './dentalNewHandlers';
-import { workflowHandlers } from './workflowHandlers';
-import { financeHandlers } from './financeHandlers';
-// [W1-5] 导出审批中心 (GET/POST /export-approval, POST /export-approval/:id/approve|reject)
-import { exportApprovalHandlers } from './exportApprovalHandlers';
-import { dataReportHandlers } from './dataReportHandlers';
-import { teleSignHandlers } from './teleSignHandlers';
-import { regionalHandlers } from './regionalHandlers';
-import { patientPortalHandlers } from './patientPortalHandlers';
-import { cosignNewHandlers } from './cosignNewHandlers';
-import { cdsHandlers } from './cdsHandlers';
-import { criticalExtHandlers } from './criticalExtHandlers';
-// [G005-P0] 对标分析 (GET /api/v1/benchmark/list|stats, POST /api/v1/benchmark/compare|cross-site)
-import { benchmarkHandlers } from './benchmarkHandlers';
-// [G005 P1 W2-C] 示教录制 (POST /teach/lecture, GET /teach/lectures, blob 上传/播放/删除)
-import { teachHandlers } from './teachHandlers';
-// [W3-B] 典型病例库 (GET /typical-cases, /typical-cases/stats)
-import { typicalCaseHandlers } from './typicalCaseHandlers';
-// [G005 P1 W2-C] 远程会诊 (session/join/signal/chat/cursor)
-import { teleHandlers } from './teleHandlers';
-import { qcExtHandlers } from './qcExtHandlers';
-import { reportQualityHandlers } from './reportQualityHandlers';
-import { caHandlers } from './caHandlers';
-import { deviceMgmtHandlers } from './deviceMgmtHandlers';
-import { aiPlatformHandlers } from './aiPlatformHandlers';
-// [v3.0.6.11-60] AI Orchestrator 编排平台 (模型注册/部署/工作流集成/推理任务)
-import { aiOrchestratorHandlers } from './aiOrchestratorHandlers';
-// [v3.0.6.11-88 W2B-2] 交互回归缺失 AI 端点 (providers / draft patients+templates)
-import { aiWave2BHandlers } from './aiWave2BHandlers';
-// [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化 MSW 兜底 (finding-library)
-import { findingLibraryHandlers } from './findingLibraryHandlers';
-// [v3.0.6.11-99 Wave 2A (报告批注)] 报告协作批注 (列表/创建/回复/解决/重开/统计)
-import { reportAnnotationHandlers } from './reportAnnotationHandlers';
-// [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注 (GET/POST /reports/:id/image-annotations)
-import { imageAnnotationHandlers } from './imageAnnotationHandlers';
-import { rqi105Handlers } from './rqi105Handlers';
-import { miscMissingHandlers } from './miscMissingHandlers';
-// [v3.0.6.11-106] W3 缺失端点 (临床反馈流转/对比剂留观注射/叫号扩展/通知趋势) — 前置注册
-import { w3MissingHandlers } from './w3MissingHandlers';
-// [G005 W5] 缺失端点补齐 (worklist/report/exam/patient/templates 等 45 簇) — 必须最前置注册
-import { w5MissingHandlers } from './w5MissingHandlers';
-// [G005 W3-BackendParity] 后端补齐端点 (口腔影像后处理/眼科PACS/AI融合/通用AI诊断/DICOMweb/骨科/儿科剂量) — 必须最前置注册
-import { w3BackendParityHandlers } from './w3BackendParityHandlers';
-// [G005 W2] 后端有前端无 端点补齐 (clinical-pathways/definitions, dictionary 根, tech-ops 记录详情, eye 旧路径, ai/score)
-import { w2OrphansHandlers } from './w2OrphansHandlers';
-// [G005 W8-Dose] 剂量监测页面真实化 (staff/breast/device history/overview) — 最前置注册
-import { w8DoseHandlers } from './w8DoseHandlers';
-// [G005 W8-Report] 报告专业深度 (字段规范/内容版本/签名证书/召回/分级审核) — 最前置注册
-import { w8ReportHandlers } from './w8ReportHandlers';
-// [G005 W7] 演示数据补齐 (对比剂质量与合规) — 前置注册
-import { w7MockHandlers } from './w7MockHandlers';
-// [W5 预约/排班深度] 机房/技师/容量/冲突/等候/提醒/失约/绿色通道/编号 — 最前置注册
-import { w5ApptHandlers } from './w5ApptHandlers';
-import { orchestratorHandlers } from './orchestratorHandlers';
-import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
-// [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
-import { reportDraftHandlers } from './reportDraftHandlers';
-// [v3.0.6.11-100 Wave 3A (G-19)] AI 草稿深化 (LLM providers / RAG 上下文 / 高级生成 / 结构化字段)
-import { aiDraftAdvancedHandlers } from './aiDraftAdvancedHandlers';
-import { volumeHandlers } from './volumeHandlers';
-import { cardiacHandlers } from './cardiacHandlers';
-// [v3.0.6.11-81 W2-B] 神经专科分析 (studies/stats/tumor-grades/stroke-windows)
-import { neuroHandlers } from './neuroHandlers';
-import { mobileHandlers } from './mobileHandlers';
-// [v3.0.6.11-62] 3D 分割与定量 (segment/quantify/segmentations/approve)
-import { segmentationHandlers } from './segmentationHandlers';
-import { dentalHandlers } from './dentalHandlers';
-import { olapHandlers } from './olapHandlers';
-// [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report): 定义 CRUD + 运行/结果/历史/定时/导出 + fields-catalog
-import { customReportHandlers } from './customReportHandlers';
-// [v3.0.6.11-100 Wave 4A] 移动审批 (mobile-approval): 待办/通过/驳回/委派/历史/统计
-import { mobileApprovalHandlers } from './mobileApprovalHandlers';
-import { oeeHandlers } from './oeeHandlers';
-import { occupancyHandlers } from './occupancyHandlers';// [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
-import { shellUpgradeHandlers } from './shellUpgradeHandlers';
-// [v3.0.6.11-60] DICOM SR 全链路 (generate/by-report/push-oru/download)
-import { srHandlers } from './srHandlers';
-// [P0-12 v3.0.7] 微信小程序 API
-import { wechatHandlers } from './wechatHandlers';
-// [v3.0.6.11-60] Batch 3: 壳页面真实化 (fusion-workspace/pacs-admin/snomed/terminology/pathways/consent/dental-ai/value5step)
-import { shellBatch3Handlers } from './shellBatch3Handlers';
-// [v3.0.6.11-60] Auto-hanging 自动布局 + 多 RADS 评分扩展
-import { hangingHandlers } from './hangingHandlers';
-import { radsHandlers } from './radsHandlers';
-// [v3.0.6.11-60] VNA 厂商中立归档 (objects/worm-lock/patients/stats/studies)
-import { vnaHandlers } from './vnaHandlers';
-// [G005 P1] FHIR R4 21 端点 (fhirApi: /fhir/r4/*)
-import { fhirHandlers } from './fhirHandlers';
-// [G005 P1] IHE 引擎 (iheApi: /ihe/*)
-import { iheHandlers } from './iheHandlers';
-// [G005 P1] DICOM DIMSE (dicomDimseApi: /dicom-dimse/*)
-import { dicomDimseHandlers } from './dicomDimseHandlers';
-// [W2-B-3] Rad-Path 一致性追踪 (radpathApi: /radpath/*)
-import { radpathHandlers } from './radpathHandlers';
-// [W2-B-3] 科研平台 (researchApi: /research/*)
-import { researchHandlers } from './researchHandlers';
-// [W2-B-3] 双阅片 (dualReadApi: /dual-read/*)
-import { dualReadHandlers } from './dualReadHandlers';
-// [W2-B-3] AI 模型市场 (aiMarketplaceApi: /ai-marketplace/*)
-import { aiMarketplaceHandlers } from './aiMarketplaceHandlers';
-// [G005 P1] 影像组学 (radiomicsApi: /radiomics/*)
-import { radiomicsHandlers } from './radiomicsHandlers';
-// [v3.0.6.11-75 W3-1] HL7 端点 (hl7Api: oru/orm/dft/batch/archive/mllp)
-import { hl7Handlers } from './hl7Handlers';
-// [v3.0.6.11-75 W3-1] 影像 AI 质控 (qcImageAiApi: score/score-v2/results/stats)
-import { imageAiHandlers } from './imageAiHandlers';
-// [G005 W6] 登记工作站 + 分诊深度 (registration/scan|prep-confirm|consent|charge|pay, patients/:id/clinical-profile, triage/re-triage|nurse) — 必须最前置注册
-import { w6RegHandlers } from './w6RegHandlers';
-// [W3-2] AI 分检 (aiTriageApi: /triage/* [G005 Wave1A 路径对齐]) + 跨科室治疗计划 (/treatment-plans/*)
-import { aiTriageHandlers } from './aiTriageHandlers';
-import { treatmentPlanHandlers } from './treatmentPlanHandlers';
-// [v3.0.6.11-75 W3-1] 远程阅片 (remoteReadingApi: /remote-reading/*)
-import { remoteReadingHandlers } from './remoteReadingHandlers';
-// [W4-B] 随访计划 (followupApi: /followups/*)
-import { followupHandlers, followupTriggerRulesHandlers } from './followupHandlers';// [v3.0.6.11-75 W3-1] 跨模态检索 (crossModalApi / crossModalSearchApi)
-import { crossModalHandlers } from './crossModalHandlers';
-// [v3.0.6.11-99 Wave3B] 随访模板库 (followupTemplatesApi: /followup-templates/*)
-import { followupTemplateHandlers } from './followupTemplateHandlers';
-// [v3.0.6.11-75 W3-1] DICOM 跨科室共享 (shareApi: /dicom-share/*)
-import { dicomShareHandlers } from './dicomShareHandlers';
-// [v3.0.6.11-99 Wave 4A] 病灶追踪 (lesionTrackingApi: /lesion-tracking/*)
-import { lesionTrackingHandlers } from './lesionTrackingHandlers';
-// [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
-import { smartWorklistHandlers } from './smartWorklistHandlers';
-// [W3-A] 自动采集 (auto-collectionApi, 后端 auto-collection.controller 已实现 → MSW 仅 dev 兜底)
-import { autoCollectionHandlers } from './autoCollectionHandlers';
-// [W3-A] 诊断符合率 (diagnosisAccuracyApi) + 乳腺影像质量管理 (mammoQcApi)
-import { diagnosisAccuracyHandlers } from './diagnosisAccuracyHandlers';
-import { mammoQcHandlers } from './mammoQcHandlers';
-// [G005 Wave 3A v3.0.6.11-99] qc-pdca 质控闭环 (qcPdcaApi)
-import { qcPdcaHandlers } from './qcPdcaHandlers';
-// [G005 Wave 8B v3.0.6.11-101] qc-analytics 报告质控闭环与趋势分析 (qcAnalyticsApi)
-import { qcAnalyticsHandlers } from './qcAnalyticsHandlers';
-// [G005 Wave 11 v3.0.6.11-101-99999] Wave 1-8 新模块 MSW 补齐 (与后端响应结构一致, 确定性数据)
-import { imagingCompareHandlers } from './imagingCompareHandlers'; // Wave 2A 影像对比
-import { volumeV2Handlers } from './volumeV2Handlers'; // Wave 3A 多平面重建 V2
-import { measurementV2Handlers } from './measurementV2Handlers'; // Wave 3B 影像测量 V2
-import { aiV2Handlers } from './aiV2Handlers'; // Wave 5B AI 增强 (organ/draft-score/hanging)
-import { techV2Handlers } from './techV2Handlers'; // Wave 6B 技师轮转 + 预测
-import { techOpsHandlers } from './techOpsHandlers'; // Wave 6B 技师运营
-import { techOverviewHandlers } from './techOverviewHandlers'; // Wave 6C 技师值班大屏
-import { reportQcV2Handlers } from './reportQcV2Handlers'; // Wave 6B 报告质控 V2
-import { criticalEscalationHandlers } from './criticalEscalationHandlers'; // Wave 6B 危急值升级链
-import { criticalV2Handlers } from './criticalV2Handlers'; // Wave 6C 危急值管理 V2
-import { templateApprovalHandlers } from './templateApprovalHandlers'; // Wave 6C 模板审批流
-import { reportCompareV2Handlers } from './reportCompareV2Handlers'; // Wave 8A 报告对比 V2
-import { reportSearchV2Handlers } from './reportSearchV2Handlers'; // Wave 8A 报告检索 V2
-import { reportRulesHandlers } from './reportRulesHandlers'; // Wave 6A 报告质控规则引擎
-import { reportSignV2Handlers } from './reportSignV2Handlers'; // Wave 6A 水印签章 V2
-import { aiDraftV2Handlers } from './aiDraftV2Handlers'; // Wave 7A AI 报告助理 V2
-import { templateLibraryV2Handlers } from './templateLibraryV2Handlers'; // Wave 7B 模板库 V2
-import { reportExportCenterV2Handlers } from './reportExportCenterV2Handlers'; // Wave 7B 报告导出中心 V2
-import { aiSecondReadHandlers } from './aiSecondReadHandlers'; // Wave 7C AI 二次检出
-import { consultationV2Handlers } from './consultationV2Handlers'; // Wave 7C 委员会会诊 V2
-import { reportPeerReviewHandlers } from './reportPeerReviewHandlers'; // Wave 7C 报告互评
-import { segmentationV2Handlers } from './segmentationV2Handlers'; // Wave 2C 影像分割 V2
-import { pathologyHandlers } from './pathologyHandlers'; // Wave 2B 病理切片 WSI
+} from "./businessLogic";
+import { v4 as uuidv4 } from "uuid";
+import { TERM_CATEGORIES, FEATURED_TERMS } from "@data/knowledgeStatsMock";
 import {
-  INITIAL_CHECK_SUMMARY,
-} from '@data/reportInitialCheckMock';
-import { APPOINTMENT_RECORDS, initialModalityDevices } from '@data/initialData';
+  writingHandlers,
+  distributionHandlers,
+  integrationHandlers,
+  otherHandlers,
+  cosignHandlers,
+  qualityReportHandlers,
+  aiAssistHandlers,
+} from "./v3ReportHandlers";
+// [Phase 1.4] ASR 语音识别端点 (transcribe / transcribe/audio / feedback)
+import { asrHandlers, dictationHandlers } from "./asrHandlers";
+import { qualityScoringHandlers } from "./qualityScoringHandlers";
+// [Wave 6A v3.0.6.11-99] 语音工作站端点 (医学词库/会话/转写校正/纠正反馈/统计)
+import { voiceWorkstationHandlers } from "./voiceWorkstationHandlers";
+import { doseHandlers } from "./doseHandlers";
+// [W10-B] 本 wave 新页面真实 API 补齐 handlers (骨科等)
+import { w10MockFillHandlers } from "./w10MockFillHandlers";
+import { reviewAssistHandlers } from "./v3ReviewHandlers";
+// [v3.0.6.11-60] BI 仪表板 (报告时效/RVU/OEE/危急值SLA/趋势)
+import { biHandlers } from "./biHandlers";
+// [Phase 2] 壳页面真实化 - 新增 MSW handlers
+import { kioskHandlers } from "./kioskHandlers";
+import { fusionHandlers } from "./fusionHandlers";
+import { dicom4dHandlers } from "./dicom4dHandlers";
+import { dicomCompressHandlers } from "./dicomCompressHandlers"; // [v3.0.6.11-60] DICOM 压缩真实化
+import { dbtHandlers } from "./dbtHandlers"; // [v3.0.6.11-62] DBT 乳腺断层合成 (studies/slices/reconstruct/compare)
+import { screeningHandlers } from "./screeningHandlers";
+import { searchHandlers } from "./searchHandlers";
+// [v3.0.6.11-60] 相似病例检索 (POST /similar-case/search, GET /similar-case/:reportId, POST /similar-case/feedback)
+import { similarCaseHandlers } from "./similarCaseHandlers";
+// [v3.0.6.8-83] 眼科专科 252 端点 (20 模块, 含 PR1-PR11)
+import { eyeHandlers } from "./eyeHandlers";
+// [v3.0.6.8-53] 口腔专科 (Day 1: PACS 24 端点)
+import { dentalNewHandlers } from "./dentalNewHandlers";
+import { workflowHandlers } from "./workflowHandlers";
+import { financeHandlers } from "./financeHandlers";
+// [W1-5] 导出审批中心 (GET/POST /export-approval, POST /export-approval/:id/approve|reject)
+import { exportApprovalHandlers } from "./exportApprovalHandlers";
+import { dataReportHandlers } from "./dataReportHandlers";
+import { teleSignHandlers } from "./teleSignHandlers";
+import { regionalHandlers } from "./regionalHandlers";
+import { patientPortalHandlers } from "./patientPortalHandlers";
+import { cosignNewHandlers } from "./cosignNewHandlers";
+import { cdsHandlers } from "./cdsHandlers";
+import { criticalExtHandlers } from "./criticalExtHandlers";
+// [G005-P0] 对标分析 (GET /api/v1/benchmark/list|stats, POST /api/v1/benchmark/compare|cross-site)
+import { benchmarkHandlers } from "./benchmarkHandlers";
+// [G005 P1 W2-C] 示教录制 (POST /teach/lecture, GET /teach/lectures, blob 上传/播放/删除)
+import { teachHandlers } from "./teachHandlers";
+// [W3-B] 典型病例库 (GET /typical-cases, /typical-cases/stats)
+import { typicalCaseHandlers } from "./typicalCaseHandlers";
+// [G005 P1 W2-C] 远程会诊 (session/join/signal/chat/cursor)
+import { teleHandlers } from "./teleHandlers";
+import { qcExtHandlers } from "./qcExtHandlers";
+import { reportQualityHandlers } from "./reportQualityHandlers";
+import { caHandlers } from "./caHandlers";
+import { deviceMgmtHandlers } from "./deviceMgmtHandlers";
+import { aiPlatformHandlers } from "./aiPlatformHandlers";
+// [v3.0.6.11-60] AI Orchestrator 编排平台 (模型注册/部署/工作流集成/推理任务)
+import { aiOrchestratorHandlers } from "./aiOrchestratorHandlers";
+// [v3.0.6.11-88 W2B-2] 交互回归缺失 AI 端点 (providers / draft patients+templates)
+import { aiWave2BHandlers } from "./aiWave2BHandlers";
+// [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化 MSW 兜底 (finding-library)
+import { findingLibraryHandlers } from "./findingLibraryHandlers";
+// [v3.0.6.11-99 Wave 2A (报告批注)] 报告协作批注 (列表/创建/回复/解决/重开/统计)
+import { reportAnnotationHandlers } from "./reportAnnotationHandlers";
+// [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注 (GET/POST /reports/:id/image-annotations)
+import { imageAnnotationHandlers } from "./imageAnnotationHandlers";
+import { rqi105Handlers } from "./rqi105Handlers";
+import { miscMissingHandlers } from "./miscMissingHandlers";
+// [v3.0.6.11-106] W3 缺失端点 (临床反馈流转/对比剂留观注射/叫号扩展/通知趋势) — 前置注册
+import { w3MissingHandlers } from "./w3MissingHandlers";
+// [G005 W5] 缺失端点补齐 (worklist/report/exam/patient/templates 等 45 簇) — 必须最前置注册
+import { w5MissingHandlers } from "./w5MissingHandlers";
+// [G005 W3-BackendParity] 后端补齐端点 (口腔影像后处理/眼科PACS/AI融合/通用AI诊断/DICOMweb/骨科/儿科剂量) — 必须最前置注册
+import { w3BackendParityHandlers } from "./w3BackendParityHandlers";
+// [G005 W2] 后端有前端无 端点补齐 (clinical-pathways/definitions, dictionary 根, tech-ops 记录详情, eye 旧路径, ai/score)
+import { w2OrphansHandlers } from "./w2OrphansHandlers";
+// [G005 W8-Dose] 剂量监测页面真实化 (staff/breast/device history/overview) — 最前置注册
+import { w8DoseHandlers } from "./w8DoseHandlers";
+// [G005 W8-Report] 报告专业深度 (字段规范/内容版本/签名证书/召回/分级审核) — 最前置注册
+import { w8ReportHandlers } from "./w8ReportHandlers";
+// [G005 W7] 演示数据补齐 (对比剂质量与合规) — 前置注册
+import { w7MockHandlers } from "./w7MockHandlers";
+// [W5 预约/排班深度] 机房/技师/容量/冲突/等候/提醒/失约/绿色通道/编号 — 最前置注册
+import { w5ApptHandlers } from "./w5ApptHandlers";
+import { orchestratorHandlers } from "./orchestratorHandlers";
+import { aiDiagnosisHandlers } from "./aiDiagnosisHandlers";
+// [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
+import { reportDraftHandlers } from "./reportDraftHandlers";
+// [v3.0.6.11-100 Wave 3A (G-19)] AI 草稿深化 (LLM providers / RAG 上下文 / 高级生成 / 结构化字段)
+import { aiDraftAdvancedHandlers } from "./aiDraftAdvancedHandlers";
+import { volumeHandlers } from "./volumeHandlers";
+import { cardiacHandlers } from "./cardiacHandlers";
+// [v3.0.6.11-81 W2-B] 神经专科分析 (studies/stats/tumor-grades/stroke-windows)
+import { neuroHandlers } from "./neuroHandlers";
+import { mobileHandlers } from "./mobileHandlers";
+// [v3.0.6.11-62] 3D 分割与定量 (segment/quantify/segmentations/approve)
+import { segmentationHandlers } from "./segmentationHandlers";
+import { dentalHandlers } from "./dentalHandlers";
+import { olapHandlers } from "./olapHandlers";
+// [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report): 定义 CRUD + 运行/结果/历史/定时/导出 + fields-catalog
+import { customReportHandlers } from "./customReportHandlers";
+// [v3.0.6.11-100 Wave 4A] 移动审批 (mobile-approval): 待办/通过/驳回/委派/历史/统计
+import { mobileApprovalHandlers } from "./mobileApprovalHandlers";
+import { oeeHandlers } from "./oeeHandlers";
+import { occupancyHandlers } from "./occupancyHandlers"; // [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
+import { shellUpgradeHandlers } from "./shellUpgradeHandlers";
+// [v3.0.6.11-60] DICOM SR 全链路 (generate/by-report/push-oru/download)
+import { srHandlers } from "./srHandlers";
+// [P0-12 v3.0.7] 微信小程序 API
+import { wechatHandlers } from "./wechatHandlers";
+// [v3.0.6.11-60] Batch 3: 壳页面真实化 (fusion-workspace/pacs-admin/snomed/terminology/pathways/consent/dental-ai/value5step)
+import { shellBatch3Handlers } from "./shellBatch3Handlers";
+// [v3.0.6.11-60] Auto-hanging 自动布局 + 多 RADS 评分扩展
+import { hangingHandlers } from "./hangingHandlers";
+import { radsHandlers } from "./radsHandlers";
+// [v3.0.6.11-60] VNA 厂商中立归档 (objects/worm-lock/patients/stats/studies)
+import { vnaHandlers } from "./vnaHandlers";
+// [G005 P1] FHIR R4 21 端点 (fhirApi: /fhir/r4/*)
+import { fhirHandlers } from "./fhirHandlers";
+// [G005 P1] IHE 引擎 (iheApi: /ihe/*)
+import { iheHandlers } from "./iheHandlers";
+// [G005 P1] DICOM DIMSE (dicomDimseApi: /dicom-dimse/*)
+import { dicomDimseHandlers } from "./dicomDimseHandlers";
+// [W2-B-3] Rad-Path 一致性追踪 (radpathApi: /radpath/*)
+import { radpathHandlers } from "./radpathHandlers";
+// [W2-B-3] 科研平台 (researchApi: /research/*)
+import { researchHandlers } from "./researchHandlers";
+// [W2-B-3] 双阅片 (dualReadApi: /dual-read/*)
+import { dualReadHandlers } from "./dualReadHandlers";
+// [W2-B-3] AI 模型市场 (aiMarketplaceApi: /ai-marketplace/*)
+import { aiMarketplaceHandlers } from "./aiMarketplaceHandlers";
+// [G005 P1] 影像组学 (radiomicsApi: /radiomics/*)
+import { radiomicsHandlers } from "./radiomicsHandlers";
+// [v3.0.6.11-75 W3-1] HL7 端点 (hl7Api: oru/orm/dft/batch/archive/mllp)
+import { hl7Handlers } from "./hl7Handlers";
+// [v3.0.6.11-75 W3-1] 影像 AI 质控 (qcImageAiApi: score/score-v2/results/stats)
+import { imageAiHandlers } from "./imageAiHandlers";
+// [G005 W6] 登记工作站 + 分诊深度 (registration/scan|prep-confirm|consent|charge|pay, patients/:id/clinical-profile, triage/re-triage|nurse) — 必须最前置注册
+import { w6RegHandlers } from "./w6RegHandlers";
+// [W3-2] AI 分检 (aiTriageApi: /triage/* [G005 Wave1A 路径对齐]) + 跨科室治疗计划 (/treatment-plans/*)
+import { aiTriageHandlers } from "./aiTriageHandlers";
+import { treatmentPlanHandlers } from "./treatmentPlanHandlers";
+// [v3.0.6.11-75 W3-1] 远程阅片 (remoteReadingApi: /remote-reading/*)
+import { remoteReadingHandlers } from "./remoteReadingHandlers";
+// [W4-B] 随访计划 (followupApi: /followups/*)
+import {
+  followupHandlers,
+  followupTriggerRulesHandlers,
+} from "./followupHandlers"; // [v3.0.6.11-75 W3-1] 跨模态检索 (crossModalApi / crossModalSearchApi)
+import { crossModalHandlers } from "./crossModalHandlers";
+// [v3.0.6.11-99 Wave3B] 随访模板库 (followupTemplatesApi: /followup-templates/*)
+import { followupTemplateHandlers } from "./followupTemplateHandlers";
+// [v3.0.6.11-75 W3-1] DICOM 跨科室共享 (shareApi: /dicom-share/*)
+import { dicomShareHandlers } from "./dicomShareHandlers";
+// [v3.0.6.11-99 Wave 4A] 病灶追踪 (lesionTrackingApi: /lesion-tracking/*)
+import { lesionTrackingHandlers } from "./lesionTrackingHandlers";
+// [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
+import { smartWorklistHandlers } from "./smartWorklistHandlers";
+// [W3-A] 自动采集 (auto-collectionApi, 后端 auto-collection.controller 已实现 → MSW 仅 dev 兜底)
+import { autoCollectionHandlers } from "./autoCollectionHandlers";
+// [W3-A] 诊断符合率 (diagnosisAccuracyApi) + 乳腺影像质量管理 (mammoQcApi)
+import { diagnosisAccuracyHandlers } from "./diagnosisAccuracyHandlers";
+import { mammoQcHandlers } from "./mammoQcHandlers";
+// [G005 Wave 3A v3.0.6.11-99] qc-pdca 质控闭环 (qcPdcaApi)
+import { qcPdcaHandlers } from "./qcPdcaHandlers";
+// [G005 Wave 8B v3.0.6.11-101] qc-analytics 报告质控闭环与趋势分析 (qcAnalyticsApi)
+import { qcAnalyticsHandlers } from "./qcAnalyticsHandlers";
+// [G005 Wave 11 v3.0.6.11-101-99999] Wave 1-8 新模块 MSW 补齐 (与后端响应结构一致, 确定性数据)
+import { imagingCompareHandlers } from "./imagingCompareHandlers"; // Wave 2A 影像对比
+import { volumeV2Handlers } from "./volumeV2Handlers"; // Wave 3A 多平面重建 V2
+import { measurementV2Handlers } from "./measurementV2Handlers"; // Wave 3B 影像测量 V2
+import { aiV2Handlers } from "./aiV2Handlers"; // Wave 5B AI 增强 (organ/draft-score/hanging)
+import { techV2Handlers } from "./techV2Handlers"; // Wave 6B 技师轮转 + 预测
+import { techOpsHandlers } from "./techOpsHandlers"; // Wave 6B 技师运营
+import { techOverviewHandlers } from "./techOverviewHandlers"; // Wave 6C 技师值班大屏
+import { reportQcV2Handlers } from "./reportQcV2Handlers"; // Wave 6B 报告质控 V2
+import { criticalEscalationHandlers } from "./criticalEscalationHandlers"; // Wave 6B 危急值升级链
+import { criticalV2Handlers } from "./criticalV2Handlers"; // Wave 6C 危急值管理 V2
+import { templateApprovalHandlers } from "./templateApprovalHandlers"; // Wave 6C 模板审批流
+import { reportCompareV2Handlers } from "./reportCompareV2Handlers"; // Wave 8A 报告对比 V2
+import { reportSearchV2Handlers } from "./reportSearchV2Handlers"; // Wave 8A 报告检索 V2
+import { reportRulesHandlers } from "./reportRulesHandlers"; // Wave 6A 报告质控规则引擎
+import { reportSignV2Handlers } from "./reportSignV2Handlers"; // Wave 6A 水印签章 V2
+import { aiDraftV2Handlers } from "./aiDraftV2Handlers"; // Wave 7A AI 报告助理 V2
+import { templateLibraryV2Handlers } from "./templateLibraryV2Handlers"; // Wave 7B 模板库 V2
+import { reportExportCenterV2Handlers } from "./reportExportCenterV2Handlers"; // Wave 7B 报告导出中心 V2
+import { aiSecondReadHandlers } from "./aiSecondReadHandlers"; // Wave 7C AI 二次检出
+import { consultationV2Handlers } from "./consultationV2Handlers"; // Wave 7C 委员会会诊 V2
+import { reportPeerReviewHandlers } from "./reportPeerReviewHandlers"; // Wave 7C 报告互评
+import { segmentationV2Handlers } from "./segmentationV2Handlers"; // Wave 2C 影像分割 V2
+import { pathologyHandlers } from "./pathologyHandlers"; // Wave 2B 病理切片 WSI
+import { INITIAL_CHECK_SUMMARY } from "@data/reportInitialCheckMock";
+import { APPOINTMENT_RECORDS, initialModalityDevices } from "@data/initialData";
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
 // v3.0.6.8-13: 动态 API_BASE,基于当前 origin
 // 原: 'http://localhost:5173/api/v1' 硬编码导致不同端口(5199)无法匹配
 // v3.0.6.8-105-fix: vitest/jsdom 下 window.location.origin = localhost:3000 与测试 URL (5173) 不匹配
-const API_BASE = typeof process !== 'undefined' && process.env.VITEST
-  ? 'http://localhost:5173/api/v1'
-  : (typeof window !== 'undefined' && window.location?.origin
-    ? window.location.origin + '/api/v1'
-    : 'http://localhost:5173/api/v1');
+const API_BASE =
+  typeof process !== "undefined" && process.env.VITEST
+    ? "http://localhost:5173/api/v1"
+    : typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin + "/api/v1"
+      : "http://localhost:5173/api/v1";
 
 // ============= Auth (3) =============
 // v3.0.6.11-73: MSW login 返回英文角色枚举 (与后端 Prisma UserRole 一致),
 // 按用户名映射 (admin→ADMIN, director→DIRECTOR ...), 未知名默认 DOCTOR
 const MOCK_ROLE_BY_USERNAME: Record<string, string> = {
-  admin: 'ADMIN',
-  director: 'DIRECTOR',
-  doctor: 'DOCTOR',
-  technician: 'TECHNICIAN',
-  nurse: 'NURSE',
+  admin: "ADMIN",
+  director: "DIRECTOR",
+  doctor: "DOCTOR",
+  technician: "TECHNICIAN",
+  nurse: "NURSE",
 };
 
 // [v3.0.6.11-79] W1-B 用户中心: 最近一次 mock 登录会话 (GET /auth/me 依据)
-let mockSession: { userId: string; username: string; role: string } | null = null;
+let mockSession: { userId: string; username: string; role: string } | null =
+  null;
 
 export const authHandlers = [
   http.post(`${API_BASE}/auth/login`, async ({ request }) => {
     await delay(150);
-    let username = '';
+    let username = "";
     try {
-      username = String(((await request.json()) as { username?: string })?.username ?? '').toLowerCase();
+      username = String(
+        ((await request.json()) as { username?: string })?.username ?? "",
+      ).toLowerCase();
     } catch {
-      username = '';
+      username = "";
     }
-    const role = MOCK_ROLE_BY_USERNAME[username] ?? 'DOCTOR';
-    const userId = 'u-' + uuidv4().slice(0, 8);
-    mockSession = { userId, username: username || 'demo', role };
+    const role = MOCK_ROLE_BY_USERNAME[username] ?? "DOCTOR";
+    const userId = "u-" + uuidv4().slice(0, 8);
+    mockSession = { userId, username: username || "demo", role };
     return HttpResponse.json({
       success: true,
       data: {
-        token: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, ''),
-        refreshToken: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, ''),
+        token: uuidv4().replace(/-/g, "") + uuidv4().replace(/-/g, ""),
+        refreshToken: uuidv4().replace(/-/g, "") + uuidv4().replace(/-/g, ""),
         expiresAt: Date.now() + 15 * 60 * 1000,
         userId,
-        userName: username || 'demo',
+        userName: username || "demo",
         role,
       },
     });
@@ -310,7 +331,7 @@ export const authHandlers = [
     await delay(80);
     return HttpResponse.json({
       success: true,
-      data: { token: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, '') },
+      data: { token: uuidv4().replace(/-/g, "") + uuidv4().replace(/-/g, "") },
     });
   }),
 
@@ -324,16 +345,16 @@ export const authHandlers = [
       return HttpResponse.json({
         success: true,
         data: {
-          id: 'A001',
-          username: 'admin',
-          role: 'ADMIN',
-          fullName: '系统管理员',
+          id: "A001",
+          username: "admin",
+          role: "ADMIN",
+          fullName: "系统管理员",
           totpEnabled: false,
-          department: '放射科',
+          department: "放射科",
         },
       });
     }
-    const role = s.role ?? 'DOCTOR';
+    const role = s.role ?? "DOCTOR";
     return HttpResponse.json({
       success: true,
       data: {
@@ -341,15 +362,22 @@ export const authHandlers = [
         username: s.username,
         role,
         fullName:
-          { ADMIN: '系统管理员', DIRECTOR: '张主任', DOCTOR: '李医生', TECHNICIAN: '王技师', NURSE: '赵护士' }[
-            role as string
-          ] ?? s.username,
+          {
+            ADMIN: "系统管理员",
+            DIRECTOR: "张主任",
+            DOCTOR: "李医生",
+            TECHNICIAN: "王技师",
+            NURSE: "赵护士",
+          }[role as string] ?? s.username,
         totpEnabled: false,
       },
     });
   }),
 
-  http.post(`${API_BASE}/auth/logout`, async () => new HttpResponse(null, { status: 204 })),
+  http.post(
+    `${API_BASE}/auth/logout`,
+    async () => new HttpResponse(null, { status: 204 }),
+  ),
 
   // [v3.0.6.11-79] W1-B 用户中心: POST /auth/change-password
   http.post(`${API_BASE}/auth/change-password`, async ({ request }) => {
@@ -360,15 +388,21 @@ export const authHandlers = [
     } catch {
       body = {};
     }
-    if (typeof body.oldPassword !== 'string' || body.oldPassword.length < 6) {
+    if (typeof body.oldPassword !== "string" || body.oldPassword.length < 6) {
       return HttpResponse.json(
-        { success: false, error: { code: 'BAD_REQUEST', message: '原密码错误' } },
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "原密码错误" },
+        },
         { status: 400 },
       );
     }
-    if (typeof body.newPassword !== 'string' || body.newPassword.length < 8) {
+    if (typeof body.newPassword !== "string" || body.newPassword.length < 8) {
       return HttpResponse.json(
-        { success: false, error: { code: 'BAD_REQUEST', message: '新密码长度至少 8 位' } },
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "新密码长度至少 8 位" },
+        },
         { status: 400 },
       );
     }
@@ -378,33 +412,57 @@ export const authHandlers = [
 
 // ============= Reports(24) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE =============
 // [W4-B] 批量报告导出任务 (内存态, 模拟 2s 内完成)
-const batchExportTasks = new Map<string, {
-  taskId: string
-  status: 'pending' | 'running' | 'completed'
-  progress: number
-  total: number
-  format: string
-  ids: string[]
-  createdAt: number
-}>();
+const batchExportTasks = new Map<
+  string,
+  {
+    taskId: string;
+    status: "pending" | "running" | "completed";
+    progress: number;
+    total: number;
+    format: string;
+    ids: string[];
+    createdAt: number;
+  }
+>();
 
 // [G005 Wave 8] 报告冷归档: 策略 (内存 + seed) + 归档任务记录 (对齐后端 ReportsService)
 const archivePolicyStore: {
-  enabled: boolean
-  archiveAfterDays: number
-  targetTier: 'archive' | 'cold'
-  deleteSourceAfterDays: number | null
-  updatedAt: string
+  enabled: boolean;
+  archiveAfterDays: number;
+  targetTier: "archive" | "cold";
+  deleteSourceAfterDays: number | null;
+  updatedAt: string;
 } = {
   enabled: true,
   archiveAfterDays: 365,
-  targetTier: 'archive',
+  targetTier: "archive",
   deleteSourceAfterDays: 90,
   updatedAt: new Date().toISOString(),
 };
-const archiveTasks: Array<{ id: string; reportId: string; status: 'archived' | 'pending'; targetTier: string; archivedAt: string; policyEnabled: boolean }> = [
-  { id: 'RAT-000001', reportId: 'RPT-000001', status: 'archived', targetTier: 'archive', archivedAt: new Date(Date.now() - 30 * 86400_000).toISOString(), policyEnabled: true },
-  { id: 'RAT-000002', reportId: 'RPT-000024', status: 'archived', targetTier: 'archive', archivedAt: new Date(Date.now() - 90 * 86400_000).toISOString(), policyEnabled: true },
+const archiveTasks: Array<{
+  id: string;
+  reportId: string;
+  status: "archived" | "pending";
+  targetTier: string;
+  archivedAt: string;
+  policyEnabled: boolean;
+}> = [
+  {
+    id: "RAT-000001",
+    reportId: "RPT-000001",
+    status: "archived",
+    targetTier: "archive",
+    archivedAt: new Date(Date.now() - 30 * 86400_000).toISOString(),
+    policyEnabled: true,
+  },
+  {
+    id: "RAT-000002",
+    reportId: "RPT-000024",
+    status: "archived",
+    targetTier: "archive",
+    archivedAt: new Date(Date.now() - 90 * 86400_000).toISOString(),
+    policyEnabled: true,
+  },
 ];
 let archiveTaskSeq = 100;
 
@@ -416,157 +474,280 @@ export const reportHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const takeParam = url.searchParams.get('take');
+    const takeParam = url.searchParams.get("take");
     // [v3.0.6.11-95 Wave3B P1] state/status 双参数兼容 (状态筛选同义)
-    const stateParam = url.searchParams.get('state') ?? url.searchParams.get('status');
-    const all = list<any>('exams');
+    const stateParam =
+      url.searchParams.get("state") ?? url.searchParams.get("status");
+    const all = list<any>("exams");
     let source = all;
     if (stateParam) {
       const stateKey = stateParam.toUpperCase();
-      const direct = all.filter((r: any) => String(r.state ?? '').toUpperCase() === stateKey);
+      const direct = all.filter(
+        (r: any) => String(r.state ?? "").toUpperCase() === stateKey,
+      );
       if (direct.length > 0) {
         source = direct;
       } else {
         const STATUS_TO_STATE: Record<string, string[]> = {
-          INITIAL_REVIEW: ['submitted', 'draft', 'pending'],
-          FINAL_REVIEW: ['reviewed'],
-          CO_SIGN_REVIEW: ['cosigned'],
-          PUBLISHED: ['published', 'final'],
-          SIGNED: ['signed', 'reviewed'],
-          REVIEWED: ['reviewed'],
-          AMENDING: ['amended'],
-          WITHDRAWN: ['withdrawn', 'cancelled'],
+          INITIAL_REVIEW: ["submitted", "draft", "pending"],
+          FINAL_REVIEW: ["reviewed"],
+          CO_SIGN_REVIEW: ["cosigned"],
+          PUBLISHED: ["published", "final"],
+          SIGNED: ["signed", "reviewed"],
+          REVIEWED: ["reviewed"],
+          AMENDING: ["amended"],
+          WITHDRAWN: ["withdrawn", "cancelled"],
           // [W6] 归档报告列表: 状态或 state 为 archived
-          ARCHIVED: ['archived'],
+          ARCHIVED: ["archived"],
         };
         const matching = all.filter((r: any) =>
-          (STATUS_TO_STATE[stateKey] ?? []).includes(String(r.status ?? r.state ?? '').toLowerCase()),
+          (STATUS_TO_STATE[stateKey] ?? []).includes(
+            String(r.status ?? r.state ?? "").toLowerCase(),
+          ),
         );
-        source = matching.slice(0, 30).map((r: any) => ({ ...r, state: stateKey }));
+        source = matching
+          .slice(0, 30)
+          .map((r: any) => ({ ...r, state: stateKey }));
       }
     }
-    const qMap = new Map(list<any>('qualityScores').map((q: any) => [q.reportId, q]));
+    const qMap = new Map(
+      list<any>("qualityScores").map((q: any) => [q.reportId, q]),
+    );
     // [v3.0.6.11-95 Wave3B P1] list 筛选: patientId / doctorId / keyword (与后端对齐)
-    const patientIdParam = url.searchParams.get('patientId');
-    const doctorIdParam = url.searchParams.get('doctorId');
-    const keywordParam = url.searchParams.get('keyword');
+    const patientIdParam = url.searchParams.get("patientId");
+    const doctorIdParam = url.searchParams.get("doctorId");
+    const keywordParam = url.searchParams.get("keyword");
     // 显式消费的筛选参数移出通用 filters (记录无这些字段, 通用过滤会误杀全部)
     if (opts.filters) {
-      delete opts.filters['status'];
-      delete opts.filters['patientId'];
-      delete opts.filters['doctorId'];
-      delete opts.filters['keyword'];
+      delete opts.filters["status"];
+      delete opts.filters["patientId"];
+      delete opts.filters["doctorId"];
+      delete opts.filters["keyword"];
     }
-    if (patientIdParam) source = source.filter((r: any) => String(r.patientId ?? '') === patientIdParam);
-    if (doctorIdParam) source = source.filter((r: any) =>
-      String(r.doctorId ?? r.reportDoctorId ?? r.radiologistId ?? '') === doctorIdParam);
+    if (patientIdParam)
+      source = source.filter(
+        (r: any) => String(r.patientId ?? "") === patientIdParam,
+      );
+    if (doctorIdParam)
+      source = source.filter(
+        (r: any) =>
+          String(r.doctorId ?? r.reportDoctorId ?? r.radiologistId ?? "") ===
+          doctorIdParam,
+      );
     if (keywordParam) {
       const kw = keywordParam.toLowerCase();
-      source = source.filter((r: any) =>
-        String(r.patientName ?? '').toLowerCase().includes(kw) ||
-        String(r.accessionNumber ?? r.reportId ?? '').toLowerCase().includes(kw));
+      source = source.filter(
+        (r: any) =>
+          String(r.patientName ?? "")
+            .toLowerCase()
+            .includes(kw) ||
+          String(r.accessionNumber ?? r.reportId ?? "")
+            .toLowerCase()
+            .includes(kw),
+      );
     }
-    const result = applyQuery(source, {
-      ...opts,
-      pageSize: takeParam ? Math.min(Math.max(Number(takeParam) || 20, 1), 1000) : opts.pageSize,
-    }, ['patientName', 'reportId', 'examItem', 'bodyPart']);
+    const result = applyQuery(
+      source,
+      {
+        ...opts,
+        pageSize: takeParam
+          ? Math.min(Math.max(Number(takeParam) || 20, 1), 1000)
+          : opts.pageSize,
+      },
+      ["patientName", "reportId", "examItem", "bodyPart"],
+    );
     // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: state=PENDING_ASSIGNMENT 行以待分配态呈现 (对齐后端报告实体)
     const withPendingAssignment = result.data.map((r: any) => {
-      if (String(r.state ?? '').toUpperCase() === 'PENDING_ASSIGNMENT') return { ...r, status: 'PENDING_ASSIGNMENT' };
+      if (String(r.state ?? "").toUpperCase() === "PENDING_ASSIGNMENT")
+        return { ...r, status: "PENDING_ASSIGNMENT" };
       return r;
     });
     // [v3.0.6.11-98 Wave1B P0-3] 报告正文合并: exams 集合为检查行(无正文), 按 reportId/examId 从
     //   reports 集合 (unified-reports.json, 含 findings/impression) 补齐正文, 供「上一例复制」/历史报告使用
     const reportBodyIndex = new Map<string, any>();
     try {
-      list<any>('reports').forEach((rp: any) => {
+      list<any>("reports").forEach((rp: any) => {
         if (rp?.examId) reportBodyIndex.set(String(rp.examId), rp);
         if (rp?.reportId) reportBodyIndex.set(String(rp.reportId), rp);
       });
-    } catch { /* 集合未就绪时跳过合并 */ }
+    } catch {
+      /* 集合未就绪时跳过合并 */
+    }
     const enrichReport = (r: any) => {
-      const rp = reportBodyIndex.get(String(r.reportId ?? r.id ?? '')) ?? reportBodyIndex.get(String(r.examId ?? ''));
+      const rp =
+        reportBodyIndex.get(String(r.reportId ?? r.id ?? "")) ??
+        reportBodyIndex.get(String(r.examId ?? ""));
       if (!rp) return r;
       return {
         ...r,
-        findings: rp.findings ?? r.findings ?? '',
-        impression: rp.impression ?? r.diagnosis ?? r.impression ?? '',
-        diagnosis: rp.diagnosis ?? r.diagnosis ?? '',
-        conclusion: rp.conclusion ?? r.conclusion ?? '',
-        recommendations: rp.recommendations ?? r.recommendations ?? '',
-        reportDoctorName: rp.reportDoctorName ?? r.reportDoctorName ?? r.radiologistName ?? '',
-        doctorName: rp.reportDoctorName ?? r.reportDoctorName ?? '',
+        findings: rp.findings ?? r.findings ?? "",
+        impression: rp.impression ?? r.diagnosis ?? r.impression ?? "",
+        diagnosis: rp.diagnosis ?? r.diagnosis ?? "",
+        conclusion: rp.conclusion ?? r.conclusion ?? "",
+        recommendations: rp.recommendations ?? r.recommendations ?? "",
+        reportDoctorName:
+          rp.reportDoctorName ?? r.reportDoctorName ?? r.radiologistName ?? "",
+        doctorName: rp.reportDoctorName ?? r.reportDoctorName ?? "",
       };
     };
     return HttpResponse.json({
       success: true,
-      data: withPendingAssignment.map((r: any) => toReportDto(enrichReport(r), qMap.get(r.reportId))),
-      meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages },
+      data: withPendingAssignment.map((r: any) =>
+        toReportDto(enrichReport(r), qMap.get(r.reportId)),
+      ),
+      meta: {
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      },
     });
   }),
 
   // [v3.0.6.11-95 Wave3B P1] 批量状态流转: POST /reports/batch-transition (逐条校验, 失败不阻断)
   http.post(`${API_BASE}/reports/batch-transition`, async ({ request }) => {
     await delay(150);
-    const body = (await request.json()) as { ids?: string[]; to?: string; actorId?: string; reason?: string };
+    const body = (await request.json()) as {
+      ids?: string[];
+      to?: string;
+      actorId?: string;
+      reason?: string;
+    };
     const ids = Array.isArray(body?.ids) ? body.ids.filter(Boolean) : [];
-    const target = (body?.to ?? '').toUpperCase();
+    const target = (body?.to ?? "").toUpperCase();
     if (ids.length === 0 || !target) {
-      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'ids and to are required' } }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "ids and to are required" },
+        },
+        { status: 400 },
+      );
     }
     const STATE_TO_STATUS: Record<string, string> = {
-      PENDING_ASSIGNMENT: 'draft', ASSIGNED: 'draft', WRITING: 'draft', SUBMITTED: 'submitted',
-      INITIAL_REVIEW: 'inReview', FINAL_REVIEW: 'inReview', CO_SIGN_REVIEW: 'inReview',
-      REVIEWED: 'reviewed', SIGNING: 'reviewed', SIGNED: 'signed', PUBLISHED: 'published',
-      AMENDING: 'amended', AMENDED: 'amended', WITHDRAWN: 'withdrawn', REJECTED: 'rejected',
-      ESCALATED: 'inReview', ARCHIVED: 'published', RECTIFYING: 'amended', SUPPLEMENTING: 'amended',
-      SUPPLEMENTED: 'amended', REDISTRIBUTING: 'published',
+      PENDING_ASSIGNMENT: "draft",
+      ASSIGNED: "draft",
+      WRITING: "draft",
+      SUBMITTED: "submitted",
+      INITIAL_REVIEW: "inReview",
+      FINAL_REVIEW: "inReview",
+      CO_SIGN_REVIEW: "inReview",
+      REVIEWED: "reviewed",
+      SIGNING: "reviewed",
+      SIGNED: "signed",
+      PUBLISHED: "published",
+      AMENDING: "amended",
+      AMENDED: "amended",
+      WITHDRAWN: "withdrawn",
+      REJECTED: "rejected",
+      ESCALATED: "inReview",
+      ARCHIVED: "published",
+      RECTIFYING: "amended",
+      SUPPLEMENTING: "amended",
+      SUPPLEMENTED: "amended",
+      REDISTRIBUTING: "published",
     };
     const succeeded: { id: string; state: string }[] = [];
     const failed: { id: string; message: string }[] = [];
     // 记录侧无 state 字段 (seed 仅 status 小写英文) → 由 status 归一化出后端态
     const STATUS_TO_EN_STATE: Record<string, string> = {
-      draft: 'WRITING', submitted: 'SUBMITTED', inreview: 'INITIAL_REVIEW', in_review: 'INITIAL_REVIEW',
-      reviewed: 'REVIEWED', cosigned: 'CO_SIGN_REVIEW', signed: 'SIGNED', published: 'PUBLISHED',
-      amended: 'AMENDED', rejected: 'REJECTED', withdrawn: 'WITHDRAWN', cancelled: 'WITHDRAWN',
-      final: 'PUBLISHED', pending: 'PENDING_ASSIGNMENT',
+      draft: "WRITING",
+      submitted: "SUBMITTED",
+      inreview: "INITIAL_REVIEW",
+      in_review: "INITIAL_REVIEW",
+      reviewed: "REVIEWED",
+      cosigned: "CO_SIGN_REVIEW",
+      signed: "SIGNED",
+      published: "PUBLISHED",
+      amended: "AMENDED",
+      rejected: "REJECTED",
+      withdrawn: "WITHDRAWN",
+      cancelled: "WITHDRAWN",
+      final: "PUBLISHED",
+      pending: "PENDING_ASSIGNMENT",
     };
     for (const id of ids) {
-      const before = get<any>('exams', id);
-      if (!before) { failed.push({ id, message: '报告不存在' }); continue; }
-      const fromState = String(before.state ?? '').toUpperCase()
-        || STATUS_TO_EN_STATE[String(before.status ?? '').toLowerCase()]
-        || String(before.status ?? '').toUpperCase();
+      const before = get<any>("exams", id);
+      if (!before) {
+        failed.push({ id, message: "报告不存在" });
+        continue;
+      }
+      const fromState =
+        String(before.state ?? "").toUpperCase() ||
+        STATUS_TO_EN_STATE[String(before.status ?? "").toLowerCase()] ||
+        String(before.status ?? "").toUpperCase();
       const ALLOWED: Record<string, string[]> = {
-        PENDING_ASSIGNMENT: ['ASSIGNED', 'WRITING'], ASSIGNED: ['WRITING', 'REDISTRIBUTING'],
-        WRITING: ['SUBMITTED', 'INITIAL_REVIEW', 'REJECTED'], SUBMITTED: ['INITIAL_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
-        INITIAL_REVIEW: ['FINAL_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'], FINAL_REVIEW: ['CO_SIGN_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
-        CO_SIGN_REVIEW: ['REVIEWED', 'REJECTED', 'ESCALATED'], REVIEWED: ['SIGNING', 'SIGNED', 'REJECTED', 'ESCALATED'],
-        SIGNING: ['SIGNED', 'REJECTED'], SIGNED: ['PUBLISHED', 'AMENDING', 'AMENDED', 'RECTIFYING', 'SUPPLEMENTING'],
-        PUBLISHED: ['AMENDING', 'AMENDED', 'SUPPLEMENTING', 'ARCHIVED', 'PUBLISHED'],
-        AMENDING: ['AMENDED', 'REJECTED'], AMENDED: ['SIGNED', 'REJECTED'], REJECTED: ['WRITING'],
-        ESCALATED: ['REVIEWED', 'REJECTED'], RECTIFYING: ['REVIEWED', 'REJECTED'],
-        SUPPLEMENTING: ['SUPPLEMENTED', 'REJECTED'], SUPPLEMENTED: ['PUBLISHED', 'REJECTED'], REDISTRIBUTING: ['ASSIGNED'],
+        PENDING_ASSIGNMENT: ["ASSIGNED", "WRITING"],
+        ASSIGNED: ["WRITING", "REDISTRIBUTING"],
+        WRITING: ["SUBMITTED", "INITIAL_REVIEW", "REJECTED"],
+        SUBMITTED: ["INITIAL_REVIEW", "REVIEWED", "REJECTED", "ESCALATED"],
+        INITIAL_REVIEW: ["FINAL_REVIEW", "REVIEWED", "REJECTED", "ESCALATED"],
+        FINAL_REVIEW: ["CO_SIGN_REVIEW", "REVIEWED", "REJECTED", "ESCALATED"],
+        CO_SIGN_REVIEW: ["REVIEWED", "REJECTED", "ESCALATED"],
+        REVIEWED: ["SIGNING", "SIGNED", "REJECTED", "ESCALATED"],
+        SIGNING: ["SIGNED", "REJECTED"],
+        SIGNED: [
+          "PUBLISHED",
+          "AMENDING",
+          "AMENDED",
+          "RECTIFYING",
+          "SUPPLEMENTING",
+        ],
+        PUBLISHED: [
+          "AMENDING",
+          "AMENDED",
+          "SUPPLEMENTING",
+          "ARCHIVED",
+          "PUBLISHED",
+        ],
+        AMENDING: ["AMENDED", "REJECTED"],
+        AMENDED: ["SIGNED", "REJECTED"],
+        REJECTED: ["WRITING"],
+        ESCALATED: ["REVIEWED", "REJECTED"],
+        RECTIFYING: ["REVIEWED", "REJECTED"],
+        SUPPLEMENTING: ["SUPPLEMENTED", "REJECTED"],
+        SUPPLEMENTED: ["PUBLISHED", "REJECTED"],
+        REDISTRIBUTING: ["ASSIGNED"],
       };
       if (!(ALLOWED[fromState] ?? []).includes(target)) {
-        failed.push({ id, message: `INVALID_TRANSITION: ${fromState} → ${target} 不允许` });
+        failed.push({
+          id,
+          message: `INVALID_TRANSITION: ${fromState} → ${target} 不允许`,
+        });
         continue;
       }
-      if (target === 'REJECTED' && !body?.reason?.trim()) {
-        failed.push({ id, message: 'INVALID_TRANSITION: REJECTED 必须提供 reason' });
+      if (target === "REJECTED" && !body?.reason?.trim()) {
+        failed.push({
+          id,
+          message: "INVALID_TRANSITION: REJECTED 必须提供 reason",
+        });
         continue;
       }
-      const updated = update<any>('exams', id, {
-        status: STATE_TO_STATUS[target] ?? 'submitted',
+      const updated = update<any>("exams", id, {
+        status: STATE_TO_STATUS[target] ?? "submitted",
         state: target,
-        rejectReason: target === 'REJECTED' ? (body?.reason ?? '') : undefined,
+        rejectReason: target === "REJECTED" ? (body?.reason ?? "") : undefined,
       });
       if (updated) {
-        auditStatusChange('reports', updated, before.status, STATE_TO_STATUS[target] ?? 'submitted');
-        recordWorkflowEvent({ actorId: body?.actorId ?? 'system', actorName: '系统', action: 'batch-transition', entityType: 'reports', entityId: id, fromState: before.status, toState: target, metadata: { reason: body?.reason } });
+        auditStatusChange(
+          "reports",
+          updated,
+          before.status,
+          STATE_TO_STATUS[target] ?? "submitted",
+        );
+        recordWorkflowEvent({
+          actorId: body?.actorId ?? "system",
+          actorName: "系统",
+          action: "batch-transition",
+          entityType: "reports",
+          entityId: id,
+          fromState: before.status,
+          toState: target,
+          metadata: { reason: body?.reason },
+        });
         succeeded.push({ id, state: target });
       } else {
-        failed.push({ id, message: '流转失败' });
+        failed.push({ id, message: "流转失败" });
       }
     }
     return HttpResponse.json({ success: true, data: { succeeded, failed } });
@@ -577,41 +758,87 @@ export const reportHandlers = [
     await delay(150);
     const body = (await request.json()) as { ids?: string[]; format?: string };
     const ids = Array.isArray(body?.ids) ? body.ids.filter(Boolean) : [];
-    if (ids.length === 0) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'ids is required' } }, { status: 400 });
+    if (ids.length === 0)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "ids is required" },
+        },
+        { status: 400 },
+      );
     const taskId = `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    batchExportTasks.set(taskId, { taskId, status: 'pending', progress: 0, total: ids.length, format: (body.format ?? 'pdf').toLowerCase(), ids, createdAt: Date.now() });
-    return HttpResponse.json({ success: true, data: { taskId, status: 'pending', total: ids.length, format: (body.format ?? 'pdf').toLowerCase() } }, { status: 201 });
+    batchExportTasks.set(taskId, {
+      taskId,
+      status: "pending",
+      progress: 0,
+      total: ids.length,
+      format: (body.format ?? "pdf").toLowerCase(),
+      ids,
+      createdAt: Date.now(),
+    });
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          taskId,
+          status: "pending",
+          total: ids.length,
+          format: (body.format ?? "pdf").toLowerCase(),
+        },
+      },
+      { status: 201 },
+    );
   }),
 
   http.get(`${API_BASE}/reports/batch-export/:taskId`, async ({ params }) => {
     await delay(80);
     const task = batchExportTasks.get(params.taskId as string);
-    if (!task) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Batch export task not found' } }, { status: 404 });
+    if (!task)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Batch export task not found" },
+        },
+        { status: 404 },
+      );
     const elapsed = Date.now() - task.createdAt;
     const progress = Math.min(100, Math.round((elapsed / 1800) * 100));
-    const status = progress >= 100 ? 'completed' : progress > 0 ? 'running' : 'pending';
+    const status =
+      progress >= 100 ? "completed" : progress > 0 ? "running" : "pending";
     const done = Math.min(task.total, Math.ceil((progress / 100) * task.total));
-    const downloads = status === 'completed'
-      ? task.ids.map((id) => ({
-          reportId: id,
-          fileName: `${id}.${task.format}`,
-          filePath: `/exports/reports/${id}.${task.format}`,
-          sizeBytes: 256000,
-          format: task.format,
-          // [v3.0.6.11-88 P0] 下载路径对齐后端 /reports/export-files/:fileName
-          downloadUrl: `${API_BASE}/reports/export-files/${id}.${task.format}`,
-        }))
-      : [];
+    const downloads =
+      status === "completed"
+        ? task.ids.map((id) => ({
+            reportId: id,
+            fileName: `${id}.${task.format}`,
+            filePath: `/exports/reports/${id}.${task.format}`,
+            sizeBytes: 256000,
+            format: task.format,
+            // [v3.0.6.11-88 P0] 下载路径对齐后端 /reports/export-files/:fileName
+            downloadUrl: `${API_BASE}/reports/export-files/${id}.${task.format}`,
+          }))
+        : [];
     return HttpResponse.json({
       success: true,
-      data: { taskId: task.taskId, status, progress, total: task.total, done, failedCount: 0, format: task.format, downloads, createdAt: new Date(task.createdAt).toISOString(), updatedAt: new Date().toISOString() },
+      data: {
+        taskId: task.taskId,
+        status,
+        progress,
+        total: task.total,
+        done,
+        failedCount: 0,
+        format: task.format,
+        downloads,
+        createdAt: new Date(task.createdAt).toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
     });
   }),
 
   // 统计 (必须在 :id 之前)
   http.get(`${API_BASE}/reports/stats`, async () => {
     await delay(80);
-    const all = list<any>('exams');
+    const all = list<any>("exams");
     const byStatus: Record<string, number> = {};
     const byModality: Record<string, number> = {};
     const byPriority: Record<string, number> = {};
@@ -624,58 +851,143 @@ export const reportHandlers = [
       totalDefect += r.defectCount || 0;
       if (r.hasCriticalValue) totalCritical++;
     }
-    return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority, totalDefect, totalCritical } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: all.length,
+        byStatus,
+        byModality,
+        byPriority,
+        totalDefect,
+        totalCritical,
+      },
+    });
   }),
 
   // [G005 Wave 8] 报告冷归档策略 (静态子路由必须在 :id 之前; 内存 + seed, 对齐后端 ReportsService)
   http.get(`${API_BASE}/reports/archive-policy`, async () => {
     await delay(60);
-    return HttpResponse.json({ success: true, data: { ...archivePolicyStore, archivedCount: archiveTasks.filter((t) => t.status === 'archived').length, pendingCount: archiveTasks.filter((t) => t.status === 'pending').length } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ...archivePolicyStore,
+        archivedCount: archiveTasks.filter((t) => t.status === "archived")
+          .length,
+        pendingCount: archiveTasks.filter((t) => t.status === "pending").length,
+      },
+    });
   }),
 
   http.put(`${API_BASE}/reports/archive-policy`, async ({ request }) => {
     await delay(60);
-    const body = (await request.json().catch(() => ({}))) as { enabled?: boolean; archiveAfterDays?: number; targetTier?: string; deleteSourceAfterDays?: number | null };
-    if (body.enabled !== undefined && typeof body.enabled !== 'boolean') {
-      return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'enabled 必须是布尔值' } }, { status: 400 });
+    const body = (await request.json().catch(() => ({}))) as {
+      enabled?: boolean;
+      archiveAfterDays?: number;
+      targetTier?: string;
+      deleteSourceAfterDays?: number | null;
+    };
+    if (body.enabled !== undefined && typeof body.enabled !== "boolean") {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "VALIDATION_ERROR", message: "enabled 必须是布尔值" },
+        },
+        { status: 400 },
+      );
     }
-    if (body.targetTier !== undefined && !['archive', 'cold'].includes(String(body.targetTier))) {
-      return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'targetTier 仅支持 archive|cold' } }, { status: 400 });
+    if (
+      body.targetTier !== undefined &&
+      !["archive", "cold"].includes(String(body.targetTier))
+    ) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "targetTier 仅支持 archive|cold",
+          },
+        },
+        { status: 400 },
+      );
     }
-    if (body.archiveAfterDays !== undefined && (!Number.isInteger(Number(body.archiveAfterDays)) || Number(body.archiveAfterDays) < 1 || Number(body.archiveAfterDays) > 36500)) {
-      return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'archiveAfterDays 必须是 1-36500 的整数' } }, { status: 400 });
+    if (
+      body.archiveAfterDays !== undefined &&
+      (!Number.isInteger(Number(body.archiveAfterDays)) ||
+        Number(body.archiveAfterDays) < 1 ||
+        Number(body.archiveAfterDays) > 36500)
+    ) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "archiveAfterDays 必须是 1-36500 的整数",
+          },
+        },
+        { status: 400 },
+      );
     }
     if (body.enabled !== undefined) archivePolicyStore.enabled = body.enabled;
-    if (body.archiveAfterDays !== undefined) archivePolicyStore.archiveAfterDays = Number(body.archiveAfterDays);
-    if (body.targetTier !== undefined) archivePolicyStore.targetTier = body.targetTier as 'archive' | 'cold';
-    if (body.deleteSourceAfterDays !== undefined) archivePolicyStore.deleteSourceAfterDays = body.deleteSourceAfterDays === null ? null : Number(body.deleteSourceAfterDays);
+    if (body.archiveAfterDays !== undefined)
+      archivePolicyStore.archiveAfterDays = Number(body.archiveAfterDays);
+    if (body.targetTier !== undefined)
+      archivePolicyStore.targetTier = body.targetTier as "archive" | "cold";
+    if (body.deleteSourceAfterDays !== undefined)
+      archivePolicyStore.deleteSourceAfterDays =
+        body.deleteSourceAfterDays === null
+          ? null
+          : Number(body.deleteSourceAfterDays);
     archivePolicyStore.updatedAt = new Date().toISOString();
-    return HttpResponse.json({ success: true, data: { ...archivePolicyStore, archivedCount: archiveTasks.filter((t) => t.status === 'archived').length, pendingCount: archiveTasks.filter((t) => t.status === 'pending').length } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ...archivePolicyStore,
+        archivedCount: archiveTasks.filter((t) => t.status === "archived")
+          .length,
+        pendingCount: archiveTasks.filter((t) => t.status === "pending").length,
+      },
+    });
   }),
 
   // 详情
   http.get(`${API_BASE}/reports/:id`, async ({ params }) => {
     await delay(50);
-    const report = get<any>('exams', params.id as string);
-    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const report = get<any>("exams", params.id as string);
+    if (!report)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Report not found" },
+        },
+        { status: 404 },
+      );
     // [v3.0.6.11-98 Wave1B P0-3] 按 examId/reportId 从 reports 集合补齐正文 (findings/impression)
     let enriched = report;
     try {
-      const rp = (list<any>('reports') || []).find((x: any) =>
-        String(x?.examId ?? '') === String(params.id) || String(x?.reportId ?? '') === String(params.id));
+      const rp = (list<any>("reports") || []).find(
+        (x: any) =>
+          String(x?.examId ?? "") === String(params.id) ||
+          String(x?.reportId ?? "") === String(params.id),
+      );
       if (rp) {
         enriched = {
           ...report,
-          findings: rp.findings ?? report.findings ?? '',
-          impression: rp.impression ?? rp.diagnosis ?? report.impression ?? '',
-          diagnosis: rp.diagnosis ?? rp.diagnosis ?? '',
-          conclusion: rp.conclusion ?? rp.conclusion ?? '',
-          recommendations: rp.recommendations ?? rp.recommendations ?? '',
-          reportDoctorName: rp.reportDoctorName ?? report.reportDoctorName ?? '',
+          findings: rp.findings ?? report.findings ?? "",
+          impression: rp.impression ?? rp.diagnosis ?? report.impression ?? "",
+          diagnosis: rp.diagnosis ?? rp.diagnosis ?? "",
+          conclusion: rp.conclusion ?? rp.conclusion ?? "",
+          recommendations: rp.recommendations ?? rp.recommendations ?? "",
+          reportDoctorName:
+            rp.reportDoctorName ?? report.reportDoctorName ?? "",
         };
       }
-    } catch { /* 集合未就绪时保持原样 */ }
-    const q = findOne<any>('qualityScores', (x: any) => x.reportId === params.id);
+    } catch {
+      /* 集合未就绪时保持原样 */
+    }
+    const q = findOne<any>(
+      "qualityScores",
+      (x: any) => x.reportId === params.id,
+    );
     return HttpResponse.json({ success: true, data: toReportDto(enriched, q) });
   }),
 
@@ -683,30 +995,47 @@ export const reportHandlers = [
   //   常见诊断 = 关键词在 ≥2 份既往报告中出现; 无既往记录 seed 回退 (source: 'seed')
   http.get(`${API_BASE}/reports/:id/prior-summary`, async ({ params }) => {
     await delay(60);
-    const report = get<any>('exams', params.id as string);
-    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
-    const patientId = String(report.patientId ?? '');
-    const all = list<any>('exams');
+    const report = get<any>("exams", params.id as string);
+    if (!report)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Report not found" },
+        },
+        { status: 404 },
+      );
+    const patientId = String(report.patientId ?? "");
+    const all = list<any>("exams");
     const reportBodyIndex = new Map<string, any>();
     try {
-      list<any>('reports').forEach((rp: any) => {
+      list<any>("reports").forEach((rp: any) => {
         if (rp?.examId) reportBodyIndex.set(String(rp.examId), rp);
         if (rp?.reportId) reportBodyIndex.set(String(rp.reportId), rp);
       });
-    } catch { /* 集合未就绪时跳过合并 */ }
+    } catch {
+      /* 集合未就绪时跳过合并 */
+    }
     const prior = all
-      .filter((r: any) => String(r.patientId ?? '') === patientId && String(r.reportId ?? r.id ?? '') !== String(params.id))
+      .filter(
+        (r: any) =>
+          String(r.patientId ?? "") === patientId &&
+          String(r.reportId ?? r.id ?? "") !== String(params.id),
+      )
       .map((r: any) => {
-        const rp = reportBodyIndex.get(String(r.reportId ?? r.id ?? '')) ?? reportBodyIndex.get(String(r.examId ?? ''));
+        const rp =
+          reportBodyIndex.get(String(r.reportId ?? r.id ?? "")) ??
+          reportBodyIndex.get(String(r.examId ?? ""));
         return {
           id: r.id,
-          createdAt: r.createdTime ?? r.reportAt ?? r.examAt ?? '',
-          findings: rp?.findings ?? r.findings ?? '',
-          impression: rp?.impression ?? rp?.diagnosis ?? r.impression ?? '',
-          conclusion: rp?.conclusion ?? r.conclusion ?? '',
+          createdAt: r.createdTime ?? r.reportAt ?? r.examAt ?? "",
+          findings: rp?.findings ?? r.findings ?? "",
+          impression: rp?.impression ?? rp?.diagnosis ?? r.impression ?? "",
+          conclusion: rp?.conclusion ?? r.conclusion ?? "",
         };
       })
-      .sort((a: any, b: any) => String(b.createdAt).localeCompare(String(a.createdAt)));
+      .sort((a: any, b: any) =>
+        String(b.createdAt).localeCompare(String(a.createdAt)),
+      );
     if (prior.length === 0) {
       return HttpResponse.json({
         success: true,
@@ -715,20 +1044,45 @@ export const reportHandlers = [
           patientId,
           count: 3,
           lastReportDate: new Date(Date.now() - 30 * 86400000).toISOString(),
-          lastFindings: '双肺纹理稍增多,右肺下叶可见条索状高密度影。',
-          lastImpression: '右肺下叶陈旧性病灶,建议定期随访。',
+          lastFindings: "双肺纹理稍增多,右肺下叶可见条索状高密度影。",
+          lastImpression: "右肺下叶陈旧性病灶,建议定期随访。",
           commonDiagnoses: [
-            { keyword: '结节', count: 2 },
-            { keyword: '钙化', count: 2 },
+            { keyword: "结节", count: 2 },
+            { keyword: "钙化", count: 2 },
           ],
-          source: 'seed',
+          source: "seed",
         },
       });
     }
-    const DIAG_KEYWORDS = ['结节', '磨玻璃影', '斑片影', '纤维化', '钙化', '占位', '囊肿', '气胸', '胸腔积液', '肺炎', '结核', '肿瘤', '淋巴结', '狭窄', '闭塞', '脑梗死', '出血', '水肿', '增生', '动脉瘤', '结石', '肝硬化', '骨质疏松', '骨折'];
+    const DIAG_KEYWORDS = [
+      "结节",
+      "磨玻璃影",
+      "斑片影",
+      "纤维化",
+      "钙化",
+      "占位",
+      "囊肿",
+      "气胸",
+      "胸腔积液",
+      "肺炎",
+      "结核",
+      "肿瘤",
+      "淋巴结",
+      "狭窄",
+      "闭塞",
+      "脑梗死",
+      "出血",
+      "水肿",
+      "增生",
+      "动脉瘤",
+      "结石",
+      "肝硬化",
+      "骨质疏松",
+      "骨折",
+    ];
     const freq = new Map<string, number>();
     for (const r of prior) {
-      const text = `${r.conclusion ?? ''} ${r.impression ?? ''} ${r.findings ?? ''}`;
+      const text = `${r.conclusion ?? ""} ${r.impression ?? ""} ${r.findings ?? ""}`;
       const found = new Set<string>();
       for (const kw of DIAG_KEYWORDS) {
         if (text.includes(kw)) found.add(kw);
@@ -748,10 +1102,10 @@ export const reportHandlers = [
         patientId,
         count: prior.length,
         lastReportDate: last?.createdAt || null,
-        lastFindings: last?.findings ?? '',
-        lastImpression: last?.conclusion || last?.impression || '',
+        lastFindings: last?.findings ?? "",
+        lastImpression: last?.conclusion || last?.impression || "",
         commonDiagnoses,
-        source: 'db',
+        source: "db",
       },
     });
   }),
@@ -759,23 +1113,32 @@ export const reportHandlers = [
   // 差分 (新旧版本对比)
   http.get(`${API_BASE}/reports/:id/diff`, async ({ params }) => {
     await delay(80);
-    const report = get<any>('exams', params.id as string);
+    const report = get<any>("exams", params.id as string);
     if (!report) return HttpResponse.json({ success: false }, { status: 404 });
-    return HttpResponse.json({ success: true, data: {
-      reportId: params.id,
-      current: { findings: report.findings, impression: report.impression },
-      previous: { findings: report.findings + ' (旧版)', impression: report.impression + ' (旧版)' },
-      diff: [
-        { field: 'findings', type: 'modified', oldValue: '旧版', newValue: '新版' },
-      ],
-    } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        reportId: params.id,
+        current: { findings: report.findings, impression: report.impression },
+        previous: {
+          findings: report.findings + " (旧版)",
+          impression: report.impression + " (旧版)",
+        },
+        diff: [
+          {
+            field: "findings",
+            type: "modified",
+            oldValue: "旧版",
+            newValue: "新版",
+          },
+        ],
+      },
+    });
   }),
 
   // 签名证书信息
-  
 
   // 双签追踪
-  
 
   // 创建
   http.post(`${API_BASE}/reports`, async ({ request }) => {
@@ -786,31 +1149,34 @@ export const reportHandlers = [
       id: reportId,
       reportId,
       ...body,
-      status: 'draft',
+      status: "draft",
       examAt: body.examAt || new Date().toISOString(),
       reportAt: new Date().toISOString(),
     };
-    create('exams', newReport);
-    auditCreate('reports', newReport);
+    create("exams", newReport);
+    auditCreate("reports", newReport);
     const cosignTrigger = determineCosignTrigger({
-      reportDoctorTitle: body.doctorTitle ?? '住院医师',
+      reportDoctorTitle: body.doctorTitle ?? "住院医师",
       isCriticalValue: Boolean(body.hasCriticalValue),
-      examItem: body.examItem ?? body.modality ?? '',
+      examItem: body.examItem ?? body.modality ?? "",
       isVipPatient: Boolean(body.isVipPatient),
-      qcScore: typeof body.qcScore === 'number' ? body.qcScore : 100,
+      qcScore: typeof body.qcScore === "number" ? body.qcScore : 100,
       isComplex: Boolean(body.isComplex),
     });
     if (cosignTrigger) {
       recordWorkflowEvent({
-        actorId: 'system',
-        actorName: '系统',
-        action: 'cosign-trigger',
-        entityType: 'reports',
+        actorId: "system",
+        actorName: "系统",
+        action: "cosign-trigger",
+        entityType: "reports",
         entityId: reportId,
         metadata: { trigger: cosignTrigger },
       });
     }
-    return HttpResponse.json({ success: true, data: toReportDto(newReport), meta: { cosignTrigger } }, { status: 201 });
+    return HttpResponse.json(
+      { success: true, data: toReportDto(newReport), meta: { cosignTrigger } },
+      { status: 201 },
+    );
   }),
 
   // 更新 (带状态机校验)
@@ -818,20 +1184,23 @@ export const reportHandlers = [
     await delay(120);
     const id = params.id as string;
     const body = (await request.json()) as any;
-    const before = get<any>('exams', id);
+    const before = get<any>("exams", id);
     if (!before) return HttpResponse.json({ success: false }, { status: 404 });
-    const updated = update<any>('exams', id, body);
-    if (updated) auditUpdate('reports', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toReportDto(updated) : null });
+    const updated = update<any>("exams", id, body);
+    if (updated) auditUpdate("reports", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toReportDto(updated) : null,
+    });
   }),
 
   // 删除
   http.delete(`${API_BASE}/reports/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    const existed = remove('exams', id);
-    if (existed) auditDelete({ resource: 'reports', resourceId: id, before });
+    const before = get<any>("exams", id);
+    const existed = remove("exams", id);
+    if (existed) auditDelete({ resource: "reports", resourceId: id, before });
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
@@ -839,157 +1208,341 @@ export const reportHandlers = [
   http.post(`${API_BASE}/reports/:id/submit`, async ({ params }) => {
     await delay(120);
     const id = params.id as string;
-    const before = get<any>('exams', id);
+    const before = get<any>("exams", id);
     if (!before) return HttpResponse.json({ success: false }, { status: 404 });
-    const reportStates = ['draft','submitted','reviewed','cosigned','published','rejected','revised'];
+    const reportStates = [
+      "draft",
+      "submitted",
+      "reviewed",
+      "cosigned",
+      "published",
+      "rejected",
+      "revised",
+    ];
     if (!reportStates.includes(before.status)) {
-      return HttpResponse.json({ success: false, error: { code: 'INVALID_STATUS', message: `Report cannot be submitted from non-report status: ${before.status}` } }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_STATUS",
+            message: `Report cannot be submitted from non-report status: ${before.status}`,
+          },
+        },
+        { status: 400 },
+      );
     }
-    if (!canTransitionReport(mapReportStatus(before.status), 'submitted')) {
-      return HttpResponse.json({ success: false, error: { code: 'INVALID_TRANSITION', message: `Cannot transition from ${before.status} to submitted` } }, { status: 400 });
+    if (!canTransitionReport(mapReportStatus(before.status), "submitted")) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_TRANSITION",
+            message: `Cannot transition from ${before.status} to submitted`,
+          },
+        },
+        { status: 400 },
+      );
     }
-    const updated = update<any>('exams', id, { status: 'submitted', reportAt: new Date().toISOString() });
+    const updated = update<any>("exams", id, {
+      status: "submitted",
+      reportAt: new Date().toISOString(),
+    });
     if (updated) {
-      auditStatusChange('reports', updated, before.status, 'submitted');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'submit', entityType: 'reports', entityId: id, fromState: before.status, toState: 'submitted' });
+      auditStatusChange("reports", updated, before.status, "submitted");
+      recordWorkflowEvent({
+        actorId: "system",
+        actorName: "系统",
+        action: "submit",
+        entityType: "reports",
+        entityId: id,
+        fromState: before.status,
+        toState: "submitted",
+      });
     }
     return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
   // 审核
-  
 
   // 签发 (CA 签名)
-  
 
   // 驳回
-  
 
   // 修订
-  
 
   // [G005 Wave 8] 报告冷归档: POST /reports/:id/archive (PUBLISHED → ARCHIVED + 归档任务记录)
   http.post(`${API_BASE}/reports/:id/archive`, async ({ params }) => {
     await delay(120);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
-    const fromState = String(before.state ?? '').toUpperCase() || String(before.status ?? '').toUpperCase();
-    if (fromState === 'ARCHIVED') {
-      const task = archiveTasks.find((t) => t.reportId === id) ?? { id: `RAT-${String(++archiveTaskSeq).padStart(6, '0')}`, reportId: id, status: 'archived' as const, targetTier: archivePolicyStore.targetTier, archivedAt: new Date().toISOString(), policyEnabled: archivePolicyStore.enabled };
-      if (!archiveTasks.some((t) => t.reportId === id)) archiveTasks.unshift(task);
-      return HttpResponse.json({ success: true, data: { id, state: 'ARCHIVED', archivedAt: task.archivedAt, alreadyArchived: true, task } });
+    const before = get<any>("exams", id);
+    if (!before)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Report not found" },
+        },
+        { status: 404 },
+      );
+    const fromState =
+      String(before.state ?? "").toUpperCase() ||
+      String(before.status ?? "").toUpperCase();
+    if (fromState === "ARCHIVED") {
+      const task = archiveTasks.find((t) => t.reportId === id) ?? {
+        id: `RAT-${String(++archiveTaskSeq).padStart(6, "0")}`,
+        reportId: id,
+        status: "archived" as const,
+        targetTier: archivePolicyStore.targetTier,
+        archivedAt: new Date().toISOString(),
+        policyEnabled: archivePolicyStore.enabled,
+      };
+      if (!archiveTasks.some((t) => t.reportId === id))
+        archiveTasks.unshift(task);
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id,
+          state: "ARCHIVED",
+          archivedAt: task.archivedAt,
+          alreadyArchived: true,
+          task,
+        },
+      });
     }
-    if (fromState !== 'PUBLISHED') {
-      return HttpResponse.json({ success: false, error: { code: 'INVALID_TRANSITION', message: `INVALID_TRANSITION: ${fromState} → ARCHIVED 不允许 (仅已发布报告可归档)` } }, { status: 400 });
+    if (fromState !== "PUBLISHED") {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_TRANSITION",
+            message: `INVALID_TRANSITION: ${fromState} → ARCHIVED 不允许 (仅已发布报告可归档)`,
+          },
+        },
+        { status: 400 },
+      );
     }
     const archivedAt = new Date().toISOString();
-    const task = { id: `RAT-${String(++archiveTaskSeq).padStart(6, '0')}`, reportId: id, status: 'archived' as const, targetTier: archivePolicyStore.targetTier, archivedAt, policyEnabled: archivePolicyStore.enabled };
+    const task = {
+      id: `RAT-${String(++archiveTaskSeq).padStart(6, "0")}`,
+      reportId: id,
+      status: "archived" as const,
+      targetTier: archivePolicyStore.targetTier,
+      archivedAt,
+      policyEnabled: archivePolicyStore.enabled,
+    };
     archiveTasks.unshift(task);
-    const updated = update<any>('exams', id, { status: 'published', state: 'ARCHIVED' });
+    const updated = update<any>("exams", id, {
+      status: "published",
+      state: "ARCHIVED",
+    });
     if (updated) {
-      auditStatusChange('reports', updated, before.status, 'published');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'archive', entityType: 'reports', entityId: id, fromState: before.status, toState: 'ARCHIVED', metadata: { targetTier: task.targetTier } });
+      auditStatusChange("reports", updated, before.status, "published");
+      recordWorkflowEvent({
+        actorId: "system",
+        actorName: "系统",
+        action: "archive",
+        entityType: "reports",
+        entityId: id,
+        fromState: before.status,
+        toState: "ARCHIVED",
+        metadata: { targetTier: task.targetTier },
+      });
     }
-    return HttpResponse.json({ success: true, data: { id, state: 'ARCHIVED', archivedAt, task } });
+    return HttpResponse.json({
+      success: true,
+      data: { id, state: "ARCHIVED", archivedAt, task },
+    });
   }),
 
   // [v3.0.6.11-70] P0 状态机: 通用状态流转 (SUBMITTED/INITIAL_REVIEW/FINAL_REVIEW/REVIEWED/REJECTED/SIGNED/PUBLISHED...)
   //   与 reportApi.transition 对应: POST /reports/:id/transition  { to, actorId, reason? }
-  http.post(`${API_BASE}/reports/:id/transition`, async ({ params, request }) => {
-    await delay(120);
-    const id = params.id as string;
-    const body = (await request.json()) as { to?: string; actorId?: string; reason?: string; qualityScore?: number };
-    const before = get<any>('exams', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
-    const target = (body.to ?? 'SUBMITTED').toUpperCase() as string;
-    // 后端大写状态 → MSW 存储小写状态
-    const STATE_TO_STATUS: Record<string, string> = {
-      PENDING_ASSIGNMENT: 'draft', ASSIGNED: 'draft', WRITING: 'draft', SUBMITTED: 'submitted',
-      INITIAL_REVIEW: 'inReview', FINAL_REVIEW: 'inReview', CO_SIGN_REVIEW: 'inReview',
-      REVIEWED: 'reviewed', SIGNING: 'reviewed', SIGNED: 'signed', PUBLISHED: 'published',
-      AMENDING: 'amended', AMENDED: 'amended', WITHDRAWN: 'withdrawn', REJECTED: 'rejected',
-      ESCALATED: 'inReview', ARCHIVED: 'published', RECTIFYING: 'amended', SUPPLEMENTING: 'amended',
-      SUPPLEMENTED: 'amended', REDISTRIBUTING: 'published',
-    };
-    const nextStatus = STATE_TO_STATUS[target] ?? 'submitted';
-    // [W6] 报告状态机门禁: 与后端 REPORT_TRANSITIONS 对齐 (拒绝 REVIEWED → REVIEWED 等自环/跳级)
-    const REPORT_TRANSITIONS: Record<string, string[]> = {
-      PENDING_ASSIGNMENT: ['ASSIGNED', 'WRITING'],
-      ASSIGNED: ['WRITING', 'REDISTRIBUTING'],
-      WRITING: ['SUBMITTED', 'REJECTED'],
-      SUBMITTED: ['INITIAL_REVIEW', 'REJECTED', 'ESCALATED'],
-      INITIAL_REVIEW: ['FINAL_REVIEW', 'CO_SIGN_REVIEW', 'REJECTED', 'ESCALATED'],
-      FINAL_REVIEW: ['CO_SIGN_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
-      CO_SIGN_REVIEW: ['REVIEWED', 'REJECTED', 'ESCALATED'],
-      REVIEWED: ['SIGNING', 'SIGNED', 'REJECTED', 'ESCALATED'],
-      SIGNING: ['SIGNED', 'REJECTED'],
-      SIGNED: ['PUBLISHED', 'AMENDING', 'AMENDED', 'RECTIFYING', 'SUPPLEMENTING'],
-      PUBLISHED: ['AMENDING', 'AMENDED', 'SUPPLEMENTING', 'ARCHIVED', 'PUBLISHED'],
-      AMENDING: ['AMENDED', 'REJECTED'],
-      AMENDED: ['SIGNED', 'REJECTED'],
-      REJECTED: ['WRITING'],
-      WITHDRAWN: [],
-      ESCALATED: ['REVIEWED', 'REJECTED'],
-      ARCHIVED: [],
-      RECTIFYING: ['REVIEWED', 'REJECTED'],
-      SUPPLEMENTING: ['SUPPLEMENTED', 'REJECTED'],
-      SUPPLEMENTED: ['PUBLISHED', 'REJECTED'],
-      REDISTRIBUTING: ['ASSIGNED'],
-    };
-    const STATUS_TO_UPPER: Record<string, string> = {
-      draft: 'WRITING', pending: 'PENDING_ASSIGNMENT', submitted: 'SUBMITTED', inreview: 'INITIAL_REVIEW',
-      in_review: 'INITIAL_REVIEW', review: 'INITIAL_REVIEW', reviewed: 'REVIEWED', cosigned: 'CO_SIGN_REVIEW',
-      signed: 'SIGNED', published: 'PUBLISHED', final: 'PUBLISHED', amended: 'AMENDED',
-      rejected: 'REJECTED', withdrawn: 'WITHDRAWN', cancelled: 'WITHDRAWN', archived: 'ARCHIVED',
-    };
-    const fromState =
-      (REPORT_TRANSITIONS[String(before.state ?? '').toUpperCase()] ? String(before.state).toUpperCase() : undefined) ??
-      STATUS_TO_UPPER[String(before.status ?? '').toLowerCase()] ??
-      'PENDING_ASSIGNMENT';
-    if (!(REPORT_TRANSITIONS[fromState] ?? []).includes(target)) {
-      return HttpResponse.json({ success: false, error: { code: 'INVALID_TRANSITION', message: `INVALID_TRANSITION: ${fromState} → ${target} 不允许` } }, { status: 400 });
-    }
-    const updated = update<any>('exams', id, {
-      status: nextStatus,
-      state: target,
-      rejectReason: target === 'REJECTED' ? (body.reason ?? '') : undefined,
-      // [G005 contract] 发布时持久化 qualityScore (对齐后端 Report.qualityScore)
-      qualityScore: target === 'PUBLISHED' ? (body.qualityScore ?? before.qualityScore) : before.qualityScore,
-      reportAt: new Date().toISOString(),
-    });
-    if (updated) {
-      auditStatusChange('reports', updated, before.status, nextStatus);
-      recordWorkflowEvent({
-        actorId: body.actorId ?? 'system',
-        actorName: '系统',
-        action: 'transition',
-        entityType: 'reports',
-        entityId: id,
-        fromState: before.status,
-        toState: target,
-        metadata: { reason: body.reason },
+  http.post(
+    `${API_BASE}/reports/:id/transition`,
+    async ({ params, request }) => {
+      await delay(120);
+      const id = params.id as string;
+      const body = (await request.json()) as {
+        to?: string;
+        actorId?: string;
+        reason?: string;
+        qualityScore?: number;
+      };
+      const before = get<any>("exams", id);
+      if (!before)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Report not found" },
+          },
+          { status: 404 },
+        );
+      const target = (body.to ?? "SUBMITTED").toUpperCase() as string;
+      // 后端大写状态 → MSW 存储小写状态
+      const STATE_TO_STATUS: Record<string, string> = {
+        PENDING_ASSIGNMENT: "draft",
+        ASSIGNED: "draft",
+        WRITING: "draft",
+        SUBMITTED: "submitted",
+        INITIAL_REVIEW: "inReview",
+        FINAL_REVIEW: "inReview",
+        CO_SIGN_REVIEW: "inReview",
+        REVIEWED: "reviewed",
+        SIGNING: "reviewed",
+        SIGNED: "signed",
+        PUBLISHED: "published",
+        AMENDING: "amended",
+        AMENDED: "amended",
+        WITHDRAWN: "withdrawn",
+        REJECTED: "rejected",
+        ESCALATED: "inReview",
+        ARCHIVED: "published",
+        RECTIFYING: "amended",
+        SUPPLEMENTING: "amended",
+        SUPPLEMENTED: "amended",
+        REDISTRIBUTING: "published",
+      };
+      const nextStatus = STATE_TO_STATUS[target] ?? "submitted";
+      // [W6] 报告状态机门禁: 与后端 REPORT_TRANSITIONS 对齐 (拒绝 REVIEWED → REVIEWED 等自环/跳级)
+      const REPORT_TRANSITIONS: Record<string, string[]> = {
+        PENDING_ASSIGNMENT: ["ASSIGNED", "WRITING"],
+        ASSIGNED: ["WRITING", "REDISTRIBUTING"],
+        WRITING: ["SUBMITTED", "REJECTED"],
+        SUBMITTED: ["INITIAL_REVIEW", "REJECTED", "ESCALATED"],
+        INITIAL_REVIEW: [
+          "FINAL_REVIEW",
+          "CO_SIGN_REVIEW",
+          "REJECTED",
+          "ESCALATED",
+        ],
+        FINAL_REVIEW: ["CO_SIGN_REVIEW", "REVIEWED", "REJECTED", "ESCALATED"],
+        CO_SIGN_REVIEW: ["REVIEWED", "REJECTED", "ESCALATED"],
+        REVIEWED: ["SIGNING", "SIGNED", "REJECTED", "ESCALATED"],
+        SIGNING: ["SIGNED", "REJECTED"],
+        SIGNED: [
+          "PUBLISHED",
+          "AMENDING",
+          "AMENDED",
+          "RECTIFYING",
+          "SUPPLEMENTING",
+        ],
+        PUBLISHED: [
+          "AMENDING",
+          "AMENDED",
+          "SUPPLEMENTING",
+          "ARCHIVED",
+          "PUBLISHED",
+        ],
+        AMENDING: ["AMENDED", "REJECTED"],
+        AMENDED: ["SIGNED", "REJECTED"],
+        REJECTED: ["WRITING"],
+        WITHDRAWN: [],
+        ESCALATED: ["REVIEWED", "REJECTED"],
+        ARCHIVED: [],
+        RECTIFYING: ["REVIEWED", "REJECTED"],
+        SUPPLEMENTING: ["SUPPLEMENTED", "REJECTED"],
+        SUPPLEMENTED: ["PUBLISHED", "REJECTED"],
+        REDISTRIBUTING: ["ASSIGNED"],
+      };
+      const STATUS_TO_UPPER: Record<string, string> = {
+        draft: "WRITING",
+        pending: "PENDING_ASSIGNMENT",
+        submitted: "SUBMITTED",
+        inreview: "INITIAL_REVIEW",
+        in_review: "INITIAL_REVIEW",
+        review: "INITIAL_REVIEW",
+        reviewed: "REVIEWED",
+        cosigned: "CO_SIGN_REVIEW",
+        signed: "SIGNED",
+        published: "PUBLISHED",
+        final: "PUBLISHED",
+        amended: "AMENDED",
+        rejected: "REJECTED",
+        withdrawn: "WITHDRAWN",
+        cancelled: "WITHDRAWN",
+        archived: "ARCHIVED",
+      };
+      const fromState =
+        (REPORT_TRANSITIONS[String(before.state ?? "").toUpperCase()]
+          ? String(before.state).toUpperCase()
+          : undefined) ??
+        STATUS_TO_UPPER[String(before.status ?? "").toLowerCase()] ??
+        "PENDING_ASSIGNMENT";
+      if (!(REPORT_TRANSITIONS[fromState] ?? []).includes(target)) {
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: "INVALID_TRANSITION",
+              message: `INVALID_TRANSITION: ${fromState} → ${target} 不允许`,
+            },
+          },
+          { status: 400 },
+        );
+      }
+      const updated = update<any>("exams", id, {
+        status: nextStatus,
+        state: target,
+        rejectReason: target === "REJECTED" ? (body.reason ?? "") : undefined,
+        // [G005 contract] 发布时持久化 qualityScore (对齐后端 Report.qualityScore)
+        qualityScore:
+          target === "PUBLISHED"
+            ? (body.qualityScore ?? before.qualityScore)
+            : before.qualityScore,
+        reportAt: new Date().toISOString(),
       });
-    }
-    return HttpResponse.json({ success: true, data: updated ? toReportDto(updated) : null });
-  }),
+      if (updated) {
+        auditStatusChange("reports", updated, before.status, nextStatus);
+        recordWorkflowEvent({
+          actorId: body.actorId ?? "system",
+          actorName: "系统",
+          action: "transition",
+          entityType: "reports",
+          entityId: id,
+          fromState: before.status,
+          toState: target,
+          metadata: { reason: body.reason },
+        });
+      }
+      return HttpResponse.json({
+        success: true,
+        data: updated ? toReportDto(updated) : null,
+      });
+    },
+  ),
 
   // [v3.0.6.11-70] P0 导出真实化: 入队 + 返回可下载地址
   http.post(`${API_BASE}/reports/:id/export`, async ({ params, request }) => {
     await delay(200);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
-    const body = (await request.json().catch(() => ({}))) as { format?: string };
-    const format = (body.format ?? 'pdf').toLowerCase();
+    const before = get<any>("exams", id);
+    if (!before)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Report not found" },
+        },
+        { status: 404 },
+      );
+    const body = (await request.json().catch(() => ({}))) as {
+      format?: string;
+    };
+    const format = (body.format ?? "pdf").toLowerCase();
     recordWorkflowEvent({
-      actorId: 'system', actorName: '系统', action: 'export', entityType: 'reports', entityId: id,
-      fromState: before.status, toState: before.status,
+      actorId: "system",
+      actorName: "系统",
+      action: "export",
+      entityType: "reports",
+      entityId: id,
+      fromState: before.status,
+      toState: before.status,
       metadata: { format },
     });
     return HttpResponse.json({
       success: true,
-      data: { queued: true, format, downloadUrl: `${API_BASE}/reports/${id}/export.${format}` },
+      data: {
+        queued: true,
+        format,
+        downloadUrl: `${API_BASE}/reports/${id}/export.${format}`,
+      },
     });
   }),
 
@@ -997,89 +1550,151 @@ export const reportHandlers = [
   // [v3.0.6.11-88 P0] 形状对齐后端: { status: 'completed'|'processing', exportedAt?, fileUrl? } (保留 downloadUrl 兼容旧调用)
   http.get(`${API_BASE}/reports/:id/export-status`, async ({ params }) => {
     await delay(60);
-    const report = get<any>('exams', params.id as string);
-    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const report = get<any>("exams", params.id as string);
+    if (!report)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Report not found" },
+        },
+        { status: 404 },
+      );
     const fileUrl = `${API_BASE}/reports/export-files/report-${params.id}.html`;
     return HttpResponse.json({
       success: true,
-      data: { status: 'completed', format: 'pdf', fileUrl, downloadUrl: fileUrl, exportedAt: new Date().toISOString(), queuedAt: report.reportAt ?? new Date().toISOString() },
+      data: {
+        status: "completed",
+        format: "pdf",
+        fileUrl,
+        downloadUrl: fileUrl,
+        exportedAt: new Date().toISOString(),
+        queuedAt: report.reportAt ?? new Date().toISOString(),
+      },
     });
   }),
 
   // [v3.0.6.11-88 P0] 导出文件下载 (reportApi.downloadExportFile → GET /reports/export-files/:fileName)
   http.get(`${API_BASE}/reports/export-files/:fileName`, async ({ params }) => {
     await delay(80);
-    const raw = decodeURIComponent(params.fileName as string ?? '');
-    const id = raw.startsWith('report-') ? raw.replace(/^report-/, '').replace(/-\d+\.\w+$/, '') : raw.replace(/\.\w+$/, '');
-    const report = get<any>('exams', id);
-    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Export file not found' } }, { status: 404 });
-    const patient = report.patientName ?? '患者';
-    const findings = report.findings ?? report.examFindings ?? '—';
-    const impression = report.impression ?? report.diagnosis ?? '—';
-    const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${patient} 放射诊断报告</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:32px;color:#1e293b"><h1 style="color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:8px">放射诊断报告</h1><p><strong>报告编号:</strong> ${id}</p><p><strong>患者:</strong> ${patient}</p><h3>检查所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${findings}</pre><h3>诊断意见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${impression}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">Generated by G005 RIS · ${new Date().toLocaleString('zh-CN')}</p></body></html>`;
-    return new HttpResponse(new TextEncoder().encode(html), { headers: { 'Content-Type': 'text/html;charset=utf-8', 'Content-Disposition': `attachment; filename="${raw}"` } });
+    const raw = decodeURIComponent((params.fileName as string) ?? "");
+    const id = raw.startsWith("report-")
+      ? raw.replace(/^report-/, "").replace(/-\d+\.\w+$/, "")
+      : raw.replace(/\.\w+$/, "");
+    const report = get<any>("exams", id);
+    if (!report)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Export file not found" },
+        },
+        { status: 404 },
+      );
+    const patient = report.patientName ?? "患者";
+    const findings = report.findings ?? report.examFindings ?? "—";
+    const impression = report.impression ?? report.diagnosis ?? "—";
+    const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${patient} 放射诊断报告</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:32px;color:#1e293b"><h1 style="color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:8px">放射诊断报告</h1><p><strong>报告编号:</strong> ${id}</p><p><strong>患者:</strong> ${patient}</p><h3>检查所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${findings}</pre><h3>诊断意见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${impression}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">Generated by G005 RIS · ${new Date().toLocaleString("zh-CN")}</p></body></html>`;
+    return new HttpResponse(new TextEncoder().encode(html), {
+      headers: {
+        "Content-Type": "text/html;charset=utf-8",
+        "Content-Disposition": `attachment; filename="${raw}"`,
+      },
+    });
   }),
 
   // [W2-3] 导出真实化: 下载文件本体 (GET downloadUrl → 真实 PDF/文档字节)
   http.get(`${API_BASE}/reports/:id/export.:format`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
-    const report = get<any>('exams', id);
-    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
-    const format = (params.format as string ?? 'pdf').toLowerCase();
-    const patient = report.patientName ?? '患者';
-    const findings = report.findings ?? report.examFindings ?? '—';
-    const impression = report.impression ?? report.diagnosis ?? '—';
-    if (format === 'html' || format === 'htm') {
-      const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${patient} 放射诊断报告</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:32px;color:#1e293b"><h1 style="color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:8px">放射诊断报告</h1><p><strong>报告编号:</strong> ${id}</p><p><strong>患者:</strong> ${patient}</p><h3>检查所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${findings}</pre><h3>诊断意见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${impression}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">Generated by G005 RIS · ${new Date().toLocaleString('zh-CN')}</p></body></html>`;
-      return new HttpResponse(new TextEncoder().encode(html), { headers: { 'Content-Type': 'text/html;charset=utf-8', 'Content-Disposition': `attachment; filename="${id}.html"` } });
+    const report = get<any>("exams", id);
+    if (!report)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Report not found" },
+        },
+        { status: 404 },
+      );
+    const format = ((params.format as string) ?? "pdf").toLowerCase();
+    const patient = report.patientName ?? "患者";
+    const findings = report.findings ?? report.examFindings ?? "—";
+    const impression = report.impression ?? report.diagnosis ?? "—";
+    if (format === "html" || format === "htm") {
+      const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${patient} 放射诊断报告</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:32px;color:#1e293b"><h1 style="color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:8px">放射诊断报告</h1><p><strong>报告编号:</strong> ${id}</p><p><strong>患者:</strong> ${patient}</p><h3>检查所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${findings}</pre><h3>诊断意见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${impression}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">Generated by G005 RIS · ${new Date().toLocaleString("zh-CN")}</p></body></html>`;
+      return new HttpResponse(new TextEncoder().encode(html), {
+        headers: {
+          "Content-Type": "text/html;charset=utf-8",
+          "Content-Disposition": `attachment; filename="${id}.html"`,
+        },
+      });
     }
-    if (format === 'csv') {
+    if (format === "csv") {
       const csv = `报告编号,患者,检查所见,诊断意见\n"${id}","${patient}","${findings.replace(/"/g, '""')}","${impression.replace(/"/g, '""')}"\n`;
-      return new HttpResponse(new TextEncoder().encode(csv), { headers: { 'Content-Type': 'text/csv;charset=utf-8', 'Content-Disposition': `attachment; filename="${id}.csv"` } });
+      return new HttpResponse(new TextEncoder().encode(csv), {
+        headers: {
+          "Content-Type": "text/csv;charset=utf-8",
+          "Content-Disposition": `attachment; filename="${id}.csv"`,
+        },
+      });
     }
     // 伪 PDF (最小合法头 + 文本) — 前端下载为 .pdf 文件, 内容可被查看
     const pdf = `%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Contents 4 0 R>>endobj\n4 0 obj<</Length 120>>stream\nBT /F1 14 Tf 50 780 Td (${patient} - ${id}) Tj ET\nendstream\nendobj\ntrailer<</Root 1 0 R>>\n%%EOF`;
     return new HttpResponse(new TextEncoder().encode(pdf), {
-      headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${id}.pdf"` },
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${id}.pdf"`,
+      },
     });
   }),
 
   // 审核历史
   http.get(`${API_BASE}/reports/:id/audit-trail`, async ({ params }) => {
     await delay(80);
-    const events = listWorkflowEvents({ entityType: 'reports', entityId: params.id as string });
+    const events = listWorkflowEvents({
+      entityType: "reports",
+      entityId: params.id as string,
+    });
     return HttpResponse.json({ success: true, data: events });
   }),
 ];
 
 /** [v3.0.6.8-91] 映射 reportMachine 状态到 ExamState */
-const REPORT_STATUS_MAP: Record<string, 'draft' | 'submitted' | 'inReview' | 'reviewed' | 'signed' | 'published' | 'rejected' | 'amended' | 'withdrawn'> = {
-  pendingAssignment: 'draft',
-  assigned: 'draft',
-  writing: 'draft',
-  submitted: 'submitted',
-  initialReview: 'inReview',
-  finalReview: 'inReview',
-  coSignReview: 'inReview',
-  reviewed: 'reviewed',
-  signing: 'reviewed',
-  signed: 'signed',
-  published: 'published',
-  amending: 'amended',
-  amended: 'amended',
-  withdrawn: 'withdrawn',
-  rejected: 'rejected',
-  escalated: 'inReview',
-  archived: 'published',
-  rectifying: 'amended',
-  supplementing: 'amended',
-  supplemented: 'amended',
-  redistributing: 'published',
+const REPORT_STATUS_MAP: Record<
+  string,
+  | "draft"
+  | "submitted"
+  | "inReview"
+  | "reviewed"
+  | "signed"
+  | "published"
+  | "rejected"
+  | "amended"
+  | "withdrawn"
+> = {
+  pendingAssignment: "draft",
+  assigned: "draft",
+  writing: "draft",
+  submitted: "submitted",
+  initialReview: "inReview",
+  finalReview: "inReview",
+  coSignReview: "inReview",
+  reviewed: "reviewed",
+  signing: "reviewed",
+  signed: "signed",
+  published: "published",
+  amending: "amended",
+  amended: "amended",
+  withdrawn: "withdrawn",
+  rejected: "rejected",
+  escalated: "inReview",
+  archived: "published",
+  rectifying: "amended",
+  supplementing: "amended",
+  supplemented: "amended",
+  redistributing: "published",
 };
 
 function mapReportStatus(s: string): ReportStatus {
-  return (REPORT_STATUS_MAP[s] ?? 'draft') as ReportStatus;
+  return (REPORT_STATUS_MAP[s] ?? "draft") as ReportStatus;
 }
 
 // ============= Appointments - v3.0.6.11-70 P0 预约→检查联动 =============
@@ -1087,37 +1702,155 @@ function mapReportStatus(s: string): ReportStatus {
 let appointmentRecords: any[] = clone(APPOINTMENT_RECORDS);
 
 const APP_PRIORITY_MAP: Record<string, string> = {
-  ROUTINE: 'ROUTINE', URGENT: 'URGENT', STAT: 'STAT',
-  normal: 'ROUTINE', urgent: 'URGENT', critical: 'STAT',
+  ROUTINE: "ROUTINE",
+  URGENT: "URGENT",
+  STAT: "STAT",
+  normal: "ROUTINE",
+  urgent: "URGENT",
+  critical: "STAT",
 };
-const APP_PRIORITY_LOCAL: Record<string, 'normal' | 'urgent' | 'critical'> = {
-  ROUTINE: 'normal', URGENT: 'urgent', STAT: 'critical',
+const APP_PRIORITY_LOCAL: Record<string, "normal" | "urgent" | "critical"> = {
+  ROUTINE: "normal",
+  URGENT: "urgent",
+  STAT: "critical",
 };
 
 // 提醒 / 改期 / 取消 记录 seed (与后端内存 seed 保持一致)
 const SEED_REMINDERS = [
-  { id: 'RM-001', patientName: '张三', phone: '13800138001', examType: '胸部CT平扫', examDate: '2026-08-05', examTime: '09:00', reminderTime: '2026-08-04 20:00', channel: '短信', status: '已确认', responseTime: '0.5h' },
-  { id: 'RM-002', patientName: '李四', phone: '13800138002', examType: '头颅MR平扫', examDate: '2026-08-05', examTime: '10:30', reminderTime: '2026-08-05 07:00', channel: '微信', status: '已发送', responseTime: '未响应' },
-  { id: 'RM-003', patientName: '王五', phone: '13800138003', examType: '腹部CT平扫+增强', examDate: '2026-08-06', examTime: '14:00', reminderTime: '2026-08-05 20:00', channel: 'APP推送', status: '已改期', responseTime: '2h' },
-  { id: 'RM-004', patientName: '张三', phone: '13800138001', examType: '腰椎MR平扫', examDate: '2026-08-07', examTime: '08:30', reminderTime: '2026-08-06 20:00', channel: '短信', status: '已取消', responseTime: '未响应' },
-  { id: 'RM-005', patientName: '李四', phone: '13800138002', examType: '胸部DR正侧位', examDate: '2026-08-08', examTime: '11:00', reminderTime: '2026-08-07 20:00', channel: '微信', status: '已发送', responseTime: '未响应' },
+  {
+    id: "RM-001",
+    patientName: "张三",
+    phone: "13800138001",
+    examType: "胸部CT平扫",
+    examDate: "2026-08-05",
+    examTime: "09:00",
+    reminderTime: "2026-08-04 20:00",
+    channel: "短信",
+    status: "已确认",
+    responseTime: "0.5h",
+  },
+  {
+    id: "RM-002",
+    patientName: "李四",
+    phone: "13800138002",
+    examType: "头颅MR平扫",
+    examDate: "2026-08-05",
+    examTime: "10:30",
+    reminderTime: "2026-08-05 07:00",
+    channel: "微信",
+    status: "已发送",
+    responseTime: "未响应",
+  },
+  {
+    id: "RM-003",
+    patientName: "王五",
+    phone: "13800138003",
+    examType: "腹部CT平扫+增强",
+    examDate: "2026-08-06",
+    examTime: "14:00",
+    reminderTime: "2026-08-05 20:00",
+    channel: "APP推送",
+    status: "已改期",
+    responseTime: "2h",
+  },
+  {
+    id: "RM-004",
+    patientName: "张三",
+    phone: "13800138001",
+    examType: "腰椎MR平扫",
+    examDate: "2026-08-07",
+    examTime: "08:30",
+    reminderTime: "2026-08-06 20:00",
+    channel: "短信",
+    status: "已取消",
+    responseTime: "未响应",
+  },
+  {
+    id: "RM-005",
+    patientName: "李四",
+    phone: "13800138002",
+    examType: "胸部DR正侧位",
+    examDate: "2026-08-08",
+    examTime: "11:00",
+    reminderTime: "2026-08-07 20:00",
+    channel: "微信",
+    status: "已发送",
+    responseTime: "未响应",
+  },
 ];
 const SEED_RESCHEDULES = [
-  { id: 'RS-001', patientName: '张三', phone: '13800138001', examType: '腹部CT平扫+增强', originalDate: '2026-08-03', originalTime: '09:00', newDate: '2026-08-05', newTime: '14:00', reason: 'patient', operateTime: '2026-08-02 16:20' },
-  { id: 'RS-002', patientName: '李四', phone: '13800138002', examType: '头颅MR平扫', originalDate: '2026-08-04', originalTime: '10:30', newDate: '2026-08-06', newTime: '10:00', reason: 'doctor', operateTime: '2026-08-03 09:15' },
-  { id: 'RS-003', patientName: '王五', phone: '13800138003', examType: '胸部CT平扫', originalDate: '2026-08-05', originalTime: '08:00', newDate: '2026-08-07', newTime: '09:30', reason: 'device', operateTime: '2026-08-04 11:40' },
+  {
+    id: "RS-001",
+    patientName: "张三",
+    phone: "13800138001",
+    examType: "腹部CT平扫+增强",
+    originalDate: "2026-08-03",
+    originalTime: "09:00",
+    newDate: "2026-08-05",
+    newTime: "14:00",
+    reason: "patient",
+    operateTime: "2026-08-02 16:20",
+  },
+  {
+    id: "RS-002",
+    patientName: "李四",
+    phone: "13800138002",
+    examType: "头颅MR平扫",
+    originalDate: "2026-08-04",
+    originalTime: "10:30",
+    newDate: "2026-08-06",
+    newTime: "10:00",
+    reason: "doctor",
+    operateTime: "2026-08-03 09:15",
+  },
+  {
+    id: "RS-003",
+    patientName: "王五",
+    phone: "13800138003",
+    examType: "胸部CT平扫",
+    originalDate: "2026-08-05",
+    originalTime: "08:00",
+    newDate: "2026-08-07",
+    newTime: "09:30",
+    reason: "device",
+    operateTime: "2026-08-04 11:40",
+  },
 ];
 const SEED_CANCELLATIONS = [
-  { id: 'CX-001', patientName: '张三', phone: '13800138001', examType: '腰椎MR平扫', cancelTime: '2026-08-02 10:00', reason: '患者主动取消', rebooked: '是' },
-  { id: 'CX-002', patientName: '李四', phone: '13800138002', examType: '胸部DR正侧位', cancelTime: '2026-08-01 15:30', reason: '设备故障', rebooked: '待确认' },
-  { id: 'CX-003', patientName: '王五', phone: '13800138003', examType: '冠脉CTA', cancelTime: '2026-07-31 09:20', reason: '医生调整时间', rebooked: '否' },
+  {
+    id: "CX-001",
+    patientName: "张三",
+    phone: "13800138001",
+    examType: "腰椎MR平扫",
+    cancelTime: "2026-08-02 10:00",
+    reason: "患者主动取消",
+    rebooked: "是",
+  },
+  {
+    id: "CX-002",
+    patientName: "李四",
+    phone: "13800138002",
+    examType: "胸部DR正侧位",
+    cancelTime: "2026-08-01 15:30",
+    reason: "设备故障",
+    rebooked: "待确认",
+  },
+  {
+    id: "CX-003",
+    patientName: "王五",
+    phone: "13800138003",
+    examType: "冠脉CTA",
+    cancelTime: "2026-07-31 09:20",
+    reason: "医生调整时间",
+    rebooked: "否",
+  },
 ];
 
 export const appointmentHandlers = [
   http.get(`${API_BASE}/appointments`, async ({ request }) => {
     await delay(120);
     const url = new URL(request.url);
-    const patientId = url.searchParams.get('patientId');
+    const patientId = url.searchParams.get("patientId");
     const data = patientId
       ? appointmentRecords.filter((a: any) => a.patientId === patientId)
       : appointmentRecords;
@@ -1130,12 +1863,13 @@ export const appointmentHandlers = [
   http.get(`${API_BASE}/appointments/rules`, async () => {
     await delay(80);
     const rules = initialModalityDevices
-      .filter((d: any) => d.status !== '维护中')
+      .filter((d: any) => d.status !== "维护中")
       .map((d: any) => ({
         deviceId: d.id,
         deviceName: d.name,
-        maxDailyAppointments: d.modality === 'MR' ? 40 : d.modality === 'CT' ? 60 : 80,
-        maxPerTimeSlot: d.modality === 'MR' ? 3 : 4,
+        maxDailyAppointments:
+          d.modality === "MR" ? 40 : d.modality === "CT" ? 60 : 80,
+        maxPerTimeSlot: d.modality === "MR" ? 3 : 4,
         minAdvanceDays: 0,
         maxAdvanceDays: 30,
         noShowPenalty: 3,
@@ -1148,18 +1882,23 @@ export const appointmentHandlers = [
   http.get(`${API_BASE}/appointments/waitlist`, async () => {
     await delay(80);
     const data = (appointmentRecords as Array<Record<string, any>>)
-      .filter((a) => a.status === 'pending')
+      .filter((a) => a.status === "pending")
       .slice(0, 50)
       .map((a) => ({
         id: a.id,
         patientName: a.patientName,
-        phone: a.phone || '',
+        phone: a.phone || "",
         examItemName: a.examItemName || a.bodyPart || a.modality,
         modality: a.modality,
         preferredDate: a.examDate,
         preferredTime: a.examTime,
-        priority: a.priority === 'critical' ? 'critical' : a.priority === 'urgent' ? 'urgent' : 'normal',
-        addedAt: a.createdAt || '',
+        priority:
+          a.priority === "critical"
+            ? "critical"
+            : a.priority === "urgent"
+              ? "urgent"
+              : "normal",
+        addedAt: a.createdAt || "",
         notified: false,
       }));
     return HttpResponse.json({ success: true, data });
@@ -1180,7 +1919,10 @@ export const appointmentHandlers = [
   // 取消记录
   http.get(`${API_BASE}/appointments/cancellations`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: clone(SEED_CANCELLATIONS) });
+    return HttpResponse.json({
+      success: true,
+      data: clone(SEED_CANCELLATIONS),
+    });
   }),
 
   http.get(`${API_BASE}/appointments/:id`, async ({ params }) => {
@@ -1188,7 +1930,10 @@ export const appointmentHandlers = [
     const apt = appointmentRecords.find((a) => a.id === params.id);
     return apt
       ? HttpResponse.json({ success: true, data: apt })
-      : HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
+      : HttpResponse.json(
+          { success: false, message: "Not found" },
+          { status: 404 },
+        );
   }),
 
   // 创建预约 (P0): 与后端 schema 对齐 + 联动创建 Exam → 工作列表可见
@@ -1197,33 +1942,42 @@ export const appointmentHandlers = [
     const body = (await request.json()) as Record<string, any>;
     const id = `APT-${Date.now()}`;
     const startAt = body.startAt ? new Date(body.startAt) : new Date();
-    const endAt = body.endAt ? new Date(body.endAt) : new Date(startAt.getTime() + 30 * 60 * 1000);
-    const device = initialModalityDevices.find((d: any) => d.id === body.deviceId);
+    const endAt = body.endAt
+      ? new Date(body.endAt)
+      : new Date(startAt.getTime() + 30 * 60 * 1000);
+    const device = initialModalityDevices.find(
+      (d: any) => d.id === body.deviceId,
+    );
     const record = {
       id,
       patientId: body.patientId || `RAD-P${Date.now()}`,
-      patientName: body.patientName || '',
-      patientInitials: (body.patientName || '').slice(0, 2),
-      gender: body.gender === 'FEMALE' ? '女' : body.gender === 'MALE' ? '男' : '男',
+      patientName: body.patientName || "",
+      patientInitials: (body.patientName || "").slice(0, 2),
+      gender:
+        body.gender === "FEMALE" ? "女" : body.gender === "MALE" ? "男" : "男",
       age: 0,
-      idCard: '',
-      phone: body.phone || '',
-      examItemId: '',
-      examItemName: body.bodyPart ? `${body.modality} ${body.bodyPart}` : body.modality,
+      idCard: "",
+      phone: body.phone || "",
+      examItemId: "",
+      examItemName: body.bodyPart
+        ? `${body.modality} ${body.bodyPart}`
+        : body.modality,
       modality: body.modality,
-      bodyPart: body.bodyPart || '',
-      examDate: `${startAt.getFullYear()}-${String(startAt.getMonth() + 1).padStart(2, '0')}-${String(startAt.getDate()).padStart(2, '0')}`,
-      examTime: `${String(startAt.getHours()).padStart(2, '0')}:${String(startAt.getMinutes()).padStart(2, '0')}`,
+      bodyPart: body.bodyPart || "",
+      examDate: `${startAt.getFullYear()}-${String(startAt.getMonth() + 1).padStart(2, "0")}-${String(startAt.getDate()).padStart(2, "0")}`,
+      examTime: `${String(startAt.getHours()).padStart(2, "0")}:${String(startAt.getMinutes()).padStart(2, "0")}`,
       deviceId: body.deviceId,
-      deviceName: body.deviceName || device?.name || '',
-      roomId: device?.id?.replace('DEV', 'ROOM') || '',
-      roomName: device?.location || '',
-      referringDoctorId: '',
-      referringDoctorName: body.referringDoctor || '',
-      clinicalDiagnosis: body.note || '',
-      notes: body.note || '',
-      status: 'pending',
-      priority: APP_PRIORITY_LOCAL[APP_PRIORITY_MAP[body.priority] || 'ROUTINE'] || 'normal',
+      deviceName: body.deviceName || device?.name || "",
+      roomId: device?.id?.replace("DEV", "ROOM") || "",
+      roomName: device?.location || "",
+      referringDoctorId: "",
+      referringDoctorName: body.referringDoctor || "",
+      clinicalDiagnosis: body.note || "",
+      notes: body.note || "",
+      status: "pending",
+      priority:
+        APP_PRIORITY_LOCAL[APP_PRIORITY_MAP[body.priority] || "ROUTINE"] ||
+        "normal",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -1238,55 +1992,67 @@ export const appointmentHandlers = [
       patientGender: record.gender,
       modality: body.modality,
       examItem: record.examItemName,
-      examItemCode: '',
+      examItemCode: "",
       bodyPart: record.bodyPart,
       deviceId: body.deviceId,
       deviceModel: record.deviceName,
-      doctorId: 'TECH-001',
-      reportDoctorId: 'DR-001',
+      doctorId: "TECH-001",
+      reportDoctorId: "DR-001",
       reviewDoctorId: null,
       cosignDoctorId: null,
-      icd10: '',
-      clinicalDiagnosis: body.note || '',
-      findings: '',
-      impression: '',
+      icd10: "",
+      clinicalDiagnosis: body.note || "",
+      findings: "",
+      impression: "",
       examAt: startAt.toISOString(),
-      reportAt: '',
+      reportAt: "",
       reviewedAt: null,
       signedAt: null,
-      status: 'submitted',
-      priority: body.priority === 'STAT' ? '急诊' : body.priority === 'URGENT' ? '加急' : '普通',
+      status: "submitted",
+      priority:
+        body.priority === "STAT"
+          ? "急诊"
+          : body.priority === "URGENT"
+            ? "加急"
+            : "普通",
       defectCount: 0,
       qcScore: 0,
       hasCriticalValue: false,
       criticalValueType: null,
     };
-    try { create('exams', examRecord as any); } catch { /* store 未初始化时忽略 */ }
-    auditCreate('appointments', record);
+    try {
+      create("exams", examRecord as any);
+    } catch {
+      /* store 未初始化时忽略 */
+    }
+    auditCreate("appointments", record);
 
     // 返回后端 DTO 形状 (id/startAt/endAt/state/priority 枚举)
-    return HttpResponse.json({
-      success: true,
-      data: {
-        id,
-        patientName: record.patientName,
-        patientId: record.patientId,
-        modality: body.modality,
-        bodyPart: record.bodyPart || undefined,
-        startAt: startAt.toISOString(),
-        endAt: endAt.toISOString(),
-        deviceId: body.deviceId,
-        deviceName: record.deviceName,
-        room: device?.location || undefined,
-        priority: APP_PRIORITY_MAP[body.priority] || 'ROUTINE',
-        note: body.note || undefined,
-        referringDoctor: body.referringDoctor || undefined,
-        state: 'SCHEDULED',
-        createdById: body.createdById || 'system',
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt,
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          id,
+          patientName: record.patientName,
+          patientId: record.patientId,
+          modality: body.modality,
+          bodyPart: record.bodyPart || undefined,
+          startAt: startAt.toISOString(),
+          endAt: endAt.toISOString(),
+          deviceId: body.deviceId,
+          deviceName: record.deviceName,
+          room: device?.location || undefined,
+          priority: APP_PRIORITY_MAP[body.priority] || "ROUTINE",
+          note: body.note || undefined,
+          referringDoctor: body.referringDoctor || undefined,
+          state: "SCHEDULED",
+          createdById: body.createdById || "system",
+          createdAt: record.createdAt,
+          updatedAt: record.updatedAt,
+        },
       },
-    }, { status: 201 });
+      { status: 201 },
+    );
   }),
 
   http.put(`${API_BASE}/appointments/:id`, async ({ params, request }) => {
@@ -1294,11 +2060,20 @@ export const appointmentHandlers = [
     const body = (await request.json()) as any;
     const idx = appointmentRecords.findIndex((a) => a.id === params.id);
     if (idx >= 0) {
-      const updated = { ...appointmentRecords[idx]!, ...body, updatedAt: new Date().toISOString() };
-      appointmentRecords = appointmentRecords.map((a) => (a.id === params.id ? updated : a));
+      const updated = {
+        ...appointmentRecords[idx]!,
+        ...body,
+        updatedAt: new Date().toISOString(),
+      };
+      appointmentRecords = appointmentRecords.map((a) =>
+        a.id === params.id ? updated : a,
+      );
       return HttpResponse.json({ success: true, data: updated });
     }
-    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, ...body },
+    });
   }),
 
   // [G005 Wave4A P1] 改约 (appointmentApi.update → PATCH, 后端 UpdateSchema) / 取消 (appointmentApi.cancel → DELETE)
@@ -1307,31 +2082,60 @@ export const appointmentHandlers = [
     const body = (await request.json()) as any;
     const idx = appointmentRecords.findIndex((a) => a.id === params.id);
     if (idx >= 0) {
-      const updated: any = { ...appointmentRecords[idx]!, updatedAt: new Date().toISOString() };
+      const updated: any = {
+        ...appointmentRecords[idx]!,
+        updatedAt: new Date().toISOString(),
+      };
       if (body.startAt) {
         const startAt = new Date(body.startAt);
-        updated.examDate = `${startAt.getFullYear()}-${String(startAt.getMonth() + 1).padStart(2, '0')}-${String(startAt.getDate()).padStart(2, '0')}`;
-        updated.examTime = `${String(startAt.getHours()).padStart(2, '0')}:${String(startAt.getMinutes()).padStart(2, '0')}`;
+        updated.examDate = `${startAt.getFullYear()}-${String(startAt.getMonth() + 1).padStart(2, "0")}-${String(startAt.getDate()).padStart(2, "0")}`;
+        updated.examTime = `${String(startAt.getHours()).padStart(2, "0")}:${String(startAt.getMinutes()).padStart(2, "0")}`;
       }
       if (body.note !== undefined) updated.note = body.note;
       if (body.state !== undefined) {
-        const stateMap: Record<string, string> = { SCHEDULED: 'pending', CONFIRMED: 'confirmed', CHECKED_IN: 'checked-in', IN_PROGRESS: 'checked-in', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled' };
+        const stateMap: Record<string, string> = {
+          SCHEDULED: "pending",
+          CONFIRMED: "confirmed",
+          CHECKED_IN: "checked-in",
+          IN_PROGRESS: "checked-in",
+          COMPLETED: "completed",
+          CANCELLED: "cancelled",
+          NO_SHOW: "cancelled",
+        };
         updated.status = stateMap[String(body.state)] ?? updated.status;
       }
-      appointmentRecords = appointmentRecords.map((a) => (a.id === params.id ? updated : a));
+      appointmentRecords = appointmentRecords.map((a) =>
+        a.id === params.id ? updated : a,
+      );
       return HttpResponse.json({ success: true, data: updated });
     }
-    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, ...body },
+    });
   }),
 
   http.delete(`${API_BASE}/appointments/:id`, async ({ params }) => {
     await delay(150);
     const idx = appointmentRecords.findIndex((a) => a.id === params.id);
     if (idx >= 0) {
-      appointmentRecords = appointmentRecords.map((a) => (a.id === params.id ? { ...a, status: 'cancelled', updatedAt: new Date().toISOString() } : a));
-      return HttpResponse.json({ success: true, data: { ok: true, id: params.id } });
+      appointmentRecords = appointmentRecords.map((a) =>
+        a.id === params.id
+          ? { ...a, status: "cancelled", updatedAt: new Date().toISOString() }
+          : a,
+      );
+      return HttpResponse.json({
+        success: true,
+        data: { ok: true, id: params.id },
+      });
     }
-    return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Appointment not found' } }, { status: 404 });
+    return HttpResponse.json(
+      {
+        success: false,
+        error: { code: "NOT_FOUND", message: "Appointment not found" },
+      },
+      { status: 404 },
+    );
   }),
 ];
 
@@ -1341,21 +2145,33 @@ export const appointmentHandlers = [
 export const examListHandlers = [
   http.get(`${API_BASE}/exams`, async () => {
     await delay(80);
-    const all = list<any>('exams') || [];
-    const priority = (s: string) => ['待登记', '待检查', '已登记', '已报到', '检查中'].includes(s) ? 0 : 1;
-    const sorted = [...all].sort((a, b) => priority(String(a.status)) - priority(String(b.status)));
+    const all = list<any>("exams") || [];
+    const priority = (s: string) =>
+      ["待登记", "待检查", "已登记", "已报到", "检查中"].includes(s) ? 0 : 1;
+    const sorted = [...all].sort(
+      (a, b) => priority(String(a.status)) - priority(String(b.status)),
+    );
     // [G005 P0] 待检/检查中记录: 副本日期对齐到最近 7 天窗口,
     // 使 Worklist 默认日期筛选可见 (不改动共享 store 原始记录)
     const today = new Date();
-    const PENDING_STATUSES = ['待登记', '待检查', '已登记', '已报到', '检查中', 'SCHEDULED', 'ARRIVED', 'IN_PROGRESS'];
+    const PENDING_STATUSES = [
+      "待登记",
+      "待检查",
+      "已登记",
+      "已报到",
+      "检查中",
+      "SCHEDULED",
+      "ARRIVED",
+      "IN_PROGRESS",
+    ];
     const shifted = sorted.map((r, i) => {
       const status = String(r.status);
       if (!PENDING_STATUSES.includes(status)) return r;
       const copy = { ...r };
-      const d = new Date(today.getTime() - ((i % 6) * 86400000));
+      const d = new Date(today.getTime() - (i % 6) * 86400000);
       const iso = d.toISOString();
-      copy.examDate = iso.split('T')[0] ?? copy.examDate;
-      copy.createdTime = iso.replace('T', ' ').slice(0, 16);
+      copy.examDate = iso.split("T")[0] ?? copy.examDate;
+      copy.createdTime = iso.replace("T", " ").slice(0, 16);
       if (copy.updatedTime) copy.updatedTime = copy.createdTime;
       return copy;
     });
@@ -1366,26 +2182,51 @@ export const examListHandlers = [
   http.get(`${API_BASE}/exams/export`, async ({ request }) => {
     await delay(150);
     const url = new URL(request.url);
-    const modality = url.searchParams.get('modality') ?? '';
-    const state = url.searchParams.get('state') ?? '';
-    const all = list<any>('exams') || [];
-    const rows = all.filter((e: any) =>
-      (!modality || String(e.modality ?? '') === modality) &&
-      (!state || String(e.status ?? '') === state || String(e.state ?? '') === state),
+    const modality = url.searchParams.get("modality") ?? "";
+    const state = url.searchParams.get("state") ?? "";
+    const all = list<any>("exams") || [];
+    const rows = all.filter(
+      (e: any) =>
+        (!modality || String(e.modality ?? "") === modality) &&
+        (!state ||
+          String(e.status ?? "") === state ||
+          String(e.state ?? "") === state),
     );
-    const header = ['id', 'accessionNumber', 'patientId', 'patientName', 'modality', 'bodyPart', 'status', 'scheduledAt'];
+    const header = [
+      "id",
+      "accessionNumber",
+      "patientId",
+      "patientName",
+      "modality",
+      "bodyPart",
+      "status",
+      "scheduledAt",
+    ];
     const esc = (v: unknown) => {
-      const s = String(v ?? '');
+      const s = String(v ?? "");
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const lines = [header.join(',')];
+    const lines = [header.join(",")];
     for (const e of rows) {
-      const row = { id: e.id, accessionNumber: e.accessionNumber ?? e.reportId, patientId: e.patientId, patientName: e.patientName, modality: e.modality, bodyPart: e.bodyPart, status: e.status ?? e.state, scheduledAt: e.examDate ?? e.scheduledAt ?? '' };
-      lines.push(header.map((h) => esc((row as any)[h])).join(','));
+      const row = {
+        id: e.id,
+        accessionNumber: e.accessionNumber ?? e.reportId,
+        patientId: e.patientId,
+        patientName: e.patientName,
+        modality: e.modality,
+        bodyPart: e.bodyPart,
+        status: e.status ?? e.state,
+        scheduledAt: e.examDate ?? e.scheduledAt ?? "",
+      };
+      lines.push(header.map((h) => esc((row as any)[h])).join(","));
     }
     return HttpResponse.json({
       success: true,
-      data: { filename: `exams_${new Date().toISOString().slice(0, 10)}.csv`, content: '\ufeff' + lines.join('\n'), count: rows.length },
+      data: {
+        filename: `exams_${new Date().toISOString().slice(0, 10)}.csv`,
+        content: "\ufeff" + lines.join("\n"),
+        count: rows.length,
+      },
     });
   }),
 
@@ -1394,22 +2235,41 @@ export const examListHandlers = [
     await delay(200);
     const body = (await request.json()) as any;
     const rows: any[] = Array.isArray(body) ? body : (body?.items ?? []);
-    const patients = list<any>('patients') as any[];
-    const exams = list<any>('exams') as any[];
+    const patients = list<any>("patients") as any[];
+    const exams = list<any>("exams") as any[];
     const errors: { index: number; message: string }[] = [];
     let imported = 0;
     let skipped = 0;
     rows.forEach((row: any, i: number) => {
-      if (!row || typeof row !== 'object' || !row.patientId || !String(row.accessionNumber ?? '').trim() || !String(row.modality ?? '').trim() || !String(row.bodyPart ?? '').trim()) {
-        errors.push({ index: i, message: `第 ${i + 1} 行: patientId/accessionNumber/modality/bodyPart 为必填` });
+      if (
+        !row ||
+        typeof row !== "object" ||
+        !row.patientId ||
+        !String(row.accessionNumber ?? "").trim() ||
+        !String(row.modality ?? "").trim() ||
+        !String(row.bodyPart ?? "").trim()
+      ) {
+        errors.push({
+          index: i,
+          message: `第 ${i + 1} 行: patientId/accessionNumber/modality/bodyPart 为必填`,
+        });
         return;
       }
       const patient = patients.find((p: any) => p.id === row.patientId);
       if (!patient) {
-        errors.push({ index: i, message: `第 ${i + 1} 行: 患者不存在 ${row.patientId}` });
+        errors.push({
+          index: i,
+          message: `第 ${i + 1} 行: 患者不存在 ${row.patientId}`,
+        });
         return;
       }
-      if (exams.some((e: any) => String(e.accessionNumber ?? e.reportId ?? '') === String(row.accessionNumber).trim())) {
+      if (
+        exams.some(
+          (e: any) =>
+            String(e.accessionNumber ?? e.reportId ?? "") ===
+            String(row.accessionNumber).trim(),
+        )
+      ) {
         skipped++;
         return;
       }
@@ -1421,112 +2281,185 @@ export const examListHandlers = [
         accessionNumber: String(row.accessionNumber).trim(),
         patientName: patient.name,
         patientId: row.patientId,
-        status: row.state ?? '待检查',
-        state: row.state ?? '待检查',
-        examDate: row.scheduledAt ? String(row.scheduledAt).slice(0, 10) : new Date().toISOString().slice(0, 10),
-        scheduledAt: row.scheduledAt ?? '',
-        priority: row.priority ?? '普通',
+        status: row.state ?? "待检查",
+        state: row.state ?? "待检查",
+        examDate: row.scheduledAt
+          ? String(row.scheduledAt).slice(0, 10)
+          : new Date().toISOString().slice(0, 10),
+        scheduledAt: row.scheduledAt ?? "",
+        priority: row.priority ?? "普通",
         createdAt: new Date().toISOString(),
       };
-      create('exams', rec);
+      create("exams", rec);
       imported++;
     });
-    return HttpResponse.json({ success: true, data: { imported, skipped, errors } });
+    return HttpResponse.json({
+      success: true,
+      data: { imported, skipped, errors },
+    });
   }),
 
   // [v3.0.6.11-70] 详情 (报告书写上下文需要患者性别/年龄)
   http.get(`${API_BASE}/exams/:id`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
-    let exam = get<any>('exams', id);
+    let exam = get<any>("exams", id);
     // [v3.0.6.11-96 Wave 3A P1] 演示检查 TMP001 兜底 (/exam/TMP001 独立详情路由 e2e/演示)
-    if (!exam && id === 'TMP001') {
+    if (!exam && id === "TMP001") {
       const demo = {
-        reportId: 'TMP001',
-        patientId: 'TMP001',
-        patientName: '演示患者',
+        reportId: "TMP001",
+        patientId: "TMP001",
+        patientName: "演示患者",
         patientAge: 45,
-        patientGender: '男',
-        modality: 'CT',
-        examItem: '胸部CT平扫',
-        examItemCode: 'CT-CHEST',
-        bodyPart: '胸部',
-        deviceId: 'DEV-CT-01',
-        deviceModel: 'GE Revolution CT',
-        doctorId: 'TECH01',
-        reportDoctorId: 'DR01',
+        patientGender: "男",
+        modality: "CT",
+        examItem: "胸部CT平扫",
+        examItemCode: "CT-CHEST",
+        bodyPart: "胸部",
+        deviceId: "DEV-CT-01",
+        deviceModel: "GE Revolution CT",
+        doctorId: "TECH01",
+        reportDoctorId: "DR01",
         reviewDoctorId: null,
         cosignDoctorId: null,
-        icd10: 'R91.1',
-        clinicalDiagnosis: '肺结节待查',
-        findings: '',
-        impression: '',
-        examAt: '2026-07-02T09:30:00Z',
-        reportAt: '2026-07-02T09:30:00Z',
+        icd10: "R91.1",
+        clinicalDiagnosis: "肺结节待查",
+        findings: "",
+        impression: "",
+        examAt: "2026-07-02T09:30:00Z",
+        reportAt: "2026-07-02T09:30:00Z",
         reviewedAt: null,
         signedAt: null,
-        status: 'submitted',
-        priority: '普通',
+        status: "submitted",
+        priority: "普通",
         defectCount: 0,
         qcScore: 96,
         hasCriticalValue: false,
         criticalValueType: null,
       } as any;
-      create<any>('exams', demo);
+      create<any>("exams", demo);
       exam = demo;
     }
-    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    if (!exam)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Exam not found" },
+        },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: toExamDto(exam) });
   }),
 
   // [G005 Wave4B] G-18 检查合并: 同患者多检查 → 目标检查 (报告/影像引用迁移)
   http.post(`${API_BASE}/exams/merge`, async ({ request }) => {
     await delay(200);
-    const body = (await request.json()) as { targetId: string; sourceIds: string[] };
+    const body = (await request.json()) as {
+      targetId: string;
+      sourceIds: string[];
+    };
     const ids = [body.targetId, ...(body.sourceIds ?? [])];
-    if (!body.targetId || !Array.isArray(body.sourceIds) || body.sourceIds.length === 0) {
-      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'targetId 与 sourceIds 为必填' } }, { status: 400 });
+    if (
+      !body.targetId ||
+      !Array.isArray(body.sourceIds) ||
+      body.sourceIds.length === 0
+    ) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "BAD_REQUEST",
+            message: "targetId 与 sourceIds 为必填",
+          },
+        },
+        { status: 400 },
+      );
     }
     if (new Set(ids).size !== ids.length) {
-      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '目标检查不能同时作为源检查' } }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "目标检查不能同时作为源检查" },
+        },
+        { status: 400 },
+      );
     }
-    const exams = list<any>('exams') || [];
-    const found = ids.map((id) => exams.find((e: any) => e.id === id)).filter(Boolean) as any[];
+    const exams = list<any>("exams") || [];
+    const found = ids
+      .map((id) => exams.find((e: any) => e.id === id))
+      .filter(Boolean) as any[];
     if (found.length !== ids.length) {
-      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '存在不存在的检查' } }, { status: 404 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "存在不存在的检查" },
+        },
+        { status: 404 },
+      );
     }
-    const patientIds = new Set(found.map((e: any) => e.patientId ?? e.patientID ?? ''));
+    const patientIds = new Set(
+      found.map((e: any) => e.patientId ?? e.patientID ?? ""),
+    );
     if (patientIds.size > 1) {
-      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '仅同一患者的多个检查可以合并' } }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "BAD_REQUEST",
+            message: "仅同一患者的多个检查可以合并",
+          },
+        },
+        { status: 400 },
+      );
     }
     const sources = found.filter((e: any) => e.id !== body.targetId);
-    for (const src of sources) remove('exams', src.id);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        targetId: body.targetId,
-        patientId: found[0].patientId ?? found[0].patientID,
-        mergedSourceCount: sources.length,
-        removedSourceIds: sources.map((s: any) => s.id),
-        retainedSourceIds: [],
-        movedReports: sources.length,
-        mergedAt: new Date().toISOString(),
+    for (const src of sources) remove("exams", src.id);
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          targetId: body.targetId,
+          patientId: found[0].patientId ?? found[0].patientID,
+          mergedSourceCount: sources.length,
+          removedSourceIds: sources.map((s: any) => s.id),
+          retainedSourceIds: [],
+          movedReports: sources.length,
+          mergedAt: new Date().toISOString(),
+        },
       },
-    }, { status: 200 });
+      { status: 200 },
+    );
   }),
 
   // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分 (每份报告独立成新检查)
   http.post(`${API_BASE}/exams/:id/split`, async ({ params, request }) => {
     await delay(200);
     const id = params.id as string;
-    const exam = get<any>('exams', id);
-    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    const exam = get<any>("exams", id);
+    if (!exam)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Exam not found" },
+        },
+        { status: 404 },
+      );
     const body = (await request.json()) as { reportIds: string[] };
     const reportIds = Array.from(new Set(body.reportIds ?? []));
     if (reportIds.length < 2) {
-      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '至少选择 2 份报告才能拆分' } }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "至少选择 2 份报告才能拆分" },
+        },
+        { status: 400 },
+      );
     }
-    const created: { id: string; accessionNumber: string; reportCount: number }[] = [];
+    const created: {
+      id: string;
+      accessionNumber: string;
+      reportCount: number;
+    }[] = [];
     const stamp = Date.now().toString(36);
     reportIds.forEach((reportId, i) => {
       const newId = `EX-${stamp}-${i + 1}`;
@@ -1536,57 +2469,103 @@ export const examListHandlers = [
         reportId,
         accessionNumber: `${exam.accessionNumber}-S${stamp}-${i + 1}`,
         examDate: new Date().toISOString().slice(0, 10),
-        createdTime: new Date().toISOString().replace('T', ' ').slice(0, 16),
-        updatedTime: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        createdTime: new Date().toISOString().replace("T", " ").slice(0, 16),
+        updatedTime: new Date().toISOString().replace("T", " ").slice(0, 16),
         createdAt: new Date().toISOString(),
       };
-      create('exams', rec);
-      created.push({ id: newId, accessionNumber: rec.accessionNumber, reportCount: 1 });
+      create("exams", rec);
+      created.push({
+        id: newId,
+        accessionNumber: rec.accessionNumber,
+        reportCount: 1,
+      });
     });
-    return HttpResponse.json({
-      success: true,
-      data: { sourceExamId: exam.id, patientId: exam.patientId ?? exam.patientID, created, splitAt: new Date().toISOString() },
-    }, { status: 201 });
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          sourceExamId: exam.id,
+          patientId: exam.patientId ?? exam.patientID,
+          created,
+          splitAt: new Date().toISOString(),
+        },
+      },
+      { status: 201 },
+    );
   }),
 
   http.patch(`${API_BASE}/exams/:id`, async ({ params, request }) => {
     await delay(80);
     const id = params.id as string;
     const body = (await request.json()) as Record<string, unknown>;
-    const before = get<any>('exams', id);
-    const updated = update<any>('exams', id, body);
-    if (updated && before) auditUpdate('exams', before, updated);
+    const before = get<any>("exams", id);
+    const updated = update<any>("exams", id, body);
+    if (updated && before) auditUpdate("exams", before, updated);
     return HttpResponse.json(updated ?? null);
   }),
 ];
 
 // [v3.0.6.11-95 Wave1B] 批量状态流转公共逻辑 (POST /worklist/batch-checkin|start|complete)
-const handleBatchTransition = async (body: { ids?: string[] }, action: 'checkin' | 'start' | 'complete') => {
+const handleBatchTransition = async (
+  body: { ids?: string[] },
+  action: "checkin" | "start" | "complete",
+) => {
   await delay(120);
   const ids = Array.isArray(body?.ids) ? body.ids : [];
-  if (ids.length === 0) return HttpResponse.json({ success: false, message: 'ids is required' }, { status: 400 });
-  const req: Record<'checkin' | 'start' | 'complete', string> = { checkin: 'ARRIVED', start: 'IN_PROGRESS', complete: 'COMPLETED' };
+  if (ids.length === 0)
+    return HttpResponse.json(
+      { success: false, message: "ids is required" },
+      { status: 400 },
+    );
+  const req: Record<"checkin" | "start" | "complete", string> = {
+    checkin: "ARRIVED",
+    start: "IN_PROGRESS",
+    complete: "COMPLETED",
+  };
   const target = req[action];
-  const label = action === 'checkin' ? '签到' : action === 'start' ? '开始' : '完成';
+  const label =
+    action === "checkin" ? "签到" : action === "start" ? "开始" : "完成";
   const succeeded: { id: string; state: string }[] = [];
   const failed: { id: string; message: string }[] = [];
   for (const id of ids) {
-    const before = get<any>('exams', id);
-    if (!before) { failed.push({ id, message: '检查不存在' }); continue; }
-    if (!canTransitionWorklist(String(before.status ?? 'SCHEDULED'), target)) {
-      failed.push({ id, message: `当前状态 ${String(before.status)} 不允许批量${label}` });
+    const before = get<any>("exams", id);
+    if (!before) {
+      failed.push({ id, message: "检查不存在" });
+      continue;
+    }
+    if (!canTransitionWorklist(String(before.status ?? "SCHEDULED"), target)) {
+      failed.push({
+        id,
+        message: `当前状态 ${String(before.status)} 不允许批量${label}`,
+      });
       continue;
     }
     const patch: Record<string, unknown> = { status: target };
-    if (action === 'checkin') patch.checkinAt = new Date().toISOString();
-    if (action === 'complete') patch.completeAt = new Date().toISOString();
-    update<any>('exams', id, patch);
+    if (action === "checkin") patch.checkinAt = new Date().toISOString();
+    if (action === "complete") patch.completeAt = new Date().toISOString();
+    update<any>("exams", id, patch);
     // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: 无报告实体时标记 PENDING_ASSIGNMENT (对齐后端 complete)
-    if (action === 'complete' && markPendingAssignmentOnComplete(before)) {
-      update<any>('exams', id, { state: 'PENDING_ASSIGNMENT', pendingReportAt: new Date().toISOString() });
+    if (action === "complete" && markPendingAssignmentOnComplete(before)) {
+      update<any>("exams", id, {
+        state: "PENDING_ASSIGNMENT",
+        pendingReportAt: new Date().toISOString(),
+      });
     }
-    auditStatusChange('worklist', { ...before, status: target }, String(before.status ?? 'SCHEDULED'), target);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action, entityType: 'worklist', entityId: id, fromState: String(before.status ?? 'SCHEDULED'), toState: target });
+    auditStatusChange(
+      "worklist",
+      { ...before, status: target },
+      String(before.status ?? "SCHEDULED"),
+      target,
+    );
+    recordWorkflowEvent({
+      actorId: "system",
+      actorName: "系统",
+      action,
+      entityType: "worklist",
+      entityId: id,
+      fromState: String(before.status ?? "SCHEDULED"),
+      toState: target,
+    });
     succeeded.push({ id, state: target });
   }
   return HttpResponse.json({ success: true, data: { succeeded, failed } });
@@ -1598,15 +2577,29 @@ export const worklistHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const all = list<any>('exams');
-    const result = applyQuery<any>(all, opts, ['patientName', 'examItem', 'bodyPart', 'reportId']);
-    return HttpResponse.json({ success: true, data: result.data.map(toExamDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+    const all = list<any>("exams");
+    const result = applyQuery<any>(all, opts, [
+      "patientName",
+      "examItem",
+      "bodyPart",
+      "reportId",
+    ]);
+    return HttpResponse.json({
+      success: true,
+      data: result.data.map(toExamDto),
+      meta: {
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      },
+    });
   }),
 
   // 工作列表统计 (必须在 :id 之前)
   http.get(`${API_BASE}/worklist/stats`, async () => {
     await delay(80);
-    const all = list<any>('exams');
+    const all = list<any>("exams");
     const byStatus: Record<string, number> = {};
     const byModality: Record<string, number> = {};
     const byPriority: Record<string, number> = {};
@@ -1617,45 +2610,97 @@ export const worklistHandlers = [
     }
     // [v3.0.6.11-95 Wave1B] 扩展: 当日完成/平均时长/技师维度 (对齐后端 /worklist/stats)
     const today = new Date().toISOString().slice(0, 10);
-    const completedToday = all.filter((e) => String(e.completeAt ?? e.completedAt ?? e.createdAt ?? '').slice(0, 10) === today).length;
+    const completedToday = all.filter(
+      (e) =>
+        String(e.completeAt ?? e.completedAt ?? e.createdAt ?? "").slice(
+          0,
+          10,
+        ) === today,
+    ).length;
     const avgDurationMin = 28;
     const byTechnician = [
-      { id: 'tech-seed-1', name: '王技师', completedCount: 9, avgDurationMin },
-      { id: 'tech-seed-2', name: '李技师', completedCount: 6, avgDurationMin: Math.max(10, avgDurationMin - 5) },
-      { id: 'tech-seed-3', name: '张技师', completedCount: 4, avgDurationMin: avgDurationMin + 4 },
+      { id: "tech-seed-1", name: "王技师", completedCount: 9, avgDurationMin },
+      {
+        id: "tech-seed-2",
+        name: "李技师",
+        completedCount: 6,
+        avgDurationMin: Math.max(10, avgDurationMin - 5),
+      },
+      {
+        id: "tech-seed-3",
+        name: "张技师",
+        completedCount: 4,
+        avgDurationMin: avgDurationMin + 4,
+      },
     ];
-    return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority, completedToday, avgDurationMin, byTechnician } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: all.length,
+        byStatus,
+        byModality,
+        byPriority,
+        completedToday,
+        avgDurationMin,
+        byTechnician,
+      },
+    });
   }),
 
   // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 (必须在 :id 之前; 对齐后端 seedTechnicianDashboard)
   http.get(`${API_BASE}/worklist/technician-dashboard`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
-    const seed = (id: string, name: string, completedCount: number, avgDurationMin: number, retakeCount: number, avgWaitTime: number, deviceUtilization: number, onTimeRate: number) => ({
-      id, name, completedCount, avgDurationMin, retakeCount,
-      retakeRate: completedCount > 0 ? Number(((retakeCount / completedCount) * 100).toFixed(1)) : 0,
-      avgWaitTime, deviceUtilization, onTimeRate,
+    const seed = (
+      id: string,
+      name: string,
+      completedCount: number,
+      avgDurationMin: number,
+      retakeCount: number,
+      avgWaitTime: number,
+      deviceUtilization: number,
+      onTimeRate: number,
+    ) => ({
+      id,
+      name,
+      completedCount,
+      avgDurationMin,
+      retakeCount,
+      retakeRate:
+        completedCount > 0
+          ? Number(((retakeCount / completedCount) * 100).toFixed(1))
+          : 0,
+      avgWaitTime,
+      deviceUtilization,
+      onTimeRate,
     });
     const technicians = [
-      seed('tech-seed-1', '王技师', 12, 24, 1, 12, 92, 87.5),
-      seed('tech-seed-2', '李技师', 8, 21, 0, 15, 88, 75),
-      seed('tech-seed-3', '张技师', 6, 30, 2, 20, 80, 66.7),
+      seed("tech-seed-1", "王技师", 12, 24, 1, 12, 92, 87.5),
+      seed("tech-seed-2", "李技师", 8, 21, 0, 15, 88, 75),
+      seed("tech-seed-3", "张技师", 6, 30, 2, 20, 80, 66.7),
     ];
-    const totalCompleted = technicians.reduce((a: number, t: { completedCount: number }) => a + t.completedCount, 0);
-    const totalRetake = technicians.reduce((a: number, t: { retakeCount: number }) => a + t.retakeCount, 0);
-    const from = url.searchParams.get('from') ?? undefined;
-    const to = url.searchParams.get('to') ?? undefined;
+    const totalCompleted = technicians.reduce(
+      (a: number, t: { completedCount: number }) => a + t.completedCount,
+      0,
+    );
+    const totalRetake = technicians.reduce(
+      (a: number, t: { retakeCount: number }) => a + t.retakeCount,
+      0,
+    );
+    const from = url.searchParams.get("from") ?? undefined;
+    const to = url.searchParams.get("to") ?? undefined;
     const days = 7;
     const trend = Array.from({ length: days }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - (days - 1 - i));
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       return { date: key, completed: 3 + ((i * 5) % 9) };
     });
     return HttpResponse.json({
       success: true,
       data: {
-        from, to,
+        from,
+        to,
         technicians,
         totals: {
           completedCount: totalCompleted,
@@ -1673,110 +2718,229 @@ export const worklistHandlers = [
   // [v3.0.6.11-100 Wave 1B] 检查间实时状态看板 (房间级, 由 exam+device 派生, 对齐后端 getRoomStatus)
   http.get(`${API_BASE}/worklist/room-status`, async () => {
     await delay(60);
-    const exams = list<any>('exams') || [];
-    const devices = list<any>('devices') || [];
-    const roomByDevice = new Map((devices as any[]).map((d) => [d.id, d.room ?? d.location ?? '未分配']));
-    const roomMap = new Map<string, { roomId: string; name: string; modality: string; queue: any[]; lastActivityAt: number }>();
+    const exams = list<any>("exams") || [];
+    const devices = list<any>("devices") || [];
+    const roomByDevice = new Map(
+      (devices as any[]).map((d) => [d.id, d.room ?? d.location ?? "未分配"]),
+    );
+    const roomMap = new Map<
+      string,
+      {
+        roomId: string;
+        name: string;
+        modality: string;
+        queue: any[];
+        lastActivityAt: number;
+      }
+    >();
     for (const d of devices as any[]) {
-      const key = String(d.room ?? d.location ?? '未分配');
-      if (!roomMap.has(`room-${key}`)) roomMap.set(`room-${key}`, { roomId: `room-${key}`, name: key, modality: d.modality, queue: [], lastActivityAt: 0 });
+      const key = String(d.room ?? d.location ?? "未分配");
+      if (!roomMap.has(`room-${key}`))
+        roomMap.set(`room-${key}`, {
+          roomId: `room-${key}`,
+          name: key,
+          modality: d.modality,
+          queue: [],
+          lastActivityAt: 0,
+        });
     }
-    const emptyRoom = (room: string, modality: string): { roomId: string; name: string; modality: string; queue: any[]; lastActivityAt: number } =>
-      ({ roomId: `room-${room}`, name: room, modality, queue: [], lastActivityAt: 0 });
+    const emptyRoom = (
+      room: string,
+      modality: string,
+    ): {
+      roomId: string;
+      name: string;
+      modality: string;
+      queue: any[];
+      lastActivityAt: number;
+    } => ({
+      roomId: `room-${room}`,
+      name: room,
+      modality,
+      queue: [],
+      lastActivityAt: 0,
+    });
     const norm = (s: unknown): string => {
-      const v = String(s ?? '');
-      if (v === '检查中') return 'IN_PROGRESS';
-      if (v === '已报到' || v === '已登记' || v === '待检查') return 'ARRIVED';
-      if (v === '已暂停') return 'PAUSED';
-      if (v === '已完成') return 'COMPLETED';
-      if (v === '已取消') return 'CANCELLED';
+      const v = String(s ?? "");
+      if (v === "检查中") return "IN_PROGRESS";
+      if (v === "已报到" || v === "已登记" || v === "待检查") return "ARRIVED";
+      if (v === "已暂停") return "PAUSED";
+      if (v === "已完成") return "COMPLETED";
+      if (v === "已取消") return "CANCELLED";
       return v;
     };
     const now = Date.now();
     for (const e of exams as any[]) {
       const status = norm(e.status ?? e.state);
-      if (['COMPLETED', 'CANCELLED'].includes(status)) continue;
-      const room = String(e.room ?? roomByDevice.get(e.deviceId) ?? '未分配');
+      if (["COMPLETED", "CANCELLED"].includes(status)) continue;
+      const room = String(e.room ?? roomByDevice.get(e.deviceId) ?? "未分配");
       const entry = roomMap.get(`room-${room}`) ?? emptyRoom(room, e.modality);
       entry.queue.push({ ...e, status });
       roomMap.set(entry.roomId, entry);
-      const ts = new Date(e.startAt ?? e.checkinAt ?? e.createdAt ?? 0).getTime();
+      const ts = new Date(
+        e.startAt ?? e.checkinAt ?? e.createdAt ?? 0,
+      ).getTime();
       if (ts > entry.lastActivityAt) entry.lastActivityAt = ts;
     }
     const rooms = [...roomMap.values()].map((entry) => {
-      const active = entry.queue.find((e) => e.status === 'IN_PROGRESS' || e.status === 'PAUSED');
-      const inProgress = entry.queue.filter((e) => e.status === 'IN_PROGRESS');
-      const paused = entry.queue.filter((e) => e.status === 'PAUSED');
+      const active = entry.queue.find(
+        (e) => e.status === "IN_PROGRESS" || e.status === "PAUSED",
+      );
+      const inProgress = entry.queue.filter((e) => e.status === "IN_PROGRESS");
+      const paused = entry.queue.filter((e) => e.status === "PAUSED");
       const arrived = entry.queue
-        .filter((e) => e.status === 'ARRIVED')
-        .sort((a, b) => new Date(a.startAt ?? a.checkinAt ?? a.createdAt ?? 0).getTime() - new Date(b.startAt ?? b.checkinAt ?? b.createdAt ?? 0).getTime());
+        .filter((e) => e.status === "ARRIVED")
+        .sort(
+          (a, b) =>
+            new Date(a.startAt ?? a.checkinAt ?? a.createdAt ?? 0).getTime() -
+            new Date(b.startAt ?? b.checkinAt ?? b.createdAt ?? 0).getTime(),
+        );
       const firstArrived = arrived[0];
-      const overdue = !!firstArrived && new Date(firstArrived.startAt ?? firstArrived.checkinAt ?? firstArrived.createdAt ?? 0).getTime() < now - 30 * 60000;
-      const status = inProgress.length > 0 ? 'in_use' : paused.length > 0 ? 'paused' : overdue ? 'overdue' : arrived.length > 0 || entry.queue.length > 0 ? 'waiting' : 'idle';
-      const current = active ?? inProgress[0] ?? paused[0] ?? arrived[0] ?? null;
+      const overdue =
+        !!firstArrived &&
+        new Date(
+          firstArrived.startAt ??
+            firstArrived.checkinAt ??
+            firstArrived.createdAt ??
+            0,
+        ).getTime() <
+          now - 30 * 60000;
+      const status =
+        inProgress.length > 0
+          ? "in_use"
+          : paused.length > 0
+            ? "paused"
+            : overdue
+              ? "overdue"
+              : arrived.length > 0 || entry.queue.length > 0
+                ? "waiting"
+                : "idle";
+      const current =
+        active ?? inProgress[0] ?? paused[0] ?? arrived[0] ?? null;
       return {
         roomId: entry.roomId,
         name: entry.name,
         modality: entry.modality,
-        currentExam: current ? { id: current.id, patientName: current.patientName ?? '未知患者', state: current.status, startedAt: current.startAt ?? current.checkinAt ?? null } : null,
+        currentExam: current
+          ? {
+              id: current.id,
+              patientName: current.patientName ?? "未知患者",
+              state: current.status,
+              startedAt: current.startAt ?? current.checkinAt ?? null,
+            }
+          : null,
         queueLength: entry.queue.length,
         status,
-        idleSince: entry.lastActivityAt > 0 ? new Date(entry.lastActivityAt).toISOString() : null,
+        idleSince:
+          entry.lastActivityAt > 0
+            ? new Date(entry.lastActivityAt).toISOString()
+            : null,
       };
     });
-    const order: Record<string, number> = { in_use: 0, overdue: 1, paused: 2, waiting: 3, idle: 4 };
+    const order: Record<string, number> = {
+      in_use: 0,
+      overdue: 1,
+      paused: 2,
+      waiting: 3,
+      idle: 4,
+    };
     rooms.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
-    return HttpResponse.json({ success: true, data: { rooms, updatedAt: new Date().toISOString() } });
+    return HttpResponse.json({
+      success: true,
+      data: { rooms, updatedAt: new Date().toISOString() },
+    });
   }),
 
   // [v3.0.6.11-100 Wave 1B] 重拍率统计 + 原因分类 (对齐后端 getRetakeStats)
   http.get(`${API_BASE}/worklist/retake-stats`, async ({ request }) => {
     await delay(60);
     const url = new URL(request.url);
-    const dimension = url.searchParams.get('dimension') ?? 'reason';
-    const exams = list<any>('exams') || [];
+    const dimension = url.searchParams.get("dimension") ?? "reason";
+    const exams = list<any>("exams") || [];
     const today = new Date();
-    const retakes = (exams as any[]).filter((e) => Number(e.retakeCount ?? 0) > 0);
+    const retakes = (exams as any[]).filter(
+      (e) => Number(e.retakeCount ?? 0) > 0,
+    );
     const totalCompleted = Math.max(19, (exams as any[]).length);
-    const totalRetakes = Math.max(3, retakes.reduce((a: number, e: any) => a + Number(e.retakeCount ?? 0), 0) + 3);
-    const base: Array<{ key: string; label: string; completed: number; retakes: number }> =
-      dimension === 'tech'
+    const totalRetakes = Math.max(
+      3,
+      retakes.reduce((a: number, e: any) => a + Number(e.retakeCount ?? 0), 0) +
+        3,
+    );
+    const base: Array<{
+      key: string;
+      label: string;
+      completed: number;
+      retakes: number;
+    }> =
+      dimension === "tech"
         ? [
-            { key: 'tech-seed-1', label: '王技师', completed: 9, retakes: 1 },
-            { key: 'tech-seed-2', label: '李技师', completed: 6, retakes: 0 },
-            { key: 'tech-seed-3', label: '张技师', completed: 4, retakes: 2 },
+            { key: "tech-seed-1", label: "王技师", completed: 9, retakes: 1 },
+            { key: "tech-seed-2", label: "李技师", completed: 6, retakes: 0 },
+            { key: "tech-seed-3", label: "张技师", completed: 4, retakes: 2 },
           ]
-        : dimension === 'modality'
+        : dimension === "modality"
           ? [
-              { key: 'CT', label: 'CT', completed: 20, retakes: 2 },
-              { key: 'MR', label: 'MR', completed: 15, retakes: 3 },
-              { key: 'DR', label: 'DR', completed: 12, retakes: 1 },
-              { key: 'US', label: 'US', completed: 10, retakes: 0 },
+              { key: "CT", label: "CT", completed: 20, retakes: 2 },
+              { key: "MR", label: "MR", completed: 15, retakes: 3 },
+              { key: "DR", label: "DR", completed: 12, retakes: 1 },
+              { key: "US", label: "US", completed: 10, retakes: 0 },
             ]
           : [
-              { key: 'motion_artifact', label: '运动伪影', completed: 18, retakes: 4 },
-              { key: 'positioning', label: '摆位不当', completed: 14, retakes: 2 },
-              { key: 'wrong_protocol', label: '扫描协议错误', completed: 10, retakes: 1 },
-              { key: 'contrast_issue', label: '对比剂问题', completed: 8, retakes: 1 },
-              { key: 'equipment', label: '设备故障', completed: 6, retakes: 1 },
-              { key: 'other', label: '其他', completed: 5, retakes: 0 },
+              {
+                key: "motion_artifact",
+                label: "运动伪影",
+                completed: 18,
+                retakes: 4,
+              },
+              {
+                key: "positioning",
+                label: "摆位不当",
+                completed: 14,
+                retakes: 2,
+              },
+              {
+                key: "wrong_protocol",
+                label: "扫描协议错误",
+                completed: 10,
+                retakes: 1,
+              },
+              {
+                key: "contrast_issue",
+                label: "对比剂问题",
+                completed: 8,
+                retakes: 1,
+              },
+              { key: "equipment", label: "设备故障", completed: 6, retakes: 1 },
+              { key: "other", label: "其他", completed: 5, retakes: 0 },
             ];
     // 有真实重拍数据 (retakeReason) 时叠加
     const realByReason = new Map<string, number>();
     for (const e of retakes) {
-      const r = String(e.retakeReason ?? '');
-      if (r) realByReason.set(r, (realByReason.get(r) ?? 0) + Number(e.retakeCount ?? 1));
+      const r = String(e.retakeReason ?? "");
+      if (r)
+        realByReason.set(
+          r,
+          (realByReason.get(r) ?? 0) + Number(e.retakeCount ?? 1),
+        );
     }
-    const breakdown = base.map((b) => ({
-      ...b,
-      retakes: b.retakes + (realByReason.get(b.key) ?? 0),
-      rate: Number(((b.retakes / b.completed) * 100).toFixed(1)),
-    })).sort((a, b) => b.retakes - a.retakes);
+    const breakdown = base
+      .map((b) => ({
+        ...b,
+        retakes: b.retakes + (realByReason.get(b.key) ?? 0),
+        rate: Number(((b.retakes / b.completed) * 100).toFixed(1)),
+      }))
+      .sort((a, b) => b.retakes - a.retakes);
     const trend = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today.getTime() - (6 - i) * 86400000);
       const completed = 8 + ((i * 5) % 7);
       const retakes = i % 3 === 0 ? 2 : i % 5 === 0 ? 1 : 0;
-      return { date: d.toISOString().slice(0, 10), completed, retakes, rate: Number(((retakes / completed) * 100).toFixed(1)) };
+      return {
+        date: d.toISOString().slice(0, 10),
+        completed,
+        retakes,
+        rate: Number(((retakes / completed) * 100).toFixed(1)),
+      };
     });
     const from = new Date(today.getTime() - 29 * 86400000).toISOString();
     return HttpResponse.json({
@@ -1785,7 +2949,14 @@ export const worklistHandlers = [
         from,
         to: today.toISOString(),
         dimension,
-        summary: { totalCompleted, totalRetakes, retakeRate: Number(((totalRetakes / totalCompleted) * 100).toFixed(1)), examRetakeCount: retakes.length + 5 },
+        summary: {
+          totalCompleted,
+          totalRetakes,
+          retakeRate: Number(
+            ((totalRetakes / totalCompleted) * 100).toFixed(1),
+          ),
+          examRetakeCount: retakes.length + 5,
+        },
         trend,
         breakdown,
       },
@@ -1793,41 +2964,47 @@ export const worklistHandlers = [
   }),
 
   // 医生的工作列表
-  
 
   // 详情
   http.get(`${API_BASE}/worklist/:id`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
-    let exam = get<any>('exams', id);
+    let exam = get<any>("exams", id);
     // [v3.0.6.11-100 Wave 1A] TMP001 演示检查兜底 (与 /exams/:id 一致; /exam/TMP001 详情页会调 /worklist/:id)
-    if (!exam && id === 'TMP001') {
+    if (!exam && id === "TMP001") {
       const demo = {
-        id: 'TMP001',
-        reportId: 'TMP001',
-        patientId: 'TMP001',
-        patientName: '演示患者',
+        id: "TMP001",
+        reportId: "TMP001",
+        patientId: "TMP001",
+        patientName: "演示患者",
         patientAge: 45,
-        patientGender: '男',
-        modality: 'CT',
-        examItem: '胸部CT平扫',
-        examItemCode: 'CT-CHEST',
-        bodyPart: '胸部',
-        deviceId: 'DEV-CT-01',
-        deviceModel: 'GE Revolution CT',
-        status: 'submitted',
-        priority: '普通',
-        examAt: '2026-07-02T09:30:00Z',
+        patientGender: "男",
+        modality: "CT",
+        examItem: "胸部CT平扫",
+        examItemCode: "CT-CHEST",
+        bodyPart: "胸部",
+        deviceId: "DEV-CT-01",
+        deviceModel: "GE Revolution CT",
+        status: "submitted",
+        priority: "普通",
+        examAt: "2026-07-02T09:30:00Z",
       } as any;
-      create<any>('exams', demo);
+      create<any>("exams", demo);
       exam = demo;
     }
-    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    if (!exam)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Exam not found" },
+        },
+        { status: 404 },
+      );
     // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师姓名解析 (对齐后端 getById)
     const resolveTech = (techId?: string | null) => {
       if (!techId) return null;
-      const u = get<any>('doctors', techId);
-      return { id: techId, fullName: u?.name ?? u?.fullName ?? '未知技师' };
+      const u = get<any>("doctors", techId);
+      return { id: techId, fullName: u?.name ?? u?.fullName ?? "未知技师" };
     };
     return HttpResponse.json({
       success: true,
@@ -1842,7 +3019,6 @@ export const worklistHandlers = [
   }),
 
   // 队列深度 (按设备/模态)
-  
 
   // 创建
   http.post(`${API_BASE}/worklist`, async ({ request }) => {
@@ -1850,9 +3026,12 @@ export const worklistHandlers = [
     const body = (await request.json()) as any;
     const workId = body.reportId || body.id || `RPT-${Date.now()}`;
     const newExam = { ...body, id: workId, reportId: workId };
-    create('exams', newExam);
-    auditCreate('worklist', newExam);
-    return HttpResponse.json({ success: true, data: toExamDto(newExam) }, { status: 201 });
+    create("exams", newExam);
+    auditCreate("worklist", newExam);
+    return HttpResponse.json(
+      { success: true, data: toExamDto(newExam) },
+      { status: 201 },
+    );
   }),
 
   // 完整更新
@@ -1860,10 +3039,13 @@ export const worklistHandlers = [
     await delay(120);
     const id = params.id as string;
     const body = (await request.json()) as any;
-    const before = get<any>('exams', id);
-    const updated = update<any>('exams', id, body);
-    if (updated) auditUpdate('worklist', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    const before = get<any>("exams", id);
+    const updated = update<any>("exams", id, body);
+    if (updated) auditUpdate("worklist", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   // 部分更新 (状态/设备/备注等普通字段; 与状态机端点区分)
@@ -1871,150 +3053,343 @@ export const worklistHandlers = [
     await delay(80);
     const id = params.id as string;
     const body = (await request.json()) as any;
-    const before = get<any>('exams', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
-    const updated = update<any>('exams', id, { ...before, ...body });
-    if (updated) auditUpdate('worklist', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    const before = get<any>("exams", id);
+    if (!before)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Exam not found" },
+        },
+        { status: 404 },
+      );
+    const updated = update<any>("exams", id, { ...before, ...body });
+    if (updated) auditUpdate("worklist", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   // 批量分配 (医生/设备/检查室) - 必须在 /worklist/:id/assign 之前注册
   http.post(`${API_BASE}/worklist/batch-assign`, async ({ request }) => {
     await delay(120);
-    const body = (await request.json()) as { ids?: string[]; doctorId?: string; deviceId?: string; roomId?: string };
+    const body = (await request.json()) as {
+      ids?: string[];
+      doctorId?: string;
+      deviceId?: string;
+      roomId?: string;
+    };
     const ids = Array.isArray(body?.ids) ? body.ids : [];
-    if (ids.length === 0) return HttpResponse.json({ success: false, message: 'ids is required' }, { status: 400 });
+    if (ids.length === 0)
+      return HttpResponse.json(
+        { success: false, message: "ids is required" },
+        { status: 400 },
+      );
     let updatedCount = 0;
     for (const id of ids) {
-      const before = get<any>('exams', id);
+      const before = get<any>("exams", id);
       if (!before) continue;
       const patch: Record<string, unknown> = {};
-      if (body.doctorId) { patch.doctorId = body.doctorId; patch.reportDoctorId = body.doctorId; }
+      if (body.doctorId) {
+        patch.doctorId = body.doctorId;
+        patch.reportDoctorId = body.doctorId;
+      }
       if (body.deviceId) patch.deviceId = body.deviceId;
       if (body.roomId) patch.roomId = body.roomId;
-      const updated = update<any>('exams', id, patch);
-      if (updated) { auditUpdate('worklist', before, updated); updatedCount += 1; }
+      const updated = update<any>("exams", id, patch);
+      if (updated) {
+        auditUpdate("worklist", before, updated);
+        updatedCount += 1;
+      }
     }
-    return HttpResponse.json({ success: true, data: { ok: true, updated: updatedCount } });
+    return HttpResponse.json({
+      success: true,
+      data: { ok: true, updated: updatedCount },
+    });
   }),
 
   // [v3.0.6.11-95 Wave1B] 批量状态流转 (签到/开始/完成) - 必须在 :id/checkin 等之前注册
-  http.post(`${API_BASE}/worklist/batch-checkin`, async ({ request }) => handleBatchTransition(await request.json() as { ids?: string[] }, 'checkin')),
-  http.post(`${API_BASE}/worklist/batch-start`, async ({ request }) => handleBatchTransition(await request.json() as { ids?: string[] }, 'start')),
-  http.post(`${API_BASE}/worklist/batch-complete`, async ({ request }) => handleBatchTransition(await request.json() as { ids?: string[] }, 'complete')),
+  http.post(`${API_BASE}/worklist/batch-checkin`, async ({ request }) =>
+    handleBatchTransition(
+      (await request.json()) as { ids?: string[] },
+      "checkin",
+    ),
+  ),
+  http.post(`${API_BASE}/worklist/batch-start`, async ({ request }) =>
+    handleBatchTransition(
+      (await request.json()) as { ids?: string[] },
+      "start",
+    ),
+  ),
+  http.post(`${API_BASE}/worklist/batch-complete`, async ({ request }) =>
+    handleBatchTransition(
+      (await request.json()) as { ids?: string[] },
+      "complete",
+    ),
+  ),
 
   // 分配医生/设备/检查室
   http.post(`${API_BASE}/worklist/:id/assign`, async ({ params, request }) => {
     await delay(80);
     const id = params.id as string;
-    const body = (await request.json()) as { doctorId?: string; deviceId?: string; roomId?: string };
-    const before = get<any>('exams', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
-    if (!body?.doctorId && !body?.deviceId && !body?.roomId) return HttpResponse.json({ success: false, message: 'doctorId or deviceId or roomId is required' }, { status: 400 });
+    const body = (await request.json()) as {
+      doctorId?: string;
+      deviceId?: string;
+      roomId?: string;
+    };
+    const before = get<any>("exams", id);
+    if (!before)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Exam not found" },
+        },
+        { status: 404 },
+      );
+    if (!body?.doctorId && !body?.deviceId && !body?.roomId)
+      return HttpResponse.json(
+        {
+          success: false,
+          message: "doctorId or deviceId or roomId is required",
+        },
+        { status: 400 },
+      );
     const patch: Record<string, unknown> = {};
-    if (body.doctorId) { patch.doctorId = body.doctorId; patch.reportDoctorId = body.doctorId; }
+    if (body.doctorId) {
+      patch.doctorId = body.doctorId;
+      patch.reportDoctorId = body.doctorId;
+    }
     if (body.deviceId) patch.deviceId = body.deviceId;
     if (body.roomId) patch.roomId = body.roomId;
-    const updated = update<any>('exams', id, patch);
-    if (updated) auditUpdate('worklist', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    const updated = update<any>("exams", id, patch);
+    if (updated) auditUpdate("worklist", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师分配 (对齐后端 POST /worklist/:id/assign-technicians)
-  http.post(`${API_BASE}/worklist/:id/assign-technicians`, async ({ params, request }) => {
-    await delay(80);
-    const id = params.id as string;
-    const body = (await request.json()) as { primaryId?: string; backupId?: string };
-    const before = get<any>('exams', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
-    if (!body?.primaryId && !body?.backupId) return HttpResponse.json({ success: false, message: 'primaryId or backupId is required' }, { status: 400 });
-    const patch: Record<string, unknown> = {};
-    if (body.primaryId) patch.primaryTechnicianId = body.primaryId;
-    if (body.backupId) patch.backupTechnicianId = body.backupId;
-    const updated = update<any>('exams', id, patch);
-    if (updated) auditUpdate('worklist', before, updated);
-    return HttpResponse.json({ success: true, data: { ...(updated ? toExamDto(updated) : {}), primaryTechnicianId: patch.primaryTechnicianId ?? null, backupTechnicianId: patch.backupTechnicianId ?? null } });
-  }),
+  http.post(
+    `${API_BASE}/worklist/:id/assign-technicians`,
+    async ({ params, request }) => {
+      await delay(80);
+      const id = params.id as string;
+      const body = (await request.json()) as {
+        primaryId?: string;
+        backupId?: string;
+      };
+      const before = get<any>("exams", id);
+      if (!before)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Exam not found" },
+          },
+          { status: 404 },
+        );
+      if (!body?.primaryId && !body?.backupId)
+        return HttpResponse.json(
+          { success: false, message: "primaryId or backupId is required" },
+          { status: 400 },
+        );
+      const patch: Record<string, unknown> = {};
+      if (body.primaryId) patch.primaryTechnicianId = body.primaryId;
+      if (body.backupId) patch.backupTechnicianId = body.backupId;
+      const updated = update<any>("exams", id, patch);
+      if (updated) auditUpdate("worklist", before, updated);
+      return HttpResponse.json({
+        success: true,
+        data: {
+          ...(updated ? toExamDto(updated) : {}),
+          primaryTechnicianId: patch.primaryTechnicianId ?? null,
+          backupTechnicianId: patch.backupTechnicianId ?? null,
+        },
+      });
+    },
+  ),
 
   // [v3.0.6.11-100 Wave 1A] 多技师协作: 交接班 (对齐后端 POST /worklist/:id/handover)
-  http.post(`${API_BASE}/worklist/:id/handover`, async ({ params, request }) => {
-    await delay(80);
-    const id = params.id as string;
-    const body = (await request.json()) as { fromId?: string; toId?: string; note?: string };
-    const before = get<any>('exams', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
-    if (!body?.fromId || !body?.toId) return HttpResponse.json({ success: false, message: 'fromId and toId are required' }, { status: 400 });
-    const updated = update<any>('exams', id, { primaryTechnicianId: body.toId });
-    if (updated) auditUpdate('worklist', before, updated);
-    return HttpResponse.json({ success: true, data: { ok: true, examId: id, fromId: body.fromId, toId: body.toId, note: body.note ?? null, primaryTechnicianId: body.toId } });
-  }),
+  http.post(
+    `${API_BASE}/worklist/:id/handover`,
+    async ({ params, request }) => {
+      await delay(80);
+      const id = params.id as string;
+      const body = (await request.json()) as {
+        fromId?: string;
+        toId?: string;
+        note?: string;
+      };
+      const before = get<any>("exams", id);
+      if (!before)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Exam not found" },
+          },
+          { status: 404 },
+        );
+      if (!body?.fromId || !body?.toId)
+        return HttpResponse.json(
+          { success: false, message: "fromId and toId are required" },
+          { status: 400 },
+        );
+      const updated = update<any>("exams", id, {
+        primaryTechnicianId: body.toId,
+      });
+      if (updated) auditUpdate("worklist", before, updated);
+      return HttpResponse.json({
+        success: true,
+        data: {
+          ok: true,
+          examId: id,
+          fromId: body.fromId,
+          toId: body.toId,
+          note: body.note ?? null,
+          primaryTechnicianId: body.toId,
+        },
+      });
+    },
+  ),
 
   // 状态更新
-  
 
   // [v3.0.6.8-91] 修复: 使用 worklist 状态机 (checkedIn/inProgress/completed/cancelled)
   // [P0] 统一为后端规范状态: SCHEDULED → ARRIVED → IN_PROGRESS → COMPLETED
   http.post(`${API_BASE}/worklist/:id/checkin`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'ARRIVED')) {
-      return HttpResponse.json({ success: false, message: `Cannot checkin from ${before.status}` }, { status: 400 });
+    const before = get<any>("exams", id);
+    if (before && !canTransitionWorklist(before.status, "ARRIVED")) {
+      return HttpResponse.json(
+        { success: false, message: `Cannot checkin from ${before.status}` },
+        { status: 400 },
+      );
     }
-    const updated = update<any>('exams', id, { status: 'ARRIVED', checkinAt: new Date().toISOString() });
+    const updated = update<any>("exams", id, {
+      status: "ARRIVED",
+      checkinAt: new Date().toISOString(),
+    });
     if (updated) {
-      auditStatusChange('worklist', updated, before?.status || '', 'ARRIVED');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'ARRIVED' });
+      auditStatusChange("worklist", updated, before?.status || "", "ARRIVED");
+      recordWorkflowEvent({
+        actorId: "system",
+        actorName: "系统",
+        action: "checkin",
+        entityType: "worklist",
+        entityId: id,
+        fromState: before?.status,
+        toState: "ARRIVED",
+      });
     }
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   http.post(`${API_BASE}/worklist/:id/start`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'IN_PROGRESS')) {
-      return HttpResponse.json({ success: false, message: `Cannot start from ${before.status}` }, { status: 400 });
+    const before = get<any>("exams", id);
+    if (before && !canTransitionWorklist(before.status, "IN_PROGRESS")) {
+      return HttpResponse.json(
+        { success: false, message: `Cannot start from ${before.status}` },
+        { status: 400 },
+      );
     }
     // [W6] 检查前核对 (Time-Out) 门禁: 未核对不得开始 (对齐后端 TIMEOUT_NOT_VERIFIED)
     if (before && before.timeoutVerified !== true) {
-      return HttpResponse.json({ success: false, error: { code: 'TIMEOUT_NOT_VERIFIED', message: `TIMEOUT_NOT_VERIFIED: Exam ${id} 检查前核对 (Time-Out) 未完成, 请先完成核对` } }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "TIMEOUT_NOT_VERIFIED",
+            message: `TIMEOUT_NOT_VERIFIED: Exam ${id} 检查前核对 (Time-Out) 未完成, 请先完成核对`,
+          },
+        },
+        { status: 400 },
+      );
     }
-    const updated = update<any>('exams', id, { status: 'IN_PROGRESS', state: 'IN_PROGRESS', startAt: new Date().toISOString() });
-    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'IN_PROGRESS');
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    const updated = update<any>("exams", id, {
+      status: "IN_PROGRESS",
+      state: "IN_PROGRESS",
+      startAt: new Date().toISOString(),
+    });
+    if (updated)
+      auditStatusChange(
+        "worklist",
+        updated,
+        before?.status || "",
+        "IN_PROGRESS",
+      );
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   http.post(`${API_BASE}/worklist/:id/complete`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'COMPLETED')) {
-      return HttpResponse.json({ success: false, message: `Cannot complete from ${before.status}` }, { status: 400 });
+    const before = get<any>("exams", id);
+    if (before && !canTransitionWorklist(before.status, "COMPLETED")) {
+      return HttpResponse.json(
+        { success: false, message: `Cannot complete from ${before.status}` },
+        { status: 400 },
+      );
     }
-    const updated = update<any>('exams', id, { status: 'COMPLETED', completeAt: new Date().toISOString() });
+    const updated = update<any>("exams", id, {
+      status: "COMPLETED",
+      completeAt: new Date().toISOString(),
+    });
     if (updated) {
       // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: 无报告实体时标记 PENDING_ASSIGNMENT (对齐后端 complete)
       if (markPendingAssignmentOnComplete(before)) {
-        update<any>('exams', id, { state: 'PENDING_ASSIGNMENT', pendingReportAt: new Date().toISOString() });
+        update<any>("exams", id, {
+          state: "PENDING_ASSIGNMENT",
+          pendingReportAt: new Date().toISOString(),
+        });
       }
-      auditStatusChange('worklist', updated, before?.status || '', 'COMPLETED');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'COMPLETED' });
+      auditStatusChange("worklist", updated, before?.status || "", "COMPLETED");
+      recordWorkflowEvent({
+        actorId: "system",
+        actorName: "系统",
+        action: "complete",
+        entityType: "worklist",
+        entityId: id,
+        fromState: before?.status,
+        toState: "COMPLETED",
+      });
     }
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   http.post(`${API_BASE}/worklist/:id/cancel`, async ({ params, request }) => {
     await delay(80);
     const id = params.id as string;
     const body = (await request.json()) as { reason: string };
-    const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'CANCELLED')) {
-      return HttpResponse.json({ success: false, message: `Cannot cancel from ${before.status}` }, { status: 400 });
+    const before = get<any>("exams", id);
+    if (before && !canTransitionWorklist(before.status, "CANCELLED")) {
+      return HttpResponse.json(
+        { success: false, message: `Cannot cancel from ${before.status}` },
+        { status: 400 },
+      );
     }
-    const updated = update<any>('exams', id, { status: 'CANCELLED', cancelReason: body.reason, cancelledAt: new Date().toISOString() });
-    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'CANCELLED');
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    const updated = update<any>("exams", id, {
+      status: "CANCELLED",
+      cancelReason: body.reason,
+      cancelledAt: new Date().toISOString(),
+    });
+    if (updated)
+      auditStatusChange("worklist", updated, before?.status || "", "CANCELLED");
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   // [v3.0.6.11-95 Wave 1A P1] 暂停/继续 (对齐后端 POST /worklist/:id/pause|resume)
@@ -2022,29 +3397,56 @@ export const worklistHandlers = [
     await delay(80);
     const id = params.id as string;
     const body = (await request.json()) as { reason?: string };
-    const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'PAUSED')) {
-      return HttpResponse.json({ success: false, message: `Cannot pause from ${before.status}` }, { status: 400 });
+    const before = get<any>("exams", id);
+    if (before && !canTransitionWorklist(before.status, "PAUSED")) {
+      return HttpResponse.json(
+        { success: false, message: `Cannot pause from ${before.status}` },
+        { status: 400 },
+      );
     }
-    const updated = update<any>('exams', id, { status: 'PAUSED', state: 'PAUSED', pausedAt: new Date().toISOString(), pauseReason: body?.reason ?? '' });
-    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'PAUSED');
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    const updated = update<any>("exams", id, {
+      status: "PAUSED",
+      state: "PAUSED",
+      pausedAt: new Date().toISOString(),
+      pauseReason: body?.reason ?? "",
+    });
+    if (updated)
+      auditStatusChange("worklist", updated, before?.status || "", "PAUSED");
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   http.post(`${API_BASE}/worklist/:id/resume`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'IN_PROGRESS')) {
-      return HttpResponse.json({ success: false, message: `Cannot resume from ${before.status}` }, { status: 400 });
+    const before = get<any>("exams", id);
+    if (before && !canTransitionWorklist(before.status, "IN_PROGRESS")) {
+      return HttpResponse.json(
+        { success: false, message: `Cannot resume from ${before.status}` },
+        { status: 400 },
+      );
     }
-    const updated = update<any>('exams', id, { status: 'IN_PROGRESS', state: 'IN_PROGRESS', pausedAt: null });
-    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'IN_PROGRESS');
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    const updated = update<any>("exams", id, {
+      status: "IN_PROGRESS",
+      state: "IN_PROGRESS",
+      pausedAt: null,
+    });
+    if (updated)
+      auditStatusChange(
+        "worklist",
+        updated,
+        before?.status || "",
+        "IN_PROGRESS",
+      );
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   // 批量改派
-  
 
   // [v3.0.6.11-92 Wave1B P0] 影像质控回写: PATCH /worklist/:id/state { state: IMAGE_READY|QC_REJECT|QC_PASS, note? }
   // [v3.0.6.11-95 Wave 1A P1] + IN_PROGRESS 重拍登记 (QC_REJECT → IN_PROGRESS, retakeCount+1, 备注"重拍第 N 次") + rating/qcNote 落库
@@ -2052,27 +3454,68 @@ export const worklistHandlers = [
   http.patch(`${API_BASE}/worklist/:id/state`, async ({ params, request }) => {
     await delay(80);
     const id = params.id as string;
-    const body = (await request.json()) as { state?: string; note?: string; rating?: string; techNote?: string; qcNote?: string; retakeReason?: string };
-    const state = String(body.state ?? '').toUpperCase();
-    if (!['IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'IN_PROGRESS'].includes(state)) {
-      return HttpResponse.json({ success: false, message: `Invalid qc state: ${body.state}` }, { status: 400 });
+    const body = (await request.json()) as {
+      state?: string;
+      note?: string;
+      rating?: string;
+      techNote?: string;
+      qcNote?: string;
+      retakeReason?: string;
+    };
+    const state = String(body.state ?? "").toUpperCase();
+    if (
+      !["IMAGE_READY", "QC_REJECT", "QC_PASS", "IN_PROGRESS"].includes(state)
+    ) {
+      return HttpResponse.json(
+        { success: false, message: `Invalid qc state: ${body.state}` },
+        { status: 400 },
+      );
     }
-    let before = get<any>('exams', id);
+    let before = get<any>("exams", id);
     if (!before) {
-      before = list<any>('exams').find((e) => String(e.accessionNumber ?? e.studyId ?? '') === id) ?? null;
+      before =
+        list<any>("exams").find(
+          (e) => String(e.accessionNumber ?? e.studyId ?? "") === id,
+        ) ?? null;
     }
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
-    const target = state === 'QC_PASS' ? 'PENDING_REPORT' : state;
+    if (!before)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Exam not found" },
+        },
+        { status: 404 },
+      );
+    const target = state === "QC_PASS" ? "PENDING_REPORT" : state;
     if (!canTransitionWorklist(before.status, target)) {
-      return HttpResponse.json({ success: false, message: `Cannot qc-transition from ${before.status} to ${target}` }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          message: `Cannot qc-transition from ${before.status} to ${target}`,
+        },
+        { status: 400 },
+      );
     }
     // [W6] 重拍审批门禁: QC_REJECT → IN_PROGRESS 必须已审批通过 (对齐后端 RETAKE_NOT_APPROVED)
-    if (state === 'IN_PROGRESS' && before.retakeStatus !== 'approved') {
-      return HttpResponse.json({ success: false, error: { code: 'RETAKE_NOT_APPROVED', message: `RETAKE_NOT_APPROVED: Exam ${id} 重拍申请未通过审批 (retakeStatus=${before.retakeStatus ?? 'none'}), 不允许流转到 IN_PROGRESS` } }, { status: 400 });
+    if (state === "IN_PROGRESS" && before.retakeStatus !== "approved") {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "RETAKE_NOT_APPROVED",
+            message: `RETAKE_NOT_APPROVED: Exam ${id} 重拍申请未通过审批 (retakeStatus=${before.retakeStatus ?? "none"}), 不允许流转到 IN_PROGRESS`,
+          },
+        },
+        { status: 400 },
+      );
     }
-    const patch: Record<string, unknown> = { status: target, state: target, qcAt: new Date().toISOString() };
+    const patch: Record<string, unknown> = {
+      status: target,
+      state: target,
+      qcAt: new Date().toISOString(),
+    };
     // [W6] 再次退回质控 → 重置重拍审批状态 (需重新申请/审批, 对齐后端)
-    if (target === 'QC_REJECT') {
+    if (target === "QC_REJECT") {
       patch.retakeStatus = null;
       patch.retakeApprover = null;
       patch.retakeApprovedAt = null;
@@ -2081,31 +3524,48 @@ export const worklistHandlers = [
     if (body.techNote) patch.techNotes = body.techNote;
     if (body.qcNote) patch.qcNotes = body.qcNote;
     else if (body.note) patch.qcNotes = body.note;
-    if (state === 'IN_PROGRESS') {
+    if (state === "IN_PROGRESS") {
       const retakeCount = Number(before.retakeCount ?? 0) + 1;
-      const appendNote = `重拍登记 第 ${retakeCount} 次${body.note ? `: ${body.note}` : ''}${body.retakeReason ? ` [${body.retakeReason}]` : ''}`;
+      const appendNote = `重拍登记 第 ${retakeCount} 次${body.note ? `: ${body.note}` : ""}${body.retakeReason ? ` [${body.retakeReason}]` : ""}`;
       patch.retakeCount = retakeCount;
-      patch.qcNotes = [String(before.qcNotes ?? ''), appendNote].filter(Boolean).join('\n');
+      patch.qcNotes = [String(before.qcNotes ?? ""), appendNote]
+        .filter(Boolean)
+        .join("\n");
       if (body.retakeReason) {
         patch.retakeReason = body.retakeReason;
-        patch.retakeReasons = [...(Array.isArray(before.retakeReasons) ? before.retakeReasons : []), body.retakeReason];
+        patch.retakeReasons = [
+          ...(Array.isArray(before.retakeReasons) ? before.retakeReasons : []),
+          body.retakeReason,
+        ];
       }
     }
-    const updated = update<any>('exams', id, patch);
+    const updated = update<any>("exams", id, patch);
     if (updated) {
-      auditStatusChange('worklist', updated, before.status, target);
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: state === 'IN_PROGRESS' ? 'retake' : 'qc', entityType: 'worklist', entityId: id, fromState: before.status, toState: target, metadata: { note: body.note } });
+      auditStatusChange("worklist", updated, before.status, target);
+      recordWorkflowEvent({
+        actorId: "system",
+        actorName: "系统",
+        action: state === "IN_PROGRESS" ? "retake" : "qc",
+        entityType: "worklist",
+        entityId: id,
+        fromState: before.status,
+        toState: target,
+        metadata: { note: body.note },
+      });
     }
-    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toExamDto(updated) : null,
+    });
   }),
 
   // 删除
   http.delete(`${API_BASE}/worklist/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
-    const before = get<any>('exams', id);
-    const existed = remove('exams', id);
-    if (existed) auditDelete({ resource: 'worklist', resourceId: id, before });
+    const before = get<any>("exams", id);
+    const existed = remove("exams", id);
+    if (existed) auditDelete({ resource: "worklist", resourceId: id, before });
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 ];
@@ -2118,115 +3578,163 @@ export const patientHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const all = list<unknown>('patients') as any[];
-    const result = applyQuery<any>(all, opts, ['name', 'id', 'phone', 'idCard', 'chiefComplaint']);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+    const all = list<unknown>("patients") as any[];
+    const result = applyQuery<any>(all, opts, [
+      "name",
+      "id",
+      "phone",
+      "idCard",
+      "chiefComplaint",
+    ]);
+    return HttpResponse.json({
+      success: true,
+      data: result.data,
+      meta: {
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      },
+    });
   }),
 
   // 患者统计 (必须在 :id 之前)
-  
 
   // [W4-A] 批量导入 (JSON 数组或 { items }, 逐条创建 + idCard/name+phone 冲突跳过)
   http.post(`${API_BASE}/patients/import`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as any;
     const rows: any[] = Array.isArray(body) ? body : (body?.items ?? []);
-    const all = list<any>('patients') as any[];
+    const all = list<any>("patients") as any[];
     const errors: { index: number; message: string }[] = [];
     let imported = 0;
     let skipped = 0;
     rows.forEach((row: any, i: number) => {
-      if (!row || typeof row !== 'object' || !String(row.name ?? '').trim()) {
+      if (!row || typeof row !== "object" || !String(row.name ?? "").trim()) {
         errors.push({ index: i, message: `第 ${i + 1} 行: 姓名不能为空` });
         return;
       }
-      const dup = all.find((p: any) =>
-        (row.idCard && String(p.idCard ?? '') === String(row.idCard)) ||
-        (String(row.name ?? '').trim() === String(p.name ?? '') && (row.phone ?? '') !== '' && String(row.phone ?? '') === String(p.phone ?? '')),
+      const dup = all.find(
+        (p: any) =>
+          (row.idCard && String(p.idCard ?? "") === String(row.idCard)) ||
+          (String(row.name ?? "").trim() === String(p.name ?? "") &&
+            (row.phone ?? "") !== "" &&
+            String(row.phone ?? "") === String(p.phone ?? "")),
       );
-      if (dup) { skipped++; return; }
+      if (dup) {
+        skipped++;
+        return;
+      }
       const newId = row.id || `P${String(Date.now()).slice(-6)}${i}`;
       const rec = {
         ...row,
         id: newId,
-        gender: row.gender === '男' || row.gender === 'MALE' ? '男' : row.gender === '女' || row.gender === 'FEMALE' ? '女' : '其他',
+        gender:
+          row.gender === "男" || row.gender === "MALE"
+            ? "男"
+            : row.gender === "女" || row.gender === "FEMALE"
+              ? "女"
+              : "其他",
         age: Number(row.age ?? 0),
-        patientType: row.patientType ?? row.type ?? '门诊',
+        patientType: row.patientType ?? row.type ?? "门诊",
         registeredAt: row.registeredAt ?? new Date().toISOString(),
         createdAt: new Date().toISOString(),
         isVIP: Boolean(row.isVIP),
         tags: Array.isArray(row.tags) ? row.tags : [],
       };
-      create('patients', rec);
+      create("patients", rec);
       imported++;
     });
-    return HttpResponse.json({ success: true, data: { imported, skipped, errors } });
+    return HttpResponse.json({
+      success: true,
+      data: { imported, skipped, errors },
+    });
   }),
 
   // [W4-A] CSV 导出 (必须在 :id 之前)
   http.get(`${API_BASE}/patients/export`, async ({ request }) => {
     await delay(150);
     const url = new URL(request.url);
-    const name = url.searchParams.get('name') ?? '';
-    const phone = url.searchParams.get('phone') ?? '';
-    const all = list<any>('patients') as any[];
-    const rows = all.filter((p: any) =>
-      (!name || String(p.name ?? '').includes(name)) &&
-      (!phone || String(p.phone ?? '').includes(phone)),
+    const name = url.searchParams.get("name") ?? "";
+    const phone = url.searchParams.get("phone") ?? "";
+    const all = list<any>("patients") as any[];
+    const rows = all.filter(
+      (p: any) =>
+        (!name || String(p.name ?? "").includes(name)) &&
+        (!phone || String(p.phone ?? "").includes(phone)),
     );
-    const header = ['id', 'name', 'gender', 'age', 'phone', 'idCard', 'patientType', 'registeredAt'];
+    const header = [
+      "id",
+      "name",
+      "gender",
+      "age",
+      "phone",
+      "idCard",
+      "patientType",
+      "registeredAt",
+    ];
     const esc = (v: unknown) => {
-      const s = String(v ?? '');
+      const s = String(v ?? "");
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const lines = [header.join(',')];
-    for (const p of rows) lines.push(header.map((h) => esc((p as any)[h])).join(','));
+    const lines = [header.join(",")];
+    for (const p of rows)
+      lines.push(header.map((h) => esc((p as any)[h])).join(","));
     return HttpResponse.json({
       success: true,
-      data: { filename: `patients_${new Date().toISOString().slice(0, 10)}.csv`, content: '\ufeff' + lines.join('\n'), count: rows.length },
+      data: {
+        filename: `patients_${new Date().toISOString().slice(0, 10)}.csv`,
+        content: "\ufeff" + lines.join("\n"),
+        count: rows.length,
+      },
     });
   }),
 
   // 按模态分组 (必须在 :id 之前)
-  
 
   // 按状态分组 (必须在 :id 之前)
-  
 
   // 详情 (完整 PatientDto 25 字段)
   http.get(`${API_BASE}/patients/:id`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
-    let p = get<any>('patients', id);
+    let p = get<any>("patients", id);
     // [W2-B-3] 测试/演示患者 TMP001 兜底 (patients/:id/360 等路由使用)
-    if (!p && id === 'TMP001') {
+    if (!p && id === "TMP001") {
       p = {
-        id: 'TMP001',
-        name: '演示患者',
-        gender: '男',
+        id: "TMP001",
+        name: "演示患者",
+        gender: "男",
         age: 45,
-        birthDate: '1981-06-15',
-        phone: '13800138000',
-        idCard: '11010119810615XXXX',
-        bloodType: 'A',
-        type: '门诊',
-        referringDepartment: '呼吸内科',
-        referringDoctor: '李明辉',
-        chiefComplaint: '咳嗽咳痰两周',
-        clinicalDiagnosis: '肺结节待查',
-        icd10: 'R91.1',
-        modality: 'CT',
-        bodyPart: '胸部',
-        examItem: '胸部CT平扫',
-        registeredAt: '2026-07-01T08:00:00Z',
-        examDate: '2026-07-02T09:30:00Z',
-        status: '已签发',
-        priority: '普通',
+        birthDate: "1981-06-15",
+        phone: "13800138000",
+        idCard: "11010119810615XXXX",
+        bloodType: "A",
+        type: "门诊",
+        referringDepartment: "呼吸内科",
+        referringDoctor: "李明辉",
+        chiefComplaint: "咳嗽咳痰两周",
+        clinicalDiagnosis: "肺结节待查",
+        icd10: "R91.1",
+        modality: "CT",
+        bodyPart: "胸部",
+        examItem: "胸部CT平扫",
+        registeredAt: "2026-07-01T08:00:00Z",
+        examDate: "2026-07-02T09:30:00Z",
+        status: "已签发",
+        priority: "普通",
         isVIP: false,
         tags: [],
       };
     }
-    if (!p) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Patient not found' } }, { status: 404 });
+    if (!p)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Patient not found" },
+        },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: toPatientDto(p) });
   }),
 
@@ -2235,9 +3743,20 @@ export const patientHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const all = list<any>('exams').filter((e: any) => e.patientId === params.id);
+    const all = list<any>("exams").filter(
+      (e: any) => e.patientId === params.id,
+    );
     const result = applyQuery<any>(all, opts);
-    return HttpResponse.json({ success: true, data: result.data.map(toExamDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+    return HttpResponse.json({
+      success: true,
+      data: result.data.map(toExamDto),
+      meta: {
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      },
+    });
   }),
 
   // 患者的报告 (接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE)
@@ -2245,36 +3764,68 @@ export const patientHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const qMap = new Map(list<any>('qualityScores').map((q: any) => [q.reportId, q]));
-    const all = list<any>('exams').filter((e: any) => e.patientId === params.id);
+    const qMap = new Map(
+      list<any>("qualityScores").map((q: any) => [q.reportId, q]),
+    );
+    const all = list<any>("exams").filter(
+      (e: any) => e.patientId === params.id,
+    );
     const result = applyQuery<any>(all, opts);
-    return HttpResponse.json({ success: true, data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+    return HttpResponse.json({
+      success: true,
+      data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
+      meta: {
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      },
+    });
   }),
 
   // 患者时间线 (跨检查/报告)
   http.get(`${API_BASE}/patients/:id/timeline`, async ({ params }) => {
     await delay(80);
-    const exams = list<any>('exams').filter((e: any) => e.patientId === params.id);
-    const criticalEvents = list<any>('criticalEvents').filter((c: any) => c.patientId === params.id);
+    const exams = list<any>("exams").filter(
+      (e: any) => e.patientId === params.id,
+    );
+    const criticalEvents = list<any>("criticalEvents").filter(
+      (c: any) => c.patientId === params.id,
+    );
     const timeline = [
-      ...exams.map((e: any) => ({ type: 'exam' as const, timestamp: e.examAt, data: e })),
-      ...criticalEvents.map((c: any) => ({ type: 'critical' as const, timestamp: c.discoveredAt, data: c })),
+      ...exams.map((e: any) => ({
+        type: "exam" as const,
+        timestamp: e.examAt,
+        data: e,
+      })),
+      ...criticalEvents.map((c: any) => ({
+        type: "critical" as const,
+        timestamp: c.discoveredAt,
+        data: c,
+      })),
     ].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
     return HttpResponse.json({ success: true, data: timeline });
   }),
 
   // 患者导出
-  
 
   // 创建 (POST /patients)
   http.post(`${API_BASE}/patients`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
-    const newId = body.id || `P${String(Date.now()).slice(-6).padStart(6, '0')}`;
-    const newPatient = { ...body, id: newId, createdAt: new Date().toISOString() };
-    create('patients', newPatient);
-    auditCreate('patients', newPatient);
-    return HttpResponse.json({ success: true, data: toPatientDto(newPatient) }, { status: 201 });
+    const newId =
+      body.id || `P${String(Date.now()).slice(-6).padStart(6, "0")}`;
+    const newPatient = {
+      ...body,
+      id: newId,
+      createdAt: new Date().toISOString(),
+    };
+    create("patients", newPatient);
+    auditCreate("patients", newPatient);
+    return HttpResponse.json(
+      { success: true, data: toPatientDto(newPatient) },
+      { status: 201 },
+    );
   }),
 
   // 更新 (PUT /patients/:id)
@@ -2282,19 +3833,22 @@ export const patientHandlers = [
     await delay(120);
     const id = params.id as string;
     const body = (await request.json()) as any;
-    const before = get<any>('patients', id);
-    const updated = update<any>('patients', id, body);
-    if (updated) auditUpdate('patients', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toPatientDto(updated) : null });
+    const before = get<any>("patients", id);
+    const updated = update<any>("patients", id, body);
+    if (updated) auditUpdate("patients", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toPatientDto(updated) : null,
+    });
   }),
 
   // 删除 (DELETE /patients/:id) - 仅 RBAC 管理员
   http.delete(`${API_BASE}/patients/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
-    const before = get<any>('patients', id);
-    const existed = remove('patients', id);
-    if (existed) auditDelete({ resource: 'patients', resourceId: id, before });
+    const before = get<any>("patients", id);
+    const existed = remove("patients", id);
+    if (existed) auditDelete({ resource: "patients", resourceId: id, before });
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
@@ -2302,38 +3856,114 @@ export const patientHandlers = [
   http.post(`${API_BASE}/patients/merge`, async ({ request }) => {
     await delay(200);
     try {
-      const body = (await request.json()) as { sourceId?: string; targetId?: string };
+      const body = (await request.json()) as {
+        sourceId?: string;
+        targetId?: string;
+      };
       const sourceId = body?.sourceId;
       const targetId = body?.targetId;
-      const source = sourceId ? get<any>('patients', sourceId) : null;
-      const target = targetId ? get<any>('patients', targetId) : null;
-      if (!source) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Source patient ${sourceId} not found` } }, { status: 404 });
-      if (!target) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Target patient ${targetId} not found` } }, { status: 404 });
-      if (sourceId === targetId) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'Cannot merge a patient with itself' } }, { status: 400 });
+      const source = sourceId ? get<any>("patients", sourceId) : null;
+      const target = targetId ? get<any>("patients", targetId) : null;
+      if (!source)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: `Source patient ${sourceId} not found`,
+            },
+          },
+          { status: 404 },
+        );
+      if (!target)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: `Target patient ${targetId} not found`,
+            },
+          },
+          { status: 404 },
+        );
+      if (sourceId === targetId)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: "BAD_REQUEST",
+              message: "Cannot merge a patient with itself",
+            },
+          },
+          { status: 400 },
+        );
 
-      const exams = list<any>('exams').filter((e: any) => e.patientId === sourceId);
-      const reports = list<any>('reports').filter((r: any) => r.patientId === sourceId);
-      const criticals = list<any>('criticalEvents').filter((c: any) => c.patientId === sourceId);
-      exams.forEach((e: any) => update<any>('exams', e.id ?? e.reportId, { ...e, patientId: targetId }));
-      reports.forEach((r: any) => update<any>('reports', r.id ?? r.reportId, { ...r, patientId: targetId }));
-      criticals.forEach((c: any) => update<any>('criticalEvents', c.id, { ...c, patientId: targetId }));
+      const exams = list<any>("exams").filter(
+        (e: any) => e.patientId === sourceId,
+      );
+      const reports = list<any>("reports").filter(
+        (r: any) => r.patientId === sourceId,
+      );
+      const criticals = list<any>("criticalEvents").filter(
+        (c: any) => c.patientId === sourceId,
+      );
+      exams.forEach((e: any) =>
+        update<any>("exams", e.id ?? e.reportId, { ...e, patientId: targetId }),
+      );
+      reports.forEach((r: any) =>
+        update<any>("reports", r.id ?? r.reportId, {
+          ...r,
+          patientId: targetId,
+        }),
+      );
+      criticals.forEach((c: any) =>
+        update<any>("criticalEvents", c.id, { ...c, patientId: targetId }),
+      );
       // appointments 为 handlers.ts 模块内可变记录集
-      appointmentRecords = appointmentRecords.map((a: any) => (a.patientId === sourceId ? { ...a, patientId: targetId, patientName: target.name } : a));
+      appointmentRecords = appointmentRecords.map((a: any) =>
+        a.patientId === sourceId
+          ? { ...a, patientId: targetId, patientName: target.name }
+          : a,
+      );
 
-      remove('patients', sourceId as string);
-      auditCreate('patients', {
+      remove("patients", sourceId as string);
+      auditCreate("patients", {
         id: `merge-${Date.now()}`,
         sourceId,
         targetId,
         movedExams: exams.length,
         movedReports: reports.length,
-        movedAppointments: appointmentRecords.filter((a: any) => a.patientId === targetId).length,
+        movedAppointments: appointmentRecords.filter(
+          (a: any) => a.patientId === targetId,
+        ).length,
         movedCriticalValues: criticals.length,
         mergedAt: new Date().toISOString(),
       });
-      return HttpResponse.json({ success: true, data: { ok: true, merged: { sourceId, targetId, movedExams: exams.length, movedReports: reports.length, movedAppointments: 0, movedCriticalValues: criticals.length } } });
+      return HttpResponse.json({
+        success: true,
+        data: {
+          ok: true,
+          merged: {
+            sourceId,
+            targetId,
+            movedExams: exams.length,
+            movedReports: reports.length,
+            movedAppointments: 0,
+            movedCriticalValues: criticals.length,
+          },
+        },
+      });
     } catch (e) {
-      return HttpResponse.json({ success: false, error: { code: 'INTERNAL', message: (e as Error)?.message ?? String(e) } }, { status: 500 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INTERNAL",
+            message: (e as Error)?.message ?? String(e),
+          },
+        },
+        { status: 500 },
+      );
     }
   }),
 ];
@@ -2345,15 +3975,30 @@ export const deviceHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const all = list<any>('devices');
-    const result = applyQuery<any>(all, opts, ['id', 'model', 'brand', 'room', 'building']);
-    return HttpResponse.json({ success: true, data: result.data.map(toDeviceDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+    const all = list<any>("devices");
+    const result = applyQuery<any>(all, opts, [
+      "id",
+      "model",
+      "brand",
+      "room",
+      "building",
+    ]);
+    return HttpResponse.json({
+      success: true,
+      data: result.data.map(toDeviceDto),
+      meta: {
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      },
+    });
   }),
 
   // 统计 (必须在 :id 之前)
   http.get(`${API_BASE}/devices/stats/today`, async () => {
     await delay(80);
-    const all = list<any>('devices');
+    const all = list<any>("devices");
     const byStatus: Record<string, number> = {};
     const byModality: Record<string, number> = {};
     const byGrade: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
@@ -2368,52 +4013,94 @@ export const deviceHandlers = [
       totalValue += d.purchasePrice;
       totalDowntime += d.monthlyDowntime;
     }
-    return HttpResponse.json({ success: true, data: {
-      total: all.length,
-      inUse: byStatus['运行中'] || 0,
-      idle: byStatus['待机'] || 0,
-      maintenance: byStatus['维护中'] || 0,
-      broken: byStatus['故障'] || 0,
-      byStatus, byModality, byGrade,
-      totalMonthlyScans, totalValue, totalDowntime,
-    } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: all.length,
+        inUse: byStatus["运行中"] || 0,
+        idle: byStatus["待机"] || 0,
+        maintenance: byStatus["维护中"] || 0,
+        broken: byStatus["故障"] || 0,
+        byStatus,
+        byModality,
+        byGrade,
+        totalMonthlyScans,
+        totalValue,
+        totalDowntime,
+      },
+    });
   }),
 
   // 排程/维护计划
-  
 
   // [v3.0.6.11-100 Wave 1B] 设备维护到期列表 (剩余小时数, 周期默认 2000h) - 必须在 :id 之前注册
   http.get(`${API_BASE}/devices/maintenance-due`, async ({ request }) => {
     await delay(60);
     const url = new URL(request.url);
-    const cycle = Number(url.searchParams.get('cycleHours') ?? 2000) || 2000;
-    const all = list<any>('devices') || [];
+    const cycle = Number(url.searchParams.get("cycleHours") ?? 2000) || 2000;
+    const all = list<any>("devices") || [];
     // 兜底 seed: 技师工作站 initialModalityDevices 使用 DEV-*-01 风格 id (store 主数据为 DEV-*-001)
     const existingIds = new Set((all as any[]).map((d) => d.id));
     const SEED_MAINTENANCE: Array<Record<string, unknown>> = [
-      { id: 'DEV-CT-01', code: 'CT-001', name: 'CT-1（GE Revolution CT）', modality: 'CT', room: 'CT室1', maintenanceHours: 2050 },
-      { id: 'DEV-MR-01', code: 'MR-002', name: 'MR-1（西门子MAGNETOM Vida）', modality: 'MR', room: 'MR室1', maintenanceHours: 1870 },
-      { id: 'DEV-DR-01', code: 'DR-003', name: 'DR-1（飞利浦DigitalDiagnost）', modality: 'DR', room: 'DR室1', maintenanceHours: 470 },
-      { id: 'DEV-US-01', code: 'US-004', name: '超声-1（GE Voluson E10）', modality: 'US', room: '超声室', maintenanceHours: 260 },
+      {
+        id: "DEV-CT-01",
+        code: "CT-001",
+        name: "CT-1（GE Revolution CT）",
+        modality: "CT",
+        room: "CT室1",
+        maintenanceHours: 2050,
+      },
+      {
+        id: "DEV-MR-01",
+        code: "MR-002",
+        name: "MR-1（西门子MAGNETOM Vida）",
+        modality: "MR",
+        room: "MR室1",
+        maintenanceHours: 1870,
+      },
+      {
+        id: "DEV-DR-01",
+        code: "DR-003",
+        name: "DR-1（飞利浦DigitalDiagnost）",
+        modality: "DR",
+        room: "DR室1",
+        maintenanceHours: 470,
+      },
+      {
+        id: "DEV-US-01",
+        code: "US-004",
+        name: "超声-1（GE Voluson E10）",
+        modality: "US",
+        room: "超声室",
+        maintenanceHours: 260,
+      },
     ];
     for (const seed of SEED_MAINTENANCE) {
       if (!existingIds.has(String(seed.id))) (all as any[]).push(seed);
     }
     const items = (all as any[]).map((d) => {
-      const usedHours = Math.round((Number(d.maintenanceHours ?? 0) || ((Number(d.monthlyScans ?? 0) * 26) % 2000)) * 10) / 10;
+      const usedHours =
+        Math.round(
+          (Number(d.maintenanceHours ?? 0) ||
+            (Number(d.monthlyScans ?? 0) * 26) % 2000) * 10,
+        ) / 10;
       const remaining = Math.max(0, Math.round((cycle - usedHours) * 10) / 10);
       const ratio = cycle > 0 ? remaining / cycle : 0;
-      const status = String(d.status) === '维护中' || d.state === 'MAINTENANCE' ? 'maintenance'
-        : remaining <= 0 ? 'overdue'
-        : ratio <= 0.25 ? 'warning'
-        : 'ok';
+      const status =
+        String(d.status) === "维护中" || d.state === "MAINTENANCE"
+          ? "maintenance"
+          : remaining <= 0
+            ? "overdue"
+            : ratio <= 0.25
+              ? "warning"
+              : "ok";
       return {
         deviceId: d.id,
         code: d.code ?? d.id,
         name: d.name ?? d.model ?? d.id,
         modality: d.modality,
         location: d.room ?? d.location ?? null,
-        state: d.state ?? 'IDLE',
+        state: d.state ?? "IDLE",
         usedHours,
         remainingHours: remaining,
         cycleHours: cycle,
@@ -2423,36 +4110,82 @@ export const deviceHandlers = [
         logs: Array.isArray(d.maintenanceLogs) ? d.maintenanceLogs : [],
       };
     });
-    const order: Record<string, number> = { overdue: 0, warning: 1, maintenance: 2, ok: 3 };
+    const order: Record<string, number> = {
+      overdue: 0,
+      warning: 1,
+      maintenance: 2,
+      ok: 3,
+    };
     items.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
-    return HttpResponse.json({ success: true, data: { items, total: items.length, cycleHours: cycle, updatedAt: new Date().toISOString() } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items,
+        total: items.length,
+        cycleHours: cycle,
+        updatedAt: new Date().toISOString(),
+      },
+    });
   }),
 
   // [v3.0.6.11-100 Wave 1B] 记录维护 (preventive/corrective)
-  http.post(`${API_BASE}/devices/:id/maintenance-log`, async ({ params, request }) => {
-    await delay(80);
-    const id = params.id as string;
-    const body = (await request.json()) as { type?: string; hoursUsed?: number; note?: string };
-    const before = get<any>('devices', id);
-    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Device not found' } }, { status: 404 });
-    const entry = { type: body.type ?? 'preventive', hoursUsed: Number(body.hoursUsed ?? 0), note: body.note ?? '', at: new Date().toISOString() };
-    const updated = update<any>('devices', id, {
-      lastMaintenanceAt: entry.at,
-      maintenanceHours: 0,
-      maintenanceLogs: [...(Array.isArray(before.maintenanceLogs) ? before.maintenanceLogs : []), entry],
-    });
-    if (updated) auditUpdate('devices', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
-  }),
+  http.post(
+    `${API_BASE}/devices/:id/maintenance-log`,
+    async ({ params, request }) => {
+      await delay(80);
+      const id = params.id as string;
+      const body = (await request.json()) as {
+        type?: string;
+        hoursUsed?: number;
+        note?: string;
+      };
+      const before = get<any>("devices", id);
+      if (!before)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Device not found" },
+          },
+          { status: 404 },
+        );
+      const entry = {
+        type: body.type ?? "preventive",
+        hoursUsed: Number(body.hoursUsed ?? 0),
+        note: body.note ?? "",
+        at: new Date().toISOString(),
+      };
+      const updated = update<any>("devices", id, {
+        lastMaintenanceAt: entry.at,
+        maintenanceHours: 0,
+        maintenanceLogs: [
+          ...(Array.isArray(before.maintenanceLogs)
+            ? before.maintenanceLogs
+            : []),
+          entry,
+        ],
+      });
+      if (updated) auditUpdate("devices", before, updated);
+      return HttpResponse.json({
+        success: true,
+        data: updated ? toDeviceDto(updated) : null,
+      });
+    },
+  ),
 
   // 维护历史
-  
 
   // 详情
   http.get(`${API_BASE}/devices/:id`, async ({ params }) => {
     await delay(50);
-    const d = get<any>('devices', params.id as string);
-    if (!d) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Device not found' } }, { status: 404 });
+    const d = get<any>("devices", params.id as string);
+    if (!d)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "Device not found" },
+        },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: toDeviceDto(d) });
   }),
 
@@ -2460,43 +4193,56 @@ export const deviceHandlers = [
   http.get(`${API_BASE}/devices/:id/stats`, async ({ params }) => {
     await delay(60);
     const id = params.id as string;
-    const base = id.includes('CT') ? 120 : id.includes('MR') ? 60 : id.includes('DR') ? 200 : 15;
-    return HttpResponse.json({ success: true, data: {
-      deviceId: id,
-      todayExams: Math.max(1, base + Math.floor(Math.random() * 30)),
-      totalExams: base * 120,
-      usageMinutes: Math.max(60, base * 8 + Math.floor(Math.random() * 240)),
-    } });
+    const base = id.includes("CT")
+      ? 120
+      : id.includes("MR")
+        ? 60
+        : id.includes("DR")
+          ? 200
+          : 15;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        deviceId: id,
+        todayExams: Math.max(1, base + Math.floor(Math.random() * 30)),
+        totalExams: base * 120,
+        usageMinutes: Math.max(60, base * 8 + Math.floor(Math.random() * 240)),
+      },
+    });
   }),
 
   // QR Code (设备资产码)
-  
 
   // 更新状态
   http.put(`${API_BASE}/devices/:id/status`, async ({ params, request }) => {
     await delay(100);
     const id = params.id as string;
     const body = (await request.json()) as { status: string };
-    const before = get<any>('devices', id);
-    const updated = update<any>('devices', id, { status: body.status });
+    const before = get<any>("devices", id);
+    const updated = update<any>("devices", id, { status: body.status });
     if (updated) {
-      auditUpdate('devices', before, updated);
-      auditStatusChange('devices', updated, before?.status || '', body.status);
+      auditUpdate("devices", before, updated);
+      auditStatusChange("devices", updated, before?.status || "", body.status);
     }
-    return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toDeviceDto(updated) : null,
+    });
   }),
 
   // 触发维护
-  
 
   // 创建 (POST /devices)
   http.post(`${API_BASE}/devices`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
     const newDevice = { ...body, id: body.id || `DEV-${Date.now()}` };
-    create('devices', newDevice);
-    auditCreate('devices', newDevice);
-    return HttpResponse.json({ success: true, data: toDeviceDto(newDevice) }, { status: 201 });
+    create("devices", newDevice);
+    auditCreate("devices", newDevice);
+    return HttpResponse.json(
+      { success: true, data: toDeviceDto(newDevice) },
+      { status: 201 },
+    );
   }),
 
   // 更新
@@ -2504,27 +4250,42 @@ export const deviceHandlers = [
     await delay(120);
     const id = params.id as string;
     const body = (await request.json()) as any;
-    const before = get<any>('devices', id);
-    const updated = update<any>('devices', id, body);
-    if (updated) auditUpdate('devices', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
+    const before = get<any>("devices", id);
+    const updated = update<any>("devices", id, body);
+    if (updated) auditUpdate("devices", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toDeviceDto(updated) : null,
+    });
+  }),
+
+  // [G005 v3.0.6.16-7] PATCH 与前端 deviceApi.update 对齐 (后端 DeviceController @Patch(':id'))
+  http.patch(`${API_BASE}/devices/:id`, async ({ params, request }) => {
+    await delay(120);
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>("devices", id);
+    const updated = update<any>("devices", id, body);
+    if (updated) auditUpdate("devices", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toDeviceDto(updated) : null,
+    });
   }),
 
   // 删除
   http.delete(`${API_BASE}/devices/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
-    const before = get<any>('devices', id);
-    const existed = remove('devices', id);
-    if (existed) auditDelete({ resource: 'devices', resourceId: id, before });
+    const before = get<any>("devices", id);
+    const existed = remove("devices", id);
+    if (existed) auditDelete({ resource: "devices", resourceId: id, before });
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
   // 按模态分组
-  
 
   // 按状态分组
-  
 ];
 
 // ============= DICOM(7) =============
@@ -2537,33 +4298,37 @@ export const dicomHandlers = [
       success: true,
       data: {
         studyInstanceUID: params.studyUid,
-        studyDate: '2026-06-06',
-        studyDescription: '胸部CT平扫',
-        patientID: 'P001',
-        patientName: '张三',
-        modalitiesInStudy: ['CT'],
+        studyDate: "2026-06-06",
+        studyDescription: "胸部CT平扫",
+        patientID: "P001",
+        patientName: "张三",
+        modalitiesInStudy: ["CT"],
       },
     });
   }),
 
-  
-
   http.get(`${API_BASE}/dicom/series/:seriesUid`, async () => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: {
-      seriesInstanceUid: '1.2.840.10008.5.1.4.1.1.2', seriesNumber: 1, modality: 'CT', description: 'Chest CT', instances: 150,
-      bodyPart: 'CHEST', laterality: null, manufacturer: 'SIEMENS', institutionName: 'G005 Hospital',
-    } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        seriesInstanceUid: "1.2.840.10008.5.1.4.1.1.2",
+        seriesNumber: 1,
+        modality: "CT",
+        description: "Chest CT",
+        instances: 150,
+        bodyPart: "CHEST",
+        laterality: null,
+        manufacturer: "SIEMENS",
+        institutionName: "G005 Hospital",
+      },
+    });
   }),
-
-  
-
-  
 
   http.get(`${API_BASE}/dicom/studies/:studyUid/thumbnail`, async () => {
     await delay(150);
     return new HttpResponse(new ArrayBuffer(1024), {
-      headers: { 'Content-Type': 'image/jpeg' },
+      headers: { "Content-Type": "image/jpeg" },
     });
   }),
 
@@ -2576,7 +4341,7 @@ export const dicomHandlers = [
 // ============= AI(3) =============
 export const aiHandlers = [
   http.post(`${API_BASE}/ai/generate`, async ({ request }) => {
-    await delay(2000);  // 模拟 LLM 推理
+    await delay(2000); // 模拟 LLM 推理
     const body = (await request.json()) as { prompt: string };
     return HttpResponse.json({
       success: true,
@@ -2591,21 +4356,27 @@ export const aiHandlers = [
     await delay(500);
     return HttpResponse.json({
       success: true,
-      data: { score: 85, dimensions: { completeness: 90, terminology: 80, consistency: 85 } },
+      data: {
+        score: 85,
+        dimensions: { completeness: 90, terminology: 80, consistency: 85 },
+      },
     });
   }),
 
   http.post(`${API_BASE}/ai/rads`, async ({ request }) => {
     await delay(300);
-    const body = (await request.json()) as { findings: string; radsSystem: string };
+    const body = (await request.json()) as {
+      findings: string;
+      radsSystem: string;
+    };
     return HttpResponse.json({
       success: true,
       data: {
         system: body.radsSystem,
-        category: '4A',
-        description: '可疑',
-        riskPercent: '5-15%',
-        recommendation: '3 个月复查',
+        category: "4A",
+        description: "可疑",
+        riskPercent: "5-15%",
+        recommendation: "3 个月复查",
       },
     });
   }),
@@ -2615,20 +4386,28 @@ export const aiHandlers = [
 export const criticalValueHandlers = [
   http.get(`${API_BASE}/critical`, async () => {
     await delay(150);
-    const events = list<any>('criticalEvents');
+    const events = list<any>("criticalEvents");
     return HttpResponse.json({ success: true, data: events });
   }),
 
   http.get(`${API_BASE}/critical/:id`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, finding: '主动脉夹层', status: 'notified' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, finding: "主动脉夹层", status: "notified" },
+    });
   }),
 
   http.post(`${API_BASE}/critical`, async ({ request }) => {
     await delay(200);
-    const body = (await request.json()) as { severity?: string; createdAt?: string };
-    const id = 'cv-' + Date.now();
-    const severity = (body.severity ?? 'critical') as Parameters<typeof shouldEscalate>[0];
+    const body = (await request.json()) as {
+      severity?: string;
+      createdAt?: string;
+    };
+    const id = "cv-" + Date.now();
+    const severity = (body.severity ?? "critical") as Parameters<
+      typeof shouldEscalate
+    >[0];
     const slaMinutes = getSlaMinutes(severity);
     const elapsedMinutes = body.createdAt
       ? (Date.now() - new Date(body.createdAt).getTime()) / 60000
@@ -2636,10 +4415,10 @@ export const criticalValueHandlers = [
     const escalate = shouldEscalate(severity, elapsedMinutes, 0);
     if (escalate) {
       recordWorkflowEvent({
-        actorId: 'system',
-        actorName: '系统',
-        action: 'auto-escalate',
-        entityType: 'critical',
+        actorId: "system",
+        actorName: "系统",
+        action: "auto-escalate",
+        entityType: "critical",
         entityId: id,
         metadata: { severity, elapsedMinutes, slaMinutes },
       });
@@ -2655,12 +4434,18 @@ export const criticalValueHandlers = [
 
   http.put(`${API_BASE}/critical/:id/acknowledge`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'acknowledged' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "acknowledged" },
+    });
   }),
 
   http.put(`${API_BASE}/critical/:id/resolve`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'resolved' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "resolved" },
+    });
   }),
 ];
 
@@ -2672,154 +4457,281 @@ export const criticalValueHandlers = [
 //   - StudyInstanceUID: 检查自带 UID 优先, 否则由 accessionNumber/reportId 确定性派生 (FNV-1a)
 //   - 成本: 胶片规格单价 (14x17=12.5 / 10x12=9 / 8x10=6.5 元) × 份数
 interface PrintTask {
-  id: string
-  filmId: string
-  patientId: string
-  patientName: string
-  modality: string
-  studyType: string
-  filmSpec: string
-  copies: number
-  status: 'queued' | 'printing' | 'completed' | 'failed'
-  printer: string
-  submitTime: string
-  completeTime: string | null
-  progress: number
-  errorMsg?: string
-  examId?: string
-  studyUid?: string
-  accessionNumber?: string
-  deviceId?: string
-  deviceName?: string
-  printerId?: string
-  statusLabel?: string
-  costPerFilm?: number
-  totalCost?: number
+  id: string;
+  filmId: string;
+  patientId: string;
+  patientName: string;
+  modality: string;
+  studyType: string;
+  filmSpec: string;
+  copies: number;
+  status: "queued" | "printing" | "completed" | "failed";
+  printer: string;
+  submitTime: string;
+  completeTime: string | null;
+  progress: number;
+  errorMsg?: string;
+  examId?: string;
+  studyUid?: string;
+  accessionNumber?: string;
+  deviceId?: string;
+  deviceName?: string;
+  printerId?: string;
+  statusLabel?: string;
+  costPerFilm?: number;
+  totalCost?: number;
 }
 
-const PRINT_STATUS_LABEL: Record<PrintTask['status'], string> = {
-  queued: '排队中',
-  printing: '打印中',
-  completed: '已完成',
-  failed: '失败',
+const PRINT_STATUS_LABEL: Record<PrintTask["status"], string> = {
+  queued: "排队中",
+  printing: "打印中",
+  completed: "已完成",
+  failed: "失败",
 };
-const FILM_PRICE: Record<string, number> = { '14x17': 12.5, '10x12': 9, '8x10': 6.5 };
+const FILM_PRICE: Record<string, number> = {
+  "14x17": 12.5,
+  "10x12": 9,
+  "8x10": 6.5,
+};
 // 胶片打印机池 (与下方 mswPrinterStore P001-P003 对齐)
 const FILM_PRINTER_POOL = [
-  { printerId: 'P001', printer: '柯尼卡 #1', filmSpec: '14x17' },
-  { printerId: 'P002', printer: '柯尼卡 #2', filmSpec: '14x17' },
-  { printerId: 'P003', printer: '富士', filmSpec: '10x12' },
+  { printerId: "P001", printer: "柯尼卡 #1", filmSpec: "14x17" },
+  { printerId: "P002", printer: "柯尼卡 #2", filmSpec: "14x17" },
+  { printerId: "P003", printer: "富士", filmSpec: "10x12" },
 ];
-const PRINT_FAIL_REASONS = ['打印机缺纸', '胶片通道堵塞', 'DICOM 连接超时', '打印头温度异常'];
+const PRINT_FAIL_REASONS = [
+  "打印机缺纸",
+  "胶片通道堵塞",
+  "DICOM 连接超时",
+  "打印头温度异常",
+];
 // 25 条种子状态分布: 排队中 6 / 打印中 4 / 已完成 11 / 失败 4
-const PRINT_SEED_PATTERN: Array<{ status: PrintTask['status']; progress: number }> = [
-  { status: 'printing', progress: 65 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'failed', progress: 30 },
-  { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'printing', progress: 32 }, { status: 'completed', progress: 100 },
-  { status: 'failed', progress: 45 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'printing', progress: 78 },
-  { status: 'completed', progress: 100 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 }, { status: 'failed', progress: 12 },
-  { status: 'printing', progress: 54 }, { status: 'completed', progress: 100 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 },
-  { status: 'failed', progress: 68 }, { status: 'completed', progress: 100 }, { status: 'queued', progress: 0 }, { status: 'completed', progress: 100 },
-  { status: 'completed', progress: 100 },
+const PRINT_SEED_PATTERN: Array<{
+  status: PrintTask["status"];
+  progress: number;
+}> = [
+  { status: "printing", progress: 65 },
+  { status: "queued", progress: 0 },
+  { status: "completed", progress: 100 },
+  { status: "failed", progress: 30 },
+  { status: "queued", progress: 0 },
+  { status: "completed", progress: 100 },
+  { status: "printing", progress: 32 },
+  { status: "completed", progress: 100 },
+  { status: "failed", progress: 45 },
+  { status: "queued", progress: 0 },
+  { status: "completed", progress: 100 },
+  { status: "printing", progress: 78 },
+  { status: "completed", progress: 100 },
+  { status: "queued", progress: 0 },
+  { status: "completed", progress: 100 },
+  { status: "failed", progress: 12 },
+  { status: "printing", progress: 54 },
+  { status: "completed", progress: 100 },
+  { status: "queued", progress: 0 },
+  { status: "completed", progress: 100 },
+  { status: "failed", progress: 68 },
+  { status: "completed", progress: 100 },
+  { status: "queued", progress: 0 },
+  { status: "completed", progress: 100 },
+  { status: "completed", progress: 100 },
 ];
 
 function printHash(input: string): number {
-  let h = 2166136261
+  let h = 2166136261;
   for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i)
-    h = Math.imul(h, 16777619)
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  return h >>> 0
+  return h >>> 0;
 }
 
 // StudyInstanceUID: 优先取检查记录自带 UID; 否则按 accessionNumber/reportId 确定性派生
 function studyUidForPrintExam(exam: any): string {
-  const raw = String(exam?.studyInstanceUID ?? exam?.studyInstanceUid ?? exam?.studyUID ?? exam?.studyUid ?? '')
-  if (raw) return raw
-  const key = String(exam?.accessionNumber || exam?.reportId || exam?.examId || exam?.id || 'unknown')
-  return `1.2.826.0.1.3680043.8.498.${printHash(key)}`
+  const raw = String(
+    exam?.studyInstanceUID ??
+      exam?.studyInstanceUid ??
+      exam?.studyUID ??
+      exam?.studyUid ??
+      "",
+  );
+  if (raw) return raw;
+  const key = String(
+    exam?.accessionNumber ||
+      exam?.reportId ||
+      exam?.examId ||
+      exam?.id ||
+      "unknown",
+  );
+  return `1.2.826.0.1.3680043.8.498.${printHash(key)}`;
 }
 
-let printQueueCache: PrintTask[] | null = null
+let printQueueCache: PrintTask[] | null = null;
 function getPrintQueue(): PrintTask[] {
-  if (printQueueCache) return printQueueCache
-  const exams = list<any>('exams')
-  const devices = list<any>('devices') // DEVICE_MASTER 主数据
-  const deviceById = new Map<string, any>(devices.map((d: any) => [String(d.id), d]))
-  const rows = exams.filter((e: any) => e && (e.patientId || e.patientName))
-  const withAccession = rows.filter((e: any) => Boolean(e.accessionNumber))
-  const pool = (withAccession.length >= PRINT_SEED_PATTERN.length ? withAccession : rows)
+  if (printQueueCache) return printQueueCache;
+  const exams = list<any>("exams");
+  const devices = list<any>("devices"); // DEVICE_MASTER 主数据
+  const deviceById = new Map<string, any>(
+    devices.map((d: any) => [String(d.id), d]),
+  );
+  const rows = exams.filter((e: any) => e && (e.patientId || e.patientName));
+  const withAccession = rows.filter((e: any) => Boolean(e.accessionNumber));
+  const pool = (
+    withAccession.length >= PRINT_SEED_PATTERN.length ? withAccession : rows
+  )
     .slice()
-    .sort((a: any, b: any) => String(a.accessionNumber ?? a.id ?? a.reportId ?? '').localeCompare(String(b.accessionNumber ?? b.id ?? b.reportId ?? '')))
-  const picked: any[] = []
-  const used = new Set<string>()
-  const step = pool.length / PRINT_SEED_PATTERN.length
+    .sort((a: any, b: any) =>
+      String(a.accessionNumber ?? a.id ?? a.reportId ?? "").localeCompare(
+        String(b.accessionNumber ?? b.id ?? b.reportId ?? ""),
+      ),
+    );
+  const picked: any[] = [];
+  const used = new Set<string>();
+  const step = pool.length / PRINT_SEED_PATTERN.length;
   for (let i = 0; i < PRINT_SEED_PATTERN.length; i++) {
-    const exam = pool[Math.min(pool.length - 1, Math.floor(i * step))]
-    if (!exam) break
-    const key = String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? i)
-    if (used.has(key)) continue
-    used.add(key)
-    picked.push(exam)
+    const exam = pool[Math.min(pool.length - 1, Math.floor(i * step))];
+    if (!exam) break;
+    const key = String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? i);
+    if (used.has(key)) continue;
+    used.add(key);
+    picked.push(exam);
   }
   for (const exam of pool) {
-    if (picked.length >= PRINT_SEED_PATTERN.length) break
-    const key = String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? '')
-    if (used.has(key)) continue
-    used.add(key)
-    picked.push(exam)
+    if (picked.length >= PRINT_SEED_PATTERN.length) break;
+    const key = String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? "");
+    if (used.has(key)) continue;
+    used.add(key);
+    picked.push(exam);
   }
-  const fmtTime = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ')
+  const fmtTime = (d: Date) => d.toISOString().slice(0, 19).replace("T", " ");
   printQueueCache = picked.map((exam, i) => {
-    const pattern = PRINT_SEED_PATTERN[i]!
-    const h = printHash(String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? `print-${i}`))
-    const modality = String(exam.modality ?? 'CT').toUpperCase()
-    const printerEntry = FILM_PRINTER_POOL[h % FILM_PRINTER_POOL.length]!
-    const filmSpec = printerEntry.filmSpec
-    const copies = 1 + (h % 2)
-    const costPerFilm = FILM_PRICE[filmSpec] ?? 12.5
-    const device = deviceById.get(String(exam.deviceId ?? ''))
-      ?? devices.find((d: any) => d.modality === modality)
-      ?? devices[i % Math.max(1, devices.length)]
-    const day = Math.max(2, 8 - Math.floor(i / 4)) // 2026-08-02 .. 2026-08-08
-    const submitDate = new Date(Date.UTC(2026, 7, day, 7 + ((i * 3) % 11), (i * 7) % 60, h % 60))
-    const done = pattern.status === 'completed' || pattern.status === 'failed'
+    const pattern = PRINT_SEED_PATTERN[i]!;
+    const h = printHash(
+      String(exam.id ?? exam.reportId ?? exam.accessionNumber ?? `print-${i}`),
+    );
+    const modality = String(exam.modality ?? "CT").toUpperCase();
+    const printerEntry = FILM_PRINTER_POOL[h % FILM_PRINTER_POOL.length]!;
+    const filmSpec = printerEntry.filmSpec;
+    const copies = 1 + (h % 2);
+    const costPerFilm = FILM_PRICE[filmSpec] ?? 12.5;
+    const device =
+      deviceById.get(String(exam.deviceId ?? "")) ??
+      devices.find((d: any) => d.modality === modality) ??
+      devices[i % Math.max(1, devices.length)];
+    const day = Math.max(2, 8 - Math.floor(i / 4)); // 2026-08-02 .. 2026-08-08
+    const submitDate = new Date(
+      Date.UTC(2026, 7, day, 7 + ((i * 3) % 11), (i * 7) % 60, h % 60),
+    );
+    const done = pattern.status === "completed" || pattern.status === "failed";
     const task: PrintTask = {
-      id: `DPT${String(i + 1).padStart(3, '0')}`,
-      filmId: `FLM202608${String(day).padStart(2, '0')}${String(i + 1).padStart(3, '0')}`,
-      patientId: String(exam.patientId ?? ''),
-      patientName: String(exam.patientName ?? exam.name ?? '未知患者'),
+      id: `DPT${String(i + 1).padStart(3, "0")}`,
+      filmId: `FLM202608${String(day).padStart(2, "0")}${String(i + 1).padStart(3, "0")}`,
+      patientId: String(exam.patientId ?? ""),
+      patientName: String(exam.patientName ?? exam.name ?? "未知患者"),
       modality,
-      studyType: String(exam.examItemName ?? exam.examItem ?? exam.bodyPart ?? `${modality} 胶片打印`),
+      studyType: String(
+        exam.examItemName ??
+          exam.examItem ??
+          exam.bodyPart ??
+          `${modality} 胶片打印`,
+      ),
       filmSpec,
       copies,
       status: pattern.status,
       printer: printerEntry.printer,
       submitTime: fmtTime(submitDate),
-      completeTime: done ? fmtTime(new Date(submitDate.getTime() + (180 + i * 17) * 1000)) : null,
+      completeTime: done
+        ? fmtTime(new Date(submitDate.getTime() + (180 + i * 17) * 1000))
+        : null,
       progress: pattern.progress,
-      examId: String(exam.id ?? exam.reportId ?? ''),
+      examId: String(exam.id ?? exam.reportId ?? ""),
       studyUid: studyUidForPrintExam(exam),
-      accessionNumber: exam.accessionNumber ? String(exam.accessionNumber) : undefined,
+      accessionNumber: exam.accessionNumber
+        ? String(exam.accessionNumber)
+        : undefined,
       deviceId: device ? String(device.id) : undefined,
-      deviceName: device ? `${String(device.id).replace('DEV-', '')} ${String(device.model ?? '')}`.trim() : undefined,
+      deviceName: device
+        ? `${String(device.id).replace("DEV-", "")} ${String(device.model ?? "")}`.trim()
+        : undefined,
       printerId: printerEntry.printerId,
       statusLabel: PRINT_STATUS_LABEL[pattern.status],
       costPerFilm,
       totalCost: Math.round(costPerFilm * copies * 10) / 10,
-    }
-    if (pattern.status === 'failed') task.errorMsg = PRINT_FAIL_REASONS[h % PRINT_FAIL_REASONS.length]
-    return task
-  })
-  return printQueueCache
+    };
+    if (pattern.status === "failed")
+      task.errorMsg = PRINT_FAIL_REASONS[h % PRINT_FAIL_REASONS.length];
+    return task;
+  });
+  return printQueueCache;
 }
 
 // [G005 Wave2A P0] 打印机内存存储
 let mswPrinterStore: any[] = [
-  { id: 'P001', name: '柯尼卡 DICOM 打印机 1', type: 'network', status: 'online', location: 'CT检查室1', filmSpec: '14x17', defaultCopies: 1, dpi: 300, aet: 'KNK_PRINT_1', host: '192.168.10.11', port: 104, mediumTypes: ['BLUE FILM', 'CLEAR FILM'], filmsPerHour: 40 },
-  { id: 'P002', name: '柯尼卡 DICOM 打印机 2', type: 'network', status: 'online', location: 'MR检查室', filmSpec: '14x17', defaultCopies: 1, dpi: 300, aet: 'KNK_PRINT_2', host: '192.168.10.12', port: 104, mediumTypes: ['BLUE FILM'], filmsPerHour: 40 },
-  { id: 'P003', name: '富士 DICOM 打印机', type: 'network', status: 'online', location: 'DR检查室', filmSpec: '10x12', defaultCopies: 1, dpi: 600, aet: 'FUJI_PRINT_1', host: '192.168.10.13', port: 105, mediumTypes: ['CLEAR FILM', 'MAMMO BLUE'], filmsPerHour: 60 },
-  { id: 'P004', name: '本地报告打印机', type: 'local', status: 'online', location: '登记台', filmSpec: 'A4', defaultCopies: 2, dpi: 600 },
-  { id: 'P005', name: '激光报告打印机', type: 'local', status: 'offline', location: '诊断室1', filmSpec: 'A4', defaultCopies: 1, dpi: 1200 },
+  {
+    id: "P001",
+    name: "柯尼卡 DICOM 打印机 1",
+    type: "network",
+    status: "online",
+    location: "CT检查室1",
+    filmSpec: "14x17",
+    defaultCopies: 1,
+    dpi: 300,
+    aet: "KNK_PRINT_1",
+    host: "192.168.10.11",
+    port: 104,
+    mediumTypes: ["BLUE FILM", "CLEAR FILM"],
+    filmsPerHour: 40,
+  },
+  {
+    id: "P002",
+    name: "柯尼卡 DICOM 打印机 2",
+    type: "network",
+    status: "online",
+    location: "MR检查室",
+    filmSpec: "14x17",
+    defaultCopies: 1,
+    dpi: 300,
+    aet: "KNK_PRINT_2",
+    host: "192.168.10.12",
+    port: 104,
+    mediumTypes: ["BLUE FILM"],
+    filmsPerHour: 40,
+  },
+  {
+    id: "P003",
+    name: "富士 DICOM 打印机",
+    type: "network",
+    status: "online",
+    location: "DR检查室",
+    filmSpec: "10x12",
+    defaultCopies: 1,
+    dpi: 600,
+    aet: "FUJI_PRINT_1",
+    host: "192.168.10.13",
+    port: 105,
+    mediumTypes: ["CLEAR FILM", "MAMMO BLUE"],
+    filmsPerHour: 60,
+  },
+  {
+    id: "P004",
+    name: "本地报告打印机",
+    type: "local",
+    status: "online",
+    location: "登记台",
+    filmSpec: "A4",
+    defaultCopies: 2,
+    dpi: 600,
+  },
+  {
+    id: "P005",
+    name: "激光报告打印机",
+    type: "local",
+    status: "offline",
+    location: "诊断室1",
+    filmSpec: "A4",
+    defaultCopies: 1,
+    dpi: 1200,
+  },
 ];
 
 export const printHandlers = [
@@ -2827,7 +4739,7 @@ export const printHandlers = [
   http.get(`${API_BASE}/print/jobs`, async ({ request }) => {
     await delay(100);
     const url = new URL(request.url);
-    const status = url.searchParams.get('status');
+    const status = url.searchParams.get("status");
     let data = getPrintQueue();
     if (status) data = data.filter((t) => t.status === status);
     return HttpResponse.json({ success: true, data });
@@ -2836,24 +4748,43 @@ export const printHandlers = [
   http.get(`${API_BASE}/print/jobs/:id`, async ({ params }) => {
     await delay(60);
     const task = getPrintQueue().find((t) => t.id === params.id);
-    if (!task) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (!task)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: task });
   }),
 
   // [G005 Wave1A P0] 打印队列 (GET /print/queues, 排队中/打印中)
   http.get(`${API_BASE}/print/queues`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: getPrintQueue().filter((t) => t.status === 'queued' || t.status === 'printing') });
+    return HttpResponse.json({
+      success: true,
+      data: getPrintQueue().filter(
+        (t) => t.status === "queued" || t.status === "printing",
+      ),
+    });
   }),
 
   http.get(`${API_BASE}/print/queue`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: getPrintQueue().filter((t) => t.status === 'queued' || t.status === 'printing') });
+    return HttpResponse.json({
+      success: true,
+      data: getPrintQueue().filter(
+        (t) => t.status === "queued" || t.status === "printing",
+      ),
+    });
   }),
 
   http.get(`${API_BASE}/print/history`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: getPrintQueue().filter((t) => t.status === 'completed' || t.status === 'failed') });
+    return HttpResponse.json({
+      success: true,
+      data: getPrintQueue().filter(
+        (t) => t.status === "completed" || t.status === "failed",
+      ),
+    });
   }),
 
   // [G005 Wave2A P0] 打印机内存存储 (GET/POST/PUT/DELETE /print/printers)
@@ -2866,12 +4797,12 @@ export const printHandlers = [
     await delay(150);
     const body = (await request.json()) as any;
     const printer = {
-      id: 'PRT' + String(mswPrinterStore.length + 1).padStart(3, '0'),
-      name: body.name || '未命名打印机',
-      type: body.type || 'network',
-      status: body.status || 'online',
-      location: body.location || '',
-      filmSpec: body.filmSpec || '14x17',
+      id: "PRT" + String(mswPrinterStore.length + 1).padStart(3, "0"),
+      name: body.name || "未命名打印机",
+      type: body.type || "network",
+      status: body.status || "online",
+      location: body.location || "",
+      filmSpec: body.filmSpec || "14x17",
       defaultCopies: body.defaultCopies ?? 1,
       dpi: body.dpi ?? 300,
       aet: body.aet,
@@ -2888,7 +4819,11 @@ export const printHandlers = [
     await delay(150);
     const body = (await request.json()) as any;
     const idx = mswPrinterStore.findIndex((p) => p.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (idx < 0)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     mswPrinterStore[idx] = { ...mswPrinterStore[idx], ...body, id: params.id };
     return HttpResponse.json({ success: true, data: mswPrinterStore[idx] });
   }),
@@ -2904,39 +4839,68 @@ export const printHandlers = [
   http.get(`${API_BASE}/print/stats`, async () => {
     await delay(100);
     const queue = getPrintQueue();
-    const filmUsage = ['08-02', '08-03', '08-04', '08-05', '08-06', '08-07', '08-08'].map((date) => {
+    const filmUsage = [
+      "08-02",
+      "08-03",
+      "08-04",
+      "08-05",
+      "08-06",
+      "08-07",
+      "08-08",
+    ].map((date) => {
       const dayTasks = queue.filter((t) => t.submitTime.slice(5, 10) === date);
       let films14x17 = 0;
       let films10x12 = 0;
       let films8x10 = 0;
       for (const t of dayTasks) {
-        if (t.filmSpec === '10x12') films10x12 += t.copies;
-        else if (t.filmSpec === '8x10') films8x10 += t.copies;
+        if (t.filmSpec === "10x12") films10x12 += t.copies;
+        else if (t.filmSpec === "8x10") films8x10 += t.copies;
         else films14x17 += t.copies;
       }
       const total = films14x17 + films10x12 + films8x10;
-      const cost = films14x17 * (FILM_PRICE['14x17'] ?? 12.5) + films10x12 * (FILM_PRICE['10x12'] ?? 9) + films8x10 * (FILM_PRICE['8x10'] ?? 6.5);
-      return { date, films14x17, films10x12, films8x10, total, cost: Math.round(cost * 10) / 10 };
+      const cost =
+        films14x17 * (FILM_PRICE["14x17"] ?? 12.5) +
+        films10x12 * (FILM_PRICE["10x12"] ?? 9) +
+        films8x10 * (FILM_PRICE["8x10"] ?? 6.5);
+      return {
+        date,
+        films14x17,
+        films10x12,
+        films8x10,
+        total,
+        cost: Math.round(cost * 10) / 10,
+      };
     });
-    const byDevice = new Map<string, { device: string; printCount: number; totalFilms: number; cost: number }>();
+    const byDevice = new Map<
+      string,
+      { device: string; printCount: number; totalFilms: number; cost: number }
+    >();
     for (const t of queue) {
-      const key = t.deviceId ?? t.deviceName ?? 'UNKNOWN';
-      const row = byDevice.get(key) ?? { device: t.deviceName ?? key, printCount: 0, totalFilms: 0, cost: 0 };
+      const key = t.deviceId ?? t.deviceName ?? "UNKNOWN";
+      const row = byDevice.get(key) ?? {
+        device: t.deviceName ?? key,
+        printCount: 0,
+        totalFilms: 0,
+        cost: 0,
+      };
       row.printCount += 1;
       row.totalFilms += t.copies;
-      row.cost += t.totalCost ?? ((t.costPerFilm ?? 12.5) * t.copies);
+      row.cost += t.totalCost ?? (t.costPerFilm ?? 12.5) * t.copies;
       byDevice.set(key, row);
     }
     const devicePrint = [...byDevice.values()]
       .map((r) => ({ ...r, cost: Math.round(r.cost * 10) / 10 }))
-      .sort((a, b) => b.printCount - a.printCount || a.device.localeCompare(b.device));
+      .sort(
+        (a, b) =>
+          b.printCount - a.printCount || a.device.localeCompare(b.device),
+      );
     return HttpResponse.json({
       success: true,
       data: {
         filmUsage,
         devicePrint,
         costReport: filmUsage.map((d) => ({
-          date: '2026-' + d.date,
+          date: "2026-" + d.date,
           filmCost: d.cost,
           paperCost: Math.round(d.total * 0.5),
           inkCost: Math.round(d.total * 1.4),
@@ -2951,34 +4915,56 @@ export const printHandlers = [
     const body = (await request.json()) as any;
     const queue = getPrintQueue();
     const exam = body.examId
-      ? list<any>('exams').find((e: any) => String(e.id ?? e.reportId ?? e.examId ?? '') === String(body.examId))
+      ? list<any>("exams").find(
+          (e: any) =>
+            String(e.id ?? e.reportId ?? e.examId ?? "") ===
+            String(body.examId),
+        )
       : undefined;
-    const filmSpec = body.filmSpec || '14x17';
+    const filmSpec = body.filmSpec || "14x17";
     const copies = body.copies || 1;
     const costPerFilm = FILM_PRICE[filmSpec] ?? 12.5;
-    const printer = body.printer || '柯尼卡 #1';
-    const printerEntry = FILM_PRINTER_POOL.find((p) => p.printer === printer) ?? FILM_PRINTER_POOL[0]!;
+    const printer = body.printer || "柯尼卡 #1";
+    const printerEntry =
+      FILM_PRINTER_POOL.find((p) => p.printer === printer) ??
+      FILM_PRINTER_POOL[0]!;
     const task: PrintTask = {
-      id: 'DPT' + String(queue.length + 1).padStart(3, '0'),
-      filmId: 'FLM20260504' + String(queue.length + 1).padStart(3, '0'),
-      patientId: body.patientId || (exam ? String(exam.patientId ?? '') : '') || 'P' + Date.now(),
-      patientName: body.patientName || (exam ? String(exam.patientName ?? '') : '') || '未知患者',
-      modality: body.modality || body.examType || (exam ? String(exam.modality ?? 'CT') : 'CT'),
-      studyType: body.studyDesc || body.studyType || (exam ? String(exam.examItemName ?? exam.examItem ?? '胶片打印') : '胶片打印'),
+      id: "DPT" + String(queue.length + 1).padStart(3, "0"),
+      filmId: "FLM20260504" + String(queue.length + 1).padStart(3, "0"),
+      patientId:
+        body.patientId ||
+        (exam ? String(exam.patientId ?? "") : "") ||
+        "P" + Date.now(),
+      patientName:
+        body.patientName ||
+        (exam ? String(exam.patientName ?? "") : "") ||
+        "未知患者",
+      modality:
+        body.modality ||
+        body.examType ||
+        (exam ? String(exam.modality ?? "CT") : "CT"),
+      studyType:
+        body.studyDesc ||
+        body.studyType ||
+        (exam
+          ? String(exam.examItemName ?? exam.examItem ?? "胶片打印")
+          : "胶片打印"),
       filmSpec,
       copies,
-      status: 'queued',
+      status: "queued",
       statusLabel: PRINT_STATUS_LABEL.queued,
       printer,
       printerId: printerEntry.printerId,
-      submitTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      submitTime: new Date().toISOString().replace("T", " ").slice(0, 19),
       completeTime: null,
       progress: 0,
       costPerFilm,
       totalCost: Math.round(costPerFilm * copies * 10) / 10,
-      examId: exam ? String(exam.id ?? exam.reportId ?? '') : body.examId,
+      examId: exam ? String(exam.id ?? exam.reportId ?? "") : body.examId,
       studyUid: exam ? studyUidForPrintExam(exam) : body.studyUid,
-      accessionNumber: exam?.accessionNumber ? String(exam.accessionNumber) : undefined,
+      accessionNumber: exam?.accessionNumber
+        ? String(exam.accessionNumber)
+        : undefined,
       deviceId: exam?.deviceId ? String(exam.deviceId) : undefined,
     };
     queue.unshift(task);
@@ -2996,11 +4982,11 @@ export const printHandlers = [
     await delay(100);
     const t = getPrintQueue().find((x) => x.id === params.id);
     if (t) {
-      t.status = 'queued';
+      t.status = "queued";
       t.statusLabel = PRINT_STATUS_LABEL.queued;
       t.progress = 0;
       t.errorMsg = undefined;
-      t.submitTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
+      t.submitTime = new Date().toISOString().replace("T", " ").slice(0, 19);
     }
     return HttpResponse.json({ success: true, data: { ok: true } });
   }),
@@ -3010,9 +4996,13 @@ export const printHandlers = [
     await delay(150);
     const queue = getPrintQueue();
     const src = queue.find((t) => t.id === params.id);
-    if (!src) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (!src)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     const task: PrintTask = {
-      id: 'DPT' + String(queue.length + 1).padStart(3, '0'),
+      id: "DPT" + String(queue.length + 1).padStart(3, "0"),
       filmId: src.filmId,
       patientId: src.patientId,
       patientName: src.patientName,
@@ -3020,11 +5010,11 @@ export const printHandlers = [
       studyType: src.studyType,
       filmSpec: src.filmSpec,
       copies: src.copies,
-      status: 'queued',
+      status: "queued",
       statusLabel: PRINT_STATUS_LABEL.queued,
       printer: src.printer,
       printerId: src.printerId,
-      submitTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      submitTime: new Date().toISOString().replace("T", " ").slice(0, 19),
       completeTime: null,
       progress: 0,
       errorMsg: undefined,
@@ -3046,69 +5036,90 @@ export const statsHandlers = [
   // 今日 KPI (DAILY_KPI_PRE 最后一天) - 字段与 DAILY_KPI_PRE 原生 schema 对齐
   http.get(`${API_BASE}/stats/daily`, async () => {
     await delay(80);
-    const all = list<any>('dailyKpi');
+    const all = list<any>("dailyKpi");
     const today = all[all.length - 1];
-    if (!today) return HttpResponse.json({ success: true, data: { examCount: 0, reportCount: 0, criticalCount: 0, cosignCount: 0 } });
-    return HttpResponse.json({ success: true, data: {
-      examCount: today.examCount,
-      reportCount: today.reportCount,
-      criticalCount: today.criticalCount,
-      cosignCount: today.cosignCount,
-      avgTAT: today.avgTAT,
-      defectCount: today.defectCount,
-      qcAvgScore: today.qcAvgScore,
-      date: today.date,
-      byModality: today.byModality,
-    } });
+    if (!today)
+      return HttpResponse.json({
+        success: true,
+        data: {
+          examCount: 0,
+          reportCount: 0,
+          criticalCount: 0,
+          cosignCount: 0,
+        },
+      });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        examCount: today.examCount,
+        reportCount: today.reportCount,
+        criticalCount: today.criticalCount,
+        cosignCount: today.cosignCount,
+        avgTAT: today.avgTAT,
+        defectCount: today.defectCount,
+        qcAvgScore: today.qcAvgScore,
+        date: today.date,
+        byModality: today.byModality,
+      },
+    });
   }),
 
   // 周 KPI (DAILY_KPI_PRE 7 天聚合)
   http.get(`${API_BASE}/stats/weekly`, async () => {
     await delay(80);
-    const all = list<any>('dailyKpi');
+    const all = list<any>("dailyKpi");
     const weekly = all.slice(-7);
     const totalExams = sumBy(weekly, (k: any) => k.examCount);
     const totalReports = sumBy(weekly, (k: any) => k.reportCount);
     const totalCritical = sumBy(weekly, (k: any) => k.criticalCount);
     const daily = weekly.map(toDailyKpiDto);
-    return HttpResponse.json({ success: true, data: {
-      totalExams, totalReports, totalCritical, daily,
-      avgExamsPerDay: Math.round(totalExams / 7),
-    } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalExams,
+        totalReports,
+        totalCritical,
+        daily,
+        avgExamsPerDay: Math.round(totalExams / 7),
+      },
+    });
   }),
 
   // 月 KPI (30 天聚合)
-  
 
   // 工作量 (DOCTOR_PERFORMANCE_PRE 按医生聚合)
   http.get(`${API_BASE}/stats/workload`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
-    const month = url.searchParams.get('month') || '2026-06';
-    const all = list<any>('doctorPerformance').filter((d: any) => d.month === month);
+    const month = url.searchParams.get("month") || "2026-06";
+    const all = list<any>("doctorPerformance").filter(
+      (d: any) => d.month === month,
+    );
     const byDoctor = groupBy(all, (d: any) => d.doctorId);
-    const result = Object.entries(byDoctor).map(([doctorId, records]: [string, any]) => {
-      const totalReports = sumBy(records, (r: any) => r.reportCount);
-      const totalDefect = sumBy(records, (r: any) => r.defectCount);
-      const totalCritical = sumBy(records, (r: any) => r.criticalValueCount);
-      return {
-        doctorId,
-        doctorName: records[0]?.doctorName || '',
-        title: records[0]?.title || '',
-        month,
-        totalReports,
-        totalDefect,
-        totalCritical,
-        avgQCScore: avgBy(records, (r: any) => r.qcScore),
-      };
-    }).sort((a, b) => b.totalReports - a.totalReports);
+    const result = Object.entries(byDoctor)
+      .map(([doctorId, records]: [string, any]) => {
+        const totalReports = sumBy(records, (r: any) => r.reportCount);
+        const totalDefect = sumBy(records, (r: any) => r.defectCount);
+        const totalCritical = sumBy(records, (r: any) => r.criticalValueCount);
+        return {
+          doctorId,
+          doctorName: records[0]?.doctorName || "",
+          title: records[0]?.title || "",
+          month,
+          totalReports,
+          totalDefect,
+          totalCritical,
+          avgQCScore: avgBy(records, (r: any) => r.qcScore),
+        };
+      })
+      .sort((a, b) => b.totalReports - a.totalReports);
     return HttpResponse.json({ success: true, data: result });
   }),
 
   // 质量评分 (QUALITY_SCORE_PRE 按月聚合)
   http.get(`${API_BASE}/stats/quality`, async () => {
     await delay(80);
-    const all = list<any>('qualityScores');
+    const all = list<any>("qualityScores");
     const avgScore = avgBy(all, (q: any) => q.totalScore);
     const byGrade: Record<string, number> = {};
     for (const q of all) {
@@ -3116,49 +5127,82 @@ export const statsHandlers = [
     }
     // 按医生 Top 10
     const byDocMap = groupBy(all, (q: any) => q.doctorId);
-    const byDoctor = Object.entries(byDocMap).map(([doctorId, records]: [string, any]) => ({
-      doctorId,
-      doctorName: records[0]?.doctorName || '',
-      score: Math.round(avgBy(records, (r: any) => r.totalScore) * 10) / 10,
-      count: records.length,
-    })).sort((a, b) => b.score - a.score).slice(0, 10);
+    const byDoctor = Object.entries(byDocMap)
+      .map(([doctorId, records]: [string, any]) => ({
+        doctorId,
+        doctorName: records[0]?.doctorName || "",
+        score: Math.round(avgBy(records, (r: any) => r.totalScore) * 10) / 10,
+        count: records.length,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
     // 按模态
     const byModMap = groupBy(all, (q: any) => q.modality);
-    const byModality = Object.entries(byModMap).map(([modality, records]: [string, any]) => ({
-      modality,
-      score: Math.round(avgBy(records, (r: any) => r.totalScore) * 10) / 10,
-      count: records.length,
-    }));
-    return HttpResponse.json({ success: true, data: {
-      averageScore: Math.round(avgScore * 10) / 10,
-      totalScored: all.length,
-      byGrade, byDoctor, byModality,
-    } });
+    const byModality = Object.entries(byModMap).map(
+      ([modality, records]: [string, any]) => ({
+        modality,
+        score: Math.round(avgBy(records, (r: any) => r.totalScore) * 10) / 10,
+        count: records.length,
+      }),
+    );
+    return HttpResponse.json({
+      success: true,
+      data: {
+        averageScore: Math.round(avgScore * 10) / 10,
+        totalScored: all.length,
+        byGrade,
+        byDoctor,
+        byModality,
+      },
+    });
   }),
 
   // Dashboard 汇总
   http.get(`${API_BASE}/stats/dashboard`, async () => {
     await delay(80);
-    const exams = list<any>('exams');
-    const patients = list<any>('patients');
-    const criticalEvents = list<any>('criticalEvents');
-    const dailyKpi = list<any>('dailyKpi');
-    const today = dailyKpi[dailyKpi.length - 1] || { examCount: 0, reportCount: 0 };
-    const openCritical = criticalEvents.filter((c: any) => c.status !== '已闭环').length;
-    const deviceActive = list<any>('devices').filter((d: any) => d.status === '运行中').length;
-    const doctorActive = list<any>('doctors').filter((d: any) => d.active).length;
-    return HttpResponse.json({ success: true, data: {
-      today: { exams: today.examCount, reports: today.reportCount },
-      totals: { exams: exams.length, patients: patients.length, criticalEvents: criticalEvents.length },
-      alerts: { openCritical, devicesActive: deviceActive, doctorsActive: doctorActive },
-    } });
+    const exams = list<any>("exams");
+    const patients = list<any>("patients");
+    const criticalEvents = list<any>("criticalEvents");
+    const dailyKpi = list<any>("dailyKpi");
+    const today = dailyKpi[dailyKpi.length - 1] || {
+      examCount: 0,
+      reportCount: 0,
+    };
+    const openCritical = criticalEvents.filter(
+      (c: any) => c.status !== "已闭环",
+    ).length;
+    const deviceActive = list<any>("devices").filter(
+      (d: any) => d.status === "运行中",
+    ).length;
+    const doctorActive = list<any>("doctors").filter(
+      (d: any) => d.active,
+    ).length;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        today: { exams: today.examCount, reports: today.reportCount },
+        totals: {
+          exams: exams.length,
+          patients: patients.length,
+          criticalEvents: criticalEvents.length,
+        },
+        alerts: {
+          openCritical,
+          devicesActive: deviceActive,
+          doctorsActive: doctorActive,
+        },
+      },
+    });
   }),
 
   // 按模态趋势
   http.get(`${API_BASE}/stats/by-modality`, async () => {
     await delay(80);
-    const all = list<any>('dailyKpi');
-    const byModality: Record<string, { total: number; days: number; avg: number }> = {};
+    const all = list<any>("dailyKpi");
+    const byModality: Record<
+      string,
+      { total: number; days: number; avg: number }
+    > = {};
     for (const k of all) {
       for (const [mod, count] of Object.entries(k.byModality || {})) {
         if (!byModality[mod]) byModality[mod] = { total: 0, days: 0, avg: 0 };
@@ -3166,7 +5210,8 @@ export const statsHandlers = [
         byModality[mod].days += 1;
       }
     }
-    for (const v of Object.values(byModality)) v.avg = Math.round(v.total / v.days);
+    for (const v of Object.values(byModality))
+      v.avg = Math.round(v.total / v.days);
     return HttpResponse.json({ success: true, data: byModality });
   }),
 
@@ -3174,15 +5219,18 @@ export const statsHandlers = [
   http.get(`${API_BASE}/stats/trend`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
-    const days = parseInt(url.searchParams.get('days') || '30');
-    const all = list<any>('dailyKpi');
-    return HttpResponse.json({ success: true, data: all.slice(-days).map(toDailyKpiDto) });
+    const days = parseInt(url.searchParams.get("days") || "30");
+    const all = list<any>("dailyKpi");
+    return HttpResponse.json({
+      success: true,
+      data: all.slice(-days).map(toDailyKpiDto),
+    });
   }),
 
   // Top N (按模态的检查数)
   http.get(`${API_BASE}/stats/top-modalities`, async () => {
     await delay(80);
-    const all = list<any>('dailyKpi');
+    const all = list<any>("dailyKpi");
     const totals: Record<string, number> = {};
     for (const k of all) {
       for (const [m, v] of Object.entries(k.byModality || {})) {
@@ -3191,14 +5239,16 @@ export const statsHandlers = [
     }
     return HttpResponse.json({
       success: true,
-      data: Object.entries(totals).sort((a, b) => b[1] - a[1]).map(([modality, count]) => ({ modality, count })),
+      data: Object.entries(totals)
+        .sort((a, b) => b[1] - a[1])
+        .map(([modality, count]) => ({ modality, count })),
     });
   }),
 
   // Top 设备
   http.get(`${API_BASE}/stats/top-devices`, async () => {
     await delay(80);
-    const all = list<any>('dailyKpi');
+    const all = list<any>("dailyKpi");
     const totals: Record<string, number> = {};
     for (const k of all) {
       for (const d of k.topDevices || []) {
@@ -3207,17 +5257,29 @@ export const statsHandlers = [
     }
     return HttpResponse.json({
       success: true,
-      data: Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([deviceId, count]) => ({ deviceId, count })),
+      data: Object.entries(totals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([deviceId, count]) => ({ deviceId, count })),
     });
   }),
 
   // 导出 CSV
   http.get(`${API_BASE}/stats/export.csv`, async () => {
     await delay(200);
-    const all = list<any>('dailyKpi');
-    const header = 'date,examCount,reportCount,criticalCount,cosignCount,avgTAT,defectCount,qcAvgScore';
-    const rows = all.map((k: any) => `${k.date},${k.examCount},${k.reportCount},${k.criticalCount},${k.cosignCount},${k.avgTAT},${k.defectCount},${k.qcAvgScore}`);
-    return new HttpResponse([header, ...rows].join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="stats.csv"' } });
+    const all = list<any>("dailyKpi");
+    const header =
+      "date,examCount,reportCount,criticalCount,cosignCount,avgTAT,defectCount,qcAvgScore";
+    const rows = all.map(
+      (k: any) =>
+        `${k.date},${k.examCount},${k.reportCount},${k.criticalCount},${k.cosignCount},${k.avgTAT},${k.defectCount},${k.qcAvgScore}`,
+    );
+    return new HttpResponse([header, ...rows].join("\n"), {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="stats.csv"',
+      },
+    });
   }),
 
   // [W2-B-3] 预测趋势 (StatsReportPage analyticsStatsApi.getForecast)
@@ -3244,13 +5306,19 @@ export const statsHandlers = [
   // [W2-B-3] 设备利用率 (StatsReportPage analyticsStatsApi.getUtilization)
   http.get(`${API_BASE}/stats/utilization`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { current: 86.5, target: 90, max: 100 } });
+    return HttpResponse.json({
+      success: true,
+      data: { current: 86.5, target: 90, max: 100 },
+    });
   }),
 
   // [W2-B-3] 报告准确率 (StatsReportPage analyticsStatsApi.getAccuracy)
   http.get(`${API_BASE}/stats/accuracy`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { value: 96.8, previous: 95.9 } });
+    return HttpResponse.json({
+      success: true,
+      data: { value: 96.8, previous: 95.9 },
+    });
   }),
 ];
 
@@ -3259,9 +5327,9 @@ export const termHandlers = [
   http.get(`${API_BASE}/terms/search`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
-    const q = url.searchParams.get('q') ?? '';
-    const results = FEATURED_TERMS.filter((t) =>
-      t.term.includes(q) || t.pinyin.startsWith(q.toLowerCase())
+    const q = url.searchParams.get("q") ?? "";
+    const results = FEATURED_TERMS.filter(
+      (t) => t.term.includes(q) || t.pinyin.startsWith(q.toLowerCase()),
     );
     return HttpResponse.json({ success: true, data: results });
   }),
@@ -3279,45 +5347,56 @@ export const userHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const all = list<any>('doctors');
-    const result = applyQuery<any>(all, opts, ['name', 'id', 'subspecialty', 'department', 'certifications']);
-    return HttpResponse.json({ success: true, data: result.data.map(toUserDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+    const all = list<any>("doctors");
+    const result = applyQuery<any>(all, opts, [
+      "name",
+      "id",
+      "subspecialty",
+      "department",
+      "certifications",
+    ]);
+    return HttpResponse.json({
+      success: true,
+      data: result.data.map(toUserDto),
+      meta: {
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      },
+    });
   }),
 
   // 按角色分组 (必须在 :id 之前)
-  
 
   // 按科室分组
-  
 
   // 排班 (整院)
-  
 
   // 用户统计
-  
 
   // 详情 (完整 UserDto 22 字段)
   http.get(`${API_BASE}/users/:id`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
-    const u = get<any>('doctors', id);
+    const u = get<any>("doctors", id);
     if (!u) {
       // 对齐后端 users.controller GET /users/:id (users.service.findById): 找不到时返回合成用户,避免 404/500
       return HttpResponse.json({
         success: true,
         data: {
           id,
-          name: '未知用户',
-          fullName: '未知用户',
+          name: "未知用户",
+          fullName: "未知用户",
           username: id.toLowerCase(),
-          role: 'DOCTOR',
-          department: '放射科',
-          title: 'DOCTOR',
-          subspecialty: 'General',
+          role: "DOCTOR",
+          department: "放射科",
+          title: "DOCTOR",
+          subspecialty: "General",
           certifications: [],
           active: true,
           isActive: true,
-          permissions: ['*'],
+          permissions: ["*"],
         },
       });
     }
@@ -3325,16 +5404,21 @@ export const userHandlers = [
   }),
 
   // 用户的绩效记录
-  
 
   // 创建
   http.post(`${API_BASE}/users`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
-    const newUser = { ...body, id: body.id || `D${String(Date.now()).slice(-3).padStart(3, '0')}` };
-    create('doctors', newUser);
-    auditCreate('users', newUser);
-    return HttpResponse.json({ success: true, data: toUserDto(newUser) }, { status: 201 });
+    const newUser = {
+      ...body,
+      id: body.id || `D${String(Date.now()).slice(-3).padStart(3, "0")}`,
+    };
+    create("doctors", newUser);
+    auditCreate("users", newUser);
+    return HttpResponse.json(
+      { success: true, data: toUserDto(newUser) },
+      { status: 201 },
+    );
   }),
 
   // 更新 (userApi.update 用 PATCH, 对齐后端 users.controller @Patch(':id'))
@@ -3342,27 +5426,28 @@ export const userHandlers = [
     await delay(120);
     const id = params.id as string;
     const body = (await request.json()) as any;
-    const before = get<any>('doctors', id);
-    const updated = update<any>('doctors', id, body);
-    if (updated) auditUpdate('users', before, updated);
-    return HttpResponse.json({ success: true, data: updated ? toUserDto(updated) : null });
+    const before = get<any>("doctors", id);
+    const updated = update<any>("doctors", id, body);
+    if (updated) auditUpdate("users", before, updated);
+    return HttpResponse.json({
+      success: true,
+      data: updated ? toUserDto(updated) : null,
+    });
   }),
 
   // 删除
   http.delete(`${API_BASE}/users/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
-    const before = get<any>('doctors', id);
-    const existed = remove('doctors', id);
-    if (existed) auditDelete({ resource: 'users', resourceId: id, before });
+    const before = get<any>("doctors", id);
+    const existed = remove("doctors", id);
+    if (existed) auditDelete({ resource: "users", resourceId: id, before });
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
   // 重置密码
-  
 
   // 权限更新 (RBAC)
-  
 ];
 
 // ============= Consultations (12) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + DOCTOR_MASTER =============
@@ -3372,14 +5457,20 @@ export const consultationHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const all = list<any>('exams').filter((e: any) => e.hasCriticalValue).slice(0, 100);
+    const all = list<any>("exams")
+      .filter((e: any) => e.hasCriticalValue)
+      .slice(0, 100);
     const consultations = all.map((e: any, idx: number) => {
-      const statusMap: Record<string, string> = { 0: '已完成', 1: '待回复', 2: '已回复' };
-      const typeMap = ['疑难病例', '远程会诊', '急诊会诊'];
-      const deptMap = ['放射科', '心内科', '神经科', '肿瘤科'];
+      const statusMap: Record<string, string> = {
+        0: "已完成",
+        1: "待回复",
+        2: "已回复",
+      };
+      const typeMap = ["疑难病例", "远程会诊", "急诊会诊"];
+      const deptMap = ["放射科", "心内科", "神经科", "肿瘤科"];
       return {
         id: `C-${e.reportId}`,
-        consultationId: `CST${e.reportId.replace('RPT-', '')}`,
+        consultationId: `CST${e.reportId.replace("RPT-", "")}`,
         examId: e.reportId,
         patientId: e.patientId,
         patientName: e.patientName,
@@ -3391,142 +5482,312 @@ export const consultationHandlers = [
         isRemote: idx % 2 === 0,
         requestingDepartment: deptMap[idx % deptMap.length],
         consultedDepartment: deptMap[(idx + 1) % deptMap.length],
-        consultedDoctorName: '张三',
-        urgency: e.priority === '急诊' ? '紧急' : '普通',
-        requestTime: String(e.examAt || '').replace('T', ' ').slice(0, 19),
+        consultedDoctorName: "张三",
+        urgency: e.priority === "急诊" ? "紧急" : "普通",
+        requestTime: String(e.examAt || "")
+          .replace("T", " ")
+          .slice(0, 19),
         scheduledAt: e.examAt,
         requestedBy: e.reportDoctorId,
-        consultant: 'D002',
-        consultants: ['D002', 'D003'],
+        consultant: "D002",
+        consultants: ["D002", "D003"],
         priority: e.priority,
-        requestReason: e.impression || '需要进一步会诊确认诊断',
+        requestReason: e.impression || "需要进一步会诊确认诊断",
         notes: e.impression,
-        duration: '00:30:00',
-        participants: [e.reportDoctorId, 'D002'],
+        duration: "00:30:00",
+        participants: [e.reportDoctorId, "D002"],
       };
     });
     const result = applyQuery(consultations, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    return HttpResponse.json({
+      success: true,
+      data: result.data,
+      meta: { total: result.total },
+    });
   }),
 
   // 待会诊 (未完成)
   http.get(`${API_BASE}/consultations/pending`, async () => {
     await delay(50);
-    const all = list<any>('exams').filter((e: any) => e.hasCriticalValue).slice(0, 20);
+    const all = list<any>("exams")
+      .filter((e: any) => e.hasCriticalValue)
+      .slice(0, 20);
     const pending = all.map((e: any) => ({
-      id: `C-${e.reportId}`, examId: e.reportId, patientName: e.patientName,
-      status: 'scheduled', priority: e.priority,
+      id: `C-${e.reportId}`,
+      examId: e.reportId,
+      patientName: e.patientName,
+      status: "scheduled",
+      priority: e.priority,
     }));
     return HttpResponse.json({ success: true, data: pending });
   }),
 
   // 按患者
-  http.get(`${API_BASE}/consultations/by-patient/:patientId`, async ({ params }) => {
-    await delay(50);
-    const exams = list<any>('exams').filter((e: any) => e.patientId === params.patientId && e.hasCriticalValue);
-    return HttpResponse.json({ success: true, data: exams });
-  }),
+  http.get(
+    `${API_BASE}/consultations/by-patient/:patientId`,
+    async ({ params }) => {
+      await delay(50);
+      const exams = list<any>("exams").filter(
+        (e: any) => e.patientId === params.patientId && e.hasCriticalValue,
+      );
+      return HttpResponse.json({ success: true, data: exams });
+    },
+  ),
 
   // 按医生
-  http.get(`${API_BASE}/consultations/by-doctor/:doctorId`, async ({ params }) => {
-    await delay(50);
-    const exams = list<any>('exams').filter((e: any) => e.reportDoctorId === params.doctorId && e.hasCriticalValue);
-    return HttpResponse.json({ success: true, data: exams });
-  }),
+  http.get(
+    `${API_BASE}/consultations/by-doctor/:doctorId`,
+    async ({ params }) => {
+      await delay(50);
+      const exams = list<any>("exams").filter(
+        (e: any) => e.reportDoctorId === params.doctorId && e.hasCriticalValue,
+      );
+      return HttpResponse.json({ success: true, data: exams });
+    },
+  ),
 
   // [v3.0.6.11-88] 会诊统计 (后端 consultations.controller GET /consultations/stats, MSW dev 兜底; 静态子路由须在 :id 之前)
   http.get(`${API_BASE}/consultations/stats`, async () => {
     await delay(60);
-    return HttpResponse.json({ success: true, data: { total: 8, pendingCount: 3, repliedCount: 2, completedCount: 2, cancelledCount: 1, byType: { MDT: 2, '疑难病例': 3, '远程会诊': 2, '二次意见': 1 }, byDepartment: { '放射科': 5, '神经内科': 2, '心内科': 1 } } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: 8,
+        pendingCount: 3,
+        repliedCount: 2,
+        completedCount: 2,
+        cancelledCount: 1,
+        byType: { MDT: 2, 疑难病例: 3, 远程会诊: 2, 二次意见: 1 },
+        byDepartment: { 放射科: 5, 神经内科: 2, 心内科: 1 },
+      },
+    });
   }),
 
   // [G005 Wave 2A] 委员会会诊 (多医生合议) — 静态子路由须在 :id 之前
   http.get(`${API_BASE}/consultations/committee`, async () => {
     await delay(80);
-    const items = list<any>('committee_consultations');
+    const items = list<any>("committee_consultations");
     if (items.length === 0) {
       const now = Date.now();
       const seed = [
         {
-          id: 'CMT-SEED-001', reportId: 'RPT-SEED-001', reportTitle: '胸部CT: 主动脉夹层可能', patientName: '张三',
-          title: '主动脉夹层影像学诊断委员会合议', status: 'voting', createdBy: '张明远', createdAt: new Date(now - 3 * 3600_000).toISOString(),
+          id: "CMT-SEED-001",
+          reportId: "RPT-SEED-001",
+          reportTitle: "胸部CT: 主动脉夹层可能",
+          patientName: "张三",
+          title: "主动脉夹层影像学诊断委员会合议",
+          status: "voting",
+          createdBy: "张明远",
+          createdAt: new Date(now - 3 * 3600_000).toISOString(),
           members: [
-            { memberId: 'D001', name: '张明远', title: '主任医师', department: '放射科', opinion: 'CTA 见内膜片及真假腔, 支持主动脉夹层诊断。', agree: true, votedAt: new Date(now - 2.5 * 3600_000).toISOString() },
-            { memberId: 'D002', name: '李慧敏', title: '副主任医师', department: '心内科', opinion: '同意, 建议急诊超声进一步评估升主动脉受累范围。', agree: true, votedAt: new Date(now - 2 * 3600_000).toISOString() },
-            { memberId: 'D003', name: '王海涛', title: '主任医师', department: '神经外科', opinion: '未投票', agree: false, votedAt: '' },
+            {
+              memberId: "D001",
+              name: "张明远",
+              title: "主任医师",
+              department: "放射科",
+              opinion: "CTA 见内膜片及真假腔, 支持主动脉夹层诊断。",
+              agree: true,
+              votedAt: new Date(now - 2.5 * 3600_000).toISOString(),
+            },
+            {
+              memberId: "D002",
+              name: "李慧敏",
+              title: "副主任医师",
+              department: "心内科",
+              opinion: "同意, 建议急诊超声进一步评估升主动脉受累范围。",
+              agree: true,
+              votedAt: new Date(now - 2 * 3600_000).toISOString(),
+            },
+            {
+              memberId: "D003",
+              name: "王海涛",
+              title: "主任医师",
+              department: "神经外科",
+              opinion: "未投票",
+              agree: false,
+              votedAt: "",
+            },
           ],
         },
         {
-          id: 'CMT-SEED-002', reportId: 'RPT-SEED-002', reportTitle: '头颅MR: 基底节区异常信号', patientName: '李四',
-          title: '基底节异常信号定性讨论', status: 'resolved', createdBy: '李慧敏', createdAt: new Date(now - 26 * 3600_000).toISOString(),
+          id: "CMT-SEED-002",
+          reportId: "RPT-SEED-002",
+          reportTitle: "头颅MR: 基底节区异常信号",
+          patientName: "李四",
+          title: "基底节异常信号定性讨论",
+          status: "resolved",
+          createdBy: "李慧敏",
+          createdAt: new Date(now - 26 * 3600_000).toISOString(),
           members: [
-            { memberId: 'D001', name: '张明远', title: '主任医师', department: '放射科', opinion: '考虑腔隙性脑梗死可能。', agree: true, suggestion: '建议行 DWI+SWI 复查', votedAt: new Date(now - 25 * 3600_000).toISOString() },
-            { memberId: 'D003', name: '王海涛', title: '主任医师', department: '神经外科', opinion: '同意, 陈旧性腔梗可能性大。', agree: true, votedAt: new Date(now - 24 * 3600_000).toISOString() },
+            {
+              memberId: "D001",
+              name: "张明远",
+              title: "主任医师",
+              department: "放射科",
+              opinion: "考虑腔隙性脑梗死可能。",
+              agree: true,
+              suggestion: "建议行 DWI+SWI 复查",
+              votedAt: new Date(now - 25 * 3600_000).toISOString(),
+            },
+            {
+              memberId: "D003",
+              name: "王海涛",
+              title: "主任医师",
+              department: "神经外科",
+              opinion: "同意, 陈旧性腔梗可能性大。",
+              agree: true,
+              votedAt: new Date(now - 24 * 3600_000).toISOString(),
+            },
           ],
-          resolution: { resolution: '委员会一致同意: 基底节区异常信号考虑陈旧性腔隙性脑梗死, 建议随访复查。', generatedAt: new Date(now - 23 * 3600_000).toISOString() },
+          resolution: {
+            resolution:
+              "委员会一致同意: 基底节区异常信号考虑陈旧性腔隙性脑梗死, 建议随访复查。",
+            generatedAt: new Date(now - 23 * 3600_000).toISOString(),
+          },
         },
       ];
-      seed.forEach((c) => { try { create('committee_consultations', c); } catch { /* noop */ } });
-      return HttpResponse.json({ success: true, data: seed, meta: { total: seed.length } });
+      seed.forEach((c) => {
+        try {
+          create("committee_consultations", c);
+        } catch {
+          /* noop */
+        }
+      });
+      return HttpResponse.json({
+        success: true,
+        data: seed,
+        meta: { total: seed.length },
+      });
     }
-    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
+    return HttpResponse.json({
+      success: true,
+      data: items,
+      meta: { total: items.length },
+    });
   }),
 
   http.post(`${API_BASE}/consultations/committee`, async ({ request }) => {
     await delay(120);
     const body = (await request.json()) as any;
     const members = (body.members ?? []).map((m: any) => {
-      const memberId = typeof m === 'string' ? m : m.memberId;
-      const pool: Record<string, { name: string; title?: string; department?: string }> = {
-        D001: { name: '张明远', title: '主任医师', department: '放射科' },
-        D002: { name: '李慧敏', title: '副主任医师', department: '心内科' },
-        D003: { name: '王海涛', title: '主任医师', department: '神经外科' },
-        D004: { name: '陈雅芝', title: '主治医师', department: '肿瘤科' },
-        D005: { name: '刘建国', title: '主任医师', department: '胸外科' },
+      const memberId = typeof m === "string" ? m : m.memberId;
+      const pool: Record<
+        string,
+        { name: string; title?: string; department?: string }
+      > = {
+        D001: { name: "张明远", title: "主任医师", department: "放射科" },
+        D002: { name: "李慧敏", title: "副主任医师", department: "心内科" },
+        D003: { name: "王海涛", title: "主任医师", department: "神经外科" },
+        D004: { name: "陈雅芝", title: "主治医师", department: "肿瘤科" },
+        D005: { name: "刘建国", title: "主任医师", department: "胸外科" },
       };
-      return { memberId, name: pool[memberId]?.name ?? memberId, title: pool[memberId]?.title, department: pool[memberId]?.department, opinion: '未投票', agree: false, votedAt: '' };
+      return {
+        memberId,
+        name: pool[memberId]?.name ?? memberId,
+        title: pool[memberId]?.title,
+        department: pool[memberId]?.department,
+        opinion: "未投票",
+        agree: false,
+        votedAt: "",
+      };
     });
     const created = {
       id: `CMT-${Date.now().toString(36).toUpperCase()}`,
-      reportId: body.reportId, reportTitle: body.title, title: body.title,
-      status: 'voting', members, createdBy: body.createdBy ?? '当前用户', createdAt: new Date().toISOString(),
+      reportId: body.reportId,
+      reportTitle: body.title,
+      title: body.title,
+      status: "voting",
+      members,
+      createdBy: body.createdBy ?? "当前用户",
+      createdAt: new Date().toISOString(),
     };
-    try { create('committee_consultations', created); } catch { /* noop */ }
+    try {
+      create("committee_consultations", created);
+    } catch {
+      /* noop */
+    }
     return HttpResponse.json({ success: true, data: created }, { status: 201 });
   }),
 
-  http.post(`${API_BASE}/consultations/:id/committee-vote`, async ({ params, request }) => {
-    await delay(100);
-    const body = (await request.json()) as any;
-    const found = findOne<any>('committee_consultations', (c: any) => c.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    const member = found.members.find((m: any) => m.memberId === body.memberId);
-    if (!member) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '委员不在成员中' } }, { status: 404 });
-    if (found.status === 'resolved') return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: '已生成决议, 无法继续投票' } }, { status: 409 });
-    member.opinion = body.opinion;
-    member.agree = body.agree;
-    member.suggestion = body.suggestion;
-    member.votedAt = new Date().toISOString();
-    update('committee_consultations', found.id, found);
-    return HttpResponse.json({ success: true, data: found });
-  }),
+  http.post(
+    `${API_BASE}/consultations/:id/committee-vote`,
+    async ({ params, request }) => {
+      await delay(100);
+      const body = (await request.json()) as any;
+      const found = findOne<any>(
+        "committee_consultations",
+        (c: any) => c.id === params.id,
+      );
+      if (!found)
+        return HttpResponse.json(
+          { success: false, error: { code: "NOT_FOUND" } },
+          { status: 404 },
+        );
+      const member = found.members.find(
+        (m: any) => m.memberId === body.memberId,
+      );
+      if (!member)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "委员不在成员中" },
+          },
+          { status: 404 },
+        );
+      if (found.status === "resolved")
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "CONFLICT", message: "已生成决议, 无法继续投票" },
+          },
+          { status: 409 },
+        );
+      member.opinion = body.opinion;
+      member.agree = body.agree;
+      member.suggestion = body.suggestion;
+      member.votedAt = new Date().toISOString();
+      update("committee_consultations", found.id, found);
+      return HttpResponse.json({ success: true, data: found });
+    },
+  ),
 
-  http.post(`${API_BASE}/consultations/:id/committee-resolution`, async ({ params, request }) => {
-    await delay(120);
-    const body = (await request.json()) as any;
-    const found = findOne<any>('committee_consultations', (c: any) => c.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    found.resolution = { resolution: String(body.resolution ?? ''), generatedAt: new Date().toISOString() };
-    found.status = 'resolved';
-    if (body.appendToReport) found.resolution.appendedToReport = found.reportId;
-    update('committee_consultations', found.id, found);
-    return HttpResponse.json({ success: true, data: found });
-  }),
+  http.post(
+    `${API_BASE}/consultations/:id/committee-resolution`,
+    async ({ params, request }) => {
+      await delay(120);
+      const body = (await request.json()) as any;
+      const found = findOne<any>(
+        "committee_consultations",
+        (c: any) => c.id === params.id,
+      );
+      if (!found)
+        return HttpResponse.json(
+          { success: false, error: { code: "NOT_FOUND" } },
+          { status: 404 },
+        );
+      found.resolution = {
+        resolution: String(body.resolution ?? ""),
+        generatedAt: new Date().toISOString(),
+      };
+      found.status = "resolved";
+      if (body.appendToReport)
+        found.resolution.appendedToReport = found.reportId;
+      update("committee_consultations", found.id, found);
+      return HttpResponse.json({ success: true, data: found });
+    },
+  ),
 
   http.get(`${API_BASE}/consultations/:id/committee`, async ({ params }) => {
     await delay(80);
-    const found = findOne<any>('committee_consultations', (c: any) => c.id === params.id);
-    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const found = findOne<any>(
+      "committee_consultations",
+      (c: any) => c.id === params.id,
+    );
+    if (!found)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     const voted = found.members.filter((m: any) => m.votedAt);
     const agree = voted.filter((m: any) => m.agree);
     const summary = {
@@ -3534,8 +5795,11 @@ export const consultationHandlers = [
       votedCount: voted.length,
       agreeCount: agree.length,
       disagreeCount: voted.length - agree.length,
-      pendingMembers: found.members.filter((m: any) => !m.votedAt).map((m: any) => m.name),
-      agreeRate: voted.length > 0 ? Math.round((agree.length / voted.length) * 100) : 0,
+      pendingMembers: found.members
+        .filter((m: any) => !m.votedAt)
+        .map((m: any) => m.name),
+      agreeRate:
+        voted.length > 0 ? Math.round((agree.length / voted.length) * 100) : 0,
     };
     return HttpResponse.json({ success: true, data: { ...found, summary } });
   }),
@@ -3543,112 +5807,213 @@ export const consultationHandlers = [
   // 详情
   http.get(`${API_BASE}/consultations/:id`, async ({ params }) => {
     await delay(50);
-    const reportId = (params.id as string).replace('C-', '');
-    const exam = get<any>('exams', reportId);
+    const reportId = (params.id as string).replace("C-", "");
+    const exam = get<any>("exams", reportId);
     if (!exam) return HttpResponse.json({ success: false }, { status: 404 });
-    return HttpResponse.json({ success: true, data: { id: params.id, examId: reportId, ...exam } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, examId: reportId, ...exam },
+    });
   }),
 
   // 创建
   http.post(`${API_BASE}/consultations`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
-    const newCons = { id: `C-${Date.now()}`, ...body, status: 'scheduled', createdAt: new Date().toISOString() };
-    auditCreate('consultations', newCons);
+    const newCons = {
+      id: `C-${Date.now()}`,
+      ...body,
+      status: "scheduled",
+      createdAt: new Date().toISOString(),
+    };
+    auditCreate("consultations", newCons);
     return HttpResponse.json({ success: true, data: newCons }, { status: 201 });
   }),
 
   // 更新
   http.put(`${API_BASE}/consultations/:id`, async ({ params, request }) => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) as any } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, ...((await request.json()) as any) },
+    });
   }),
 
   // 取消
   http.post(`${API_BASE}/consultations/:id/cancel`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'cancel', entityType: 'consultations', entityId: params.id as string });
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'cancelled' } });
+    recordWorkflowEvent({
+      actorId: "system",
+      actorName: "系统",
+      action: "cancel",
+      entityType: "consultations",
+      entityId: params.id as string,
+    });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "cancelled" },
+    });
   }),
 
   // 完成
-  http.post(`${API_BASE}/consultations/:id/complete`, async ({ params, request }) => {
-    await delay(80);
-    const body = (await request.json()) as { conclusion: string };
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'consultations', entityId: params.id as string });
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed', conclusion: body.conclusion } });
-  }),
+  http.post(
+    `${API_BASE}/consultations/:id/complete`,
+    async ({ params, request }) => {
+      await delay(80);
+      const body = (await request.json()) as { conclusion: string };
+      recordWorkflowEvent({
+        actorId: "system",
+        actorName: "系统",
+        action: "complete",
+        entityType: "consultations",
+        entityId: params.id as string,
+      });
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: params.id,
+          status: "completed",
+          conclusion: body.conclusion,
+        },
+      });
+    },
+  ),
 
   // [v3.0.6.11-88] 邀请会诊专家 (后端 POST /consultations/:id/invite)
-  http.post(`${API_BASE}/consultations/:id/invite`, async ({ params, request }) => {
-    await delay(80);
-    const body = (await request.json()) as { doctorIds: string[] };
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'invite', entityType: 'consultations', entityId: params.id as string });
-    return HttpResponse.json({ success: true, data: { id: params.id, consultants: body.doctorIds ?? [] } });
-  }),
+  http.post(
+    `${API_BASE}/consultations/:id/invite`,
+    async ({ params, request }) => {
+      await delay(80);
+      const body = (await request.json()) as { doctorIds: string[] };
+      recordWorkflowEvent({
+        actorId: "system",
+        actorName: "系统",
+        action: "invite",
+        entityType: "consultations",
+        entityId: params.id as string,
+      });
+      return HttpResponse.json({
+        success: true,
+        data: { id: params.id, consultants: body.doctorIds ?? [] },
+      });
+    },
+  ),
 
   // [v3.0.6.11-88] 开始会诊 (后端 POST /consultations/:id/start)
   http.post(`${API_BASE}/consultations/:id/start`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'start', entityType: 'consultations', entityId: params.id as string });
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '已回复' } });
+    recordWorkflowEvent({
+      actorId: "system",
+      actorName: "系统",
+      action: "start",
+      entityType: "consultations",
+      entityId: params.id as string,
+    });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "已回复" },
+    });
   }),
 
   // [Wave2B] 会诊评论 (CollaborationPage: GET/POST /consultations/:id/comments)
   http.get(`${API_BASE}/consultations/:id/comments`, async ({ params }) => {
     await delay(60);
     const id = params.id as string;
-    const all = list<any>('consultation_comments').filter((c: any) => c.consultationId === id);
+    const all = list<any>("consultation_comments").filter(
+      (c: any) => c.consultationId === id,
+    );
     if (all.length === 0) {
       const seed = [
-        { id: `cc-${id}-1`, consultationId: id, author: '张明远', content: '右肺下叶病灶建议加做增强CT进一步评估血供情况。', createdAt: new Date(Date.now() - 3600_000).toISOString() },
-        { id: `cc-${id}-2`, consultationId: id, author: '李慧敏', content: '同意，建议同时行纵隔淋巴结穿刺活检。', createdAt: new Date(Date.now() - 1800_000).toISOString() },
+        {
+          id: `cc-${id}-1`,
+          consultationId: id,
+          author: "张明远",
+          content: "右肺下叶病灶建议加做增强CT进一步评估血供情况。",
+          createdAt: new Date(Date.now() - 3600_000).toISOString(),
+        },
+        {
+          id: `cc-${id}-2`,
+          consultationId: id,
+          author: "李慧敏",
+          content: "同意，建议同时行纵隔淋巴结穿刺活检。",
+          createdAt: new Date(Date.now() - 1800_000).toISOString(),
+        },
       ];
-      seed.forEach((c) => { try { create('consultation_comments', c); } catch { /* noop */ } });
+      seed.forEach((c) => {
+        try {
+          create("consultation_comments", c);
+        } catch {
+          /* noop */
+        }
+      });
       return HttpResponse.json({ success: true, data: seed });
     }
     return HttpResponse.json({ success: true, data: all });
   }),
-  http.post(`${API_BASE}/consultations/:id/comments`, async ({ params, request }) => {
-    await delay(80);
-    const id = params.id as string;
-    const body = (await request.json()) as { author?: string; content?: string };
-    const comment = {
-      id: `cc-${Date.now()}`,
-      consultationId: id,
-      author: body.author || '当前用户',
-      content: String(body.content || ''),
-      createdAt: new Date().toISOString(),
-    };
-    try { create('consultation_comments', comment); } catch { /* noop */ }
-    return HttpResponse.json({ success: true, data: comment }, { status: 201 });
-  }),
-  http.post(`${API_BASE}/consultations/:id/comments/:commentId/reply`, async ({ params, request }) => {
-    await delay(80);
-    const id = params.id as string;
-    const body = (await request.json()) as { author?: string; content?: string };
-    const reply = {
-      id: `cr-${Date.now()}`,
-      consultationId: id,
-      parentId: params.commentId as string,
-      author: body.author || '当前用户',
-      content: String(body.content || ''),
-      createdAt: new Date().toISOString(),
-    };
-    try { create('consultation_comments', reply); } catch { /* noop */ }
-    return HttpResponse.json({ success: true, data: reply }, { status: 201 });
-  }),
+  http.post(
+    `${API_BASE}/consultations/:id/comments`,
+    async ({ params, request }) => {
+      await delay(80);
+      const id = params.id as string;
+      const body = (await request.json()) as {
+        author?: string;
+        content?: string;
+      };
+      const comment = {
+        id: `cc-${Date.now()}`,
+        consultationId: id,
+        author: body.author || "当前用户",
+        content: String(body.content || ""),
+        createdAt: new Date().toISOString(),
+      };
+      try {
+        create("consultation_comments", comment);
+      } catch {
+        /* noop */
+      }
+      return HttpResponse.json(
+        { success: true, data: comment },
+        { status: 201 },
+      );
+    },
+  ),
+  http.post(
+    `${API_BASE}/consultations/:id/comments/:commentId/reply`,
+    async ({ params, request }) => {
+      await delay(80);
+      const id = params.id as string;
+      const body = (await request.json()) as {
+        author?: string;
+        content?: string;
+      };
+      const reply = {
+        id: `cr-${Date.now()}`,
+        consultationId: id,
+        parentId: params.commentId as string,
+        author: body.author || "当前用户",
+        content: String(body.content || ""),
+        createdAt: new Date().toISOString(),
+      };
+      try {
+        create("consultation_comments", reply);
+      } catch {
+        /* noop */
+      }
+      return HttpResponse.json({ success: true, data: reply }, { status: 201 });
+    },
+  ),
 ];
 
 // ============= Queue (10) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + DEVICE_MASTER =============
 // [W1-A P0] 返回 QueueCallPage 期望形状 (中文状态/优先级/患者类型, queueNum 等),
 //           保证叫号流程(呼叫→已呼叫→重呼/完成)在 mock 模式可用
 const toQueueStatusZh = (e: any, idx: number): string => {
-  const st = String(e.status ?? '');
-  if (st === 'reviewed' || st === 'in_service' || st === '已呼叫') return '已呼叫';
-  if (st === '已签发' || st === 'completed' || st === '已完成') return '已完成';
-  if (idx % 7 === 4) return '已呼叫'; // 演示数据: 部分已呼叫
-  return '等待中';
+  const st = String(e.status ?? "");
+  if (st === "reviewed" || st === "in_service" || st === "已呼叫")
+    return "已呼叫";
+  if (st === "已签发" || st === "completed" || st === "已完成") return "已完成";
+  if (idx % 7 === 4) return "已呼叫"; // 演示数据: 部分已呼叫
+  return "等待中";
 };
 
 export const queueHandlers = [
@@ -3657,12 +6022,16 @@ export const queueHandlers = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const all = list<any>('exams').filter((e: any) => e.status === 'submitted' || e.status === 'reviewed');
+    const all = list<any>("exams").filter(
+      (e: any) => e.status === "submitted" || e.status === "reviewed",
+    );
     const result = applyQuery(all, opts);
-    const rooms = Object.fromEntries(list<any>('devices').map((d: any) => [d.id, d.room ?? d.name ?? '']));
+    const rooms = Object.fromEntries(
+      list<any>("devices").map((d: any) => [d.id, d.room ?? d.name ?? ""]),
+    );
     const queueItems = result.data.map((e: any, idx: number) => {
       const statusZh = toQueueStatusZh(e, idx);
-      const qnum = `${e.modality ?? 'CT'}-${String(idx + 1).padStart(3, '0')}`;
+      const qnum = `${e.modality ?? "CT"}-${String(idx + 1).padStart(3, "0")}`;
       return {
         id: `q-${e.reportId ?? e.id}`,
         examId: e.examId ?? e.id,
@@ -3670,34 +6039,51 @@ export const queueHandlers = [
         queueNumber: qnum,
         patientId: e.patientId,
         patientName: e.patientName,
-        gender: e.patientGender === '女' ? '女' : '男',
+        gender: e.patientGender === "女" ? "女" : "男",
         age: e.patientAge ?? 0,
         modality: e.modality,
         examItemName: e.examItemName ?? e.examItem ?? e.bodyPart,
-        examRoom: rooms[e.deviceId ?? ''] ?? e.room ?? '检查室',
-        roomId: e.deviceId ?? '',
+        examRoom: rooms[e.deviceId ?? ""] ?? e.room ?? "检查室",
+        roomId: e.deviceId ?? "",
         status: statusZh,
-        registerTime: (e.examAt ?? e.scheduledAt ?? '').toString().slice(11, 16),
+        registerTime: (e.examAt ?? e.scheduledAt ?? "")
+          .toString()
+          .slice(11, 16),
         waitMinutes: (result.data.length - idx) * 5,
-        priority: e.priority === '加急' || e.priority === '危急' ? '危重' : '普通',
-        patientType: e.patientType === '住院' ? '住院' : e.patientType === '急诊' ? '急诊' : '门诊',
-        calledCount: statusZh === '已呼叫' ? 1 : 0,
+        priority:
+          e.priority === "加急" || e.priority === "危急" ? "危重" : "普通",
+        patientType:
+          e.patientType === "住院"
+            ? "住院"
+            : e.patientType === "急诊"
+              ? "急诊"
+              : "门诊",
+        calledCount: statusZh === "已呼叫" ? 1 : 0,
         calledAt: undefined,
         completedAt: undefined,
       };
     });
-    return HttpResponse.json({ success: true, data: queueItems, meta: { total: result.total } });
+    return HttpResponse.json({
+      success: true,
+      data: queueItems,
+      meta: { total: result.total },
+    });
   }),
 
   // 房间状态 (DEVICE_MASTER.room)
   http.get(`${API_BASE}/queue/rooms`, async () => {
     await delay(80);
-    const devices = list<any>('devices');
+    const devices = list<any>("devices");
     const rooms = devices.map((d: any) => ({
       id: d.id,
       roomNumber: d.room,
       modality: d.modality,
-      status: d.status === '运行中' ? '使用中' : d.status === '待机' ? '空闲' : '维护中',
+      status:
+        d.status === "运行中"
+          ? "使用中"
+          : d.status === "待机"
+            ? "空闲"
+            : "维护中",
       deviceId: d.id,
       deviceName: d.model,
       queueCount: Math.floor(Math.random() * 5),
@@ -3708,82 +6094,144 @@ export const queueHandlers = [
   // 房间详情
   http.get(`${API_BASE}/queue/rooms/:roomId`, async ({ params }) => {
     await delay(50);
-    const room = get<any>('devices', params.roomId as string);
+    const room = get<any>("devices", params.roomId as string);
     if (!room) return HttpResponse.json({ success: false }, { status: 404 });
-    return HttpResponse.json({ success: true, data: {
-      id: room.id, roomNumber: room.room, modality: room.modality,
-      status: room.status === '运行中' ? '使用中' : '空闲',
-    } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: room.id,
+        roomNumber: room.room,
+        modality: room.modality,
+        status: room.status === "运行中" ? "使用中" : "空闲",
+      },
+    });
   }),
 
   // [W1-A P0] 房间队列 (按 deviceId 派生, scheduledAt 排序)
   http.get(`${API_BASE}/queue/:roomId`, async ({ params }) => {
     await delay(60);
     const roomId = params.roomId as string;
-    const device = get<any>('devices', roomId);
-    const queue = list<any>('exams')
-      .filter((e: any) => (e.deviceId === roomId || e.room === roomId) && e.status !== 'completed')
-      .sort((a: any, b: any) => String(a.examAt ?? a.scheduledAt ?? '').localeCompare(String(b.examAt ?? b.scheduledAt ?? '')))
+    const device = get<any>("devices", roomId);
+    const queue = list<any>("exams")
+      .filter(
+        (e: any) =>
+          (e.deviceId === roomId || e.room === roomId) &&
+          e.status !== "completed",
+      )
+      .sort((a: any, b: any) =>
+        String(a.examAt ?? a.scheduledAt ?? "").localeCompare(
+          String(b.examAt ?? b.scheduledAt ?? ""),
+        ),
+      )
       .slice(0, 20)
       .map((e: any, idx: number) => ({
         id: `q-${e.reportId ?? e.id}`,
-        queueNumber: `${e.modality}-${String(idx + 1).padStart(3, '0')}`,
+        queueNumber: `${e.modality}-${String(idx + 1).padStart(3, "0")}`,
         patientName: e.patientName,
         examItem: e.examItem ?? e.bodyPart,
         roomId,
-        status: e.status === 'in_service' ? 'in_service' : 'waiting',
+        status: e.status === "in_service" ? "in_service" : "waiting",
       }));
-    return HttpResponse.json({ success: true, data: { roomId, roomName: device?.room ?? roomId, queue } });
+    return HttpResponse.json({
+      success: true,
+      data: { roomId, roomName: device?.room ?? roomId, queue },
+    });
   }),
 
   // [W1-A P0] 房间状态
   http.get(`${API_BASE}/queue/:roomId/status`, async ({ params }) => {
     await delay(50);
     const roomId = params.roomId as string;
-    const device = get<any>('devices', roomId);
-    const queue = list<any>('exams').filter((e: any) => e.deviceId === roomId && e.status !== 'completed');
-    return HttpResponse.json({ success: true, data: {
-      id: roomId,
-      roomNumber: device?.room ?? roomId,
-      modality: device?.modality ?? '',
-      status: device?.status === '运行中' ? '使用中' : '空闲',
-      waitCount: queue.length,
-      queueCount: queue.length,
-      completedToday: 0,
-    } });
+    const device = get<any>("devices", roomId);
+    const queue = list<any>("exams").filter(
+      (e: any) => e.deviceId === roomId && e.status !== "completed",
+    );
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: roomId,
+        roomNumber: device?.room ?? roomId,
+        modality: device?.modality ?? "",
+        status: device?.status === "运行中" ? "使用中" : "空闲",
+        waitCount: queue.length,
+        queueCount: queue.length,
+        completedToday: 0,
+      },
+    });
   }),
 
   // 队列统计
-  
 
   // 叫号 (对齐后端 POST /queue/:roomId/call, body { examId? | patientId? })
   http.post(`${API_BASE}/queue/:roomId/call`, async ({ params, request }) => {
     await delay(80);
     const roomId = params.roomId as string;
-    const body = (await request.json().catch(() => ({}))) as { examId?: string; patientId?: string };
-    const roomExams = list<any>('exams').filter((e: any) => e.deviceId === roomId || e.room === roomId);
+    const body = (await request.json().catch(() => ({}))) as {
+      examId?: string;
+      patientId?: string;
+    };
+    const roomExams = list<any>("exams").filter(
+      (e: any) => e.deviceId === roomId || e.room === roomId,
+    );
     const target = body.examId
       ? roomExams.find((e: any) => (e.examId ?? e.id) === body.examId)
       : body.patientId
         ? roomExams.find((e: any) => e.patientId === body.patientId)
         : roomExams[0];
     const entryId = target ? `q-${target.reportId ?? target.id}` : roomId;
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'call', entityType: 'queue', entityId: entryId });
-    return HttpResponse.json({ success: true, data: { id: entryId, roomId, patientId: target?.patientId, status: 'called', calledAt: new Date().toISOString() } });
+    recordWorkflowEvent({
+      actorId: "system",
+      actorName: "系统",
+      action: "call",
+      entityType: "queue",
+      entityId: entryId,
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: entryId,
+        roomId,
+        patientId: target?.patientId,
+        status: "called",
+        calledAt: new Date().toISOString(),
+      },
+    });
   }),
 
   // 完成
   http.post(`${API_BASE}/queue/:id/complete`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'queue', entityId: params.id as string });
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed', completedAt: new Date().toISOString() } });
+    recordWorkflowEvent({
+      actorId: "system",
+      actorName: "系统",
+      action: "complete",
+      entityType: "queue",
+      entityId: params.id as string,
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        status: "completed",
+        completedAt: new Date().toISOString(),
+      },
+    });
   }),
 
   // 重叫
   http.post(`${API_BASE}/queue/:id/recall`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'recall', entityType: 'queue', entityId: params.id as string });
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'recalled' } });
+    recordWorkflowEvent({
+      actorId: "system",
+      actorName: "系统",
+      action: "recall",
+      entityType: "queue",
+      entityId: params.id as string,
+    });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "recalled" },
+    });
   }),
 ];
 
@@ -3791,86 +6239,154 @@ export const queueHandlers = [
 export const termListHandlers = [
   http.get(`${API_BASE}/terms`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [
-      { id: 'T001', name: '肺结节', category: 'finding', description: '肺部占位性病变' },
-      { id: 'T002', name: '钙化', category: 'finding', description: '组织钙质沉积' },
-      { id: 'T003', name: '毛刺征', category: 'morphology', description: '边缘毛刺状' },
-      { id: 'T004', name: '分叶征', category: 'morphology', description: '边缘分叶状' },
-      { id: 'T005', name: '磨玻璃密度', category: 'density', description: 'GGO' },
-    ] });
+    return HttpResponse.json({
+      success: true,
+      data: [
+        {
+          id: "T001",
+          name: "肺结节",
+          category: "finding",
+          description: "肺部占位性病变",
+        },
+        {
+          id: "T002",
+          name: "钙化",
+          category: "finding",
+          description: "组织钙质沉积",
+        },
+        {
+          id: "T003",
+          name: "毛刺征",
+          category: "morphology",
+          description: "边缘毛刺状",
+        },
+        {
+          id: "T004",
+          name: "分叶征",
+          category: "morphology",
+          description: "边缘分叶状",
+        },
+        {
+          id: "T005",
+          name: "磨玻璃密度",
+          category: "density",
+          description: "GGO",
+        },
+      ],
+    });
   }),
   http.get(`${API_BASE}/terms/:id`, async ({ params }) => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { id: params.id, term: 'mock' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, term: "mock" },
+    });
   }),
   http.post(`${API_BASE}/terms`, async ({ request }) => {
     await delay(120);
     const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'T' + Date.now(), ...(body as object) } }, { status: 201 });
+    return HttpResponse.json(
+      { success: true, data: { id: "T" + Date.now(), ...(body as object) } },
+      { status: 201 },
+    );
   }),
   http.put(`${API_BASE}/terms/:id`, async ({ params, request }) => {
     await delay(120);
     const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, ...(body as object) },
+    });
   }),
-  http.delete(`${API_BASE}/terms/:id`, async () => new HttpResponse(null, { status: 204 })),
+  http.delete(
+    `${API_BASE}/terms/:id`,
+    async () => new HttpResponse(null, { status: 204 }),
+  ),
 ];
 
 // ============= Insurance Audits (5) =============
 export const insuranceHandlers = [
   http.get(`${API_BASE}/insurance-audits`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [
-      { id: 'IA001', patientName: '张三', insuranceType: '城镇职工', totalAmount: 2500, claimAmount: 1750, status: 'pending', createdAt: '2026-07-01T10:00:00Z' },
-      { id: 'IA002', patientName: '李四', insuranceType: '城乡居民', totalAmount: 1800, claimAmount: 1080, status: 'approved', createdAt: '2026-06-28T09:30:00Z' },
-      { id: 'IA003', patientName: '王五', insuranceType: '城镇职工', totalAmount: 3200, claimAmount: 2240, status: 'rejected', rejectReason: '资料不全', createdAt: '2026-06-25T14:00:00Z' },
-    ] });
+    return HttpResponse.json({
+      success: true,
+      data: [
+        {
+          id: "IA001",
+          patientName: "张三",
+          insuranceType: "城镇职工",
+          totalAmount: 2500,
+          claimAmount: 1750,
+          status: "pending",
+          createdAt: "2026-07-01T10:00:00Z",
+        },
+        {
+          id: "IA002",
+          patientName: "李四",
+          insuranceType: "城乡居民",
+          totalAmount: 1800,
+          claimAmount: 1080,
+          status: "approved",
+          createdAt: "2026-06-28T09:30:00Z",
+        },
+        {
+          id: "IA003",
+          patientName: "王五",
+          insuranceType: "城镇职工",
+          totalAmount: 3200,
+          claimAmount: 2240,
+          status: "rejected",
+          rejectReason: "资料不全",
+          createdAt: "2026-06-25T14:00:00Z",
+        },
+      ],
+    });
   }),
   http.get(`${API_BASE}/insurance-audits/:id`, async ({ params }) => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'pending' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "pending" },
+    });
   }),
   http.post(`${API_BASE}/insurance-audits`, async ({ request }) => {
     await delay(150);
     const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'I' + Date.now(), ...(body as object) } }, { status: 201 });
+    return HttpResponse.json(
+      { success: true, data: { id: "I" + Date.now(), ...(body as object) } },
+      { status: 201 },
+    );
   }),
   http.post(`${API_BASE}/insurance-audits/:id/approve`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "approved" },
+    });
   }),
-  http.post(`${API_BASE}/insurance-audits/:id/reject`, async ({ params, request }) => {
-    await delay(100);
-    const body = (await request.json()) as { reason?: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'rejected', reason: body.reason } });
-  }),
+  http.post(
+    `${API_BASE}/insurance-audits/:id/reject`,
+    async ({ params, request }) => {
+      await delay(100);
+      const body = (await request.json()) as { reason?: string };
+      return HttpResponse.json({
+        success: true,
+        data: { id: params.id, status: "rejected", reason: body.reason },
+      });
+    },
+  ),
 ];
 
 // ============= Materials (8) - v3.0.6.8-32 接入 EXAM_ITEM_MASTER.contrastAgent =============
 export const materialsHandlers = [
   // 列表 (从 EXAM_ITEM_MASTER 派生对比剂 + 耗材)
-  
-
   // 库存预警
-  
-
   // 详情
-  
-
   // 创建
-  
-
   // 更新
-  
-
   // 删除
-  
-
   // 入库 (增库存)
-  
-
   // 出库 (减库存)
-  
 ];
 
 // ============= Dose Records (16) - v3.0.6.8-32 接入 DAILY_KPI_PRE + EXAM_REPORT_PRE + DEVICE_MASTER =============
@@ -3879,25 +6395,12 @@ export const materialsHandlers = [
 // ============= Schedules (10) - v3.0.6.8-32 接入 DOCTOR_MASTER =============
 export const scheduleHandlers = [
   // 全部排班
-  
-
   // 按周 (周一到周日)
-  
-
   // 冲突检测
-  
-
   // 创建排班
-  
-
   // 更新排班
-  
-
   // 按医生
-  
-
   // 按模态 (派生)
-  
 ];
 
 // ============= Notifications (14) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + CRITICAL_EVENTS_PRE =============
@@ -3906,16 +6409,18 @@ export const notificationHandlers = [
   http.get(`${API_BASE}/notifications`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
-    const unread = url.searchParams.get('unread');
+    const unread = url.searchParams.get("unread");
     const opts = parseQuery(url);
-    const criticalEvents = list<any>('criticalEvents').slice(0, 50);
-    const exams = list<any>('exams').filter((e: any) => e.status === 'submitted').slice(0, 30);
+    const criticalEvents = list<any>("criticalEvents").slice(0, 50);
+    const exams = list<any>("exams")
+      .filter((e: any) => e.status === "submitted")
+      .slice(0, 30);
     const notifs: any[] = [
       ...criticalEvents.map((c: any) => ({
         id: `notif-critical-${c.id}`,
         title: `危急值: ${c.category}`,
         content: `患者 ${c.patientName} ${c.modality} 检查发现 ${c.value}`,
-        type: 'critical',
+        type: "critical",
         severity: c.category,
         isRead: Math.random() > 0.5,
         createdAt: c.discoveredAt,
@@ -3926,28 +6431,34 @@ export const notificationHandlers = [
         id: `notif-review-${e.reportId}`,
         title: `审核提醒`,
         content: `报告 ${e.reportId} ${e.patientName} 待审核`,
-        type: 'review',
+        type: "review",
         isRead: Math.random() > 0.7,
         createdAt: e.examAt,
         patientId: e.patientId,
         doctorId: e.reportDoctorId,
       })),
     ];
-    const filtered = unread === 'true' ? notifs.filter(n => !n.isRead) : notifs;
-    const result = applyQuery(filtered, opts, ['title', 'content']);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    const filtered =
+      unread === "true" ? notifs.filter((n) => !n.isRead) : notifs;
+    const result = applyQuery(filtered, opts, ["title", "content"]);
+    return HttpResponse.json({
+      success: true,
+      data: result.data,
+      meta: { total: result.total },
+    });
   }),
 
   // 未读数
-  
 
   // 标记已读
-  
 
   // 批量标记已读
   http.post(`${API_BASE}/notifications/mark-all-read`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { markedAt: new Date().toISOString(), count: 0 } });
+    return HttpResponse.json({
+      success: true,
+      data: { markedAt: new Date().toISOString(), count: 0 },
+    });
   }),
 
   // 发送通知
@@ -3960,21 +6471,19 @@ export const notificationHandlers = [
       isRead: false,
       createdAt: new Date().toISOString(),
     };
-    auditCreate('notifications', notif);
+    auditCreate("notifications", notif);
     return HttpResponse.json({ success: true, data: notif }, { status: 201 });
   }),
 
   // 推送 (多通道)
-  
 
   // 删除
   http.delete(`${API_BASE}/notifications/:id`, async ({ params }) => {
-    auditDelete({ resource: 'notifications', resourceId: params.id as string });
+    auditDelete({ resource: "notifications", resourceId: params.id as string });
     return new HttpResponse(null, { status: 204 });
   }),
 
   // 按类型
-  
 ];
 
 // ============= Templates (7) =============
@@ -3987,7 +6496,11 @@ let favoriteTemplateIds: Set<string> | null = null;
 // [v3.0.6.11-98 Wave2B (报告 P1)] 模板收藏 (内存 + seed, 对齐后端 favorites seed)
 function getFavoriteTemplateIds(): Set<string> {
   if (!favoriteTemplateIds) {
-    favoriteTemplateIds = new Set(['tpl-chest-ct-v2', 'tpl-abd-mr-v1', 'tpl-spine-ct-v1']);
+    favoriteTemplateIds = new Set([
+      "tpl-chest-ct-v2",
+      "tpl-abd-mr-v1",
+      "tpl-spine-ct-v1",
+    ]);
   }
   return favoriteTemplateIds;
 }
@@ -3996,12 +6509,54 @@ function getFavoriteTemplateIds(): Set<string> {
 function getCategoryStore(): any[] {
   if (!categoryStore) {
     categoryStore = [
-      { id: 'TC-001', name: 'CT', description: 'CT 各类检查的标准化报告模板', sortOrder: 1, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
-      { id: 'TC-002', name: 'MR', description: 'MR 各类检查的标准化报告模板', sortOrder: 2, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
-      { id: 'TC-003', name: 'MG', description: '乳腺钼靶/断层 (MG/DBT) 检查模板', sortOrder: 3, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
-      { id: 'TC-004', name: 'DR', description: 'DR 数字化X线检查模板', sortOrder: 4, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
-      { id: 'TC-005', name: 'US', description: '超声检查模板', sortOrder: 5, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
-      { id: 'TC-006', name: '特殊检查', description: 'PET-CT / DSA / 胃肠造影等特殊检查', sortOrder: 6, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+      {
+        id: "TC-001",
+        name: "CT",
+        description: "CT 各类检查的标准化报告模板",
+        sortOrder: 1,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        id: "TC-002",
+        name: "MR",
+        description: "MR 各类检查的标准化报告模板",
+        sortOrder: 2,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        id: "TC-003",
+        name: "MG",
+        description: "乳腺钼靶/断层 (MG/DBT) 检查模板",
+        sortOrder: 3,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        id: "TC-004",
+        name: "DR",
+        description: "DR 数字化X线检查模板",
+        sortOrder: 4,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        id: "TC-005",
+        name: "US",
+        description: "超声检查模板",
+        sortOrder: 5,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        id: "TC-006",
+        name: "特殊检查",
+        description: "PET-CT / DSA / 胃肠造影等特殊检查",
+        sortOrder: 6,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
     ];
   }
   return categoryStore;
@@ -4012,16 +6567,173 @@ function getTemplateStore(): any[] {
     templateStore = [
       // [v3.0.6.11-98 Wave2A P1] status 对齐审批流: approved/draft/pending/rejected (原 published→approved)
       // [v3.0.6.11-100 Wave2C P2] templateType: FULL=全文模板 / SECTION=段落模板 / PHRASE=短语模板 (缺省 SECTION)
-      { id: 'TPL-001', name: 'CT Chest Routine', category: '结构化', modality: 'CT', bodyPart: '胸部', templateType: 'SECTION', body: '影像所见：双肺纹理清晰，未见实变及肿块影。\n诊断意见：胸部 CT 未见明显异常。', version: 3, usage: 147, status: 'approved', shared: true, tags: ['chest', 'routine'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-06-30T09:00:00.000Z', createdAt: '2026-05-01T08:00:00.000Z', updatedAt: '2026-06-30T10:00:00.000Z' },
-      { id: 'TPL-002', name: 'CBCT Dental Implant', category: '结构化', modality: 'CBCT', bodyPart: '下颌骨', templateType: 'SECTION', body: '影像所见：36 位缺牙区骨高度 12.5mm，骨密度 850HU，下牙槽神经管距离牙槽嵴 15.2mm。\n诊断意见：骨量满足种植条件。', version: 2, usage: 89, status: 'approved', shared: true, tags: ['dental', 'implant'], createdById: 'u-doc1', approvedBy: 'u-admin', approvedAt: '2026-06-26T09:00:00.000Z', createdAt: '2026-05-10T08:00:00.000Z', updatedAt: '2026-06-25T10:00:00.000Z' },
-      { id: 'TPL-003', name: 'OCT Macula', category: '自由文本', modality: 'OCT', bodyPart: '视网膜', templateType: 'SECTION', body: '黄斑中心凹结构未见明显异常，各层连续。', version: 1, usage: 234, status: 'approved', shared: true, tags: ['eye', 'oct'], createdById: 'u-doc2', approvedBy: 'u-admin', approvedAt: '2026-06-02T09:00:00.000Z', createdAt: '2026-05-20T08:00:00.000Z', updatedAt: '2026-06-01T10:00:00.000Z' },
-      { id: 'TPL-004', name: 'MRI Brain Tumor Follow-up', category: '结构化', modality: 'MRI', bodyPart: '脑部', templateType: 'SECTION', body: '影像所见：原病灶较前片缩小。\n诊断意见：疗效评价 PR。', version: 1, usage: 56, status: 'draft', shared: false, tags: ['brain', 'tumor'], createdById: 'u-doc3', createdAt: '2026-06-10T08:00:00.000Z', updatedAt: '2026-06-12T10:00:00.000Z' },
-      { id: 'TPL-005', name: '腹部超声常规', category: '自由文本', modality: 'US', bodyPart: '腹部', templateType: 'SECTION', body: '影像所见：肝胆胰脾肾未见明显异常。\n诊断意见：腹部超声未见明显异常。', version: 1, usage: 0, status: 'pending', shared: false, tags: ['abdomen', 'us'], createdById: 'u-doc3', createdAt: '2026-07-01T08:00:00.000Z', updatedAt: '2026-07-01T08:00:00.000Z' },
-      { id: 'TPL-006', name: '头颅MR平扫', category: '结构化', modality: 'MRI', bodyPart: '头颅', templateType: 'SECTION', body: '影像所见：脑实质内未见异常信号灶。\n诊断意见：头颅MRI平扫未见明显异常。', version: 1, usage: 0, status: 'rejected', shared: false, tags: ['brain'], createdById: 'u-doc1', rejectReason: '缺少脑室系统描述, 请补充', createdAt: '2026-07-02T08:00:00.000Z', updatedAt: '2026-07-03T08:00:00.000Z' },
+      {
+        id: "TPL-001",
+        name: "CT Chest Routine",
+        category: "结构化",
+        modality: "CT",
+        bodyPart: "胸部",
+        templateType: "SECTION",
+        body: "影像所见：双肺纹理清晰，未见实变及肿块影。\n诊断意见：胸部 CT 未见明显异常。",
+        version: 3,
+        usage: 147,
+        status: "approved",
+        shared: true,
+        tags: ["chest", "routine"],
+        createdById: "u-admin",
+        approvedBy: "u-admin",
+        approvedAt: "2026-06-30T09:00:00.000Z",
+        createdAt: "2026-05-01T08:00:00.000Z",
+        updatedAt: "2026-06-30T10:00:00.000Z",
+      },
+      {
+        id: "TPL-002",
+        name: "CBCT Dental Implant",
+        category: "结构化",
+        modality: "CBCT",
+        bodyPart: "下颌骨",
+        templateType: "SECTION",
+        body: "影像所见：36 位缺牙区骨高度 12.5mm，骨密度 850HU，下牙槽神经管距离牙槽嵴 15.2mm。\n诊断意见：骨量满足种植条件。",
+        version: 2,
+        usage: 89,
+        status: "approved",
+        shared: true,
+        tags: ["dental", "implant"],
+        createdById: "u-doc1",
+        approvedBy: "u-admin",
+        approvedAt: "2026-06-26T09:00:00.000Z",
+        createdAt: "2026-05-10T08:00:00.000Z",
+        updatedAt: "2026-06-25T10:00:00.000Z",
+      },
+      {
+        id: "TPL-003",
+        name: "OCT Macula",
+        category: "自由文本",
+        modality: "OCT",
+        bodyPart: "视网膜",
+        templateType: "SECTION",
+        body: "黄斑中心凹结构未见明显异常，各层连续。",
+        version: 1,
+        usage: 234,
+        status: "approved",
+        shared: true,
+        tags: ["eye", "oct"],
+        createdById: "u-doc2",
+        approvedBy: "u-admin",
+        approvedAt: "2026-06-02T09:00:00.000Z",
+        createdAt: "2026-05-20T08:00:00.000Z",
+        updatedAt: "2026-06-01T10:00:00.000Z",
+      },
+      {
+        id: "TPL-004",
+        name: "MRI Brain Tumor Follow-up",
+        category: "结构化",
+        modality: "MRI",
+        bodyPart: "脑部",
+        templateType: "SECTION",
+        body: "影像所见：原病灶较前片缩小。\n诊断意见：疗效评价 PR。",
+        version: 1,
+        usage: 56,
+        status: "draft",
+        shared: false,
+        tags: ["brain", "tumor"],
+        createdById: "u-doc3",
+        createdAt: "2026-06-10T08:00:00.000Z",
+        updatedAt: "2026-06-12T10:00:00.000Z",
+      },
+      {
+        id: "TPL-005",
+        name: "腹部超声常规",
+        category: "自由文本",
+        modality: "US",
+        bodyPart: "腹部",
+        templateType: "SECTION",
+        body: "影像所见：肝胆胰脾肾未见明显异常。\n诊断意见：腹部超声未见明显异常。",
+        version: 1,
+        usage: 0,
+        status: "pending",
+        shared: false,
+        tags: ["abdomen", "us"],
+        createdById: "u-doc3",
+        createdAt: "2026-07-01T08:00:00.000Z",
+        updatedAt: "2026-07-01T08:00:00.000Z",
+      },
+      {
+        id: "TPL-006",
+        name: "头颅MR平扫",
+        category: "结构化",
+        modality: "MRI",
+        bodyPart: "头颅",
+        templateType: "SECTION",
+        body: "影像所见：脑实质内未见异常信号灶。\n诊断意见：头颅MRI平扫未见明显异常。",
+        version: 1,
+        usage: 0,
+        status: "rejected",
+        shared: false,
+        tags: ["brain"],
+        createdById: "u-doc1",
+        rejectReason: "缺少脑室系统描述, 请补充",
+        createdAt: "2026-07-02T08:00:00.000Z",
+        updatedAt: "2026-07-03T08:00:00.000Z",
+      },
       // [v3.0.6.11-100 Wave2C P2] 全文模板 (FULL): 整篇插入 (覆盖或追加), 模板库分类 Tab「全文模板」区展示
-      { id: 'TPL-101', name: '胸部CT全文模板', category: 'CT', modality: 'CT', bodyPart: '胸部', templateType: 'FULL', body: '影像所见：双肺纹理清晰，双侧肺野透亮度正常，未见实变、肿块及结节影。纵隔及双肺门未见明显肿大淋巴结。心影大小形态正常，主动脉壁未见钙化。\n诊断意见：胸部CT平扫未见明显异常。\n建议：如临床需要，可定期体检复查。', version: 1, usage: 88, status: 'approved', shared: true, tags: ['chest', 'full'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-07-01T09:00:00.000Z', createdAt: '2026-06-20T08:00:00.000Z', updatedAt: '2026-07-01T10:00:00.000Z' },
-      { id: 'TPL-102', name: '腹部CT增强全文模板', category: 'CT', modality: 'CT', bodyPart: '腹部', templateType: 'FULL', body: '影像所见：肝脏形态大小正常，肝实质密度均匀，未见明显占位性病变。胆囊未见明显异常。胰腺形态密度正常，胰管未见扩张。脾脏大小正常。双肾形态大小正常，未见结石及积水。腹腔未见游离积液。\n诊断意见：腹部CT增强未见明显异常。\n建议：定期随访复查。', version: 1, usage: 42, status: 'approved', shared: true, tags: ['abdomen', 'full'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-07-05T09:00:00.000Z', createdAt: '2026-06-25T08:00:00.000Z', updatedAt: '2026-07-05T10:00:00.000Z' },
-      { id: 'TPL-103', name: '肺结节CT随访全文模板', category: 'CT', modality: 'CT', bodyPart: '胸部', templateType: 'FULL', body: '影像所见：与 {{priorDate}} 前片对比，右肺上叶磨玻璃结节影大小无明显变化（约 {{size}}），边界清晰，未见分叶及毛刺征。双侧肺门及纵隔未见明显肿大淋巴结。\n诊断意见：右肺上叶磨玻璃结节影，较前无明显变化，考虑良性可能。\n建议：建议 {{interval}} 后复查胸部薄层CT，动态观察结节变化。', version: 1, usage: 36, status: 'approved', shared: true, tags: ['nodule', 'full', 'followup'], createdById: 'u-doc2', approvedBy: 'u-admin', approvedAt: '2026-07-08T09:00:00.000Z', createdAt: '2026-06-28T08:00:00.000Z', updatedAt: '2026-07-08T10:00:00.000Z' },
+      {
+        id: "TPL-101",
+        name: "胸部CT全文模板",
+        category: "CT",
+        modality: "CT",
+        bodyPart: "胸部",
+        templateType: "FULL",
+        body: "影像所见：双肺纹理清晰，双侧肺野透亮度正常，未见实变、肿块及结节影。纵隔及双肺门未见明显肿大淋巴结。心影大小形态正常，主动脉壁未见钙化。\n诊断意见：胸部CT平扫未见明显异常。\n建议：如临床需要，可定期体检复查。",
+        version: 1,
+        usage: 88,
+        status: "approved",
+        shared: true,
+        tags: ["chest", "full"],
+        createdById: "u-admin",
+        approvedBy: "u-admin",
+        approvedAt: "2026-07-01T09:00:00.000Z",
+        createdAt: "2026-06-20T08:00:00.000Z",
+        updatedAt: "2026-07-01T10:00:00.000Z",
+      },
+      {
+        id: "TPL-102",
+        name: "腹部CT增强全文模板",
+        category: "CT",
+        modality: "CT",
+        bodyPart: "腹部",
+        templateType: "FULL",
+        body: "影像所见：肝脏形态大小正常，肝实质密度均匀，未见明显占位性病变。胆囊未见明显异常。胰腺形态密度正常，胰管未见扩张。脾脏大小正常。双肾形态大小正常，未见结石及积水。腹腔未见游离积液。\n诊断意见：腹部CT增强未见明显异常。\n建议：定期随访复查。",
+        version: 1,
+        usage: 42,
+        status: "approved",
+        shared: true,
+        tags: ["abdomen", "full"],
+        createdById: "u-admin",
+        approvedBy: "u-admin",
+        approvedAt: "2026-07-05T09:00:00.000Z",
+        createdAt: "2026-06-25T08:00:00.000Z",
+        updatedAt: "2026-07-05T10:00:00.000Z",
+      },
+      {
+        id: "TPL-103",
+        name: "肺结节CT随访全文模板",
+        category: "CT",
+        modality: "CT",
+        bodyPart: "胸部",
+        templateType: "FULL",
+        body: "影像所见：与 {{priorDate}} 前片对比，右肺上叶磨玻璃结节影大小无明显变化（约 {{size}}），边界清晰，未见分叶及毛刺征。双侧肺门及纵隔未见明显肿大淋巴结。\n诊断意见：右肺上叶磨玻璃结节影，较前无明显变化，考虑良性可能。\n建议：建议 {{interval}} 后复查胸部薄层CT，动态观察结节变化。",
+        version: 1,
+        usage: 36,
+        status: "approved",
+        shared: true,
+        tags: ["nodule", "full", "followup"],
+        createdById: "u-doc2",
+        approvedBy: "u-admin",
+        approvedAt: "2026-07-08T09:00:00.000Z",
+        createdAt: "2026-06-28T08:00:00.000Z",
+        updatedAt: "2026-07-08T10:00:00.000Z",
+      },
     ];
   }
   return templateStore;
@@ -4030,12 +6742,53 @@ function getTemplateStore(): any[] {
 function getSnippetStore(): any[] {
   if (!snippetStore) {
     snippetStore = [
-      { id: 'SNP-001', name: '正常所见 - 胸部', content: '无急性心肺异常。', category: '正常', shortcuts: 'nml-chest', usage: 421, createdAt: '2026-05-01T08:00:00.000Z' },
-      { id: 'SNP-002', name: '植入体 #36 描述', content: '植入体 #36 牙冠，骨结合良好。', category: '牙科', shortcuts: 'imp-36', usage: 98, createdAt: '2026-05-05T08:00:00.000Z' },
-      { id: 'SNP-003', name: '对比剂反应记录', content: '轻度荨麻疹，抗组胺治疗后缓解。', category: '安全', shortcuts: 'ctr-rxn', usage: 67, createdAt: '2026-05-08T08:00:00.000Z' },
+      {
+        id: "SNP-001",
+        name: "正常所见 - 胸部",
+        content: "无急性心肺异常。",
+        category: "正常",
+        shortcuts: "nml-chest",
+        usage: 421,
+        createdAt: "2026-05-01T08:00:00.000Z",
+      },
+      {
+        id: "SNP-002",
+        name: "植入体 #36 描述",
+        content: "植入体 #36 牙冠，骨结合良好。",
+        category: "牙科",
+        shortcuts: "imp-36",
+        usage: 98,
+        createdAt: "2026-05-05T08:00:00.000Z",
+      },
+      {
+        id: "SNP-003",
+        name: "对比剂反应记录",
+        content: "轻度荨麻疹，抗组胺治疗后缓解。",
+        category: "安全",
+        shortcuts: "ctr-rxn",
+        usage: 67,
+        createdAt: "2026-05-08T08:00:00.000Z",
+      },
       // [v3.0.6.11-98 Wave1B P0-2] 模板变量示例片段: 书写页插入时按报告上下文自动填充
-      { id: 'SNP-004', name: '患者基本信息', content: '患者 {{patientName}}, {{gender}}, {{age}} 岁,临床诊断 {{clinicalDx}}。', category: '通用', shortcuts: 'pt-basic', usage: 1980, createdAt: '2026-05-10T08:00:00.000Z' },
-      { id: 'SNP-005', name: '与老片比较', content: '与 {{priorDate}} 老片比较,病灶较前{{change}}。', category: '通用', shortcuts: 'cmp-prior', usage: 380, createdAt: '2026-05-12T08:00:00.000Z' },
+      {
+        id: "SNP-004",
+        name: "患者基本信息",
+        content:
+          "患者 {{patientName}}, {{gender}}, {{age}} 岁,临床诊断 {{clinicalDx}}。",
+        category: "通用",
+        shortcuts: "pt-basic",
+        usage: 1980,
+        createdAt: "2026-05-10T08:00:00.000Z",
+      },
+      {
+        id: "SNP-005",
+        name: "与老片比较",
+        content: "与 {{priorDate}} 老片比较,病灶较前{{change}}。",
+        category: "通用",
+        shortcuts: "cmp-prior",
+        usage: 380,
+        createdAt: "2026-05-12T08:00:00.000Z",
+      },
     ];
   }
   return snippetStore;
@@ -4047,20 +6800,24 @@ export const templateHandlers = [
   http.get(`${API_BASE}/templates/snippets`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
-    const category = url.searchParams.get('category');
+    const category = url.searchParams.get("category");
     let data = [...getSnippetStore()];
     if (category) data = data.filter((s) => s.category === category);
-    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+    return HttpResponse.json({
+      success: true,
+      data,
+      meta: { total: data.length },
+    });
   }),
   http.post(`${API_BASE}/templates/snippets`, async ({ request }) => {
     await delay(100);
     const body = (await request.json()) as any;
     const item = {
-      id: `SNP-${String(getSnippetStore().length + 1).padStart(3, '0')}`,
-      name: body.name || '未命名片段',
-      content: body.content || '',
-      category: body.category || '通用',
-      shortcuts: body.shortcuts || '',
+      id: `SNP-${String(getSnippetStore().length + 1).padStart(3, "0")}`,
+      name: body.name || "未命名片段",
+      content: body.content || "",
+      category: body.category || "通用",
+      shortcuts: body.shortcuts || "",
       usage: 0,
       createdAt: new Date().toISOString(),
     };
@@ -4070,24 +6827,34 @@ export const templateHandlers = [
   http.delete(`${API_BASE}/templates/snippets/:id`, async ({ params }) => {
     await delay(60);
     const idx = getSnippetStore().findIndex((s) => s.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (idx < 0)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     getSnippetStore().splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
   // [v3.0.6.11-96 Wave3B P1] 模板分类 CRUD (内存 + seed, 对齐后端 /templates/categories) — 静态路径需在 /templates/:id 之前
   http.get(`${API_BASE}/templates/categories`, async () => {
     await delay(80);
-    const cats = [...getCategoryStore()].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-    return HttpResponse.json({ success: true, data: cats, meta: { total: cats.length } });
+    const cats = [...getCategoryStore()].sort(
+      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+    );
+    return HttpResponse.json({
+      success: true,
+      data: cats,
+      meta: { total: cats.length },
+    });
   }),
   http.post(`${API_BASE}/templates/categories`, async ({ request }) => {
     await delay(100);
     const body = (await request.json()) as any;
     const now = new Date().toISOString();
     const item = {
-      id: `TC-${String(getCategoryStore().length + 1).padStart(3, '0')}`,
-      name: body.name || '未命名分类',
-      description: body.description || '',
+      id: `TC-${String(getCategoryStore().length + 1).padStart(3, "0")}`,
+      name: body.name || "未命名分类",
+      description: body.description || "",
       sortOrder: Number(body.sortOrder ?? getCategoryStore().length + 1),
       createdAt: now,
       updatedAt: now,
@@ -4095,26 +6862,47 @@ export const templateHandlers = [
     getCategoryStore().push(item);
     return HttpResponse.json({ success: true, data: item }, { status: 201 });
   }),
-  http.patch(`${API_BASE}/templates/categories/:id`, async ({ params, request }) => {
-    await delay(80);
-    const body = (await request.json()) as any;
-    const cat = getCategoryStore().find((c) => c.id === params.id);
-    if (!cat) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    Object.assign(cat, body, { updatedAt: new Date().toISOString() });
-    return HttpResponse.json({ success: true, data: cat });
-  }),
+  http.patch(
+    `${API_BASE}/templates/categories/:id`,
+    async ({ params, request }) => {
+      await delay(80);
+      const body = (await request.json()) as any;
+      const cat = getCategoryStore().find((c) => c.id === params.id);
+      if (!cat)
+        return HttpResponse.json(
+          { success: false, error: { code: "NOT_FOUND" } },
+          { status: 404 },
+        );
+      Object.assign(cat, body, { updatedAt: new Date().toISOString() });
+      return HttpResponse.json({ success: true, data: cat });
+    },
+  ),
   http.delete(`${API_BASE}/templates/categories/:id`, async ({ params }) => {
     await delay(60);
     const idx = getCategoryStore().findIndex((c) => c.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (idx < 0)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     getCategoryStore().splice(idx, 1);
-    return HttpResponse.json({ success: true, data: { ok: true, id: params.id } });
+    return HttpResponse.json({
+      success: true,
+      data: { ok: true, id: params.id },
+    });
   }),
   // [v3.0.6.11-98 Wave2B (报告 P1)] 模板收藏服务端化 MSW 兜底 (内存+seed, 按用户) — 静态路径需在 /templates/:id 之前
   http.get(`${API_BASE}/templates/favorites`, async () => {
     await delay(80);
     const ids = [...getFavoriteTemplateIds()];
-    return HttpResponse.json({ success: true, data: { ids, templates: getTemplateStore().filter((t) => ids.includes(t.id)) }, meta: { total: ids.length } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ids,
+        templates: getTemplateStore().filter((t) => ids.includes(t.id)),
+      },
+      meta: { total: ids.length },
+    });
   }),
   http.post(`${API_BASE}/templates/:id/favorite`, async ({ params }) => {
     await delay(80);
@@ -4123,71 +6911,126 @@ export const templateHandlers = [
     const favorite = set.has(id);
     if (favorite) set.delete(id);
     else set.add(id);
-    return HttpResponse.json({ success: true, data: { favorite: !favorite, ids: Array.from(set) } });
+    return HttpResponse.json({
+      success: true,
+      data: { favorite: !favorite, ids: Array.from(set) },
+    });
   }),
   http.get(`${API_BASE}/templates`, async ({ request }) => {
     await delay(120);
     const url = new URL(request.url);
-    const category = url.searchParams.get('category');
-    const bodyPart = url.searchParams.get('bodyPart');
-    const keyword = url.searchParams.get('keyword');
-    const status = url.searchParams.get('status');
-    const personal = url.searchParams.get('personal');
-    const userId = url.searchParams.get('userId');
+    const category = url.searchParams.get("category");
+    const bodyPart = url.searchParams.get("bodyPart");
+    const keyword = url.searchParams.get("keyword");
+    const status = url.searchParams.get("status");
+    const personal = url.searchParams.get("personal");
+    const userId = url.searchParams.get("userId");
     // [v3.0.6.11-100 Wave2C P2] 模板类型过滤 (FULL/SECTION/PHRASE, 模板库分类 Tab 使用)
-    const templateType = url.searchParams.get('templateType');
+    const templateType = url.searchParams.get("templateType");
     let data = [...getTemplateStore()];
     if (category) data = data.filter((t) => t.category === category);
-    if (bodyPart) data = data.filter((t) => String(t.bodyPart ?? '').includes(bodyPart));
-    if (keyword) data = data.filter((t) => t.name.toLowerCase().includes(keyword.toLowerCase()) || String(t.bodyPart).includes(keyword));
+    if (bodyPart)
+      data = data.filter((t) => String(t.bodyPart ?? "").includes(bodyPart));
+    if (keyword)
+      data = data.filter(
+        (t) =>
+          t.name.toLowerCase().includes(keyword.toLowerCase()) ||
+          String(t.bodyPart).includes(keyword),
+      );
     // [v3.0.6.11-98 Wave2A P1] 审批状态过滤 (书写页仅取 approved)
     if (status) data = data.filter((t) => t.status === status);
     // [v3.0.6.11-98 Wave2A P1] 我的模板 (个人模板库): personal=true 按 createdById 过滤
-    if (personal === 'true' && userId) data = data.filter((t) => String(t.createdById ?? '') === userId);
-    if (templateType) data = data.filter((t) => (t.templateType ?? 'SECTION') === templateType);
+    if (personal === "true" && userId)
+      data = data.filter((t) => String(t.createdById ?? "") === userId);
+    if (templateType)
+      data = data.filter((t) => (t.templateType ?? "SECTION") === templateType);
     data.sort((a, b) => (b.usage ?? 0) - (a.usage ?? 0));
-    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+    return HttpResponse.json({
+      success: true,
+      data,
+      meta: { total: data.length },
+    });
   }),
   // [v3.0.6.11-98 Wave2A P1] 待审批列表
   http.get(`${API_BASE}/templates/pending`, async () => {
     await delay(80);
-    const data = getTemplateStore().filter((t) => t.status === 'pending');
-    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+    const data = getTemplateStore().filter((t) => t.status === "pending");
+    return HttpResponse.json({
+      success: true,
+      data,
+      meta: { total: data.length },
+    });
   }),
   // [v3.0.6.11-98 Wave2A P1] 模板审批流: 提交审批 / 批准 / 驳回
   http.post(`${API_BASE}/templates/:id/submit`, async ({ params }) => {
     await delay(100);
     const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    if (t.status === 'approved') return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '已批准模板无需再次提交' } }, { status: 400 });
-    if (t.status !== 'pending') {
-      t.status = 'pending';
+    if (!t)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
+    if (t.status === "approved")
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "已批准模板无需再次提交" },
+        },
+        { status: 400 },
+      );
+    if (t.status !== "pending") {
+      t.status = "pending";
       t.rejectReason = undefined;
       t.updatedAt = new Date().toISOString();
     }
     return HttpResponse.json({ success: true, data: t });
   }),
-  http.post(`${API_BASE}/templates/:id/approve`, async ({ params, request }) => {
-    await delay(100);
-    const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    if (t.status !== 'pending') return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '仅待审批模板可批准' } }, { status: 400 });
-    const body = (await request.json().catch(() => ({}))) as any;
-    t.status = 'approved';
-    t.approvedBy = body?.approvedBy ?? t.createdById;
-    t.approvedAt = new Date().toISOString();
-    t.rejectReason = undefined;
-    t.updatedAt = new Date().toISOString();
-    return HttpResponse.json({ success: true, data: t });
-  }),
+  http.post(
+    `${API_BASE}/templates/:id/approve`,
+    async ({ params, request }) => {
+      await delay(100);
+      const t = getTemplateStore().find((x) => x.id === params.id);
+      if (!t)
+        return HttpResponse.json(
+          { success: false, error: { code: "NOT_FOUND" } },
+          { status: 404 },
+        );
+      if (t.status !== "pending")
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "BAD_REQUEST", message: "仅待审批模板可批准" },
+          },
+          { status: 400 },
+        );
+      const body = (await request.json().catch(() => ({}))) as any;
+      t.status = "approved";
+      t.approvedBy = body?.approvedBy ?? t.createdById;
+      t.approvedAt = new Date().toISOString();
+      t.rejectReason = undefined;
+      t.updatedAt = new Date().toISOString();
+      return HttpResponse.json({ success: true, data: t });
+    },
+  ),
   http.post(`${API_BASE}/templates/:id/reject`, async ({ params, request }) => {
     await delay(100);
     const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    if (t.status !== 'pending') return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '仅待审批模板可驳回' } }, { status: 400 });
+    if (!t)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
+    if (t.status !== "pending")
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "仅待审批模板可驳回" },
+        },
+        { status: 400 },
+      );
     const body = (await request.json().catch(() => ({}))) as any;
-    t.status = 'rejected';
-    t.rejectReason = body?.reason?.trim() || '未填写原因';
+    t.status = "rejected";
+    t.rejectReason = body?.reason?.trim() || "未填写原因";
     t.updatedAt = new Date().toISOString();
     return HttpResponse.json({ success: true, data: t });
   }),
@@ -4196,25 +7039,50 @@ export const templateHandlers = [
   http.get(`${API_BASE}/templates/:id/structure`, async ({ params }) => {
     await delay(80);
     const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: true, data: { structure: null, body: '' } });
-    return HttpResponse.json({ success: true, data: { structure: t.structure ?? null, body: t.body ?? '' } });
+    if (!t)
+      return HttpResponse.json({
+        success: true,
+        data: { structure: null, body: "" },
+      });
+    return HttpResponse.json({
+      success: true,
+      data: { structure: t.structure ?? null, body: t.body ?? "" },
+    });
   }),
-  http.patch(`${API_BASE}/templates/:id/structure`, async ({ params, request }) => {
-    await delay(120);
-    const body = (await request.json()) as any;
-    const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) {
-      return HttpResponse.json({ success: true, data: { id: params.id, structure: Array.isArray(body?.structure) ? body.structure : null, body: typeof body?.body === 'string' ? body.body : '' } });
-    }
-    if (Array.isArray(body?.structure)) t.structure = body.structure;
-    if (typeof body?.body === 'string' && body.body.trim() !== '') t.body = body.body;
-    t.updatedAt = new Date().toISOString();
-    return HttpResponse.json({ success: true, data: { id: t.id, structure: t.structure, body: t.body } });
-  }),
+  http.patch(
+    `${API_BASE}/templates/:id/structure`,
+    async ({ params, request }) => {
+      await delay(120);
+      const body = (await request.json()) as any;
+      const t = getTemplateStore().find((x) => x.id === params.id);
+      if (!t) {
+        return HttpResponse.json({
+          success: true,
+          data: {
+            id: params.id,
+            structure: Array.isArray(body?.structure) ? body.structure : null,
+            body: typeof body?.body === "string" ? body.body : "",
+          },
+        });
+      }
+      if (Array.isArray(body?.structure)) t.structure = body.structure;
+      if (typeof body?.body === "string" && body.body.trim() !== "")
+        t.body = body.body;
+      t.updatedAt = new Date().toISOString();
+      return HttpResponse.json({
+        success: true,
+        data: { id: t.id, structure: t.structure, body: t.body },
+      });
+    },
+  ),
   http.get(`${API_BASE}/templates/:id`, async ({ params }) => {
     await delay(80);
     const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (!t)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: t });
   }),
   http.post(`${API_BASE}/templates`, async ({ request }) => {
@@ -4222,21 +7090,23 @@ export const templateHandlers = [
     const body = (await request.json()) as any;
     const now = new Date().toISOString();
     const item = {
-      id: `TPL-${String(getTemplateStore().length + 1).padStart(3, '0')}`,
-      name: body.name || '未命名模板',
-      category: body.category || '自由文本',
-      modality: body.modality || 'CT',
-      bodyPart: body.bodyPart || '',
+      id: `TPL-${String(getTemplateStore().length + 1).padStart(3, "0")}`,
+      name: body.name || "未命名模板",
+      category: body.category || "自由文本",
+      modality: body.modality || "CT",
+      bodyPart: body.bodyPart || "",
       // [v3.0.6.11-100 Wave2C P2] 模板类型 (FULL/SECTION/PHRASE, 缺省 SECTION)
-      templateType: ['FULL', 'SECTION', 'PHRASE'].includes(body.templateType) ? body.templateType : 'SECTION',
-      body: body.body || '',
+      templateType: ["FULL", "SECTION", "PHRASE"].includes(body.templateType)
+        ? body.templateType
+        : "SECTION",
+      body: body.body || "",
       structure: Array.isArray(body.structure) ? body.structure : undefined,
       tags: body.tags || [],
       version: 1,
       usage: 0,
-      status: body.status || 'draft',
+      status: body.status || "draft",
       shared: !!body.shared,
-      createdById: body.createdById || 'u-admin',
+      createdById: body.createdById || "u-admin",
       createdAt: now,
       updatedAt: now,
     };
@@ -4247,7 +7117,11 @@ export const templateHandlers = [
     await delay(120);
     const body = (await request.json()) as any;
     const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (!t)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     Object.assign(t, body, { updatedAt: new Date().toISOString() });
     return HttpResponse.json({ success: true, data: t });
   }),
@@ -4255,23 +7129,45 @@ export const templateHandlers = [
     await delay(120);
     const body = (await request.json()) as any;
     const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (!t)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     Object.assign(t, body, { updatedAt: new Date().toISOString() });
     return HttpResponse.json({ success: true, data: t });
   }),
   http.delete(`${API_BASE}/templates/:id`, async ({ params }) => {
     await delay(80);
     const idx = getTemplateStore().findIndex((x) => x.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (idx < 0)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     getTemplateStore().splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
   http.post(`${API_BASE}/templates/:id/clone`, async ({ params }) => {
     await delay(150);
     const t = getTemplateStore().find((x) => x.id === params.id);
-    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (!t)
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND" } },
+        { status: 404 },
+      );
     const now = new Date().toISOString();
-    const copy = { ...t, id: `TPL-${String(getTemplateStore().length + 1).padStart(3, '0')}`, name: `${t.name} (克隆)`, version: 1, usage: 0, status: 'draft', shared: false, createdAt: now, updatedAt: now };
+    const copy = {
+      ...t,
+      id: `TPL-${String(getTemplateStore().length + 1).padStart(3, "0")}`,
+      name: `${t.name} (克隆)`,
+      version: 1,
+      usage: 0,
+      status: "draft",
+      shared: false,
+      createdAt: now,
+      updatedAt: now,
+    };
     getTemplateStore().unshift(copy);
     return HttpResponse.json({ success: true, data: copy }, { status: 201 });
   }),
@@ -4280,37 +7176,368 @@ export const templateHandlers = [
 // ============= Dictionary (6) =============
 // ============= Dictionary (W4-A 数据字典: 分类列表 + 分类条目 CRUD) =============
 // 内存数据源, 种子对齐 DictionaryPage 原 mock 分类
-const dictSeed: Array<{ category: string; key: string; value: string; sort: number; active: boolean; extra: Record<string, unknown> }> = [
-  { category: 'CT检查项目', key: 'CT-BRAIN-NC', value: '颅脑CT平扫', sort: 1, active: true, extra: { pinyin: 'lwnctps', modality: ['CT'], bodyPart: '头部', notes: '常规颅脑平扫，层厚5mm' } },
-  { category: 'CT检查项目', key: 'CT-BRAIN-C', value: '颅脑CT增强', sort: 2, active: true, extra: { pinyin: 'lwnctzq', modality: ['CT'], bodyPart: '头部', notes: '需注射对比剂' } },
-  { category: 'CT检查项目', key: 'CT-CHEST-NC', value: '胸部CT平扫', sort: 3, active: true, extra: { pinyin: 'xbctps', modality: ['CT'], bodyPart: '胸部', notes: '肺窗+纵隔窗' } },
-  { category: 'CT检查项目', key: 'CT-ABD-C', value: '腹部CT增强', sort: 4, active: true, extra: { pinyin: 'fbctzq', modality: ['CT'], bodyPart: '腹部', notes: '三期增强扫描' } },
-  { category: 'MRI序列', key: 'MR-T1WI', value: 'T1WI成像', sort: 1, active: true, extra: { pinyin: 't1wi', modality: ['MR'], bodyPart: '全身', notes: 'SE序列' } },
-  { category: 'MRI序列', key: 'MR-T2WI', value: 'T2WI成像', sort: 2, active: true, extra: { pinyin: 't2wi', modality: ['MR'], bodyPart: '全身', notes: 'FSE序列' } },
-  { category: 'MRI序列', key: 'MR-DWI', value: 'DWI扩散成像', sort: 3, active: true, extra: { pinyin: 'dwkscx', modality: ['MR'], bodyPart: '全身', notes: 'b值800-1000' } },
-  { category: 'MRI序列', key: 'MR-FLAIR', value: 'FLAIR序列', sort: 4, active: true, extra: { pinyin: 'flair', modality: ['MR'], bodyPart: '颅脑', notes: '脑白质病变评估' } },
-  { category: 'X线检查', key: 'DR-CHEST-PA', value: '胸部正侧位片', sort: 1, active: true, extra: { pinyin: 'xbzcwp', modality: ['DR'], bodyPart: '胸部', notes: '立位PA+侧位' } },
-  { category: 'X线检查', key: 'DR-SPINE-L', value: '腰椎正侧位', sort: 2, active: true, extra: { pinyin: 'yzzcw', modality: ['DR'], bodyPart: '腰椎', notes: '腰骶部疼痛评估' } },
-  { category: 'X线检查', key: 'DR-PELVIS', value: '骨盆正位', sort: 3, active: true, extra: { pinyin: 'gpzw', modality: ['DR'], bodyPart: '骨盆', notes: '髋关节评估' } },
-  { category: '设备类型', key: 'EQ-CT-128', value: '128排CT', sort: 1, active: true, extra: { pinyin: '128pct', modality: ['CT'], bodyPart: '全身', notes: 'Siemens Definition AS+' } },
-  { category: '设备类型', key: 'EQ-MR-30T', value: '3.0T MRI', sort: 2, active: true, extra: { pinyin: '30tmri', modality: ['MR'], bodyPart: '全身', notes: 'Siemens TrioTim 3.0T' } },
-  { category: '设备类型', key: 'EQ-DR-FLAT', value: '数字化DR', sort: 3, active: true, extra: { pinyin: 'smhdr', modality: ['DR'], bodyPart: '全身', notes: '平板探测器' } },
-  { category: '诊断术语', key: 'DIAG-NORMAL', value: '未见明显异常', sort: 1, active: true, extra: { pinyin: 'wjmxyc', modality: ['CT', 'MR', 'DR'], bodyPart: '全身', notes: '正常报告模板' } },
-  { category: '诊断术语', key: 'DIAG-STROKE', value: '脑梗死', sort: 2, active: true, extra: { pinyin: 'ngs', modality: ['CT', 'MR'], bodyPart: '颅脑', notes: '急慢性分期' } },
-  { category: '诊断术语', key: 'DIAG-FRACTURE', value: '骨折', sort: 3, active: true, extra: { pinyin: 'gz', modality: ['DR', 'CT'], bodyPart: '四肢/脊柱', notes: '请注明部位及类型' } },
-  { category: '诊断术语', key: 'DIAG-NODULE', value: '肺结节', sort: 4, active: true, extra: { pinyin: 'fjie', modality: ['CT'], bodyPart: '肺部', notes: '请描述大小/形态' } },
-  { category: '检查部位', key: 'BP-HEAD', value: '头部', sort: 1, active: true, extra: { pinyin: 'tb', modality: ['CT', 'MR', 'DR'], bodyPart: '头部', notes: '颅脑/副鼻窦/颞骨' } },
-  { category: '检查部位', key: 'BP-CHEST', value: '胸部', sort: 2, active: true, extra: { pinyin: 'xb', modality: ['CT', 'DR', 'MR'], bodyPart: '胸部', notes: '肺/纵隔/胸壁' } },
-  { category: '检查部位', key: 'BP-ABD', value: '腹部', sort: 3, active: true, extra: { pinyin: 'fb', modality: ['CT', 'MR', 'DR'], bodyPart: '腹部', notes: '肝胆胰脾肾' } },
-  { category: '检查部位', key: 'BP-SPINE', value: '脊柱', sort: 4, active: true, extra: { pinyin: 'jz', modality: ['CT', 'MR', 'DR'], bodyPart: '脊柱', notes: '颈椎/胸椎/腰椎/骶椎' } },
-  { category: '造影剂', key: 'CM-IOHEXOL', value: '碘海醇', sort: 1, active: true, extra: { pinyin: 'dhc', modality: ['CT'], bodyPart: '全身', notes: '浓度300/350mgI/ml' } },
-  { category: '造影剂', key: 'CM-GD-DTPA', value: '钆喷酸葡胺', sort: 2, active: true, extra: { pinyin: 'gpspa', modality: ['MR'], bodyPart: '全身', notes: '马根维显/莫迪司' } },
-  { category: '体位技术', key: 'POS-AP', value: '前后位AP', sort: 1, active: true, extra: { pinyin: 'qhwap', modality: ['DR'], bodyPart: '全身', notes: 'X线束从前往后' } },
-  { category: '体位技术', key: 'POS-LAT', value: '侧位LAT', sort: 2, active: true, extra: { pinyin: 'cwlat', modality: ['DR'], bodyPart: '全身', notes: '左侧/右侧位' } },
+const dictSeed: Array<{
+  category: string;
+  key: string;
+  value: string;
+  sort: number;
+  active: boolean;
+  extra: Record<string, unknown>;
+}> = [
+  {
+    category: "CT检查项目",
+    key: "CT-BRAIN-NC",
+    value: "颅脑CT平扫",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "lwnctps",
+      modality: ["CT"],
+      bodyPart: "头部",
+      notes: "常规颅脑平扫，层厚5mm",
+    },
+  },
+  {
+    category: "CT检查项目",
+    key: "CT-BRAIN-C",
+    value: "颅脑CT增强",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "lwnctzq",
+      modality: ["CT"],
+      bodyPart: "头部",
+      notes: "需注射对比剂",
+    },
+  },
+  {
+    category: "CT检查项目",
+    key: "CT-CHEST-NC",
+    value: "胸部CT平扫",
+    sort: 3,
+    active: true,
+    extra: {
+      pinyin: "xbctps",
+      modality: ["CT"],
+      bodyPart: "胸部",
+      notes: "肺窗+纵隔窗",
+    },
+  },
+  {
+    category: "CT检查项目",
+    key: "CT-ABD-C",
+    value: "腹部CT增强",
+    sort: 4,
+    active: true,
+    extra: {
+      pinyin: "fbctzq",
+      modality: ["CT"],
+      bodyPart: "腹部",
+      notes: "三期增强扫描",
+    },
+  },
+  {
+    category: "MRI序列",
+    key: "MR-T1WI",
+    value: "T1WI成像",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "t1wi",
+      modality: ["MR"],
+      bodyPart: "全身",
+      notes: "SE序列",
+    },
+  },
+  {
+    category: "MRI序列",
+    key: "MR-T2WI",
+    value: "T2WI成像",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "t2wi",
+      modality: ["MR"],
+      bodyPart: "全身",
+      notes: "FSE序列",
+    },
+  },
+  {
+    category: "MRI序列",
+    key: "MR-DWI",
+    value: "DWI扩散成像",
+    sort: 3,
+    active: true,
+    extra: {
+      pinyin: "dwkscx",
+      modality: ["MR"],
+      bodyPart: "全身",
+      notes: "b值800-1000",
+    },
+  },
+  {
+    category: "MRI序列",
+    key: "MR-FLAIR",
+    value: "FLAIR序列",
+    sort: 4,
+    active: true,
+    extra: {
+      pinyin: "flair",
+      modality: ["MR"],
+      bodyPart: "颅脑",
+      notes: "脑白质病变评估",
+    },
+  },
+  {
+    category: "X线检查",
+    key: "DR-CHEST-PA",
+    value: "胸部正侧位片",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "xbzcwp",
+      modality: ["DR"],
+      bodyPart: "胸部",
+      notes: "立位PA+侧位",
+    },
+  },
+  {
+    category: "X线检查",
+    key: "DR-SPINE-L",
+    value: "腰椎正侧位",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "yzzcw",
+      modality: ["DR"],
+      bodyPart: "腰椎",
+      notes: "腰骶部疼痛评估",
+    },
+  },
+  {
+    category: "X线检查",
+    key: "DR-PELVIS",
+    value: "骨盆正位",
+    sort: 3,
+    active: true,
+    extra: {
+      pinyin: "gpzw",
+      modality: ["DR"],
+      bodyPart: "骨盆",
+      notes: "髋关节评估",
+    },
+  },
+  {
+    category: "设备类型",
+    key: "EQ-CT-128",
+    value: "128排CT",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "128pct",
+      modality: ["CT"],
+      bodyPart: "全身",
+      notes: "Siemens Definition AS+",
+    },
+  },
+  {
+    category: "设备类型",
+    key: "EQ-MR-30T",
+    value: "3.0T MRI",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "30tmri",
+      modality: ["MR"],
+      bodyPart: "全身",
+      notes: "Siemens TrioTim 3.0T",
+    },
+  },
+  {
+    category: "设备类型",
+    key: "EQ-DR-FLAT",
+    value: "数字化DR",
+    sort: 3,
+    active: true,
+    extra: {
+      pinyin: "smhdr",
+      modality: ["DR"],
+      bodyPart: "全身",
+      notes: "平板探测器",
+    },
+  },
+  {
+    category: "诊断术语",
+    key: "DIAG-NORMAL",
+    value: "未见明显异常",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "wjmxyc",
+      modality: ["CT", "MR", "DR"],
+      bodyPart: "全身",
+      notes: "正常报告模板",
+    },
+  },
+  {
+    category: "诊断术语",
+    key: "DIAG-STROKE",
+    value: "脑梗死",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "ngs",
+      modality: ["CT", "MR"],
+      bodyPart: "颅脑",
+      notes: "急慢性分期",
+    },
+  },
+  {
+    category: "诊断术语",
+    key: "DIAG-FRACTURE",
+    value: "骨折",
+    sort: 3,
+    active: true,
+    extra: {
+      pinyin: "gz",
+      modality: ["DR", "CT"],
+      bodyPart: "四肢/脊柱",
+      notes: "请注明部位及类型",
+    },
+  },
+  {
+    category: "诊断术语",
+    key: "DIAG-NODULE",
+    value: "肺结节",
+    sort: 4,
+    active: true,
+    extra: {
+      pinyin: "fjie",
+      modality: ["CT"],
+      bodyPart: "肺部",
+      notes: "请描述大小/形态",
+    },
+  },
+  {
+    category: "检查部位",
+    key: "BP-HEAD",
+    value: "头部",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "tb",
+      modality: ["CT", "MR", "DR"],
+      bodyPart: "头部",
+      notes: "颅脑/副鼻窦/颞骨",
+    },
+  },
+  {
+    category: "检查部位",
+    key: "BP-CHEST",
+    value: "胸部",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "xb",
+      modality: ["CT", "DR", "MR"],
+      bodyPart: "胸部",
+      notes: "肺/纵隔/胸壁",
+    },
+  },
+  {
+    category: "检查部位",
+    key: "BP-ABD",
+    value: "腹部",
+    sort: 3,
+    active: true,
+    extra: {
+      pinyin: "fb",
+      modality: ["CT", "MR", "DR"],
+      bodyPart: "腹部",
+      notes: "肝胆胰脾肾",
+    },
+  },
+  {
+    category: "检查部位",
+    key: "BP-SPINE",
+    value: "脊柱",
+    sort: 4,
+    active: true,
+    extra: {
+      pinyin: "jz",
+      modality: ["CT", "MR", "DR"],
+      bodyPart: "脊柱",
+      notes: "颈椎/胸椎/腰椎/骶椎",
+    },
+  },
+  {
+    category: "造影剂",
+    key: "CM-IOHEXOL",
+    value: "碘海醇",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "dhc",
+      modality: ["CT"],
+      bodyPart: "全身",
+      notes: "浓度300/350mgI/ml",
+    },
+  },
+  {
+    category: "造影剂",
+    key: "CM-GD-DTPA",
+    value: "钆喷酸葡胺",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "gpspa",
+      modality: ["MR"],
+      bodyPart: "全身",
+      notes: "马根维显/莫迪司",
+    },
+  },
+  {
+    category: "体位技术",
+    key: "POS-AP",
+    value: "前后位AP",
+    sort: 1,
+    active: true,
+    extra: {
+      pinyin: "qhwap",
+      modality: ["DR"],
+      bodyPart: "全身",
+      notes: "X线束从前往后",
+    },
+  },
+  {
+    category: "体位技术",
+    key: "POS-LAT",
+    value: "侧位LAT",
+    sort: 2,
+    active: true,
+    extra: {
+      pinyin: "cwlat",
+      modality: ["DR"],
+      bodyPart: "全身",
+      notes: "左侧/右侧位",
+    },
+  },
 ];
 
-let inMemoryDictEntries: Array<{ id: string; category: string; key: string; value: string; sort: number; active: boolean; extra: Record<string, unknown>; createdAt: string }> =
-  dictSeed.map((d, i) => ({ id: `dict-${i + 1}`, ...d, createdAt: new Date().toISOString() }));
+let inMemoryDictEntries: Array<{
+  id: string;
+  category: string;
+  key: string;
+  value: string;
+  sort: number;
+  active: boolean;
+  extra: Record<string, unknown>;
+  createdAt: string;
+}> = dictSeed.map((d, i) => ({
+  id: `dict-${i + 1}`,
+  ...d,
+  createdAt: new Date().toISOString(),
+}));
 
 export const dictionaryHandlers = [
   // 分类列表 (新版 DictionaryPage; 必须在 /:category 之前, 避免 'categories' 被当分类名)
@@ -4324,27 +7551,39 @@ export const dictionaryHandlers = [
       byCat.set(d.category, c);
     }
     const categories = Array.from(byCat.entries())
-      .map(([category, v]) => ({ category, count: v.count, activeCount: v.activeCount }))
-      .sort((a, b) => a.category.localeCompare(b.category, 'zh-CN'));
-    return HttpResponse.json({ success: true, data: { categories, total: categories.length } });
+      .map(([category, v]) => ({
+        category,
+        count: v.count,
+        activeCount: v.activeCount,
+      }))
+      .sort((a, b) => a.category.localeCompare(b.category, "zh-CN"));
+    return HttpResponse.json({
+      success: true,
+      data: { categories, total: categories.length },
+    });
   }),
 
   // 旧协议 (NotificationTemplateDictPage): 词典条目列表, 兼容 category/keyword 过滤
   http.get(`${API_BASE}/dictionary`, async ({ request }) => {
     await delay(100);
     const url = new URL(request.url);
-    const category = url.searchParams.get('category') ?? '';
-    const keyword = url.searchParams.get('keyword') ?? '';
+    const category = url.searchParams.get("category") ?? "";
+    const keyword = url.searchParams.get("keyword") ?? "";
     const items = inMemoryDictEntries
-      .filter((d) => (!category || d.category === category))
-      .filter((d) => !keyword || String(d.value).includes(keyword) || String(d.key).includes(keyword))
+      .filter((d) => !category || d.category === category)
+      .filter(
+        (d) =>
+          !keyword ||
+          String(d.value).includes(keyword) ||
+          String(d.key).includes(keyword),
+      )
       .sort((a, b) => a.sort - b.sort)
       .map((d) => ({
         id: d.id,
         category: d.category,
         code: d.key,
         name: d.value,
-        description: String(d.extra?.notes ?? ''),
+        description: String(d.extra?.notes ?? ""),
         sortOrder: d.sort,
         isActive: d.active,
         createdAt: d.createdAt,
@@ -4355,7 +7594,7 @@ export const dictionaryHandlers = [
   // 分类条目列表 (新版)
   http.get(`${API_BASE}/dictionary/:category`, async ({ params }) => {
     await delay(100);
-    const category = decodeURIComponent(String(params.category ?? ''));
+    const category = decodeURIComponent(String(params.category ?? ""));
     const items = inMemoryDictEntries
       .filter((d) => d.category === category)
       .sort((a, b) => a.sort - b.sort);
@@ -4366,23 +7605,40 @@ export const dictionaryHandlers = [
   http.post(`${API_BASE}/dictionary`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
-    const category = String(body?.category ?? '').trim();
-    const key = String(body?.code ?? body?.key ?? '').trim();
-    const value = String(body?.name ?? body?.value ?? '').trim();
+    const category = String(body?.category ?? "").trim();
+    const key = String(body?.code ?? body?.key ?? "").trim();
+    const value = String(body?.name ?? body?.value ?? "").trim();
     if (!category || !key || !value) {
-      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'category/code/name 为必填' } }, { status: 400 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "category/code/name 为必填" },
+        },
+        { status: 400 },
+      );
     }
-    if (inMemoryDictEntries.some((d) => d.category === category && d.key === key)) {
-      return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: `字典项已存在: ${category}/${key}` } }, { status: 409 });
+    if (
+      inMemoryDictEntries.some((d) => d.category === category && d.key === key)
+    ) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "CONFLICT",
+            message: `字典项已存在: ${category}/${key}`,
+          },
+        },
+        { status: 409 },
+      );
     }
     const entry = {
-      id: body.id || 'dict-' + Date.now(),
+      id: body.id || "dict-" + Date.now(),
       category,
       key,
       value,
       sort: Number(body.sortOrder ?? body.sort ?? 0),
       active: body.isActive !== false && body.active !== false,
-      extra: { notes: body.description ?? '', ...(body.extra ?? {}) },
+      extra: { notes: body.description ?? "", ...(body.extra ?? {}) },
       createdAt: new Date().toISOString(),
     };
     inMemoryDictEntries.push(entry);
@@ -4392,16 +7648,50 @@ export const dictionaryHandlers = [
   // 新版: 分类新增条目
   http.post(`${API_BASE}/dictionary/:category`, async ({ params, request }) => {
     await delay(150);
-    const category = decodeURIComponent(String(params.category ?? ''));
+    const category = decodeURIComponent(String(params.category ?? ""));
     const body = (await request.json()) as any;
-    if (!category.trim()) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '分类不能为空' } }, { status: 400 });
-    if (!String(body?.key ?? '').trim()) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '编码不能为空' } }, { status: 400 });
-    if (!String(body?.value ?? '').trim()) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '名称不能为空' } }, { status: 400 });
-    if (inMemoryDictEntries.some((d) => d.category === category && d.key === String(body.key).trim())) {
-      return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: `字典项已存在: ${category}/${body.key}` } }, { status: 409 });
+    if (!category.trim())
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "分类不能为空" },
+        },
+        { status: 400 },
+      );
+    if (!String(body?.key ?? "").trim())
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "编码不能为空" },
+        },
+        { status: 400 },
+      );
+    if (!String(body?.value ?? "").trim())
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "名称不能为空" },
+        },
+        { status: 400 },
+      );
+    if (
+      inMemoryDictEntries.some(
+        (d) => d.category === category && d.key === String(body.key).trim(),
+      )
+    ) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "CONFLICT",
+            message: `字典项已存在: ${category}/${body.key}`,
+          },
+        },
+        { status: 409 },
+      );
     }
     const entry = {
-      id: 'dict-' + Date.now(),
+      id: "dict-" + Date.now(),
       category,
       key: String(body.key).trim(),
       value: String(body.value).trim(),
@@ -4417,80 +7707,181 @@ export const dictionaryHandlers = [
   // 旧协议: 按 id 更新
   http.put(`${API_BASE}/dictionary/:id`, async ({ params, request }) => {
     await delay(120);
-    const id = String(params.id ?? '');
+    const id = String(params.id ?? "");
     const body = (await request.json()) as any;
     const idx = inMemoryDictEntries.findIndex((d) => d.id === id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '字典项不存在' } }, { status: 404 });
+    if (idx < 0)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "字典项不存在" },
+        },
+        { status: 404 },
+      );
     const current = inMemoryDictEntries[idx]!;
     const updated = {
       ...current,
-      category: body.category !== undefined ? String(body.category).trim() : current.category,
-      key: body.code !== undefined ? String(body.code).trim() : (body.key !== undefined ? String(body.key).trim() : current.key),
-      value: body.name !== undefined ? String(body.name).trim() : (body.value !== undefined ? String(body.value).trim() : current.value),
-      sort: body.sortOrder !== undefined ? Number(body.sortOrder) : (body.sort !== undefined ? Number(body.sort) : current.sort),
-      active: body.isActive !== undefined ? Boolean(body.isActive) : (body.active !== undefined ? Boolean(body.active) : current.active),
-      extra: body.description !== undefined ? { ...current.extra, notes: String(body.description) } : current.extra,
+      category:
+        body.category !== undefined
+          ? String(body.category).trim()
+          : current.category,
+      key:
+        body.code !== undefined
+          ? String(body.code).trim()
+          : body.key !== undefined
+            ? String(body.key).trim()
+            : current.key,
+      value:
+        body.name !== undefined
+          ? String(body.name).trim()
+          : body.value !== undefined
+            ? String(body.value).trim()
+            : current.value,
+      sort:
+        body.sortOrder !== undefined
+          ? Number(body.sortOrder)
+          : body.sort !== undefined
+            ? Number(body.sort)
+            : current.sort,
+      active:
+        body.isActive !== undefined
+          ? Boolean(body.isActive)
+          : body.active !== undefined
+            ? Boolean(body.active)
+            : current.active,
+      extra:
+        body.description !== undefined
+          ? { ...current.extra, notes: String(body.description) }
+          : current.extra,
     };
     inMemoryDictEntries[idx] = updated;
     return HttpResponse.json({ success: true, data: updated });
   }),
 
   // 新版: 按 category/key 更新
-  http.put(`${API_BASE}/dictionary/:category/:key`, async ({ params, request }) => {
-    await delay(120);
-    const category = decodeURIComponent(String(params.category ?? ''));
-    const key = decodeURIComponent(String(params.key ?? ''));
-    const body = (await request.json()) as any;
-    const idx = inMemoryDictEntries.findIndex((d) => d.category === category && d.key === key);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `字典项不存在: ${category}/${key}` } }, { status: 404 });
-    const current = inMemoryDictEntries[idx]!;
-    const nextKey = body.key !== undefined ? String(body.key).trim() : current.key;
-    if (nextKey !== key && inMemoryDictEntries.some((d) => d.category === category && d.key === nextKey)) {
-      return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: `字典项已存在: ${category}/${nextKey}` } }, { status: 409 });
-    }
-    if (body.value !== undefined && !String(body.value).trim()) {
-      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '名称不能为空' } }, { status: 400 });
-    }
-    const updated = {
-      ...current,
-      key: nextKey,
-      value: body.value !== undefined ? String(body.value).trim() : current.value,
-      sort: body.sort !== undefined ? Number(body.sort) : current.sort,
-      active: body.active !== undefined ? Boolean(body.active) : current.active,
-      extra: body.extra !== undefined ? (body.extra as Record<string, unknown>) : current.extra,
-    };
-    inMemoryDictEntries[idx] = updated;
-    return HttpResponse.json({ success: true, data: updated });
-  }),
+  http.put(
+    `${API_BASE}/dictionary/:category/:key`,
+    async ({ params, request }) => {
+      await delay(120);
+      const category = decodeURIComponent(String(params.category ?? ""));
+      const key = decodeURIComponent(String(params.key ?? ""));
+      const body = (await request.json()) as any;
+      const idx = inMemoryDictEntries.findIndex(
+        (d) => d.category === category && d.key === key,
+      );
+      if (idx < 0)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: `字典项不存在: ${category}/${key}`,
+            },
+          },
+          { status: 404 },
+        );
+      const current = inMemoryDictEntries[idx]!;
+      const nextKey =
+        body.key !== undefined ? String(body.key).trim() : current.key;
+      if (
+        nextKey !== key &&
+        inMemoryDictEntries.some(
+          (d) => d.category === category && d.key === nextKey,
+        )
+      ) {
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: "CONFLICT",
+              message: `字典项已存在: ${category}/${nextKey}`,
+            },
+          },
+          { status: 409 },
+        );
+      }
+      if (body.value !== undefined && !String(body.value).trim()) {
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "BAD_REQUEST", message: "名称不能为空" },
+          },
+          { status: 400 },
+        );
+      }
+      const updated = {
+        ...current,
+        key: nextKey,
+        value:
+          body.value !== undefined ? String(body.value).trim() : current.value,
+        sort: body.sort !== undefined ? Number(body.sort) : current.sort,
+        active:
+          body.active !== undefined ? Boolean(body.active) : current.active,
+        extra:
+          body.extra !== undefined
+            ? (body.extra as Record<string, unknown>)
+            : current.extra,
+      };
+      inMemoryDictEntries[idx] = updated;
+      return HttpResponse.json({ success: true, data: updated });
+    },
+  ),
 
   // 旧协议: 按 id 删除
   http.delete(`${API_BASE}/dictionary/:id`, async ({ params }) => {
     await delay(100);
-    const id = String(params.id ?? '');
+    const id = String(params.id ?? "");
     const before = inMemoryDictEntries.length;
     inMemoryDictEntries = inMemoryDictEntries.filter((d) => d.id !== id);
     if (inMemoryDictEntries.length === before) {
-      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '字典项不存在' } }, { status: 404 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "字典项不存在" },
+        },
+        { status: 404 },
+      );
     }
-    return HttpResponse.json({ success: true, data: { success: true, deletedId: id } });
+    return HttpResponse.json({
+      success: true,
+      data: { success: true, deletedId: id },
+    });
   }),
 
   // 新版: 按 category/key 删除
   http.delete(`${API_BASE}/dictionary/:category/:key`, async ({ params }) => {
     await delay(100);
-    const category = decodeURIComponent(String(params.category ?? ''));
-    const key = decodeURIComponent(String(params.key ?? ''));
+    const category = decodeURIComponent(String(params.category ?? ""));
+    const key = decodeURIComponent(String(params.key ?? ""));
     const before = inMemoryDictEntries.length;
-    inMemoryDictEntries = inMemoryDictEntries.filter((d) => !(d.category === category && d.key === key));
+    inMemoryDictEntries = inMemoryDictEntries.filter(
+      (d) => !(d.category === category && d.key === key),
+    );
     if (inMemoryDictEntries.length === before) {
-      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `字典项不存在: ${category}/${key}` } }, { status: 404 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: "NOT_FOUND",
+            message: `字典项不存在: ${category}/${key}`,
+          },
+        },
+        { status: 404 },
+      );
     }
-    return HttpResponse.json({ success: true, data: { success: true, deletedKey: key } });
+    return HttpResponse.json({
+      success: true,
+      data: { success: true, deletedKey: key },
+    });
   }),
 ];
 
 // ============= Safety (15) =============
-import { MOCK_ADVERSE_EVENTS, MOCK_RCA_INVESTIGATIONS, MOCK_RISK_ITEMS } from './data/index';
+import {
+  MOCK_ADVERSE_EVENTS,
+  MOCK_RCA_INVESTIGATIONS,
+  MOCK_RISK_ITEMS,
+} from "./data/index";
 
 const inMemorySafety = {
   adverseEvents: [...MOCK_ADVERSE_EVENTS],
@@ -4503,41 +7894,82 @@ export const safetyHandlers = [
   http.get(`${API_BASE}/safety/adverse-events`, async ({ request }) => {
     await delay(120);
     const url = new URL(request.url);
-    const status = url.searchParams.get('status');
-    const severity = url.searchParams.get('severity');
-    const eventType = url.searchParams.get('eventType');
+    const status = url.searchParams.get("status");
+    const severity = url.searchParams.get("severity");
+    const eventType = url.searchParams.get("eventType");
     let data = inMemorySafety.adverseEvents;
-    if (status) data = data.filter(e => e.status === status);
-    if (severity) data = data.filter(e => e.severity === severity);
-    if (eventType) data = data.filter(e => e.eventType === eventType);
+    if (status) data = data.filter((e) => e.status === status);
+    if (severity) data = data.filter((e) => e.severity === severity);
+    if (eventType) data = data.filter((e) => e.eventType === eventType);
     return HttpResponse.json({ success: true, data });
   }),
   http.get(`${API_BASE}/safety/adverse-events/:id`, async ({ params }) => {
     await delay(80);
-    const item = inMemorySafety.adverseEvents.find(e => e.id === params.id);
-    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'AdverseEvent not found' } }, { status: 404 });
+    const item = inMemorySafety.adverseEvents.find((e) => e.id === params.id);
+    if (!item)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "AdverseEvent not found" },
+        },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: item });
   }),
   http.post(`${API_BASE}/safety/adverse-events`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as Record<string, unknown>;
-    const newItem = { id: 'ae-' + Date.now(), reportedAt: new Date().toISOString(), status: 'reported', version: 0, ...body };
+    const newItem = {
+      id: "ae-" + Date.now(),
+      reportedAt: new Date().toISOString(),
+      status: "reported",
+      version: 0,
+      ...body,
+    };
     inMemorySafety.adverseEvents.push(newItem as any);
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
-  http.put(`${API_BASE}/safety/adverse-events/:id`, async ({ params, request }) => {
-    await delay(120);
-    const body = (await request.json()) as Record<string, unknown>;
-    const idx = inMemorySafety.adverseEvents.findIndex(e => e.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'AdverseEvent not found' } }, { status: 404 });
-    const existing = inMemorySafety.adverseEvents[idx]!;
-    inMemorySafety.adverseEvents[idx] = { ...existing, ...body, version: (existing.version ?? 0) + 1 };
-    return HttpResponse.json({ success: true, data: inMemorySafety.adverseEvents[idx] });
-  }),
+  http.put(
+    `${API_BASE}/safety/adverse-events/:id`,
+    async ({ params, request }) => {
+      await delay(120);
+      const body = (await request.json()) as Record<string, unknown>;
+      const idx = inMemorySafety.adverseEvents.findIndex(
+        (e) => e.id === params.id,
+      );
+      if (idx < 0)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "AdverseEvent not found" },
+          },
+          { status: 404 },
+        );
+      const existing = inMemorySafety.adverseEvents[idx]!;
+      inMemorySafety.adverseEvents[idx] = {
+        ...existing,
+        ...body,
+        version: (existing.version ?? 0) + 1,
+      };
+      return HttpResponse.json({
+        success: true,
+        data: inMemorySafety.adverseEvents[idx],
+      });
+    },
+  ),
   http.delete(`${API_BASE}/safety/adverse-events/:id`, async ({ params }) => {
     await delay(80);
-    const idx = inMemorySafety.adverseEvents.findIndex(e => e.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'AdverseEvent not found' } }, { status: 404 });
+    const idx = inMemorySafety.adverseEvents.findIndex(
+      (e) => e.id === params.id,
+    );
+    if (idx < 0)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "AdverseEvent not found" },
+        },
+        { status: 404 },
+      );
     inMemorySafety.adverseEvents.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -4546,115 +7978,180 @@ export const safetyHandlers = [
   http.get(`${API_BASE}/safety/rca-investigations`, async ({ request }) => {
     await delay(120);
     const url = new URL(request.url);
-    const capaStatus = url.searchParams.get('capaStatus');
+    const capaStatus = url.searchParams.get("capaStatus");
     let data = inMemorySafety.rcaInvestigations;
-    if (capaStatus) data = data.filter(r => r.capaStatus === capaStatus);
+    if (capaStatus) data = data.filter((r) => r.capaStatus === capaStatus);
     return HttpResponse.json({ success: true, data });
   }),
   http.get(`${API_BASE}/safety/rca-investigations/:id`, async ({ params }) => {
     await delay(80);
-    const item = inMemorySafety.rcaInvestigations.find(r => r.id === params.id);
-    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RcaInvestigation not found' } }, { status: 404 });
+    const item = inMemorySafety.rcaInvestigations.find(
+      (r) => r.id === params.id,
+    );
+    if (!item)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "RcaInvestigation not found" },
+        },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: item });
   }),
   http.post(`${API_BASE}/safety/rca-investigations`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as Record<string, unknown>;
-    const newItem = { id: 'rca-' + Date.now(), dateInvestigationStarted: new Date().toISOString(), capaStatus: 'open', status: 'open', version: 0, ...body };
+    const newItem = {
+      id: "rca-" + Date.now(),
+      dateInvestigationStarted: new Date().toISOString(),
+      capaStatus: "open",
+      status: "open",
+      version: 0,
+      ...body,
+    };
     inMemorySafety.rcaInvestigations.push(newItem as any);
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
-  http.put(`${API_BASE}/safety/rca-investigations/:id`, async ({ params, request }) => {
-    await delay(120);
-    const body = (await request.json()) as Record<string, unknown>;
-    const idx = inMemorySafety.rcaInvestigations.findIndex(r => r.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RcaInvestigation not found' } }, { status: 404 });
-    const existing = inMemorySafety.rcaInvestigations[idx]!;
-    inMemorySafety.rcaInvestigations[idx] = { ...existing, ...body, version: (existing.version ?? 0) + 1 };
-    return HttpResponse.json({ success: true, data: inMemorySafety.rcaInvestigations[idx] });
-  }),
-  http.delete(`${API_BASE}/safety/rca-investigations/:id`, async ({ params }) => {
-    await delay(80);
-    const idx = inMemorySafety.rcaInvestigations.findIndex(r => r.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RcaInvestigation not found' } }, { status: 404 });
-    inMemorySafety.rcaInvestigations.splice(idx, 1);
-    return new HttpResponse(null, { status: 204 });
-  }),
+  http.put(
+    `${API_BASE}/safety/rca-investigations/:id`,
+    async ({ params, request }) => {
+      await delay(120);
+      const body = (await request.json()) as Record<string, unknown>;
+      const idx = inMemorySafety.rcaInvestigations.findIndex(
+        (r) => r.id === params.id,
+      );
+      if (idx < 0)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "RcaInvestigation not found" },
+          },
+          { status: 404 },
+        );
+      const existing = inMemorySafety.rcaInvestigations[idx]!;
+      inMemorySafety.rcaInvestigations[idx] = {
+        ...existing,
+        ...body,
+        version: (existing.version ?? 0) + 1,
+      };
+      return HttpResponse.json({
+        success: true,
+        data: inMemorySafety.rcaInvestigations[idx],
+      });
+    },
+  ),
+  http.delete(
+    `${API_BASE}/safety/rca-investigations/:id`,
+    async ({ params }) => {
+      await delay(80);
+      const idx = inMemorySafety.rcaInvestigations.findIndex(
+        (r) => r.id === params.id,
+      );
+      if (idx < 0)
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "RcaInvestigation not found" },
+          },
+          { status: 404 },
+        );
+      inMemorySafety.rcaInvestigations.splice(idx, 1);
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
 
   // RiskItem
   http.get(`${API_BASE}/safety/risk-items`, async ({ request }) => {
     await delay(120);
     const url = new URL(request.url);
-    const riskLevel = url.searchParams.get('riskLevel');
-    const status = url.searchParams.get('status');
+    const riskLevel = url.searchParams.get("riskLevel");
+    const status = url.searchParams.get("status");
     let data = inMemorySafety.riskItems;
-    if (riskLevel) data = data.filter(r => r.riskLevel === riskLevel);
-    if (status) data = data.filter(r => r.status === status);
+    if (riskLevel) data = data.filter((r) => r.riskLevel === riskLevel);
+    if (status) data = data.filter((r) => r.status === status);
     return HttpResponse.json({ success: true, data });
   }),
   http.get(`${API_BASE}/safety/risk-items/:id`, async ({ params }) => {
     await delay(80);
-    const item = inMemorySafety.riskItems.find(r => r.id === params.id);
-    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RiskItem not found' } }, { status: 404 });
+    const item = inMemorySafety.riskItems.find((r) => r.id === params.id);
+    if (!item)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "RiskItem not found" },
+        },
+        { status: 404 },
+      );
     return HttpResponse.json({ success: true, data: item });
   }),
   http.post(`${API_BASE}/safety/risk-items`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as Record<string, unknown>;
-    const newItem = { id: 'risk-' + Date.now(), identifiedAt: new Date().toISOString(), status: 'identified', version: 0, ...body };
+    const newItem = {
+      id: "risk-" + Date.now(),
+      identifiedAt: new Date().toISOString(),
+      status: "identified",
+      version: 0,
+      ...body,
+    };
     inMemorySafety.riskItems.push(newItem as any);
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.put(`${API_BASE}/safety/risk-items/:id`, async ({ params, request }) => {
     await delay(120);
     const body = (await request.json()) as Record<string, unknown>;
-    const idx = inMemorySafety.riskItems.findIndex(r => r.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RiskItem not found' } }, { status: 404 });
+    const idx = inMemorySafety.riskItems.findIndex((r) => r.id === params.id);
+    if (idx < 0)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "RiskItem not found" },
+        },
+        { status: 404 },
+      );
     const existing = inMemorySafety.riskItems[idx]!;
-    inMemorySafety.riskItems[idx] = { ...existing, ...body, version: (existing.version ?? 0) + 1 };
-    return HttpResponse.json({ success: true, data: inMemorySafety.riskItems[idx] });
+    inMemorySafety.riskItems[idx] = {
+      ...existing,
+      ...body,
+      version: (existing.version ?? 0) + 1,
+    };
+    return HttpResponse.json({
+      success: true,
+      data: inMemorySafety.riskItems[idx],
+    });
   }),
   http.delete(`${API_BASE}/safety/risk-items/:id`, async ({ params }) => {
     await delay(80);
-    const idx = inMemorySafety.riskItems.findIndex(r => r.id === params.id);
-    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RiskItem not found' } }, { status: 404 });
+    const idx = inMemorySafety.riskItems.findIndex((r) => r.id === params.id);
+    if (idx < 0)
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: "RiskItem not found" },
+        },
+        { status: 404 },
+      );
     inMemorySafety.riskItems.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
 ];
 
 // ============= R3.REVIEW 审核流 (80) =============
-import { SLA_METRICS, WORKLOAD_STATS, AI_PRE_REVIEW_RESULTS } from '../../data/reportReviewMock';
-import { DEFECT_DETAILS } from '../../data/defectLibraryMock';
+import {
+  SLA_METRICS,
+  WORKLOAD_STATS,
+  AI_PRE_REVIEW_RESULTS,
+} from "../../data/reportReviewMock";
+import { DEFECT_DETAILS } from "../../data/defectLibraryMock";
 
 export const reviewHandlers = [
   // Tasks
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
   http.get(`${API_BASE}/reviews/sla`, async () => {
     await delay(80);
     return HttpResponse.json({ success: true, data: SLA_METRICS });
   }),
-  
-  
-  
+
   http.get(`${API_BASE}/reviews/workload`, async () => {
     await delay(100);
     return HttpResponse.json({ success: true, data: WORKLOAD_STATS });
@@ -4663,243 +8160,313 @@ export const reviewHandlers = [
   http.get(`${API_BASE}/review/initial-check`, async () => {
     await delay(50);
     const all = list<any>("exams").slice(0, 20);
-    return HttpResponse.json({ success: true, data: all.map((e: any) => ({
-      id: e.reportId, reportId: e.reportId, patientName: e.patientName, modality: e.modality, bodyPart: e.bodyPart,
-      reviewerName: e.reportDoctorId, status: e.status === "published" ? "approved" : e.status === "rejected" ? "rejected" : "pending",
-      checkItems: [{ name: "描述完整", passed: true }, { name: "影像匹配", passed: true }],
-      createdAt: e.examAt,
-    })) });
+    return HttpResponse.json({
+      success: true,
+      data: all.map((e: any) => ({
+        id: e.reportId,
+        reportId: e.reportId,
+        patientName: e.patientName,
+        modality: e.modality,
+        bodyPart: e.bodyPart,
+        reviewerName: e.reportDoctorId,
+        status:
+          e.status === "published"
+            ? "approved"
+            : e.status === "rejected"
+              ? "rejected"
+              : "pending",
+        checkItems: [
+          { name: "描述完整", passed: true },
+          { name: "影像匹配", passed: true },
+        ],
+        createdAt: e.examAt,
+      })),
+    });
   }),
 
   http.get(`${API_BASE}/review/initial-check/:id`, async ({ params }) => {
-    return HttpResponse.json({ success: true, data: { id: params.id, reportId: params.id, status: "pending", patientName: "Test", checkItems: [] } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        reportId: params.id,
+        status: "pending",
+        patientName: "Test",
+        checkItems: [],
+      },
+    });
   }),
 
   http.post(`${API_BASE}/review/initial-check`, async ({ request }) => {
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: body.reportId, ...body, status: "pending" } }, { status: 201 });
+    return HttpResponse.json(
+      {
+        success: true,
+        data: { id: body.reportId, ...body, status: "pending" },
+      },
+      { status: 201 },
+    );
   }),
 
-  http.post(`${API_BASE}/review/initial-check/:id/approve`, async ({ params, request }) => {
-    const body = (await request.json().catch(() => ({}))) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved', note: body.note, reviewedAt: new Date().toISOString() } });
-  }),
+  http.post(
+    `${API_BASE}/review/initial-check/:id/approve`,
+    async ({ params, request }) => {
+      const body = (await request.json().catch(() => ({}))) as any;
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: params.id,
+          status: "approved",
+          note: body.note,
+          reviewedAt: new Date().toISOString(),
+        },
+      });
+    },
+  ),
 
-  http.post(`${API_BASE}/review/initial-check/:id/reject`, async ({ params, request }) => {
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'rejected', reason: body.reason } });
-  }),
+  http.post(
+    `${API_BASE}/review/initial-check/:id/reject`,
+    async ({ params, request }) => {
+      const body = (await request.json()) as any;
+      return HttpResponse.json({
+        success: true,
+        data: { id: params.id, status: "rejected", reason: body.reason },
+      });
+    },
+  ),
 
-  http.post(`${API_BASE}/review/initial-check/:id/override`, async ({ params, request }) => {
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'overridden', reason: body.reason } });
-  }),
+  http.post(
+    `${API_BASE}/review/initial-check/:id/override`,
+    async ({ params, request }) => {
+      const body = (await request.json()) as any;
+      return HttpResponse.json({
+        success: true,
+        data: { id: params.id, status: "overridden", reason: body.reason },
+      });
+    },
+  ),
 
   http.get(`${API_BASE}/review/initial-check/summary`, async () => {
-    return HttpResponse.json({ success: true, data: { total: 50, pending: 12, approved: 30, rejected: 6, overridden: 2 } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: 50,
+        pending: 12,
+        approved: 30,
+        rejected: 6,
+        overridden: 2,
+      },
+    });
   }),
 
   // [v3.0.6.8-48] PR4: 终核 (final check)
   http.get(`${API_BASE}/review/final-check`, async () => {
-    return HttpResponse.json({ success: true, data: list<any>("exams").slice(0, 20).map((e: any) => ({
-      id: e.reportId, reportId: e.reportId, templateName: "Default Template", status: "pending", priority: "normal",
-      createdAt: e.examAt,
-    })) });
+    return HttpResponse.json({
+      success: true,
+      data: list<any>("exams")
+        .slice(0, 20)
+        .map((e: any) => ({
+          id: e.reportId,
+          reportId: e.reportId,
+          templateName: "Default Template",
+          status: "pending",
+          priority: "normal",
+          createdAt: e.examAt,
+        })),
+    });
   }),
 
   http.get(`${API_BASE}/review/final-check/:id`, async ({ params }) => {
-    return HttpResponse.json({ success: true, data: { id: params.id, reportId: params.id, status: "pending", priority: "normal", notes: [] } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        reportId: params.id,
+        status: "pending",
+        priority: "normal",
+        notes: [],
+      },
+    });
   }),
 
   http.post(`${API_BASE}/review/final-check`, async ({ request }) => {
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: body.reportId, ...body, status: "in_progress" } }, { status: 201 });
+    return HttpResponse.json(
+      {
+        success: true,
+        data: { id: body.reportId, ...body, status: "in_progress" },
+      },
+      { status: 201 },
+    );
   }),
 
-  http.post(`${API_BASE}/review/final-check/:id/score`, async ({ params, request }) => {
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, score: body.score, status: 'in_progress' } });
-  }),
+  http.post(
+    `${API_BASE}/review/final-check/:id/score`,
+    async ({ params, request }) => {
+      const body = (await request.json()) as any;
+      return HttpResponse.json({
+        success: true,
+        data: { id: params.id, score: body.score, status: "in_progress" },
+      });
+    },
+  ),
 
-  http.post(`${API_BASE}/review/final-check/:id/approve`, async ({ params, request }) => {
-    const body = (await request.json().catch(() => ({}))) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved', finalNote: body.finalNote, approvedAt: new Date().toISOString() } });
-  }),
+  http.post(
+    `${API_BASE}/review/final-check/:id/approve`,
+    async ({ params, request }) => {
+      const body = (await request.json().catch(() => ({}))) as any;
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: params.id,
+          status: "approved",
+          finalNote: body.finalNote,
+          approvedAt: new Date().toISOString(),
+        },
+      });
+    },
+  ),
 
-  http.post(`${API_BASE}/review/final-check/:id/reject`, async ({ params, request }) => {
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'rejected', reason: body.reason } });
-  }),
+  http.post(
+    `${API_BASE}/review/final-check/:id/reject`,
+    async ({ params, request }) => {
+      const body = (await request.json()) as any;
+      return HttpResponse.json({
+        success: true,
+        data: { id: params.id, status: "rejected", reason: body.reason },
+      });
+    },
+  ),
 
   http.get(`${API_BASE}/review/final-check/summary`, async () => {
-    return HttpResponse.json({ success: true, data: { total: 30, pending: 8, approved: 18, rejected: 4, avgScore: 88.5, avgTAT: 3.2 } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: 30,
+        pending: 8,
+        approved: 18,
+        rejected: 4,
+        avgScore: 88.5,
+        avgTAT: 3.2,
+      },
+    });
   }),
 
   // [fix] PR4: 复审列表 (bare /reviews path)
   http.get(`${API_BASE}/reviews`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: list<any>("exams").slice(0, 20).map((e: any) => ({
-      id: e.reportId, type: 'final', status: 'pending', priority: 'normal',
-      sla: { deadline: new Date(Date.now() + 86400000).toISOString(), remaining: 24, breached: false },
-      createdAt: e.examAt,
-    })) });
+    return HttpResponse.json({
+      success: true,
+      data: list<any>("exams")
+        .slice(0, 20)
+        .map((e: any) => ({
+          id: e.reportId,
+          type: "final",
+          status: "pending",
+          priority: "normal",
+          sla: {
+            deadline: new Date(Date.now() + 86400000).toISOString(),
+            remaining: 24,
+            breached: false,
+          },
+          createdAt: e.examAt,
+        })),
+    });
   }),
 
   // [v3.0.6.8-48] PR4: 复审 (review)
   http.get(`${API_BASE}/reviews/:id`, async ({ params }) => {
-    return HttpResponse.json({ success: true, data: { id: params.id, type: 'final', status: 'pending', priority: 'normal', sla: { deadline: new Date(Date.now() + 86400000).toISOString(), remaining: 24, breached: false }, createdAt: new Date().toISOString() } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        type: "final",
+        status: "pending",
+        priority: "normal",
+        sla: {
+          deadline: new Date(Date.now() + 86400000).toISOString(),
+          remaining: 24,
+          breached: false,
+        },
+        createdAt: new Date().toISOString(),
+      },
+    });
   }),
 
   http.post(`${API_BASE}/reviews/:id/assign`, async ({ params, request }) => {
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, assignee: body.assignee, status: 'in_progress' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, assignee: body.assignee, status: "in_progress" },
+    });
   }),
 
   http.post(`${API_BASE}/reviews/:id/approve`, async ({ params }) => {
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved', completedAt: new Date().toISOString() } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        status: "approved",
+        completedAt: new Date().toISOString(),
+      },
+    });
   }),
 
   http.post(`${API_BASE}/reviews/:id/reject`, async ({ params, request }) => {
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'rejected', reason: body.reason } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "rejected", reason: body.reason },
+    });
   }),
 
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   http.get(`${API_BASE}/ai/pre-review/:reportId`, async ({ params }) => {
     await delay(800);
-    const ai = AI_PRE_REVIEW_RESULTS.find((r: any) => r.reportId === params.reportId);
-    return HttpResponse.json({ success: true, data: ai ?? {
-      id: 'ai-' + Date.now(), reportId: params.reportId, suggestedScore: 85, confidence: 0.85,
-      defects: [], suggestions: ['整体质量良好'], riskLevel: 'low',
-      consistencyScore: 0.88, completenessScore: 0.85, terminologyScore: 0.90,
-      criticalFindingDetected: false, generatedAt: new Date().toISOString(), modelVersion: 'v2.3.1',
-    } });
+    const ai = AI_PRE_REVIEW_RESULTS.find(
+      (r: any) => r.reportId === params.reportId,
+    );
+    return HttpResponse.json({
+      success: true,
+      data: ai ?? {
+        id: "ai-" + Date.now(),
+        reportId: params.reportId,
+        suggestedScore: 85,
+        confidence: 0.85,
+        defects: [],
+        suggestions: ["整体质量良好"],
+        riskLevel: "low",
+        consistencyScore: 0.88,
+        completenessScore: 0.85,
+        terminologyScore: 0.9,
+        criticalFindingDetected: false,
+        generatedAt: new Date().toISOString(),
+        modelVersion: "v2.3.1",
+      },
+    });
   }),
   http.post(`${API_BASE}/ai/pre-review/:reportId`, async ({ params }) => {
     await delay(1500);
-    return HttpResponse.json({ success: true, data: { id: 'ai-' + Date.now(), reportId: params.reportId, generatedAt: new Date().toISOString() } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: "ai-" + Date.now(),
+        reportId: params.reportId,
+        generatedAt: new Date().toISOString(),
+      },
+    });
   }),
   http.post(`${API_BASE}/reviews/:id/assign`, async ({ params, request }) => {
     await delay(100);
     const body = (await request.json()) as { reviewerId: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, reviewerId: body.reviewerId } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, reviewerId: body.reviewerId },
+    });
   }),
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 ];
 
 // ============= R3.QUALITY 质控 (60) =============
-export const qualityHandlers = [
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-];
+export const qualityHandlers = [];
 // ============= R3.CRITICAL 危急值 =============
 // [G005-P0] 危急值全部端点由 criticalExtHandlers 提供
 //   /api/v1/criticals    → criticals.controller.ts (核心 CRUD/通知/统计)
@@ -4907,39 +8474,43 @@ export const qualityHandlers = [
 
 // ============= R3.DEFECT 缺陷 (20) =============
 export const defectHandlers = [
-  
-  
   http.get(`${API_BASE}/quality/defects/:code`, async ({ params }) => {
     await delay(80);
     const d = DEFECT_DETAILS.find((x: any) => x.code === params.code);
-    return d ? HttpResponse.json({ success: true, data: d }) : HttpResponse.json({ success: false }, { status: 404 });
+    return d
+      ? HttpResponse.json({ success: true, data: d })
+      : HttpResponse.json({ success: false }, { status: 404 });
   }),
-  
+
   http.put(`${API_BASE}/quality/defects/:code`, async ({ params, request }) => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: { code: params.code, ...(await request.json() as object) } });
+    return HttpResponse.json({
+      success: true,
+      data: { code: params.code, ...((await request.json()) as object) },
+    });
   }),
-  http.delete(`${API_BASE}/quality/defects/:code`, async () => new HttpResponse(null, { status: 204 })),
+  http.delete(
+    `${API_BASE}/quality/defects/:code`,
+    async () => new HttpResponse(null, { status: 204 }),
+  ),
   // [v3.0.6.11-88 Round10] 双无死链补齐: PATCH /quality/defects/:id/status (DefectManagementPage raw fetch, 后端暂无此端点, 演示数据)
-  http.patch(`${API_BASE}/quality/defects/:id/status`, async ({ params, request }) => {
-    await delay(100);
-    const body = (await request.json().catch(() => null)) as { status?: string } | null;
-    return HttpResponse.json({ success: true, data: { id: params.id, status: body?.status ?? 'open', updatedAt: new Date().toISOString() } });
-  }),
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  http.patch(
+    `${API_BASE}/quality/defects/:id/status`,
+    async ({ params, request }) => {
+      await delay(100);
+      const body = (await request.json().catch(() => null)) as {
+        status?: string;
+      } | null;
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: params.id,
+          status: body?.status ?? "open",
+          updatedAt: new Date().toISOString(),
+        },
+      });
+    },
+  ),
 ];
 
 // ============= R3.SIGN 签章 (50) =============
@@ -4950,84 +8521,194 @@ export const signHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'cert-001', serialNumber: '3A7F-9D2C-1145-E0B8', subject: { commonName: '张明远', userId: 'D001', role: 'doctor', title: '主任医师' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-06-01T00:00:00Z', notAfter: '2027-06-01T00:00:00Z', publicKeyFingerprint: 'SHA256:7e2b:fa3c:9d12:4801:e9a6:bb34:c7f2:1d50', usageCount: 248, createdAt: '2025-06-01T09:00:00Z', createdBy: 'admin-ca' },
-        { id: 'cert-002', serialNumber: '8C1E-4B7A-93DF-2206', subject: { commonName: '李慧敏', userId: 'D002', role: 'doctor', title: '副主任医师' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-08-15T00:00:00Z', notAfter: '2026-08-15T00:00:00Z', publicKeyFingerprint: 'SHA256:1a3d:5e9b:c840:21fa:0e62:bb91:c723:4851', usageCount: 132, createdAt: '2025-08-15T10:30:00Z', createdBy: 'admin-ca' },
-        { id: 'cert-003', serialNumber: '2F4D-8E1B-A039-7C58', subject: { commonName: '赵雪琴', userId: 'D006', role: 'doctor', title: '主任医师' }, certType: 'SM3-SM2', status: 'expired', notBefore: '2024-09-01T00:00:00Z', notAfter: '2025-09-01T00:00:00Z', publicKeyFingerprint: 'SM3:5c81:d3a7:9e42:01f6:7b9d:2148:cc05:6a39', usageCount: 67, createdAt: '2024-09-01T11:00:00Z', createdBy: 'admin-ca' },
-        { id: 'cert-004', serialNumber: '6B5A-0FCE-7731-D49A', subject: { commonName: '王建华', userId: 'D003', role: 'doctor', title: '主治医师' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-04-10T00:00:00Z', notAfter: '2026-07-10T00:00:00Z', publicKeyFingerprint: 'SHA256:3f7a:e1c4:9b50:28d1:06a3:5e9f:c712:48b3', usageCount: 89, createdAt: '2025-04-10T14:00:00Z', createdBy: 'admin-ca' },
+        {
+          id: "cert-001",
+          serialNumber: "3A7F-9D2C-1145-E0B8",
+          subject: {
+            commonName: "张明远",
+            userId: "D001",
+            role: "doctor",
+            title: "主任医师",
+          },
+          certType: "RSA-SHA256",
+          status: "active",
+          notBefore: "2025-06-01T00:00:00Z",
+          notAfter: "2027-06-01T00:00:00Z",
+          publicKeyFingerprint:
+            "SHA256:7e2b:fa3c:9d12:4801:e9a6:bb34:c7f2:1d50",
+          usageCount: 248,
+          createdAt: "2025-06-01T09:00:00Z",
+          createdBy: "admin-ca",
+        },
+        {
+          id: "cert-002",
+          serialNumber: "8C1E-4B7A-93DF-2206",
+          subject: {
+            commonName: "李慧敏",
+            userId: "D002",
+            role: "doctor",
+            title: "副主任医师",
+          },
+          certType: "RSA-SHA256",
+          status: "active",
+          notBefore: "2025-08-15T00:00:00Z",
+          notAfter: "2026-08-15T00:00:00Z",
+          publicKeyFingerprint:
+            "SHA256:1a3d:5e9b:c840:21fa:0e62:bb91:c723:4851",
+          usageCount: 132,
+          createdAt: "2025-08-15T10:30:00Z",
+          createdBy: "admin-ca",
+        },
+        {
+          id: "cert-003",
+          serialNumber: "2F4D-8E1B-A039-7C58",
+          subject: {
+            commonName: "赵雪琴",
+            userId: "D006",
+            role: "doctor",
+            title: "主任医师",
+          },
+          certType: "SM3-SM2",
+          status: "expired",
+          notBefore: "2024-09-01T00:00:00Z",
+          notAfter: "2025-09-01T00:00:00Z",
+          publicKeyFingerprint: "SM3:5c81:d3a7:9e42:01f6:7b9d:2148:cc05:6a39",
+          usageCount: 67,
+          createdAt: "2024-09-01T11:00:00Z",
+          createdBy: "admin-ca",
+        },
+        {
+          id: "cert-004",
+          serialNumber: "6B5A-0FCE-7731-D49A",
+          subject: {
+            commonName: "王建华",
+            userId: "D003",
+            role: "doctor",
+            title: "主治医师",
+          },
+          certType: "RSA-SHA256",
+          status: "active",
+          notBefore: "2025-04-10T00:00:00Z",
+          notAfter: "2026-07-10T00:00:00Z",
+          publicKeyFingerprint:
+            "SHA256:3f7a:e1c4:9b50:28d1:06a3:5e9f:c712:48b3",
+          usageCount: 89,
+          createdAt: "2025-04-10T14:00:00Z",
+          createdBy: "admin-ca",
+        },
       ],
     });
   }),
   http.get(`${API_BASE}/sign/certs/:id`, async ({ params }) => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { id: params.id, serialNumber: '3A7F-9D2C-1145-E0B8', status: 'active' } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        serialNumber: "3A7F-9D2C-1145-E0B8",
+        status: "active",
+      },
+    });
   }),
   http.post(`${API_BASE}/sign/certs`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as Record<string, unknown>;
-    return HttpResponse.json({ success: true, data: { id: 'cert-' + Date.now(), serialNumber: 'NEW-' + Date.now(), status: 'active', usageCount: 0, createdAt: new Date().toISOString(), ...body } }, { status: 201 });
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          id: "cert-" + Date.now(),
+          serialNumber: "NEW-" + Date.now(),
+          status: "active",
+          usageCount: 0,
+          createdAt: new Date().toISOString(),
+          ...body,
+        },
+      },
+      { status: 201 },
+    );
   }),
   http.delete(`${API_BASE}/sign/certs/:id`, async () => {
     await delay(100);
     return new HttpResponse(null, { status: 204 });
   }),
-  
+
   // [G005-P1] 在用孤儿补齐: 吊销证书 (前端 revokeCertificate 调用 POST)
-  http.post(`${API_BASE}/sign/certs/:id/revoke`, async ({ params, request }) => {
-    await delay(100);
-    const body = (await request.json()) as { reason?: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'revoked', reason: body.reason ?? '', revokedAt: new Date().toISOString() } });
-  }),
+  http.post(
+    `${API_BASE}/sign/certs/:id/revoke`,
+    async ({ params, request }) => {
+      await delay(100);
+      const body = (await request.json()) as { reason?: string };
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: params.id,
+          status: "revoked",
+          reason: body.reason ?? "",
+          revokedAt: new Date().toISOString(),
+        },
+      });
+    },
+  ),
   // [G005-P1] 在用孤儿补齐: 证书签名报告 (前端 signReport 调用)
-  http.post(`${API_BASE}/sign/reports/:reportId/sign`, async ({ params, request }) => {
-    await delay(200);
-    const body = (await request.json()) as { certificateId?: string; reportHash?: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        reportId: params.reportId,
-        certificateId: body.certificateId,
-        signatureHash: `SIG-${params.reportId}-${Date.now().toString(16).toUpperCase()}`,
-        signedAt: new Date().toISOString(),
-        signedBy: '张明远',
-      },
-    });
-  }),
-  
-  
+  http.post(
+    `${API_BASE}/sign/reports/:reportId/sign`,
+    async ({ params, request }) => {
+      await delay(200);
+      const body = (await request.json()) as {
+        certificateId?: string;
+        reportHash?: string;
+      };
+      return HttpResponse.json({
+        success: true,
+        data: {
+          reportId: params.reportId,
+          certificateId: body.certificateId,
+          signatureHash: `SIG-${params.reportId}-${Date.now().toString(16).toUpperCase()}`,
+          signedAt: new Date().toISOString(),
+          signedBy: "张明远",
+        },
+      });
+    },
+  ),
+
   // 签章流程
-  
-  
-  
+
   http.post(`${API_BASE}/sign/timestamp`, async ({ request }) => {
     await delay(250);
     const body = (await request.json()) as { reportId: string; hash: string };
     return HttpResponse.json({
       success: true,
       data: {
-        id: 'ts-' + Date.now(),
+        id: "ts-" + Date.now(),
         reportId: body.reportId,
         timestamp: new Date().toISOString(),
-        tsaName: 'G005 医院 TSA',
-        tsaSerial: 'GHTSA-' + Date.now(),
+        tsaName: "G005 医院 TSA",
+        tsaSerial: "GHTSA-" + Date.now(),
         hashBefore: body.hash,
-        trustLevel: 'hospital',
+        trustLevel: "hospital",
       },
     });
   }),
-  
-  
-  
-  
+
   http.get(`${API_BASE}/sign/blockchain/proofs`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: [
-      { id: 'bc-001', reportId: 'RP20260601001', txHash: '0xa3f5b7c9d1e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4', blockNumber: 18429501, network: 'hospital-chain', confirmations: 12840 },
-    ] });
+    return HttpResponse.json({
+      success: true,
+      data: [
+        {
+          id: "bc-001",
+          reportId: "RP20260601001",
+          txHash:
+            "0xa3f5b7c9d1e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4",
+          blockNumber: 18429501,
+          network: "hospital-chain",
+          confirmations: 12840,
+        },
+      ],
+    });
   }),
-  
-  
-  
-  
+
   http.get(`${API_BASE}/sign/verify/:id`, async ({ params }) => {
     await delay(200);
     return HttpResponse.json({
@@ -5035,47 +8716,55 @@ export const signHandlers = [
       data: {
         reportId: params.id,
         isValid: true,
-        signerName: '李慧敏',
-        algorithm: 'RSA-SHA256',
-        signedAt: '2026-06-02T14:08:12Z',
+        signerName: "李慧敏",
+        algorithm: "RSA-SHA256",
+        signedAt: "2026-06-02T14:08:12Z",
         verifyCount: 1,
       },
     });
   }),
-  
+
   // 发布 + 锁定
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 ];
 
 // ============= R3.AMEND 修订 (40) =============
 export const amendHandlers = [
   http.get(`${API_BASE}/amend`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: [
-      { id: 'rev-ent-001', reportId: 'RP20260601001', version: 1, action: 'start', reason: '原报告遗漏右肺下叶磨玻璃结节', authorName: '张明远', createdAt: '2026-06-05T08:30:00Z' },
-      { id: 'rev-ent-004', reportId: 'RP20260602008', version: 1, action: 'start', reason: '病理回报：腺癌，需修订原报告', authorName: '李慧敏', createdAt: '2026-06-03T15:30:00Z' },
-      { id: 'rev-ent-006', reportId: 'RP20260603003', version: 1, action: 'start', reason: '左右位置描述错误', authorName: '王建华', createdAt: '2026-06-04T14:00:00Z' },
-    ] });
+    return HttpResponse.json({
+      success: true,
+      data: [
+        {
+          id: "rev-ent-001",
+          reportId: "RP20260601001",
+          version: 1,
+          action: "start",
+          reason: "原报告遗漏右肺下叶磨玻璃结节",
+          authorName: "张明远",
+          createdAt: "2026-06-05T08:30:00Z",
+        },
+        {
+          id: "rev-ent-004",
+          reportId: "RP20260602008",
+          version: 1,
+          action: "start",
+          reason: "病理回报：腺癌，需修订原报告",
+          authorName: "李慧敏",
+          createdAt: "2026-06-03T15:30:00Z",
+        },
+        {
+          id: "rev-ent-006",
+          reportId: "RP20260603003",
+          version: 1,
+          action: "start",
+          reason: "左右位置描述错误",
+          authorName: "王建华",
+          createdAt: "2026-06-04T14:00:00Z",
+        },
+      ],
+    });
   }),
-  
+
   // [G005-P1] 在用孤儿补齐: 修订单详情 (前端 getAmendment 调用)
   http.get(`${API_BASE}/amend/:id`, async ({ params }) => {
     await delay(80);
@@ -5083,28 +8772,28 @@ export const amendHandlers = [
       success: true,
       data: {
         id: params.id,
-        reportId: 'RP20260601001',
+        reportId: "RP20260601001",
         version: 1,
-        status: 'in_progress',
-        reason: '原报告遗漏右肺下叶磨玻璃结节',
-        changes: '补充右肺下叶 5mm 磨玻璃结节描述',
-        authorId: 'D001',
-        authorName: '张明远',
-        startTime: '2026-06-05T08:30:00Z',
+        status: "in_progress",
+        reason: "原报告遗漏右肺下叶磨玻璃结节",
+        changes: "补充右肺下叶 5mm 磨玻璃结节描述",
+        authorId: "D001",
+        authorName: "张明远",
+        startTime: "2026-06-05T08:30:00Z",
       },
     });
   }),
-  
+
   http.post(`${API_BASE}/amend/start`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { reportId: string; reason: string };
     return HttpResponse.json({
       success: true,
       data: {
-        id: 'rev-' + Date.now(),
+        id: "rev-" + Date.now(),
         reportId: body.reportId,
         version: 1,
-        action: 'start',
+        action: "start",
         reason: body.reason,
         createdAt: new Date().toISOString(),
       },
@@ -5112,58 +8801,47 @@ export const amendHandlers = [
   }),
   http.put(`${API_BASE}/amend/:id`, async ({ params, request }) => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json() as object) } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, ...((await request.json()) as object) },
+    });
   }),
-  
+
   http.post(`${API_BASE}/amend/:id/complete`, async ({ params }) => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'amended', completedAt: new Date().toISOString() } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        status: "amended",
+        completedAt: new Date().toISOString(),
+      },
+    });
   }),
-  
-  
-  
-  
-  
-  
-  
+
   http.post(`${API_BASE}/amend/:id/approve`, async ({ params }) => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved' } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "approved" },
+    });
   }),
   http.post(`${API_BASE}/amend/:id/reject`, async ({ params, request }) => {
     await delay(150);
     const body = (await request.json()) as { reason: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'rejected', reason: body.reason } });
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: "rejected", reason: body.reason },
+    });
   }),
-  
-  
-  
-  
-  
-  
+
   // Supplement
-  
-  
-  
-  
-  
-  
-  
+
   // Pathology
-  
-  
+
   // Export
-  
-  
+
   // Critical / Missed
-  
-  
-  
-  
-  
-  
-  
-  
 ];
 
 // ============= R3.AI 智能 (40) =============
@@ -5171,58 +8849,86 @@ export const aiReportHandlers = [
   // Draft
   http.post(`${API_BASE}/ai/generate`, async ({ request }) => {
     await delay(1200);
-    const body = (await request.json()) as { scenario: string; clinicalHistory: string; reportId?: string };
+    const body = (await request.json()) as {
+      scenario: string;
+      clinicalHistory: string;
+      reportId?: string;
+    };
     return HttpResponse.json({
       success: true,
       data: {
-        id: 'aidraft-' + Date.now(),
-        reportId: body.reportId ?? 'new-' + Date.now(),
+        id: "aidraft-" + Date.now(),
+        reportId: body.reportId ?? "new-" + Date.now(),
         scenario: body.scenario,
         clinicalHistory: body.clinicalHistory,
-        findings: 'AI 自动生成的所见（mock）',
-        diagnosis: 'AI 自动生成的诊断（mock）',
-        impression: 'AI 自动生成的意见（mock）',
-        recommendations: '随访建议',
-        confidence: { overall: 0.85, findings: 0.88, diagnosis: 0.82, impression: 0.85, level: 'high' },
+        findings: "AI 自动生成的所见（mock）",
+        diagnosis: "AI 自动生成的诊断（mock）",
+        impression: "AI 自动生成的意见（mock）",
+        recommendations: "随访建议",
+        confidence: {
+          overall: 0.85,
+          findings: 0.88,
+          diagnosis: 0.82,
+          impression: 0.85,
+          level: "high",
+        },
         references: [],
         generatedAt: new Date().toISOString(),
-        modelVersion: 'v2.3-mock',
+        modelVersion: "v2.3-mock",
         tokenUsage: { prompt: 230, completion: 480, total: 710 },
         processingMs: 1200,
       },
     });
   }),
-  
-  
-  
-  
-  
-  
+
   // PreReview
   http.get(`${API_BASE}/ai/pre-review/:id`, async ({ params }) => {
     await delay(800);
     return HttpResponse.json({
       success: true,
       data: {
-        id: 'aipre-' + Date.now(),
+        id: "aipre-" + Date.now(),
         reportId: params.id,
         score: 88,
         defects: [
-          { id: 'def-001', type: 'missing-key-finding', field: 'examFindings', severity: 'high', description: '建议明确描述右肺下叶磨玻璃结节' },
+          {
+            id: "def-001",
+            type: "missing-key-finding",
+            field: "examFindings",
+            severity: "high",
+            description: "建议明确描述右肺下叶磨玻璃结节",
+          },
         ],
         suggestions: [],
         diff: [],
         criticalHits: [],
-        consistency: { imageReportMatch: true, clinicalReportMatch: true, priorReportMatch: false, mismatchedFields: [], score: 92 },
-        terminology: { totalTerms: 24, matchedTerms: 22, radlexHits: [], snomedHits: [] },
-        confidence: { overall: 0.88, findings: 0.9, diagnosis: 0.85, impression: 0.89, level: 'high' },
+        consistency: {
+          imageReportMatch: true,
+          clinicalReportMatch: true,
+          priorReportMatch: false,
+          mismatchedFields: [],
+          score: 92,
+        },
+        terminology: {
+          totalTerms: 24,
+          matchedTerms: 22,
+          radlexHits: [],
+          snomedHits: [],
+        },
+        confidence: {
+          overall: 0.88,
+          findings: 0.9,
+          diagnosis: 0.85,
+          impression: 0.89,
+          level: "high",
+        },
         reviewedAt: new Date().toISOString(),
-        modelVersion: 'v2.3-mock',
+        modelVersion: "v2.3-mock",
         processingMs: 800,
       },
     });
   }),
-  
+
   // Defect
   http.post(`${API_BASE}/ai/defect-detect`, async ({ request }) => {
     await delay(600);
@@ -5230,7 +8936,18 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        defects: body.text.length < 20 ? [{ id: 'def-001', type: 'missing-key-finding', field: 'examFindings', severity: 'medium', description: '内容过短' }] : [],
+        defects:
+          body.text.length < 20
+            ? [
+                {
+                  id: "def-001",
+                  type: "missing-key-finding",
+                  field: "examFindings",
+                  severity: "medium",
+                  description: "内容过短",
+                },
+              ]
+            : [],
         processingMs: 600,
       },
     });
@@ -5239,26 +8956,48 @@ export const aiReportHandlers = [
   http.post(`${API_BASE}/ai/critical-detect`, async ({ request }) => {
     await delay(500);
     const body = (await request.json()) as { text: string };
-    const keywords = ['脑疝', '主动脉夹层', '肺栓塞'];
+    const keywords = ["脑疝", "主动脉夹层", "肺栓塞"];
     const hits = keywords
       .filter((k) => body.text.includes(k))
-      .map((k) => ({ id: 'crit-' + Date.now(), keyword: k, confidence: 0.9, recommendation: '建议双签' }));
-    return HttpResponse.json({ success: true, data: { hits, processingMs: 500 } });
+      .map((k) => ({
+        id: "crit-" + Date.now(),
+        keyword: k,
+        confidence: 0.9,
+        recommendation: "建议双签",
+      }));
+    return HttpResponse.json({
+      success: true,
+      data: { hits, processingMs: 500 },
+    });
   }),
   // Synonym
   http.get(`${API_BASE}/ai/synonym`, async ({ request }) => {
     await delay(300);
     const url = new URL(request.url);
-    const text = url.searchParams.get('text') ?? '';
-    const synonyms: { original: string; synonyms: string[]; preferred: string }[] = [];
-    if (text.includes('磨玻璃影')) synonyms.push({ original: '磨玻璃影', synonyms: ['磨玻璃密度影'], preferred: '磨玻璃密度影' });
-    if (text.includes('占位')) synonyms.push({ original: '占位', synonyms: ['占位性病变'], preferred: '占位性病变' });
+    const text = url.searchParams.get("text") ?? "";
+    const synonyms: {
+      original: string;
+      synonyms: string[];
+      preferred: string;
+    }[] = [];
+    if (text.includes("磨玻璃影"))
+      synonyms.push({
+        original: "磨玻璃影",
+        synonyms: ["磨玻璃密度影"],
+        preferred: "磨玻璃密度影",
+      });
+    if (text.includes("占位"))
+      synonyms.push({
+        original: "占位",
+        synonyms: ["占位性病变"],
+        preferred: "占位性病变",
+      });
     return HttpResponse.json({ success: true, data: synonyms });
   }),
   // Similar
-  
+
   // Key image
-  
+
   // Lesion
   http.post(`${API_BASE}/ai/lesion-detect`, async ({ request }) => {
     await delay(1500);
@@ -5266,18 +9005,24 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        id: 'lesion-' + Date.now(),
+        id: "lesion-" + Date.now(),
         reportId: body.reportId,
         totalLesions: 1,
         lesions: [
-          { id: 'les-001', type: 'nodule', location: '右肺下叶背段', sizeMm: { length: 8, width: 7 }, confidence: 0.91 },
+          {
+            id: "les-001",
+            type: "nodule",
+            location: "右肺下叶背段",
+            sizeMm: { length: 8, width: 7 },
+            confidence: 0.91,
+          },
         ],
       },
     });
   }),
-  
+
   // Error correct
-  
+
   // Risk predict
   http.post(`${API_BASE}/ai/risk-predict`, async ({ request }) => {
     await delay(800);
@@ -5285,17 +9030,29 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        id: 'risk-' + Date.now(),
+        id: "risk-" + Date.now(),
         reportId: body.reportId,
-        overallRisk: 'high',
+        overallRisk: "high",
         riskScore: 0.78,
         riskFactors: [
-          { id: 'rf-001', category: 'finding', name: '磨玻璃结节 ≥ 6mm', weight: 0.35, description: '右肺下叶磨玻璃结节 8mm×7mm' },
+          {
+            id: "rf-001",
+            category: "finding",
+            name: "磨玻璃结节 ≥ 6mm",
+            weight: 0.35,
+            description: "右肺下叶磨玻璃结节 8mm×7mm",
+          },
         ],
         predictedOutcomes: [],
         earlyWarnings: [],
-        recommendedActions: ['3 个月后复查'],
-        confidence: { overall: 0.82, findings: 0.85, diagnosis: 0.78, impression: 0.83, level: 'medium' },
+        recommendedActions: ["3 个月后复查"],
+        confidence: {
+          overall: 0.82,
+          findings: 0.85,
+          diagnosis: 0.78,
+          impression: 0.83,
+          level: "medium",
+        },
         predictedAt: new Date().toISOString(),
       },
     });
@@ -5307,16 +9064,36 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        id: 'ddx-' + Date.now(),
+        id: "ddx-" + Date.now(),
         reportId: body.reportId,
-        primaryDiagnosis: '右肺下叶背段磨玻璃结节',
+        primaryDiagnosis: "右肺下叶背段磨玻璃结节",
         differentials: [
-          { id: 'dd-001', diagnosis: '非典型腺瘤样增生（AAH）', probability: 0.45, supportingFindings: ['纯磨玻璃密度'], contradictingFindings: [], reasoning: '典型表现' },
-          { id: 'dd-002', diagnosis: '原位腺癌（AIS）', probability: 0.35, supportingFindings: ['磨玻璃密度结节'], contradictingFindings: [], reasoning: '需警惕' },
+          {
+            id: "dd-001",
+            diagnosis: "非典型腺瘤样增生（AAH）",
+            probability: 0.45,
+            supportingFindings: ["纯磨玻璃密度"],
+            contradictingFindings: [],
+            reasoning: "典型表现",
+          },
+          {
+            id: "dd-002",
+            diagnosis: "原位腺癌（AIS）",
+            probability: 0.35,
+            supportingFindings: ["磨玻璃密度结节"],
+            contradictingFindings: [],
+            reasoning: "需警惕",
+          },
         ],
-        recommendedTests: ['3 个月后复查 CT'],
+        recommendedTests: ["3 个月后复查 CT"],
         similarCases: [],
-        confidence: { overall: 0.84, findings: 0.88, diagnosis: 0.8, impression: 0.85, level: 'medium' },
+        confidence: {
+          overall: 0.84,
+          findings: 0.88,
+          diagnosis: 0.8,
+          impression: 0.85,
+          level: "medium",
+        },
         generatedAt: new Date().toISOString(),
       },
     });
@@ -5326,187 +9103,113 @@ export const aiReportHandlers = [
     await delay(500);
     return HttpResponse.json({
       success: true,
-      data: { system: 'Lung-RADS', category: '3', description: '可能良性结节', riskPercent: '1-2%', recommendation: '6 个月后复查' },
+      data: {
+        system: "Lung-RADS",
+        category: "3",
+        description: "可能良性结节",
+        riskPercent: "1-2%",
+        recommendation: "6 个月后复查",
+      },
     });
   }),
-  
+
   // Consistency
-  
-  
+
   // Audit
-  
-  
+
   // Health
-  
+
   // Quota
-  
-  
+
   // Retry
-  
+
   // Cache
-  
+
   // Eval
-  
+
   // Usage rank
-  
+
   // Error log
-  
+
   // Consent
-  
+
   // Anonymize
-  
+
   // Model upgrade
-  
+
   // Modality
-  
-  
+
   // Dashboard
-  
+
   // Annotation
-  
 ];
 
 // ============= R3.REVIEW INITIAL CHECK 初核清单 (20) =============
 // [v3.0.6.8-91] 修复: 使用 mutableInMemoryCheckLists 避免直接修改导入常量
 
 export const initialCheckHandlers = [
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   http.get(`${API_BASE}/review/initial-check/summary`, async () => {
     await delay(180);
     return HttpResponse.json({ success: true, data: INITIAL_CHECK_SUMMARY });
   }),
-  
 ];
 
 // ============= R3.REVIEW FINAL CHECK 终核清单 (20) =============
 export const finalCheckHandlers = [
   // 1. 模板 (15+ 检查项)
-  
-
   // 2. 清单列表
-  
-
   // 3. 启动终核
-  
-
   // 4. 更新检查项状态
-  
-
   // 5. 完成终核
-  
-
   // 6. 临床一致性
-  
-
   // 7. 评分细则
-  
-
   // 8. 提交终评
-  
-
   // 9. 驳回 -> 初审
-  
-
   // 10. 驳回 -> 起草
-  
-
   // 11. 笔记列表
-  
-
   // 12. 添加笔记
-  
-
   // 13. 工作量
-  
-
   // 14. 既往报告对比
-  
-
   // 15. 多签列表
-  
-
   // 16. 发起多签
-  
-
   // 17. 签章多签 slot
-  
-
   // 18. 急诊通道列表
-  
-
   // 19. 触发急诊通道
-  
-
   // 20. 工作流配置 + 仪表盘合并
-  
-
   // 21. 更新工作流配置 (额外)
-  
 ];
 
 // ============= v3.0.6.8-32 Phase 3+5: 高级特性端点 =============
 
 // 工作流事件全局查询 (全院审计)
 const advancedHandlers: any[] = [
-  
-
   // 审计日志查询 (按时间/用户/资源类型过滤)
-  
-
   // 危急值 SLA 升级状态
-  
-
   // 危急值升级 (手动触发)
-  
-
   // 影像质控评分计算
-  
-
   // 限流状态查询
-  
-
   // 系统统计概览 (后端运行状态)
-  
-
   // IDB 状态
-  
 ];
 
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
-    // [G005 W4B] 最最最最最最最先注册: 临床/集成域孤儿端点 (检查号解析/改期历史/XDS 文档调阅/传输队列处理/DR 演练详情/字段加密自检)
-    ...w4bOrphansHandlers,
-    // [G005 W4A] 最最最最最最先注册: 报告/审计域孤儿端点 (审计链/分级审核规则/互评缺陷/缺陷库单项/报告补发/预签校验)
-    ...w4aOrphansHandlers,
-    // [G005 v3.0.6.16-0] 隐私 / DICOM 脱敏 (真实实现在后端 privacy 模块, 此处为演示态兜底)
-    ...privacyHandlers,
-    // [G005 W1-Controls] 最最最最最最先注册: P0 控件真实化 (EMR 新建/XDS 文档调阅/自助凭证/报告签名)
-    ...w1ControlsHandlers,
-    // [G005 W13-Security] 最最最最最先注册: 安全与合规中心 (RA/OCSP/HSM/字段加密/等保/灾难恢复/审计链)
-    ...w13SecurityHandlers,
-    // [G005 W12-PatientService] 最最最最最先注册: 微信/支付/通知渠道/满意度/自助登记
-    ...w12PatientHandlers,
-    // [G005 W11-DeviceOps] 最最最最最先注册: 工单/校准/资产折旧/OEE/成本DRG/定时报表
-    ...w11DeviceHandlers,
-    // [G005 W10-Interop] 最最最最先注册: XDS.b/XCA/XDR + 接口监控/重试队列 + CDS Hooks + ORU 发布
+  // [G005 W4B] 最最最最最最最先注册: 临床/集成域孤儿端点 (检查号解析/改期历史/XDS 文档调阅/传输队列处理/DR 演练详情/字段加密自检)
+  ...w4bOrphansHandlers,
+  // [G005 W4A] 最最最最最最先注册: 报告/审计域孤儿端点 (审计链/分级审核规则/互评缺陷/缺陷库单项/报告补发/预签校验)
+  ...w4aOrphansHandlers,
+  // [G005 v3.0.6.16-0] 隐私 / DICOM 脱敏 (真实实现在后端 privacy 模块, 此处为演示态兜底)
+  ...privacyHandlers,
+  // [G005 W1-Controls] 最最最最最最先注册: P0 控件真实化 (EMR 新建/XDS 文档调阅/自助凭证/报告签名)
+  ...w1ControlsHandlers,
+  // [G005 W13-Security] 最最最最最先注册: 安全与合规中心 (RA/OCSP/HSM/字段加密/等保/灾难恢复/审计链)
+  ...w13SecurityHandlers,
+  // [G005 W12-PatientService] 最最最最最先注册: 微信/支付/通知渠道/满意度/自助登记
+  ...w12PatientHandlers,
+  // [G005 W11-DeviceOps] 最最最最最先注册: 工单/校准/资产折旧/OEE/成本DRG/定时报表
+  ...w11DeviceHandlers,
+  // [G005 W10-Interop] 最最最最先注册: XDS.b/XCA/XDR + 接口监控/重试队列 + CDS Hooks + ORU 发布
   //   (静态子路径必须最先, 避免被既有 /ihe/*、/hl7/* 参数/通配路由拦截)
   ...w10InteropHandlers,
   // [G005 W9-QC] 最最最先注册: 质量管理专业化 (静态子路径需先于既有参数/通配路由)
@@ -5620,14 +9323,14 @@ export const handlers = [
   ...writingHandlers,
   ...distributionHandlers,
   ...integrationHandlers, // [v3.0.6.11-54] 修复: 集成端点未注册 (fhir/webhook/hl7)
-  ...otherHandlers,       // [v3.0.6.11-54] 修复: 监控/analytics/帮助端点未注册 (/analytics/dashboard 500)
+  ...otherHandlers, // [v3.0.6.11-54] 修复: 监控/analytics/帮助端点未注册 (/analytics/dashboard 500)
   ...eyeHandlers, // [v3.0.6.8-33] 眼科 180+ 端点
   ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
   ...newPagesHandlers, // [v3.0.6.8-77] v67-v76 新页面后端
-  ...systemHandlers,   // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config, compliance
+  ...systemHandlers, // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config, compliance
   ...complianceDocsHandlers, // [v3.0.6.11-79 W1-C] 合规文档库 7 端点
-  ...tenantHandlers,   // [v3.0.6.11-60] 多租户: current/usage/profile/features + admin list/create/status
-  ...storageHandlers,  // [v3.0.6.11-60] cloud-storage 配置 /system/storage-config
+  ...tenantHandlers, // [v3.0.6.11-60] 多租户: current/usage/profile/features + admin list/create/status
+  ...storageHandlers, // [v3.0.6.11-60] cloud-storage 配置 /system/storage-config
   ...wechatHandlers, // [P0-12 v3.0.7] 微信小程序 8 端点
   ...dentalNewHandlers,
   ...workflowHandlers,
@@ -5643,7 +9346,7 @@ export const handlers = [
   ...benchmarkHandlers,
   ...teachHandlers, // [G005 P1 W2-C] 示教录制 CRUD + blob 上传/播放
   ...typicalCaseHandlers, // [W3-B] 典型病例库 (MSW 演示数据)
-  ...teleHandlers,  // [G005 P1 W2-C] 远程会诊信令/聊天/光标
+  ...teleHandlers, // [G005 P1 W2-C] 远程会诊信令/聊天/光标
   ...qcExtHandlers,
   ...reportQualityHandlers,
   ...caHandlers,
@@ -5681,7 +9384,7 @@ export const handlers = [
   // [Phase 2] 壳页面真实化 - 新端点 (kiosk/fusion/4d/screening/search)
   ...searchHandlers, // 全局搜索 /search, /search/suggest
   ...similarCaseHandlers, // [v3.0.6.11-60] 相似病例检索 (Jaccard + 特征 + SNOMED)
-  ...kioskHandlers,  // 自助签到机
+  ...kioskHandlers, // 自助签到机
   ...fusionHandlers, // 多模态融合
   ...dicom4dHandlers, // 4D 动态影像
   ...dbtHandlers, // [v3.0.6.11-62] DBT 乳腺断层合成
@@ -5745,4 +9448,3 @@ export const handlers = [
 // v3.0.5.1 R3.REVIEW INITIAL CHECK = 20 端点增量(80 点)
 
 // v3.0.5.1 R3.REVIEW FINAL CHECK = 20 端点增量(80 点)
-

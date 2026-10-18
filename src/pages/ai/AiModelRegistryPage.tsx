@@ -86,7 +86,11 @@ const METRIC_ROWS: ReadonlyArray<{
   { key: "specificity", labelKey: "w4ai.col.specificity", kind: "percent" },
   { key: "approvalRate", labelKey: "w4ai.col.approvalRate", kind: "percent" },
   { key: "auc", labelKey: "w4ai.col.auc", kind: "auc" },
-  { key: "consistency", labelKey: "w4ai.review.col.consistency", kind: "percent" },
+  {
+    key: "consistency",
+    labelKey: "w4ai.review.col.consistency",
+    kind: "percent",
+  },
 ];
 
 function fmtMetric(value: number, kind: "percent" | "auc"): string {
@@ -124,8 +128,8 @@ function fromBackendModel(
   raw: Record<string, unknown>,
   catalog: AiModelEntry[],
 ): AiModelEntry {
-  const base = catalog.find((m) => m.id === raw['id']);
-  const rawStatus = String(raw['status'] ?? '').toUpperCase();
+  const base = catalog.find((m) => m.id === raw["id"]);
+  const rawStatus = String(raw["status"] ?? "").toUpperCase();
   const statusMap: Record<string, AiModelStatus> = {
     REGISTERED: "offline",
     DEPLOYED: "deployed",
@@ -134,24 +138,34 @@ function fromBackendModel(
   };
   return {
     ...(base ?? getAiModelCatalog()[0]),
-    id: String(raw['id'] ?? base?.id ?? 'unknown'),
-    name: String(raw['name'] ?? base?.name ?? '未命名模型'),
-    version: String(raw['version'] ?? base?.version ?? '-'),
+    id: String(raw["id"] ?? base?.id ?? "unknown"),
+    name: String(raw["name"] ?? base?.name ?? "未命名模型"),
+    version: String(raw["version"] ?? base?.version ?? "-"),
     // REGISTERED 在后端表示"已注册未部署", 页面三态里对应 offline
     status: statusMap[rawStatus] ?? base?.status ?? "offline",
-    updatedAt: String(raw['updatedAt'] ?? raw['createdAt'] ?? base?.updatedAt ?? ''),
-    ...(typeof raw['endpoint'] === 'string' && raw['endpoint'] ? { endpoint: raw['endpoint'] } : {}),
+    updatedAt: String(
+      raw["updatedAt"] ?? raw["createdAt"] ?? base?.updatedAt ?? "",
+    ),
+    ...(typeof raw["endpoint"] === "string" && raw["endpoint"]
+      ? { endpoint: raw["endpoint"] }
+      : {}),
   } as AiModelEntry;
 }
 
 const AiModelRegistryPage: React.FC = () => {
-  const [models, setModels] = useState<AiModelEntry[]>(() => getAiModelCatalog());
-  const [liveSource, setLiveSource] = useState<'backend' | 'catalog'>('catalog');
+  const [models, setModels] = useState<AiModelEntry[]>(() =>
+    getAiModelCatalog(),
+  );
+  const [liveSource, setLiveSource] = useState<"backend" | "catalog">(
+    "catalog",
+  );
   const [loading, setLoading] = useState(false);
   const [actingId, setActingId] = useState<string | null>(null);
   const [keyword, setKeyword] = useState("");
   const [vendorFilter, setVendorFilter] = useState<"all" | AiVendorKey>("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | AiModelStatus>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | AiModelStatus>(
+    "all",
+  );
   const [modalityFilter, setModalityFilter] = useState<string>("all");
 
   const [compareModel, setCompareModel] = useState<AiModelEntry | null>(null);
@@ -173,7 +187,11 @@ const AiModelRegistryPage: React.FC = () => {
     return models.filter((m) => {
       if (vendorFilter !== "all" && m.vendor !== vendorFilter) return false;
       if (statusFilter !== "all" && m.status !== statusFilter) return false;
-      if (modalityFilter !== "all" && !m.modality.includes(modalityFilter as never)) return false;
+      if (
+        modalityFilter !== "all" &&
+        !m.modality.includes(modalityFilter as never)
+      )
+        return false;
       if (!kw) return true;
       return (
         m.name.toLowerCase().includes(kw) ||
@@ -192,13 +210,13 @@ const AiModelRegistryPage: React.FC = () => {
       const list = (res?.data ?? []) as unknown as Record<string, unknown>[];
       if (Array.isArray(list) && list.length > 0) {
         setModels(list.map((m) => fromBackendModel(m, getAiModelCatalog())));
-        setLiveSource('backend');
+        setLiveSource("backend");
       } else {
-        setLiveSource('catalog');
+        setLiveSource("catalog");
       }
     } catch {
       // 拉取失败: 保留本地目录并明确标记来源, 不伪装成"后端数据"
-      setLiveSource('catalog');
+      setLiveSource("catalog");
     } finally {
       setLoading(false);
     }
@@ -212,17 +230,17 @@ const AiModelRegistryPage: React.FC = () => {
   const runModelAction = useCallback(
     async (
       m: AiModelEntry,
-      kind: 'deploy' | 'undeploy',
+      kind: "deploy" | "undeploy",
       okKey: string,
       onOk?: (m: AiModelEntry) => void,
     ) => {
       if (actingId) return;
       setActingId(m.id);
       try {
-        if (kind === 'deploy') {
+        if (kind === "deploy") {
           // 后端 POST /ai-platform/models/:id/deploy (经 updateModel 映射)
           await aiPlatformApi.updateModel(m.id, {
-            endpoint: (m as unknown as { endpoint?: string }).endpoint ?? '',
+            endpoint: (m as unknown as { endpoint?: string }).endpoint ?? "",
           });
         } else {
           // 后端无 DELETE /models/:id; 语义映射为 undeploy
@@ -233,7 +251,7 @@ const AiModelRegistryPage: React.FC = () => {
         await loadModels();
       } catch (err) {
         message.error(
-          `${t('w4ai.msg.actionFailed')}: ${(err as Error)?.message ?? 'unknown'}`,
+          `${t("w4ai.msg.actionFailed")}: ${(err as Error)?.message ?? "unknown"}`,
         );
       } finally {
         setActingId(null);
@@ -243,7 +261,7 @@ const AiModelRegistryPage: React.FC = () => {
   );
 
   const onDeploy = useCallback(
-    (m: AiModelEntry) => void runModelAction(m, 'deploy', 'w4ai.msg.deployOk'),
+    (m: AiModelEntry) => void runModelAction(m, "deploy", "w4ai.msg.deployOk"),
     [runModelAction],
   );
 
@@ -254,28 +272,15 @@ const AiModelRegistryPage: React.FC = () => {
         return;
       }
       // 后端无独立的"灰度"状态端点; 灰度即已部署且配置灰度比例, 这里走部署 + 重新拉取
-      void runModelAction(m, 'deploy', 'w4ai.msg.grayOk');
+      void runModelAction(m, "deploy", "w4ai.msg.grayOk");
     },
     [runModelAction],
   );
 
   const onOffline = useCallback(
-    (m: AiModelEntry) => void runModelAction(m, 'undeploy', 'w4ai.msg.offlineOk'),
+    (m: AiModelEntry) =>
+      void runModelAction(m, "undeploy", "w4ai.msg.offlineOk"),
     [runModelAction],
-  );
-
-  const onRollback = useCallback(
-    (m: AiModelEntry) => {
-      const target = m.versions?.[1];
-      if (!target) {
-        message.warning(t("w4ai.msg.actionBlocked"));
-        return;
-      }
-      // [G005 v3.0.16-0] 诚实处理: 后端 ai-platform **没有** 版本回滚端点,
-      // 旧实现仅改本地 state 却弹绿色成功提示。改为明确告知未实现。
-      message.warning(t("w4ai.msg.rollbackNotSupported", { version: target.version }));
-    },
-    [],
   );
 
   const openCompare = useCallback((m: AiModelEntry) => {
@@ -333,15 +338,24 @@ const AiModelRegistryPage: React.FC = () => {
         dataIndex: "vendor",
         key: "vendor",
         width: 90,
-        render: (v: AiVendorKey) => <Tag color={VENDOR_COLOR[v]}>{t(VENDOR_I18N[v])}</Tag>,
+        render: (v: AiVendorKey) => (
+          <Tag color={VENDOR_COLOR[v]}>{t(VENDOR_I18N[v])}</Tag>
+        ),
       },
-      { title: t("w4ai.col.version"), dataIndex: "version", key: "version", width: 90 },
+      {
+        title: t("w4ai.col.version"),
+        dataIndex: "version",
+        key: "version",
+        width: 90,
+      },
       {
         title: t("w4ai.col.status"),
         dataIndex: "status",
         key: "status",
         width: 90,
-        render: (s: AiModelStatus) => <Tag color={STATUS_COLOR[s]}>{t(STATUS_I18N[s])}</Tag>,
+        render: (s: AiModelStatus) => (
+          <Tag color={STATUS_COLOR[s]}>{t(STATUS_I18N[s])}</Tag>
+        ),
       },
       {
         title: t("w4ai.col.accuracy"),
@@ -351,7 +365,9 @@ const AiModelRegistryPage: React.FC = () => {
         align: "right",
         sorter: (a: AiModelEntry, b: AiModelEntry) =>
           a.metrics.accuracy - b.metrics.accuracy,
-        render: (_: unknown, r: AiModelEntry) => <MetricBar value={r.metrics.accuracy} />,
+        render: (_: unknown, r: AiModelEntry) => (
+          <MetricBar value={r.metrics.accuracy} />
+        ),
       },
       {
         title: t("w4ai.col.sensitivity"),
@@ -359,7 +375,8 @@ const AiModelRegistryPage: React.FC = () => {
         key: "sensitivity",
         width: 84,
         align: "right",
-        render: (_: unknown, r: AiModelEntry) => `${r.metrics.sensitivity.toFixed(1)}%`,
+        render: (_: unknown, r: AiModelEntry) =>
+          `${r.metrics.sensitivity.toFixed(1)}%`,
       },
       {
         title: t("w4ai.col.specificity"),
@@ -367,14 +384,16 @@ const AiModelRegistryPage: React.FC = () => {
         key: "specificity",
         width: 84,
         align: "right",
-        render: (_: unknown, r: AiModelEntry) => `${r.metrics.specificity.toFixed(1)}%`,
+        render: (_: unknown, r: AiModelEntry) =>
+          `${r.metrics.specificity.toFixed(1)}%`,
       },
       {
         title: t("w4ai.col.approvalRate"),
         dataIndex: ["metrics", "approvalRate"],
         key: "approvalRate",
         width: 100,
-        render: (_: unknown, r: AiModelEntry) => `${r.metrics.approvalRate.toFixed(1)}%`,
+        render: (_: unknown, r: AiModelEntry) =>
+          `${r.metrics.approvalRate.toFixed(1)}%`,
       },
       {
         title: t("w4ai.col.auc"),
@@ -434,9 +453,9 @@ const AiModelRegistryPage: React.FC = () => {
               action="refresh"
               size="compact"
               icon={<RotateCcw size={13} />}
-              disabled={r.versions.length < 2}
+              disabled
+              disabledReason={t("w4ai.disabled.rollback")}
               title={t("w4ai.act.rollback")}
-              onClick={() => onRollback(r)}
               testId={`reg-rollback-${r.id}`}
             />
             <ActionButton
@@ -459,7 +478,7 @@ const AiModelRegistryPage: React.FC = () => {
         ),
       },
     ],
-    [onDeploy, onGray, onOffline, onRollback, openCompare],
+    [onDeploy, onGray, onOffline, openCompare],
   );
 
   const compareRows = useMemo(() => {
@@ -477,10 +496,15 @@ const AiModelRegistryPage: React.FC = () => {
     }));
   }, [compareModel, versionA, versionB]);
 
-  const versionOptions = (v: AiModelVersion[]): { value: string; label: string }[] =>
+  const versionOptions = (
+    v: AiModelVersion[],
+  ): { value: string; label: string }[] =>
     v.map((item, idx) => ({
       value: item.version,
-      label: idx === 0 ? `${item.version} (${t("w4ai.compare.current")})` : item.version,
+      label:
+        idx === 0
+          ? `${item.version} (${t("w4ai.compare.current")})`
+          : item.version,
     }));
 
   return (
@@ -492,8 +516,13 @@ const AiModelRegistryPage: React.FC = () => {
         actions={
           <Space>
             {/* [G005 v3.0.6.16-0] 如实标注数据来源: 后端真实数据 vs 本地目录 */}
-            <Tag color={liveSource === 'backend' ? 'green' : 'orange'} data-testid="reg-source-badge">
-              {liveSource === 'backend' ? t('w4ai.reg.sourceBackend') : t('w4ai.reg.sourceCatalog')}
+            <Tag
+              color={liveSource === "backend" ? "green" : "orange"}
+              data-testid="reg-source-badge"
+            >
+              {liveSource === "backend"
+                ? t("w4ai.reg.sourceBackend")
+                : t("w4ai.reg.sourceCatalog")}
             </Tag>
             <Tag color="purple" data-testid="reg-badge">
               {t("w4ai.badge")}
@@ -543,7 +572,7 @@ const AiModelRegistryPage: React.FC = () => {
       </StatCardGrid>
 
       <Card size="small">
-        <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
+        <Space wrap style={{ marginBottom: "var(--space-3, 12px)" }}>
           <Input.Search
             allowClear
             style={{ width: 260 }}
@@ -558,8 +587,14 @@ const AiModelRegistryPage: React.FC = () => {
             onChange={setVendorFilter}
             aria-label={t("w4ai.reg.vendorFilter")}
             options={[
-              { value: "all", label: `${t("w4ai.reg.vendorFilter")}: ${t("w4ai.all")}` },
-              ...AI_VENDOR_KEYS.map((v) => ({ value: v, label: t(VENDOR_I18N[v]) })),
+              {
+                value: "all",
+                label: `${t("w4ai.reg.vendorFilter")}: ${t("w4ai.all")}`,
+              },
+              ...AI_VENDOR_KEYS.map((v) => ({
+                value: v,
+                label: t(VENDOR_I18N[v]),
+              })),
             ]}
           />
           <Select
@@ -568,8 +603,14 @@ const AiModelRegistryPage: React.FC = () => {
             onChange={setStatusFilter}
             aria-label={t("w4ai.reg.statusFilter")}
             options={[
-              { value: "all", label: `${t("w4ai.reg.statusFilter")}: ${t("w4ai.all")}` },
-              ...AI_STATUS_KEYS.map((s) => ({ value: s, label: t(STATUS_I18N[s]) })),
+              {
+                value: "all",
+                label: `${t("w4ai.reg.statusFilter")}: ${t("w4ai.all")}`,
+              },
+              ...AI_STATUS_KEYS.map((s) => ({
+                value: s,
+                label: t(STATUS_I18N[s]),
+              })),
             ]}
           />
           <Select
@@ -578,7 +619,10 @@ const AiModelRegistryPage: React.FC = () => {
             onChange={setModalityFilter}
             aria-label={t("w4ai.reg.modalityFilter")}
             options={[
-              { value: "all", label: `${t("w4ai.reg.modalityFilter")}: ${t("w4ai.all")}` },
+              {
+                value: "all",
+                label: `${t("w4ai.reg.modalityFilter")}: ${t("w4ai.all")}`,
+              },
               ...modalityOptions.map((mo) => ({ value: mo, label: mo })),
             ]}
           />
@@ -591,15 +635,15 @@ const AiModelRegistryPage: React.FC = () => {
           </ActionButton>
         </Space>
 
-      <DataTable<AiModelEntry>
-        rowKey="id"
-        columns={columns}
-        dataSource={filtered}
-        showPagination={false}
-        scroll={{ x: "max-content" }}
-        loading={loading}
-        emptyText={t("w4ai.empty")}
-      />
+        <DataTable<AiModelEntry>
+          rowKey="id"
+          columns={columns}
+          dataSource={filtered}
+          showPagination={false}
+          scroll={{ x: "max-content" }}
+          loading={loading}
+          emptyText={t("w4ai.empty")}
+        />
       </Card>
 
       {/* 版本对比 */}
@@ -639,7 +683,11 @@ const AiModelRegistryPage: React.FC = () => {
               pagination={false}
               dataSource={compareRows}
               columns={[
-                { title: t("w4ai.compare.metric"), dataIndex: "label", key: "label" },
+                {
+                  title: t("w4ai.compare.metric"),
+                  dataIndex: "label",
+                  key: "label",
+                },
                 {
                   title: versionA || t("w4ai.compare.versionA"),
                   dataIndex: "a",
@@ -657,8 +705,16 @@ const AiModelRegistryPage: React.FC = () => {
                   dataIndex: "delta",
                   key: "delta",
                   render: (v: number, r) => {
-                    const abs = r.kind === "auc" ? Math.abs(v).toFixed(3) : `${Math.abs(v).toFixed(1)}%`;
-                    const color = v > 0 ? "var(--color-success-600)" : v < 0 ? "var(--color-error-600)" : "#8c8c8c";
+                    const abs =
+                      r.kind === "auc"
+                        ? Math.abs(v).toFixed(3)
+                        : `${Math.abs(v).toFixed(1)}%`;
+                    const color =
+                      v > 0
+                        ? "var(--color-success-600)"
+                        : v < 0
+                          ? "var(--color-error-600)"
+                          : "#8c8c8c";
                     return (
                       <span style={{ color, fontWeight: 600 }}>
                         {v > 0 ? "+" : v < 0 ? "-" : ""}
@@ -705,12 +761,16 @@ const AiModelRegistryPage: React.FC = () => {
                 <Space size={[8, 4]} wrap>
                   <Tag color={detailModel.regulatory.ce ? "green" : "default"}>
                     {t("w4ai.detail.ce")}
-                    {detailModel.regulatory.ce ? ` ${detailModel.regulatory.ceClass}` : ""}
+                    {detailModel.regulatory.ce
+                      ? ` ${detailModel.regulatory.ceClass}`
+                      : ""}
                   </Tag>
                   <Tag color={detailModel.regulatory.fda ? "green" : "default"}>
                     {t("w4ai.detail.fda")}
                   </Tag>
-                  <Tag color={detailModel.regulatory.nmpa ? "green" : "default"}>
+                  <Tag
+                    color={detailModel.regulatory.nmpa ? "green" : "default"}
+                  >
                     {t("w4ai.detail.nmpa")}
                   </Tag>
                 </Space>
@@ -721,7 +781,7 @@ const AiModelRegistryPage: React.FC = () => {
             </Descriptions>
 
             <div>
-              <Space size={6} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+              <Space size={6} style={{ marginBottom: "var(--space-2, 8px)" }}>
                 <ShieldCheck size={15} color="var(--color-primary-600)" />
                 <Text strong>{t("w4ai.detail.metrics")}</Text>
               </Space>
@@ -734,14 +794,18 @@ const AiModelRegistryPage: React.FC = () => {
                   value: fmtMetric(detailModel.metrics[row.key], row.kind),
                 }))}
                 columns={[
-                  { title: t("w4ai.compare.metric"), dataIndex: "label", key: "label" },
+                  {
+                    title: t("w4ai.compare.metric"),
+                    dataIndex: "label",
+                    key: "label",
+                  },
                   { title: "", dataIndex: "value", key: "value", width: 200 },
                 ]}
               />
             </div>
 
             <div>
-              <Space size={6} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+              <Space size={6} style={{ marginBottom: "var(--space-2, 8px)" }}>
                 <Cpu size={15} color="var(--color-primary-600)" />
                 <Text strong>{t("w4ai.detail.versionHistory")}</Text>
               </Space>
@@ -750,7 +814,12 @@ const AiModelRegistryPage: React.FC = () => {
                 pagination={false}
                 dataSource={detailModel.versions}
                 columns={[
-                  { title: t("w4ai.col.version"), dataIndex: "version", key: "version", width: 90 },
+                  {
+                    title: t("w4ai.col.version"),
+                    dataIndex: "version",
+                    key: "version",
+                    width: 90,
+                  },
                   {
                     title: t("w4ai.compare.releasedAt"),
                     dataIndex: "releasedAt",
@@ -760,12 +829,14 @@ const AiModelRegistryPage: React.FC = () => {
                   {
                     title: t("w4ai.col.accuracy"),
                     key: "accuracy",
-                    render: (_: unknown, r: AiModelVersion) => `${r.metrics.accuracy.toFixed(1)}%`,
+                    render: (_: unknown, r: AiModelVersion) =>
+                      `${r.metrics.accuracy.toFixed(1)}%`,
                   },
                   {
                     title: t("w4ai.col.auc"),
                     key: "auc",
-                    render: (_: unknown, r: AiModelVersion) => r.metrics.auc.toFixed(3),
+                    render: (_: unknown, r: AiModelVersion) =>
+                      r.metrics.auc.toFixed(3),
                   },
                   { title: "", dataIndex: "note", key: "note" },
                 ]}

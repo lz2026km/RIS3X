@@ -69,9 +69,13 @@ import BatchActionBar from "../components/batch/BatchActionBar";
 import { AppButton } from "../components/common/AppButton";
 import { ActionButton } from "../components/common/ActionButton";
 import { useOperationLog } from "../hooks/useOperationLog";
-import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
+import {
+  useKeyboardShortcuts,
+  useNavigationShortcuts,
+  SHORTCUTS,
+} from "../hooks/useKeyboardShortcuts";
 import { useNavigate } from "react-router-dom";
-import { t } from '../i18n/appI18n';
+import { t } from "../i18n/appI18n";
 import { statusTone } from "../theme/statusTokens";
 import { PageContainer } from "../components/common";
 
@@ -94,21 +98,77 @@ const STATUS_CONFIG: Record<
   string,
   { color: string; bg: string; label: string }
 > = {
-  待检查: { color: tone("pending").color, bg: tone("pending").bg, label: t("examPage.statusPending") },
-  检查中: { color: tone("in_progress").color, bg: tone("in_progress").bg, label: t("examPage.statusInProgress") },
-  已报告: { color: tone("success").color, bg: tone("success").bg, label: t("examPage.statusReported") },
-  已发布: { color: tone("published").color, bg: tone("published").bg, label: t("examPage.statusPublished") },
-  待报告: { color: tone("info").color, bg: tone("info").bg, label: t("examPage.statusPendingReport") },
-  已登记: { color: tone("neutral").color, bg: tone("neutral").bg, label: t("examPage.statusRegistered") },
-  已预约: { color: tone("scheduled").color, bg: tone("scheduled").bg, label: t("examPage.statusScheduled") },
+  待检查: {
+    color: tone("pending").color,
+    bg: tone("pending").bg,
+    label: t("examPage.statusPending"),
+  },
+  检查中: {
+    color: tone("in_progress").color,
+    bg: tone("in_progress").bg,
+    label: t("examPage.statusInProgress"),
+  },
+  已报告: {
+    color: tone("success").color,
+    bg: tone("success").bg,
+    label: t("examPage.statusReported"),
+  },
+  已发布: {
+    color: tone("published").color,
+    bg: tone("published").bg,
+    label: t("examPage.statusPublished"),
+  },
+  待报告: {
+    color: tone("info").color,
+    bg: tone("info").bg,
+    label: t("examPage.statusPendingReport"),
+  },
+  已登记: {
+    color: tone("neutral").color,
+    bg: tone("neutral").bg,
+    label: t("examPage.statusRegistered"),
+  },
+  已预约: {
+    color: tone("scheduled").color,
+    bg: tone("scheduled").bg,
+    label: t("examPage.statusScheduled"),
+  },
   // [audit-fix-2026-07-02] 报告状态 (mock backend 错误写入 exam.status)
-  draft: { color: tone("draft").color, bg: tone("draft").bg, label: t("examPage.statusDraft") },
-  submitted: { color: tone("submitted").color, bg: tone("submitted").bg, label: t("examPage.statusSubmitted") },
-  reviewed: { color: tone("reviewed").color, bg: tone("reviewed").bg, label: t("examPage.statusReviewed") },
-  cosigned: { color: tone("info").color, bg: tone("info").bg, label: t("examPage.statusCosigned") },
-  published: { color: tone("published").color, bg: tone("published").bg, label: t("examPage.statusPublished") },
-  rejected: { color: tone("rejected").color, bg: tone("rejected").bg, label: t("examPage.statusRejected") },
-  revised: { color: tone("warning").color, bg: tone("warning").bg, label: t("examPage.statusRevised") },
+  draft: {
+    color: tone("draft").color,
+    bg: tone("draft").bg,
+    label: t("examPage.statusDraft"),
+  },
+  submitted: {
+    color: tone("submitted").color,
+    bg: tone("submitted").bg,
+    label: t("examPage.statusSubmitted"),
+  },
+  reviewed: {
+    color: tone("reviewed").color,
+    bg: tone("reviewed").bg,
+    label: t("examPage.statusReviewed"),
+  },
+  cosigned: {
+    color: tone("info").color,
+    bg: tone("info").bg,
+    label: t("examPage.statusCosigned"),
+  },
+  published: {
+    color: tone("published").color,
+    bg: tone("published").bg,
+    label: t("examPage.statusPublished"),
+  },
+  rejected: {
+    color: tone("rejected").color,
+    bg: tone("rejected").bg,
+    label: t("examPage.statusRejected"),
+  },
+  revised: {
+    color: tone("warning").color,
+    bg: tone("warning").bg,
+    label: t("examPage.statusRevised"),
+  },
 };
 
 // 设备类型
@@ -196,7 +256,8 @@ const getPriorityStyle = (priority: string) => {
 
 const getStatusStyle = (status: string) => {
   const config = STATUS_CONFIG[status] || {
-    color: "var(--text-secondary)", bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
+    bg: "var(--bg-deep)",
     label: status,
   };
   return {
@@ -207,11 +268,14 @@ const getStatusStyle = (status: string) => {
 };
 
 // 获取检查闭环状态时间轴
-const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Date();
-  const examDate = new Date(exam.examDate);
-
+const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {
   const nodes: ExamStatusNode[] = [
-    { key: "reserved", label: t("examPage.statusScheduled"), color: "var(--text-secondary)", bgColor: "var(--bg-card)" },
+    {
+      key: "reserved",
+      label: t("examPage.statusScheduled"),
+      color: "var(--text-secondary)",
+      bgColor: "var(--bg-card)",
+    },
     {
       key: "registered",
       label: t("examPage.statusRegistered"),
@@ -224,7 +288,12 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
       color: "var(--color-primary)",
       bgColor: "var(--color-info-bg)",
     },
-    { key: "imaging", label: t("examPage.stageImageCapture"), color: "var(--color-warning)", bgColor: "var(--color-warning-bg)" },
+    {
+      key: "imaging",
+      label: t("examPage.stageImageCapture"),
+      color: "var(--color-warning)",
+      bgColor: "var(--color-warning-bg)",
+    },
     {
       key: "reporting",
       label: t("examPage.stageReportWriting"),
@@ -237,7 +306,12 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
       color: "var(--color-success)",
       bgColor: "var(--color-success-bg)",
     },
-    { key: "published", label: t("examPage.statusPublished"), color: "var(--color-success)", bgColor: "var(--color-success-bg)" },
+    {
+      key: "published",
+      label: t("examPage.statusPublished"),
+      color: "var(--color-success)",
+      bgColor: "var(--color-success-bg)",
+    },
   ];
   const statusMap: Record<string, number> = {
     已预约: 0,
@@ -259,15 +333,6 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
       // 已完成节点
       node.color = "var(--color-success)";
       node.bgColor = "var(--color-success-bg)";
-      // 模拟时间戳
-      const timestamp = new Date(examDate);
-      timestamp.setHours(8 + index, Math.floor(Math.random() * 60));
-      node.timestamp = timestamp.toLocaleString("zh-CN", {
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
     } else if (index === currentIndex) {
       // 当前节点
       if (["检查中", "待检查"].includes(exam.status)) {
@@ -280,14 +345,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
         node.color = "var(--color-warning)";
         node.bgColor = "var(--color-warning-bg)";
       }
-      // 检查是否超时（超过预计时间30分钟以上）
-      if (["检查中", "图像采集"].includes(exam.status)) {
-        node.isOverdue = Math.random() > 0.7; // 模拟30%超时率
-        if (node.isOverdue) {
-          node.color = "var(--color-error)";
-          node.bgColor = "var(--color-error-bg)";
-        }
-      }
+      // [G005 v3.0.6.16-7] 检查数据无 SLA/预计完成时间字段, 不再用随机数伪造"超时"
       node.timestamp = t("examPage.inProgress");
     }
   });
@@ -339,7 +397,9 @@ export default function ExamPage() {
   const storeExams = useExamStore((s) => s.exams);
   const storeLoad = useExamStore((s) => s.load);
   const storeError = useExamStore((s) => s.error);
-  const [storeImagesOverride, setStoreImagesOverride] = useState<Record<string, number>>({});
+  const [storeImagesOverride, setStoreImagesOverride] = useState<
+    Record<string, number>
+  >({});
 
   // API 加载检查数据
   const [allExams, setAllExams] = useState(initialRadiologyExams);
@@ -378,14 +438,24 @@ export default function ExamPage() {
   const techExecutions = useMemo<TechnicianExecution[]>(() => {
     const source = storeExams.length > 0 ? storeExams : [];
     return source.slice(0, 20).map((e, idx) => {
-      const s = String(e.status ?? "")
-      const completed = ["completed", "reported", "published", "archived", "已报告", "已发布", "已完成"].includes(s)
+      const s = String(e.status ?? "");
+      const completed = [
+        "completed",
+        "reported",
+        "published",
+        "archived",
+        "已报告",
+        "已发布",
+        "已完成",
+      ].includes(s);
       return {
         id: `TE-${e.id}`,
         examId: e.id,
         accessionNumber: e.id,
         patientName: e.patientName,
-        examItemName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || t("examPage.exam2"),
+        examItemName:
+          `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() ||
+          t("examPage.exam2"),
         modality: e.modality,
         deviceNumber: e.deviceId ?? `D-${idx + 1}`,
         roomName: e.roomId ?? `R-${idx + 1}`,
@@ -394,21 +464,33 @@ export default function ExamPage() {
         estimatedDuration: 15,
         imagesAcquired: storeImagesOverride[e.id] ?? e.imageCount ?? 0,
         completed,
-        signature: completed ? (e.technicianId ?? t("examPage.technician")) : undefined,
-      }
-    })
-  }, [storeExams, storeImagesOverride])
+        signature: completed
+          ? (e.technicianId ?? t("examPage.technician"))
+          : undefined,
+      };
+    });
+  }, [storeExams, storeImagesOverride]);
 
   // 从 store.exams 派生转科追踪记录(每个待检查/检查中 检查作为"待跟检查"项)
   const transferRecords = useMemo<TransferRecord[]>(() => {
-    const source = storeExams.length > 0 ? storeExams : []
+    const source = storeExams.length > 0 ? storeExams : [];
     return source.slice(0, 10).map((e, idx) => {
-      const s = String(e.status ?? "")
-      const completed = ["completed", "reported", "published", "archived", "已报告", "已发布", "已完成"].includes(s)
+      const s = String(e.status ?? "");
+      const completed = [
+        "completed",
+        "reported",
+        "published",
+        "archived",
+        "已报告",
+        "已发布",
+        "已完成",
+      ].includes(s);
       const reason: TransferRecord["transferReason"] =
-        e.patientType === "急诊" ? "急诊→住院"
-          : e.patientType === "住院" ? "住院→转科"
-            : "门诊→检查"
+        e.patientType === "急诊"
+          ? "急诊→住院"
+          : e.patientType === "住院"
+            ? "住院→转科"
+            : "门诊→检查";
       return {
         id: `TR-${e.id}`,
         patientId: e.patientId ?? `P-${idx + 1}`,
@@ -421,142 +503,204 @@ export default function ExamPage() {
         toDepartment: t("examPage.radiologyDept"),
         transferTime: e.scheduledAt ?? "",
         attendingDoctor: e.doctorId ?? t("examPage.attendingDoctor"),
-        notes: e.contrastUsed ? t("examPage.useContrast") : t("examPage.routineExam"),
+        notes: e.contrastUsed
+          ? t("examPage.useContrast")
+          : t("examPage.routineExam"),
         examCompleted: completed,
-        examName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || t("examPage.exam2"),
-      }
-    })
-  }, [storeExams])
+        examName:
+          `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() ||
+          t("examPage.exam2"),
+      };
+    });
+  }, [storeExams]);
 
   // 同步 storeError 到 loadError 显示
   useEffect(() => {
-    if (storeError) setLoadError(storeError)
-  }, [storeError])
+    if (storeError) setLoadError(storeError);
+  }, [storeError]);
 
   // ============================================================
   // [v3.0.6.11-99 Wave10B] 深度分析视图: 时间线/模态分布/耗时分析/重拍率
   // 真实 API: worklistApi.getStats (byTechnician/avgDurationMin) + statsApi.getByModality
   // 失败回退本地派生 + 数据源徽标
   // ============================================================
-  const [analyticsSource, setAnalyticsSource] = useState<'real' | 'demo'>('demo')
-  const [analyticsError, setAnalyticsError] = useState<string | null>(null)
-  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [analyticsSource, setAnalyticsSource] = useState<"real" | "demo">(
+    "demo",
+  );
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
   // 按模态平均时长 (分钟) [真实: worklistApi.getStats; 回退: 派生估算]
-  const [durationByModality, setDurationByModality] = useState<Array<{ modality: string; avgMin: number; count: number }>>(() => [
-    { modality: 'CT', avgMin: 18, count: 128 },
-    { modality: 'MR', avgMin: 32, count: 85 },
-    { modality: 'DR', avgMin: 9, count: 72 },
-    { modality: 'DSA', avgMin: 45, count: 28 },
-    { modality: 'MG', avgMin: 14, count: 13 },
-  ])
+  const [durationByModality, setDurationByModality] = useState<
+    Array<{ modality: string; avgMin: number; count: number }>
+  >(() => [
+    { modality: "CT", avgMin: 18, count: 128 },
+    { modality: "MR", avgMin: 32, count: 85 },
+    { modality: "DR", avgMin: 9, count: 72 },
+    { modality: "DSA", avgMin: 45, count: 28 },
+    { modality: "MG", avgMin: 14, count: 13 },
+  ]);
   // 模态分布
-  const [modalityDist, setModalityDist] = useState<Array<{ modality: string; count: number }>>(() => {
-    const map = new Map<string, number>()
-    initialRadiologyExams.forEach(e => {
-      const m = String(e.modality ?? t("examPage.other"))
-      map.set(m, (map.get(m) || 0) + 1)
-    })
-    return [...map.entries()].map(([modality, count]) => ({ modality, count })).sort((a, b) => b.count - a.count)
-  })
+  const [modalityDist, setModalityDist] = useState<
+    Array<{ modality: string; count: number }>
+  >(() => {
+    const map = new Map<string, number>();
+    initialRadiologyExams.forEach((e) => {
+      const m = String(e.modality ?? t("examPage.other"));
+      map.set(m, (map.get(m) || 0) + 1);
+    });
+    return [...map.entries()]
+      .map(([modality, count]) => ({ modality, count }))
+      .sort((a, b) => b.count - a.count);
+  });
   // 重拍率统计
   const retakeStats = useMemo(() => {
-    const byMod: Record<string, { total: number; retakes: number }> = {}
-    allExams.forEach(e => {
-      const m = String(e.modality ?? t("examPage.other"))
-      const cur = byMod[m] || { total: 0, retakes: 0 }
-      cur.total += 1
-      const rc = Number((e as unknown as { retakeCount?: number }).retakeCount ?? 0)
-      cur.retakes += rc > 0 ? rc : (hashSeed(String(e.id)) % 100 < 6 ? 1 : 0)
-      byMod[m] = cur
-    })
-    const rows = Object.entries(byMod).map(([modality, v]) => ({
-      modality,
-      total: v.total,
-      retakes: v.retakes,
-      rate: v.total > 0 ? Math.round((v.retakes / v.total) * 1000) / 10 : 0,
-    })).sort((a, b) => b.rate - a.rate)
+    const byMod: Record<string, { total: number; retakes: number }> = {};
+    allExams.forEach((e) => {
+      const m = String(e.modality ?? t("examPage.other"));
+      const cur = byMod[m] || { total: 0, retakes: 0 };
+      cur.total += 1;
+      const rc = Number(
+        (e as unknown as { retakeCount?: number }).retakeCount ?? 0,
+      );
+      cur.retakes += rc > 0 ? rc : hashSeed(String(e.id)) % 100 < 6 ? 1 : 0;
+      byMod[m] = cur;
+    });
+    const rows = Object.entries(byMod)
+      .map(([modality, v]) => ({
+        modality,
+        total: v.total,
+        retakes: v.retakes,
+        rate: v.total > 0 ? Math.round((v.retakes / v.total) * 1000) / 10 : 0,
+      }))
+      .sort((a, b) => b.rate - a.rate);
     return {
       rows,
       totalRetakes: rows.reduce((s, r) => s + r.retakes, 0),
       totalExams: rows.reduce((s, r) => s + r.total, 0),
       avgRate: rows.reduce((s, r) => s + r.rate, 0) / Math.max(1, rows.length),
-    }
-  }, [allExams])
+    };
+  }, [allExams]);
 
   // 检查时间线 (按患者)
   const patientTimeline = useMemo(() => {
-    const map = new Map<string, typeof allExams>()
-    allExams.slice(0, 400).forEach(e => {
-      const pid = String(e.patientId ?? e.patientName ?? t("examPage.unknownPatient"))
-      const arr = map.get(pid) || []
-      arr.push(e)
-      map.set(pid, arr)
-    })
+    const map = new Map<string, typeof allExams>();
+    allExams.slice(0, 400).forEach((e) => {
+      const pid = String(
+        e.patientId ?? e.patientName ?? t("examPage.unknownPatient"),
+      );
+      const arr = map.get(pid) || [];
+      arr.push(e);
+      map.set(pid, arr);
+    });
     return [...map.entries()]
       .map(([patientId, items]) => ({
         patientId,
         patientName: items[0]?.patientName ?? patientId,
-        items: items.sort((a, b) => String(a.examDate ?? '').localeCompare(String(b.examDate ?? ''))),
+        items: items.sort((a, b) =>
+          String(a.examDate ?? "").localeCompare(String(b.examDate ?? "")),
+        ),
       }))
       .sort((a, b) => b.items.length - a.items.length)
-      .slice(0, 12)
-  }, [allExams])
+      .slice(0, 12);
+  }, [allExams]);
 
   const loadAnalytics = useCallback(async () => {
-    setAnalyticsLoading(true)
-    setAnalyticsError(null)
+    setAnalyticsLoading(true);
+    setAnalyticsError(null);
     try {
       const [wlRes, byModRes] = await Promise.allSettled([
         worklistApi.getStats(),
         statsApi.getByModality(),
-      ])
+      ]);
       const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
-        r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
-      const wl = settled(wlRes)
-      const byMod: any = settled(byModRes) ?? null
+        r.status === "fulfilled" &&
+        r.value &&
+        (r.value as any)?.success !== false
+          ? ((r.value as any)?.data ?? null)
+          : null;
+      const wl = settled(wlRes);
+      const byMod: any = settled(byModRes) ?? null;
 
-      let anyReal = false
+      let anyReal = false;
       // 耗时分析: worklistApi.getStats.avgDurationMin (整体) + byTechnician 派生按模态
-      if (wl && (Number((wl as any)?.avgDurationMin) > 0 || Array.isArray((wl as any)?.byTechnician))) {
-        const techs: any[] = Array.isArray((wl as any)?.byTechnician) ? (wl as any).byTechnician : []
-        const overall = Number((wl as any)?.avgDurationMin) || 20
+      if (
+        wl &&
+        (Number((wl as any)?.avgDurationMin) > 0 ||
+          Array.isArray((wl as any)?.byTechnician))
+      ) {
+        const techs: any[] = Array.isArray((wl as any)?.byTechnician)
+          ? (wl as any).byTechnician
+          : [];
+        const overall = Number((wl as any)?.avgDurationMin) || 20;
         const baseRows = [
-          { modality: 'CT', avgMin: Math.round(overall * 0.9), count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.4) },
-          { modality: 'MR', avgMin: Math.round(overall * 1.6), count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.25) },
-          { modality: 'DR', avgMin: Math.round(overall * 0.45), count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.25) },
-          { modality: 'DSA', avgMin: Math.round(overall * 2.2), count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.06) },
-          { modality: 'MG', avgMin: Math.round(overall * 0.7), count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.04) },
-        ]
+          {
+            modality: "CT",
+            avgMin: Math.round(overall * 0.9),
+            count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.4),
+          },
+          {
+            modality: "MR",
+            avgMin: Math.round(overall * 1.6),
+            count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.25),
+          },
+          {
+            modality: "DR",
+            avgMin: Math.round(overall * 0.45),
+            count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.25),
+          },
+          {
+            modality: "DSA",
+            avgMin: Math.round(overall * 2.2),
+            count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.06),
+          },
+          {
+            modality: "MG",
+            avgMin: Math.round(overall * 0.7),
+            count: Math.round(Number((wl as any)?.completedToday ?? 0) * 0.04),
+          },
+        ];
         if (techs.length > 0) {
-          const avgTech = Math.round(techs.reduce((s, t) => s + Number(t.avgDurationMin ?? 0), 0) / techs.length)
-          baseRows.forEach(r => { if (avgTech > 0) r.avgMin = Math.round(r.avgMin * (avgTech / overall)) })
+          const avgTech = Math.round(
+            techs.reduce((s, t) => s + Number(t.avgDurationMin ?? 0), 0) /
+              techs.length,
+          );
+          baseRows.forEach((r) => {
+            if (avgTech > 0)
+              r.avgMin = Math.round(r.avgMin * (avgTech / overall));
+          });
         }
-        setDurationByModality(baseRows)
-        anyReal = true
+        setDurationByModality(baseRows);
+        anyReal = true;
       }
       // 模态分布: statsApi.getByModality
       if (byMod && Object.keys(byMod).length > 0) {
-        const rows = Object.entries(byMod as Record<string, unknown>).map(([modality, v]: [string, any]) => ({
-          modality,
-          count: Math.round(Number(v?.total ?? v ?? 0)),
-        })).filter(r => r.count > 0).sort((a, b) => b.count - a.count)
+        const rows = Object.entries(byMod as Record<string, unknown>)
+          .map(([modality, v]: [string, any]) => ({
+            modality,
+            count: Math.round(Number(v?.total ?? v ?? 0)),
+          }))
+          .filter((r) => r.count > 0)
+          .sort((a, b) => b.count - a.count);
         if (rows.length > 0) {
-          setModalityDist(rows)
-          anyReal = true
+          setModalityDist(rows);
+          anyReal = true;
         }
       }
-      setAnalyticsSource(anyReal ? 'real' : 'demo')
-      if (!anyReal) setAnalyticsError(t("examPage.deepAnalysisFallback"))
+      setAnalyticsSource(anyReal ? "real" : "demo");
+      if (!anyReal) setAnalyticsError(t("examPage.deepAnalysisFallback"));
     } catch (e) {
-      setAnalyticsSource('demo')
-      setAnalyticsError(`深度分析加载失败: ${(e as Error)?.message ?? t("examPage.networkError")}（回退本地派生）`)
+      setAnalyticsSource("demo");
+      setAnalyticsError(
+        `深度分析加载失败: ${(e as Error)?.message ?? t("examPage.networkError")}（回退本地派生）`,
+      );
     } finally {
-      setAnalyticsLoading(false)
+      setAnalyticsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
-  useEffect(() => { void loadAnalytics() }, [loadAnalytics])
+  useEffect(() => {
+    void loadAnalytics();
+  }, [loadAnalytics]);
 
   // ============================================================
   // [v3.0.6.11-104 Wave 2B] 检查统计: overview / by-modality / daily-trend
@@ -570,72 +714,123 @@ export default function ExamPage() {
     avgDurationMin: 26,
     totalRetake: 3,
     retakeRate: 3.5,
-    byState: { SCHEDULED: 12, ARRIVED: 5, IN_PROGRESS: 8, PAUSED: 2, COMPLETED: 46, CANCELLED: 3 },
+    byState: {
+      SCHEDULED: 12,
+      ARRIVED: 5,
+      IN_PROGRESS: 8,
+      PAUSED: 2,
+      COMPLETED: 46,
+      CANCELLED: 3,
+    },
     byModality: [
-      { modality: 'CT', count: 20 },
-      { modality: 'MR', count: 15 },
-      { modality: 'DR', count: 12 },
-      { modality: 'US', count: 10 },
+      { modality: "CT", count: 20 },
+      { modality: "MR", count: 15 },
+      { modality: "DR", count: 12 },
+      { modality: "US", count: 10 },
     ],
-  }
+  };
   const DEMO_STAT_BY_MODALITY: ExamByModalityItem[] = [
-    { modality: 'CT', total: 20, inProgress: 3, completed: 14, avgDurationMin: 18 },
-    { modality: 'MR', total: 15, inProgress: 2, completed: 10, avgDurationMin: 32 },
-    { modality: 'DR', total: 12, inProgress: 1, completed: 9, avgDurationMin: 8 },
-  ]
-  const DEMO_STAT_TREND: ExamDailyTrendItem[] = Array.from({ length: 30 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (29 - i))
-    const date = d.toISOString().slice(0, 10)
-    return { date, created: 4 + ((i * 5) % 10), completed: 3 + ((i * 3) % 8) }
-  })
-  const [statOverview, setStatOverview] = useState<ExamOverviewDto>(DEMO_STAT_OVERVIEW)
-  const [statByModality, setStatByModality] = useState<ExamByModalityItem[]>(DEMO_STAT_BY_MODALITY)
-  const [statTrend, setStatTrend] = useState<ExamDailyTrendItem[]>(DEMO_STAT_TREND)
-  const [statSource, setStatSource] = useState<'real' | 'demo'>('demo')
-  const [statLoading, setStatLoading] = useState(false)
-  const [statError, setStatError] = useState<string | null>(null)
+    {
+      modality: "CT",
+      total: 20,
+      inProgress: 3,
+      completed: 14,
+      avgDurationMin: 18,
+    },
+    {
+      modality: "MR",
+      total: 15,
+      inProgress: 2,
+      completed: 10,
+      avgDurationMin: 32,
+    },
+    {
+      modality: "DR",
+      total: 12,
+      inProgress: 1,
+      completed: 9,
+      avgDurationMin: 8,
+    },
+  ];
+  const DEMO_STAT_TREND: ExamDailyTrendItem[] = Array.from(
+    { length: 30 },
+    (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (29 - i));
+      const date = d.toISOString().slice(0, 10);
+      return {
+        date,
+        created: 4 + ((i * 5) % 10),
+        completed: 3 + ((i * 3) % 8),
+      };
+    },
+  );
+  const [statOverview, setStatOverview] =
+    useState<ExamOverviewDto>(DEMO_STAT_OVERVIEW);
+  const [statByModality, setStatByModality] = useState<ExamByModalityItem[]>(
+    DEMO_STAT_BY_MODALITY,
+  );
+  const [statTrend, setStatTrend] =
+    useState<ExamDailyTrendItem[]>(DEMO_STAT_TREND);
+  const [statSource, setStatSource] = useState<"real" | "demo">("demo");
+  const [statLoading, setStatLoading] = useState(false);
+  const [statError, setStatError] = useState<string | null>(null);
 
   const loadStatistics = useCallback(async () => {
-    setStatLoading(true)
-    setStatError(null)
+    setStatLoading(true);
+    setStatError(null);
     try {
       const [overviewRes, byModRes, trendRes] = await Promise.allSettled([
         examApi.overview(),
         examApi.byModality(),
         examApi.dailyTrend(30),
-      ])
-      let anyReal = false
-      if (overviewRes.status === 'fulfilled' && overviewRes.value.success && overviewRes.value.data) {
-        setStatOverview(overviewRes.value.data)
-        anyReal = true
+      ]);
+      let anyReal = false;
+      if (
+        overviewRes.status === "fulfilled" &&
+        overviewRes.value.success &&
+        overviewRes.value.data
+      ) {
+        setStatOverview(overviewRes.value.data);
+        anyReal = true;
       }
-      if (byModRes.status === 'fulfilled' && byModRes.value.success && Array.isArray(byModRes.value.data?.items)) {
-        setStatByModality(byModRes.value.data.items)
-        anyReal = true
+      if (
+        byModRes.status === "fulfilled" &&
+        byModRes.value.success &&
+        Array.isArray(byModRes.value.data?.items)
+      ) {
+        setStatByModality(byModRes.value.data.items);
+        anyReal = true;
       }
-      if (trendRes.status === 'fulfilled' && trendRes.value.success && Array.isArray(trendRes.value.data?.items)) {
-        setStatTrend(trendRes.value.data.items)
-        anyReal = true
+      if (
+        trendRes.status === "fulfilled" &&
+        trendRes.value.success &&
+        Array.isArray(trendRes.value.data?.items)
+      ) {
+        setStatTrend(trendRes.value.data.items);
+        anyReal = true;
       }
-      setStatSource(anyReal ? 'real' : 'demo')
-      if (!anyReal) setStatError(t("examPage.statisticsFallback"))
+      setStatSource(anyReal ? "real" : "demo");
+      if (!anyReal) setStatError(t("examPage.statisticsFallback"));
     } catch (e) {
-      setStatSource('demo')
-      setStatError(`检查统计加载失败: ${(e as Error)?.message ?? t("examPage.networkError")}（回退本地派生）`)
+      setStatSource("demo");
+      setStatError(
+        `检查统计加载失败: ${(e as Error)?.message ?? t("examPage.networkError")}（回退本地派生）`,
+      );
     } finally {
-      setStatLoading(false)
+      setStatLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
-  useEffect(() => { void loadStatistics() }, [loadStatistics])
+  useEffect(() => {
+    void loadStatistics();
+  }, [loadStatistics]);
 
   // 确定性哈希 (重拍率派生)
   function hashSeed(s: string): number {
-    let h = 0
-    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
-    return h
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h;
   }
 
   // 筛选后的数据
@@ -731,7 +926,10 @@ export default function ExamPage() {
         const res = await worklistApi.updateState(
           modal.exam.id,
           state,
-          actionNotes || (imageQuality === "差" ? t("examPage.qcReturned") : t("examPage.qcPassed")),
+          actionNotes ||
+            (imageQuality === "差"
+              ? t("examPage.qcReturned")
+              : t("examPage.qcPassed")),
           { rating: imageQuality, qcNote: actionNotes || undefined },
         );
         if (res.success) {
@@ -745,9 +943,11 @@ export default function ExamPage() {
         }
       } else {
         // [W6] 检查前核对 (Time-Out) 门禁: 未核对先弹核对弹窗, 不允许直接开始
-        const chk = await worklistApi.getTimeoutChecklist(modal.exam.id).catch(() => null);
+        const chk = await worklistApi
+          .getTimeoutChecklist(modal.exam.id)
+          .catch(() => null);
         if (chk?.success && chk.data && !chk.data.verified) {
-          message.warning(t('w6Workflow.timeout.requiredHint'));
+          message.warning(t("w6Workflow.timeout.requiredHint"));
           setTimeoutExamId(modal.exam.id);
           return;
         }
@@ -819,8 +1019,14 @@ export default function ExamPage() {
       }
       if (action === "sign") {
         // 检查 → 报告 ID 映射 (无 reportId 时回退检查 ID, 后端将逐条校验过渡)
-        const reportIds = ids.map((id) => allExams.find((e) => e.id === id)?.reportId || id);
-        const res = await reportApi.batchTransition(reportIds, "SIGNED", t("examPage.batchSign"));
+        const reportIds = ids.map(
+          (id) => allExams.find((e) => e.id === id)?.reportId || id,
+        );
+        const res = await reportApi.batchTransition(
+          reportIds,
+          "SIGNED",
+          t("examPage.batchSign"),
+        );
         if (res.success) {
           const data = (res.data ?? { succeeded: [], failed: [] }) as {
             succeeded?: Array<{ id: string }>;
@@ -828,7 +1034,9 @@ export default function ExamPage() {
           };
           okCount = data.succeeded?.length ?? 0;
           failCount = data.failed?.length ?? 0;
-          (data.failed ?? []).slice(0, 20).forEach((f) => results.push(`${f.id}: ${f.message}`));
+          (data.failed ?? [])
+            .slice(0, 20)
+            .forEach((f) => results.push(`${f.id}: ${f.message}`));
           (data.succeeded ?? []).forEach((s) => log("batch_sign", s.id));
         } else {
           failCount = ids.length;
@@ -851,26 +1059,44 @@ export default function ExamPage() {
               log("batch_print", id);
             } else {
               failCount += 1;
-              results.push(`${id}: ${res.error?.message ?? t("examPage.printTaskFailed")}`);
+              results.push(
+                `${id}: ${res.error?.message ?? t("examPage.printTaskFailed")}`,
+              );
             }
           } catch (err) {
             failCount += 1;
-            results.push(`${id}: ${err instanceof Error ? err.message : t("examPage.printFailed")}`);
+            results.push(
+              `${id}: ${err instanceof Error ? err.message : t("examPage.printFailed")}`,
+            );
           }
         }
       } else if (action === "export") {
         const rows = ids.map((id) => {
           const e = allExams.find((x) => x.id === id);
           return e
-            ? [e.id, e.accessionNumber, e.patientId, e.patientName, e.modality, e.bodyPart, e.status, e.examDate, e.examTime ?? ""].join(",")
+            ? [
+                e.id,
+                e.accessionNumber,
+                e.patientId,
+                e.patientName,
+                e.modality,
+                e.bodyPart,
+                e.status,
+                e.examDate,
+                e.examTime ?? "",
+              ].join(",")
             : [id].join(",");
         });
         const csvContent = [t("examPage.csvHeaderFull"), ...rows].join("\n");
-        const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
+        const blob = new Blob(["\ufeff" + csvContent], {
+          type: "text/csv;charset=utf-8",
+        });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = t("w9a.examPage.batchExportFile", { date: new Date().toISOString().slice(0, 10) });
+        link.download = t("w9a.examPage.batchExportFile", {
+          date: new Date().toISOString().slice(0, 10),
+        });
         link.click();
         URL.revokeObjectURL(url);
         okCount = ids.length;
@@ -878,15 +1104,23 @@ export default function ExamPage() {
       }
     } catch (err) {
       failCount = ids.length;
-      results.push(err instanceof Error ? err.message : t("examPage.batchOpFailed"));
+      results.push(
+        err instanceof Error ? err.message : t("examPage.batchOpFailed"),
+      );
     }
     if (action !== "assign") {
       if (failCount === 0 && okCount > 0) {
         message.success(t("w9a.examPage.batchSuccess", { count: okCount }));
       } else if (okCount > 0) {
-        message.warning(t("w9a.examPage.batchPartial", { ok: okCount, fail: failCount }) + (results.length ? "：" + results.slice(0, 3).join("；") : ""));
+        message.warning(
+          t("w9a.examPage.batchPartial", { ok: okCount, fail: failCount }) +
+            (results.length ? "：" + results.slice(0, 3).join("；") : ""),
+        );
       } else {
-        message.error(t("w9a.examPage.batchAllFailed", { fail: failCount }) + (results.length ? "：" + results.slice(0, 3).join("；") : ""));
+        message.error(
+          t("w9a.examPage.batchAllFailed", { fail: failCount }) +
+            (results.length ? "：" + results.slice(0, 3).join("；") : ""),
+        );
       }
       void reloadExams();
       setSelectedIds(new Set());
@@ -902,10 +1136,16 @@ export default function ExamPage() {
     }
     setBatchAssigning(true);
     try {
-      const res = await worklistApi.batchAssign(ids, { deviceId: batchAssignModal.deviceId });
+      const res = await worklistApi.batchAssign(ids, {
+        deviceId: batchAssignModal.deviceId,
+      });
       if (res.success) {
-        message.success(t("w9a.examPage.batchAssignSuccess", { count: ids.length }));
-        ids.forEach((id) => log("batch_assign", id, { deviceId: batchAssignModal.deviceId }));
+        message.success(
+          t("w9a.examPage.batchAssignSuccess", { count: ids.length }),
+        );
+        ids.forEach((id) =>
+          log("batch_assign", id, { deviceId: batchAssignModal.deviceId }),
+        );
       } else {
         message.error(res.error?.message ?? t("examPage.batchAssignFailed"));
       }
@@ -961,7 +1201,11 @@ export default function ExamPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = res.data.filename || t("w9a.examPage.examListFile", { date: new Date().toISOString().split("T")[0] });
+        link.download =
+          res.data.filename ||
+          t("w9a.examPage.examListFile", {
+            date: new Date().toISOString().split("T")[0],
+          });
         link.click();
         URL.revokeObjectURL(url);
         return;
@@ -980,15 +1224,16 @@ export default function ExamPage() {
           e.examDate,
         ].join(","),
       );
-      const csvContent =
-        [t("examPage.csvHeaderBasic"), ...rows].join("\n");
+      const csvContent = [t("examPage.csvHeaderBasic"), ...rows].join("\n");
       const blob = new Blob(["\ufeff" + csvContent], {
         type: "text/csv;charset=utf-8",
       });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = t("w9a.examPage.examListFile", { date: new Date().toISOString().split("T")[0] });
+      link.download = t("w9a.examPage.examListFile", {
+        date: new Date().toISOString().split("T")[0],
+      });
       link.click();
     } finally {
       setExporting(false);
@@ -1009,7 +1254,9 @@ export default function ExamPage() {
     }
     const lines = trimmed.split(/\r?\n/).filter((l) => l.trim());
     if (lines.length < 2) return [];
-    const header = lines[0]!.split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+    const header = lines[0]!
+      .split(",")
+      .map((h) => h.trim().replace(/^"|"$/g, ""));
     return lines.slice(1).map((line) => {
       const cells = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
       const row: Record<string, string> = {};
@@ -1027,7 +1274,11 @@ export default function ExamPage() {
   const handleExamImportSubmit = async () => {
     const rows = parseImportText(importText);
     if (rows.length === 0) {
-      setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: t("examPage.importParseFailed") }] });
+      setImportResult({
+        imported: 0,
+        skipped: 0,
+        errors: [{ index: 0, message: t("examPage.importParseFailed") }],
+      });
       return;
     }
     setImporting(true);
@@ -1038,10 +1289,30 @@ export default function ExamPage() {
         setImportResult(res.data);
         if (res.data.imported > 0) await reloadExams();
       } else {
-        setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: res.error?.message ?? t("examPage.importFailed") }] });
+        setImportResult({
+          imported: 0,
+          skipped: 0,
+          errors: [
+            {
+              index: 0,
+              message: res.error?.message ?? t("examPage.importFailed"),
+            },
+          ],
+        });
       }
     } catch (e) {
-      setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: t("examPage.importFailedPrefix") + ((e as Error)?.message ?? String(e)) }] });
+      setImportResult({
+        imported: 0,
+        skipped: 0,
+        errors: [
+          {
+            index: 0,
+            message:
+              t("examPage.importFailedPrefix") +
+              ((e as Error)?.message ?? String(e)),
+          },
+        ],
+      });
     } finally {
       setImporting(false);
     }
@@ -1079,20 +1350,35 @@ export default function ExamPage() {
     setMerging(true);
     setMergeResult("");
     try {
-      const res = await examApi.mergeExams({ targetId: mergeTargetId, sourceIds: ids });
+      const res = await examApi.mergeExams({
+        targetId: mergeTargetId,
+        sourceIds: ids,
+      });
       if (res.success && res.data) {
         setMergeResult(
-          t("w9a.examPage.mergeSuccess", { moved: res.data.movedReports, sources: res.data.mergedSourceCount }) +
-          (res.data.retainedSourceIds.length > 0 ? t("w9a.examPage.mergeRetained", { count: res.data.retainedSourceIds.length }) : "")
+          t("w9a.examPage.mergeSuccess", {
+            moved: res.data.movedReports,
+            sources: res.data.mergedSourceCount,
+          }) +
+            (res.data.retainedSourceIds.length > 0
+              ? t("w9a.examPage.mergeRetained", {
+                  count: res.data.retainedSourceIds.length,
+                })
+              : ""),
         );
         setSelectedIds(new Set());
         await reloadExams();
         log("merge", mergeTargetId);
       } else {
-        setMergeResult(t("examPage.mergeFailedPrefix") + (res.error?.message ?? t("examPage.unknownError")));
+        setMergeResult(
+          t("examPage.mergeFailedPrefix") +
+            (res.error?.message ?? t("examPage.unknownError")),
+        );
       }
     } catch (e) {
-      setMergeResult(t("examPage.mergeFailedPrefix") + ((e as Error)?.message ?? String(e)));
+      setMergeResult(
+        t("examPage.mergeFailedPrefix") + ((e as Error)?.message ?? String(e)),
+      );
     } finally {
       setMerging(false);
     }
@@ -1127,15 +1413,20 @@ export default function ExamPage() {
       if (res.success && res.data) {
         setSplitResult(
           t("w9a.examPage.splitSuccess", { count: res.data.created.length }) +
-          ` (${res.data.created.map((c) => c.accessionNumber).join(", ")})`
+            ` (${res.data.created.map((c) => c.accessionNumber).join(", ")})`,
         );
         await reloadExams();
         log("split", splitExam.id);
       } else {
-        setSplitResult(t("examPage.splitFailedPrefix") + (res.error?.message ?? t("examPage.unknownError")));
+        setSplitResult(
+          t("examPage.splitFailedPrefix") +
+            (res.error?.message ?? t("examPage.unknownError")),
+        );
       }
     } catch (e) {
-      setSplitResult(t("examPage.splitFailedPrefix") + ((e as Error)?.message ?? String(e)));
+      setSplitResult(
+        t("examPage.splitFailedPrefix") + ((e as Error)?.message ?? String(e)),
+      );
     } finally {
       setSplitting(false);
     }
@@ -1143,10 +1434,18 @@ export default function ExamPage() {
 
   useKeyboardShortcuts([
     SHORTCUTS.SUBMIT(handleSubmit),
-    SHORTCUTS.CANCEL(() => { if (modal.visible) closeModal(); }),
+    SHORTCUTS.CANCEL(() => {
+      if (modal.visible) closeModal();
+    }),
   ]);
   useNavigationShortcuts([
-    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams'; }, description: t("examPage.navigateToExam") },
+    {
+      sequence: ["g", "e"],
+      action: () => {
+        window.location.href = "/exams";
+      },
+      description: t("examPage.navigateToExam"),
+    },
   ]);
 
   // [Wave1B P2] 新建检查: examApi.create → 刷新列表
@@ -1164,10 +1463,14 @@ export default function ExamPage() {
         accessionNumber: values.accessionNumber || `EX-${Date.now()}`,
         modality: values.modality,
         bodyPart: values.bodyPart,
-        scheduledAt: values.scheduledAt || new Date().toISOString().slice(0, 10),
+        scheduledAt:
+          values.scheduledAt || new Date().toISOString().slice(0, 10),
       });
-      if (!res.success) throw new Error(res.error?.message ?? t("examPage.createFailed"));
-      message.success(t("w9a.examPage.examCreated", { id: res.data.id ?? res.data.examId }));
+      if (!res.success)
+        throw new Error(res.error?.message ?? t("examPage.createFailed"));
+      message.success(
+        t("w9a.examPage.examCreated", { id: res.data.id ?? res.data.examId }),
+      );
       setShowCreateModal(false);
       createExamForm.resetFields();
       await reloadExams();
@@ -1184,8 +1487,11 @@ export default function ExamPage() {
     setDeletingExamId(exam.id);
     try {
       const res = await examApi.delete(exam.id);
-      if (!res.success) throw new Error(res.error?.message ?? t("examPage.deleteFailed"));
-      message.success(t("w9a.examPage.examDeleted", { no: exam.accessionNumber }));
+      if (!res.success)
+        throw new Error(res.error?.message ?? t("examPage.deleteFailed"));
+      message.success(
+        t("w9a.examPage.examDeleted", { no: exam.accessionNumber }),
+      );
       await reloadExams();
     } catch (e) {
       message.error((e as Error)?.message ?? t("examPage.deleteFailed"));
@@ -1206,11 +1512,31 @@ export default function ExamPage() {
       }}
     >
       {[
-        { key: "list" as TabType, label: t("examPage.examList"), icon: ClipboardList },
-        { key: "technician" as TabType, label: t("examPage.techExecution"), icon: Monitor },
-        { key: "transfer" as TabType, label: t("examPage.deptTransferTrack"), icon: ArrowRight },
-        { key: "analytics" as TabType, label: t("examPage.deepAnalysis"), icon: BarChart3 },
-        { key: "statistics" as TabType, label: t("examPage.statisticsOverview"), icon: TrendingUp },
+        {
+          key: "list" as TabType,
+          label: t("examPage.examList"),
+          icon: ClipboardList,
+        },
+        {
+          key: "technician" as TabType,
+          label: t("examPage.techExecution"),
+          icon: Monitor,
+        },
+        {
+          key: "transfer" as TabType,
+          label: t("examPage.deptTransferTrack"),
+          icon: ArrowRight,
+        },
+        {
+          key: "analytics" as TabType,
+          label: t("examPage.deepAnalysis"),
+          icon: BarChart3,
+        },
+        {
+          key: "statistics" as TabType,
+          label: t("examPage.statisticsOverview"),
+          icon: TrendingUp,
+        },
       ].map((tab) => (
         <AppButton
           key={tab.key}
@@ -1268,7 +1594,7 @@ export default function ExamPage() {
         padding: "12px 20px",
         display: "flex",
         flexWrap: "wrap",
-        gap: 'var(--space-3, 12px)',
+        gap: "var(--space-3, 12px)",
         alignItems: "center",
       }}
     >
@@ -1277,8 +1603,8 @@ export default function ExamPage() {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 'var(--space-2, 8px)',
-          marginRight: 'var(--space-2, 8px)',
+          gap: "var(--space-2, 8px)",
+          marginRight: "var(--space-2, 8px)",
         }}
       >
         <div
@@ -1298,12 +1624,16 @@ export default function ExamPage() {
           <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
             {t("examPage.techWorkstation")}
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.pageTitle")}</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+            {t("examPage.pageTitle")}
+          </div>
         </div>
       </div>
 
       {/* 分隔线 */}
-      <div style={{ width: 1, height: 32, backgroundColor: "var(--border-color)" }} />
+      <div
+        style={{ width: 1, height: 32, backgroundColor: "var(--border-color)" }}
+      />
 
       {/* 搜索框 */}
       <div style={{ position: "relative", flex: "0 0 200px" }}>
@@ -1327,7 +1657,8 @@ export default function ExamPage() {
             padding: "8px 10px 8px 32px",
             border: "1px solid var(--border-color)",
             borderRadius: 6,
-            fontSize: 12, boxSizing: "border-box",
+            fontSize: 12,
+            boxSizing: "border-box",
           }}
           onFocus={(e) => (e.target.style.borderColor = PRIMARY)}
           onBlur={(e) => (e.target.style.borderColor = "var(--border-color)")}
@@ -1355,10 +1686,12 @@ export default function ExamPage() {
         value={filters.status}
         onChange={(value) => handleFilterChange("status", value)}
         style={{ width: 120 }}
-        options={["全部", "待检查", "检查中", "已报告", "已发布", "待报告"].map((s) => ({
-          value: s,
-          label: s === "全部" ? t("examPage.allStatuses") : s,
-        }))}
+        options={["全部", "待检查", "检查中", "已报告", "已发布", "待报告"].map(
+          (s) => ({
+            value: s,
+            label: s === "全部" ? t("examPage.allStatuses") : s,
+          }),
+        )}
       />
 
       {/* 设备类型筛选 */}
@@ -1407,7 +1740,13 @@ export default function ExamPage() {
       )}
 
       {/* [W4-A] 批量导入导出 */}
-      <div style={{ marginLeft: "auto", display: "flex", gap: 'var(--space-2, 8px)' }}>
+      <div
+        style={{
+          marginLeft: "auto",
+          display: "flex",
+          gap: "var(--space-2, 8px)",
+        }}
+      >
         {/* [Wave1B P2] 新建检查: examApi.create */}
         <ActionButton
           action="create"
@@ -1494,21 +1833,53 @@ export default function ExamPage() {
   const ExamTable = () => {
     // [W14-UX] 右键行操作 (查看/阅片/开始/完成/打印/导出/拆分/删除)
     const buildExamContextItems = (exam: RadiologyExam): ContextMenuItem[] => [
-      { key: "view", label: t("w14Ux.contextMenu.view"), onSelect: () => navigate(`/exam/${exam.id}`) },
+      {
+        key: "view",
+        label: t("w14Ux.contextMenu.view"),
+        onSelect: () => navigate(`/exam/${exam.id}`),
+      },
       {
         key: "read",
         label: t("examPage.readFilm"),
-        onSelect: () => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || "")}&examId=${exam.id}`),
+        onSelect: () =>
+          navigate(
+            `/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || "")}&examId=${exam.id}`,
+          ),
       },
       ...(exam.status === "待检查"
-        ? [{ key: "start", label: t("w14Ux.contextMenu.start"), onSelect: () => openModal(exam, "start") }]
+        ? [
+            {
+              key: "start",
+              label: t("w14Ux.contextMenu.start"),
+              onSelect: () => openModal(exam, "start"),
+            },
+          ]
         : []),
       ...(exam.status === "检查中"
-        ? [{ key: "complete", label: t("w14Ux.contextMenu.complete"), onSelect: () => openModal(exam, "complete") }]
+        ? [
+            {
+              key: "complete",
+              label: t("w14Ux.contextMenu.complete"),
+              onSelect: () => openModal(exam, "complete"),
+            },
+          ]
         : []),
-      { key: "print", label: t("w14Ux.contextMenu.print"), dividerBefore: true, onSelect: () => void runBatchApiAction("print", [exam.id]) },
-      { key: "export", label: t("w14Ux.contextMenu.export"), onSelect: () => void runBatchApiAction("export", [exam.id]) },
-      { key: "split", label: t("examPage.split"), onSelect: () => handleOpenSplitModal(exam) },
+      {
+        key: "print",
+        label: t("w14Ux.contextMenu.print"),
+        dividerBefore: true,
+        onSelect: () => void runBatchApiAction("print", [exam.id]),
+      },
+      {
+        key: "export",
+        label: t("w14Ux.contextMenu.export"),
+        onSelect: () => void runBatchApiAction("export", [exam.id]),
+      },
+      {
+        key: "split",
+        label: t("examPage.split"),
+        onSelect: () => handleOpenSplitModal(exam),
+      },
       {
         key: "delete",
         label: t("w14Ux.contextMenu.delete"),
@@ -1526,7 +1897,11 @@ export default function ExamPage() {
         key: "accessionNumber",
         width: 130,
         render: (value) => (
-          <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>{String(value)}</span>
+          <span
+            style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}
+          >
+            {String(value)}
+          </span>
         ),
       },
       {
@@ -1535,7 +1910,13 @@ export default function ExamPage() {
         key: "patientName",
         width: 220,
         render: (_value, exam) => (
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
             <div
               style={{
                 width: 32,
@@ -1551,9 +1932,12 @@ export default function ExamPage() {
               <User size={14} style={{ color: PRIMARY }} />
             </div>
             <div>
-              <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{exam.patientName}</div>
+              <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+                {exam.patientName}
+              </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                {exam.gender} · {exam.age}{t("examPage.ageSuffix")} {exam.patientType}
+                {exam.gender} · {exam.age}
+                {t("examPage.ageSuffix")} {exam.patientType}
               </div>
             </div>
           </div>
@@ -1566,7 +1950,9 @@ export default function ExamPage() {
         width: 180,
         render: (_value, exam) => (
           <div>
-            <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{exam.examItemName}</div>
+            <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>
+              {exam.examItemName}
+            </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               {exam.modality} · {exam.bodyPart}
             </div>
@@ -1580,11 +1966,21 @@ export default function ExamPage() {
         width: 160,
         render: (_value, exam) => (
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <Monitor size={14} style={{ color: "var(--text-secondary)" }} />
-              <span style={{ color: "var(--text-secondary)" }}>{exam.deviceName?.split("（")[0] || "-"}</span>
+              <span style={{ color: "var(--text-secondary)" }}>
+                {exam.deviceName?.split("（")[0] || "-"}
+              </span>
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{exam.roomName}</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              {exam.roomName}
+            </div>
           </div>
         ),
       },
@@ -1641,8 +2037,12 @@ export default function ExamPage() {
         width: 140,
         render: (_value, exam) => (
           <div>
-            <div style={{ color: "var(--text-secondary)" }}>{exam.examDate}</div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{formatTime(exam.examTime ?? "")}</div>
+            <div style={{ color: "var(--text-secondary)" }}>
+              {exam.examDate}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              {formatTime(exam.examTime ?? "")}
+            </div>
           </div>
         ),
       },
@@ -1689,7 +2089,11 @@ export default function ExamPage() {
               size="compact"
               icon={<Eye size={10} />}
               title={t("examPage.readFilm")}
-              onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`)}
+              onClick={() =>
+                navigate(
+                  `/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || "")}&examId=${exam.id}`,
+                )
+              }
             >
               {t("examPage.readFilm")}
             </ActionButton>
@@ -1726,7 +2130,9 @@ export default function ExamPage() {
             {/* [Wave1B P2] 删除检查: examApi.delete (Popconfirm danger) */}
             <Popconfirm
               title={t("examPage.deleteConfirm")}
-              description={t("w9a.examPage.deleteConfirmDesc", { no: exam.accessionNumber })}
+              description={t("w9a.examPage.deleteConfirmDesc", {
+                no: exam.accessionNumber,
+              })}
               okText={t("examPage.delete")}
               cancelText={t("examPage.cancel")}
               okButtonProps={{ danger: true }}
@@ -1786,12 +2192,12 @@ export default function ExamPage() {
 
   // 技师执行Tab内容
   const TechnicianExecutionTab = () => (
-    <div style={{ flex: 1, overflow: "auto", padding: 'var(--space-5, 20px)' }}>
+    <div style={{ flex: 1, overflow: "auto", padding: "var(--space-5, 20px)" }}>
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-          gap: 'var(--space-4, 16px)',
+          gap: "var(--space-4, 16px)",
         }}
       >
         {techExecutions.map((execution) => (
@@ -1800,7 +2206,7 @@ export default function ExamPage() {
             style={{
               backgroundColor: "var(--bg-card)",
               borderRadius: 12,
-              padding: 'var(--space-5, 20px)',
+              padding: "var(--space-5, 20px)",
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               border: execution.completed
                 ? "2px solid var(--color-success-border)"
@@ -1813,7 +2219,7 @@ export default function ExamPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginBottom: 'var(--space-4, 16px)',
+                marginBottom: "var(--space-4, 16px)",
               }}
             >
               <div>
@@ -1822,7 +2228,7 @@ export default function ExamPage() {
                     fontSize: 16,
                     fontWeight: 700,
                     color: "var(--text-primary)",
-                    marginBottom: 'var(--space-1, 4px)',
+                    marginBottom: "var(--space-1, 4px)",
                   }}
                 >
                   {execution.patientName}
@@ -1835,13 +2241,17 @@ export default function ExamPage() {
                 style={{
                   padding: "4px 10px",
                   borderRadius: 20,
-                  backgroundColor: execution.completed ? "var(--color-success-bg)" : "var(--color-info-bg)",
+                  backgroundColor: execution.completed
+                    ? "var(--color-success-bg)"
+                    : "var(--color-info-bg)",
                   color: execution.completed ? "var(--color-success)" : PRIMARY,
                   fontSize: 12,
                   fontWeight: 600,
                 }}
               >
-                {execution.completed ? t("examPage.completed") : t("examPage.inProgress")}
+                {execution.completed
+                  ? t("examPage.completed")
+                  : t("examPage.inProgress")}
               </div>
             </div>
 
@@ -1850,8 +2260,8 @@ export default function ExamPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 'var(--space-3, 12px)',
-                marginBottom: 'var(--space-4, 16px)',
+                gap: "var(--space-3, 12px)",
+                marginBottom: "var(--space-4, 16px)",
               }}
             >
               <div
@@ -1862,12 +2272,20 @@ export default function ExamPage() {
                 }}
               >
                 <div
-                  style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-secondary)",
+                    marginBottom: 2,
+                  }}
                 >
                   {t("examPage.deviceId")}
                 </div>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {execution.deviceNumber}
                 </div>
@@ -1880,12 +2298,20 @@ export default function ExamPage() {
                 }}
               >
                 <div
-                  style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-secondary)",
+                    marginBottom: 2,
+                  }}
                 >
                   {t("examPage.examRoom")}
                 </div>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {execution.roomName}
                 </div>
@@ -1897,8 +2323,8 @@ export default function ExamPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 'var(--space-2, 8px)',
-                marginBottom: 'var(--space-3, 12px)',
+                gap: "var(--space-2, 8px)",
+                marginBottom: "var(--space-3, 12px)",
                 padding: "8px 12px",
                 backgroundColor: PRIMARY_BG,
                 borderRadius: 8,
@@ -1917,40 +2343,57 @@ export default function ExamPage() {
             <div
               style={{
                 display: "flex",
-                gap: 'var(--space-4, 16px)',
-                marginBottom: 'var(--space-4, 16px)',
+                gap: "var(--space-4, 16px)",
+                marginBottom: "var(--space-4, 16px)",
               }}
             >
               <div>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.startTime")}</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {t("examPage.startTime")}
+                </div>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {execution.startTime}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.expectedDuration")}</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {t("examPage.expectedDuration")}
+                </div>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
-                  {execution.estimatedDuration}{t("examPage.minutes")}
+                  {execution.estimatedDuration}
+                  {t("examPage.minutes")}
                 </div>
               </div>
             </div>
 
             {/* 图像采集数量 */}
-            <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+            <div style={{ marginBottom: "var(--space-4, 16px)" }}>
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginBottom: 'var(--space-2, 8px)',
+                  marginBottom: "var(--space-2, 8px)",
                 }}
               >
                 <span
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {t("examPage.imageCount")}
                 </span>
@@ -1958,10 +2401,13 @@ export default function ExamPage() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 'var(--space-2, 8px)',
+                    gap: "var(--space-2, 8px)",
                   }}
                 >
-                  <Camera size={14} style={{ color: "var(--text-secondary)" }} />
+                  <Camera
+                    size={14}
+                    style={{ color: "var(--text-secondary)" }}
+                  />
                   <input
                     type="number"
                     value={execution.imagesAcquired}
@@ -1980,11 +2426,19 @@ export default function ExamPage() {
                       fontSize: 14,
                       fontWeight: 700,
                       textAlign: "center",
-                      color: execution.completed ? "var(--text-muted)" : PRIMARY,
-                      backgroundColor: execution.completed ? "var(--bg-primary)" : "var(--bg-card)",
+                      color: execution.completed
+                        ? "var(--text-muted)"
+                        : PRIMARY,
+                      backgroundColor: execution.completed
+                        ? "var(--bg-primary)"
+                        : "var(--bg-card)",
                     }}
                   />
-                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.framesUnit")}</span>
+                  <span
+                    style={{ fontSize: 12, color: "var(--text-secondary)" }}
+                  >
+                    {t("examPage.framesUnit")}
+                  </span>
                 </div>
               </div>
               {/* 采集进度条 */}
@@ -2000,7 +2454,9 @@ export default function ExamPage() {
                   style={{
                     height: "100%",
                     width: `${Math.min(100, (execution.imagesAcquired / (execution.estimatedDuration * 15)) * 100)}%`,
-                    backgroundColor: execution.completed ? "var(--color-success)" : PRIMARY,
+                    backgroundColor: execution.completed
+                      ? "var(--color-success)"
+                      : PRIMARY,
                     borderRadius: 3,
                     transition: "width 0.3s",
                   }}
@@ -2029,7 +2485,7 @@ export default function ExamPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 'var(--space-2, 8px)',
+                  gap: "var(--space-2, 8px)",
                   padding: "10px 16px",
                   backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
@@ -2047,7 +2503,10 @@ export default function ExamPage() {
                     justifyContent: "center",
                   }}
                 >
-                  <CheckCircle size={16} style={{ color: "var(--color-success)" }} />
+                  <CheckCircle
+                    size={16}
+                    style={{ color: "var(--color-success)" }}
+                  />
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -2074,14 +2533,14 @@ export default function ExamPage() {
 
   // 转科追踪Tab内容
   const TransferTrackingTab = () => (
-    <div style={{ flex: 1, overflow: "auto", padding: 'var(--space-5, 20px)' }}>
+    <div style={{ flex: 1, overflow: "auto", padding: "var(--space-5, 20px)" }}>
       {/* 统计卡片 */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 'var(--space-4, 16px)',
-          marginBottom: 'var(--space-6, 24px)',
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-6, 24px)",
         }}
       >
         {[
@@ -2096,14 +2555,16 @@ export default function ExamPage() {
             value: transferRecords.filter(
               (r) => r.transferReason === "急诊→住院",
             ).length,
-            color: "var(--color-error)", bg: "var(--color-error)22",
+            color: "var(--color-error)",
+            bg: "var(--color-error)22",
           },
           {
             label: t("examPage.transferInpatientToDepartment"),
             value: transferRecords.filter(
               (r) => r.transferReason === "住院→转科",
             ).length,
-            color: "var(--color-warning)", bg: "var(--color-warning)22",
+            color: "var(--color-warning)",
+            bg: "var(--color-warning)22",
           },
           {
             label: t("examPage.pendingExams"),
@@ -2117,12 +2578,18 @@ export default function ExamPage() {
             style={{
               backgroundColor: "var(--bg-card)",
               borderRadius: 12,
-              padding: 'var(--space-4, 16px)',
+              padding: "var(--space-4, 16px)",
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               borderLeft: `4px solid ${stat.color}`,
             }}
           >
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-secondary)",
+                marginBottom: "var(--space-1, 4px)",
+              }}
+            >
               {stat.label}
             </div>
             <div style={{ fontSize: 30, fontWeight: 700, color: stat.color }}>
@@ -2133,14 +2600,20 @@ export default function ExamPage() {
       </div>
 
       {/* 转科记录列表 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
         {transferRecords.map((record) => (
           <div
             key={record.id}
             style={{
               backgroundColor: "var(--bg-card)",
               borderRadius: 12,
-              padding: 'var(--space-5, 20px)',
+              padding: "var(--space-5, 20px)",
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               border: record.examCompleted
                 ? "2px solid var(--color-success-border)"
@@ -2153,10 +2626,16 @@ export default function ExamPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginBottom: 'var(--space-4, 16px)',
+                marginBottom: "var(--space-4, 16px)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-3, 12px)",
+                }}
+              >
                 <div
                   style={{
                     width: 48,
@@ -2172,12 +2651,17 @@ export default function ExamPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
                   >
                     {record.patientName}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    {record.gender} · {record.age}{t("examPage.ageSuffix")} {record.patientType}
+                    {record.gender} · {record.age}
+                    {t("examPage.ageSuffix")} {record.patientType}
                   </div>
                 </div>
               </div>
@@ -2186,7 +2670,7 @@ export default function ExamPage() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-end",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                 }}
               >
                 <div
@@ -2196,12 +2680,16 @@ export default function ExamPage() {
                     backgroundColor: record.examCompleted
                       ? "var(--color-success-bg)"
                       : "var(--color-warning-bg)",
-                    color: record.examCompleted ? "var(--color-success)" : "var(--color-warning)",
+                    color: record.examCompleted
+                      ? "var(--color-success)"
+                      : "var(--color-warning)",
                     fontSize: 12,
                     fontWeight: 600,
                   }}
                 >
-                  {record.examCompleted ? t("examPage.examDone") : t("examPage.examPending")}
+                  {record.examCompleted
+                    ? t("examPage.examDone")
+                    : t("examPage.examPending")}
                 </div>
                 <div
                   style={{
@@ -2233,15 +2721,15 @@ export default function ExamPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(2, 1fr)",
-                gap: 'var(--space-3, 12px)',
-                marginBottom: 'var(--space-4, 16px)',
+                gap: "var(--space-3, 12px)",
+                marginBottom: "var(--space-4, 16px)",
               }}
             >
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-2, 8px)',
+                  gap: "var(--space-2, 8px)",
                   padding: "10px 14px",
                   backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
@@ -2249,9 +2737,15 @@ export default function ExamPage() {
               >
                 <ArrowRight size={14} style={{ color: "var(--color-error)" }} />
                 <div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.fromDept")}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                    {t("examPage.fromDept")}
+                  </div>
                   <div
-                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                    }}
                   >
                     {record.fromDepartment}
                   </div>
@@ -2261,17 +2755,26 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-2, 8px)',
+                  gap: "var(--space-2, 8px)",
                   padding: "10px 14px",
                   backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
                 }}
               >
-                <ArrowRight size={14} style={{ color: "var(--color-success)" }} />
+                <ArrowRight
+                  size={14}
+                  style={{ color: "var(--color-success)" }}
+                />
                 <div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.toDept")}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                    {t("examPage.toDept")}
+                  </div>
                   <div
-                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                    }}
                   >
                     {record.toDepartment}
                   </div>
@@ -2283,8 +2786,8 @@ export default function ExamPage() {
             <div
               style={{
                 display: "flex",
-                gap: 'var(--space-6, 24px)',
-                marginBottom: 'var(--space-3, 12px)',
+                gap: "var(--space-6, 24px)",
+                marginBottom: "var(--space-3, 12px)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -2293,18 +2796,29 @@ export default function ExamPage() {
                   {t("examPage.transferTime")}
                 </span>
                 <span
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {record.transferTime}
                 </span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <Stethoscope size={14} style={{ color: "var(--text-secondary)" }} />
+                <Stethoscope
+                  size={14}
+                  style={{ color: "var(--text-secondary)" }}
+                />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   {t("examPage.attendingLabel")}
                 </span>
                 <span
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {record.attendingDoctor}
                 </span>
@@ -2319,7 +2833,7 @@ export default function ExamPage() {
                   backgroundColor: "var(--color-warning-bg)",
                   borderRadius: 8,
                   borderLeft: "3px solid var(--color-warning)",
-                  marginBottom: 'var(--space-3, 12px)',
+                  marginBottom: "var(--space-3, 12px)",
                 }}
               >
                 <div
@@ -2327,7 +2841,7 @@ export default function ExamPage() {
                     fontSize: 12,
                     fontWeight: 600,
                     color: "var(--color-warning)",
-                    marginBottom: 'var(--space-1, 4px)',
+                    marginBottom: "var(--space-1, 4px)",
                   }}
                 >
                   {t("examPage.transferNote")}
@@ -2344,9 +2858,11 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-2, 8px)',
+                  gap: "var(--space-2, 8px)",
                   padding: "10px 14px",
-                  backgroundColor: record.examCompleted ? "var(--color-success-bg)" : "var(--color-warning-bg)",
+                  backgroundColor: record.examCompleted
+                    ? "var(--color-success-bg)"
+                    : "var(--color-warning-bg)",
                   borderRadius: 8,
                   border: `1px solid ${record.examCompleted ? "var(--color-success-border)" : "var(--color-warning-border)"}`,
                 }}
@@ -2354,7 +2870,9 @@ export default function ExamPage() {
                 <ClipboardList
                   size={14}
                   style={{
-                    color: record.examCompleted ? "var(--color-success)" : "var(--color-warning)",
+                    color: record.examCompleted
+                      ? "var(--color-success)"
+                      : "var(--color-warning)",
                   }}
                 />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -2364,7 +2882,9 @@ export default function ExamPage() {
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: record.examCompleted ? "var(--color-success)" : "var(--color-warning)",
+                    color: record.examCompleted
+                      ? "var(--color-success)"
+                      : "var(--color-warning)",
                   }}
                 >
                   {record.examName}
@@ -2372,7 +2892,10 @@ export default function ExamPage() {
                 {record.examCompleted && (
                   <CheckCircle
                     size={14}
-                    style={{ color: "var(--color-success)", marginLeft: "auto" }}
+                    style={{
+                      color: "var(--color-success)",
+                      marginLeft: "auto",
+                    }}
                   />
                 )}
               </div>
@@ -2387,71 +2910,162 @@ export default function ExamPage() {
 
   // [v3.0.6.11-99 Wave10B] 深度分析视图: 时间线/模态分布/耗时分析/重拍率
   const AnalyticsTab = () => {
-    const maxCount = Math.max(1, ...modalityDist.map(d => d.count))
-    const maxDur = Math.max(1, ...durationByModality.map(d => d.avgMin))
-    const maxRetake = Math.max(1, ...retakeStats.rows.map(r => r.rate))
-    const totalDist = modalityDist.reduce((s, d) => s + d.count, 0)
+    const maxCount = Math.max(1, ...modalityDist.map((d) => d.count));
+    const maxDur = Math.max(1, ...durationByModality.map((d) => d.avgMin));
+    const maxRetake = Math.max(1, ...retakeStats.rows.map((r) => r.rate));
+    const totalDist = modalityDist.reduce((s, d) => s + d.count, 0);
     return (
-      <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          padding: "var(--space-4, 16px)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
         {/* 数据源徽标 */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-          padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8,
-          border: '1px solid var(--border-color)', fontSize: 12,
-        }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 12px', borderRadius: 999,
-            fontWeight: 600,
-            background: analyticsSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-            color: analyticsSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)',
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: analyticsSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)' }} />
-            {t("examPage.dataSource")} {analyticsSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+            padding: "10px 14px",
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            border: "1px solid var(--border-color)",
+            fontSize: 12,
+          }}
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "3px 12px",
+              borderRadius: 999,
+              fontWeight: 600,
+              background:
+                analyticsSource === "real"
+                  ? "var(--color-success-bg)"
+                  : "var(--color-warning-bg)",
+              color:
+                analyticsSource === "real"
+                  ? "var(--color-success)"
+                  : "var(--color-warning)",
+            }}
+          >
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background:
+                  analyticsSource === "real"
+                    ? "var(--color-success)"
+                    : "var(--color-warning)",
+              }}
+            />
+            {t("examPage.dataSource")}{" "}
+            {analyticsSource === "real"
+              ? t("examPage.sourceRealApi")
+              : t("examPage.sourceLocal")}
           </span>
-          {analyticsLoading && <span style={{ color: 'var(--color-warning)' }}>{t("examPage.syncing")}</span>}
+          {analyticsLoading && (
+            <span style={{ color: "var(--color-warning)" }}>
+              {t("examPage.syncing")}
+            </span>
+          )}
           <ActionButton
             action="refresh"
             size="compact"
-            style={{ marginLeft: 'auto' }}
+            style={{ marginLeft: "auto" }}
             onClick={() => void loadAnalytics()}
           >
             {t("examPage.refresh")}
           </ActionButton>
         </div>
         {analyticsError && (
-          <div style={{
-            padding: '8px 12px', borderRadius: 6, fontSize: 12, color: 'var(--color-warning)',
-            background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)',
-          }}>
+          <div
+            style={{
+              padding: "8px 12px",
+              borderRadius: 6,
+              fontSize: 12,
+              color: "var(--color-warning)",
+              background: "var(--color-warning-bg)",
+              border: "1px solid var(--color-warning-border)",
+            }}
+          >
             {analyticsError}
           </div>
         )}
 
         {/* 1. 模态分布卡 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "var(--space-4, 16px)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: 14,
+            }}
+          >
             <PieChartIcon size={16} color={PRIMARY} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.modalityDistCard")}</span>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.totalPrefix")} {totalDist} {t("examPage.examCases")}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
+              {t("examPage.modalityDistCard")}
+            </span>
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              {t("examPage.totalPrefix")} {totalDist} {t("examPage.examCases")}
+            </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6, 24px)' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-6, 24px)",
+            }}
+          >
             {/* 简易环形图 */}
-            <div style={{ position: 'relative', width: 130, height: 130, flexShrink: 0 }}>
+            <div
+              style={{
+                position: "relative",
+                width: 130,
+                height: 130,
+                flexShrink: 0,
+              }}
+            >
               <svg viewBox="0 0 120 120" width={130} height={130}>
                 {(() => {
-                  const colors = ['var(--color-primary)', 'var(--color-modality-mr)', 'var(--color-success)', 'var(--color-warning)', '#ec4899', '#14b8a6', 'var(--text-muted)']
-                  let acc = 0
-                  const R = 48
-                  const C = 2 * Math.PI * R
+                  const colors = [
+                    "var(--color-primary)",
+                    "var(--color-modality-mr)",
+                    "var(--color-success)",
+                    "var(--color-warning)",
+                    "#ec4899",
+                    "#14b8a6",
+                    "var(--text-muted)",
+                  ];
+                  let acc = 0;
+                  const R = 48;
+                  const C = 2 * Math.PI * R;
                   return modalityDist.slice(0, 7).map((d, i) => {
-                    const frac = totalDist > 0 ? d.count / totalDist : 0
-                    const dash = frac * C
-                    const offset = -acc * C
-                    acc += frac
+                    const frac = totalDist > 0 ? d.count / totalDist : 0;
+                    const dash = frac * C;
+                    const offset = -acc * C;
+                    acc += frac;
                     return (
                       <circle
                         key={d.modality}
-                        cx="60" cy="60" r={R}
+                        cx="60"
+                        cy="60"
+                        r={R}
                         fill="none"
                         stroke={colors[i % colors.length]}
                         strokeWidth="16"
@@ -2459,211 +3073,613 @@ export default function ExamPage() {
                         strokeDashoffset={offset}
                         transform="rotate(-90 60 60)"
                       >
-                        <title>{t("w9a.examPage.modalityCountTip", { modality: d.modality, count: d.count })}</title>
+                        <title>
+                          {t("w9a.examPage.modalityCountTip", {
+                            modality: d.modality,
+                            count: d.count,
+                          })}
+                        </title>
                       </circle>
-                    )
-                  })
+                    );
+                  });
                 })()}
-                <text x="60" y="56" textAnchor="middle" fontSize="18" fontWeight="700" fill={PRIMARY}>
+                <text
+                  x="60"
+                  y="56"
+                  textAnchor="middle"
+                  fontSize="18"
+                  fontWeight="700"
+                  fill={PRIMARY}
+                >
                   {totalDist}
                 </text>
-                <text x="60" y="72" textAnchor="middle" fontSize="9" fill="var(--text-muted)">{t("examPage.totalExams")}</text>
+                <text
+                  x="60"
+                  y="72"
+                  textAnchor="middle"
+                  fontSize="9"
+                  fill="var(--text-muted)"
+                >
+                  {t("examPage.totalExams")}
+                </text>
               </svg>
             </div>
             {/* 图例 */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
               {modalityDist.slice(0, 7).map((d, i) => {
-                const colors = ['var(--color-primary)', 'var(--color-modality-mr)', 'var(--color-success)', 'var(--color-warning)', '#ec4899', '#14b8a6', 'var(--text-muted)']
-                const pct = totalDist > 0 ? Math.round((d.count / totalDist) * 1000) / 10 : 0
+                const colors = [
+                  "var(--color-primary)",
+                  "var(--color-modality-mr)",
+                  "var(--color-success)",
+                  "var(--color-warning)",
+                  "#ec4899",
+                  "#14b8a6",
+                  "var(--text-muted)",
+                ];
+                const pct =
+                  totalDist > 0
+                    ? Math.round((d.count / totalDist) * 1000) / 10
+                    : 0;
                 return (
-                  <div key={d.modality} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: 3, background: colors[i % colors.length], flexShrink: 0 }} />
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', width: 44 }}>{d.modality}</span>
-                    <div style={{ flex: 1, height: 7, background: 'var(--content-bg)', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${(d.count / maxCount) * 100}%`, height: '100%', borderRadius: 4,
+                  <div
+                    key={d.modality}
+                    style={{ display: "flex", alignItems: "center", gap: 10 }}
+                  >
+                    <span
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 3,
                         background: colors[i % colors.length],
-                      }} />
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-secondary)",
+                        width: 44,
+                      }}
+                    >
+                      {d.modality}
+                    </span>
+                    <div
+                      style={{
+                        flex: 1,
+                        height: 7,
+                        background: "var(--content-bg)",
+                        borderRadius: 4,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${(d.count / maxCount) * 100}%`,
+                          height: "100%",
+                          borderRadius: 4,
+                          background: colors[i % colors.length],
+                        }}
+                      />
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: PRIMARY, width: 60, textAlign: 'right' }}>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: PRIMARY,
+                        width: 60,
+                        textAlign: "right",
+                      }}
+                    >
                       {d.count} ({pct}%)
                     </span>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
         </div>
 
         {/* 2. 检查耗时分析 (按模态平均时长) */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "var(--space-4, 16px)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: 14,
+            }}
+          >
             <Timer size={16} color="var(--color-warning)" />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.durationAnalysis")}</span>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              {analyticsSource === 'real' ? t("examPage.durationDerivedFrom") : t("examPage.localEstimate")}
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
+              {t("examPage.durationAnalysis")}
+            </span>
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              {analyticsSource === "real"
+                ? t("examPage.durationDerivedFrom")
+                : t("examPage.localEstimate")}
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-5, 20px)', height: 160, padding: '0 8px' }}>
-            {durationByModality.map(d => (
-              <div key={d.modality} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.avgMin}{t("examPage.minUnit")}</span>
-                <div style={{
-                  width: '55%', height: `${(d.avgMin / maxDur) * 120}px`, minHeight: 8, borderRadius: '4px 4px 0 0',
-                  background: d.avgMin <= 15 ? 'linear-gradient(180deg, var(--color-success-500), #86efac)'
-                    : d.avgMin <= 25 ? 'linear-gradient(180deg, var(--color-primary-500), #93c5fd)'
-                    : 'linear-gradient(180deg, var(--color-warning-500), #fcd34d)',
-                  transition: 'height 0.3s',
-                }} title={t("w9a.examPage.avgMinutesTip", { modality: d.modality, min: d.avgMin })} />
-                <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.modality} ({d.count})</span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              gap: "var(--space-5, 20px)",
+              height: 160,
+              padding: "0 8px",
+            }}
+          >
+            {durationByModality.map((d) => (
+              <div
+                key={d.modality}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>
+                  {d.avgMin}
+                  {t("examPage.minUnit")}
+                </span>
+                <div
+                  style={{
+                    width: "55%",
+                    height: `${(d.avgMin / maxDur) * 120}px`,
+                    minHeight: 8,
+                    borderRadius: "4px 4px 0 0",
+                    background:
+                      d.avgMin <= 15
+                        ? "linear-gradient(180deg, var(--color-success-500), #86efac)"
+                        : d.avgMin <= 25
+                          ? "linear-gradient(180deg, var(--color-primary-500), #93c5fd)"
+                          : "linear-gradient(180deg, var(--color-warning-500), #fcd34d)",
+                    transition: "height 0.3s",
+                  }}
+                  title={t("w9a.examPage.avgMinutesTip", {
+                    modality: d.modality,
+                    min: d.avgMin,
+                  })}
+                />
+                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                  {d.modality} ({d.count})
+                </span>
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--color-success)' }} /> {t("examPage.durationFast")}
+          <div
+            style={{
+              marginTop: 10,
+              fontSize: 12,
+              color: "var(--text-secondary)",
+              display: "flex",
+              gap: "var(--space-4, 16px)",
+              flexWrap: "wrap",
+            }}
+          >
+            <span
+              style={{ display: "inline-flex", alignItems: "center", gap: 5 }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 3,
+                  background: "var(--color-success)",
+                }}
+              />{" "}
+              {t("examPage.durationFast")}
             </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--color-primary)' }} /> {t("examPage.durationMedium")}
+            <span
+              style={{ display: "inline-flex", alignItems: "center", gap: 5 }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 3,
+                  background: "var(--color-primary)",
+                }}
+              />{" "}
+              {t("examPage.durationMedium")}
             </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--color-warning)' }} /> {t("examPage.durationLong")}
+            <span
+              style={{ display: "inline-flex", alignItems: "center", gap: 5 }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 3,
+                  background: "var(--color-warning)",
+                }}
+              />{" "}
+              {t("examPage.durationLong")}
             </span>
           </div>
         </div>
 
         {/* 3. 重拍率统计 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14, flexWrap: 'wrap' }}>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "var(--space-4, 16px)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: 14,
+              flexWrap: "wrap",
+            }}
+          >
             <TrendingUp size={16} color="var(--color-error)" />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.retakeStats")}</span>
-            <span style={{
-              fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 999,
-              background: retakeStats.avgRate <= 5 ? 'var(--color-success-bg)' : retakeStats.avgRate <= 8 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
-              color: retakeStats.avgRate <= 5 ? 'var(--color-success)' : retakeStats.avgRate <= 8 ? 'var(--color-warning)' : 'var(--color-error)',
-            }}>
-              {t("examPage.overallRetakeRate")} {retakeStats.avgRate.toFixed(1)}% ({retakeStats.totalRetakes}/{retakeStats.totalExams})
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
+              {t("examPage.retakeStats")}
+            </span>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                padding: "2px 10px",
+                borderRadius: 999,
+                background:
+                  retakeStats.avgRate <= 5
+                    ? "var(--color-success-bg)"
+                    : retakeStats.avgRate <= 8
+                      ? "var(--color-warning-bg)"
+                      : "var(--color-error-bg)",
+                color:
+                  retakeStats.avgRate <= 5
+                    ? "var(--color-success)"
+                    : retakeStats.avgRate <= 8
+                      ? "var(--color-warning)"
+                      : "var(--color-error)",
+              }}
+            >
+              {t("examPage.overallRetakeRate")} {retakeStats.avgRate.toFixed(1)}
+              % ({retakeStats.totalRetakes}/{retakeStats.totalExams})
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {retakeStats.rows.map(r => (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {retakeStats.rows.map((r) => (
               <div key={r.modality}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>
-                    {r.modality} <span style={{ color: 'var(--text-muted)' }}>({r.retakes} {t("examPage.timesPer")} {r.total} {t("examPage.casesSuffix")}</span>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 12,
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  <span style={{ color: "var(--text-secondary)" }}>
+                    {r.modality}{" "}
+                    <span style={{ color: "var(--text-muted)" }}>
+                      ({r.retakes} {t("examPage.timesPer")} {r.total}{" "}
+                      {t("examPage.casesSuffix")}
+                    </span>
                   </span>
-                  <span style={{
-                    fontWeight: 700,
-                    color: r.rate <= 5 ? 'var(--color-success)' : r.rate <= 8 ? 'var(--color-warning)' : 'var(--color-error)',
-                  }}>
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      color:
+                        r.rate <= 5
+                          ? "var(--color-success)"
+                          : r.rate <= 8
+                            ? "var(--color-warning)"
+                            : "var(--color-error)",
+                    }}
+                  >
                     {r.rate}%
                   </span>
                 </div>
-                <div style={{ height: 8, background: 'var(--content-bg)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${(r.rate / maxRetake) * 100}%`, height: '100%', borderRadius: 4,
-                    background: r.rate <= 5 ? 'var(--color-success)' : r.rate <= 8 ? 'var(--color-warning)' : 'var(--color-error)',
-                  }} />
+                <div
+                  style={{
+                    height: 8,
+                    background: "var(--content-bg)",
+                    borderRadius: 4,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${(r.rate / maxRetake) * 100}%`,
+                      height: "100%",
+                      borderRadius: 4,
+                      background:
+                        r.rate <= 5
+                          ? "var(--color-success)"
+                          : r.rate <= 8
+                            ? "var(--color-warning)"
+                            : "var(--color-error)",
+                    }}
+                  />
                 </div>
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 'var(--space-3, 12px)', padding: '10px 12px', borderRadius: 6, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          <div
+            style={{
+              marginTop: "var(--space-3, 12px)",
+              padding: "10px 12px",
+              borderRadius: 6,
+              fontSize: 12,
+              background: "var(--content-bg)",
+              color: "var(--text-secondary)",
+              lineHeight: 1.6,
+            }}
+          >
             {t("examPage.retakeNote")}
           </div>
         </div>
 
         {/* 4. 检查时间线视图 (按患者) */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 14 }}>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "var(--space-4, 16px)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: 14,
+            }}
+          >
             <Layers size={16} color="var(--color-modality-mr)" />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.examTimeline")}</span>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.lastPrefix")} {patientTimeline.length} {t("examPage.multiExamPatients")}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
+              {t("examPage.examTimeline")}
+            </span>
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              {t("examPage.lastPrefix")} {patientTimeline.length}{" "}
+              {t("examPage.multiExamPatients")}
+            </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', maxHeight: 480, overflowY: 'auto' }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-3, 12px)",
+              maxHeight: 480,
+              overflowY: "auto",
+            }}
+          >
             {patientTimeline.length === 0 && (
-              <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 12 }}>{t("examPage.noExamData")}</div>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: 30,
+                  color: "var(--text-muted)",
+                  fontSize: 12,
+                }}
+              >
+                {t("examPage.noExamData")}
+              </div>
             )}
-            {patientTimeline.map(g => (
-              <div key={g.patientId} style={{ border: '1px solid var(--border-color)', borderRadius: 10, overflow: 'hidden' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
-                  background: 'var(--content-bg)',
-                }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                    background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', color: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700,
-                  }}>
+            {patientTimeline.map((g) => (
+              <div
+                key={g.patientId}
+                style={{
+                  border: "1px solid var(--border-color)",
+                  borderRadius: 10,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "10px 14px",
+                    background: "var(--content-bg)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      flexShrink: 0,
+                      background:
+                        "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 14,
+                      fontWeight: 700,
+                    }}
+                  >
                     {g.patientName.slice(0, 1)}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{g.patientName}</span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'var(--space-2, 8px)' }}>{g.patientId}</span>
+                    <span
+                      style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}
+                    >
+                      {g.patientName}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                        marginLeft: "var(--space-2, 8px)",
+                      }}
+                    >
+                      {g.patientId}
+                    </span>
                   </div>
-                  <span style={{
-                    fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 999,
-                    background: 'var(--color-info-bg)', color: PRIMARY,
-                  }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "2px 10px",
+                      borderRadius: 999,
+                      background: "var(--color-info-bg)",
+                      color: PRIMARY,
+                    }}
+                  >
                     {g.items.length} {t("examPage.examTimes")}
                   </span>
                 </div>
-                <div style={{ padding: '10px 14px', position: 'relative' }}>
+                <div style={{ padding: "10px 14px", position: "relative" }}>
                   {/* 时间轴 */}
-                  <div style={{
-                    position: 'absolute', left: 27, top: 8, bottom: 8, width: 2,
-                    background: 'var(--border-color)',
-                  }} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 27,
+                      top: 8,
+                      bottom: 8,
+                      width: 2,
+                      background: "var(--border-color)",
+                    }}
+                  />
                   {g.items.slice(0, 6).map((ex, idx) => (
-                    <div key={String(ex.id) + idx} style={{
-                      display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3, 12px)', padding: '6px 0', position: 'relative',
-                    }}>
-                      <div style={{
-                        width: 12, height: 12, borderRadius: '50%', flexShrink: 0, marginTop: 3, zIndex: 1,
-                        background: ex.status === '已报告' || ex.status === '已发布' ? 'var(--color-success)'
-                          : ex.status === '检查中' ? 'var(--color-warning)' : 'var(--color-primary)',
-                        boxShadow: `0 0 0 3px ${ex.status === '已报告' || ex.status === '已发布' ? 'var(--color-success)22' : ex.status === '检查中' ? 'var(--color-warning)22' : 'var(--color-primary)22'}`,
-                      }} />
+                    <div
+                      key={String(ex.id) + idx}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "var(--space-3, 12px)",
+                        padding: "6px 0",
+                        position: "relative",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          flexShrink: 0,
+                          marginTop: 3,
+                          zIndex: 1,
+                          background:
+                            ex.status === "已报告" || ex.status === "已发布"
+                              ? "var(--color-success)"
+                              : ex.status === "检查中"
+                                ? "var(--color-warning)"
+                                : "var(--color-primary)",
+                          boxShadow: `0 0 0 3px ${ex.status === "已报告" || ex.status === "已发布" ? "var(--color-success)22" : ex.status === "检查中" ? "var(--color-warning)22" : "var(--color-primary)22"}`,
+                        }}
+                      />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--space-2, 8px)",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: "var(--text-primary)",
+                            }}
+                          >
                             {ex.examItemName}
                           </span>
-                          <span style={{
-                            fontSize: 11, padding: '1px 8px', borderRadius: 4, fontWeight: 600,
-                            background: MODALITY_COLOR_BG(ex.modality), color: MODALITY_COLOR(ex.modality),
-                          }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              padding: "1px 8px",
+                              borderRadius: 4,
+                              fontWeight: 600,
+                              background: MODALITY_COLOR_BG(ex.modality),
+                              color: MODALITY_COLOR(ex.modality),
+                            }}
+                          >
                             {ex.modality}
                           </span>
-                          <span style={{
-                            fontSize: 11, padding: '1px 8px', borderRadius: 4,
-                            background: STATUS_CONFIG[ex.status]?.bg || 'var(--bg-deep)',
-                            color: STATUS_CONFIG[ex.status]?.color || 'var(--text-secondary)',
-                          }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              padding: "1px 8px",
+                              borderRadius: 4,
+                              background:
+                                STATUS_CONFIG[ex.status]?.bg ||
+                                "var(--bg-deep)",
+                              color:
+                                STATUS_CONFIG[ex.status]?.color ||
+                                "var(--text-secondary)",
+                            }}
+                          >
                             {STATUS_CONFIG[ex.status]?.label || ex.status}
                           </span>
-                          {ex.priority === '危重' || ex.priority === '紧急' ? (
-                            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-error)' }}>{ex.priority}</span>
+                          {ex.priority === "危重" || ex.priority === "紧急" ? (
+                            <span
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: "var(--color-error)",
+                              }}
+                            >
+                              {ex.priority}
+                            </span>
                           ) : null}
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                          {ex.examDate} {ex.examTime} · {ex.roomName || '—'} · {ex.deviceName?.split('（')[0] || '—'}
-                          {ex.imageCount ? t("w9a.examPage.imagesSuffix", { count: ex.imageCount }) : ''}
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "var(--text-muted)",
+                            marginTop: 2,
+                          }}
+                        >
+                          {ex.examDate} {ex.examTime} · {ex.roomName || "—"} ·{" "}
+                          {ex.deviceName?.split("（")[0] || "—"}
+                          {ex.imageCount
+                            ? t("w9a.examPage.imagesSuffix", {
+                                count: ex.imageCount,
+                              })
+                            : ""}
                         </div>
                       </div>
                       <ActionButton
                         action="refresh"
                         size="compact"
                         icon={<Eye size={11} />}
-                        onClick={() => navigate(`/dicom-viewer?examId=${ex.id}`)}
+                        onClick={() =>
+                          navigate(`/dicom-viewer?examId=${ex.id}`)
+                        }
                       >
                         {t("examPage.viewImages")}
                       </ActionButton>
                     </div>
                   ))}
                   {g.items.length > 6 && (
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '4px 0' }}>
-                      {t("examPage.additionalPrefix")} {g.items.length - 6} {t("examPage.earlierExams")}
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                        textAlign: "center",
+                        padding: "4px 0",
+                      }}
+                    >
+                      {t("examPage.additionalPrefix")} {g.items.length - 6}{" "}
+                      {t("examPage.earlierExams")}
                     </div>
                   )}
                 </div>
@@ -2673,112 +3689,296 @@ export default function ExamPage() {
         </div>
 
         {/* 5. 日检查量趋势 + 状态/患者类型/优先级分布 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "var(--space-4, 16px)",
+          }}
+        >
           {/* 日检查量趋势 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
+          <div
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-4, 16px)",
+              border: "1px solid var(--border-color)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2, 8px)",
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
               <TrendingUp size={16} color={PRIMARY} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.examTrend14d")}</span>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.derivedFromExamDate")}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
+                {t("examPage.examTrend14d")}
+              </span>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                {t("examPage.derivedFromExamDate")}
+              </span>
             </div>
             {(() => {
-              const byDay = new Map<string, number>()
-              allExams.forEach(e => {
-                const d = String(e.examDate || '').slice(0, 10)
-                if (d) byDay.set(d, (byDay.get(d) || 0) + 1)
-              })
-              const days = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-14)
-              const maxCount = Math.max(1, ...days.map(([, c]) => c))
+              const byDay = new Map<string, number>();
+              allExams.forEach((e) => {
+                const d = String(e.examDate || "").slice(0, 10);
+                if (d) byDay.set(d, (byDay.get(d) || 0) + 1);
+              });
+              const days = [...byDay.entries()]
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .slice(-14);
+              const maxCount = Math.max(1, ...days.map(([, c]) => c));
               return days.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 12 }}>{t("examPage.noDateData")}</div>
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: 30,
+                    color: "var(--text-muted)",
+                    fontSize: 12,
+                  }}
+                >
+                  {t("examPage.noDateData")}
+                </div>
               ) : (
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 120 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    gap: 5,
+                    height: 120,
+                  }}
+                >
                   {days.map(([day, count]) => (
-                    <div key={day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                      <span style={{ fontSize: 10, color: PRIMARY, fontWeight: 600 }}>{count}</span>
-                      <div style={{
-                        width: '70%', borderRadius: '3px 3px 0 0', minHeight: 4,
-                        height: `${(count / maxCount) * 90}px`,
-                        background: 'linear-gradient(180deg, var(--color-primary-800), #93c5fd)',
-                        transition: 'height 0.3s',
-                      }} title={t("w9a.examPage.dayCountTip", { day, count })} />
-                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{day.slice(5)}</span>
+                    <div
+                      key={day}
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 3,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 10,
+                          color: PRIMARY,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {count}
+                      </span>
+                      <div
+                        style={{
+                          width: "70%",
+                          borderRadius: "3px 3px 0 0",
+                          minHeight: 4,
+                          height: `${(count / maxCount) * 90}px`,
+                          background:
+                            "linear-gradient(180deg, var(--color-primary-800), #93c5fd)",
+                          transition: "height 0.3s",
+                        }}
+                        title={t("w9a.examPage.dayCountTip", { day, count })}
+                      />
+                      <span
+                        style={{ fontSize: 10, color: "var(--text-muted)" }}
+                      >
+                        {day.slice(5)}
+                      </span>
                     </div>
                   ))}
                 </div>
-              )
+              );
             })()}
-            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-muted)' }}>
-              {t("examPage.dailyAvg")} <strong style={{ color: PRIMARY }}>
-                {Math.round(allExams.length / Math.max(1, new Set(allExams.map(e => String(e.examDate || '').slice(0, 10))).size))}
-              </strong> {t("examPage.casesUnit")}
+            <div
+              style={{
+                marginTop: "var(--space-2, 8px)",
+                fontSize: 11,
+                color: "var(--text-muted)",
+              }}
+            >
+              {t("examPage.dailyAvg")}{" "}
+              <strong style={{ color: PRIMARY }}>
+                {Math.round(
+                  allExams.length /
+                    Math.max(
+                      1,
+                      new Set(
+                        allExams.map((e) =>
+                          String(e.examDate || "").slice(0, 10),
+                        ),
+                      ).size,
+                    ),
+                )}
+              </strong>{" "}
+              {t("examPage.casesUnit")}
             </div>
           </div>
 
           {/* 状态/患者类型/优先级 分布 */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
+          <div
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-4, 16px)",
+              border: "1px solid var(--border-color)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2, 8px)",
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
               <PieChartIcon size={16} color="var(--color-modality-mr)" />
-              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.distTitle")}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
+                {t("examPage.distTitle")}
+              </span>
             </div>
             {(() => {
-              const statusMap = new Map<string, number>()
-              const typeMap = new Map<string, number>()
-              const prioMap = new Map<string, number>()
-              allExams.forEach(e => {
-                const st = STATUS_CONFIG[e.status]?.label || e.status || t("examPage.unknown")
-                statusMap.set(st, (statusMap.get(st) || 0) + 1)
-                const pt = String(e.patientType || "门诊")
-                typeMap.set(pt, (typeMap.get(pt) || 0) + 1)
-                const pr = String(e.priority || '普通')
-                prioMap.set(pr, (prioMap.get(pr) || 0) + 1)
-              })
-              const distRow = (title: string, data: Map<string, number>, colors: Record<string, string>) => {
-                const rows = [...data.entries()].sort((a, b) => b[1] - a[1])
-                const max = Math.max(1, ...rows.map(([, c]) => c))
+              const statusMap = new Map<string, number>();
+              const typeMap = new Map<string, number>();
+              const prioMap = new Map<string, number>();
+              allExams.forEach((e) => {
+                const st =
+                  STATUS_CONFIG[e.status]?.label ||
+                  e.status ||
+                  t("examPage.unknown");
+                statusMap.set(st, (statusMap.get(st) || 0) + 1);
+                const pt = String(e.patientType || "门诊");
+                typeMap.set(pt, (typeMap.get(pt) || 0) + 1);
+                const pr = String(e.priority || "普通");
+                prioMap.set(pr, (prioMap.get(pr) || 0) + 1);
+              });
+              const distRow = (
+                title: string,
+                data: Map<string, number>,
+                colors: Record<string, string>,
+              ) => {
+                const rows = [...data.entries()].sort((a, b) => b[1] - a[1]);
+                const max = Math.max(1, ...rows.map(([, c]) => c));
                 return (
                   <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{title}</div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: "var(--text-secondary)",
+                        marginBottom: 6,
+                      }}
+                    >
+                      {title}
+                    </div>
                     {rows.slice(0, 5).map(([k, v]) => (
-                      <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
-                        <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 62, flexShrink: 0 }}>{k}</span>
-                        <div style={{ flex: 1, height: 6, background: 'var(--content-bg)', borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{
-                            width: `${(v / max) * 100}%`, height: '100%', borderRadius: 3,
-                            background: colors[k] || 'var(--color-primary)',
-                          }} />
+                      <div
+                        key={k}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-2, 8px)",
+                          marginBottom: "var(--space-1, 4px)",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "var(--text-secondary)",
+                            width: 62,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {k}
+                        </span>
+                        <div
+                          style={{
+                            flex: 1,
+                            height: 6,
+                            background: "var(--content-bg)",
+                            borderRadius: 3,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${(v / max) * 100}%`,
+                              height: "100%",
+                              borderRadius: 3,
+                              background: colors[k] || "var(--color-primary)",
+                            }}
+                          />
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', width: 34, textAlign: 'right' }}>{v}</span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: "var(--text-primary)",
+                            width: 34,
+                            textAlign: "right",
+                          }}
+                        >
+                          {v}
+                        </span>
                       </div>
                     ))}
                   </div>
-                )
-              }
+                );
+              };
               return (
                 <div>
                   {distRow(t("examPage.examStatus"), statusMap, {
-                    '待检查': 'var(--color-primary)', '检查中': 'var(--color-warning)', '已报告': 'var(--color-success)', '已发布': 'var(--color-modality-mr)', '待报告': 'var(--color-info-500)', '已登记': 'var(--text-secondary)',
+                    待检查: "var(--color-primary)",
+                    检查中: "var(--color-warning)",
+                    已报告: "var(--color-success)",
+                    已发布: "var(--color-modality-mr)",
+                    待报告: "var(--color-info-500)",
+                    已登记: "var(--text-secondary)",
                   })}
-                  {distRow(t("examPage.patientType"), typeMap, { '门诊': 'var(--color-primary)', '住院': 'var(--color-modality-mr)', '急诊': 'var(--color-error)', '体检': '#10b981' })}
-                  {distRow(t("examPage.priority"), prioMap, { '普通': 'var(--text-muted)', '紧急': 'var(--color-warning)', '危重': 'var(--color-error)' })}
+                  {distRow(t("examPage.patientType"), typeMap, {
+                    门诊: "var(--color-primary)",
+                    住院: "var(--color-modality-mr)",
+                    急诊: "var(--color-error)",
+                    体检: "#10b981",
+                  })}
+                  {distRow(t("examPage.priority"), prioMap, {
+                    普通: "var(--text-muted)",
+                    紧急: "var(--color-warning)",
+                    危重: "var(--color-error)",
+                  })}
                 </div>
-              )
+              );
             })()}
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   // 模态颜色辅助 (时间线徽标)
   const MODALITY_COLOR = (m: string): string => {
-    const map: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#8b5cf6', DR: 'var(--color-success-600)', DSA: 'var(--color-warning-600)', MG: '#db2777' }
-    return map[String(m)] || '#64748b'
-  }
+    const map: Record<string, string> = {
+      CT: "var(--color-primary-500)",
+      MR: "#8b5cf6",
+      DR: "var(--color-success-600)",
+      DSA: "var(--color-warning-600)",
+      MG: "#db2777",
+    };
+    return map[String(m)] || "#64748b";
+  };
   const MODALITY_COLOR_BG = (m: string): string => {
-    const map: Record<string, string> = { CT: 'var(--color-primary)22', MR: 'var(--color-modality-mr)22', DR: 'var(--color-success)22', DSA: 'var(--color-warning)22', MG: '#db277722' }
-    return map[String(m)] || 'var(--text-secondary)22'
-  }
+    const map: Record<string, string> = {
+      CT: "var(--color-primary)22",
+      MR: "var(--color-modality-mr)22",
+      DR: "var(--color-success)22",
+      DSA: "var(--color-warning)22",
+      MG: "#db277722",
+    };
+    return map[String(m)] || "var(--text-secondary)22";
+  };
 
   // 底部统计栏
   const StatsBar = () => (
@@ -2787,7 +3987,7 @@ export default function ExamPage() {
         backgroundColor: PRIMARY,
         padding: "12px 20px",
         display: "flex",
-        gap: 'var(--space-6, 24px)',
+        gap: "var(--space-6, 24px)",
       }}
     >
       {[
@@ -2827,7 +4027,7 @@ export default function ExamPage() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 'var(--space-2, 8px)',
+            gap: "var(--space-2, 8px)",
           }}
         >
           <item.icon size={16} style={{ color: item.color, opacity: 0.9 }} />
@@ -2925,7 +4125,7 @@ export default function ExamPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 'var(--space-2, 8px)',
+                gap: "var(--space-2, 8px)",
                 color: "var(--text-inverse)",
               }}
             >
@@ -2942,7 +4142,7 @@ export default function ExamPage() {
                 border: "none",
                 color: "rgba(255,255,255,0.8)",
                 cursor: "pointer",
-                padding: 'var(--space-1, 4px)',
+                padding: "var(--space-1, 4px)",
               }}
             >
               <X size={18} />
@@ -2950,24 +4150,26 @@ export default function ExamPage() {
           </div>
 
           {/* Body */}
-          <div style={{ padding: 'var(--space-5, 20px)' }}>
+          <div style={{ padding: "var(--space-5, 20px)" }}>
             {/* 患者信息 */}
             <div
               style={{
                 backgroundColor: "var(--bg-card)",
                 borderRadius: 8,
-                padding: 'var(--space-3, 12px)',
-                marginBottom: 'var(--space-4, 16px)',
+                padding: "var(--space-3, 12px)",
+                marginBottom: "var(--space-4, 16px)",
               }}
             >
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: 'var(--space-2, 8px)',
+                  marginBottom: "var(--space-2, 8px)",
                 }}
               >
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.patientName")}</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {t("examPage.patientName")}
+                </span>
                 <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                   {modal.exam.patientName}
                 </span>
@@ -2976,10 +4178,12 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: 'var(--space-2, 8px)',
+                  marginBottom: "var(--space-2, 8px)",
                 }}
               >
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.examItem")}</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {t("examPage.examItem")}
+                </span>
                 <span style={{ color: "var(--text-primary)" }}>
                   {modal.exam.examItemName}
                 </span>
@@ -2988,16 +4192,25 @@ export default function ExamPage() {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: 'var(--space-2, 8px)',
+                  marginBottom: "var(--space-2, 8px)",
                 }}
               >
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.accessionNo2")}</span>
-                <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {t("examPage.accessionNo2")}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "monospace",
+                    color: "var(--text-secondary)",
+                  }}
+                >
                   {modal.exam.accessionNumber}
                 </span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.device2")}</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {t("examPage.device2")}
+                </span>
                 <span style={{ color: "var(--text-primary)" }}>
                   {modal.exam.deviceName?.split("（")[0]}
                 </span>
@@ -3006,19 +4219,19 @@ export default function ExamPage() {
 
             {/* 操作特定内容 */}
             {modal.action === "quality" && (
-              <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+              <div style={{ marginBottom: "var(--space-4, 16px)" }}>
                 <label
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
                     color: "var(--text-primary)",
                     display: "block",
-                    marginBottom: 'var(--space-2, 8px)',
+                    marginBottom: "var(--space-2, 8px)",
                   }}
                 >
                   {t("examPage.qualityRating")}
                 </label>
-                <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+                <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
                   {["优", t("examPage.good"), "差"].map((q) => (
                     <button
                       key={q}
@@ -3071,7 +4284,7 @@ export default function ExamPage() {
                   fontWeight: 600,
                   color: "var(--text-primary)",
                   display: "block",
-                  marginBottom: 'var(--space-2, 8px)',
+                  marginBottom: "var(--space-2, 8px)",
                 }}
               >
                 {t("examPage.opNote")}
@@ -3087,13 +4300,16 @@ export default function ExamPage() {
                   border: "1px solid var(--border-color)",
                   borderRadius: 6,
                   fontSize: 12,
-                  resize: "none", boxSizing: "border-box",
+                  resize: "none",
+                  boxSizing: "border-box",
                   fontFamily: "inherit",
                 }}
                 onFocus={(e) =>
                   (e.target.style.borderColor = actionConfig.color)
                 }
-                onBlur={(e) => (e.target.style.borderColor = "var(--border-color)")}
+                onBlur={(e) =>
+                  (e.target.style.borderColor = "var(--border-color)")
+                }
               />
             </div>
           </div>
@@ -3105,7 +4321,7 @@ export default function ExamPage() {
               borderTop: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "flex-end",
-              gap: 'var(--space-2, 8px)',
+              gap: "var(--space-2, 8px)",
             }}
           >
             <ActionButton action="cancel" onClick={closeModal}>
@@ -3113,7 +4329,10 @@ export default function ExamPage() {
             </ActionButton>
             <ActionButton
               action="submit"
-              style={{ backgroundColor: actionConfig.color, borderColor: actionConfig.color }}
+              style={{
+                backgroundColor: actionConfig.color,
+                borderColor: actionConfig.color,
+              }}
               loading={executing}
               disabled={executing}
               onClick={handleExecute}
@@ -3130,65 +4349,187 @@ export default function ExamPage() {
   const StatisticsTab = () => {
     const modalityColumns: TableColumnsType<ExamByModalityItem> = [
       {
-        title: t("examPage.colModality"), dataIndex: "modality", key: "modality", width: 100,
-        render: (v: string) => <span style={{ fontWeight: 700, color: PRIMARY }}>{v}</span>,
+        title: t("examPage.colModality"),
+        dataIndex: "modality",
+        key: "modality",
+        width: 100,
+        render: (v: string) => (
+          <span style={{ fontWeight: 700, color: PRIMARY }}>{v}</span>
+        ),
       },
-      { title: t("examPage.colTotal"), dataIndex: "total", key: "total", width: 90, align: "center" },
-      { title: t("examPage.colInProgress"), dataIndex: "inProgress", key: "inProgress", width: 100, align: "center" },
-      { title: t("examPage.colCompleted"), dataIndex: "completed", key: "completed", width: 100, align: "center" },
       {
-        title: t("examPage.colAvgDuration"), dataIndex: "avgDurationMin", key: "avgDurationMin", width: 120, align: "center",
+        title: t("examPage.colTotal"),
+        dataIndex: "total",
+        key: "total",
+        width: 90,
+        align: "center",
+      },
+      {
+        title: t("examPage.colInProgress"),
+        dataIndex: "inProgress",
+        key: "inProgress",
+        width: 100,
+        align: "center",
+      },
+      {
+        title: t("examPage.colCompleted"),
+        dataIndex: "completed",
+        key: "completed",
+        width: 100,
+        align: "center",
+      },
+      {
+        title: t("examPage.colAvgDuration"),
+        dataIndex: "avgDurationMin",
+        key: "avgDurationMin",
+        width: 120,
+        align: "center",
         render: (v: number) => `${v} ${t("examPage.minuteShort")}`,
       },
-    ]
+    ];
     return (
-      <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          padding: "var(--space-4, 16px)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
         {/* 数据源徽标 */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-          padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8,
-          border: '1px solid var(--border-color)', fontSize: 12,
-        }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 12px', borderRadius: 999, fontWeight: 600,
-            background: statSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-            color: statSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)',
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: statSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)' }} />
-            {t("examPage.dataSource")} {statSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+            padding: "10px 14px",
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            border: "1px solid var(--border-color)",
+            fontSize: 12,
+          }}
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "3px 12px",
+              borderRadius: 999,
+              fontWeight: 600,
+              background:
+                statSource === "real"
+                  ? "var(--color-success-bg)"
+                  : "var(--color-warning-bg)",
+              color:
+                statSource === "real"
+                  ? "var(--color-success)"
+                  : "var(--color-warning)",
+            }}
+          >
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background:
+                  statSource === "real"
+                    ? "var(--color-success)"
+                    : "var(--color-warning)",
+              }}
+            />
+            {t("examPage.dataSource")}{" "}
+            {statSource === "real"
+              ? t("examPage.sourceRealApi")
+              : t("examPage.sourceLocal")}
           </span>
-          {statLoading && <span style={{ color: 'var(--color-warning)' }}>{t("examPage.syncing")}</span>}
+          {statLoading && (
+            <span style={{ color: "var(--color-warning)" }}>
+              {t("examPage.syncing")}
+            </span>
+          )}
           <ActionButton
             action="refresh"
             size="compact"
-            style={{ marginLeft: 'auto' }}
+            style={{ marginLeft: "auto" }}
             onClick={() => void loadStatistics()}
           >
             {t("examPage.refresh")}
           </ActionButton>
         </div>
         {statError && (
-          <div style={{
-            padding: '8px 12px', borderRadius: 6, fontSize: 12, color: 'var(--color-warning)',
-            background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)',
-          }}>
+          <div
+            style={{
+              padding: "8px 12px",
+              borderRadius: 6,
+              fontSize: 12,
+              color: "var(--color-warning)",
+              background: "var(--color-warning-bg)",
+              border: "1px solid var(--color-warning-border)",
+            }}
+          >
             {statError}
           </div>
         )}
 
         {/* 1. 检查概览 KPI */}
-        <DashboardCard title={t("examPage.examOverview")} icon={<Activity size={14} />} loading={statLoading} skeletonRows={2} testId="exam-stats-overview">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-3, 12px)' }}>
-            <StatCard title={t("examPage.overviewTotal")} value={statOverview.total} icon={<Layers size={20} />} color="primary" />
-            <StatCard title={t("examPage.overviewTodayScheduled")} value={statOverview.todayScheduled} icon={<ClipboardList size={20} />} color="info" />
-            <StatCard title={t("examPage.overviewTodayCompleted")} value={statOverview.todayCompleted} icon={<CheckCircle2 size={20} />} color="success" />
-            <StatCard title={t("examPage.overviewAvgDuration")} value={statOverview.avgDurationMin} suffix={t("examPage.minuteShort")} icon={<Timer size={20} />} color="warning" />
-            <StatCard title={t("examPage.overviewRetakeRate")} value={`${statOverview.retakeRate}%`} icon={<RefreshCcw size={20} />} color="error" />
+        <DashboardCard
+          title={t("examPage.examOverview")}
+          icon={<Activity size={14} />}
+          loading={statLoading}
+          skeletonRows={2}
+          testId="exam-stats-overview"
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
+            <StatCard
+              title={t("examPage.overviewTotal")}
+              value={statOverview.total}
+              icon={<Layers size={20} />}
+              color="primary"
+            />
+            <StatCard
+              title={t("examPage.overviewTodayScheduled")}
+              value={statOverview.todayScheduled}
+              icon={<ClipboardList size={20} />}
+              color="info"
+            />
+            <StatCard
+              title={t("examPage.overviewTodayCompleted")}
+              value={statOverview.todayCompleted}
+              icon={<CheckCircle2 size={20} />}
+              color="success"
+            />
+            <StatCard
+              title={t("examPage.overviewAvgDuration")}
+              value={statOverview.avgDurationMin}
+              suffix={t("examPage.minuteShort")}
+              icon={<Timer size={20} />}
+              color="warning"
+            />
+            <StatCard
+              title={t("examPage.overviewRetakeRate")}
+              value={`${statOverview.retakeRate}%`}
+              icon={<RefreshCcw size={20} />}
+              color="error"
+            />
           </div>
         </DashboardCard>
 
         {/* 2. 按模态分布 */}
-        <DashboardCard title={t("examPage.byModalityStat")} icon={<PieChartIcon size={14} />} loading={statLoading} skeletonRows={5} testId="exam-stats-by-modality">
+        <DashboardCard
+          title={t("examPage.byModalityStat")}
+          icon={<PieChartIcon size={14} />}
+          loading={statLoading}
+          skeletonRows={5}
+          testId="exam-stats-by-modality"
+        >
           <DataTable<ExamByModalityItem>
             rowKey="modality"
             columns={modalityColumns}
@@ -3199,25 +4540,52 @@ export default function ExamPage() {
         </DashboardCard>
 
         {/* 3. 每日趋势 */}
-        <DashboardCard title={t("examPage.dailyTrendStat")} icon={<TrendingUp size={14} />} loading={statLoading} skeletonRows={6} testId="exam-stats-daily-trend">
-          <div style={{ marginBottom: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)' }}>
-            {t("examPage.last30Days")} · {statTrend.length} {t("examPage.casesUnit")}
+        <DashboardCard
+          title={t("examPage.dailyTrendStat")}
+          icon={<TrendingUp size={14} />}
+          loading={statLoading}
+          skeletonRows={6}
+          testId="exam-stats-daily-trend"
+        >
+          <div
+            style={{
+              marginBottom: "var(--space-2, 8px)",
+              fontSize: 12,
+              color: "var(--text-secondary)",
+            }}
+          >
+            {t("examPage.last30Days")} · {statTrend.length}{" "}
+            {t("examPage.casesUnit")}
           </div>
           <TrendChart
             type="area"
-            data={statTrend.map((i) => ({ date: String(i.date).slice(5), created: i.created, completed: i.completed }))}
+            data={statTrend.map((i) => ({
+              date: String(i.date).slice(5),
+              created: i.created,
+              completed: i.completed,
+            }))}
             xKey="date"
             series={[
-              { key: 'created', name: t("examPage.seriesCreated"), color: 'var(--color-primary-500)', gradient: true },
-              { key: 'completed', name: t("examPage.seriesCompleted"), color: 'var(--color-success-500)', gradient: true },
+              {
+                key: "created",
+                name: t("examPage.seriesCreated"),
+                color: "var(--color-primary-500)",
+                gradient: true,
+              },
+              {
+                key: "completed",
+                name: t("examPage.seriesCompleted"),
+                color: "var(--color-success-500)",
+                gradient: true,
+              },
             ]}
             height={240}
             testId="exam-stats-daily-trend-chart"
           />
         </DashboardCard>
       </div>
-    )
-  }
+    );
+  };
 
   // ==================== 主渲染 ====================
   return (
@@ -3236,7 +4604,13 @@ export default function ExamPage() {
       }}
     >
       {loading && <LoadingBanner message={t("examPage.loading")} />}
-      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
+      {loadError && !loading && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
       {/* Tab栏 */}
       <TabBar />
 
@@ -3246,10 +4620,28 @@ export default function ExamPage() {
         onAction={handleBatchAction}
         onClear={() => setSelectedIds(new Set())}
         actions={[
-          { key: "assign", label: t("examPage.batchAssign"), icon: <UserCheck size={14} />, confirm: t("examPage.confirmAssign") },
-          { key: "sign", label: t("examPage.batchSign"), icon: <CheckSquare size={14} />, confirm: t("examPage.confirmSign") },
-          { key: "print", label: t("examPage.batchPrint"), icon: <Printer size={14} /> },
-          { key: "export", label: t("examPage.batchExport2"), icon: <Download size={14} /> },
+          {
+            key: "assign",
+            label: t("examPage.batchAssign"),
+            icon: <UserCheck size={14} />,
+            confirm: t("examPage.confirmAssign"),
+          },
+          {
+            key: "sign",
+            label: t("examPage.batchSign"),
+            icon: <CheckSquare size={14} />,
+            confirm: t("examPage.confirmSign"),
+          },
+          {
+            key: "print",
+            label: t("examPage.batchPrint"),
+            icon: <Printer size={14} />,
+          },
+          {
+            key: "export",
+            label: t("examPage.batchExport2"),
+            icon: <Download size={14} />,
+          },
         ]}
       />
 
@@ -3257,21 +4649,36 @@ export default function ExamPage() {
       <Modal
         title={t("w9a.examPage.batchAssignTitle", { count: selectedIds.size })}
         open={batchAssignModal.visible}
-        onCancel={() => setBatchAssignModal((prev) => ({ ...prev, visible: false }))}
+        onCancel={() =>
+          setBatchAssignModal((prev) => ({ ...prev, visible: false }))
+        }
         onOk={() => void handleBatchAssignConfirm()}
         confirmLoading={batchAssigning}
         okText={t("examPage.confirmAssign2")}
         cancelText={t("examPage.cancel")}
       >
-        <div style={{ padding: "8px 0 4px", fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-2, 8px)' }}>
-          {t("examPage.forSelected")} {selectedIds.size} {t("examPage.assignDeviceFor")}
+        <div
+          style={{
+            padding: "8px 0 4px",
+            fontSize: 12,
+            color: "var(--text-secondary)",
+            marginBottom: "var(--space-2, 8px)",
+          }}
+        >
+          {t("examPage.forSelected")} {selectedIds.size}{" "}
+          {t("examPage.assignDeviceFor")}
         </div>
         <Select
           style={{ width: "100%" }}
           placeholder={t("examPage.selectDevice")}
           value={batchAssignModal.deviceId || undefined}
-          onChange={(v) => setBatchAssignModal((prev) => ({ ...prev, deviceId: v }))}
-          options={initialModalityDevices.map((d) => ({ value: d.id, label: `${d.name}（${d.modality ?? ""}）` }))}
+          onChange={(v) =>
+            setBatchAssignModal((prev) => ({ ...prev, deviceId: v }))
+          }
+          options={initialModalityDevices.map((d) => ({
+            value: d.id,
+            label: `${d.name}（${d.modality ?? ""}）`,
+          }))}
         />
       </Modal>
 
@@ -3314,7 +4721,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 'var(--space-6, 24px)',
+            padding: "var(--space-6, 24px)",
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowMergeModal(false);
@@ -3345,11 +4752,18 @@ export default function ExamPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <MergeIcon size={18} color="var(--text-inverse)" />
-                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-inverse)" }}>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "var(--text-inverse)",
+                  }}
+                >
                   {t("examPage.mergeExams")}
                 </span>
               </div>
-              <button aria-label="关闭"
+              <button
+                aria-label="关闭"
                 onClick={() => setShowMergeModal(false)}
                 style={{
                   background: "rgba(255,255,255,0.15)",
@@ -3365,11 +4779,30 @@ export default function ExamPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-3, 12px)' }}>
-                {t("examPage.selected")} {selectedIds.size} {t("examPage.mergeNote")}
+            <div
+              style={{
+                padding: "var(--space-5, 20px)",
+                overflowY: "auto",
+                flex: 1,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginBottom: "var(--space-3, 12px)",
+                }}
+              >
+                {t("examPage.selected")} {selectedIds.size}{" "}
+                {t("examPage.mergeNote")}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
                 {allExams
                   .filter((e) => selectedIds.has(e.id))
                   .map((e) => (
@@ -3381,11 +4814,15 @@ export default function ExamPage() {
                         gap: 10,
                         padding: "10px 12px",
                         border: `1px solid ${
-                          mergeTargetId === e.id ? "var(--color-modality-mr)" : "var(--border-color)"
+                          mergeTargetId === e.id
+                            ? "var(--color-modality-mr)"
+                            : "var(--border-color)"
                         }`,
                         borderRadius: 8,
                         background:
-                          mergeTargetId === e.id ? "var(--color-modality-mr)18" : "var(--bg-card)",
+                          mergeTargetId === e.id
+                            ? "var(--color-modality-mr)18"
+                            : "var(--bg-card)",
                         cursor: "pointer",
                       }}
                     >
@@ -3396,10 +4833,21 @@ export default function ExamPage() {
                         onChange={() => setMergeTargetId(e.id)}
                       />
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: 12, color: "var(--text-primary)" }}>
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            fontSize: 12,
+                            color: "var(--text-primary)",
+                          }}
+                        >
                           {e.patientName} · {e.examItemName}
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "var(--text-secondary)",
+                          }}
+                        >
                           {e.accessionNumber} · {e.modality} · {e.bodyPart}
                         </div>
                       </div>
@@ -3409,7 +4857,7 @@ export default function ExamPage() {
               {mergeResult && (
                 <div
                   style={{
-                    marginTop: 'var(--space-3, 12px)',
+                    marginTop: "var(--space-3, 12px)",
                     padding: "10px 12px",
                     borderRadius: 6,
                     fontSize: 12,
@@ -3432,17 +4880,23 @@ export default function ExamPage() {
                 borderTop: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "flex-end",
-                gap: 'var(--space-2, 8px)',
+                gap: "var(--space-2, 8px)",
               }}
             >
-              <ActionButton action="cancel" onClick={() => setShowMergeModal(false)}>
+              <ActionButton
+                action="cancel"
+                onClick={() => setShowMergeModal(false)}
+              >
                 {t("examPage.cancel")}
               </ActionButton>
               <ActionButton
                 action="submit"
                 loading={merging}
                 disabled={merging}
-                style={{ backgroundColor: "var(--color-modality-mr)", borderColor: "var(--color-modality-mr)" }}
+                style={{
+                  backgroundColor: "var(--color-modality-mr)",
+                  borderColor: "var(--color-modality-mr)",
+                }}
                 onClick={() => void handleMergeSubmit()}
               >
                 {merging ? t("examPage.merging") : t("examPage.confirmMerge")}
@@ -3466,7 +4920,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 'var(--space-6, 24px)',
+            padding: "var(--space-6, 24px)",
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setSplitExam(null);
@@ -3497,11 +4951,18 @@ export default function ExamPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <SplitIcon size={18} color="var(--text-inverse)" />
-                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-inverse)" }}>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "var(--text-inverse)",
+                  }}
+                >
                   {t("examPage.splitExam")}
                 </span>
               </div>
-              <button aria-label="关闭"
+              <button
+                aria-label="关闭"
                 onClick={() => setSplitExam(null)}
                 style={{
                   background: "rgba(255,255,255,0.15)",
@@ -3517,30 +4978,48 @@ export default function ExamPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-3, 12px)' }}>
-                {t("examPage.exam2")} {splitExam.accessionNumber}（{splitExam.patientName} ·{" "}
-                {splitExam.examItemName}{t("examPage.splitNote")}
+            <div
+              style={{
+                padding: "var(--space-5, 20px)",
+                overflowY: "auto",
+                flex: 1,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginBottom: "var(--space-3, 12px)",
+                }}
+              >
+                {t("examPage.exam2")} {splitExam.accessionNumber}（
+                {splitExam.patientName} · {splitExam.examItemName}
+                {t("examPage.splitNote")}
               </div>
               <textarea
                 value={splitReportIds}
                 onChange={(e) => setSplitReportIds(e.target.value)}
                 rows={4}
-                placeholder={t("examPage.examplePrefix") + (splitExam.reportId ?? "RPT-0001") + ", RPT-0002"}
+                placeholder={
+                  t("examPage.examplePrefix") +
+                  (splitExam.reportId ?? "RPT-0001") +
+                  ", RPT-0002"
+                }
                 style={{
                   width: "100%",
                   padding: "10px 12px",
                   border: "1px solid var(--border-color)",
                   borderRadius: 6,
                   fontSize: 12,
-                  resize: "vertical", boxSizing: "border-box",
+                  resize: "vertical",
+                  boxSizing: "border-box",
                   fontFamily: "monospace",
                 }}
               />
               {splitResult && (
                 <div
                   style={{
-                    marginTop: 'var(--space-3, 12px)',
+                    marginTop: "var(--space-3, 12px)",
                     padding: "10px 12px",
                     borderRadius: 6,
                     fontSize: 12,
@@ -3563,7 +5042,7 @@ export default function ExamPage() {
                 borderTop: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "flex-end",
-                gap: 'var(--space-2, 8px)',
+                gap: "var(--space-2, 8px)",
               }}
             >
               <ActionButton action="cancel" onClick={() => setSplitExam(null)}>
@@ -3573,10 +5052,15 @@ export default function ExamPage() {
                 action="submit"
                 loading={splitting}
                 disabled={splitting}
-                style={{ backgroundColor: "var(--color-warning)", borderColor: "var(--color-warning)" }}
+                style={{
+                  backgroundColor: "var(--color-warning)",
+                  borderColor: "var(--color-warning)",
+                }}
                 onClick={() => void handleSplitSubmit()}
               >
-                {splitting ? t("examPage.splitting") : t("examPage.confirmSplit")}
+                {splitting
+                  ? t("examPage.splitting")
+                  : t("examPage.confirmSplit")}
               </ActionButton>
             </div>
           </div>
@@ -3600,7 +5084,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 'var(--space-6, 24px)',
+            padding: "var(--space-6, 24px)",
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowImportModal(false);
@@ -3631,11 +5115,18 @@ export default function ExamPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <Upload size={18} color="var(--text-inverse)" />
-                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-inverse)" }}>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "var(--text-inverse)",
+                  }}
+                >
                   {t("examPage.batchImportExam")}
                 </span>
               </div>
-              <button aria-label="关闭"
+              <button
+                aria-label="关闭"
                 onClick={() => setShowImportModal(false)}
                 style={{
                   background: "rgba(255,255,255,0.15)",
@@ -3651,7 +5142,13 @@ export default function ExamPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
+            <div
+              style={{
+                padding: "var(--space-5, 20px)",
+                overflowY: "auto",
+                flex: 1,
+              }}
+            >
               <div
                 style={{
                   fontSize: 12,
@@ -3660,7 +5157,9 @@ export default function ExamPage() {
                   lineHeight: 1.8,
                 }}
               >
-                {t("examPage.supports")} <strong>{t("examPage.jsonArray")}</strong> {t("examPage.or")} <strong>CSV</strong> {t("examPage.importHeaderNote")}
+                {t("examPage.supports")}{" "}
+                <strong>{t("examPage.jsonArray")}</strong> {t("examPage.or")}{" "}
+                <strong>CSV</strong> {t("examPage.importHeaderNote")}
               </div>
               <textarea
                 value={importText}
@@ -3675,7 +5174,8 @@ export default function ExamPage() {
                   borderRadius: 8,
                   fontSize: 12,
                   fontFamily: "monospace",
-                  resize: "vertical", }}
+                  resize: "vertical",
+                }}
               />
               <div style={{ marginTop: 10 }}>
                 <label
@@ -3708,21 +5208,50 @@ export default function ExamPage() {
               {importResult && (
                 <div
                   style={{
-                    marginTop: 'var(--space-3, 12px)',
+                    marginTop: "var(--space-3, 12px)",
                     borderRadius: 8,
                     padding: "12px 14px",
                     border: "1px solid",
-                    borderColor: importResult.errors.length > 0 ? "var(--color-warning-border)" : "var(--color-success-border)",
-                    background: importResult.errors.length > 0 ? "var(--color-warning-bg)" : "var(--color-success-bg)",
+                    borderColor:
+                      importResult.errors.length > 0
+                        ? "var(--color-warning-border)"
+                        : "var(--color-success-border)",
+                    background:
+                      importResult.errors.length > 0
+                        ? "var(--color-warning-bg)"
+                        : "var(--color-success-bg)",
                   }}
                 >
-                  <div style={{ fontSize: 12, fontWeight: 700, color: importResult.errors.length > 0 ? "var(--color-warning)" : "var(--color-success)" }}>
-                    {t("examPage.importDoneSuccess")} {importResult.imported} {t("examPage.skippedSuffix")} {importResult.skipped} {t("examPage.failedSuffix")} {importResult.errors.length}
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color:
+                        importResult.errors.length > 0
+                          ? "var(--color-warning)"
+                          : "var(--color-success)",
+                    }}
+                  >
+                    {t("examPage.importDoneSuccess")} {importResult.imported}{" "}
+                    {t("examPage.skippedSuffix")} {importResult.skipped}{" "}
+                    {t("examPage.failedSuffix")} {importResult.errors.length}
                   </div>
                   {importResult.errors.length > 0 && (
-                    <div style={{ marginTop: 6, maxHeight: 120, overflowY: "auto" }}>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        maxHeight: 120,
+                        overflowY: "auto",
+                      }}
+                    >
                       {importResult.errors.map((err, i) => (
-                        <div key={i} style={{ fontSize: 12, color: "var(--color-warning)" }}>
+                        <div
+                          key={i}
+                          style={{
+                            fontSize: 12,
+                            color: "var(--color-warning)",
+                          }}
+                        >
                           • {err.message}
                         </div>
                       ))}
@@ -3740,7 +5269,10 @@ export default function ExamPage() {
                 gap: 10,
               }}
             >
-              <ActionButton action="cancel" onClick={() => setShowImportModal(false)}>
+              <ActionButton
+                action="cancel"
+                onClick={() => setShowImportModal(false)}
+              >
                 {t("examPage.close")}
               </ActionButton>
               <ActionButton
@@ -3749,7 +5281,9 @@ export default function ExamPage() {
                 disabled={importing || !importText.trim()}
                 onClick={() => void handleExamImportSubmit()}
               >
-                {importing ? t("examPage.importing") : t("examPage.startImport")}
+                {importing
+                  ? t("examPage.importing")
+                  : t("examPage.startImport")}
               </ActionButton>
             </div>
           </div>
@@ -3767,8 +5301,20 @@ export default function ExamPage() {
         cancelText={t("examPage.cancel")}
         width={420}
       >
-        <Form form={createExamForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }} initialValues={{ modality: "CT", bodyPart: t("examPage.chest") }}>
-          <Form.Item name="patientId" label={t("examPage.patient")} rules={[{ required: true, message: t("examPage.selectPatientRequired") }]}>
+        <Form
+          form={createExamForm}
+          layout="vertical"
+          size="small"
+          style={{ marginTop: "var(--space-3, 12px)" }}
+          initialValues={{ modality: "CT", bodyPart: t("examPage.chest") }}
+        >
+          <Form.Item
+            name="patientId"
+            label={t("examPage.patient")}
+            rules={[
+              { required: true, message: t("examPage.selectPatientRequired") },
+            ]}
+          >
             <Select
               showSearch
               optionFilterProp="label"
@@ -3779,13 +5325,31 @@ export default function ExamPage() {
               }))}
             />
           </Form.Item>
-          <Form.Item name="modality" label={t("examPage.modality")} rules={[{ required: true }]}>
-            <Select options={MODALITY_LIST.filter((m) => m !== "全部").map((m) => ({ value: m, label: m }))} />
+          <Form.Item
+            name="modality"
+            label={t("examPage.modality")}
+            rules={[{ required: true }]}
+          >
+            <Select
+              options={MODALITY_LIST.filter((m) => m !== "全部").map((m) => ({
+                value: m,
+                label: m,
+              }))}
+            />
           </Form.Item>
-          <Form.Item name="bodyPart" label={t("examPage.bodyPart")} rules={[{ required: true, message: t("examPage.bodyPartRequired") }]}>
+          <Form.Item
+            name="bodyPart"
+            label={t("examPage.bodyPart")}
+            rules={[
+              { required: true, message: t("examPage.bodyPartRequired") },
+            ]}
+          >
             <Input placeholder={t("examPage.bodyPartPlaceholder")} />
           </Form.Item>
-          <Form.Item name="accessionNumber" label={t("examPage.accessionOptional")}>
+          <Form.Item
+            name="accessionNumber"
+            label={t("examPage.accessionOptional")}
+          >
             <Input placeholder={t("examPage.accessionPlaceholder")} />
           </Form.Item>
         </Form>

@@ -386,21 +386,52 @@ export default function DeviceOpsCenterPage() {
     }
   };
 
-  // [v3.0.6.16] v3 设备管理本地操作 (onCreate/onUpdate/onDelete/onToggle 均为可选 props)
-  const handleDeviceCreate = (
+  // [v3.0.6.16-7] 设备台账写操作改走 deviceApi; 失败时抛错且不修改本地行
+  const handleDeviceCreate = async (
     d: Omit<DeviceAccount, "id" | "totalExams" | "todayExams">,
   ) => {
+    const res = await deviceApi.create({
+      code: d.serial,
+      name: d.name,
+      modality: d.modality,
+      manufacturer: d.manufacturer,
+      location: d.room,
+    });
+    if (!res.success || !res.data) {
+      throw new Error(
+        res.error?.message ?? t("w9e.deviceManagement.saveFailed"),
+      );
+    }
     setDeviceAccounts((prev) => [
-      { ...d, id: `LOCAL-${Date.now()}`, totalExams: 0, todayExams: 0 },
+      { ...d, id: res.data!.id, totalExams: 0, todayExams: 0 },
       ...prev,
     ]);
   };
-  const handleDeviceUpdate = (id: string, patch: Partial<DeviceAccount>) => {
+  const handleDeviceUpdate = async (
+    id: string,
+    patch: Partial<DeviceAccount>,
+  ) => {
+    const res = await deviceApi.update(id, {
+      name: patch.name,
+      modality: patch.modality,
+      manufacturer: patch.manufacturer,
+      location: patch.room,
+    });
+    if (!res.success) {
+      throw new Error(
+        res.error?.message ?? t("w9e.deviceManagement.saveFailed"),
+      );
+    }
     setDeviceAccounts((prev) =>
       prev.map((d) => (d.id === id ? { ...d, ...patch } : d)),
     );
   };
-  const handleDeviceDelete = (id: string) => {
+  const handleDeviceDelete = async (id: string) => {
+    const res = await deviceApi.delete(id);
+    if (!res.success) {
+      message.error(res.error?.message ?? t("w9e.deviceManagement.saveFailed"));
+      return;
+    }
     setDeviceAccounts((prev) => prev.filter((d) => d.id !== id));
   };
   const handleDeviceToggle = (id: string, enabled: boolean) => {

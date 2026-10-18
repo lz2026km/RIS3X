@@ -18282,6 +18282,21 @@ export const translations: Translations = {
     "consultation.timelineTransfer": "影像资料传输",
     "consultation.title": "远程会诊管理",
     "consultation.uploading": "上传中...",
+    "consultation.uploadSuccess": "已上传 {{count}} 个文件",
+    "consultation.uploadUnsupported": "不支持的文件类型：{{name}}",
+    "consultation.uploadFailed": "上传失败：{{message}}",
+    "consultation.snapshotUnavailable":
+      "快照需要接入真实会诊视频源后可用（当前为演示版本，无真实视频流）",
+    "consultation.snapshotSaved": "快照已保存：{{name}}",
+    "consultation.archiveDownloadUnavailable":
+      "演示数据：录像文件未接入后端存储，无法下载",
+    "consultation.archiveDownloadStarted": "开始下载：{{name}}",
+    "consultation.archiveDeleteUnavailable":
+      "演示数据：录像存档未接入后端，无法删除",
+    "consultation.archiveDeleteNotWired":
+      "演示数据：存档 {{id}} 未接入后端，未删除",
+    "consultation.invitedExperts": "已邀请 {{count}} 位专家 ({{names}})",
+    "consultation.ratingSubmittedLocal": "评分已提交（本地演示 · 未上传后端）",
     "consultation.uploadMaterials": "上传资料",
     "consultation.uploadTitle": "上传会诊资料",
     "consultation.video": "视频",
@@ -21475,6 +21490,11 @@ export const translations: Translations = {
     "patientPortal.suggestions": "意见建议",
     "patientPortal.feedbackPlaceholder": "请输入您的意见或建议（可选）",
     "patientPortal.pdfDownloadStarted": "报告 PDF 已开始下载",
+    "patientPortal.pdfReportUnavailable": "无法获取该报告内容，未生成 PDF",
+    "patientPortal.pdfNoReportText": "该报告暂无临床文本，无法生成 PDF",
+    "patientPortal.reportFileNameSuffix": "报告",
+    "patientPortal.h5Ready": "H5 患者端已就绪 · 后端共 {{count}} 位患者可服务",
+    "patientPortal.shareGeneratedUrl": "分享链接已生成: {{url}}",
     "patientPortal.hello": "您好，",
     "patientPortal.reportReady": "您的影像报告已可查看",
     "patientPortal.viewReport": "查看报告",
@@ -27574,6 +27594,10 @@ export const translations: Translations = {
     "nurse.checkInFailedNetwork": "签到失败: 网络错误",
     "nurse.defaultMed": "造影剂 (碘普罗胺 350mgI/ml)",
     "nurse.defaultDosage": "1 支",
+    "nurse.medicationLocalOnly":
+      "用药仅记录到本机：{{patient}} - {{med}} {{dosage}}。后端 eMAR 端点尚未接入，该记录未上报 EMR。",
+    "nurse.ackFailedWith": "确认失败：{{message}}",
+    "nurse.checkInSuccess": "签到成功：{{id}}，患者已进入候检流程",
     "nurse.ivRoute": "静脉注射",
     "nurse.currentNurse": "当前护士",
     "nurse.title": "护士移动工作站",
@@ -48323,6 +48347,22 @@ export const translations: Translations = {
     "consultation.timelineTransfer": "Image Data Transfer",
     "consultation.title": "Remote Consultation Management",
     "consultation.uploading": "Uploading...",
+    "consultation.uploadSuccess": "Uploaded {{count}} file(s)",
+    "consultation.uploadUnsupported": "Unsupported file type: {{name}}",
+    "consultation.uploadFailed": "Upload failed: {{message}}",
+    "consultation.snapshotUnavailable":
+      "Snapshot requires a real consultation video source (demo build has no live video stream)",
+    "consultation.snapshotSaved": "Snapshot saved: {{name}}",
+    "consultation.archiveDownloadUnavailable":
+      "Demo data: recording is not stored on the backend and cannot be downloaded",
+    "consultation.archiveDownloadStarted": "Download started: {{name}}",
+    "consultation.archiveDeleteUnavailable":
+      "Demo data: recording archive is not on the backend and cannot be deleted",
+    "consultation.archiveDeleteNotWired":
+      "Demo data: archive {{id}} is not wired to the backend; not deleted",
+    "consultation.invitedExperts": "Invited {{count}} expert(s) ({{names}})",
+    "consultation.ratingSubmittedLocal":
+      "Rating submitted (local demo · not uploaded to backend)",
     "consultation.uploadMaterials": "Upload Materials",
     "consultation.uploadTitle": "Upload Consultation Materials",
     "consultation.video": "Video",
@@ -51608,6 +51648,14 @@ export const translations: Translations = {
     "patientPortal.feedbackPlaceholder":
       "Enter your comments or suggestions (optional)",
     "patientPortal.pdfDownloadStarted": "Report PDF download started",
+    "patientPortal.pdfReportUnavailable":
+      "Unable to load report content; PDF not generated",
+    "patientPortal.pdfNoReportText":
+      "This report has no clinical text; cannot generate PDF",
+    "patientPortal.reportFileNameSuffix": "Report",
+    "patientPortal.h5Ready":
+      "Patient H5 portal ready · {{count}} patient(s) available from the backend",
+    "patientPortal.shareGeneratedUrl": "Share link generated: {{url}}",
     "patientPortal.hello": "Hello,",
     "patientPortal.reportReady": "Your imaging report is ready",
     "patientPortal.viewReport": "View Report",
@@ -57900,6 +57948,11 @@ export const translations: Translations = {
     "nurse.checkInFailedNetwork": "Check-in failed: network error",
     "nurse.defaultMed": "Contrast agent (Iopromide 350mgI/ml)",
     "nurse.defaultDosage": "1 vial",
+    "nurse.medicationLocalOnly":
+      "Medication saved locally only: {{patient}} - {{med}} {{dosage}}. The eMAR endpoint is not integrated; this record was NOT sent to the EMR.",
+    "nurse.ackFailedWith": "Acknowledge failed: {{message}}",
+    "nurse.checkInSuccess":
+      "Check-in successful: {{id}}, patient entered the waiting flow",
     "nurse.ivRoute": "Intravenous",
     "nurse.currentNurse": "Current nurse",
     "nurse.title": "Nurse Mobile Workstation",

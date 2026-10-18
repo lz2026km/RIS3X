@@ -31,6 +31,7 @@ import {
   type MobileCriticalItem,
 } from "../../components/v3/mobile/MobileCriticalResponse";
 import { mobileApi } from "../../services/api/mobileApi";
+import { notificationsApi } from "../../services/api/notificationsApi";
 import { useNetworkStatus } from "../../hooks/useNetworkStatus";
 
 // ===== Types =====
@@ -529,18 +530,65 @@ export default function PatientMobileApp() {
   }, []);
 
   // [G005 v3.0.6.12] 危急值确认 (POST /mobile/critical-values/:id/ack)
-  const handleAckCritical = async (id: string, responder: string) => {
+  const handleAckCritical = async (
+    id: string,
+    responder: string,
+  ): Promise<boolean> => {
     try {
       const res = await mobileApi.ackCriticalValue(id, responder);
       if (res.success) {
         setMobileCritical((prev) =>
           prev.map((c) => (c.id === id ? { ...c, state: "ACKED" } : c)),
         );
-      } else {
-        message.error(res.error?.message ?? t("mobileApp.ackFailed"));
+        return true;
       }
+      message.error(res.error?.message ?? t("mobileApp.ackFailed"));
+      return false;
     } catch (e) {
       message.error((e as Error)?.message ?? t("mobileApp.ackFailed"));
+      return false;
+    }
+  };
+
+  // 一键呼叫: 有接收方号码走 tel: 真实拨号, 否则如实提示未接入
+  const handleCallCritical = async (id: string): Promise<boolean> => {
+    const item = mobileCritical.find((c) => c.id === id);
+    const phone = item?.recipientPhone;
+    if (phone) {
+      if (typeof window !== "undefined") window.location.href = `tel:${phone}`;
+      return true;
+    }
+    message.warning(t("w9e.mobileCritical.callUnavailable"));
+    return false;
+  };
+
+  // 发送消息: 写入真实通知记录 (POST /notifications)
+  const handleMessageCritical = async (
+    id: string,
+    content: string,
+  ): Promise<boolean> => {
+    const item = mobileCritical.find((c) => c.id === id);
+    try {
+      const res = await notificationsApi.create({
+        userId: mobileUser.id,
+        type: "CRITICAL",
+        severity: "CRITICAL",
+        title: t("w9e.mobileCritical.msgTitle", {
+          patient: item?.patientName ?? id,
+        }),
+        content,
+        targetId: id,
+      });
+      if (!res.success) {
+        message.error(res.error?.message ?? t("w9e.mobileCritical.sendFailed"));
+        return false;
+      }
+      return true;
+    } catch (e) {
+      message.error(
+        (e as Error)?.message ?? t("w9e.mobileCritical.sendFailed"),
+      );
+      return false;
     }
   };
 
@@ -1066,6 +1114,8 @@ export default function PatientMobileApp() {
       currentUser={mobileUser.name}
       offline={!isOnline}
       onAck={handleAckCritical}
+      onCall={handleCallCritical}
+      onMessage={handleMessageCritical}
     />
   );
 
