@@ -2656,7 +2656,7 @@ export const translations: Translations = {
     "demoFallback.detailLabel": "查看受影响的接口",
     "demoFallback.more": "… 另有 {count} 个接口",
     "app.version":
-      "v3.0.6.16-6 · 五项遗留全清: DICOM加载器/日期控件/压缩接线/契约守卫/回退可见",
+      "v3.0.6.16-7 · 五项遗留全清: DICOM加载器/日期控件/压缩接线/契约守卫/回退可见",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -32213,7 +32213,7 @@ export const translations: Translations = {
     "demoFallback.detailLabel": "Show affected endpoints",
     "demoFallback.more": "… and {count} more",
     "app.version":
-      "v3.0.6.16-6 · all 5 leftovers cleared: DICOM loader / DatePicker / compress wiring / contract guard / visible fallback",
+      "v3.0.6.16-7 · all 5 leftovers cleared: DICOM loader / DatePicker / compress wiring / contract guard / visible fallback",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

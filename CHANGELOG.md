@@ -1,3 +1,145 @@
+## v3.0.6.16-7 (2026-10-19) — 全项目审查整改（门禁自愈 / 假服务清零 / 表格控件补齐 / 保守去重）
+
+> **背景**: 对整个项目做完整审查，确认「前端是否真的匹配后端能力的展现」，并对所有控件、所有表格做严格审查；
+> 补齐鸡肋功能、整合重复功能。
+> **验证**: 前端 tsc 0 / vitest 47 文件 829 测试 / 守卫 8 套全过 / 后端 tsc 0 / jest 359 suites 3807 tests / E2E 抽样 100+ 路由全绿。
+> **门禁**: 新增 `guard:selfcheck`（解析库自检 55 条夹具）与 `scripts/lib/route-parse.mjs`（三套守卫共用解析库）。
+
+### 本轮 4 项指标（基线 `v3.0.6.16-6` / 38d16f6f）
+
+| 指标         | 数值                                                                            |
+| ------------ | ------------------------------------------------------------------------------- |
+| ① 增加行数   | **+107,068 / -40,092**（git 统计；含 lint-staged 一次性格式重排）               |
+| ② 增加功能   | **13 项**（下表）                                                               |
+| ③ 增加文件数 | **+7 新增 / -6 删除**（净 +1；另新增 2 个 Prisma migration）                    |
+| ④ 总代码行数 | **1,572,967 行**（src 1,414,376 + backend 147,920 + scripts 8,408 + e2e 2,263） |
+
+② 新增功能明细：
+
+| #   | 功能                              | 说明                                                                                                               |
+| --- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 1   | 解析库 + 门禁自检                 | `scripts/lib/route-parse.mjs` 修 B1–B7；`guard-selfcheck` 55 条夹具守护                                            |
+| 2   | 契约门禁修复                      | 门禁此前静默读取被破坏源码（22 文件）；修复后首次得到可信基线                                                      |
+| 3   | 7 个已验证契约缺陷                | 3 动词不匹配 + 4 死调用（页面硬编码 `/api/v1` 打后端不存在的端点）                                                 |
+| 4   | 10 个假服务改接真实后端           | 含 6 处伪造安全结论（回执验证永真 / 撤销链接永真 / HL7 硬编码 PID / MLLP 永 AA / C-STORE 永 0x0000 / SR 伪 DICOM） |
+| 5   | 空 handler / 无条件成功清零       | PIX 伪造 MPI ack、患者门户硬编码 PDF、EMR 模板假保存、会诊假上传等                                                 |
+| 6   | 随机临床数据清除                  | 超时标记 / 步骤时间戳 / 维保日期 / 同步事件 / KPI 环比 / 热力测量值                                                |
+| 7   | `showDensity` 真正实现            | 此前声明未实现却被 97 处传入并泄漏为 DOM 属性                                                                      |
+| 8   | 全站导出恢复                      | 删除 100 处 `showExport={false}` + 97 处 `showDensity={false}`                                                     |
+| 9   | 批量操作与行钻取启用              | 11 张核心表接入 `selectable`+`bulkActions`，4 张接入 `drillDown`                                                   |
+| 10  | rowKey 收敛                       | 13 处索引/派生 rowKey 改为真实唯一字段                                                                             |
+| 11  | 死筛选/死复选框修复               | 12 处 `defaultValue` 无 `onChange`、8 处死复选框                                                                   |
+| 12  | 保守去重                          | 6 个死文件 + 15 组重复 API 方法 + 76 个重复/化石 i18n 键                                                           |
+| 13  | 2 个真实后端端点 + 2 个 migration | 眼科病历 `EyeEmrRecord`、口腔照片 `DentalPhoto`、FHIR DiagnosticReport 落库                                        |
+
+### 1. 门禁自身修复（本轮最重要的发现）
+
+审查发现 `api-contract-guard` **长期静默读取被破坏的源码**：注释剥离顺序倒置（先剥块注释再剥行注释），
+只要注释正文里出现块注释起始符，正则就会吞到下一个结束符，把真实代码删掉。
+实测 `vnaApi.ts` 6414 → 2251 字符，`getObjects` 等方法整段消失；共 **22 个文件受害**（含 6 个 api 客户端）。
+门禁一直 PASS，因为它检查的是「被自己删坏之后的输入」——**没有任何测试守护解析库本身**。
+
+- 新增 `scripts/lib/route-parse.mjs`，逐条修复：B1 注释剥离改逐字符状态机；B2 泛型括号平衡（含多行对象类型）；
+  B3 保留单段 REST 根；B4 补齐 `getList/getBlob/postBlob/uploadWithProgress` 并归一为真实 HTTP 动词；
+  B5 文件范围不再被恒定三元屏蔽；B6 后端路由线性归属（去掉笛卡尔积 435 条幽灵）；
+  B7 一律段级匹配 + 建立 (verb,path) 索引。
+- 新增 `scripts/guard-selfcheck.mjs`：55 条夹具覆盖 B1–B7 与边界情况。开发中它立即抓出 2 个我自己的 bug。
+- `select-guard` / `demo-guard` 统一到共享库（前者此前既不剥注释也不排除测试文件）。
+- 新增能力：识别裸 `fetch`/`xhr.open`，使 `files/*` 不再被误报为孤儿，并让页面硬编码 `/api/v1` 的不存在端点显形。
+
+**修复后可信基线**：后端路由 1801 / 前端调用路径 1714（api 层 1703）/ MSW 1982 / 死调用 0 / 真死调用 0 /
+动词不匹配 0 / 孤儿 77 / mock-only 0。
+
+### 2. 契约缺陷（演示能过、上线即挂）
+
+| 缺陷                                   | 根因                                 | 处理                                                                     |
+| -------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| `POST /eye/emr/records`                | 后端只有 GET 列表与 PUT `:patientId` | 新增 Prisma `EyeEmrRecord` + migration 24 + `@Post`；列表改 API 优先     |
+| `GET /notifications`                   | 后端只有 `@Post()` 创建              | 新增 `@Get()` 分页列表                                                   |
+| `POST /reports/:id/signature`          | 后端只有 `@Get`                      | 新增 `@Post`，复用既有 `signing.signReport`                              |
+| `PATCH /quality/defects/:id/status`    | 页面裸 fetch 到不存在的路由          | 新增 `report-quality-ext/defect-library/:id/status`（状态合并进 detail） |
+| `GET /dental/patient/:id/photos`       | 后端无此端点                         | 新增 Prisma `DentalPhoto` + migration 25 + GET/POST                      |
+| `DELETE /dental/referrals/:id`         | 后端只有 accept                      | 新增 `@Delete` + `service.deleteReferral`                                |
+| `GET /eye/report/asr/vocab/:condition` | 后端无此端点                         | 新增确定性词表端点（`engine: 'rule-based'`，非随机）                     |
+
+以上 4 个「死调用」同时从裸 `fetch` 收口到统一 client（此前绕过鉴权/错误处理/演示回退）。
+
+### 3. 十个内存假服务改接真实后端
+
+`src/services/` 下 10 个「服务」零 `services/api` 依赖、全内存数组 + `await wait()` 假延迟 + 必然成功，
+却挂在真实路由上。全部改接真实后端，保留演示降级（`source: 'demo'` 显式标注）：
+
+- **危急值 / 会签 / 终末审核** → `criticalApi` / `coSignApi` / `reportSignV2Api`
+- **报告分发** → `distApi` + `hl7Api.buildOru`；**消除 6 处伪造安全结论**：
+  回执签名验证由「永远 true + SHA-256 通过」改为如实 `not_implemented`；
+  撤销链接由「永远 success」改为真实结果；HL7 ORU 由硬编码 PID「张三」改为按**实际报告**生成；
+  MLLP 由「永远 ack AA」改为如实 `{ack:'AE', implemented:false}`；
+  患者端链接由随机短链 + 字面量假二维码改为确定性短码 + 真 QR
+- **DICOM SR / IHE XDS** → `srDocumentApi` / `dicomDimseApi.cStore` / `xdsApi`；
+  SR 下载校验 DICM 前导码（非 DICOM 字节不再标成 `application/dicom`）；C-STORE 失败返回 `0xA700`
+- **FHIR / 缺陷库 / 质控评分** → `fhirApi` / `defect-library/items` / `quality-rubric`；
+  缺陷导出由字面量 `Mock export content` 改为按真实行生成；导入由 `random(5..24)` 改为真实解析；
+  删除由「弹绿勾但行还在」改为真实 DELETE；配套新增后端 `POST /fhir/r4/DiagnosticReport` 落库
+
+### 4. 空 handler / 无条件成功 / 随机临床数据
+
+- **PIX**：删除 3 处 catch 内伪造成功（MPI ack、`张三` 结果集、`13800138001` 假匹配）
+- **患者门户**：下载 PDF 由纯文本 + 硬编码报告内容（临床危险）改为按真实报告字段 Canvas + jsPDF 生成
+- **会诊**：附件由 `setTimeout` 假上传 + 丢弃文件改为真实 `filesApi` 三段式上传（含 SHA-256）
+- **移动危急值**：一键呼叫/发送消息此前回调未传导致按钮无反应却弹「已发送」→ 父页实现真实回调
+- **EMR 模板 / 系统管理 / 研究**：假保存改为真实 `templatesApi`/`userApi`，无端点者如实披露
+- **随机数据**：清除 `Math.random()` 驱动的「超时」标记、步骤时间戳、维保日期、同步事件、
+  KPI 环比、热力测量值；`simulationStore` 的 8% 随机失败移除
+- **无后端端点的操作**（AI 版本回滚、AI 分诊挂起/复核/采纳、用药记录）→ 禁用或改为如实 warning
+
+### 5. 表格与控件严格审查
+
+- **`showDensity` 是一个「文档里有、实际不存在」的功能**：声明于 props、被 97 处页面传入、
+  从未解构/渲染，还作为未知 DOM 属性泄漏给 antd `Table`。现真正实现工具栏密度切换。
+- 删除 **100 处 `showExport={false}`**（44 个页面此前对客户隐藏导出 CSV 按钮）与 **97 处 `showDensity={false}`**。
+- 此前 0 调用的三项能力**试点启用**：`selectable`+`bulkActions`（11 张核心表）、`drillDown`（4 张）；
+  批量条内均为已存在的真实动作（导出所选 / 批量确认 / 批量驳回），未新造任何假批量操作。
+- **13 处索引/派生 `rowKey`** 收敛为真实唯一字段（`accessionNumber`/`sopInstanceUid`/`id`/确定性复合键）；
+  仅 2 处 C-MOVE 日志表因无唯一字段保留确定性索引。
+- **死筛选**（`defaultValue` 无 `onChange`）：`ReportRichEditor` 行列输入此前 `getElementById().valueAsNumber`
+  恒为 `NaN`，静默插入空表格 → 改受控；屈光选择真正接入 `eyeApi.defocusOrder`；其余改只读展示。
+- **死复选框**：3 个 CAD 页 `rowSelection` 无动作 → 改 `selectable`+`bulkActions`。
+- `ReportReviewPage` 勾选单元格加 `stopPropagation`，点击勾选不再误触行点击。
+
+### 6. 保守去重（不动任何页面/路由/组件）
+
+- 删除 **6 个确认死文件**（0 代码引用，routeTable 中仅存注释）：
+  `OpsDashboardPage`、`CommandCenterPage`、`V3ReportHubPage`、`DepartmentDashboardPage`、
+  `chart/Chart.tsx`（自标 `@deprecated`）、`services/mswHandlers.ts`（mockBackend 之外的第二套 mock，
+  29 个 handler 仅被一个测试引用 → 连同该测试块删除）。
+- **15 组重复 API 方法**收敛为单一实现 + 委托（`aiOrchestratorApi`→`aiPlatformApi`、
+  `deviceMgmtApi`→`deviceApi`、`examApi`→`worklistApi`、`notificationTemplateDictApi`→
+  `notificationsApi`/`templatesApi`/`dictionaryApi`、`olapApi` 双导出等），**调用点零改动**。
+- **i18n**：删除 19 个在 `appI18n.ts` 与 `namespaces/*.ts` 双重定义且取值一致的键 +
+  57 个「待/模拟/未接入」化石键；7 个因动态拼接键名可达而保留。
+
+### 7. 审查报告的三处误判（已纠正，均系旧解析缺陷的产物）
+
+1. 「后端 1846 路由 / 孤儿 143 / mock-only 36」不成立 → 实为 1801 / 77 / 0。
+2. 「随访域三份控制器各 15 路由、12 条死」不成立 → `followup-trigger-rules` 仅 2 条且前端都在调。
+3. 「眼科亚专业两份控制器各 10 路由、8 条死」不成立 → `eye/low-vision` 仅 2 条且在用。
+   另「radPath 9 键重复」不成立 → `radPath.*` 与 `radpath.*` 是大小写不同的两个命名空间。
+   「28 处 `showSearch` 无过滤」不成立 → 抽查均有 `optionFilterProp`。
+
+### 8. 门禁预算（只减不增）
+
+| 守卫           | 项目                    | 变化                                   |
+| -------------- | ----------------------- | -------------------------------------- |
+| `guard:api`    | `deadCalls`             | 4 → **0**                              |
+| `guard:api`    | `verbMismatch`          | 新增，3 → **0**                        |
+| `guard:select` | `labelLessOptions`      | 2 → 仍 2（修复 1 处新增）              |
+| `guard:select` | `hardcodedMasterSelect` | 40 → **0**                             |
+| `guard:select` | `showSearchNoFilter`    | 80 → **0**                             |
+| `guard:ui`     | `hexTotal`              | 5459 → 仍 5459（新增调色板改用令牌）   |
+| `guard:ui`     | `nativeButton`          | 1859 → 仍 1859（新控件用 antd Button） |
+| `guard:ui`     | `clickableNoRole`       | 139 → **94**                           |
+| 新增           | `guard:selfcheck`       | 55 条解析库夹具                        |
+
 ## v3.0.6.16-6 (2026-10-18) — 商业演示版整改（假控件清零 / 组件全挂载 / 表格四能力 / 原生下拉归零 / 零筛选归零）
 
 > **背景**: 面向「可销售的专业等级」，本轮以「客户实际点得到、点了有反应、反应是真的」为验收标准，
