@@ -1,48 +1,108 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
-import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { ReportQualityService } from './reportquality.service'
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { CreateAiReportDraftSchema, CreateDefectEntrySchema, CreateScoreRuleSchema, UpdateDefectEntrySchema, UpdateScoreRuleSchema } from './reportquality.schema'
-import { z } from 'zod'
+﻿import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+} from "@nestjs/common";
+import { Roles } from "../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ReportQualityService } from "./reportquality.service";
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
+import {
+  CreateAiReportDraftSchema,
+  CreateDefectEntrySchema,
+  CreateScoreRuleSchema,
+  UpdateDefectEntrySchema,
+  UpdateScoreRuleSchema,
+} from "./reportquality.schema";
+import { z } from "zod";
 
-type CreateScoreRuleDto = z.infer<typeof CreateScoreRuleSchema>
-type UpdateScoreRuleDto = z.infer<typeof UpdateScoreRuleSchema>
-type CreateDefectEntryDto = z.infer<typeof CreateDefectEntrySchema>
-type UpdateDefectEntryDto = z.infer<typeof UpdateDefectEntrySchema>
-type CreateAiReportDraftDto = z.infer<typeof CreateAiReportDraftSchema>
+type CreateScoreRuleDto = z.infer<typeof CreateScoreRuleSchema>;
+type UpdateScoreRuleDto = z.infer<typeof UpdateScoreRuleSchema>;
+type CreateDefectEntryDto = z.infer<typeof CreateDefectEntrySchema>;
+type UpdateDefectEntryDto = z.infer<typeof UpdateDefectEntrySchema>;
+type CreateAiReportDraftDto = z.infer<typeof CreateAiReportDraftSchema>;
 
-@ApiTags('report-quality-ext')
+@ApiTags("report-quality-ext")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
-@Controller('report-quality-ext')
+@Roles("ADMIN", "DIRECTOR")
+@Controller("report-quality-ext")
 export class ReportQualityController {
   constructor(private readonly svc: ReportQualityService) {}
 
-  @Get('score-rules')
-  listScoreRules() { return this.svc.listScoreRules() }
+  @Get("score-rules")
+  listScoreRules() {
+    return this.svc.listScoreRules();
+  }
 
-  @Post('score-rules')
-  createScoreRule(@Body(new ZodValidationPipe(CreateScoreRuleSchema)) body: CreateScoreRuleDto) { return this.svc.createScoreRule(body) }
+  @Post("score-rules")
+  createScoreRule(
+    @Body(new ZodValidationPipe(CreateScoreRuleSchema))
+    body: CreateScoreRuleDto,
+  ) {
+    return this.svc.createScoreRule(body);
+  }
 
-  @Put('score-rules/:id')
-  updateScoreRule(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateScoreRuleSchema)) body: UpdateScoreRuleDto) { return this.svc.updateScoreRule(id, body) }
+  @Put("score-rules/:id")
+  updateScoreRule(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateScoreRuleSchema))
+    body: UpdateScoreRuleDto,
+  ) {
+    return this.svc.updateScoreRule(id, body);
+  }
 
-  @Get('defect-library')
-  listDefectLibrary() { return this.svc.listDefectLibrary() }
+  @Get("defect-library")
+  listDefectLibrary() {
+    return this.svc.listDefectLibrary();
+  }
 
-  @Post('defect-library')
-  createDefectEntry(@Body(new ZodValidationPipe(CreateDefectEntrySchema)) body: CreateDefectEntryDto) { return this.svc.createDefectEntry(body) }
+  @Post("defect-library")
+  createDefectEntry(
+    @Body(new ZodValidationPipe(CreateDefectEntrySchema))
+    body: CreateDefectEntryDto,
+  ) {
+    return this.svc.createDefectEntry(body);
+  }
 
-  @Put('defect-library/:id')
-  updateDefectEntry(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateDefectEntrySchema)) body: UpdateDefectEntryDto) { return this.svc.updateDefectEntry(id, body) }
+  @Put("defect-library/:id")
+  updateDefectEntry(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateDefectEntrySchema))
+    body: UpdateDefectEntryDto,
+  ) {
+    return this.svc.updateDefectEntry(id, body);
+  }
 
-  @Get('ai-report-drafts')
-  listAiReportDrafts() { return this.svc.listAiReportDrafts() }
+  /** [v3.0.6.16-7] 仅更新缺陷状态 (前端 DefectManagementPage 此前 PATCH 到不存在的端点) */
+  @Patch("defect-library/:id/status")
+  updateDefectStatus(
+    @Param("id") id: string,
+    @Body() body: { status: string },
+  ) {
+    return this.svc.updateDefectStatus(id, body.status);
+  }
 
-  @Post('ai-report-drafts')
-  createAiReportDraft(@Body(new ZodValidationPipe(CreateAiReportDraftSchema)) body: CreateAiReportDraftDto) { return this.svc.createAiReportDraft(body) }
+  @Get("ai-report-drafts")
+  listAiReportDrafts() {
+    return this.svc.listAiReportDrafts();
+  }
 
-  @Get('stats')
-  getReportQualityStats() { return this.svc.getReportQualityStats() }
+  @Post("ai-report-drafts")
+  createAiReportDraft(
+    @Body(new ZodValidationPipe(CreateAiReportDraftSchema))
+    body: CreateAiReportDraftDto,
+  ) {
+    return this.svc.createAiReportDraft(body);
+  }
+
+  @Get("stats")
+  getReportQualityStats() {
+    return this.svc.getReportQualityStats();
+  }
 }

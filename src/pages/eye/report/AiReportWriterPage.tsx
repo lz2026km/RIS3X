@@ -110,12 +110,11 @@ export const AiReportWriterPage: React.FC = () => {
   const [showVocabModal, setShowVocabModal] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
 
-  // 加载术语库
+  // 加载术语库 — [v3.0.6.16-7] 改走统一 client (此前裸 fetch 硬编码 /api/v1, 后端无此端点)
   const loadVocab = useCallback(async (cond: string) => {
     try {
-      const r = await fetch(`/api/v1/eye/report/asr/vocab/${cond}`);
-      const data = await r.json();
-      if (data.success) setVocab(data.data);
+      const res = await eyeApi.asrVocab(cond);
+      if (res.success && res.data) setVocab(res.data);
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }

@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { getCurrentTenantId } from "../common/interceptors/tenant-context.interceptor";
 import {
   CreateDentalStudySchema,
   UpdateDentalStudySchema,
@@ -913,6 +914,54 @@ export class DentalService {
     item.status = "accepted";
     item.acceptedAt = new Date().toISOString();
     return { success: true, data: item };
+  }
+
+  /**
+   * [v3.0.6.16-7] 撤销/删除转诊。
+   * 前端 DentalRadFusionPages「撤销转诊」此前 DELETE 到不存在的端点 (生产 404)。
+   */
+  async deleteReferral(id: string) {
+    const idx = DENTAL_REFERRALS.findIndex((r: any) => r.id === id);
+    if (idx < 0) {
+      return {
+        success: false,
+        error: { code: "NOT_FOUND", message: `转诊 ${id} 不存在` },
+      };
+    }
+    DENTAL_REFERRALS.splice(idx, 1);
+    return { success: true, data: { id, deleted: true } };
+  }
+
+  // ── [v3.0.6.16-7] 口腔患者照片 (DentalPhotoPage 在用) ──
+
+  /** GET /dental/patient/:patientId/photos */
+  async listPatientPhotos(patientId: string) {
+    const rows = await this.prisma.dentalPhoto
+      .findMany({ where: { patientId }, orderBy: { takenAt: "desc" } })
+      .catch(() => [] as Array<Record<string, unknown>>);
+    return {
+      success: true,
+      data: rows,
+      source: rows.length > 0 ? ("database" as const) : ("empty" as const),
+    };
+  }
+
+  /** POST /dental/patient/:patientId/photos */
+  async addPatientPhoto(
+    patientId: string,
+    body: { category?: string; label?: string; url?: string; takenAt?: string },
+  ) {
+    const created = await this.prisma.dentalPhoto.create({
+      data: {
+        tenantId: getCurrentTenantId(),
+        patientId,
+        category: body.category ?? "intraoral",
+        label: body.label ?? "",
+        url: body.url ?? "",
+        takenAt: body.takenAt ? new Date(body.takenAt) : new Date(),
+      },
+    });
+    return { success: true, data: created };
   }
 
   // ── [G005 W1-A] 远程口腔会诊 (DentalTelePage 在用) ──

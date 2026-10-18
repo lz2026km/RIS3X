@@ -18807,6 +18807,7 @@ export const translations: Translations = {
     "businessContinuity.size": "大小",
     // [v3.0.6.11-106 Wave 9C] DefectManagementPage i18n
     "defectMgmt.catDescription": "描述缺陷",
+    "defectMgmt.updateFailed": "更新缺陷状态失败",
     "defectMgmt.catTerminology": "术语缺陷",
     "defectMgmt.catFormat": "格式缺陷",
     "defectMgmt.catLogic": "逻辑缺陷",
@@ -48864,6 +48865,7 @@ export const translations: Translations = {
     "businessContinuity.size": "Size",
     // [v3.0.6.11-106 Wave 9C] DefectManagementPage i18n
     "defectMgmt.catDescription": "Description Defect",
+    "defectMgmt.updateFailed": "Failed to update defect status",
     "defectMgmt.catTerminology": "Terminology Defect",
     "defectMgmt.catFormat": "Format Defect",
     "defectMgmt.catLogic": "Logic Defect",

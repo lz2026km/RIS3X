@@ -28,15 +28,23 @@ const mswCalls = collectFrontendCalls(mswFiles, ROOT);
 const mswPaths = mswCalls.byPath;
 
 // ============================================================================
-// 2. 前端调用点 (只看 services/api 层 + 裸请求)
-//    裸 fetch / xhr.open 同样需要 MSW 兜底, 否则演示版 404。
+// 2. 前端调用点
+//    [v3.0.6.16-7] 必须覆盖**页面层**的 api.* 调用, 不能只看 services/api/**:
+//    页面里直接 `api.patch(...)` 的调用同样会在演示版打到 MSW, 若 MSW 无 handler
+//    就 404 —— 此前只扫 api 层, 这类调用完全逃过检查。
 // ============================================================================
-const apiDir = norm(`${ROOT}/src/services/api`);
+const mockDir = norm(`${ROOT}/src/services/mockBackend`);
+// [v3.0.6.16-7] mswHandlers.ts 是 mockBackend/ 之外的第二套 mock (0 应用引用),
+// 属死代码, 阶段 3 删除。此处先排除, 避免它的 handler 污染演示覆盖统计。
+const deadMock = norm(`${ROOT}/src/services/mswHandlers.ts`);
 const allSrc = walk(join(ROOT, 'src')).filter(
-  (f) => /\.(ts|tsx)$/.test(norm(f)) && !/\.(test|spec)\./.test(norm(f)),
+  (f) =>
+    /\.(ts|tsx)$/.test(norm(f)) &&
+    !norm(f).startsWith(mockDir) &&
+    norm(f) !== deadMock &&
+    !/\.(test|spec)\./.test(norm(f)),
 );
-const apiFiles = allSrc.filter((f) => norm(f).startsWith(apiDir));
-const frontendCalls = collectFrontendCalls(apiFiles, ROOT, { includeRaw: true });
+const frontendCalls = collectFrontendCalls(allSrc, ROOT, { includeRaw: true });
 
 // ============================================================================
 // 3. 对账: 前端调用必须有 MSW 兜底

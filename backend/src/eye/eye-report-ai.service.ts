@@ -217,4 +217,89 @@ export class EyeReportAiService {
       },
     };
   }
+
+  /**
+   * [v3.0.6.16-7] GET /eye/report/asr/vocab/:condition — 语音识别热词表。
+   *
+   * 背景: 前端 AiReportWriterPage 加载条件相关的识别词表, 此前打到不存在的
+   * 端点 (生产 404, 演示由 MSW 兜底)。此处返回**确定性**词表 (通用眼科术语 +
+   * 按 condition 追加的专科词), 不是随机数据。
+   */
+  asrVocab(condition?: string) {
+    const base = [
+      "视力",
+      "矫正视力",
+      "眼压",
+      "裂隙灯",
+      "角膜",
+      "前房",
+      "虹膜",
+      "瞳孔",
+      "晶状体",
+      "玻璃体",
+      "视网膜",
+      "黄斑",
+      "视盘",
+      "杯盘比",
+      "眼底",
+      "结膜",
+      "巩膜",
+      "视神经",
+      "房角",
+      "对光反射",
+    ];
+    const byCondition: Record<string, string[]> = {
+      青光眼: [
+        "房角开放",
+        "房角关闭",
+        "视野缺损",
+        "眼压控制",
+        "抗青光眼手术",
+        "小梁网",
+      ],
+      白内障: [
+        "晶状体核硬度",
+        "后囊膜",
+        "超声乳化",
+        "人工晶体",
+        "IOL 度数",
+        "角膜内皮",
+      ],
+      糖尿病视网膜病变: [
+        "微血管瘤",
+        "硬性渗出",
+        "软性渗出",
+        "新生血管",
+        "玻璃体积血",
+        "黄斑水肿",
+      ],
+      黄斑变性: [
+        "玻璃膜疣",
+        "脉络膜新生血管",
+        "OCT 厚度",
+        "抗 VEGF",
+        "地图状萎缩",
+      ],
+      视网膜脱离: [
+        "视网膜裂孔",
+        "马蹄孔",
+        "增殖膜",
+        "巩膜扣带",
+        "玻璃体切割",
+        "硅油填充",
+      ],
+    };
+    const extra =
+      condition && byCondition[condition] ? byCondition[condition] : [];
+    const vocab = [...new Set([...base, ...extra])];
+    return {
+      success: true,
+      data: {
+        engine: "rule-based",
+        condition: condition ?? null,
+        vocab,
+        count: vocab.length,
+      },
+    };
+  }
 }

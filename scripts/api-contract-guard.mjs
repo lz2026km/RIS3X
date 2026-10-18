@@ -172,9 +172,9 @@ const BUDGET = {
   //                     dental/referrals/:id, eye/report/asr/vocab/:condition
   //   verbMismatch 3: 路径存在但动词不一致 -> POST eye/emr/records,
   //                  GET notifications, POST reports/:id/signature
-  deadCalls: Number(process.env['GUARD_DEAD_CALLS'] ?? 4),
+  deadCalls: Number(process.env['GUARD_DEAD_CALLS'] ?? 0),
   realDeadCalls: Number(process.env['GUARD_REAL_DEAD_CALLS'] ?? 0),
-  verbMismatch: Number(process.env['GUARD_VERB_MISMATCH'] ?? 3),
+  verbMismatch: Number(process.env['GUARD_VERB_MISMATCH'] ?? 0),
 };
 
 console.log('[api-contract-guard] 前后端 API 契约检查');

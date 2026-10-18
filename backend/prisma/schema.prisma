@@ -1908,3 +1908,44 @@ model DistTask {
   @@index([tenantId])
   @@map("dist_tasks")
 }
+
+// [v3.0.6.16-7] 眼科病历记录 (EMR)
+// 背景: 前端 EyeEmrPage「新建病历」POST /eye/emr/records, 后端此前只有列表与
+// GET/PUT emr/:patientId, 无创建端点 —— 生产 404, 演示由 MSW 兜底。
+model EyeEmrRecord {
+  id             String   @id @default(cuid())
+  tenantId       String   @map("tenant_id")
+  patientId      String   @default("") @map("patient_id")
+  patientName    String   @map("patient_name")
+  visitDate      DateTime @default(now()) @map("visit_date")
+  chiefComplaint String   @default("") @map("chief_complaint")
+  diagnosis      String   @default("")
+  plan           String   @default("")
+  notes          String?
+  createdById    String?  @map("created_by_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId])
+  @@index([tenantId])
+  @@index([visitDate])
+  @@map("eye_emr_records")
+}
+
+// [v3.0.6.16-7] 口腔患者照片 (口内照/全景/面像等)
+// 背景: 前端 DentalPhotoPage 一直 GET /dental/patient/:id/photos, 后端无此端点。
+model DentalPhoto {
+  id         String   @id @default(cuid())
+  tenantId   String   @map("tenant_id")
+  patientId  String   @map("patient_id")
+  category   String   @default("intraoral")
+  label      String   @default("")
+  url        String   @default("")
+  takenAt    DateTime @default(now()) @map("taken_at")
+  createdById String? @map("created_by_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([patientId])
+  @@index([tenantId])
+  @@map("dental_photos")
+}

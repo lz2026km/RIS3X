@@ -553,6 +553,14 @@ export const eyeApi = {
       recordedAt: string;
       accepted: boolean;
     }>(`${EYE_API}/report/ai/feedback`, data),
+  // [v3.0.6.16-7] 语音识别热词表 (此前页面裸 fetch 到不存在的端点)
+  asrVocab: (condition: string) =>
+    api.get<{
+      engine: string;
+      condition: string | null;
+      vocab: string[];
+      count: number;
+    }>(`${EYE_API}/report/asr/vocab/${encodeURIComponent(condition)}`),
 };
 
 export default eyeApi;

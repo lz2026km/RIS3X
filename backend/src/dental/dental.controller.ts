@@ -464,6 +464,28 @@ export class DentalController {
     return this.svc.acceptReferral(id);
   }
 
+  /** [v3.0.6.16-7] 撤销/删除转诊 (前端「撤销转诊」此前打到不存在的端点) */
+  @Delete("referrals/:id")
+  deleteReferral(@Param("id") id: string) {
+    return this.svc.deleteReferral(id);
+  }
+
+  /** [v3.0.6.16-7] 口腔患者照片列表 (DentalPhotoPage 此前 GET 到不存在的端点) */
+  @Get("patient/:patientId/photos")
+  listPatientPhotos(@Param("patientId") patientId: string) {
+    return this.svc.listPatientPhotos(patientId);
+  }
+
+  /** [v3.0.6.16-7] 新增口腔患者照片 */
+  @Post("patient/:patientId/photos")
+  addPatientPhoto(
+    @Param("patientId") patientId: string,
+    @Body()
+    body: { category?: string; label?: string; url?: string; takenAt?: string },
+  ) {
+    return this.svc.addPatientPhoto(patientId, body);
+  }
+
   @Get("tele/sessions")
   listTeleSessions() {
     return this.svc.listTeleSessions();

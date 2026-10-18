@@ -409,6 +409,22 @@ export const dentalApi = {
   createReferral: (data: any) => api.post<any>(`${DENTAL_API}/referrals`, data),
   acceptReferral: (id: string) =>
     api.post<any>(`${DENTAL_API}/referrals/${id}/accept`, {}),
+  // [v3.0.6.16-7] 撤销/删除转诊 (此前页面裸 fetch 到不存在的端点)
+  deleteReferral: (id: string) =>
+    api.delete<any>(`${DENTAL_API}/referrals/${encodeURIComponent(id)}`),
+  // [v3.0.6.16-7] 患者照片 (此前页面裸 fetch 到不存在的端点)
+  listPatientPhotos: (patientId: string) =>
+    api.get<any[]>(
+      `${DENTAL_API}/patient/${encodeURIComponent(patientId)}/photos`,
+    ),
+  addPatientPhoto: (
+    patientId: string,
+    data: { category?: string; label?: string; url?: string; takenAt?: string },
+  ) =>
+    api.post<any>(
+      `${DENTAL_API}/patient/${encodeURIComponent(patientId)}/photos`,
+      data,
+    ),
 
   // [W3-2] 远程口腔会诊 (DentalTelePage)
   listTeleSessions: () => api.get<any[]>(`${DENTAL_API}/tele/sessions`),

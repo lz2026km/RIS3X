@@ -7,7 +7,7 @@
  *   POST /eye/report/voice/transcribe 语音转写 (未配置 ASR 时如实返回错误)
  *   POST /eye/report/ai/feedback      反馈登记
  */
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   EyeReportAiService,
@@ -47,5 +47,14 @@ export class EyeReportAiController {
   @Post("ai/feedback")
   feedback(@Body() body: FeedbackRequest) {
     return this.svc.feedback(body);
+  }
+
+  /**
+   * [v3.0.6.16-7] 语音识别热词表 (确定性词表, 非随机)。
+   * 前端 AiReportWriterPage 此前打到不存在的端点 (生产 404)。
+   */
+  @Get("asr/vocab/:condition")
+  asrVocab(@Param("condition") condition: string) {
+    return this.svc.asrVocab(condition);
   }
 }
