@@ -10,6 +10,8 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Check, Pencil, X } from "lucide-react";
 // [W14-UX] 使用 appI18n 的 t
 import { t } from "../../i18n/appI18n";
+// [v3.0.6.16-0] select 分支改用设计系统 AppSelectField
+import { AppSelectField } from "./AppSelectField";
 
 export interface InlineEditOption {
   label: string;
@@ -50,7 +52,9 @@ export function InlineEditCell({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(current);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(null);
+  const inputRef = useRef<
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  >(null);
 
   useEffect(() => {
     if (!editing) setDraft(current);
@@ -61,7 +65,8 @@ export function InlineEditCell({
       const el = inputRef.current;
       if (el) {
         el.focus();
-        if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) el.select();
+        if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)
+          el.select();
       }
     }
   }, [editing]);
@@ -100,7 +105,11 @@ export function InlineEditCell({
     if (e.key === "Enter" && inputType !== "textarea") {
       e.preventDefault();
       commit();
-    } else if (e.key === "Enter" && inputType === "textarea" && (e.ctrlKey || e.metaKey)) {
+    } else if (
+      e.key === "Enter" &&
+      inputType === "textarea" &&
+      (e.ctrlKey || e.metaKey)
+    ) {
       e.preventDefault();
       commit();
     } else if (e.key === "Escape") {
@@ -125,8 +134,14 @@ export function InlineEditCell({
           minHeight: 22,
         }}
       >
-        <span style={{ color: current ? "inherit" : "var(--text-muted, #94a3b8)" }}>
-          {current ? (renderDisplay ? renderDisplay(current) : current) : emptyText}
+        <span
+          style={{ color: current ? "inherit" : "var(--text-muted, #94a3b8)" }}
+        >
+          {current
+            ? renderDisplay
+              ? renderDisplay(current)
+              : current
+            : emptyText}
         </span>
         {!disabled && (
           <button
@@ -161,11 +176,25 @@ export function InlineEditCell({
     borderRadius: 6,
     border: `1px solid ${error ? "var(--color-error, var(--color-error-600))" : "var(--color-primary-500, var(--color-primary-500))"}`,
     background: "var(--form-input-bg, #fff)",
-    color: "var(--text-primary, #1e293b)", };
+    color: "var(--text-primary, #1e293b)",
+  };
 
   return (
-    <span style={{ display: "inline-flex", flexDirection: "column", gap: 2, width: "100%" }}>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+    <span
+      style={{
+        display: "inline-flex",
+        flexDirection: "column",
+        gap: 2,
+        width: "100%",
+      }}
+    >
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-1, 4px)",
+        }}
+      >
         {inputType === "textarea" ? (
           <textarea
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
@@ -178,20 +207,24 @@ export function InlineEditCell({
             style={inputStyle}
           />
         ) : inputType === "select" ? (
-          <select
-            ref={inputRef as React.RefObject<HTMLSelectElement>}
+          <AppSelectField
+            autoFocus
             value={draft}
             aria-label={ariaLabel}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={onKeyDown}
+            placeholder={placeholder}
+            onChange={(v) => setDraft(String(v ?? ""))}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.preventDefault();
+                cancel();
+              }
+            }}
+            options={(options ?? []).map((o) => ({
+              value: o.value,
+              label: o.label,
+            }))}
             style={inputStyle}
-          >
-            {(options ?? []).map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          />
         ) : (
           <input
             ref={inputRef as React.RefObject<HTMLInputElement>}
@@ -229,7 +262,13 @@ export function InlineEditCell({
         </button>
       </span>
       {error && (
-        <span role="alert" style={{ fontSize: 11, color: "var(--color-error, var(--color-error-600))" }}>
+        <span
+          role="alert"
+          style={{
+            fontSize: 11,
+            color: "var(--color-error, var(--color-error-600))",
+          }}
+        >
           {error}
         </span>
       )}

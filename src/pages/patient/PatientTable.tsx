@@ -1,7 +1,29 @@
-
-import { ChevronLeft, ChevronRight, CheckSquare, Search, Eye, Edit2, PlusCircle, FileText, Download, Printer, X, GitFork, User, Phone, CreditCard, Calendar, MapPin, Contact, Shield, Activity, AlertTriangle, Trash2 } from 'lucide-react';
-import { Popconfirm } from 'antd';
-import type { TableColumnsType } from 'antd';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckSquare,
+  Search,
+  Eye,
+  Edit2,
+  PlusCircle,
+  FileText,
+  Download,
+  Printer,
+  X,
+  GitFork,
+  User,
+  Phone,
+  CreditCard,
+  Calendar,
+  MapPin,
+  Contact,
+  Shield,
+  Activity,
+  AlertTriangle,
+  Trash2,
+} from "lucide-react";
+import { Popconfirm } from "antd";
+import type { TableColumnsType } from "antd";
 // [v3.0.6.11-103 Wave 6] 表格统一: 自定义 table → DataTable (斑马纹/行高/列头/分页统一)
 import { DataTable } from "../../components/common/DataTable";
 // [W14-UX] 右键上下文菜单项类型
@@ -11,6 +33,8 @@ import type { RadiologyExam } from "../../types";
 import type { DuplicateMatch, ToastInfo } from "./types";
 import { getPatientExams } from "./utils";
 import { t } from "../../i18n/appI18n";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../../components/common/AppSelectField";
 
 interface PaginationProps {
   currentPage: number;
@@ -47,41 +71,55 @@ function Pagination({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 'var(--space-3, 12px)',
+          gap: "var(--space-3, 12px)",
           fontSize: 12,
-          color: 'var(--text-muted, #64748b)',
+          color: "var(--text-muted, #64748b)",
         }}
       >
         {onPageSizeChange && (
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span>{t("patientTable.pagination.perPage")}</span>
-            <select
+            <AppSelectField
               aria-label={t("patientTable.pagination.perPageAria")}
-              value={pageSize}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              value={String(pageSize)}
+              onChange={(v) => onPageSizeChange(Number(v))}
+              options={[10, 20, 50, 100].map((s) => ({
+                value: String(s),
+                label: t("patientTable.pagination.rows", { count: s }),
+              }))}
               style={{
                 padding: "2px 6px",
                 border: "1px solid var(--border-color, #e2e8f0)",
                 borderRadius: 4,
                 fontSize: 12,
                 background: "var(--bg-card)",
-                color: 'var(--text-primary, #334155)',
+                color: "var(--text-primary, #334155)",
                 cursor: "pointer",
               }}
-            >
-              {[10, 20, 50, 100].map((s) => (
-                <option key={s} value={s}>
-                  {t("patientTable.pagination.rows", { count: s })}
-                </option>
-              ))}
-            </select>
+            />
           </div>
         )}
         <span>
-          {t("patientTable.pagination.summary", { start: startItem, end: endItem, total: totalItems })}
+          {t("patientTable.pagination.summary", {
+            start: startItem,
+            end: endItem,
+            total: totalItems,
+          })}
         </span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+        }}
+      >
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -119,8 +157,14 @@ function Pagination({
                 height: 32,
                 borderRadius: 6,
                 border: "1px solid",
-                borderColor: currentPage === pageNum ? "var(--color-primary-800)" : "var(--border-color, #e2e8f0)",
-                background: currentPage === pageNum ? "var(--color-primary-800)" : "var(--bg-card)",
+                borderColor:
+                  currentPage === pageNum
+                    ? "var(--color-primary-800)"
+                    : "var(--border-color, #e2e8f0)",
+                background:
+                  currentPage === pageNum
+                    ? "var(--color-primary-800)"
+                    : "var(--bg-card)",
                 color: currentPage === pageNum ? "#fff" : "#64748b",
                 cursor: "pointer",
                 fontSize: 12,
@@ -255,20 +299,36 @@ export function PatientTable({
   // [v3.0.6.11-103 Wave 6] 统一列配置 (DataTable), 复用原自定义表格单元格渲染
   // [W14-UX] 右键行操作 (查看/编辑/导出/打印/删除)
   const buildPatientContextItems = (p: Patient): ContextMenuItem[] => [
-    { key: "view", label: t("patientTable.action.view"), onSelect: () => onViewPatient(p) },
-    { key: "edit", label: t("patientTable.action.edit"), onSelect: () => onEditPatient(p) },
+    {
+      key: "view",
+      label: t("patientTable.action.view"),
+      onSelect: () => onViewPatient(p),
+    },
+    {
+      key: "edit",
+      label: t("patientTable.action.edit"),
+      onSelect: () => onEditPatient(p),
+    },
     {
       key: "export",
       label: t("w14Ux.contextMenu.export"),
       dividerBefore: true,
       onSelect: () =>
-        onToast({ show: true, type: "success", message: `已导出患者 ${p.name} 档案` }),
+        onToast({
+          show: true,
+          type: "success",
+          message: `已导出患者 ${p.name} 档案`,
+        }),
     },
     {
       key: "print",
       label: t("w14Ux.contextMenu.print"),
       onSelect: () =>
-        onToast({ show: true, type: "info", message: `已将 ${p.name} 标签发送到打印队列` }),
+        onToast({
+          show: true,
+          type: "info",
+          message: `已将 ${p.name} 标签发送到打印队列`,
+        }),
     },
     ...(onDeletePatient
       ? [
@@ -290,7 +350,13 @@ export function PatientTable({
       key: "id",
       width: 110,
       render: (value) => (
-        <span style={{ fontFamily: "monospace", fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
+        <span
+          style={{
+            fontFamily: "monospace",
+            fontSize: 12,
+            color: "var(--text-muted, #64748b)",
+          }}
+        >
           {String(value)}
         </span>
       ),
@@ -303,7 +369,13 @@ export function PatientTable({
       render: (_value, p) => {
         getPatientExams(p.id, exams);
         return (
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
             <div
               style={{
                 width: 28,
@@ -315,13 +387,18 @@ export function PatientTable({
                 justifyContent: "center",
                 fontSize: 12,
                 fontWeight: 700,
-                color: p.gender === "男" ? "var(--color-primary-800)" : "#be185d",
+                color:
+                  p.gender === "男" ? "var(--color-primary-800)" : "#be185d",
                 flexShrink: 0,
               }}
             >
               {p.name.slice(0, 1)}
             </div>
-            <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{p.name}</span>
+            <span
+              style={{ fontWeight: 600, color: "var(--color-primary-800)" }}
+            >
+              {p.name}
+            </span>
           </div>
         );
       },
@@ -354,7 +431,12 @@ export function PatientTable({
       width: 70,
       align: "right",
       render: (value) => (
-        <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500 }}>{String(value)}{t("patientTable.ageSuffix")}</span>
+        <span
+          style={{ color: "var(--text-primary, #334155)", fontWeight: 500 }}
+        >
+          {String(value)}
+          {t("patientTable.ageSuffix")}
+        </span>
       ),
     },
     {
@@ -363,7 +445,13 @@ export function PatientTable({
       key: "idCard",
       width: 180,
       render: (value) => (
-        <span style={{ fontFamily: "monospace", fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
+        <span
+          style={{
+            fontFamily: "monospace",
+            fontSize: 12,
+            color: "var(--text-muted, #64748b)",
+          }}
+        >
           {String(value)}
         </span>
       ),
@@ -373,7 +461,11 @@ export function PatientTable({
       dataIndex: "phone",
       key: "phone",
       width: 130,
-      render: (value) => <span style={{ color: 'var(--text-primary, #334155)' }}>{String(value)}</span>,
+      render: (value) => (
+        <span style={{ color: "var(--text-primary, #334155)" }}>
+          {String(value)}
+        </span>
+      ),
     },
     {
       title: t("patientTable.col.patientType"),
@@ -389,7 +481,7 @@ export function PatientTable({
             fontSize: 12,
             fontWeight: 600,
             background: "var(--bg-primary)",
-            color: 'var(--text-secondary, #475569)',
+            color: "var(--text-secondary, #475569)",
           }}
         >
           {String(value)}
@@ -402,7 +494,9 @@ export function PatientTable({
       key: "registrationDate",
       width: 110,
       render: (value) => (
-        <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{String(value)}</span>
+        <span style={{ color: "var(--text-muted, #64748b)", fontSize: 12 }}>
+          {String(value)}
+        </span>
       ),
     },
     {
@@ -423,7 +517,9 @@ export function PatientTable({
       key: "lastExamDate",
       width: 110,
       render: (value) => (
-        <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{String(value || "-")}</span>
+        <span style={{ color: "var(--text-muted, #64748b)", fontSize: 12 }}>
+          {String(value || "-")}
+        </span>
       ),
     },
     {
@@ -434,7 +530,13 @@ export function PatientTable({
       fixed: "right",
       align: "center",
       render: (_value, p) => (
-        <div style={{ display: "flex", gap: 'var(--space-1, 4px)', justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-1, 4px)",
+            justifyContent: "center",
+          }}
+        >
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -452,7 +554,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <Eye size={14} />
@@ -475,7 +577,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <Edit2 size={14} />
@@ -497,7 +599,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <PlusCircle size={14} />
@@ -519,7 +621,7 @@ export function PatientTable({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <FileText size={14} />
@@ -550,7 +652,7 @@ export function PatientTable({
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                 }}
               >
                 <Trash2 size={14} />
@@ -568,7 +670,7 @@ export function PatientTable({
       {visibleDuplicates.length > 0 && (
         <div
           style={{
-            marginBottom: 'var(--space-4, 16px)',
+            marginBottom: "var(--space-4, 16px)",
             padding: "12px 16px",
             background: "var(--color-warning-bg, #fffbeb)",
             border: "1px solid #fde68a",
@@ -578,16 +680,24 @@ export function PatientTable({
             justifyContent: "space-between",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
             <GitFork size={18} color="var(--color-warning-600)" />
             <span style={{ fontSize: 12, fontWeight: 600, color: "#92400e" }}>
-              {t("patientTable.duplicates.detected", { count: visibleDuplicates.length })}
+              {t("patientTable.duplicates.detected", {
+                count: visibleDuplicates.length,
+              })}
             </span>
             <span style={{ fontSize: 12, color: "#78716c" }}>
               {t("patientTable.duplicates.advice")}
             </span>
           </div>
-          <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+          <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
             {visibleDuplicates.slice(0, 3).map((d, i) => (
               <span
                 key={i}
@@ -600,14 +710,18 @@ export function PatientTable({
                   color: "#92400e",
                 }}
               >
-                {d.patients?.[0]?.name ?? ''} ~ {d.patients?.[1]?.name ?? ''} ({d.score}{t("patientTable.duplicates.scoreSuffix")})
+                {d.patients?.[0]?.name ?? ""} ~ {d.patients?.[1]?.name ?? ""} (
+                {d.score}
+                {t("patientTable.duplicates.scoreSuffix")})
               </span>
             ))}
             {visibleDuplicates.length > 3 && (
               <span
                 style={{ fontSize: 12, color: "#78716c", alignSelf: "center" }}
               >
-                {t("patientTable.duplicates.andMore", { count: visibleDuplicates.length })}
+                {t("patientTable.duplicates.andMore", {
+                  count: visibleDuplicates.length,
+                })}
               </span>
             )}
             <button
@@ -619,7 +733,7 @@ export function PatientTable({
                 background: "var(--bg-card)",
                 fontSize: 12,
                 cursor: "pointer",
-                color: 'var(--text-muted, #64748b)',
+                color: "var(--text-muted, #64748b)",
               }}
             >
               <X size={14} /> {t("patientTable.duplicates.ignore")}
@@ -631,13 +745,14 @@ export function PatientTable({
       {selectedPatientIds.size > 0 && (
         <div
           style={{
-            marginBottom: 'var(--space-3, 12px)',
+            marginBottom: "var(--space-3, 12px)",
             padding: "10px 16px",
-            background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))",
+            background:
+              "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))",
             borderRadius: 10,
             display: "flex",
             alignItems: "center",
-            gap: 'var(--space-3, 12px)',
+            gap: "var(--space-3, 12px)",
             boxShadow: "0 4px 12px rgba(30,58,95,0.3)",
           }}
         >
@@ -759,12 +874,16 @@ export function PatientTable({
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 'var(--space-2, 8px)',
+                gap: "var(--space-2, 8px)",
               }}
             >
               <Search size={32} color="#cbd5e1" aria-hidden />
-              <div style={{ fontSize: 12 }}>{t("patientTable.empty.noMatch")}</div>
-              <div style={{ fontSize: 12 }}>{t("patientTable.empty.noData")}</div>
+              <div style={{ fontSize: 12 }}>
+                {t("patientTable.empty.noMatch")}
+              </div>
+              <div style={{ fontSize: 12 }}>
+                {t("patientTable.empty.noData")}
+              </div>
             </div>
           }
         />
@@ -782,11 +901,11 @@ export function PatientTable({
       {selectedPatient && (
         <div
           style={{
-            marginTop: 'var(--space-4, 16px)',
+            marginTop: "var(--space-4, 16px)",
             background: "var(--bg-card)",
             borderRadius: 12,
             border: "1px solid var(--border-color, #e2e8f0)",
-            padding: 'var(--space-5, 20px)',
+            padding: "var(--space-5, 20px)",
             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
           }}
         >
@@ -795,16 +914,23 @@ export function PatientTable({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: 'var(--space-4, 16px)',
+              marginBottom: "var(--space-4, 16px)",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-3, 12px)",
+              }}
+            >
               <div
                 style={{
                   width: 56,
                   height: 56,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
+                  background:
+                    "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -816,17 +942,24 @@ export function PatientTable({
               </div>
               <div>
                 <div
-                  style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)" }}
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "var(--color-primary-800)",
+                  }}
                 >
                   {selectedPatient.name}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
-                  {selectedPatient.gender} · {selectedPatient.age}{t("patientTable.ageSuffix")} ·{" "}
-                  {selectedPatient.patientType}
+                <div
+                  style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}
+                >
+                  {selectedPatient.gender} · {selectedPatient.age}
+                  {t("patientTable.ageSuffix")} · {selectedPatient.patientType}
                 </div>
               </div>
             </div>
-            <button aria-label="关闭"
+            <button
+              aria-label="关闭"
               onClick={() => onSelectPatient(null)}
               style={{
                 width: 32,
@@ -847,7 +980,7 @@ export function PatientTable({
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 'var(--space-4, 16px)',
+              gap: "var(--space-4, 16px)",
             }}
           >
             {[
@@ -894,23 +1027,38 @@ export function PatientTable({
             ].map((item) => (
               <div
                 key={item.labelKey}
-                style={{ padding: 'var(--space-3, 12px)', background: "var(--bg-primary)", borderRadius: 8 }}
+                style={{
+                  padding: "var(--space-3, 12px)",
+                  background: "var(--bg-primary)",
+                  borderRadius: 8,
+                }}
               >
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    marginBottom: 'var(--space-1, 4px)',
+                    marginBottom: "var(--space-1, 4px)",
                   }}
                 >
-                  <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{item.icon}</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
+                  <span style={{ color: "var(--text-muted, #94a3b8)" }}>
+                    {item.icon}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-muted, #94a3b8)",
+                    }}
+                  >
                     {t(item.labelKey)}
                   </span>
                 </div>
                 <div
-                  style={{ fontSize: 12, color: 'var(--text-primary, #334155)', fontWeight: 500 }}
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-primary, #334155)",
+                    fontWeight: 500,
+                  }}
                 >
                   {item.value}
                 </div>
@@ -921,14 +1069,14 @@ export function PatientTable({
             selectedPatient.allergyHistory !== "无" && (
               <div
                 style={{
-                  marginTop: 'var(--space-4, 16px)',
+                  marginTop: "var(--space-4, 16px)",
                   padding: "12px 16px",
                   background: "var(--color-error-bg)",
                   border: "1px solid #fecaca",
                   borderRadius: 8,
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-2, 8px)',
+                  gap: "var(--space-2, 8px)",
                 }}
               >
                 <AlertTriangle size={16} color="var(--color-error-600)" />
@@ -942,13 +1090,13 @@ export function PatientTable({
                 </span>
               </div>
             )}
-          <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+          <div style={{ marginTop: "var(--space-4, 16px)" }}>
             <div
               style={{
                 fontSize: 12,
                 fontWeight: 700,
                 color: "var(--color-primary-800)",
-                marginBottom: 'var(--space-2, 8px)',
+                marginBottom: "var(--space-2, 8px)",
               }}
             >
               {t("patientTable.pastHistory")}
@@ -956,8 +1104,8 @@ export function PatientTable({
             <div
               style={{
                 fontSize: 12,
-                color: 'var(--text-primary, #334155)',
-                padding: 'var(--space-3, 12px)',
+                color: "var(--text-primary, #334155)",
+                padding: "var(--space-3, 12px)",
                 background: "var(--bg-primary)",
                 borderRadius: 8,
               }}

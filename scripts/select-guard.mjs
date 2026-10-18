@@ -45,6 +45,9 @@ const searchEx = [];
 // 4) 裸日期输入
 let rawDateInput = 0;
 const dateEx = [];
+// 5) [v3.0.6.16-6] 原生 <select> —— 已全量迁移至 AppSelectField, 预算锁定为 0
+let nativeSelect = 0;
+const nativeSelectEx = [];
 
 const MASTER_KEYS = ['DOCTORS', 'OWNER_OPTIONS', 'DEVICE_OPTIONS', 'NURSES', 'STAFF', 'USERS', 'DEPARTMENTS_LIST'];
 // 合法的临床枚举(非机构主数据): 眼压计型号等检查手段枚举, 不应接 deviceApi
@@ -90,13 +93,23 @@ for (const f of files) {
     rawDateInput += dm.length;
     dateEx.push({ file: relF, n: dm.length });
   }
+
+  // [v3.0.6.16-6] 原生 <select>: 与 antd 设计体系割裂 (操作系统原生外观),
+  // 已全量迁移到 components/common/AppSelectField, 此处锁定防止回流。
+  const nsRe = /<select[\s>]/g;
+  let nsm;
+  while ((nsm = nsRe.exec(src))) {
+    nativeSelect++;
+    nativeSelectEx.push({ file: relF, line: src.slice(0, nsm.index).split('\n').length });
+  }
 }
 
 const BUDGET = {
-  labelLessOptions: Number(process.env['GUARD_LABEL_LESS'] ?? 4),
+  labelLessOptions: Number(process.env['GUARD_LABEL_LESS'] ?? 2),
   hardcodedMasterSelect: Number(process.env['GUARD_HARDCODED_MASTER'] ?? 40),
   showSearchNoFilter: Number(process.env['GUARD_SEARCH_NOFILTER'] ?? 80),
-  rawDateInput: Number(process.env['GUARD_RAW_DATE'] ?? 120),
+  rawDateInput: Number(process.env['GUARD_RAW_DATE'] ?? 0),
+  nativeSelect: Number(process.env['GUARD_NATIVE_SELECT'] ?? 0),
 };
 
 console.log('[select-guard] 下拉选项控件检查');
@@ -117,6 +130,7 @@ check('labelLessOptions', labelLess, 'options 只有 value 无 label (界面显�
 check('hardcodedMasterSelect', hardcodedMaster, '硬编码医生/设备/科室等主数据下拉', masterEx);
 check('showSearchNoFilter', searchNoFilter, 'showSearch 未带过滤 (搜中文无效)', searchEx);
 check('rawDateInput', rawDateInput, '裸 <input type=date> (应改 antd DatePicker)', dateEx);
+check('nativeSelect', nativeSelect, '原生 <select> (应改 AppSelectField)', nativeSelectEx);
 
 if (failed) {
   console.error('\n[select-guard] 存在超预算项, 请修复后再提交。');

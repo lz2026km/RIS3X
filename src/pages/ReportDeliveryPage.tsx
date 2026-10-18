@@ -42,6 +42,8 @@ import { DataTable } from "../components/common/DataTable";
 import { StatusTag } from "../components/common/StatusTag";
 import { StatCard } from "../components/common";
 import { t } from "../i18n/appI18n";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../components/common/AppSelectField";
 
 const { Title } = Typography;
 
@@ -1137,21 +1139,21 @@ export default function ReportDeliveryPage() {
             }}
           >
             <Filter size={12} color="var(--text-secondary)" />
-            <select
+            <AppSelectField
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={(v) => setFilterStatus(String(v ?? ""))}
+              options={[
+                { value: "all", label: t("reportDelivery.allStatus") },
+                { value: "pending", label: t("reportDelivery.statusPending") },
+                {
+                  value: "delivered",
+                  label: t("reportDelivery.statusDelivered"),
+                },
+                { value: "read", label: t("reportDelivery.statusRead") },
+                { value: "failed", label: t("reportDelivery.statusFailed") },
+              ]}
               style={selectStyle}
-            >
-              <option value="all">{t("reportDelivery.allStatus")}</option>
-              <option value="pending">
-                {t("reportDelivery.statusPending")}
-              </option>
-              <option value="delivered">
-                {t("reportDelivery.statusDelivered")}
-              </option>
-              <option value="read">{t("reportDelivery.statusRead")}</option>
-              <option value="failed">{t("reportDelivery.statusFailed")}</option>
-            </select>
+            />
             <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               {t("reportDelivery.selected")}{" "}
               <strong style={{ color: "var(--color-error-600)" }}>

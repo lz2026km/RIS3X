@@ -1,14 +1,16 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import dayjs from 'dayjs'
+import dayjs from "dayjs";
 import { Save, Printer, Mic, Square } from "lucide-react";
 import { PageHeader } from "../components/common/PageHeader";
 import { t } from "../i18n/appI18n";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../components/common/AppSelectField";
 // [G005 Wave2A P1] 真实保存: aiPlatformApi.createStructuredReport (POST /ai-platform/structured-reports, 后端 GenerateStructuredReportSchema)
 import { aiPlatformApi } from "../services/api/aiPlatformApi";
 import { uniqueId } from "../utils/uniqueId";
 import { Typography, DatePicker } from "antd";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 // ============================================================================
 // Types
@@ -729,7 +731,10 @@ const AIStructuredReportPage: React.FC = () => {
     (index: number, field: string, value: string) => {
       setFormData((prev) => {
         const newDiagnoses = [...prev.impression.diagnoses];
-        newDiagnoses[index] = { ...newDiagnoses[index]!, [field]: value } as DiagnosisItem;
+        newDiagnoses[index] = {
+          ...newDiagnoses[index]!,
+          [field]: value,
+        } as DiagnosisItem;
         return {
           ...prev,
           impression: { ...prev.impression, diagnoses: newDiagnoses },
@@ -746,7 +751,7 @@ const AIStructuredReportPage: React.FC = () => {
         ...prev.impression,
         diagnoses: [
           ...prev.impression.diagnoses,
-          { id: uniqueId('dx'), conclusion: "", basis: "" },
+          { id: uniqueId("dx"), conclusion: "", basis: "" },
         ],
       },
     }));
@@ -760,7 +765,8 @@ const AIStructuredReportPage: React.FC = () => {
         diagnoses: prev.impression.diagnoses.filter((_, i) => i !== index),
       },
     }));
-  }, []);useCallback((report: HistoryReport) => {
+  }, []);
+  useCallback((report: HistoryReport) => {
     setFormData((prev) => ({
       ...prev,
       patientName: report.patientName,
@@ -775,7 +781,7 @@ const AIStructuredReportPage: React.FC = () => {
   const generateJsonReport = useCallback(() => {
     const report = {
       reportInfo: {
-        reportId: uniqueId('RPT'),
+        reportId: uniqueId("RPT"),
         reportDate: new Date().toISOString(),
         examDate: formData.examDate,
       },
@@ -814,8 +820,10 @@ const AIStructuredReportPage: React.FC = () => {
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!formData.patientName.trim()) errs.patientName = t("aiStructured.placeholderPatientName");
-    if (!formData.patientId.trim()) errs.patientId = t("aiStructured.placeholderPatientId");
+    if (!formData.patientName.trim())
+      errs.patientName = t("aiStructured.placeholderPatientName");
+    if (!formData.patientId.trim())
+      errs.patientId = t("aiStructured.placeholderPatientId");
     if (!formData.age.trim()) errs.age = t("aiStructured.placeholderAge");
     if (!formData.finding.examMethod.trim())
       errs["finding.examMethod"] = t("aiStructured.errExamMethod");
@@ -855,18 +863,25 @@ const AIStructuredReportPage: React.FC = () => {
     try {
       const res = await aiPlatformApi.createStructuredReport({
         studyId: formData.patientId || "STU-DEMO",
-        templateId: selectedTemplate || (activeSpecialtyTab === "ct" ? "ct-brain" : activeSpecialtyTab),
+        templateId:
+          selectedTemplate ||
+          (activeSpecialtyTab === "ct" ? "ct-brain" : activeSpecialtyTab),
         findings: [formData.finding.description].filter(Boolean),
         additionalContext: {
           patientName: formData.patientName,
           examMethod: formData.finding.examMethod,
           impression: formData.impression.diagnoses.map((d) => d.conclusion),
           specialtyTab: activeSpecialtyTab,
-          reportId: uniqueId('RPT'),
+          reportId: uniqueId("RPT"),
         },
       });
       if (res.success && res.data) {
-        showToast(t("aiStructured.reportSaved", { id: (res.data as { id?: string })?.id ?? "" }), "#059669");
+        showToast(
+          t("aiStructured.reportSaved", {
+            id: (res.data as { id?: string })?.id ?? "",
+          }),
+          "#059669",
+        );
         setPreviewJson(generateJsonReport());
       } else {
         throw new Error(res.error?.message ?? t("aiStructured.apiError"));
@@ -878,7 +893,13 @@ const AIStructuredReportPage: React.FC = () => {
     } finally {
       setSavingReport(false);
     }
-  }, [formData, activeSpecialtyTab, selectedTemplate, savingReport, generateJsonReport]);
+  }, [
+    formData,
+    activeSpecialtyTab,
+    selectedTemplate,
+    savingReport,
+    generateJsonReport,
+  ]);
 
   // ============================================================================
   // Styles
@@ -887,7 +908,8 @@ const AIStructuredReportPage: React.FC = () => {
   const styles = {
     container: {
       display: "flex",
-      flexDirection: "column" as const, backgroundColor: "var(--bg-card)",
+      flexDirection: "column" as const,
+      backgroundColor: "var(--bg-card)",
       color: "var(--text-primary)",
       fontFamily:
         '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -911,7 +933,9 @@ const AIStructuredReportPage: React.FC = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      backgroundColor: isRecording ? "var(--color-error-600)" : "rgba(255,255,255,0.2)",
+      backgroundColor: isRecording
+        ? "var(--color-error-600)"
+        : "rgba(255,255,255,0.2)",
       color: "white",
       border: "none",
       borderRadius: "8px",
@@ -1034,7 +1058,8 @@ const AIStructuredReportPage: React.FC = () => {
       border: "1px solid var(--border-color)",
       borderRadius: "6px",
       color: "var(--text-primary)",
-      fontSize: "14px", transition: "border-color 0.2s",
+      fontSize: "14px",
+      transition: "border-color 0.2s",
     },
     select: {
       padding: "10px 12px",
@@ -1042,14 +1067,16 @@ const AIStructuredReportPage: React.FC = () => {
       border: "1px solid var(--border-color)",
       borderRadius: "6px",
       color: "var(--text-primary)",
-      fontSize: "14px", },
+      fontSize: "14px",
+    },
     textarea: {
       padding: "12px",
       backgroundColor: "var(--bg-card)",
       border: "1px solid var(--border-color)",
       borderRadius: "6px",
       color: "var(--text-primary)",
-      fontSize: "14px", resize: "vertical" as const,
+      fontSize: "14px",
+      resize: "vertical" as const,
       minHeight: "80px",
       fontFamily: "inherit",
     },
@@ -1207,7 +1234,20 @@ const AIStructuredReportPage: React.FC = () => {
       <header style={styles.header}>
         <Title level={4} style={{ margin: 0 }}>
           {t("aiStructured.title")}
-          <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbe6)', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>{t("aiStructured.demoBadge")}</span>
+          <span
+            style={{
+              marginLeft: 10,
+              fontSize: 11,
+              padding: "2px 8px",
+              borderRadius: 10,
+              background: "var(--color-warning-bg, #fffbe6)",
+              color: "#b45309",
+              fontWeight: 600,
+              verticalAlign: "middle",
+            }}
+          >
+            {t("aiStructured.demoBadge")}
+          </span>
         </Title>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <span style={{ fontSize: "12px", opacity: 0.9 }}>
@@ -1215,7 +1255,9 @@ const AIStructuredReportPage: React.FC = () => {
           </span>
           <button style={styles.voiceButton} onClick={handleVoiceRecord}>
             {isRecording ? <Square size={16} /> : <Mic size={16} />}
-            {isRecording ? t("aiStructured.stopRecording") : t("aiStructured.voiceInput")}
+            {isRecording
+              ? t("aiStructured.stopRecording")
+              : t("aiStructured.voiceInput")}
           </button>
         </div>
       </header>
@@ -1266,18 +1308,27 @@ const AIStructuredReportPage: React.FC = () => {
                 style={{
                   ...styles.templateItem,
                   borderColor:
-                    selectedTemplate === template.id ? "var(--color-primary-800)" : "#e2e8f0",
+                    selectedTemplate === template.id
+                      ? "var(--color-primary-800)"
+                      : "#e2e8f0",
                   backgroundColor:
                     selectedTemplate === template.id ? "#eff6ff" : "#f8fafc",
                 }}
                 onClick={() => handleTemplateSelect(template)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleTemplateSelect(template) } }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleTemplateSelect(template);
+                  }
+                }}
               >
                 <span
                   style={{
                     ...styles.templateName,
                     color:
-                      selectedTemplate === template.id ? "var(--color-primary-800)" : "#334155",
+                      selectedTemplate === template.id
+                        ? "var(--color-primary-800)"
+                        : "#334155",
                   }}
                 >
                   {template.name}
@@ -1292,11 +1343,20 @@ const AIStructuredReportPage: React.FC = () => {
           <div style={styles.formSection}>
             {/* Patient Info */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.patientInfo")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader
+                variant="inline"
+                title={t("aiStructured.patientInfo")}
+                style={{
+                  marginBottom: "var(--space-4, 16px)",
+                  paddingBottom: "var(--space-2, 8px)",
+                  borderBottom: "2px solid var(--color-primary-800)",
+                }}
+              />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.patientName")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span>{" "}
+                    {t("aiStructured.patientName")}
                   </label>
                   <input
                     type="text"
@@ -1305,7 +1365,9 @@ const AIStructuredReportPage: React.FC = () => {
                     onChange={handleInputChange}
                     style={{
                       ...styles.input,
-                      borderColor: errors.patientName ? "var(--color-error-600)" : undefined,
+                      borderColor: errors.patientName
+                        ? "var(--color-error-600)"
+                        : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderPatientName")}
                     maxLength={50}
@@ -1313,7 +1375,11 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.patientName && (
                     <span
-                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
+                      style={{
+                        color: "var(--color-error-600)",
+                        fontSize: 12,
+                        marginTop: 2,
+                      }}
                     >
                       {errors.patientName}
                     </span>
@@ -1321,7 +1387,8 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.patientId")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span>{" "}
+                    {t("aiStructured.patientId")}
                   </label>
                   <input
                     type="text"
@@ -1330,7 +1397,9 @@ const AIStructuredReportPage: React.FC = () => {
                     onChange={handleInputChange}
                     style={{
                       ...styles.input,
-                      borderColor: errors.patientId ? "var(--color-error-600)" : undefined,
+                      borderColor: errors.patientId
+                        ? "var(--color-error-600)"
+                        : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderPatientId")}
                     maxLength={20}
@@ -1338,7 +1407,11 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.patientId && (
                     <span
-                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
+                      style={{
+                        color: "var(--color-error-600)",
+                        fontSize: 12,
+                        marginTop: 2,
+                      }}
                     >
                       {errors.patientId}
                     </span>
@@ -1346,7 +1419,8 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.age")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span>{" "}
+                    {t("aiStructured.age")}
                   </label>
                   <input
                     type="text"
@@ -1355,7 +1429,9 @@ const AIStructuredReportPage: React.FC = () => {
                     onChange={handleInputChange}
                     style={{
                       ...styles.input,
-                      borderColor: errors.age ? "var(--color-error-600)" : undefined,
+                      borderColor: errors.age
+                        ? "var(--color-error-600)"
+                        : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderAge")}
                     maxLength={3}
@@ -1363,7 +1439,11 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.age && (
                     <span
-                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
+                      style={{
+                        color: "var(--color-error-600)",
+                        fontSize: 12,
+                        marginTop: 2,
+                      }}
                     >
                       {errors.age}
                     </span>
@@ -1371,23 +1451,33 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{t("aiStructured.gender")}</label>
-                  <select
-                    name="gender"
+                  <AppSelectField
                     value={formData.gender}
-                    onChange={handleInputChange}
+                    onChange={(v) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        gender: String(v ?? ""),
+                      }))
+                    }
+                    options={[
+                      { value: "男", label: t("aiStructured.male") },
+                      { value: "女", label: t("aiStructured.female") },
+                    ]}
                     style={styles.select}
-                  >
-                    <option value="男">{t("aiStructured.male")}</option>
-                    <option value="女">{t("aiStructured.female")}</option>
-                  </select>
+                  />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>{t("aiStructured.examDate")}</label>
+                  <label style={styles.label}>
+                    {t("aiStructured.examDate")}
+                  </label>
                   {/* [v3.0.6.16-5] 裸 date 输入改 DatePicker (原用共享 handleInputChange 读取 name) */}
                   <DatePicker
                     value={formData.examDate ? dayjs(formData.examDate) : null}
                     onChange={(d) =>
-                      setFormData((prev) => ({ ...prev, examDate: d ? d.format('YYYY-MM-DD') : '' }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        examDate: d ? d.format("YYYY-MM-DD") : "",
+                      }))
                     }
                     style={styles.input}
                   />
@@ -1398,11 +1488,20 @@ const AIStructuredReportPage: React.FC = () => {
             {/* WS/T 500-2016 三段式报告 */}
             {/* Finding Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.findingSection")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader
+                variant="inline"
+                title={t("aiStructured.findingSection")}
+                style={{
+                  marginBottom: "var(--space-4, 16px)",
+                  paddingBottom: "var(--space-2, 8px)",
+                  borderBottom: "2px solid var(--color-primary-800)",
+                }}
+              />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.examMethod")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span>{" "}
+                    {t("aiStructured.examMethod")}
                   </label>
                   <input
                     type="text"
@@ -1421,7 +1520,11 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors["finding.examMethod"] && (
                     <span
-                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
+                      style={{
+                        color: "var(--color-error-600)",
+                        fontSize: 12,
+                        marginTop: 2,
+                      }}
                     >
                       {errors["finding.examMethod"]}
                     </span>
@@ -1429,7 +1532,8 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.examPart")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span>{" "}
+                    {t("aiStructured.examPart")}
                   </label>
                   <input
                     type="text"
@@ -1448,14 +1552,20 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors["finding.examPart"] && (
                     <span
-                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
+                      style={{
+                        color: "var(--color-error-600)",
+                        fontSize: 12,
+                        marginTop: 2,
+                      }}
                     >
                       {errors["finding.examPart"]}
                     </span>
                   )}
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>{t("aiStructured.imageCount")}</label>
+                  <label style={styles.label}>
+                    {t("aiStructured.imageCount")}
+                  </label>
                   <input
                     type="text"
                     name="finding.imageCount"
@@ -1468,7 +1578,8 @@ const AIStructuredReportPage: React.FC = () => {
               </div>
               <div style={{ marginTop: "12px" }}>
                 <label style={styles.label}>
-                  <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.mainFindings")}
+                  <span style={{ color: "var(--color-error-600)" }}>*</span>{" "}
+                  {t("aiStructured.mainFindings")}
                 </label>
                 <textarea
                   name="finding.description"
@@ -1486,13 +1597,17 @@ const AIStructuredReportPage: React.FC = () => {
                   required
                 />
                 {errors["finding.description"] && (
-                  <span style={{ color: "var(--color-error-600)", fontSize: 12 }}>
+                  <span
+                    style={{ color: "var(--color-error-600)", fontSize: 12 }}
+                  >
                     {errors["finding.description"]}
                   </span>
                 )}
               </div>
               <div style={{ marginTop: "12px" }}>
-                <label style={styles.label}>{t("aiStructured.reconstructionSequence")}</label>
+                <label style={styles.label}>
+                  {t("aiStructured.reconstructionSequence")}
+                </label>
                 <input
                   type="text"
                   name="finding.reconstructionSequence"
@@ -1508,14 +1623,28 @@ const AIStructuredReportPage: React.FC = () => {
             <section style={styles.section}>
               <PageHeader
                 variant="inline"
-                title={activeSpecialtyTab === "ct" ? t("aiStructured.specCtFields") : activeSpecialtyTab === "mr" ? t("aiStructured.specMrFields") : activeSpecialtyTab === "dxr" ? t("aiStructured.specDxrFields") : t("aiStructured.specBreastFields")}
-                style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }}
+                title={
+                  activeSpecialtyTab === "ct"
+                    ? t("aiStructured.specCtFields")
+                    : activeSpecialtyTab === "mr"
+                      ? t("aiStructured.specMrFields")
+                      : activeSpecialtyTab === "dxr"
+                        ? t("aiStructured.specDxrFields")
+                        : t("aiStructured.specBreastFields")
+                }
+                style={{
+                  marginBottom: "var(--space-4, 16px)",
+                  paddingBottom: "var(--space-2, 8px)",
+                  borderBottom: "2px solid var(--color-primary-800)",
+                }}
               />
 
               {activeSpecialtyTab === "ct" && (
                 <div style={styles.formGrid}>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t("aiStructured.contrastAgent")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.contrastAgent")}
+                    </label>
                     <input
                       type="text"
                       name="ctData.contrastAgent"
@@ -1526,7 +1655,9 @@ const AIStructuredReportPage: React.FC = () => {
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t("aiStructured.scanPhase")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.scanPhase")}
+                    </label>
                     <input
                       type="text"
                       name="ctData.scanPhase"
@@ -1537,7 +1668,9 @@ const AIStructuredReportPage: React.FC = () => {
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t("aiStructured.reconstructionSequence")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.reconstructionSequence")}
+                    </label>
                     <input
                       type="text"
                       name="ctData.reconstructionSequence"
@@ -1548,7 +1681,9 @@ const AIStructuredReportPage: React.FC = () => {
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t("aiStructured.windowSettings")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.windowSettings")}
+                    </label>
                     <input
                       type="text"
                       name="ctData.windowSettings"
@@ -1565,7 +1700,9 @@ const AIStructuredReportPage: React.FC = () => {
                 <div>
                   <div style={styles.formGrid}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t("aiStructured.sequenceName")}</label>
+                      <label style={styles.label}>
+                        {t("aiStructured.sequenceName")}
+                      </label>
                       <input
                         type="text"
                         name="mrData.sequenceName"
@@ -1576,7 +1713,9 @@ const AIStructuredReportPage: React.FC = () => {
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t("aiStructured.scanOrientation")}</label>
+                      <label style={styles.label}>
+                        {t("aiStructured.scanOrientation")}
+                      </label>
                       <input
                         type="text"
                         name="mrData.scanOrientation"
@@ -1587,7 +1726,9 @@ const AIStructuredReportPage: React.FC = () => {
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t("aiStructured.t1t2Signal")}</label>
+                      <label style={styles.label}>
+                        {t("aiStructured.t1t2Signal")}
+                      </label>
                       <input
                         type="text"
                         name="mrData.t1t2Signal"
@@ -1600,7 +1741,9 @@ const AIStructuredReportPage: React.FC = () => {
                   </div>
                   <div style={{ ...styles.formGrid, marginTop: "12px" }}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t("aiStructured.diffusionDwi")}</label>
+                      <label style={styles.label}>
+                        {t("aiStructured.diffusionDwi")}
+                      </label>
                       <input
                         type="text"
                         name="mrData.diffusionDWI"
@@ -1611,14 +1754,18 @@ const AIStructuredReportPage: React.FC = () => {
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t("aiStructured.contrastEnhanced")}</label>
+                      <label style={styles.label}>
+                        {t("aiStructured.contrastEnhanced")}
+                      </label>
                       <input
                         type="text"
                         name="mrData.contrastEnhanced"
                         value={formData.mrData.contrastEnhanced}
                         onChange={handleInputChange}
                         style={styles.input}
-                        placeholder={t("aiStructured.placeholderContrastEnhanced")}
+                        placeholder={t(
+                          "aiStructured.placeholderContrastEnhanced",
+                        )}
                       />
                     </div>
                   </div>
@@ -1628,7 +1775,9 @@ const AIStructuredReportPage: React.FC = () => {
               {activeSpecialtyTab === "dxr" && (
                 <div style={styles.formGrid}>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t("aiStructured.projectionPosition")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.projectionPosition")}
+                    </label>
                     <input
                       type="text"
                       name="dxrData.projectionPosition"
@@ -1639,7 +1788,9 @@ const AIStructuredReportPage: React.FC = () => {
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t("aiStructured.exposureParams")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.exposureParams")}
+                    </label>
                     <input
                       type="text"
                       name="dxrData.exposureParams"
@@ -1650,18 +1801,31 @@ const AIStructuredReportPage: React.FC = () => {
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t("aiStructured.imageQuality")}</label>
-                    <select
-                      name="dxrData.imageQualityRating"
+                    <label style={styles.label}>
+                      {t("aiStructured.imageQuality")}
+                    </label>
+                    <AppSelectField
                       value={formData.dxrData.imageQualityRating}
-                      onChange={handleInputChange}
+                      onChange={(v) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          dxrData: {
+                            ...prev.dxrData,
+                            imageQualityRating: String(v ?? ""),
+                          },
+                        }))
+                      }
+                      placeholder={t("aiStructured.selectOption")}
+                      options={[
+                        {
+                          value: "优",
+                          label: t("aiStructured.qualityExcellent"),
+                        },
+                        { value: "良", label: t("aiStructured.qualityGood") },
+                        { value: "差", label: t("aiStructured.qualityPoor") },
+                      ]}
                       style={styles.select}
-                    >
-                      <option value="">{t("aiStructured.selectOption")}</option>
-                      <option value="优">{t("aiStructured.qualityExcellent")}</option>
-                      <option value="良">{t("aiStructured.qualityGood")}</option>
-                      <option value="差">{t("aiStructured.qualityPoor")}</option>
-                    </select>
+                    />
                   </div>
                 </div>
               )}
@@ -1670,25 +1834,58 @@ const AIStructuredReportPage: React.FC = () => {
                 <div>
                   <div style={styles.formGrid}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t("aiStructured.biradsClassification")}</label>
-                      <select
-                        name="breastData.biradsClassification"
+                      <label style={styles.label}>
+                        {t("aiStructured.biradsClassification")}
+                      </label>
+                      <AppSelectField
                         value={formData.breastData.biradsClassification}
-                        onChange={handleInputChange}
+                        onChange={(v) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            breastData: {
+                              ...prev.breastData,
+                              biradsClassification: String(v ?? ""),
+                            },
+                          }))
+                        }
+                        placeholder={t("aiStructured.selectOption")}
+                        options={[
+                          {
+                            value: "BI-RADS 0类",
+                            label: t("aiStructured.birads0"),
+                          },
+                          {
+                            value: "BI-RADS 1类",
+                            label: t("aiStructured.birads1"),
+                          },
+                          {
+                            value: "BI-RADS 2类",
+                            label: t("aiStructured.birads2"),
+                          },
+                          {
+                            value: "BI-RADS 3类",
+                            label: t("aiStructured.birads3"),
+                          },
+                          {
+                            value: "BI-RADS 4类",
+                            label: t("aiStructured.birads4"),
+                          },
+                          {
+                            value: "BI-RADS 5类",
+                            label: t("aiStructured.birads5"),
+                          },
+                          {
+                            value: "BI-RADS 6类",
+                            label: t("aiStructured.birads6"),
+                          },
+                        ]}
                         style={styles.select}
-                      >
-                        <option value="">{t("aiStructured.selectOption")}</option>
-                        <option value="BI-RADS 0类">{t("aiStructured.birads0")}</option>
-                        <option value="BI-RADS 1类">{t("aiStructured.birads1")}</option>
-                        <option value="BI-RADS 2类">{t("aiStructured.birads2")}</option>
-                        <option value="BI-RADS 3类">{t("aiStructured.birads3")}</option>
-                        <option value="BI-RADS 4类">{t("aiStructured.birads4")}</option>
-                        <option value="BI-RADS 5类">{t("aiStructured.birads5")}</option>
-                        <option value="BI-RADS 6类">{t("aiStructured.birads6")}</option>
-                      </select>
+                      />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t("aiStructured.bilateralComparison")}</label>
+                      <label style={styles.label}>
+                        {t("aiStructured.bilateralComparison")}
+                      </label>
                       <input
                         type="text"
                         name="breastData.bilateralComparison"
@@ -1700,7 +1897,9 @@ const AIStructuredReportPage: React.FC = () => {
                     </div>
                   </div>
                   <div style={{ marginTop: "12px" }}>
-                    <label style={styles.label}>{t("aiStructured.calcification")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.calcification")}
+                    </label>
                     <input
                       type="text"
                       name="breastData.calcificationDescription"
@@ -1711,7 +1910,9 @@ const AIStructuredReportPage: React.FC = () => {
                     />
                   </div>
                   <div style={{ marginTop: "12px" }}>
-                    <label style={styles.label}>{t("aiStructured.massFeatures")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.massFeatures")}
+                    </label>
                     <textarea
                       name="breastData.massFeatures"
                       value={formData.breastData.massFeatures}
@@ -1737,13 +1938,25 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Impression Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.impressionSection")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader
+                variant="inline"
+                title={t("aiStructured.impressionSection")}
+                style={{
+                  marginBottom: "var(--space-4, 16px)",
+                  paddingBottom: "var(--space-2, 8px)",
+                  borderBottom: "2px solid var(--color-primary-800)",
+                }}
+              />
 
-              <div style={styles.sectionSubtitle}>{t("aiStructured.impressionSubtitle")}</div>
+              <div style={styles.sectionSubtitle}>
+                {t("aiStructured.impressionSubtitle")}
+              </div>
               {formData.impression.diagnoses.map((diag, index) => (
                 <div key={diag.id} style={styles.diagnosisCard}>
                   <div style={styles.diagnosisHeader}>
-                    <span style={styles.diagnosisNumber}>{t("aiStructured.diagnosisN", { n: index + 1 })}</span>
+                    <span style={styles.diagnosisNumber}>
+                      {t("aiStructured.diagnosisN", { n: index + 1 })}
+                    </span>
                     {formData.impression.diagnoses.length > 1 && (
                       <button
                         style={styles.removeButton}
@@ -1754,7 +1967,9 @@ const AIStructuredReportPage: React.FC = () => {
                     )}
                   </div>
                   <div style={{ marginBottom: "8px" }}>
-                    <label style={styles.label}>{t("aiStructured.diagnosis")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.diagnosis")}
+                    </label>
                     <input
                       type="text"
                       value={diag.conclusion}
@@ -1770,7 +1985,9 @@ const AIStructuredReportPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label style={styles.label}>{t("aiStructured.diagnosisBasis")}</label>
+                    <label style={styles.label}>
+                      {t("aiStructured.diagnosisBasis")}
+                    </label>
                     <input
                       type="text"
                       value={diag.basis}
@@ -1788,7 +2005,9 @@ const AIStructuredReportPage: React.FC = () => {
               </button>
 
               <div style={{ marginTop: "16px" }}>
-                <label style={styles.label}>{t("aiStructured.differentialDiagnosis")}</label>
+                <label style={styles.label}>
+                  {t("aiStructured.differentialDiagnosis")}
+                </label>
                 <textarea
                   name="impression.differentialDiagnosis"
                   value={formData.impression.differentialDiagnosis}
@@ -1801,10 +2020,20 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Recommendation Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.recommendationSection")} style={{ marginBottom: 'var(--space-4, 16px)', paddingBottom: 'var(--space-2, 8px)', borderBottom: "2px solid var(--color-primary-800)" }} />
+              <PageHeader
+                variant="inline"
+                title={t("aiStructured.recommendationSection")}
+                style={{
+                  marginBottom: "var(--space-4, 16px)",
+                  paddingBottom: "var(--space-2, 8px)",
+                  borderBottom: "2px solid var(--color-primary-800)",
+                }}
+              />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>{t("aiStructured.furtherExam")}</label>
+                  <label style={styles.label}>
+                    {t("aiStructured.furtherExam")}
+                  </label>
                   <input
                     type="text"
                     name="recommendation.furtherExamSuggestion"
@@ -1815,7 +2044,9 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>{t("aiStructured.followup")}</label>
+                  <label style={styles.label}>
+                    {t("aiStructured.followup")}
+                  </label>
                   <input
                     type="text"
                     name="recommendation.followupSuggestion"
@@ -1826,7 +2057,9 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>{t("aiStructured.treatment")}</label>
+                  <label style={styles.label}>
+                    {t("aiStructured.treatment")}
+                  </label>
                   <input
                     type="text"
                     name="recommendation.treatmentSuggestion"
@@ -1848,7 +2081,9 @@ const AIStructuredReportPage: React.FC = () => {
                 setExpandedHistory(expandedHistory ? null : "main")
               }
             >
-              {t("aiStructured.historyReports", { count: HISTORY_REPORTS.length })}
+              {t("aiStructured.historyReports", {
+                count: HISTORY_REPORTS.length,
+              })}
             </button>
             <div style={styles.buttonGroup}>
               <button
@@ -1858,14 +2093,29 @@ const AIStructuredReportPage: React.FC = () => {
                 {t("aiStructured.preview")}
               </button>
               <button
-                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
+                style={{
+                  ...styles.button,
+                  ...styles.buttonPrimary,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
                 onClick={() => void handleSubmit()}
                 disabled={savingReport}
               >
-                <Save size={14} /> {savingReport ? t("aiStructured.saving") : t("aiStructured.saveReport")}
+                <Save size={14} />{" "}
+                {savingReport
+                  ? t("aiStructured.saving")
+                  : t("aiStructured.saveReport")}
               </button>
               <button
-                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
+                style={{
+                  ...styles.button,
+                  ...styles.buttonPrimary,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
                 onClick={handlePrint}
               >
                 <Printer size={14} /> {t("aiStructured.print")}

@@ -1,7 +1,7 @@
 // Cardiac Specialty Page — 心脏分析 · 冠脉评估 · 心功能
 import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 import { cardiacSpecialtyApi } from "@/services/api/cardiacSpecialtyApi";
-import { CardiacAnalysis } from '@/services/api/cardiacSpecialtyApi'
+import { CardiacAnalysis } from "@/services/api/cardiacSpecialtyApi";
 import { Spin, Alert, Button, Select, Empty, Typography } from "antd";
 import { DataTable } from "../../components/common";
 import {
@@ -17,11 +17,13 @@ import {
   Gauge,
   RefreshCw,
 } from "lucide-react";
-import { Inbox } from 'lucide-react'
+import { Inbox } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { t } from "../../i18n/appI18n";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../../components/common/AppSelectField";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 const CADRADS_COLORS: Record<string, string> = {
   0: "var(--color-success-600)",
@@ -107,7 +109,7 @@ const CardiacSpecialtyPage = () => {
           list = Array.isArray(res.data) ? res.data : [];
           setDataSource("demo");
         } else {
-          setError(res.error?.message ?? t('cardiacSpec.loadFailed'));
+          setError(res.error?.message ?? t("cardiacSpec.loadFailed"));
           setDataSource("demo");
         }
       }
@@ -116,7 +118,7 @@ const CardiacSpecialtyPage = () => {
         setSelectedId(list[0]!.id);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? t('cardiacSpec.loadFailed'));
+      setError((e as Error)?.message ?? t("cardiacSpec.loadFailed"));
       setAnalyses([]);
       setDataSource("demo");
     } finally {
@@ -141,30 +143,48 @@ const CardiacSpecialtyPage = () => {
 
   // [v3.0.6.11-98 Wave3B P1] 导出: 当前病例列表 → 真实 CSV (BOM 支持 Excel 中文)
   const handleExport = () => {
-    const header = ['病例ID', '患者', '患者ID', '设备', '检查日期', 'CAD-RADS', 'EF(%)', '高狭窄节段', '关键发现']
-    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const header = [
+      "病例ID",
+      "患者",
+      "患者ID",
+      "设备",
+      "检查日期",
+      "CAD-RADS",
+      "EF(%)",
+      "高狭窄节段",
+      "关键发现",
+    ];
+    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const rows = filtered.map((a) => [
       a.id,
       a.patientName,
       a.patientId,
       a.modality,
-      a.studyDate ?? '',
-      a.cadRads ?? 'N',
-      a.lvFunction?.efPercent != null ? String(a.lvFunction.efPercent) : '',
+      a.studyDate ?? "",
+      a.cadRads ?? "N",
+      a.lvFunction?.efPercent != null ? String(a.lvFunction.efPercent) : "",
       (a.coronarySegments ?? []).filter((s) => s.stenosisPercent >= 70).length,
-      (a.coronarySegments ?? []).filter((s) => s.stenosisPercent > 0).map((s) => `${s.segment} ${s.stenosisPercent}%`).join('; '),
-    ])
-    const csv = '\ufeff' + [header.map(esc).join(','), ...rows.map((r) => r.map(esc).join(','))].join('\r\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `心脏专科病例_${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
+      (a.coronarySegments ?? [])
+        .filter((s) => s.stenosisPercent > 0)
+        .map((s) => `${s.segment} ${s.stenosisPercent}%`)
+        .join("; "),
+    ]);
+    const csv =
+      "\ufeff" +
+      [
+        header.map(esc).join(","),
+        ...rows.map((r) => r.map(esc).join(",")),
+      ].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `心脏专科病例_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const highStenosis = analyses.filter((a) =>
     (a.coronarySegments ?? []).some((s) => s.stenosisPercent >= 70),
@@ -227,7 +247,7 @@ const CardiacSpecialtyPage = () => {
     <div style={{ padding: 0 }}>
       <div
         style={{
-          marginBottom: 'var(--space-6, 24px)',
+          marginBottom: "var(--space-6, 24px)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -240,25 +260,50 @@ const CardiacSpecialtyPage = () => {
               margin: 0,
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-2, 8px)',
+              gap: "var(--space-2, 8px)",
             }}
           >
-            <Heart size={24} color="var(--color-primary-800)" /> {t('cardiacSpec.title')} <span style={{           fontSize: 11,
-          padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
-          color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
+            <Heart size={24} color="var(--color-primary-800)" />{" "}
+            {t("cardiacSpec.title")}{" "}
+            <span
+              style={{
+                fontSize: 11,
+                padding: "2px 8px",
+                borderRadius: 10,
+                background:
+                  dataSource === "real"
+                    ? "var(--color-success-bg)"
+                    : "var(--color-info-bg)",
+                color:
+                  dataSource === "real"
+                    ? "var(--color-success-600)"
+                    : "var(--color-primary-800)",
+                border: `1px solid ${dataSource === "real" ? "var(--color-success-border)" : "var(--color-pending-border)"}`,
+              }}
+            >
+              {dataSource === "real"
+                ? t("cardiacSpec.dataRealtime")
+                : t("cardiacSpec.dataDemo")}
+            </span>
           </Title>
-          <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>
-            {t('cardiacSpec.subtitle')}
+          <p
+            style={{
+              fontSize: 12,
+              color: "var(--text-muted, #64748b)",
+              marginTop: "var(--space-1, 4px)",
+            }}
+          >
+            {t("cardiacSpec.subtitle")}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
           <Button
             size="small"
             icon={<RefreshCw size={14} />}
             loading={loading}
             onClick={() => void load()}
           >
-            {t('cardiacSpec.refresh')}
+            {t("cardiacSpec.refresh")}
           </Button>
           <button
             onClick={handleExport}
@@ -271,7 +316,7 @@ const CardiacSpecialtyPage = () => {
               fontSize: 12,
             }}
           >
-            <FileText size={14} /> {t('cardiacSpec.export')}
+            <FileText size={14} /> {t("cardiacSpec.export")}
           </button>
         </div>
       </div>
@@ -281,10 +326,12 @@ const CardiacSpecialtyPage = () => {
           <Alert
             type="error"
             showIcon
-            style={{ marginBottom: 'var(--space-4, 16px)' }}
+            style={{ marginBottom: "var(--space-4, 16px)" }}
             title={error}
-            action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-                {t('cardiacSpec.retry')}
+            action={
+              <Button size="small" onClick={() => void load()}>
+                <RefreshCw size={14} />
+                {t("cardiacSpec.retry")}
               </Button>
             }
           />
@@ -294,8 +341,8 @@ const CardiacSpecialtyPage = () => {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(5, 1fr)",
-            gap: 'var(--space-3, 12px)',
-            marginBottom: 'var(--space-5, 20px)',
+            gap: "var(--space-3, 12px)",
+            marginBottom: "var(--space-5, 20px)",
           }}
         >
           {[
@@ -365,17 +412,35 @@ const CardiacSpecialtyPage = () => {
               >
                 <k.icon size={20} color={k.color} />
               </div>
-                <div style={{ fontSize: 24, fontWeight: 700, color: "var(--color-primary-800)" }}>
+              <div
+                style={{
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                }}
+              >
                 {k.value}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-muted, #64748b)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
                 {t(k.label)}
               </div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)' }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-1, 4px)",
+            marginBottom: "var(--space-4, 16px)",
+          }}
+        >
           {tabs.map((tb) => (
             <button
               key={tb.key}
@@ -387,7 +452,10 @@ const CardiacSpecialtyPage = () => {
                 cursor: "pointer",
                 fontSize: 12,
                 fontWeight: 600,
-                background: tab === tb.key ? "var(--color-primary-800)" : "var(--content-bg)",
+                background:
+                  tab === tb.key
+                    ? "var(--color-primary-800)"
+                    : "var(--content-bg)",
                 color: tab === tb.key ? "#fff" : "#64748b",
               }}
             >
@@ -401,7 +469,7 @@ const CardiacSpecialtyPage = () => {
             style={{
               background: "var(--bg-card)",
               borderRadius: 12,
-              padding: 'var(--space-5, 20px)',
+              padding: "var(--space-5, 20px)",
               boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
             }}
           >
@@ -410,7 +478,7 @@ const CardiacSpecialtyPage = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginBottom: 'var(--space-3, 12px)',
+                marginBottom: "var(--space-3, 12px)",
               }}
             >
               <div
@@ -420,12 +488,13 @@ const CardiacSpecialtyPage = () => {
                   color: "var(--color-primary-800)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-2, 8px)',
+                  gap: "var(--space-2, 8px)",
                 }}
               >
-                <Activity size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.coronaryList')}
+                <Activity size={16} color="var(--color-primary-800)" />{" "}
+                {t("cardiacSpec.coronaryList")}
               </div>
-              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+              <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
                 <div
                   style={{
                     display: "flex",
@@ -437,33 +506,36 @@ const CardiacSpecialtyPage = () => {
                 >
                   <Search size={16} color="#64748b" />
                   <input
-                    placeholder={t('cardiacSpec.searchPatient')}
+                    placeholder={t("cardiacSpec.searchPatient")}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     style={{
                       border: "none",
-                      background: "transparent", marginLeft: 'var(--space-2, 8px)',
+                      background: "transparent",
+                      marginLeft: "var(--space-2, 8px)",
                       fontSize: 12,
                       width: 160,
                     }}
                   />
                 </div>
-                <select
+                <AppSelectField
                   value={modalityFilter}
-                  onChange={(e) => setModalityFilter(e.target.value)}
+                  onChange={(v) => setModalityFilter(String(v ?? ""))}
+                  placeholder={t("cardiacSpec.allModalities")}
+                  allowClear
+                  options={[
+                    { value: "CCTA", label: "CCTA" },
+                    { value: "CMR", label: "CMR" },
+                    { value: "Echo", label: t("cardiacSpec.modality.echo") },
+                    { value: "Cath", label: t("cardiacSpec.modality.cath") },
+                  ]}
                   style={{
                     padding: "6px 12px",
                     borderRadius: 6,
                     border: "1px solid var(--border-color)",
                     fontSize: 12,
                   }}
-                >
-                  <option value="">{t('cardiacSpec.allModalities')}</option>
-                  <option value="CCTA">CCTA</option>
-                  <option value="CMR">CMR</option>
-                  <option value="Echo">{t('cardiacSpec.modality.echo')}</option>
-                  <option value="Cath">{t('cardiacSpec.modality.cath')}</option>
-                </select>
+                />
               </div>
             </div>
             <div style={{ maxHeight: 320, overflowY: "auto" }}>
@@ -473,29 +545,47 @@ const CardiacSpecialtyPage = () => {
                 showPagination={false}
                 showExport={false}
                 showDensity={false}
-                emptyText={<Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />}
+                emptyText={
+                  <Empty
+                    image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                    description={t("cardiacSpec.noData")}
+                  />
+                }
                 columns={[
                   {
-                    title: t('cardiacSpec.colId'),
-                    dataIndex: 'id',
-                    key: 'id',
-                    render: (v: string) => <span style={{ padding: "10px 8px", display: "inline-block" }}>{v}</span>,
+                    title: t("cardiacSpec.colId"),
+                    dataIndex: "id",
+                    key: "id",
+                    render: (v: string) => (
+                      <span
+                        style={{ padding: "10px 8px", display: "inline-block" }}
+                      >
+                        {v}
+                      </span>
+                    ),
                   },
                   {
-                    title: t('cardiacSpec.colPatient'),
-                    key: 'patient',
+                    title: t("cardiacSpec.colPatient"),
+                    key: "patient",
                     render: (_: unknown, a: CardiacAnalysis) => (
                       <div style={{ fontWeight: 600 }}>
                         {a.patientName}
                         <br />
-                        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{a.patientId}</span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "var(--text-muted, #94a3b8)",
+                          }}
+                        >
+                          {a.patientId}
+                        </span>
                       </div>
                     ),
                   },
                   {
-                    title: t('cardiacSpec.colModality'),
-                    dataIndex: 'modality',
-                    key: 'modality',
+                    title: t("cardiacSpec.colModality"),
+                    dataIndex: "modality",
+                    key: "modality",
                     render: (v: string) => (
                       <span
                         style={{
@@ -512,14 +602,16 @@ const CardiacSpecialtyPage = () => {
                     ),
                   },
                   {
-                    title: 'CAD-RADS',
-                    dataIndex: 'cadRads',
-                    key: 'cadRads',
-                    render: (v: string | number | undefined) => <CadRadsTag v={v ?? "N"} />,
+                    title: "CAD-RADS",
+                    dataIndex: "cadRads",
+                    key: "cadRads",
+                    render: (v: string | number | undefined) => (
+                      <CadRadsTag v={v ?? "N"} />
+                    ),
                   },
                   {
-                    title: 'EF%',
-                    key: 'ef',
+                    title: "EF%",
+                    key: "ef",
                     render: (_: unknown, a: CardiacAnalysis) => {
                       const ef = a.lvFunction?.efPercent;
                       return (
@@ -542,8 +634,8 @@ const CardiacSpecialtyPage = () => {
                     },
                   },
                   {
-                    title: t('cardiacSpec.colCalcium'),
-                    key: 'calcium',
+                    title: t("cardiacSpec.colCalcium"),
+                    key: "calcium",
                     render: (_: unknown, a: CardiacAnalysis) => {
                       const calcium = a.calciumScore?.totalAgatston;
                       return (
@@ -566,8 +658,8 @@ const CardiacSpecialtyPage = () => {
                     },
                   },
                   {
-                    title: t('cardiacSpec.colMaxStenosis'),
-                    key: 'maxStenosis',
+                    title: t("cardiacSpec.colMaxStenosis"),
+                    key: "maxStenosis",
                     render: (_: unknown, a: CardiacAnalysis) => {
                       const maxStenosis = (a.coronarySegments ?? []).reduce(
                         (m, s) => Math.max(m, s.stenosisPercent),
@@ -604,10 +696,14 @@ const CardiacSpecialtyPage = () => {
                     },
                   },
                   {
-                    title: t('cardiacSpec.colDate'),
-                    dataIndex: 'studyDate',
-                    key: 'studyDate',
-                    render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span>,
+                    title: t("cardiacSpec.colDate"),
+                    dataIndex: "studyDate",
+                    key: "studyDate",
+                    render: (v: string) => (
+                      <span style={{ color: "var(--text-muted, #64748b)" }}>
+                        {v}
+                      </span>
+                    ),
                   },
                 ]}
               />
@@ -617,13 +713,17 @@ const CardiacSpecialtyPage = () => {
 
         {tab === "function" && (
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-5, 20px)' }}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "var(--space-5, 20px)",
+            }}
           >
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 'var(--space-5, 20px)',
+                padding: "var(--space-5, 20px)",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -632,10 +732,11 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 'var(--space-4, 16px)',
+                  marginBottom: "var(--space-4, 16px)",
                 }}
               >
-                <Gauge size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.functionOverview')}
+                <Gauge size={16} color="var(--color-primary-800)" />{" "}
+                {t("cardiacSpec.functionOverview")}
               </div>
               {analyses
                 .filter((a) => a.lvFunction)
@@ -646,7 +747,7 @@ const CardiacSpecialtyPage = () => {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 'var(--space-3, 12px)',
+                      gap: "var(--space-3, 12px)",
                       padding: "10px 0",
                       borderBottom: "1px solid var(--border-light)",
                     }}
@@ -656,11 +757,11 @@ const CardiacSpecialtyPage = () => {
                         width: 36,
                         height: 36,
                         borderRadius: "50%",
-            background: "var(--color-info-bg)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 700,
+                        background: "var(--color-info-bg)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 700,
                         fontSize: 12,
                         color: "var(--color-primary-800)",
                       }}
@@ -671,7 +772,12 @@ const CardiacSpecialtyPage = () => {
                       <div style={{ fontSize: 12, fontWeight: 600 }}>
                         {a.patientName}
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted, #94a3b8)",
+                        }}
+                      >
                         {a.id} · {a.modality}
                       </div>
                     </div>
@@ -690,19 +796,29 @@ const CardiacSpecialtyPage = () => {
                       >
                         {a.lvFunction?.efPercent}%
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>LVEF</div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-muted, #94a3b8)",
+                        }}
+                      >
+                        LVEF
+                      </div>
                     </div>
                   </div>
                 ))}
               {analyses.filter((a) => a.lvFunction).length === 0 && (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noFunctionData')} />
+                <Empty
+                  image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                  description={t("cardiacSpec.noFunctionData")}
+                />
               )}
             </div>
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 'var(--space-5, 20px)',
+                padding: "var(--space-5, 20px)",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -711,10 +827,11 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 'var(--space-4, 16px)',
+                  marginBottom: "var(--space-4, 16px)",
                 }}
               >
-                <Zap size={16} color="#ca8a04" /> {t('cardiacSpec.functionParams')}
+                <Zap size={16} color="#ca8a04" />{" "}
+                {t("cardiacSpec.functionParams")}
               </div>
               {analyses
                 .filter((a) => a.lvFunction)
@@ -738,7 +855,7 @@ const CardiacSpecialtyPage = () => {
                         gridTemplateColumns: "repeat(3, 1fr)",
                         gap: 6,
                         fontSize: 12,
-                        color: 'var(--text-muted, #64748b)',
+                        color: "var(--text-muted, #64748b)",
                       }}
                     >
                       <span>EDV {a.lvFunction?.edvMl ?? "-"} ml</span>
@@ -748,7 +865,10 @@ const CardiacSpecialtyPage = () => {
                   </div>
                 ))}
               {analyses.filter((a) => a.lvFunction).length === 0 && (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noFunctionParams')} />
+                <Empty
+                  image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                  description={t("cardiacSpec.noFunctionParams")}
+                />
               )}
             </div>
           </div>
@@ -756,13 +876,17 @@ const CardiacSpecialtyPage = () => {
 
         {tab === "analysis" && (
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-5, 20px)' }}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "var(--space-5, 20px)",
+            }}
           >
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 'var(--space-5, 20px)',
+                padding: "var(--space-5, 20px)",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -771,14 +895,15 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 'var(--space-4, 16px)',
+                  marginBottom: "var(--space-4, 16px)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                 }}
               >
                 <span>
-                  <Stethoscope size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.coronarySegments')}
+                  <Stethoscope size={16} color="var(--color-primary-800)" />{" "}
+                  {t("cardiacSpec.coronarySegments")}
                 </span>
                 <Select
                   size="small"
@@ -811,7 +936,7 @@ const CardiacSpecialtyPage = () => {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 'var(--space-2, 8px)',
+                        gap: "var(--space-2, 8px)",
                         padding: "8px 0",
                         borderBottom: "1px solid var(--border-light)",
                       }}
@@ -853,14 +978,17 @@ const CardiacSpecialtyPage = () => {
                   );
                 })
               ) : (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noSegmentData')} />
+                <Empty
+                  image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                  description={t("cardiacSpec.noSegmentData")}
+                />
               )}
             </div>
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 'var(--space-5, 20px)',
+                padding: "var(--space-5, 20px)",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -869,15 +997,19 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 'var(--space-4, 16px)',
+                  marginBottom: "var(--space-4, 16px)",
                 }}
               >
-                <Heart size={16} color="var(--color-error-600)" /> {t('cardiacSpec.calciumDistribution')}
+                <Heart size={16} color="var(--color-error-600)" />{" "}
+                {t("cardiacSpec.calciumDistribution")}
               </div>
               {selected?.calciumScore ? (
                 <>
                   {[
-                    { label: "cardiacSpec.seg.lm", score: selected.calciumScore.lm },
+                    {
+                      label: "cardiacSpec.seg.lm",
+                      score: selected.calciumScore.lm,
+                    },
                     { label: "LAD", score: selected.calciumScore.lad },
                     { label: "LCX", score: selected.calciumScore.lcx },
                     { label: "RCA", score: selected.calciumScore.rca },
@@ -891,7 +1023,7 @@ const CardiacSpecialtyPage = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             fontSize: 12,
-                            marginBottom: 'var(--space-1, 4px)',
+                            marginBottom: "var(--space-1, 4px)",
                           }}
                         >
                           <span>{t(c.label)}</span>
@@ -921,8 +1053,8 @@ const CardiacSpecialtyPage = () => {
                   })}
                   <div
                     style={{
-                      marginTop: 'var(--space-4, 16px)',
-                      padding: 'var(--space-3, 12px)',
+                      marginTop: "var(--space-4, 16px)",
+                      padding: "var(--space-3, 12px)",
                       background: "var(--color-warning-bg)",
                       borderRadius: 8,
                       border: "1px solid var(--color-warning-border)",
@@ -933,18 +1065,25 @@ const CardiacSpecialtyPage = () => {
                         fontSize: 12,
                         fontWeight: 600,
                         color: "#ea580c",
-                        marginBottom: 'var(--space-1, 4px)',
+                        marginBottom: "var(--space-1, 4px)",
                       }}
                     >
-                      {t('cardiacSpec.agatstonTotal', { score: selected.calciumScore.totalAgatston })}
+                      {t("cardiacSpec.agatstonTotal", {
+                        score: selected.calciumScore.totalAgatston,
+                      })}
                     </div>
                     <div style={{ fontSize: 12, color: "#9a3412" }}>
-                      {t('cardiacSpec.percentile', { value: selected.calciumScore.percentile })}
+                      {t("cardiacSpec.percentile", {
+                        value: selected.calciumScore.percentile,
+                      })}
                     </div>
                   </div>
                 </>
               ) : (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noCalciumData')} />
+                <Empty
+                  image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                  description={t("cardiacSpec.noCalciumData")}
+                />
               )}
             </div>
           </div>
@@ -952,13 +1091,17 @@ const CardiacSpecialtyPage = () => {
 
         {tab === "stats" && (
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-5, 20px)' }}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "var(--space-5, 20px)",
+            }}
           >
             <div
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 'var(--space-5, 20px)',
+                padding: "var(--space-5, 20px)",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -967,13 +1110,17 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 'var(--space-4, 16px)',
+                  marginBottom: "var(--space-4, 16px)",
                 }}
               >
-                <BarChart3 size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.cadRadsDistribution')}
+                <BarChart3 size={16} color="var(--color-primary-800)" />{" "}
+                {t("cardiacSpec.cadRadsDistribution")}
               </div>
               {cadRadsDistribution.length === 0 ? (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
+                <Empty
+                  image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                  description={t("cardiacSpec.noData")}
+                />
               ) : (
                 cadRadsDistribution.map(([c, count]) => {
                   const color = CADRADS_COLORS[c] ?? "#94a3b8";
@@ -987,8 +1134,8 @@ const CardiacSpecialtyPage = () => {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 'var(--space-3, 12px)',
-                        marginBottom: 'var(--space-2, 8px)',
+                        gap: "var(--space-3, 12px)",
+                        marginBottom: "var(--space-2, 8px)",
                       }}
                     >
                       <span
@@ -1021,7 +1168,7 @@ const CardiacSpecialtyPage = () => {
                       <span
                         style={{
                           fontSize: 12,
-                          color: 'var(--text-muted, #64748b)',
+                          color: "var(--text-muted, #64748b)",
                           width: 30,
                           textAlign: "right",
                         }}
@@ -1037,7 +1184,7 @@ const CardiacSpecialtyPage = () => {
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 'var(--space-5, 20px)',
+                padding: "var(--space-5, 20px)",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               }}
             >
@@ -1046,13 +1193,17 @@ const CardiacSpecialtyPage = () => {
                   fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
-                  marginBottom: 'var(--space-4, 16px)',
+                  marginBottom: "var(--space-4, 16px)",
                 }}
               >
-                <TrendingUp size={16} color="var(--color-success-600)" /> {t('cardiacSpec.efTrend')}
+                <TrendingUp size={16} color="var(--color-success-600)" />{" "}
+                {t("cardiacSpec.efTrend")}
               </div>
               {efTrend.length === 0 ? (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
+                <Empty
+                  image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                  description={t("cardiacSpec.noData")}
+                />
               ) : (
                 efTrend.map((tr) => (
                   <div
@@ -1060,11 +1211,17 @@ const CardiacSpecialtyPage = () => {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 'var(--space-3, 12px)',
+                      gap: "var(--space-3, 12px)",
                       marginBottom: 10,
                     }}
                   >
-                    <span style={{ width: 80, fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
+                    <span
+                      style={{
+                        width: 80,
+                        fontSize: 12,
+                        color: "var(--text-muted, #64748b)",
+                      }}
+                    >
                       {tr.month}
                     </span>
                     <div

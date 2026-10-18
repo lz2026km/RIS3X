@@ -10,7 +10,42 @@ import { message } from "antd";
 import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
 import { DataTable } from "../components/common";
-import { ChevronLeft, Save, Eye, Plus, Trash2, GripVertical, Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText, ChevronDown, Copy, Settings, Image as ImageIcon, Tag, ListOrdered, FileSpreadsheet, Code, Info, Check, X, Sparkles, Maximize2, Minimize2, GitMerge, Activity, ArrowUp, ArrowDown, Braces, Layers } from 'lucide-react';
+import {
+  ChevronLeft,
+  Save,
+  Eye,
+  Plus,
+  Trash2,
+  GripVertical,
+  Type,
+  Hash,
+  Calendar,
+  ToggleLeft,
+  ListChecks,
+  Sliders,
+  Calculator,
+  FileText,
+  ChevronDown,
+  Copy,
+  Settings,
+  Image as ImageIcon,
+  Tag,
+  ListOrdered,
+  FileSpreadsheet,
+  Code,
+  Info,
+  Check,
+  X,
+  Sparkles,
+  Maximize2,
+  Minimize2,
+  GitMerge,
+  Activity,
+  ArrowUp,
+  ArrowDown,
+  Braces,
+  Layers,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
   STRUCTURED_FIELD_TEMPLATES,
@@ -29,8 +64,10 @@ import {
 import { t } from "../i18n/appI18n";
 import { Typography } from "antd";
 import { PageContainer } from "../components/common";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../components/common/AppSelectField";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 // ============================================================
 // 字段类型配置
@@ -177,8 +214,16 @@ const FIELD_LIBRARY_GROUPS: Array<{
     label: t("templateDesigner.group.basic"),
     types: ["text", "number", "date", "boolean"],
   },
-  { key: "select", label: t("templateDesigner.group.select"), types: ["enum", "multi-enum", "scale"] },
-  { key: "measure", label: t("templateDesigner.group.measure"), types: ["length", "area", "volume"] },
+  {
+    key: "select",
+    label: t("templateDesigner.group.select"),
+    types: ["enum", "multi-enum", "scale"],
+  },
+  {
+    key: "measure",
+    label: t("templateDesigner.group.measure"),
+    types: ["length", "area", "volume"],
+  },
   {
     key: "special",
     label: t("templateDesigner.group.special"),
@@ -187,11 +232,36 @@ const FIELD_LIBRARY_GROUPS: Array<{
 ];
 
 const PRESET_SECTIONS = [
-  { id: "sec-findings", name: t("templateDesigner.section.findings"), order: 1, color: "var(--color-primary-800)" },
-  { id: "sec-impression", name: t("templateDesigner.section.impression"), order: 2, color: "#7c3aed" },
-  { id: "sec-rec", name: t("templateDesigner.section.recommendation"), order: 3, color: "var(--color-info-600)" },
-  { id: "sec-comp", name: t("templateDesigner.section.comparison"), order: 4, color: "var(--color-warning-500)" },
-  { id: "sec-tech", name: t("templateDesigner.section.technique"), order: 5, color: "var(--text-secondary)" },
+  {
+    id: "sec-findings",
+    name: t("templateDesigner.section.findings"),
+    order: 1,
+    color: "var(--color-primary-800)",
+  },
+  {
+    id: "sec-impression",
+    name: t("templateDesigner.section.impression"),
+    order: 2,
+    color: "#7c3aed",
+  },
+  {
+    id: "sec-rec",
+    name: t("templateDesigner.section.recommendation"),
+    order: 3,
+    color: "var(--color-info-600)",
+  },
+  {
+    id: "sec-comp",
+    name: t("templateDesigner.section.comparison"),
+    order: 4,
+    color: "var(--color-warning-500)",
+  },
+  {
+    id: "sec-tech",
+    name: t("templateDesigner.section.technique"),
+    order: 5,
+    color: "var(--text-secondary)",
+  },
 ];
 
 const PRESET_CATEGORIES = [
@@ -217,25 +287,87 @@ const STRUCTURED_FIELD_PRESETS: Array<{
   desc: string;
   color: string;
 }> = [
-  { fieldKey: "RECIST", label: t("templateDesigner.structured.recist"), desc: t("templateDesigner.structured.recistDesc"), color: "var(--color-error-600)" },
-  { fieldKey: "lungRads", label: "Lung-RADS", desc: t("templateDesigner.structured.lungRadsDesc"), color: "var(--color-info-600)" },
-  { fieldKey: "biRads", label: "BI-RADS", desc: t("templateDesigner.structured.biRadsDesc"), color: "#7c3aed" },
-  { fieldKey: "piRads", label: "PI-RADS", desc: t("templateDesigner.structured.piRadsDesc"), color: "var(--color-warning-500)" },
-  { fieldKey: "liRads", label: "LI-RADS", desc: t("templateDesigner.structured.liRadsDesc"), color: "#10b981" },
-  { fieldKey: "tiRads", label: "TI-RADS", desc: t("templateDesigner.structured.tiRadsDesc"), color: "#f97316" },
-  { fieldKey: "cadRads", label: "CAD-RADS", desc: t("templateDesigner.structured.cadRadsDesc"), color: "var(--color-error-600)" },
-  { fieldKey: "lesionSize", label: t("templateDesigner.structured.lesionSize"), desc: t("templateDesigner.structured.lesionSizeDesc"), color: "#6366f1" },
-  { fieldKey: "lymphNodes", label: t("templateDesigner.structured.lymphNodes"), desc: t("templateDesigner.structured.lymphNodesDesc"), color: "#0ea5e9" },
-  { fieldKey: "effusion", label: t("templateDesigner.structured.effusion"), desc: t("templateDesigner.structured.effusionDesc"), color: "#0ea5e9" },
+  {
+    fieldKey: "RECIST",
+    label: t("templateDesigner.structured.recist"),
+    desc: t("templateDesigner.structured.recistDesc"),
+    color: "var(--color-error-600)",
+  },
+  {
+    fieldKey: "lungRads",
+    label: "Lung-RADS",
+    desc: t("templateDesigner.structured.lungRadsDesc"),
+    color: "var(--color-info-600)",
+  },
+  {
+    fieldKey: "biRads",
+    label: "BI-RADS",
+    desc: t("templateDesigner.structured.biRadsDesc"),
+    color: "#7c3aed",
+  },
+  {
+    fieldKey: "piRads",
+    label: "PI-RADS",
+    desc: t("templateDesigner.structured.piRadsDesc"),
+    color: "var(--color-warning-500)",
+  },
+  {
+    fieldKey: "liRads",
+    label: "LI-RADS",
+    desc: t("templateDesigner.structured.liRadsDesc"),
+    color: "#10b981",
+  },
+  {
+    fieldKey: "tiRads",
+    label: "TI-RADS",
+    desc: t("templateDesigner.structured.tiRadsDesc"),
+    color: "#f97316",
+  },
+  {
+    fieldKey: "cadRads",
+    label: "CAD-RADS",
+    desc: t("templateDesigner.structured.cadRadsDesc"),
+    color: "var(--color-error-600)",
+  },
+  {
+    fieldKey: "lesionSize",
+    label: t("templateDesigner.structured.lesionSize"),
+    desc: t("templateDesigner.structured.lesionSizeDesc"),
+    color: "#6366f1",
+  },
+  {
+    fieldKey: "lymphNodes",
+    label: t("templateDesigner.structured.lymphNodes"),
+    desc: t("templateDesigner.structured.lymphNodesDesc"),
+    color: "#0ea5e9",
+  },
+  {
+    fieldKey: "effusion",
+    label: t("templateDesigner.structured.effusion"),
+    desc: t("templateDesigner.structured.effusionDesc"),
+    color: "#0ea5e9",
+  },
 ];
 
 // 可视化模式段落预设 (所见/印象/结论 等)
 const VISUAL_SECTION_PRESETS = [
-  { name: t("templateDesigner.section.findings"), color: "var(--color-primary-800)" },
+  {
+    name: t("templateDesigner.section.findings"),
+    color: "var(--color-primary-800)",
+  },
   { name: t("templateDesigner.section.impression"), color: "#7c3aed" },
-  { name: t("templateDesigner.section.recommendation"), color: "var(--color-info-600)" },
-  { name: t("templateDesigner.section.conclusion"), color: "var(--color-warning-500)" },
-  { name: t("templateDesigner.section.comparison"), color: 'var(--text-secondary, #475569)' },
+  {
+    name: t("templateDesigner.section.recommendation"),
+    color: "var(--color-info-600)",
+  },
+  {
+    name: t("templateDesigner.section.conclusion"),
+    color: "var(--color-warning-500)",
+  },
+  {
+    name: t("templateDesigner.section.comparison"),
+    color: "var(--text-secondary, #475569)",
+  },
 ];
 
 const defaultVisualBlocks = (): TemplateStructure => [
@@ -296,11 +428,43 @@ export default function TemplateDesignerPage() {
       STRUCTURED_FIELD_TEMPLATES[0]
     : null;
 
+  /**
+   * [v3.0.6.16-6] URL 上的 :id 是否真的是后端模板库里的模板?
+   *
+   * 背景: /template-designer/:id 可能是 (a) 后端真实模板, (b) 前端内置种子模板
+   * (tpl-chest-ct-001…), (c) 一个无效/过期链接。此前把 (b)(c) 也当后端 id 用,
+   * 保存/克隆直接打 /templates/<id> 得到 404。
+   * 这里用一次 list() (必然 200) 来判定, 避免用 getById 探测产生 404 噪声。
+   */
+  const [backendIdKnown, setBackendIdKnown] = useState(false);
+  useEffect(() => {
+    if (!id) {
+      setBackendIdKnown(false);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const res = await templatesApi.list().catch(() => null);
+      if (cancelled) return;
+      const raw = res?.data as unknown;
+      const rows = Array.isArray(raw)
+        ? (raw as Array<{ id?: string }>)
+        : Array.isArray((raw as { data?: unknown } | null)?.data)
+          ? (raw as { data: Array<{ id?: string }> }).data
+          : [];
+      setBackendIdKnown(rows.some((r) => r?.id === id));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
   const [meta, setMeta] = useState({
     name: initialTemplate?.name || t("templateDesigner.newTemplate"),
     code: initialTemplate?.id || "tpl-custom-001",
     modality: initialTemplate?.modality || "CT",
-    bodyPart: initialTemplate?.bodyPart || t("templateDesigner.defaultBodyPart"),
+    bodyPart:
+      initialTemplate?.bodyPart || t("templateDesigner.defaultBodyPart"),
     version: initialTemplate?.version || "v1.0",
     description: initialTemplate?.description || "",
     author: t("templateDesigner.currentDoctor"),
@@ -342,8 +506,20 @@ export default function TemplateDesignerPage() {
       return result;
     }
     return [
-      { id: "sec-0", name: t("templateDesigner.section.findings"), order: 0, color: "var(--color-primary-800)", fields: [] },
-      { id: "sec-1", name: t("templateDesigner.section.impression"), order: 1, color: "#7c3aed", fields: [] },
+      {
+        id: "sec-0",
+        name: t("templateDesigner.section.findings"),
+        order: 0,
+        color: "var(--color-primary-800)",
+        fields: [],
+      },
+      {
+        id: "sec-1",
+        name: t("templateDesigner.section.impression"),
+        order: 1,
+        color: "#7c3aed",
+        fields: [],
+      },
     ];
   });
 
@@ -356,11 +532,20 @@ export default function TemplateDesignerPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // ---------- [v3.0.6.11-99 Wave2B P1] 可视化模式: 段落块画布 ----------
-  const [designerMode, setDesignerMode] = useState<"fields" | "visual">("fields");
+  const [designerMode, setDesignerMode] = useState<"fields" | "visual">(
+    "fields",
+  );
   const [visualApiId, setVisualApiId] = useState<string | null>(null);
+  /** [v3.0.6.16-6] 写后端时真正可用的模板 id: 会话内创建/解析出来的 id 优先,
+   *  否则仅当 URL 上的 :id 确实存在于后端模板库时才用它 (避免对无效链接打 404)。 */
+  const writableBackendId = visualApiId ?? (backendIdKnown ? id : null);
   const [visualLoading, setVisualLoading] = useState(false);
-  const [visualBlocks, setVisualBlocks] = useState<TemplateStructure>(() => defaultVisualBlocks());
-  const [selectedVisualIdx, setSelectedVisualIdx] = useState<number | null>(null);
+  const [visualBlocks, setVisualBlocks] = useState<TemplateStructure>(() =>
+    defaultVisualBlocks(),
+  );
+  const [selectedVisualIdx, setSelectedVisualIdx] = useState<number | null>(
+    null,
+  );
 
   // 进入可视化模式且带模板 id 时读取已保存的 structure, 失败(无/不存在)回退默认段落
   useEffect(() => {
@@ -371,7 +556,10 @@ export default function TemplateDesignerPage() {
       .getStructure(id)
       .then((res) => {
         if (cancelled || !res.success) return;
-        if (Array.isArray(res.data?.structure) && res.data.structure.length > 0) {
+        if (
+          Array.isArray(res.data?.structure) &&
+          res.data.structure.length > 0
+        ) {
           setVisualBlocks(res.data.structure);
           setVisualApiId(id);
         }
@@ -422,16 +610,28 @@ export default function TemplateDesignerPage() {
 
   // 保存可视化模板: 有 id → PATCH structure; 无 id → 先 create 再写入 structure
   // [v3.0.6.11-100 Wave2C P2] 保存时写入 templateType (全文/段落/短语), 模板库分类 Tab 区分展示
+  // [v3.0.6.16-6] 修复: URL 里的 id 可能是页面本地种子模板 id (TMP001…), 它并不存在于
+  //   后端模板库 —— 直接 PATCH/PUT 会 404。本地 id 一律走 create 落地成真实模板。
   const saveVisualTemplate = async () => {
     const content = visualContent;
-    const targetId = visualApiId ?? id ?? null;
+    const targetId = writableBackendId;
     try {
       if (targetId) {
-        const res = await templatesApi.saveStructure(targetId, visualBlocks, content);
+        const res = await templatesApi.saveStructure(
+          targetId,
+          visualBlocks,
+          content,
+        );
         if (res.success) {
-          await templatesApi.update(targetId, { templateType: meta.templateType }).catch(() => { /* 类型字段更新失败不阻塞 */ });
+          await templatesApi
+            .update(targetId, { templateType: meta.templateType })
+            .catch(() => {
+              /* 类型字段更新失败不阻塞 */
+            });
           setVisualApiId(targetId);
-          message.success(`可视化模板已保存 (${targetId}, ${meta.templateType})`);
+          message.success(
+            `可视化模板已保存 (${targetId}, ${meta.templateType})`,
+          );
         } else {
           message.error(res.error?.message || t("templateDesigner.saveFailed"));
         }
@@ -448,9 +648,13 @@ export default function TemplateDesignerPage() {
         });
         if (res.success && res.data?.id) {
           setVisualApiId(res.data.id);
-          message.success(`已创建模板 ${res.data.id}, 段落结构已保存 (${meta.templateType})`);
+          message.success(
+            `已创建模板 ${res.data.id}, 段落结构已保存 (${meta.templateType})`,
+          );
         } else {
-          message.error(res.error?.message || t("templateDesigner.createFailed"));
+          message.error(
+            res.error?.message || t("templateDesigner.createFailed"),
+          );
         }
       }
     } catch (e: any) {
@@ -496,10 +700,12 @@ export default function TemplateDesignerPage() {
       storedType = "number";
     }
     const newField: TemplateFieldDefinition = {
-      id: uniqueId('f'),
-      fieldKey: uniqueId('field'),
+      id: uniqueId("f"),
+      fieldKey: uniqueId("field"),
       fieldLabel: typeMeta.label,
-      fieldGroup: sections.find((s) => s.id === sectionId)?.name || t("templateDesigner.section.findings"),
+      fieldGroup:
+        sections.find((s) => s.id === sectionId)?.name ||
+        t("templateDesigner.section.findings"),
       dataType: storedType,
       required: false,
       order: sections.find((s) => s.id === sectionId)?.fields.length || 0,
@@ -552,7 +758,7 @@ export default function TemplateDesignerPage() {
 
   const addSection = () => {
     const newSection = {
-      id: uniqueId('sec'),
+      id: uniqueId("sec"),
       name: `新章节 ${sections.length + 1}`,
       order: sections.length,
       color: PRESET_SECTIONS[sections.length % PRESET_SECTIONS.length]!.color,
@@ -597,11 +803,11 @@ export default function TemplateDesignerPage() {
       return;
     }
     const newRule: ConditionalRule = {
-      id: uniqueId('rule'),
-      fieldId: allFields?.[0]?.id ?? '',
+      id: uniqueId("rule"),
+      fieldId: allFields?.[0]?.id ?? "",
       operator: "equals",
       value: "",
-      targetFieldId: allFields?.[1]?.id ?? '',
+      targetFieldId: allFields?.[1]?.id ?? "",
       action: "show",
     };
     setConditionalRules([...conditionalRules, newRule]);
@@ -691,11 +897,18 @@ export default function TemplateDesignerPage() {
           flexShrink: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
-          <button aria-label="返回"
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3, 12px)",
+          }}
+        >
+          <button
+            aria-label="返回"
             onClick={() => navigate("/template-management")}
             style={{
-              padding: 'var(--space-1, 4px)',
+              padding: "var(--space-1, 4px)",
               border: "none",
               background: "transparent",
               color: "var(--text-secondary)",
@@ -715,7 +928,8 @@ export default function TemplateDesignerPage() {
                 gap: 6,
               }}
             >
-              <Sparkles size={14} color="#7c3aed" /> {t("templateDesigner.headerTitle")}
+              <Sparkles size={14} color="#7c3aed" />{" "}
+              {t("templateDesigner.headerTitle")}
               <span
                 style={{
                   fontSize: 12,
@@ -736,7 +950,7 @@ export default function TemplateDesignerPage() {
                 marginTop: 2,
                 display: "flex",
                 alignItems: "center",
-                gap: 'var(--space-2, 8px)',
+                gap: "var(--space-2, 8px)",
               }}
             >
               <span>{meta.name}</span>
@@ -745,34 +959,50 @@ export default function TemplateDesignerPage() {
                 {meta.modality} / {meta.bodyPart}
               </span>
               <span>·</span>
-              <span>{totalFields} {t("templateDesigner.fieldsUnit")}</span>
+              <span>
+                {totalFields} {t("templateDesigner.fieldsUnit")}
+              </span>
               <span>·</span>
               <span
-                style={{ color: requiredFields > 0 ? "var(--color-error-600)" : "#64748b" }}
+                style={{
+                  color:
+                    requiredFields > 0 ? "var(--color-error-600)" : "#64748b",
+                }}
               >
                 {requiredFields} {t("templateDesigner.requiredUnit")}
               </span>
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
           <button
-            onClick={() => setDesignerMode(designerMode === "visual" ? "fields" : "visual")}
+            onClick={() =>
+              setDesignerMode(designerMode === "visual" ? "fields" : "visual")
+            }
             style={{
               padding: "4px 10px",
               border: "1px solid #7c3aed",
               borderRadius: 6,
-              background: designerMode === "visual" ? "#7c3aed" : "var(--bg-card)",
+              background:
+                designerMode === "visual" ? "#7c3aed" : "var(--bg-card)",
               color: designerMode === "visual" ? "#fff" : "#7c3aed",
               fontSize: 12,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <Layers size={12} />{" "}
-            {designerMode === "visual" ? t("templateDesigner.visualMode") : t("templateDesigner.fieldsMode")}
+            {designerMode === "visual"
+              ? t("templateDesigner.visualMode")
+              : t("templateDesigner.fieldsMode")}
           </button>
           <button
             onClick={() => setPreviewMode(!previewMode)}
@@ -780,34 +1010,69 @@ export default function TemplateDesignerPage() {
               padding: "4px 10px",
               border: "1px solid var(--border-color)",
               borderRadius: 6,
-              background: previewMode ? "var(--color-info-bg)" : "var(--bg-card)",
+              background: previewMode
+                ? "var(--color-info-bg)"
+                : "var(--bg-card)",
               color: "var(--text-secondary)",
               fontSize: 12,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
-            <Eye size={12} /> {previewMode ? t("templateDesigner.edit") : t("templateDesigner.preview")}
+            <Eye size={12} />{" "}
+            {previewMode
+              ? t("templateDesigner.edit")
+              : t("templateDesigner.preview")}
           </button>
           <button
             onClick={async () => {
+              // [v3.0.6.16-6] 修复: sourceId 可能是页面本地演示 id (tpl-custom-001 / TMP001),
+              // 直接 POST /templates/<本地id>/clone 会 404。改为: 本地模板用 create 落地新模板,
+              // 仅当 id 确实来自后端时才走 clone 端点。
               const sourceId = id ?? initialTemplate?.id ?? meta.code;
               if (!sourceId) {
                 message.warning(t("templateDesigner.noIdClone"));
                 return;
               }
+              const isLocalId = !writableBackendId;
               try {
+                if (isLocalId) {
+                  const res = await templatesApi.create({
+                    name: `${meta.name} (克隆)`,
+                    category: meta.modality || "CT",
+                    modality: meta.modality,
+                    bodyPart: meta.bodyPart,
+                    templateType: meta.templateType,
+                    body:
+                      visualContent ||
+                      meta.description ||
+                      t("templateDesigner.toEdit"),
+                    structure: visualBlocks,
+                    createdById: "u-current",
+                  });
+                  if (res.success && res.data?.id) {
+                    message.success(`已克隆为新模板 ${res.data.id}`);
+                    navigate(`/template-designer/${res.data.id}`);
+                  } else {
+                    message.error(
+                      res.error?.message || t("templateDesigner.cloneFailed"),
+                    );
+                  }
+                  return;
+                }
                 const res = await api.post<{ id: string }>(
                   `/templates/${sourceId}/clone`,
                 );
                 if (res.success) {
-                  const newId = res.data?.id ?? uniqueId('tpl-clone');
+                  const newId = res.data?.id ?? uniqueId("tpl-clone");
                   message.success(`已克隆为新模板 ${newId}`);
                   navigate(`/template-designer/${newId}`);
                 } else {
-                  message.error(res.error?.message || t("templateDesigner.cloneFailed"));
+                  message.error(
+                    res.error?.message || t("templateDesigner.cloneFailed"),
+                  );
                 }
               } catch (e: any) {
                 message.error("克隆失败: " + (e?.message || String(e)));
@@ -823,7 +1088,7 @@ export default function TemplateDesignerPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <Copy size={12} /> {t("templateDesigner.clone")}
@@ -831,14 +1096,18 @@ export default function TemplateDesignerPage() {
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
             style={{
-              padding: 'var(--space-1, 4px)',
+              padding: "var(--space-1, 4px)",
               border: "1px solid var(--border-color)",
               borderRadius: 6,
               background: "var(--bg-card)",
               color: "var(--text-secondary)",
               cursor: "pointer",
             }}
-            title={isFullscreen ? t("templateDesigner.exitFullscreen") : t("templateDesigner.fullscreen")}
+            title={
+              isFullscreen
+                ? t("templateDesigner.exitFullscreen")
+                : t("templateDesigner.fullscreen")
+            }
           >
             {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
           </button>
@@ -877,7 +1146,9 @@ export default function TemplateDesignerPage() {
                 if (res.success) {
                   message.success(`模板 ${meta.name} 已保存 (${targetId})`);
                 } else {
-                  message.error(res.error?.message || t("templateDesigner.saveFailed"));
+                  message.error(
+                    res.error?.message || t("templateDesigner.saveFailed"),
+                  );
                 }
               } catch (e: any) {
                 message.error("保存失败: " + (e?.message || String(e)));
@@ -894,7 +1165,7 @@ export default function TemplateDesignerPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <Save size={12} /> {t("templateDesigner.saveTemplate")}
@@ -911,7 +1182,7 @@ export default function TemplateDesignerPage() {
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
-            gap: 'var(--space-3, 12px)',
+            gap: "var(--space-3, 12px)",
             fontSize: 12,
             flexShrink: 0,
           }}
@@ -933,17 +1204,14 @@ export default function TemplateDesignerPage() {
             />
           </MetaField>
           <MetaField label={t("templateDesigner.meta.modality")}>
-            <select
+            <AppSelectField
               value={meta.modality}
-              onChange={(e) => setMeta({ ...meta, modality: e.target.value })}
+              onChange={(v) => setMeta({ ...meta, modality: String(v ?? "") })}
+              options={["CT", "MR", "DR", "MG", "US", "PET-CT", "DSA"].map(
+                (m) => ({ value: m, label: m }),
+              )}
               style={selectStyle}
-            >
-              {["CT", "MR", "DR", "MG", "US", "PET-CT", "DSA"].map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+            />
           </MetaField>
           <MetaField label={t("templateDesigner.meta.bodyPart")}>
             <input
@@ -955,47 +1223,79 @@ export default function TemplateDesignerPage() {
           </MetaField>
           {/* [v3.0.6.11-100 Wave2C P2] 模板类型: 全文/段落/短语 (保存时写入, 模板库分类 Tab 展示) */}
           <MetaField label={t("templateDesigner.meta.templateType")}>
-            <select
+            <AppSelectField
               value={meta.templateType}
-              onChange={(e) => setMeta({ ...meta, templateType: e.target.value as typeof meta.templateType })}
-              style={selectStyle}
-            >
-              <option value="FULL">{t("templateDesigner.templateTypeFull")}</option>
-              <option value="SECTION">{t("templateDesigner.templateTypeSection")}</option>
-              <option value="PHRASE">{t("templateDesigner.templateTypePhrase")}</option>
-            </select>
-          </MetaField>
-          <MetaField label={t("templateDesigner.meta.scope")}>
-            <select
-              value={meta.scope}
-              onChange={(e) =>
-                setMeta({ ...meta, scope: e.target.value as typeof meta.scope })
-              }
-              style={selectStyle}
-            >
-              <option value="default">{t("templateDesigner.scopeDefault")}</option>
-              <option value="department">{t("templateDesigner.scopeDepartment")}</option>
-              <option value="personal">{t("templateDesigner.scopePersonal")}</option>
-            </select>
-          </MetaField>
-          <MetaField label={t("templateDesigner.meta.gender")}>
-            <select
-              value={meta.gender}
-              onChange={(e) =>
+              onChange={(v) =>
                 setMeta({
                   ...meta,
-                  gender: e.target.value as typeof meta.gender,
+                  templateType: String(v ?? "") as typeof meta.templateType,
                 })
               }
+              options={[
+                {
+                  value: "FULL",
+                  label: t("templateDesigner.templateTypeFull"),
+                },
+                {
+                  value: "SECTION",
+                  label: t("templateDesigner.templateTypeSection"),
+                },
+                {
+                  value: "PHRASE",
+                  label: t("templateDesigner.templateTypePhrase"),
+                },
+              ]}
               style={selectStyle}
-            >
-              <option value="all">{t("templateDesigner.genderAll")}</option>
-              <option value="male">{t("templateDesigner.genderMale")}</option>
-              <option value="female">{t("templateDesigner.genderFemale")}</option>
-            </select>
+            />
+          </MetaField>
+          <MetaField label={t("templateDesigner.meta.scope")}>
+            <AppSelectField
+              value={meta.scope}
+              onChange={(v) =>
+                setMeta({
+                  ...meta,
+                  scope: String(v ?? "") as typeof meta.scope,
+                })
+              }
+              options={[
+                { value: "default", label: t("templateDesigner.scopeDefault") },
+                {
+                  value: "department",
+                  label: t("templateDesigner.scopeDepartment"),
+                },
+                {
+                  value: "personal",
+                  label: t("templateDesigner.scopePersonal"),
+                },
+              ]}
+              style={selectStyle}
+            />
+          </MetaField>
+          <MetaField label={t("templateDesigner.meta.gender")}>
+            <AppSelectField
+              value={meta.gender}
+              onChange={(v) =>
+                setMeta({
+                  ...meta,
+                  gender: String(v ?? "") as typeof meta.gender,
+                })
+              }
+              options={[
+                { value: "all", label: t("templateDesigner.genderAll") },
+                { value: "male", label: t("templateDesigner.genderMale") },
+                { value: "female", label: t("templateDesigner.genderFemale") },
+              ]}
+              style={selectStyle}
+            />
           </MetaField>
           <MetaField label={t("templateDesigner.meta.age")}>
-            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <input
                 type="number"
                 value={meta.minAge}
@@ -1032,973 +1332,677 @@ export default function TemplateDesignerPage() {
           />
         ) : (
           <>
-        {!isFullscreen && !previewMode && (
-          <div
-            style={{
-              width: 240,
-              background: "var(--bg-card)",
-              borderRight: "1px solid var(--border-color)",
-              display: "flex",
-              flexDirection: "column",
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                padding: "8px 12px",
-                borderBottom: "1px solid var(--border-color)",
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--color-primary-800)",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <FileSpreadsheet size={13} /> {t("templateDesigner.fieldLibrary")}
-            </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-2, 8px)' }}>
-              {FIELD_LIBRARY_GROUPS.map((group) => {
-                const groupTypes = FIELD_TYPE_META.filter((ftMeta) =>
-                  group.types.includes(ftMeta.type),
-                );
-                return (
-                  <div key={group.key} style={{ marginBottom: 'var(--space-3, 12px)' }}>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "var(--text-secondary)",
-                        marginBottom: 'var(--space-1, 4px)',
-                        textTransform: "uppercase",
-                        letterSpacing: 1,
-                      }}
-                    >
-                      {group.label}
-                    </div>
-                    {groupTypes.map((meta) => {
-                      const Icon = meta.icon;
-                      return (
-                        <div
-                          key={meta.type}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, meta.type)}
-                          style={{
-                            padding: 6,
-                            marginBottom: 3,
-                            background: "var(--content-bg)",
-                            borderRadius: 4,
-                            border: `1px solid ${meta.color}30`,
-                            cursor: "grab",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                            transition: "all 0.15s",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = `${meta.color}10`;
-                            e.currentTarget.style.borderColor = meta.color;
-                          }}
-                          onMouseLeave={(e) => {
-e.currentTarget.style.background = "var(--bg-card)";
-e.currentTarget.style.borderColor = `${meta.color}30`;
-                          }}
-                        >
-                          <GripVertical size={11} color="var(--text-secondary)" />
-                          <div
-                            style={{
-                              width: 22,
-                              height: 22,
-                              borderRadius: 4,
-                              background: `${meta.color}15`,
-                              color: meta.color,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flexShrink: 0,
-                            }}
-                          >
-                            <Icon size={12} />
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                              style={{
-                                fontSize: 12,
-                                fontWeight: 600,
-                                color: "var(--text-primary)",
-                              }}
-                            >
-                              {meta.label}
-                            </div>
-                            <AppText size="xs" color="secondary" as="div">
-                              {meta.description}
-                            </AppText>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+            {!isFullscreen && !previewMode && (
               <div
                 style={{
-                  marginTop: 'var(--space-4, 16px)',
-                  padding: 'var(--space-2, 8px)',
-                  background: "var(--color-warning-bg)",
-                  border: "1px solid var(--color-warning-300, #fcd34d)",
-                  borderRadius: 6,
-                  fontSize: 12,
-                  color: "#92400e",
+                  width: 240,
+                  background: "var(--bg-card)",
+                  borderRight: "1px solid var(--border-color)",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexShrink: 0,
                 }}
               >
-                <div style={{ fontWeight: 700, marginBottom: 'var(--space-1, 4px)' }}>
-                  {t("templateDesigner.dragTipTitle")}
-                </div>
-                <div>{t("templateDesigner.dragTipBody")}</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div
-          ref={canvasRef}
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            background: "var(--content-bg)",
-            overflow: "auto",
-            padding: 'var(--space-3, 12px)',
-          }}
-        >
-          {previewMode ? (
-            <PreviewCanvas meta={meta} sections={sections} />
-          ) : (
-            <>
-              {sections.map((section) => (
                 <div
-                  key={section.id}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, section.id)}
-                  onClick={() => setSelectedSectionId(section.id)}
                   style={{
-                    background: "var(--bg-card)",
-                    border: `2px ${selectedSectionId === section.id ? "solid" : "dashed"} ${selectedSectionId === section.id ? section.color : "#cbd5e1"}`,
-                    borderRadius: 8,
-                    marginBottom: 10,
-                    overflow: "hidden",
+                    padding: "8px 12px",
+                    borderBottom: "1px solid var(--border-color)",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "var(--color-primary-800)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                 >
-                  <div
-                    style={{
-                      padding: "8px 12px",
-                      background: `${section.color}10`,
-                      borderBottom: `1px solid ${section.color}30`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                      <ChevronDown size={12} color={section.color} />
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: section.color,
-                        }}
-                      >
-                        {section.name}
-                      </span>
-                      <AppText size="xs" color="secondary" as="span">
-                        ({section.fields.length} {t("templateDesigner.fieldsUnit")})
-                      </AppText>
-                    </div>
-                    <div style={{ display: "flex", gap: 'var(--space-1, 4px)' }}>
-                      <button aria-label="删除"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeSection(section.id);
-                        }}
-                        style={{
-                          padding: "2px 6px",
-                          border: "1px solid var(--color-error-600)",
-                          borderRadius: 3,
-                          background: "var(--bg-card)",
-                          color: "var(--color-error-600)",
-                          fontSize: 12,
-                          cursor: "pointer",
-                        }}
-                      >
-                        <Trash2 size={10} />
-                      </button>
-                    </div>
-                  </div>
-                  <div style={{ padding: 'var(--space-2, 8px)', minHeight: 60 }}>
-                    {section.fields.length === 0 ? (
+                  <FileSpreadsheet size={13} />{" "}
+                  {t("templateDesigner.fieldLibrary")}
+                </div>
+                <div
+                  style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    padding: "var(--space-2, 8px)",
+                  }}
+                >
+                  {FIELD_LIBRARY_GROUPS.map((group) => {
+                    const groupTypes = FIELD_TYPE_META.filter((ftMeta) =>
+                      group.types.includes(ftMeta.type),
+                    );
+                    return (
                       <div
-                        style={{
-                          padding: 'var(--space-5, 20px)',
-                          textAlign: "center",
-                          color: "var(--text-secondary)",
-                          fontSize: 12,
-                          background: "var(--content-bg)",
-                          borderRadius: 4,
-                          border: "1px dashed var(--border-color)",
-                        }}
+                        key={group.key}
+                        style={{ marginBottom: "var(--space-3, 12px)" }}
                       >
-                        {t("templateDesigner.dropHere")}
-                      </div>
-                    ) : (
-                      section.fields.map((field) => {
-                        const typeMeta = FIELD_TYPE_META.find(
-                          (ftMeta) => ftMeta.type === field.dataType,
-                        );
-                        const isSelected = selectedFieldId === field.id;
-                        const hasCondition = conditionalRules.find(
-                          (r) => r.targetFieldId === field.id,
-                        );
-                        const hasMapping = srMappings.find(
-                          (m) => m.fieldId === field.id,
-                        );
-                        return (
-                          <div
-                            key={field.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedFieldId(field.id);
-                            }}
-                            style={{
-                              padding: 'var(--space-2, 8px)',
-                              marginBottom: 'var(--space-1, 4px)',
-                              background: isSelected
-                                ? `${typeMeta?.color}15`
-                                : "var(--bg-card)",
-                              border: `1px solid ${isSelected ? typeMeta?.color : "var(--border-color, #e2e8f0)"}`,
-                              borderRadius: 4,
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 'var(--space-2, 8px)',
-                              transition: "all 0.15s",
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isSelected)
-e.currentTarget.style.background = "var(--bg-card)";
-}}
-onMouseLeave={(e) => {
-if (!isSelected)
-e.currentTarget.style.background = "var(--bg-card)";
-}}
-                          >
-                            <GripVertical size={11} color="var(--text-secondary)" />
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: "var(--text-secondary)",
+                            marginBottom: "var(--space-1, 4px)",
+                            textTransform: "uppercase",
+                            letterSpacing: 1,
+                          }}
+                        >
+                          {group.label}
+                        </div>
+                        {groupTypes.map((meta) => {
+                          const Icon = meta.icon;
+                          return (
                             <div
+                              key={meta.type}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, meta.type)}
                               style={{
-                                width: 24,
-                                height: 24,
+                                padding: 6,
+                                marginBottom: 3,
+                                background: "var(--content-bg)",
                                 borderRadius: 4,
-                                background: `${typeMeta?.color}20`,
-                                color: typeMeta?.color,
+                                border: `1px solid ${meta.color}30`,
+                                cursor: "grab",
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0,
+                                gap: 6,
+                                transition: "all 0.15s",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = `${meta.color}10`;
+                                e.currentTarget.style.borderColor = meta.color;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background =
+                                  "var(--bg-card)";
+                                e.currentTarget.style.borderColor = `${meta.color}30`;
                               }}
                             >
-                              {typeMeta && <typeMeta.icon size={12} />}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <GripVertical
+                                size={11}
+                                color="var(--text-secondary)"
+                              />
                               <div
                                 style={{
+                                  width: 22,
+                                  height: 22,
+                                  borderRadius: 4,
+                                  background: `${meta.color}15`,
+                                  color: meta.color,
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 'var(--space-1, 4px)',
+                                  justifyContent: "center",
+                                  flexShrink: 0,
                                 }}
                               >
-                                {field.required && (
-                                  <span style={{ color: "var(--color-error-600)" }}>*</span>
-                                )}
-                                <span
+                                <Icon size={12} />
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div
                                   style={{
                                     fontSize: 12,
                                     fontWeight: 600,
                                     color: "var(--text-primary)",
                                   }}
                                 >
-                                  {field.fieldLabel}
-                                </span>
-                                {field.unit && (
-                                  <span
-                                    style={{ fontSize: 12, color: "var(--text-secondary)" }}
-                                  >
-                                    ({field.unit})
-                                  </span>
-                                )}
-                                {field.category && (
-                                  <span
-                                    style={{
-                                      fontSize: 12,
-                                      padding: "0 4px",
-                                      background: "var(--color-info-bg)",
-                                      color: "var(--color-primary-800)",
-                                      borderRadius: 3,
-                                    }}
-                                  >
-                                    {field.category}
-                                  </span>
-                                )}
-                                {hasCondition && (
-                                  <span
-                                    style={{
-                                      fontSize: 12,
-                                      padding: "0 4px",
-                                      background: "var(--color-warning-bg)",
-                                      color: "#92400e",
-                                      borderRadius: 3,
-                                    }}
-                                  >
-                                    {t("templateDesigner.conditionalTag")}
-                                  </span>
-                                )}
-                                {hasMapping && (
-                                  <span
-                                    style={{
-                                      fontSize: 12,
-                                      padding: "0 4px",
-                                      background: "var(--color-success-bg)",
-                                      color: "var(--color-success-600)",
-                                      borderRadius: 3,
-                                    }}
-                                  >
-                                    SR
-                                  </span>
-                                )}
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: 12,
-                                  color: "var(--text-secondary)",
-                                  marginTop: 1,
-                                }}
-                              >
-                                {typeMeta?.label} · {field.fieldKey}
+                                  {meta.label}
+                                </div>
+                                <AppText size="xs" color="secondary" as="div">
+                                  {meta.description}
+                                </AppText>
                               </div>
                             </div>
-                            <button aria-label="删除"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeField(field.id);
-                              }}
-                              style={{
-                                padding: 2,
-                                border: "none",
-                                background: "transparent",
-                                color: "var(--color-error-600)",
-                                cursor: "pointer",
-                              }}
-                            >
-                              <X size={12} />
-                            </button>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-              ))}
-              <button
-                onClick={addSection}
-                style={{
-                  width: "100%",
-                  padding: 10,
-                  marginTop: 'var(--space-1, 4px)',
-                  background: "var(--bg-card)",
-                  border: "2px dashed var(--border-color)",
-                  borderRadius: 8,
-                  color: "var(--text-secondary)",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                }}
-              >
-                <Plus size={14} /> {t("templateDesigner.addSection")}
-              </button>
-            </>
-          )}
-        </div>
-
-        {!isFullscreen && !previewMode && (
-          <div
-            style={{
-              width: 340,
-              background: "var(--bg-card)",
-              borderLeft: "1px solid var(--border-color)",
-              display: "flex",
-              flexDirection: "column",
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: 2,
-                padding: "6px 8px",
-                borderBottom: "1px solid var(--border-color)",
-                background: "var(--content-bg)",
-              }}
-            >
-              {[
-                {
-                  key: "properties",
-                  label: t("templateDesigner.tab.properties"),
-                  icon: <Settings size={12} />,
-                },
-                {
-                  key: "conditional",
-                  label: t("templateDesigner.tab.conditional"),
-                  icon: <GitMerge size={12} />,
-                },
-                {
-                  key: "sr-mapping",
-                  label: t("templateDesigner.tab.srMapping"),
-                  icon: <Activity size={12} />,
-                },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() =>
-                    setActiveRightTab(tab.key as typeof activeRightTab)
-                  }
-                  style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 'var(--space-1, 4px)',
-                    padding: "6px 8px",
-                    borderRadius: 4,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    border: "none",
-                    background:
-                      activeRightTab === tab.key ? "#fff" : "transparent",
-                    color: activeRightTab === tab.key ? "var(--color-primary-800)" : "#64748b",
-                    boxShadow:
-                      activeRightTab === tab.key
-                        ? "0 1px 3px rgba(0,0,0,0.1)"
-                        : "none",
-                  }}
-                >
-                  {tab.icon} {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-3, 12px)' }}>
-              {activeRightTab === "properties" && (
-                <>
-                  {!selectedField && !selectedSection && (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        color: "var(--text-secondary)",
-                        padding: 30,
-                        fontSize: 12,
-                      }}
-                    >
-                      <Settings
-                        size={32}
-                        style={{
-                          color: "#cbd5e1",
-                          display: "block",
-                          margin: "0 auto 8px",
-                        }}
-                      />
-                      {t("templateDesigner.clickToEdit")}
-                    </div>
-                  )}
-                  {selectedField && (
-                    <FieldPropertyPanel
-                      field={selectedField}
-                      onChange={(patch) => updateField(selectedField.id, patch)}
-                    />
-                  )}
-                  {selectedSection && !selectedField && (
-                    <SectionPropertyPanel
-                      section={selectedSection}
-                      onChange={(patch) =>
-                        setSections((prev) =>
-                          prev.map((s) =>
-                            s.id === selectedSection.id
-                              ? { ...s, ...patch }
-                              : s,
-                          ),
-                        )
-                      }
-                    />
-                  )}
-                </>
-              )}
-
-              {activeRightTab === "conditional" && (
-                <div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      marginBottom: 'var(--space-3, 12px)',
+                      marginTop: "var(--space-4, 16px)",
+                      padding: "var(--space-2, 8px)",
+                      background: "var(--color-warning-bg)",
+                      border: "1px solid var(--color-warning-300, #fcd34d)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                      color: "#92400e",
                     }}
                   >
-                    <GitMerge size={13} color="var(--color-warning-500)" />
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "var(--color-primary-800)",
-                      }}
-                    >
-                      {t("templateDesigner.conditionalLogic")}
-                    </span>
-                    <button
-                      onClick={addConditionalRule}
-                      style={{
-                        marginLeft: "auto",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 3,
-                        padding: "3px 8px",
-                        background: "var(--color-warning-500)",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                      }}
-                    >
-                      <Plus size={10} /> {t("templateDesigner.addRule")}
-                    </button>
-                  </div>
-                  {conditionalRules.length === 0 ? (
                     <div
                       style={{
-                        textAlign: "center",
-                        color: "var(--text-secondary)",
-                        padding: 'var(--space-5, 20px)',
-                        fontSize: 12,
-                        background: "var(--content-bg)",
-                        borderRadius: 8,
+                        fontWeight: 700,
+                        marginBottom: "var(--space-1, 4px)",
                       }}
                     >
-                      <GitMerge
-                        size={24}
-                        style={{
-                          color: "#cbd5e1",
-                          display: "block",
-                          margin: "0 auto 8px",
-                        }}
-                      />
-                      {t("templateDesigner.noConditionalRules")}
-                      <br />
-                      {t("templateDesigner.clickAddRule")}
+                      {t("templateDesigner.dragTipTitle")}
                     </div>
-                  ) : (
-                    conditionalRules.map((rule) => (
+                    <div>{t("templateDesigner.dragTipBody")}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div
+              ref={canvasRef}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                background: "var(--content-bg)",
+                overflow: "auto",
+                padding: "var(--space-3, 12px)",
+              }}
+            >
+              {previewMode ? (
+                <PreviewCanvas meta={meta} sections={sections} />
+              ) : (
+                <>
+                  {sections.map((section) => (
+                    <div
+                      key={section.id}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, section.id)}
+                      onClick={() => setSelectedSectionId(section.id)}
+                      style={{
+                        background: "var(--bg-card)",
+                        border: `2px ${selectedSectionId === section.id ? "solid" : "dashed"} ${selectedSectionId === section.id ? section.color : "#cbd5e1"}`,
+                        borderRadius: 8,
+                        marginBottom: 10,
+                        overflow: "hidden",
+                      }}
+                    >
                       <div
-                        key={rule.id}
                         style={{
-                          background: "var(--color-warning-bg)",
-                          border: "1px solid var(--color-warning-300, #fcd34d)",
-                          borderRadius: 6,
-                          padding: 10,
-                          marginBottom: 'var(--space-2, 8px)',
+                          padding: "8px 12px",
+                          background: `${section.color}10`,
+                          borderBottom: `1px solid ${section.color}30`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
                         }}
                       >
                         <div
                           style={{
                             display: "flex",
-                            justifyContent: "space-between",
                             alignItems: "center",
-                            marginBottom: 6,
+                            gap: 6,
                           }}
                         >
+                          <ChevronDown size={12} color={section.color} />
                           <span
                             style={{
                               fontSize: 12,
                               fontWeight: 700,
-                              color: "#92400e",
+                              color: section.color,
                             }}
                           >
-                            {t("templateDesigner.conditionalRule")}
+                            {section.name}
                           </span>
-                          <button aria-label="删除"
-                            onClick={() => removeConditionalRule(rule.id)}
-                            style={{
-                              padding: 2,
-                              border: "none",
-                              background: "transparent",
-                              color: "var(--color-error-600)",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <X size={11} />
-                          </button>
+                          <AppText size="xs" color="secondary" as="span">
+                            ({section.fields.length}{" "}
+                            {t("templateDesigner.fieldsUnit")})
+                          </AppText>
                         </div>
                         <div
                           style={{
                             display: "flex",
-                            flexDirection: "column",
-                            gap: 6,
+                            gap: "var(--space-1, 4px)",
                           }}
                         >
-                          <div
+                          <button
+                            aria-label="删除"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSection(section.id);
+                            }}
                             style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 'var(--space-1, 4px)',
+                              padding: "2px 6px",
+                              border: "1px solid var(--color-error-600)",
+                              borderRadius: 3,
+                              background: "var(--bg-card)",
+                              color: "var(--color-error-600)",
                               fontSize: 12,
+                              cursor: "pointer",
                             }}
                           >
-                            <AppText size="xs" color="secondary" as="span">
-                              {t("templateDesigner.if")}
-                            </AppText>
-                            <select
-                              value={rule.fieldId}
-                              onChange={(e) =>
-                                updateConditionalRule(rule.id, {
-                                  fieldId: e.target.value,
-                                })
-                              }
-                              style={{
-                                padding: "2px 4px",
-                                border: "1px solid var(--border-color)",
-                                borderRadius: 3,
-                                fontSize: 12,
-                                flex: 1,
-                              }}
-                            >
-                              {allFields.map((f) => (
-                                <option key={f.id} value={f.id}>
-                                  {f.fieldLabel}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 'var(--space-1, 4px)',
-                              fontSize: 12,
-                            }}
-                          >
-                            <select
-                              value={rule.operator}
-                              onChange={(e) =>
-                                updateConditionalRule(rule.id, {
-                                  operator: e.target
-                                    .value as ConditionalRule["operator"],
-                                })
-                              }
-                              style={{
-                                padding: "2px 4px",
-                                border: "1px solid var(--border-color)",
-                                borderRadius: 3,
-                                fontSize: 12,
-                                flex: 1,
-                              }}
-                            >
-                              <option value="equals">{t("templateDesigner.op.equals")}</option>
-                              <option value="not-equals">{t("templateDesigner.op.notEquals")}</option>
-                              <option value="greater-than">{t("templateDesigner.op.greaterThan")}</option>
-                              <option value="less-than">{t("templateDesigner.op.lessThan")}</option>
-                            </select>
-                            <input
-                              type="text"
-                              value={rule.value}
-                              onChange={(e) =>
-                                updateConditionalRule(rule.id, {
-                                  value: e.target.value,
-                                })
-                              }
-                              placeholder={t("templateDesigner.valuePlaceholder")}
-                              style={{
-                                padding: "2px 4px",
-                                border: "1px solid var(--border-color)",
-                                borderRadius: 3,
-                                fontSize: 12,
-                                width: 80,
-                              }}
-                            />
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 'var(--space-1, 4px)',
-                              fontSize: 12,
-                            }}
-                          >
-                            <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>
-                              {t("templateDesigner.then")}
-                            </span>
-                            <select
-                              value={rule.action}
-                              onChange={(e) =>
-                                updateConditionalRule(rule.id, {
-                                  action: e.target
-                                    .value as ConditionalRule["action"],
-                                })
-                              }
-                              style={{
-                                padding: "2px 4px",
-                                border: "1px solid var(--border-color)",
-                                borderRadius: 3,
-                                fontSize: 12,
-                              }}
-                            >
-                              <option value="show">{t("templateDesigner.action.show")}</option>
-                              <option value="hide">{t("templateDesigner.action.hide")}</option>
-                              <option value="require">{t("templateDesigner.action.require")}</option>
-                            </select>
-                            <select
-                              value={rule.targetFieldId}
-                              onChange={(e) =>
-                                updateConditionalRule(rule.id, {
-                                  targetFieldId: e.target.value,
-                                })
-                              }
-                              style={{
-                                padding: "2px 4px",
-                                border: "1px solid var(--border-color)",
-                                borderRadius: 3,
-                                fontSize: 12,
-                                flex: 1,
-                              }}
-                            >
-                              {allFields
-                                .filter((f) => f.id !== rule.fieldId)
-                                .map((f) => (
-                                  <option key={f.id} value={f.id}>
-                                    {f.fieldLabel}
-                                  </option>
-                                ))}
-                            </select>
-                          </div>
+                            <Trash2 size={10} />
+                          </button>
                         </div>
                       </div>
-                    ))
-                  )}
-                  <div
-                    style={{
-                      marginTop: 'var(--space-2, 8px)',
-                      fontSize: 12,
-                      color: "var(--text-secondary)",
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {t("templateDesigner.conditionalNote")}
-                  </div>
-                </div>
-              )}
-
-              {activeRightTab === "sr-mapping" && (
-                <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      marginBottom: 'var(--space-3, 12px)',
-                    }}
-                  >
-                    <Activity size={13} color="var(--color-info-600)" />
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "var(--color-primary-800)",
-                      }}
-                    >
-                      {t("templateDesigner.srMappingTitle")}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      background: "#06b6d422",
-                      border: "1px solid var(--color-info-600)",
-                      borderRadius: 6,
-                      padding: "8px 10px",
-                      marginBottom: 'var(--space-3, 12px)',
-                    }}
-                  >
-                    <StatCard
-                      title={t("templateDesigner.complianceScore")}
-                      value={complianceScore}
-                      suffix="%"
-                      color={
-                        complianceScore > 80
-                          ? "success"
-                          : complianceScore > 50
-                            ? "warning"
-                            : "error"
-                      }
-                      variant="compact"
-                      size="sm"
-                      style={{ marginBottom: 'var(--space-3, 12px)', padding: "8px 10px" }}
-                    />
-                  </div>
-                  <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
-                    <label
-                      style={{
-                        fontSize: 12,
-                        color: "var(--text-secondary)",
-                        fontWeight: 600,
-                        marginBottom: 3,
-                        display: "block",
-                      }}
-                    >
-                      {t("templateDesigner.srTemplateSelect")}
-                    </label>
-                    <select
-                      value={selectedSrTemplate}
-                      onChange={(e) => setSelectedSrTemplate(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "6px 8px",
-                        border: "1px solid var(--border-color)",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        color: "var(--text-primary)",
-                        background: "var(--bg-card)",
-                      }}
-                    >
-                      {IHE_RR_TEMPLATES.map((sr) => (
-                        <option key={sr.id} value={sr.id}>
-                          {sr.name} ({sr.id})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {totalFields > 0 ? (
-                    <DataTable
-                      rowKey="id"
-                      dataSource={allFields}
-                      pagination={false}
-                      showExport={false}
-                      showDensity={false}
-                      columns={[
-                        {
-                          title: t("templateDesigner.colField"),
-                          dataIndex: "fieldLabel",
-                          key: "fieldLabel",
-                          render: (v: string) => (
-                            <span
-                              style={{ fontWeight: 600, color: "var(--text-primary)" }}
-                            >
-                              {v}
-                            </span>
-                          ),
-                        },
-                        {
-                          title: t("templateDesigner.colSrTemplate"),
-                          key: "srTemplate",
-                          render: (_v, f) => {
-                            const mapping = srMappings.find(
-                              (m) => m.fieldId === f.id,
+                      <div
+                        style={{
+                          padding: "var(--space-2, 8px)",
+                          minHeight: 60,
+                        }}
+                      >
+                        {section.fields.length === 0 ? (
+                          <div
+                            style={{
+                              padding: "var(--space-5, 20px)",
+                              textAlign: "center",
+                              color: "var(--text-secondary)",
+                              fontSize: 12,
+                              background: "var(--content-bg)",
+                              borderRadius: 4,
+                              border: "1px dashed var(--border-color)",
+                            }}
+                          >
+                            {t("templateDesigner.dropHere")}
+                          </div>
+                        ) : (
+                          section.fields.map((field) => {
+                            const typeMeta = FIELD_TYPE_META.find(
+                              (ftMeta) => ftMeta.type === field.dataType,
                             );
-                            return mapping ? (
-                              <span
-                                style={{ fontSize: 12, color: "var(--color-info-600)" }}
-                              >
-                                {mapping.srTemplateId}
-                              </span>
-                            ) : (
-                              <select
-                                value=""
-                                onChange={(e) =>
-                                  handleMapFieldToSr(
-                                    f.id,
-                                    e.target.value,
-                                    "",
-                                  )
-                                }
-                                style={{
-                                  padding: "2px 4px",
-                                  border: "1px solid var(--border-color)",
-                                  borderRadius: 3,
-                                  fontSize: 12,
-                                  width: "100%",
+                            const isSelected = selectedFieldId === field.id;
+                            const hasCondition = conditionalRules.find(
+                              (r) => r.targetFieldId === field.id,
+                            );
+                            const hasMapping = srMappings.find(
+                              (m) => m.fieldId === field.id,
+                            );
+                            return (
+                              <div
+                                key={field.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedFieldId(field.id);
                                 }}
-                              >
-                                <option value="">{t("templateDesigner.unmapped")}</option>
-                                {IHE_RR_TEMPLATES.map((sr) => (
-                                  <option key={sr.id} value={sr.id}>
-                                    {sr.id}
-                                  </option>
-                                ))}
-                              </select>
-                            );
-                          },
-                        },
-                        {
-                          title: t("templateDesigner.colStatus"),
-                          key: "complianceStatus",
-                          render: (_v, f) => {
-                            const mapping = srMappings.find(
-                              (m) => m.fieldId === f.id,
-                            );
-                            return mapping ? (
-                              <span
                                 style={{
+                                  padding: "var(--space-2, 8px)",
+                                  marginBottom: "var(--space-1, 4px)",
+                                  background: isSelected
+                                    ? `${typeMeta?.color}15`
+                                    : "var(--bg-card)",
+                                  border: `1px solid ${isSelected ? typeMeta?.color : "var(--border-color, #e2e8f0)"}`,
+                                  borderRadius: 4,
+                                  cursor: "pointer",
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 2,
-                                  padding: "1px 4px",
-                                  borderRadius: 3,
-                                  fontSize: 12,
-                                  fontWeight: 600,
-                                  background:
-                                    mapping.complianceStatus === "compliant"
-                                      ? "var(--color-success-bg)"
-                                      : "var(--color-warning-bg)",
-                                  color:
-                                    mapping.complianceStatus === "compliant"
-                                      ? "var(--color-success-600)"
-                                      : "var(--color-warning-600)",
+                                  gap: "var(--space-2, 8px)",
+                                  transition: "all 0.15s",
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!isSelected)
+                                    e.currentTarget.style.background =
+                                      "var(--bg-card)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (!isSelected)
+                                    e.currentTarget.style.background =
+                                      "var(--bg-card)";
                                 }}
                               >
-                                {mapping.complianceStatus === "compliant"
-                                  ? t("templateDesigner.compliant")
-                                  : t("templateDesigner.partial")}
-                              </span>
-                            ) : (
+                                <GripVertical
+                                  size={11}
+                                  color="var(--text-secondary)"
+                                />
+                                <div
+                                  style={{
+                                    width: 24,
+                                    height: 24,
+                                    borderRadius: 4,
+                                    background: `${typeMeta?.color}20`,
+                                    color: typeMeta?.color,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {typeMeta && <typeMeta.icon size={12} />}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "var(--space-1, 4px)",
+                                    }}
+                                  >
+                                    {field.required && (
+                                      <span
+                                        style={{
+                                          color: "var(--color-error-600)",
+                                        }}
+                                      >
+                                        *
+                                      </span>
+                                    )}
+                                    <span
+                                      style={{
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        color: "var(--text-primary)",
+                                      }}
+                                    >
+                                      {field.fieldLabel}
+                                    </span>
+                                    {field.unit && (
+                                      <span
+                                        style={{
+                                          fontSize: 12,
+                                          color: "var(--text-secondary)",
+                                        }}
+                                      >
+                                        ({field.unit})
+                                      </span>
+                                    )}
+                                    {field.category && (
+                                      <span
+                                        style={{
+                                          fontSize: 12,
+                                          padding: "0 4px",
+                                          background: "var(--color-info-bg)",
+                                          color: "var(--color-primary-800)",
+                                          borderRadius: 3,
+                                        }}
+                                      >
+                                        {field.category}
+                                      </span>
+                                    )}
+                                    {hasCondition && (
+                                      <span
+                                        style={{
+                                          fontSize: 12,
+                                          padding: "0 4px",
+                                          background: "var(--color-warning-bg)",
+                                          color: "#92400e",
+                                          borderRadius: 3,
+                                        }}
+                                      >
+                                        {t("templateDesigner.conditionalTag")}
+                                      </span>
+                                    )}
+                                    {hasMapping && (
+                                      <span
+                                        style={{
+                                          fontSize: 12,
+                                          padding: "0 4px",
+                                          background: "var(--color-success-bg)",
+                                          color: "var(--color-success-600)",
+                                          borderRadius: 3,
+                                        }}
+                                      >
+                                        SR
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: 12,
+                                      color: "var(--text-secondary)",
+                                      marginTop: 1,
+                                    }}
+                                  >
+                                    {typeMeta?.label} · {field.fieldKey}
+                                  </div>
+                                </div>
+                                <button
+                                  aria-label="删除"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeField(field.id);
+                                  }}
+                                  style={{
+                                    padding: 2,
+                                    border: "none",
+                                    background: "transparent",
+                                    color: "var(--color-error-600)",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    onClick={addSection}
+                    style={{
+                      width: "100%",
+                      padding: 10,
+                      marginTop: "var(--space-1, 4px)",
+                      background: "var(--bg-card)",
+                      border: "2px dashed var(--border-color)",
+                      borderRadius: 8,
+                      color: "var(--text-secondary)",
+                      fontSize: 12,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <Plus size={14} /> {t("templateDesigner.addSection")}
+                  </button>
+                </>
+              )}
+            </div>
+
+            {!isFullscreen && !previewMode && (
+              <div
+                style={{
+                  width: 340,
+                  background: "var(--bg-card)",
+                  borderLeft: "1px solid var(--border-color)",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexShrink: 0,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 2,
+                    padding: "6px 8px",
+                    borderBottom: "1px solid var(--border-color)",
+                    background: "var(--content-bg)",
+                  }}
+                >
+                  {[
+                    {
+                      key: "properties",
+                      label: t("templateDesigner.tab.properties"),
+                      icon: <Settings size={12} />,
+                    },
+                    {
+                      key: "conditional",
+                      label: t("templateDesigner.tab.conditional"),
+                      icon: <GitMerge size={12} />,
+                    },
+                    {
+                      key: "sr-mapping",
+                      label: t("templateDesigner.tab.srMapping"),
+                      icon: <Activity size={12} />,
+                    },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() =>
+                        setActiveRightTab(tab.key as typeof activeRightTab)
+                      }
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "var(--space-1, 4px)",
+                        padding: "6px 8px",
+                        borderRadius: 4,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        border: "none",
+                        background:
+                          activeRightTab === tab.key ? "#fff" : "transparent",
+                        color:
+                          activeRightTab === tab.key
+                            ? "var(--color-primary-800)"
+                            : "#64748b",
+                        boxShadow:
+                          activeRightTab === tab.key
+                            ? "0 1px 3px rgba(0,0,0,0.1)"
+                            : "none",
+                      }}
+                    >
+                      {tab.icon} {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    padding: "var(--space-3, 12px)",
+                  }}
+                >
+                  {activeRightTab === "properties" && (
+                    <>
+                      {!selectedField && !selectedSection && (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            color: "var(--text-secondary)",
+                            padding: 30,
+                            fontSize: 12,
+                          }}
+                        >
+                          <Settings
+                            size={32}
+                            style={{
+                              color: "#cbd5e1",
+                              display: "block",
+                              margin: "0 auto 8px",
+                            }}
+                          />
+                          {t("templateDesigner.clickToEdit")}
+                        </div>
+                      )}
+                      {selectedField && (
+                        <FieldPropertyPanel
+                          field={selectedField}
+                          onChange={(patch) =>
+                            updateField(selectedField.id, patch)
+                          }
+                        />
+                      )}
+                      {selectedSection && !selectedField && (
+                        <SectionPropertyPanel
+                          section={selectedSection}
+                          onChange={(patch) =>
+                            setSections((prev) =>
+                              prev.map((s) =>
+                                s.id === selectedSection.id
+                                  ? { ...s, ...patch }
+                                  : s,
+                              ),
+                            )
+                          }
+                        />
+                      )}
+                    </>
+                  )}
+
+                  {activeRightTab === "conditional" && (
+                    <div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          marginBottom: "var(--space-3, 12px)",
+                        }}
+                      >
+                        <GitMerge size={13} color="var(--color-warning-500)" />
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: "var(--color-primary-800)",
+                          }}
+                        >
+                          {t("templateDesigner.conditionalLogic")}
+                        </span>
+                        <button
+                          onClick={addConditionalRule}
+                          style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 3,
+                            padding: "3px 8px",
+                            background: "var(--color-warning-500)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 4,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          <Plus size={10} /> {t("templateDesigner.addRule")}
+                        </button>
+                      </div>
+                      {conditionalRules.length === 0 ? (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            color: "var(--text-secondary)",
+                            padding: "var(--space-5, 20px)",
+                            fontSize: 12,
+                            background: "var(--content-bg)",
+                            borderRadius: 8,
+                          }}
+                        >
+                          <GitMerge
+                            size={24}
+                            style={{
+                              color: "#cbd5e1",
+                              display: "block",
+                              margin: "0 auto 8px",
+                            }}
+                          />
+                          {t("templateDesigner.noConditionalRules")}
+                          <br />
+                          {t("templateDesigner.clickAddRule")}
+                        </div>
+                      ) : (
+                        conditionalRules.map((rule) => (
+                          <div
+                            key={rule.id}
+                            style={{
+                              background: "var(--color-warning-bg)",
+                              border:
+                                "1px solid var(--color-warning-300, #fcd34d)",
+                              borderRadius: 6,
+                              padding: 10,
+                              marginBottom: "var(--space-2, 8px)",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginBottom: 6,
+                              }}
+                            >
                               <span
-                                style={{ color: "var(--text-secondary)", fontSize: 12 }}
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  color: "#92400e",
+                                }}
                               >
-                                —
+                                {t("templateDesigner.conditionalRule")}
                               </span>
-                            );
-                          },
-                        },
-                        {
-                          title: t("templateDesigner.colActions"),
-                          key: "actions",
-                          align: "center",
-                          render: (_v, f) => {
-                            const mapping = srMappings.find(
-                              (m) => m.fieldId === f.id,
-                            );
-                            return mapping ? (
-                              <button aria-label="删除"
-                                onClick={() => removeSrMapping(f.id)}
+                              <button
+                                aria-label="删除"
+                                onClick={() => removeConditionalRule(rule.id)}
                                 style={{
                                   padding: 2,
                                   border: "none",
@@ -2007,124 +2011,537 @@ e.currentTarget.style.background = "var(--bg-card)";
                                   cursor: "pointer",
                                 }}
                               >
-                                <X size={9} />
+                                <X size={11} />
                               </button>
-                            ) : null;
-                          },
-                        },
-                      ]}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        color: "var(--text-secondary)",
-                        padding: 'var(--space-4, 16px)',
-                        fontSize: 12,
-                      }}
-                    >
-                      {t("templateDesigner.addFieldFirst")}
+                            </div>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 6,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "var(--space-1, 4px)",
+                                  fontSize: 12,
+                                }}
+                              >
+                                <AppText size="xs" color="secondary" as="span">
+                                  {t("templateDesigner.if")}
+                                </AppText>
+                                <AppSelectField
+                                  value={rule.fieldId}
+                                  onChange={(v) =>
+                                    updateConditionalRule(rule.id, {
+                                      fieldId: String(v ?? ""),
+                                    })
+                                  }
+                                  options={allFields.map((f) => ({
+                                    value: f.id,
+                                    label: f.fieldLabel,
+                                  }))}
+                                  style={{
+                                    padding: "2px 4px",
+                                    border: "1px solid var(--border-color)",
+                                    borderRadius: 3,
+                                    fontSize: 12,
+                                    flex: 1,
+                                  }}
+                                />
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "var(--space-1, 4px)",
+                                  fontSize: 12,
+                                }}
+                              >
+                                <AppSelectField
+                                  value={rule.operator}
+                                  onChange={(v) =>
+                                    updateConditionalRule(rule.id, {
+                                      operator: String(
+                                        v ?? "",
+                                      ) as ConditionalRule["operator"],
+                                    })
+                                  }
+                                  options={[
+                                    {
+                                      value: "equals",
+                                      label: t("templateDesigner.op.equals"),
+                                    },
+                                    {
+                                      value: "not-equals",
+                                      label: t("templateDesigner.op.notEquals"),
+                                    },
+                                    {
+                                      value: "greater-than",
+                                      label: t(
+                                        "templateDesigner.op.greaterThan",
+                                      ),
+                                    },
+                                    {
+                                      value: "less-than",
+                                      label: t("templateDesigner.op.lessThan"),
+                                    },
+                                  ]}
+                                  style={{
+                                    padding: "2px 4px",
+                                    border: "1px solid var(--border-color)",
+                                    borderRadius: 3,
+                                    fontSize: 12,
+                                    flex: 1,
+                                  }}
+                                />
+                                <input
+                                  type="text"
+                                  value={rule.value}
+                                  onChange={(e) =>
+                                    updateConditionalRule(rule.id, {
+                                      value: e.target.value,
+                                    })
+                                  }
+                                  placeholder={t(
+                                    "templateDesigner.valuePlaceholder",
+                                  )}
+                                  style={{
+                                    padding: "2px 4px",
+                                    border: "1px solid var(--border-color)",
+                                    borderRadius: 3,
+                                    fontSize: 12,
+                                    width: 80,
+                                  }}
+                                />
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "var(--space-1, 4px)",
+                                  fontSize: 12,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    color: "var(--text-secondary)",
+                                    fontSize: 12,
+                                  }}
+                                >
+                                  {t("templateDesigner.then")}
+                                </span>
+                                <AppSelectField
+                                  value={rule.action}
+                                  onChange={(v) =>
+                                    updateConditionalRule(rule.id, {
+                                      action: String(
+                                        v ?? "",
+                                      ) as ConditionalRule["action"],
+                                    })
+                                  }
+                                  options={[
+                                    {
+                                      value: "show",
+                                      label: t("templateDesigner.action.show"),
+                                    },
+                                    {
+                                      value: "hide",
+                                      label: t("templateDesigner.action.hide"),
+                                    },
+                                    {
+                                      value: "require",
+                                      label: t(
+                                        "templateDesigner.action.require",
+                                      ),
+                                    },
+                                  ]}
+                                  style={{
+                                    padding: "2px 4px",
+                                    border: "1px solid var(--border-color)",
+                                    borderRadius: 3,
+                                    fontSize: 12,
+                                  }}
+                                />
+                                <AppSelectField
+                                  value={rule.targetFieldId}
+                                  onChange={(v) =>
+                                    updateConditionalRule(rule.id, {
+                                      targetFieldId: String(v ?? ""),
+                                    })
+                                  }
+                                  options={allFields
+                                    .filter((f) => f.id !== rule.fieldId)
+                                    .map((f) => ({
+                                      value: f.id,
+                                      label: f.fieldLabel,
+                                    }))}
+                                  style={{
+                                    padding: "2px 4px",
+                                    border: "1px solid var(--border-color)",
+                                    borderRadius: 3,
+                                    fontSize: 12,
+                                    flex: 1,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                      <div
+                        style={{
+                          marginTop: "var(--space-2, 8px)",
+                          fontSize: 12,
+                          color: "var(--text-secondary)",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {t("templateDesigner.conditionalNote")}
+                      </div>
                     </div>
                   )}
-                  <div
+
+                  {activeRightTab === "sr-mapping" && (
+                    <div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          marginBottom: "var(--space-3, 12px)",
+                        }}
+                      >
+                        <Activity size={13} color="var(--color-info-600)" />
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: "var(--color-primary-800)",
+                          }}
+                        >
+                          {t("templateDesigner.srMappingTitle")}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          background: "#06b6d422",
+                          border: "1px solid var(--color-info-600)",
+                          borderRadius: 6,
+                          padding: "8px 10px",
+                          marginBottom: "var(--space-3, 12px)",
+                        }}
+                      >
+                        <StatCard
+                          title={t("templateDesigner.complianceScore")}
+                          value={complianceScore}
+                          suffix="%"
+                          color={
+                            complianceScore > 80
+                              ? "success"
+                              : complianceScore > 50
+                                ? "warning"
+                                : "error"
+                          }
+                          variant="compact"
+                          size="sm"
+                          style={{
+                            marginBottom: "var(--space-3, 12px)",
+                            padding: "8px 10px",
+                          }}
+                        />
+                      </div>
+                      <div style={{ marginBottom: "var(--space-3, 12px)" }}>
+                        <label
+                          style={{
+                            fontSize: 12,
+                            color: "var(--text-secondary)",
+                            fontWeight: 600,
+                            marginBottom: 3,
+                            display: "block",
+                          }}
+                        >
+                          {t("templateDesigner.srTemplateSelect")}
+                        </label>
+                        <AppSelectField
+                          value={selectedSrTemplate}
+                          onChange={(v) =>
+                            setSelectedSrTemplate(String(v ?? ""))
+                          }
+                          options={IHE_RR_TEMPLATES.map((sr) => ({
+                            value: sr.id,
+                            label: `${sr.name} (${sr.id})`,
+                          }))}
+                          style={{
+                            width: "100%",
+                            padding: "6px 8px",
+                            border: "1px solid var(--border-color)",
+                            borderRadius: 4,
+                            fontSize: 12,
+                            color: "var(--text-primary)",
+                            background: "var(--bg-card)",
+                          }}
+                        />
+                      </div>
+                      {totalFields > 0 ? (
+                        <DataTable
+                          rowKey="id"
+                          dataSource={allFields}
+                          pagination={false}
+                          showExport={false}
+                          showDensity={false}
+                          columns={[
+                            {
+                              title: t("templateDesigner.colField"),
+                              dataIndex: "fieldLabel",
+                              key: "fieldLabel",
+                              render: (v: string) => (
+                                <span
+                                  style={{
+                                    fontWeight: 600,
+                                    color: "var(--text-primary)",
+                                  }}
+                                >
+                                  {v}
+                                </span>
+                              ),
+                            },
+                            {
+                              title: t("templateDesigner.colSrTemplate"),
+                              key: "srTemplate",
+                              render: (_v, f) => {
+                                const mapping = srMappings.find(
+                                  (m) => m.fieldId === f.id,
+                                );
+                                return mapping ? (
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      color: "var(--color-info-600)",
+                                    }}
+                                  >
+                                    {mapping.srTemplateId}
+                                  </span>
+                                ) : (
+                                  <AppSelectField
+                                    value=""
+                                    onChange={(v) =>
+                                      handleMapFieldToSr(
+                                        f.id,
+                                        String(v ?? ""),
+                                        "",
+                                      )
+                                    }
+                                    options={[
+                                      {
+                                        value: "",
+                                        label: t("templateDesigner.unmapped"),
+                                      },
+                                      ...IHE_RR_TEMPLATES.map((sr) => ({
+                                        value: sr.id,
+                                        label: sr.id,
+                                      })),
+                                    ]}
+                                    style={{
+                                      padding: "2px 4px",
+                                      border: "1px solid var(--border-color)",
+                                      borderRadius: 3,
+                                      fontSize: 12,
+                                      width: "100%",
+                                    }}
+                                  />
+                                );
+                              },
+                            },
+                            {
+                              title: t("templateDesigner.colStatus"),
+                              key: "complianceStatus",
+                              render: (_v, f) => {
+                                const mapping = srMappings.find(
+                                  (m) => m.fieldId === f.id,
+                                );
+                                return mapping ? (
+                                  <span
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      padding: "1px 4px",
+                                      borderRadius: 3,
+                                      fontSize: 12,
+                                      fontWeight: 600,
+                                      background:
+                                        mapping.complianceStatus === "compliant"
+                                          ? "var(--color-success-bg)"
+                                          : "var(--color-warning-bg)",
+                                      color:
+                                        mapping.complianceStatus === "compliant"
+                                          ? "var(--color-success-600)"
+                                          : "var(--color-warning-600)",
+                                    }}
+                                  >
+                                    {mapping.complianceStatus === "compliant"
+                                      ? t("templateDesigner.compliant")
+                                      : t("templateDesigner.partial")}
+                                  </span>
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "var(--text-secondary)",
+                                      fontSize: 12,
+                                    }}
+                                  >
+                                    —
+                                  </span>
+                                );
+                              },
+                            },
+                            {
+                              title: t("templateDesigner.colActions"),
+                              key: "actions",
+                              align: "center",
+                              render: (_v, f) => {
+                                const mapping = srMappings.find(
+                                  (m) => m.fieldId === f.id,
+                                );
+                                return mapping ? (
+                                  <button
+                                    aria-label="删除"
+                                    onClick={() => removeSrMapping(f.id)}
+                                    style={{
+                                      padding: 2,
+                                      border: "none",
+                                      background: "transparent",
+                                      color: "var(--color-error-600)",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <X size={9} />
+                                  </button>
+                                ) : null;
+                              },
+                            },
+                          ]}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            color: "var(--text-secondary)",
+                            padding: "var(--space-4, 16px)",
+                            fontSize: 12,
+                          }}
+                        >
+                          {t("templateDesigner.addFieldFirst")}
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          marginTop: "var(--space-2, 8px)",
+                          fontSize: 12,
+                          color: "var(--text-secondary)",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {t("templateDesigner.srMappingNote")}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    padding: 10,
+                    borderTop: "1px solid var(--border-color)",
+                    background: "var(--content-bg)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                  }}
+                >
+                  <button
+                    onClick={async () => {
+                      const targetId = id ?? meta.code;
+                      try {
+                        const res = await v3WritingApi.updateTemplate(
+                          targetId,
+                          {
+                            sections: sections.map((s) => ({
+                              id: s.id,
+                              name: s.name,
+                              order: s.order,
+                              color: s.color,
+                              fields: s.fields,
+                            })),
+                            selectedFieldPatch: selectedFieldId
+                              ? {
+                                  id: selectedFieldId,
+                                  field: sections
+                                    .flatMap((s) => s.fields)
+                                    .find((f) => f.id === selectedFieldId),
+                                }
+                              : null,
+                            srMappings,
+                          },
+                        );
+                        if (res.success) {
+                          message.success(`已应用字段属性到模板 ${meta.name}`);
+                        } else {
+                          message.error(
+                            res.error?.message ||
+                              t("templateDesigner.applyFailed"),
+                          );
+                        }
+                      } catch (e: any) {
+                        message.error("应用失败: " + (e?.message || String(e)));
+                      }
+                    }}
                     style={{
-                      marginTop: 'var(--space-2, 8px)',
+                      padding: "6px 12px",
+                      border: "none",
+                      borderRadius: 4,
+                      background: "var(--color-primary-500)",
+                      color: "#fff",
                       fontSize: 12,
-                      color: "var(--text-secondary)",
-                      lineHeight: 1.4,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "var(--space-1, 4px)",
                     }}
                   >
-                    {t("templateDesigner.srMappingNote")}
-                  </div>
+                    <Check size={11} /> {t("templateDesigner.applyProps")}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(t("templateDesigner.confirmDeleteField")))
+                        removeField(selectedFieldId!);
+                    }}
+                    disabled={!selectedField}
+                    style={{
+                      padding: "6px 12px",
+                      border: "1px solid var(--color-error-600)",
+                      borderRadius: 4,
+                      background: "var(--bg-card)",
+                      color: "var(--color-error-600)",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: selectedField ? "pointer" : "not-allowed",
+                      opacity: selectedField ? 1 : 0.5,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "var(--space-1, 4px)",
+                    }}
+                  >
+                    <Trash2 size={11} /> {t("templateDesigner.deleteField")}
+                  </button>
                 </div>
-              )}
-            </div>
-
-            <div
-              style={{
-                padding: 10,
-                borderTop: "1px solid var(--border-color)",
-                background: "var(--content-bg)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-              }}
-            >
-              <button
-                onClick={async () => {
-                  const targetId = id ?? meta.code;
-                  try {
-                    const res = await v3WritingApi.updateTemplate(targetId, {
-                      sections: sections.map((s) => ({
-                        id: s.id,
-                        name: s.name,
-                        order: s.order,
-                        color: s.color,
-                        fields: s.fields,
-                      })),
-                      selectedFieldPatch: selectedFieldId
-                        ? {
-                            id: selectedFieldId,
-                            field: sections
-                              .flatMap((s) => s.fields)
-                              .find((f) => f.id === selectedFieldId),
-                          }
-                        : null,
-                      srMappings,
-                    });
-                    if (res.success) {
-                      message.success(`已应用字段属性到模板 ${meta.name}`);
-                    } else {
-                      message.error(res.error?.message || t("templateDesigner.applyFailed"));
-                    }
-                  } catch (e: any) {
-                    message.error("应用失败: " + (e?.message || String(e)));
-                  }
-                }}
-                style={{
-                  padding: "6px 12px",
-                  border: "none",
-                  borderRadius: 4,
-                  background: "var(--color-primary-500)",
-                  color: "#fff",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 'var(--space-1, 4px)',
-                }}
-              >
-                <Check size={11} /> {t("templateDesigner.applyProps")}
-              </button>
-              <button
-                onClick={() => {
-                  if (confirm(t("templateDesigner.confirmDeleteField")))
-                    removeField(selectedFieldId!);
-                }}
-                disabled={!selectedField}
-                style={{
-                  padding: "6px 12px",
-                  border: "1px solid var(--color-error-600)",
-                  borderRadius: 4,
-                  background: "var(--bg-card)",
-                  color: "var(--color-error-600)",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: selectedField ? "pointer" : "not-allowed",
-                  opacity: selectedField ? 1 : 0.5,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 'var(--space-1, 4px)',
-                }}
-              >
-                <Trash2 size={11} /> {t("templateDesigner.deleteField")}
-              </button>
-            </div>
-          </div>
-        )}
+              </div>
+            )}
           </>
         )}
       </div>
@@ -2136,20 +2553,28 @@ const inputStyle: React.CSSProperties = {
   padding: "4px 8px",
   border: "1px solid var(--border-color)",
   borderRadius: 4,
-  fontSize: 12, minWidth: 100,
+  fontSize: 12,
+  minWidth: 100,
 };
 const selectStyle: React.CSSProperties = {
   padding: "4px 8px",
   border: "1px solid var(--border-color)",
   borderRadius: 4,
-  fontSize: 12, minWidth: 80,
+  fontSize: 12,
+  minWidth: 80,
 };
 
 const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   label,
   children,
 }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-1, 4px)",
+    }}
+  >
     <AppText size="xs" color="secondary" as="span" style={{ fontWeight: 600 }}>
       {label}:
     </AppText>
@@ -2167,7 +2592,7 @@ const FieldPropertyPanel: React.FC<{
         fontSize: 12,
         fontWeight: 700,
         color: "var(--color-primary-800)",
-        marginBottom: 'var(--space-2, 8px)',
+        marginBottom: "var(--space-2, 8px)",
         display: "flex",
         alignItems: "center",
         gap: 6,
@@ -2194,21 +2619,19 @@ const FieldPropertyPanel: React.FC<{
       />
     </PropRow>
     <PropRow label={t("templateDesigner.prop.dataType")}>
-      <select
+      <AppSelectField
         value={field.dataType}
-        onChange={(e) =>
+        onChange={(v) =>
           onChange({
-            dataType: e.target.value as TemplateFieldDefinition["dataType"],
+            dataType: String(v ?? "") as TemplateFieldDefinition["dataType"],
           })
         }
+        options={FIELD_TYPE_META.map((m) => ({
+          value: m.type,
+          label: m.label,
+        }))}
         style={{ ...selectStyle, width: "100%" }}
-      >
-        {FIELD_TYPE_META.map((m) => (
-          <option key={m.type} value={m.type}>
-            {m.label}
-          </option>
-        ))}
-      </select>
+      />
     </PropRow>
     <PropRow label={t("templateDesigner.prop.section")}>
       <input
@@ -2288,18 +2711,15 @@ const FieldPropertyPanel: React.FC<{
       />
     </PropRow>
     <PropRow label={t("templateDesigner.prop.category")}>
-      <select
+      <AppSelectField
         value={field.category || ""}
-        onChange={(e) => onChange({ category: e.target.value || undefined })}
+        onChange={(v) => onChange({ category: String(v ?? "") || undefined })}
+        options={[
+          { value: "", label: t("templateDesigner.none") },
+          ...PRESET_CATEGORIES.map((c) => ({ value: c, label: c })),
+        ]}
         style={{ ...selectStyle, width: "100%" }}
-      >
-        <option value="">{t("templateDesigner.none")}</option>
-        {PRESET_CATEGORIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
+      />
     </PropRow>
     <PropRow label={t("templateDesigner.prop.dependsOn")}>
       <input
@@ -2365,7 +2785,7 @@ const SectionPropertyPanel: React.FC<{
         fontSize: 12,
         fontWeight: 700,
         color: "var(--color-primary-800)",
-        marginBottom: 'var(--space-2, 8px)',
+        marginBottom: "var(--space-2, 8px)",
         display: "flex",
         alignItems: "center",
         gap: 6,
@@ -2382,7 +2802,13 @@ const SectionPropertyPanel: React.FC<{
       />
     </PropRow>
     <PropRow label={t("templateDesigner.prop.themeColor")}>
-      <div style={{ display: "flex", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "var(--space-1, 4px)",
+          flexWrap: "wrap",
+        }}
+      >
         {[
           "var(--color-primary-800)",
           "#7c3aed",
@@ -2452,7 +2878,7 @@ const PreviewCanvas: React.FC<{
     style={{
       background: "var(--bg-card)",
       borderRadius: 8,
-      padding: 'var(--space-5, 20px)',
+      padding: "var(--space-5, 20px)",
       maxWidth: 800,
       margin: "0 auto",
       boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -2461,25 +2887,33 @@ const PreviewCanvas: React.FC<{
     <div
       style={{
         textAlign: "center",
-        marginBottom: 'var(--space-5, 20px)',
+        marginBottom: "var(--space-5, 20px)",
         borderBottom: "2px solid var(--color-primary-800)",
-        paddingBottom: 'var(--space-3, 12px)',
+        paddingBottom: "var(--space-3, 12px)",
       }}
     >
-      <Title level={5} style={{ margin: 0 }}>{meta.name}</Title>
-      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
+      <Title level={5} style={{ margin: 0 }}>
+        {meta.name}
+      </Title>
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--text-secondary)",
+          marginTop: "var(--space-1, 4px)",
+        }}
+      >
         {meta.modality} · {meta.bodyPart} · {meta.version} · {meta.author}
       </div>
     </div>
     {sections.map((section) => (
-      <div key={section.id} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <div key={section.id} style={{ marginBottom: "var(--space-4, 16px)" }}>
         <h3
           style={{
             fontSize: 14,
             color: section.color,
-            marginBottom: 'var(--space-2, 8px)',
+            marginBottom: "var(--space-2, 8px)",
             borderLeft: `3px solid ${section.color}`,
-            paddingLeft: 'var(--space-2, 8px)',
+            paddingLeft: "var(--space-2, 8px)",
           }}
         >
           {section.name}{" "}
@@ -2493,21 +2927,32 @@ const PreviewCanvas: React.FC<{
           <div
             key={field.id}
             style={{
-              padding: 'var(--space-2, 8px)',
-              marginBottom: 'var(--space-1, 4px)',
+              padding: "var(--space-2, 8px)",
+              marginBottom: "var(--space-1, 4px)",
               background: "var(--content-bg)",
               borderRadius: 4,
               fontSize: 12,
             }}
           >
             <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>
-              {field.required && <span style={{ color: "var(--color-error-600)" }}>*</span>}
+              {field.required && (
+                <span style={{ color: "var(--color-error-600)" }}>*</span>
+              )}
               {field.fieldLabel}
               {field.unit && (
-                <span style={{ color: "var(--text-secondary)" }}> ({field.unit})</span>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {" "}
+                  ({field.unit})
+                </span>
               )}
             </span>
-            <span style={{ color: "var(--text-secondary)", marginLeft: 'var(--space-2, 8px)', fontSize: 12 }}>
+            <span
+              style={{
+                color: "var(--text-secondary)",
+                marginLeft: "var(--space-2, 8px)",
+                fontSize: 12,
+              }}
+            >
               [{field.dataType}]
             </span>
           </div>
@@ -2546,10 +2991,18 @@ const VisualDesignerBody: React.FC<{
     .map((b) => b.content)
     .filter((c) => c && c.trim() !== "")
     .join("\n");
-  const varCount = (content.match(/[{}]\s*[\w\u4e00-\u9fa5]+\s*[{}]/g) || []).filter((m) => m.includes("{{")).length;
+  const varCount = (
+    content.match(/[{}]\s*[\w\u4e00-\u9fa5]+\s*[{}]/g) || []
+  ).filter((m) => m.includes("{{")).length;
 
   return (
-    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" style={{ display: "flex", width: "100%", overflow: "hidden" }}>
+    <PageContainer
+      background="none"
+      maxWidth="fluid"
+      padding={0}
+      minHeight="auto"
+      style={{ display: "flex", width: "100%", overflow: "hidden" }}
+    >
       {/* 左: 变量面板 + 结构化字段面板 */}
       <div
         style={{
@@ -2576,17 +3029,30 @@ const VisualDesignerBody: React.FC<{
         >
           <Braces size={13} /> {t("templateDesigner.variablePanel")}
         </div>
-        <div style={{ padding: 'var(--space-2, 8px)', borderBottom: "1px solid var(--border-color)" }}>
+        <div
+          style={{
+            padding: "var(--space-2, 8px)",
+            borderBottom: "1px solid var(--border-color)",
+          }}
+        >
           {TEMPLATE_VARIABLES.map((v) => (
             <button
               key={v.key}
               onClick={() =>
                 onInsertBlock(
-                  { type: "variable", content: `{{${v.key}}}`, variable: v.key },
+                  {
+                    type: "variable",
+                    content: `{{${v.key}}}`,
+                    variable: v.key,
+                  },
                   selectedIdx,
                 )
               }
-              title={v.auto ? t("templateDesigner.autoFill") : t("templateDesigner.manualFill")}
+              title={
+                v.auto
+                  ? t("templateDesigner.autoFill")
+                  : t("templateDesigner.manualFill")
+              }
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -2603,8 +3069,12 @@ const VisualDesignerBody: React.FC<{
                 textAlign: "left",
               }}
             >
-              <code style={{ color: "var(--color-info-600)", fontSize: 12 }}>{"{{" + v.key + "}}"}</code>
-              <span style={{ marginLeft: "auto", color: "var(--text-secondary)" }}>
+              <code style={{ color: "var(--color-info-600)", fontSize: 12 }}>
+                {"{{" + v.key + "}}"}
+              </code>
+              <span
+                style={{ marginLeft: "auto", color: "var(--text-secondary)" }}
+              >
                 {v.label}
               </span>
             </button>
@@ -2624,7 +3094,7 @@ const VisualDesignerBody: React.FC<{
         >
           <Layers size={13} /> {t("templateDesigner.structuredFields")}
         </div>
-        <div style={{ padding: 'var(--space-2, 8px)' }}>
+        <div style={{ padding: "var(--space-2, 8px)" }}>
           {STRUCTURED_FIELD_PRESETS.map((f) => (
             <button
               key={f.fieldKey}
@@ -2665,7 +3135,11 @@ const VisualDesignerBody: React.FC<{
               />
               <span style={{ fontWeight: 600 }}>{f.label}</span>
               <span
-                style={{ marginLeft: "auto", color: "var(--text-secondary)", fontSize: 12 }}
+                style={{
+                  marginLeft: "auto",
+                  color: "var(--text-secondary)",
+                  fontSize: 12,
+                }}
               >
                 {f.desc}
               </span>
@@ -2680,7 +3154,7 @@ const VisualDesignerBody: React.FC<{
           flex: 1,
           background: "var(--content-bg)",
           overflowY: "auto",
-          padding: 'var(--space-3, 12px)',
+          padding: "var(--space-3, 12px)",
         }}
       >
         <div
@@ -2692,18 +3166,33 @@ const VisualDesignerBody: React.FC<{
             flexWrap: "wrap",
           }}
         >
-          <AppText size="xs" weight={700} as="span" style={{ color: "var(--color-primary-800)" }}>
+          <AppText
+            size="xs"
+            weight={700}
+            as="span"
+            style={{ color: "var(--color-primary-800)" }}
+          >
             {t("templateDesigner.blockCanvas")} ({blocks.length})
           </AppText>
           <AppText size="xs" color="secondary" as="span">
             {t("templateDesigner.insertHint")}
           </AppText>
-          <AppText size="xs" color="secondary" as="span" style={{ marginLeft: "auto" }}>
+          <AppText
+            size="xs"
+            color="secondary"
+            as="span"
+            style={{ marginLeft: "auto" }}
+          >
             {varCount} {t("templateDesigner.variablePlaceholders")}
           </AppText>
         </div>
         {loading && (
-          <AppText size="xs" color="secondary" as="div" style={{ padding: 'var(--space-5, 20px)' }}>
+          <AppText
+            size="xs"
+            color="secondary"
+            as="div"
+            style={{ padding: "var(--space-5, 20px)" }}
+          >
             {t("templateDesigner.loadingStructured")}
           </AppText>
         )}
@@ -2717,15 +3206,15 @@ const VisualDesignerBody: React.FC<{
                 background: "var(--bg-card)",
                 border: `1px solid ${selected ? "#7c3aed" : "var(--border-color)"}`,
                 borderRadius: 6,
-                marginBottom: 'var(--space-2, 8px)',
-                padding: 'var(--space-2, 8px)',
+                marginBottom: "var(--space-2, 8px)",
+                padding: "var(--space-2, 8px)",
               }}
             >
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                   marginBottom: 6,
                 }}
               >
@@ -2754,7 +3243,8 @@ const VisualDesignerBody: React.FC<{
                       fontWeight: 600,
                     }}
                   >
-                    {t("templateDesigner.blockVariable")} {block.variable && `· ${block.variable}`}
+                    {t("templateDesigner.blockVariable")}{" "}
+                    {block.variable && `· ${block.variable}`}
                   </span>
                 )}
                 {block.type === "field" && (
@@ -2768,7 +3258,8 @@ const VisualDesignerBody: React.FC<{
                       fontWeight: 600,
                     }}
                   >
-                    {t("templateDesigner.blockField")} {block.fieldKey && `· ${block.fieldKey}`}
+                    {t("templateDesigner.blockField")}{" "}
+                    {block.fieldKey && `· ${block.fieldKey}`}
                   </span>
                 )}
                 {block.type === "structured" && (
@@ -2814,7 +3305,10 @@ const VisualDesignerBody: React.FC<{
                       onRemoveBlock(idx);
                     }}
                     title={t("templateDesigner.deleteBlock")}
-                    style={{ ...blockBtnStyle, color: "var(--color-error-600)" }}
+                    style={{
+                      ...blockBtnStyle,
+                      color: "var(--color-error-600)",
+                    }}
                   >
                     <Trash2 size={11} />
                   </button>
@@ -2834,7 +3328,8 @@ const VisualDesignerBody: React.FC<{
                     padding: "6px 8px",
                     fontSize: 12,
                     lineHeight: 1.6,
-                    resize: "vertical", background: "var(--bg-card)",
+                    resize: "vertical",
+                    background: "var(--bg-card)",
                     color: "var(--text-primary)",
                   }}
                 />
@@ -2844,8 +3339,12 @@ const VisualDesignerBody: React.FC<{
                     display: "block",
                     padding: "6px 8px",
                     borderRadius: 4,
-                    background: block.type === "field" ? "#7c3aed0d" : "#0891b20d",
-                    color: block.type === "field" ? "#7c3aed" : "var(--color-info-600)",
+                    background:
+                      block.type === "field" ? "#7c3aed0d" : "#0891b20d",
+                    color:
+                      block.type === "field"
+                        ? "#7c3aed"
+                        : "var(--color-info-600)",
                     fontSize: 12,
                     fontFamily: "monospace",
                   }}
@@ -2869,7 +3368,7 @@ const VisualDesignerBody: React.FC<{
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
             <Plus size={12} /> {t("templateDesigner.addParagraph")}
@@ -2919,15 +3418,22 @@ const VisualDesignerBody: React.FC<{
             gap: 6,
           }}
         >
-          <Eye size={13} /> {t("templateDesigner.livePreview")} {"{{变量}} 高亮"}
+          <Eye size={13} /> {t("templateDesigner.livePreview")}{" "}
+          {"{{变量}} 高亮"}
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: 'var(--space-3, 12px)' }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "var(--space-3, 12px)",
+          }}
+        >
           {content ? (
             <div
               style={{
                 background: "var(--content-bg)",
                 borderRadius: 6,
-                padding: 'var(--space-3, 12px)',
+                padding: "var(--space-3, 12px)",
                 fontSize: 12,
                 lineHeight: 1.9,
                 whiteSpace: "pre-wrap",
@@ -2962,7 +3468,14 @@ const VisualDesignerBody: React.FC<{
                 fontSize: 12,
               }}
             >
-              <Eye size={28} style={{ color: "#cbd5e1", display: "block", margin: "0 auto 8px" }} />
+              <Eye
+                size={28}
+                style={{
+                  color: "#cbd5e1",
+                  display: "block",
+                  margin: "0 auto 8px",
+                }}
+              />
               {t("templateDesigner.previewEmpty1")}
               <br />
               {t("templateDesigner.previewEmpty2")}

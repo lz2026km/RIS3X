@@ -1,18 +1,42 @@
-import { Card } from 'antd'
+import { Card } from "antd";
 // G005 放射RIS系统 - 国家数据上报页面 v1.0.0
 // Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
-import { useState, useEffect } from 'react'
-import { t } from '../i18n/appI18n'
-import { datareportApi } from '../services/api/datareportApi'
+import { useState, useEffect } from "react";
+import { t } from "../i18n/appI18n";
+import { datareportApi } from "../services/api/datareportApi";
 import {
-  BarChart3, PieChart as PieChartIcon, Activity, TrendingUp,
-  Upload, Download, FileText, CheckCircle, AlertTriangle, Clock, ShieldCheck,
-  Scan, Radio,
-  Calendar, Search, Filter, RefreshCw, ChevronRight, Plus, Eye,
-  X, Check, XCircle,
-  Building2, Database, Globe, AlertCircle, FileJson,
-  Fingerprint, Send, Repeat
-} from 'lucide-react'
+  BarChart3,
+  PieChart as PieChartIcon,
+  Activity,
+  TrendingUp,
+  Upload,
+  Download,
+  FileText,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  ShieldCheck,
+  Scan,
+  Radio,
+  Calendar,
+  Search,
+  Filter,
+  RefreshCw,
+  ChevronRight,
+  Plus,
+  Eye,
+  X,
+  Check,
+  XCircle,
+  Building2,
+  Database,
+  Globe,
+  AlertCircle,
+  FileJson,
+  Fingerprint,
+  Send,
+  Repeat,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -25,905 +49,1919 @@ import {
   Legend,
   Cell,
   PieChart,
-  Pie
-} from 'recharts'
-import { ChartContainer } from '../components/charts'
-import { autoInterval } from '../utils/chartUtils'
-import { DataTable } from '../components/common/DataTable'
-import { StatusTag } from '../components/common/StatusTag'
-import { severityTone } from '../theme/statusTokens'
+  Pie,
+} from "recharts";
+import { ChartContainer } from "../components/charts";
+import { autoInterval } from "../utils/chartUtils";
+import { DataTable } from "../components/common/DataTable";
+import { AppSelectField } from "../components/common/AppSelectField";
+import { StatusTag } from "../components/common/StatusTag";
+import { severityTone } from "../theme/statusTokens";
 
 // ============ 样式常量 ============
 const COLORS = {
-  primary: 'var(--color-primary)',   // 深蓝主色
-  secondary: 'var(--color-info-600)',    // 青色辅色
-  success: 'var(--color-success)',   // 成功绿
-  warning: 'var(--color-warning)',   // 警告橙
-  danger: 'var(--color-error)',      // 危险红
-  bgGray: 'var(--content-bg)',        // 浅灰背景
-  cardWhite: 'var(--bg-card)',     // 白色卡片
-  textDark: 'var(--text-primary)',   // 深色文字
-  textMuted: 'var(--text-secondary)', // 灰色文字
-  border: 'var(--border-color)',        // 边框色
-  ct: 'var(--color-primary-500)',           // CT颜色
-  mri: '#8b5cf6',          // MRI颜色
-  dr: '#10b981',           // DR颜色
-  mg: 'var(--color-warning-500)',           // MG颜色
- dsa: 'var(--color-error-500)',           // DSA颜色
-}
+  primary: "var(--color-primary)", // 深蓝主色
+  secondary: "var(--color-info-600)", // 青色辅色
+  success: "var(--color-success)", // 成功绿
+  warning: "var(--color-warning)", // 警告橙
+  danger: "var(--color-error)", // 危险红
+  bgGray: "var(--content-bg)", // 浅灰背景
+  cardWhite: "var(--bg-card)", // 白色卡片
+  textDark: "var(--text-primary)", // 深色文字
+  textMuted: "var(--text-secondary)", // 灰色文字
+  border: "var(--border-color)", // 边框色
+  ct: "var(--color-primary-500)", // CT颜色
+  mri: "#8b5cf6", // MRI颜色
+  dr: "#10b981", // DR颜色
+  mg: "var(--color-warning-500)", // MG颜色
+  dsa: "var(--color-error-500)", // DSA颜色
+};
 
 const styles = {
   // 页面容器
-  pageContainer: { backgroundColor: COLORS.bgGray,
+  pageContainer: {
+    backgroundColor: COLORS.bgGray,
     fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-    fontSize: '14px',
+    fontSize: "14px",
     color: COLORS.textDark,
   },
   // 顶部标题栏
   header: {
     backgroundColor: COLORS.primary,
-    color: 'white',
-    padding: '16px 24px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    color: "white",
+    padding: "16px 24px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   headerTitle: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    fontSize: '20px',
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    fontSize: "20px",
     fontWeight: 600,
   },
   headerSubtitle: {
-    fontSize: '12px',
+    fontSize: "12px",
     opacity: 0.85,
-    marginTop: '2px',
+    marginTop: "2px",
   },
   // 统计卡片容器
   statsContainer: {
-    display: 'flex',
-    gap: '16px',
-    padding: '20px 24px',
-    flexWrap: 'wrap' as const,
+    display: "flex",
+    gap: "16px",
+    padding: "20px 24px",
+    flexWrap: "wrap" as const,
   },
   statCard: {
     backgroundColor: COLORS.cardWhite,
-    borderRadius: '8px',
-    padding: '16px 20px',
-    minWidth: 'min(180px, 100%)',
+    borderRadius: "8px",
+    padding: "16px 20px",
+    minWidth: "min(180px, 100%)",
     flex: 1,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid var(--border-color)',
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: "1px solid var(--border-color)",
   },
   statLabel: {
-    fontSize: '12px',
+    fontSize: "12px",
     color: COLORS.textMuted,
-    marginBottom: '4px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
+    marginBottom: "4px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
   },
   statValue: {
-    fontSize: '24px',
+    fontSize: "24px",
     fontWeight: 700,
     color: COLORS.primary,
   },
   statChange: {
-    fontSize: '11px',
-    marginTop: '4px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
+    fontSize: "11px",
+    marginTop: "4px",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
   },
   // 主内容区
   mainContent: {
-    display: 'flex',
-    gap: '16px',
-    padding: '0 24px 20px',
-    height: 'calc(100vh - 280px)',
-    minHeight: '500px',
-    flexWrap: 'wrap' as const,
-    alignItems: 'flex-start' as const,
+    display: "flex",
+    gap: "16px",
+    padding: "0 24px 20px",
+    height: "calc(100vh - 280px)",
+    minHeight: "500px",
+    flexWrap: "wrap" as const,
+    alignItems: "flex-start" as const,
   },
   // 左侧面板
   leftPanel: {
-    width: 'min(280px, 100%)',
-    flex: '0 0 auto',
+    width: "min(280px, 100%)",
+    flex: "0 0 auto",
     backgroundColor: COLORS.cardWhite,
-    borderRadius: '8px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid var(--border-color)',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    overflow: 'hidden',
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: "1px solid var(--border-color)",
+    display: "flex",
+    flexDirection: "column" as const,
+    overflow: "hidden",
   },
   // 中间面板
   middlePanel: {
     flex: 1,
     backgroundColor: COLORS.cardWhite,
-    borderRadius: '8px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid var(--border-color)',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    overflow: 'hidden',
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: "1px solid var(--border-color)",
+    display: "flex",
+    flexDirection: "column" as const,
+    overflow: "hidden",
   },
   // 右侧面板
   rightPanel: {
-    width: 'min(340px, 100%)',
-    flex: '0 0 auto',
+    width: "min(340px, 100%)",
+    flex: "0 0 auto",
     backgroundColor: COLORS.cardWhite,
-    borderRadius: '8px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid var(--border-color)',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    overflow: 'hidden',
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: "1px solid var(--border-color)",
+    display: "flex",
+    flexDirection: "column" as const,
+    overflow: "hidden",
   },
   // 底部面板
   bottomPanel: {
     backgroundColor: COLORS.cardWhite,
-    borderRadius: '8px',
-    margin: '0 24px 20px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid var(--border-color)',
-    overflow: 'hidden',
+    borderRadius: "8px",
+    margin: "0 24px 20px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: "1px solid var(--border-color)",
+    overflow: "hidden",
   },
   // Tab 标签
   tabContainer: {
-    display: 'flex',
-    gap: '4px',
-    padding: '12px 16px',
-    borderBottom: '1px solid var(--border-color)',
-    backgroundColor: 'var(--bg-card)',
-    flexWrap: 'wrap' as const,
+    display: "flex",
+    gap: "4px",
+    padding: "12px 16px",
+    borderBottom: "1px solid var(--border-color)",
+    backgroundColor: "var(--bg-card)",
+    flexWrap: "wrap" as const,
   },
   tab: {
-    padding: '8px 16px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '12px',
+    padding: "8px 16px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "12px",
     fontWeight: 500,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    transition: 'all 0.2s',
-    border: 'none',
-    backgroundColor: 'transparent',
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    transition: "all 0.2s",
+    border: "none",
+    backgroundColor: "transparent",
     color: COLORS.textMuted,
   },
   tabActive: {
     backgroundColor: COLORS.primary,
-    color: 'white',
+    color: "white",
   },
   // 列表项
   listItem: {
-    padding: '10px 12px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    marginBottom: '4px',
-    transition: 'all 0.15s',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
+    padding: "10px 12px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    marginBottom: "4px",
+    transition: "all 0.15s",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
   },
   listItemActive: {
-    backgroundColor: 'var(--color-info-bg)',
+    backgroundColor: "var(--color-info-bg)",
     borderLeft: `3px solid ${COLORS.primary}`,
   },
   // 表格样式
   table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    fontSize: '12px',
+    width: "100%",
+    borderCollapse: "collapse" as const,
+    fontSize: "12px",
   },
   th: {
-    padding: '10px 12px',
-    textAlign: 'left' as const,
-    backgroundColor: 'var(--bg-card)',
-    borderBottom: '2px solid var(--border-color)',
+    padding: "10px 12px",
+    textAlign: "left" as const,
+    backgroundColor: "var(--bg-card)",
+    borderBottom: "2px solid var(--border-color)",
     fontWeight: 600,
     color: COLORS.textDark,
-    whiteSpace: 'nowrap' as const,
+    whiteSpace: "nowrap" as const,
   },
   td: {
-    padding: '10px 12px',
-    borderBottom: '1px solid var(--border-color)',
+    padding: "10px 12px",
+    borderBottom: "1px solid var(--border-color)",
   },
   // 按钮样式
   button: {
-    padding: '8px 16px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '12px',
+    padding: "8px 16px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "12px",
     fontWeight: 500,
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    transition: 'all 0.2s',
-    border: 'none',
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    transition: "all 0.2s",
+    border: "none",
   },
   buttonPrimary: {
     backgroundColor: COLORS.primary,
-    color: 'white',
+    color: "white",
   },
   buttonSecondary: {
     backgroundColor: COLORS.secondary,
-    color: 'white',
+    color: "white",
   },
   buttonOutline: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     border: `1px solid ${COLORS.primary}`,
     color: COLORS.primary,
   },
   buttonDanger: {
     backgroundColor: COLORS.danger,
-    color: 'white',
+    color: "white",
   },
   // 状态标签
   statusTag: {
-    padding: '4px 10px',
-    borderRadius: '20px',
-    fontSize: '11px',
+    padding: "4px 10px",
+    borderRadius: "20px",
+    fontSize: "11px",
     fontWeight: 600,
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
   },
   // 输入框
   input: {
-    padding: '8px 12px',
-    borderRadius: '6px',
-    border: '1px solid var(--border-color)',
-    fontSize: '12px', transition: 'border-color 0.2s',
+    padding: "8px 12px",
+    borderRadius: "6px",
+    border: "1px solid var(--border-color)",
+    fontSize: "12px",
+    transition: "border-color 0.2s",
   },
   // 模态框
   modal: {
-    position: 'fixed' as const,
+    position: "fixed" as const,
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     zIndex: 1000,
   },
   modalContent: {
     backgroundColor: COLORS.cardWhite,
-    borderRadius: '12px',
-    width: '90%',
-    maxWidth: '600px',
-    maxHeight: '90vh',
-    overflow: 'auto',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+    borderRadius: "12px",
+    width: "90%",
+    maxWidth: "600px",
+    maxHeight: "90vh",
+    overflow: "auto",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
   },
   modalHeader: {
-    padding: '16px 20px',
-    borderBottom: '1px solid var(--border-color)',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    padding: "16px 20px",
+    borderBottom: "1px solid var(--border-color)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
     fontWeight: 600,
-    fontSize: '16px',
+    fontSize: "16px",
   },
   modalBody: {
-    padding: '20px',
+    padding: "20px",
   },
   modalFooter: {
-    padding: '16px 20px',
-    borderTop: '1px solid var(--border-color)',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '10px',
+    padding: "16px 20px",
+    borderTop: "1px solid var(--border-color)",
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "10px",
   },
   // 表单项
   formGroup: {
-    marginBottom: '16px',
+    marginBottom: "16px",
   },
   formLabel: {
-    display: 'block',
-    marginBottom: '6px',
+    display: "block",
+    marginBottom: "6px",
     fontWeight: 500,
-    fontSize: '12px',
+    fontSize: "12px",
     color: COLORS.textDark,
   },
   // 小标签
   badge: {
-    padding: '2px 8px',
-    borderRadius: '4px',
-    fontSize: '11px',
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "11px",
     fontWeight: 600,
   },
   // 分页
   pagination: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '12px 16px',
-    borderTop: '1px solid var(--border-color)',
-    backgroundColor: 'var(--bg-card)',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "12px 16px",
+    borderTop: "1px solid var(--border-color)",
+    backgroundColor: "var(--bg-card)",
   },
   // 空状态
   emptyState: {
-    padding: '40px 20px',
-    textAlign: 'center' as const,
+    padding: "40px 20px",
+    textAlign: "center" as const,
     color: COLORS.textMuted,
   },
   // 搜索框
   searchBox: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    backgroundColor: 'var(--bg-card)',
-    borderRadius: '6px',
-    margin: '12px',
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 12px",
+    backgroundColor: "var(--bg-card)",
+    borderRadius: "6px",
+    margin: "12px",
   },
   // 面板头部
   panelHeader: {
-    padding: '14px 16px',
-    borderBottom: '1px solid var(--border-color)',
+    padding: "14px 16px",
+    borderBottom: "1px solid var(--border-color)",
     fontWeight: 600,
-    fontSize: '14px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'var(--bg-card)',
+    fontSize: "14px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "var(--bg-card)",
   },
   panelBody: {
     flex: 1,
-    overflowY: 'auto' as const,
-    padding: '8px',
+    overflowY: "auto" as const,
+    padding: "8px",
   },
   // 图表容器
   chartContainer: {
-    padding: '16px',
-    height: '220px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'var(--bg-card)',
-    borderRadius: '8px',
-    margin: '12px',
+    padding: "16px",
+    height: "220px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "var(--bg-card)",
+    borderRadius: "8px",
+    margin: "12px",
   },
   // 进度条
   progressBar: {
-    height: '8px',
-    backgroundColor: 'var(--border-default)',
-    borderRadius: '4px',
-    overflow: 'hidden',
+    height: "8px",
+    backgroundColor: "var(--border-default)",
+    borderRadius: "4px",
+    overflow: "hidden",
   },
   progressFill: {
-    height: '100%',
-    borderRadius: '4px',
-    transition: 'width 0.3s',
+    height: "100%",
+    borderRadius: "4px",
+    transition: "width 0.3s",
   },
-}
+};
 
 // ============ 类型定义 ============
 interface ExamStatistics {
-  id: string
-  modality: string
-  examType: string
-  examCount: number
-  positiveCount: number
-  positiveRate: number
-  avgReportTime: number
-  qualifiedRate: number
+  id: string;
+  modality: string;
+  examType: string;
+  examCount: number;
+  positiveCount: number;
+  positiveRate: number;
+  avgReportTime: number;
+  qualifiedRate: number;
 }
 
 interface DoseReport {
-  id: string
-  reportMonth: string
-  modality: string
-  totalExams: number
-  totalDLP: number
-  avgDLP: number
-  totalCTDI: number
-  avgCTDI: number
-  alertCount: number
-  highDoseCount: number
-  status: string
-  submitTime?: string
-  confirmTime?: string
-  confirmOrg?: string
+  id: string;
+  reportMonth: string;
+  modality: string;
+  totalExams: number;
+  totalDLP: number;
+  avgDLP: number;
+  totalCTDI: number;
+  avgCTDI: number;
+  alertCount: number;
+  highDoseCount: number;
+  status: string;
+  submitTime?: string;
+  confirmTime?: string;
+  confirmOrg?: string;
 }
 
 interface QualityReport {
-  id: string
-  reportMonth: string
-  totalReports: number
-  qualifiedReports: number
-  excellentReports: number
-  qualifiedRate: number
-  excellentRate: number
-  avgScore: number
-  commonIssues?: string[]
-  improvementMeasures?: string[]
-  status: string
+  id: string;
+  reportMonth: string;
+  totalReports: number;
+  qualifiedReports: number;
+  excellentReports: number;
+  qualifiedRate: number;
+  excellentRate: number;
+  avgScore: number;
+  commonIssues?: string[];
+  improvementMeasures?: string[];
+  status: string;
 }
 
 interface ReportLog {
-  id: string
-  reportType: string
-  reportMonth: string
-  submitTime: string
-  status: string
-  operator: string
-  note?: string
+  id: string;
+  reportType: string;
+  reportMonth: string;
+  submitTime: string;
+  status: string;
+  operator: string;
+  note?: string;
 }
 
 interface CreateForm {
-  reportMonth: string
-  modality: string
-  totalExams: number | string
-  totalDLP: number | string
-  avgDLP: number | string
-  totalCTDI: number | string
-  avgCTDI: number | string
-  alertCount: number | string
-  highDoseCount: number | string
-  totalReports: number | string
-  qualifiedReports: number | string
-  excellentReports: number | string
-  qualifiedRate: number | string
-  excellentRate: number | string
-  avgScore: number | string
+  reportMonth: string;
+  modality: string;
+  totalExams: number | string;
+  totalDLP: number | string;
+  avgDLP: number | string;
+  totalCTDI: number | string;
+  avgCTDI: number | string;
+  alertCount: number | string;
+  highDoseCount: number | string;
+  totalReports: number | string;
+  qualifiedReports: number | string;
+  excellentReports: number | string;
+  qualifiedRate: number | string;
+  excellentRate: number | string;
+  avgScore: number | string;
 }
 
 // ============ Phase 5b 类型定义 ============
 
 interface FHIRDiagnosticReport {
-  resourceType: string
-  id: string
-  status: string
-  category: { coding: { system: string; code: string; display: string }[] }[]
-  code: { coding: { system: string; code: string; display: string }[]; text: string }
-  subject: { reference: string; display: string }
-  effectiveDateTime: string
-  issued: string
-  performer: { reference: string; display: string }[]
-  conclusion: string
-  presentedForm: { contentType: string; url: string; title: string }[]
+  resourceType: string;
+  id: string;
+  status: string;
+  category: { coding: { system: string; code: string; display: string }[] }[];
+  code: {
+    coding: { system: string; code: string; display: string }[];
+    text: string;
+  };
+  subject: { reference: string; display: string };
+  effectiveDateTime: string;
+  issued: string;
+  performer: { reference: string; display: string }[];
+  conclusion: string;
+  presentedForm: { contentType: string; url: string; title: string }[];
 }
 
 interface FHIRObservation {
-  resourceType: string
-  id: string
-  status: string
-  category: { coding: { system: string; code: string; display: string }[] }[]
-  code: { coding: { system: string; code: string; display: string }[]; text: string }
-  subject: { reference: string; display: string }
-  effectiveDateTime: string
-  valueQuantity: { value: number; unit: string; system: string; code: string }
-  referenceRange: { low: { value: number }; high: { value: number }; type: string }[]
+  resourceType: string;
+  id: string;
+  status: string;
+  category: { coding: { system: string; code: string; display: string }[] }[];
+  code: {
+    coding: { system: string; code: string; display: string }[];
+    text: string;
+  };
+  subject: { reference: string; display: string };
+  effectiveDateTime: string;
+  valueQuantity: { value: number; unit: string; system: string; code: string };
+  referenceRange: {
+    low: { value: number };
+    high: { value: number };
+    type: string;
+  }[];
 }
 
 interface RegulatorTarget {
-  id: string
-  name: string
-  shortName: string
-  icon: any
-  endpoint: string
-  format: string
-  status: 'online' | 'offline' | 'degraded'
-  lastSubmission: string
-  template: string
+  id: string;
+  name: string;
+  shortName: string;
+  icon: any;
+  endpoint: string;
+  format: string;
+  status: "online" | "offline" | "degraded";
+  lastSubmission: string;
+  template: string;
 }
 
 interface ValidationCheck {
-  id: string
-  field: string
-  type: 'completeness' | 'consistency' | 'business'
-  status: 'pass' | 'fail' | 'warning'
-  message: string
-  severity: 'error' | 'warning'
+  id: string;
+  field: string;
+  type: "completeness" | "consistency" | "business";
+  status: "pass" | "fail" | "warning";
+  message: string;
+  severity: "error" | "warning";
 }
 
 interface SubmissionRecord {
-  id: string
-  reportType: string
-  submittedAt: string
-  target: string
-  status: 'success' | 'failed' | 'pending' | 'amended'
-  signature: string
-  receiptId: string
-  version: number
-  amendedVersion?: number
+  id: string;
+  reportType: string;
+  submittedAt: string;
+  target: string;
+  status: "success" | "failed" | "pending" | "amended";
+  signature: string;
+  receiptId: string;
+  version: number;
+  amendedVersion?: number;
 }
 
 interface ScheduledReportConfig {
-  id: string
-  name: string
-  type: string
-  schedule: 'daily' | 'weekly' | 'monthly' | 'quarterly'
-  format: string
-  recipients: string[]
-  enabled: boolean
-  lastRun: string
-  nextRun: string
+  id: string;
+  name: string;
+  type: string;
+  schedule: "daily" | "weekly" | "monthly" | "quarterly";
+  format: string;
+  recipients: string[];
+  enabled: boolean;
+  lastRun: string;
+  nextRun: string;
 }
 
 // ============ 模拟数据 ============
 const modalityColors: Record<string, string> = {
-  'CT': COLORS.ct,
-  'MRI': COLORS.mri,
-  'DR': COLORS.dr,
-  'MG': COLORS.mg,
-  'DSA': COLORS.dsa,
-}
+  CT: COLORS.ct,
+  MRI: COLORS.mri,
+  DR: COLORS.dr,
+  MG: COLORS.mg,
+  DSA: COLORS.dsa,
+};
 
 const examStatisticsData: ExamStatistics[] = [
-  { id: 'EX001', modality: 'CT', examType: '头颅CT平扫', examCount: 1256, positiveCount: 312, positiveRate: 24.8, avgReportTime: 25, qualifiedRate: 96.5 },
-  { id: 'EX002', modality: 'CT', examType: '胸部CT平扫', examCount: 1089, positiveCount: 287, positiveRate: 26.4, avgReportTime: 22, qualifiedRate: 97.2 },
-  { id: 'EX003', modality: 'CT', examType: '腹部CT平扫', examCount: 876, positiveCount: 198, positiveRate: 22.6, avgReportTime: 28, qualifiedRate: 95.8 },
-  { id: 'EX004', modality: 'CT', examType: '冠脉CTA', examCount: 456, positiveCount: 189, positiveRate: 41.4, avgReportTime: 35, qualifiedRate: 94.3 },
-  { id: 'EX005', modality: 'MRI', examType: '头颅MRI平扫', examCount: 678, positiveCount: 156, positiveRate: 23.0, avgReportTime: 30, qualifiedRate: 98.1 },
-  { id: 'EX006', modality: 'MRI', examType: '膝关节MRI', examCount: 534, positiveCount: 289, positiveRate: 54.1, avgReportTime: 25, qualifiedRate: 97.5 },
-  { id: 'EX007', modality: 'DR', examType: '胸部正侧位', examCount: 2156, positiveCount: 432, positiveRate: 20.0, avgReportTime: 15, qualifiedRate: 98.9 },
-  { id: 'EX008', modality: 'DR', examType: '腹部平片', examCount: 876, positiveCount: 98, positiveRate: 11.2, avgReportTime: 12, qualifiedRate: 99.2 },
-  { id: 'EX009', modality: 'MG', examType: 'MG', examCount: 324, positiveCount: 45, positiveRate: 13.9, avgReportTime: 20, qualifiedRate: 96.8 },
-  { id: 'EX010', modality: 'DSA', examType: '冠脉造影', examCount: 156, positiveCount: 89, positiveRate: 57.1, avgReportTime: 45, qualifiedRate: 93.5 },
-]
+  {
+    id: "EX001",
+    modality: "CT",
+    examType: "头颅CT平扫",
+    examCount: 1256,
+    positiveCount: 312,
+    positiveRate: 24.8,
+    avgReportTime: 25,
+    qualifiedRate: 96.5,
+  },
+  {
+    id: "EX002",
+    modality: "CT",
+    examType: "胸部CT平扫",
+    examCount: 1089,
+    positiveCount: 287,
+    positiveRate: 26.4,
+    avgReportTime: 22,
+    qualifiedRate: 97.2,
+  },
+  {
+    id: "EX003",
+    modality: "CT",
+    examType: "腹部CT平扫",
+    examCount: 876,
+    positiveCount: 198,
+    positiveRate: 22.6,
+    avgReportTime: 28,
+    qualifiedRate: 95.8,
+  },
+  {
+    id: "EX004",
+    modality: "CT",
+    examType: "冠脉CTA",
+    examCount: 456,
+    positiveCount: 189,
+    positiveRate: 41.4,
+    avgReportTime: 35,
+    qualifiedRate: 94.3,
+  },
+  {
+    id: "EX005",
+    modality: "MRI",
+    examType: "头颅MRI平扫",
+    examCount: 678,
+    positiveCount: 156,
+    positiveRate: 23.0,
+    avgReportTime: 30,
+    qualifiedRate: 98.1,
+  },
+  {
+    id: "EX006",
+    modality: "MRI",
+    examType: "膝关节MRI",
+    examCount: 534,
+    positiveCount: 289,
+    positiveRate: 54.1,
+    avgReportTime: 25,
+    qualifiedRate: 97.5,
+  },
+  {
+    id: "EX007",
+    modality: "DR",
+    examType: "胸部正侧位",
+    examCount: 2156,
+    positiveCount: 432,
+    positiveRate: 20.0,
+    avgReportTime: 15,
+    qualifiedRate: 98.9,
+  },
+  {
+    id: "EX008",
+    modality: "DR",
+    examType: "腹部平片",
+    examCount: 876,
+    positiveCount: 98,
+    positiveRate: 11.2,
+    avgReportTime: 12,
+    qualifiedRate: 99.2,
+  },
+  {
+    id: "EX009",
+    modality: "MG",
+    examType: "MG",
+    examCount: 324,
+    positiveCount: 45,
+    positiveRate: 13.9,
+    avgReportTime: 20,
+    qualifiedRate: 96.8,
+  },
+  {
+    id: "EX010",
+    modality: "DSA",
+    examType: "冠脉造影",
+    examCount: 156,
+    positiveCount: 89,
+    positiveRate: 57.1,
+    avgReportTime: 45,
+    qualifiedRate: 93.5,
+  },
+];
 
 const doseReportData: DoseReport[] = [
-  { id: 'DR001', reportMonth: '2026-04', modality: 'CT', totalExams: 3677, totalDLP: 2856400, avgDLP: 777, totalCTDI: 85600, avgCTDI: 23.3, alertCount: 28, highDoseCount: 156, status: '已确认', submitTime: '2026-05-05 10:30', confirmTime: '2026-05-06 09:15', confirmOrg: '国家辐射防护中心' },
-  { id: 'DR002', reportMonth: '2026-04', modality: 'DR', totalExams: 3032, totalDLP: 0, avgDLP: 0, totalCTDI: 4548, avgCTDI: 1.5, alertCount: 5, highDoseCount: 12, status: '已确认', submitTime: '2026-05-05 10:35', confirmTime: '2026-05-06 09:20', confirmOrg: '国家辐射防护中心' },
-  { id: 'DR003', reportMonth: '2026-04', modality: 'DSA', totalExams: 156, totalDLP: 0, avgDLP: 0, totalCTDI: 15600, avgCTDI: 100, alertCount: 18, highDoseCount: 45, status: '已确认', submitTime: '2026-05-05 10:40', confirmTime: '2026-05-06 09:25', confirmOrg: '国家辐射防护中心' },
-  { id: 'DR004', reportMonth: '2026-04', modality: 'MG', totalExams: 324, totalDLP: 0, avgDLP: 0, totalCTDI: 648, avgCTDI: 2.0, alertCount: 0, highDoseCount: 0, status: '已确认', submitTime: '2026-05-05 10:42', confirmTime: '2026-05-06 09:28', confirmOrg: '国家辐射防护中心' },
-  { id: 'DR005', reportMonth: '2026-05', modality: 'CT', totalExams: 1256, totalDLP: 980500, avgDLP: 781, totalCTDI: 29400, avgCTDI: 23.4, alertCount: 12, highDoseCount: 56, status: '已上报', submitTime: '2026-06-05 10:30' },
-  { id: 'DR006', reportMonth: '2026-05', modality: 'DR', totalExams: 1089, totalDLP: 0, avgDLP: 0, totalCTDI: 1633, avgCTDI: 1.5, alertCount: 2, highDoseCount: 5, status: '待上报' },
-  { id: 'DR007', reportMonth: '2026-05', modality: 'MRI', totalExams: 1212, totalDLP: 0, avgDLP: 0, totalCTDI: 0, avgCTDI: 0, alertCount: 0, highDoseCount: 0, status: '待上报' },
-]
+  {
+    id: "DR001",
+    reportMonth: "2026-04",
+    modality: "CT",
+    totalExams: 3677,
+    totalDLP: 2856400,
+    avgDLP: 777,
+    totalCTDI: 85600,
+    avgCTDI: 23.3,
+    alertCount: 28,
+    highDoseCount: 156,
+    status: "已确认",
+    submitTime: "2026-05-05 10:30",
+    confirmTime: "2026-05-06 09:15",
+    confirmOrg: "国家辐射防护中心",
+  },
+  {
+    id: "DR002",
+    reportMonth: "2026-04",
+    modality: "DR",
+    totalExams: 3032,
+    totalDLP: 0,
+    avgDLP: 0,
+    totalCTDI: 4548,
+    avgCTDI: 1.5,
+    alertCount: 5,
+    highDoseCount: 12,
+    status: "已确认",
+    submitTime: "2026-05-05 10:35",
+    confirmTime: "2026-05-06 09:20",
+    confirmOrg: "国家辐射防护中心",
+  },
+  {
+    id: "DR003",
+    reportMonth: "2026-04",
+    modality: "DSA",
+    totalExams: 156,
+    totalDLP: 0,
+    avgDLP: 0,
+    totalCTDI: 15600,
+    avgCTDI: 100,
+    alertCount: 18,
+    highDoseCount: 45,
+    status: "已确认",
+    submitTime: "2026-05-05 10:40",
+    confirmTime: "2026-05-06 09:25",
+    confirmOrg: "国家辐射防护中心",
+  },
+  {
+    id: "DR004",
+    reportMonth: "2026-04",
+    modality: "MG",
+    totalExams: 324,
+    totalDLP: 0,
+    avgDLP: 0,
+    totalCTDI: 648,
+    avgCTDI: 2.0,
+    alertCount: 0,
+    highDoseCount: 0,
+    status: "已确认",
+    submitTime: "2026-05-05 10:42",
+    confirmTime: "2026-05-06 09:28",
+    confirmOrg: "国家辐射防护中心",
+  },
+  {
+    id: "DR005",
+    reportMonth: "2026-05",
+    modality: "CT",
+    totalExams: 1256,
+    totalDLP: 980500,
+    avgDLP: 781,
+    totalCTDI: 29400,
+    avgCTDI: 23.4,
+    alertCount: 12,
+    highDoseCount: 56,
+    status: "已上报",
+    submitTime: "2026-06-05 10:30",
+  },
+  {
+    id: "DR006",
+    reportMonth: "2026-05",
+    modality: "DR",
+    totalExams: 1089,
+    totalDLP: 0,
+    avgDLP: 0,
+    totalCTDI: 1633,
+    avgCTDI: 1.5,
+    alertCount: 2,
+    highDoseCount: 5,
+    status: "待上报",
+  },
+  {
+    id: "DR007",
+    reportMonth: "2026-05",
+    modality: "MRI",
+    totalExams: 1212,
+    totalDLP: 0,
+    avgDLP: 0,
+    totalCTDI: 0,
+    avgCTDI: 0,
+    alertCount: 0,
+    highDoseCount: 0,
+    status: "待上报",
+  },
+];
 
 const qualityReportData: QualityReport[] = [
-  { id: 'QR001', reportMonth: '2026-04', totalReports: 7033, qualifiedReports: 6856, excellentReports: 2156, qualifiedRate: 97.5, excellentRate: 30.7, avgScore: 87.3, commonIssues: ['描述不准确', '测量数据缺失', '结论不明确'], improvementMeasures: ['加强培训', '完善模板', '增加复核环节'], status: '已通过' },
-  { id: 'QR002', reportMonth: '2026-05', totalReports: 3457, qualifiedReports: 3356, excellentReports: 1025, qualifiedRate: 97.1, excellentRate: 29.7, avgScore: 86.8, commonIssues: ['图像质量描述不足', '病史采集不全'], improvementMeasures: ['优化检查流程', '加强病史采集培训'], status: '待审核' },
-]
+  {
+    id: "QR001",
+    reportMonth: "2026-04",
+    totalReports: 7033,
+    qualifiedReports: 6856,
+    excellentReports: 2156,
+    qualifiedRate: 97.5,
+    excellentRate: 30.7,
+    avgScore: 87.3,
+    commonIssues: ["描述不准确", "测量数据缺失", "结论不明确"],
+    improvementMeasures: ["加强培训", "完善模板", "增加复核环节"],
+    status: "已通过",
+  },
+  {
+    id: "QR002",
+    reportMonth: "2026-05",
+    totalReports: 3457,
+    qualifiedReports: 3356,
+    excellentReports: 1025,
+    qualifiedRate: 97.1,
+    excellentRate: 29.7,
+    avgScore: 86.8,
+    commonIssues: ["图像质量描述不足", "病史采集不全"],
+    improvementMeasures: ["优化检查流程", "加强病史采集培训"],
+    status: "待审核",
+  },
+];
 
 const reportLogData: ReportLog[] = [
-  { id: 'LOG001', reportType: 'dose', reportMonth: '2026-04', submitTime: '2026-05-05 10:30', status: '已确认', operator: '李建国', note: '国家辐射防护中心确认通过' },
-  { id: 'LOG002', reportType: 'exam', reportMonth: '2026-04', submitTime: '2026-05-05 11:00', status: '已确认', operator: '李建国', note: '上报成功' },
-  { id: 'LOG003', reportType: 'quality', reportMonth: '2026-04', submitTime: '2026-05-05 11:30', status: '已确认', operator: '王晓燕', note: '质量数据上报成功' },
-  { id: 'LOG004', reportType: 'dose', reportMonth: '2026-05', submitTime: '2026-06-05 10:30', status: '已上报', operator: '李建国' },
-  { id: 'LOG005', reportType: 'exam', reportMonth: '2026-05', submitTime: '2026-06-05 11:00', status: '已上报', operator: '李建国' },
-]
+  {
+    id: "LOG001",
+    reportType: "dose",
+    reportMonth: "2026-04",
+    submitTime: "2026-05-05 10:30",
+    status: "已确认",
+    operator: "李建国",
+    note: "国家辐射防护中心确认通过",
+  },
+  {
+    id: "LOG002",
+    reportType: "exam",
+    reportMonth: "2026-04",
+    submitTime: "2026-05-05 11:00",
+    status: "已确认",
+    operator: "李建国",
+    note: "上报成功",
+  },
+  {
+    id: "LOG003",
+    reportType: "quality",
+    reportMonth: "2026-04",
+    submitTime: "2026-05-05 11:30",
+    status: "已确认",
+    operator: "王晓燕",
+    note: "质量数据上报成功",
+  },
+  {
+    id: "LOG004",
+    reportType: "dose",
+    reportMonth: "2026-05",
+    submitTime: "2026-06-05 10:30",
+    status: "已上报",
+    operator: "李建国",
+  },
+  {
+    id: "LOG005",
+    reportType: "exam",
+    reportMonth: "2026-05",
+    submitTime: "2026-06-05 11:00",
+    status: "已上报",
+    operator: "李建国",
+  },
+];
 
 // 月度趋势数据
 const monthlyTrendData = [
-  { month: '2025-12', CT: 3200, MRI: 1100, DR: 2800, MG: 280, DSA: 120 },
-  { month: '2026-01', CT: 3350, MRI: 1150, DR: 2950, MG: 295, DSA: 135 },
-  { month: '2026-02', CT: 3100, MRI: 1080, DR: 2750, MG: 265, DSA: 125 },
-  { month: '2026-03', CT: 3450, MRI: 1200, DR: 3050, MG: 310, DSA: 145 },
-  { month: '2026-04', CT: 3677, MRI: 1212, DR: 3032, MG: 324, DSA: 156 },
-  { month: '2026-05', CT: 1256, MRI: 580, DR: 1089, MG: 156, DSA: 68 },
-]
+  { month: "2025-12", CT: 3200, MRI: 1100, DR: 2800, MG: 280, DSA: 120 },
+  { month: "2026-01", CT: 3350, MRI: 1150, DR: 2950, MG: 295, DSA: 135 },
+  { month: "2026-02", CT: 3100, MRI: 1080, DR: 2750, MG: 265, DSA: 125 },
+  { month: "2026-03", CT: 3450, MRI: 1200, DR: 3050, MG: 310, DSA: 145 },
+  { month: "2026-04", CT: 3677, MRI: 1212, DR: 3032, MG: 324, DSA: 156 },
+  { month: "2026-05", CT: 1256, MRI: 580, DR: 1089, MG: 156, DSA: 68 },
+];
 
 // 设备分布数据
 const deviceDistribution = [
-  { name: 'CT', value: 35, color: COLORS.ct },
-  { name: 'MRI', value: 15, color: COLORS.mri },
-  { name: 'DR', value: 38, color: COLORS.dr },
-  { name: 'MG', value: 7, color: COLORS.mg },
-  { name: 'DSA', value: 5, color: COLORS.dsa },
-]
+  { name: "CT", value: 35, color: COLORS.ct },
+  { name: "MRI", value: 15, color: COLORS.mri },
+  { name: "DR", value: 38, color: COLORS.dr },
+  { name: "MG", value: 7, color: COLORS.mg },
+  { name: "DSA", value: 5, color: COLORS.dsa },
+];
 
 // ============ Phase 5b 模拟数据 ============
 
 const mockFHIRReport: FHIRDiagnosticReport = {
-  resourceType: 'DiagnosticReport',
-  id: 'DR-202605-001',
-  status: 'final',
-  category: [{ coding: [{ system: 'http://loinc.org', code: 'LP29684-5', display: 'Radiology' }] }],
-  code: { coding: [{ system: 'http://loinc.org', code: '18748-4', display: 'CT Head' }], text: '头颅CT平扫' },
-  subject: { reference: 'Patient/RAD-P004', display: '赵晓敏' },
-  effectiveDateTime: '2026-05-01T10:30:00Z',
-  issued: '2026-05-01T11:00:00Z',
-  performer: [{ reference: 'Practitioner/DR001', display: '王建国' }],
-  conclusion: '未见明显异常',
-  presentedForm: [{ contentType: 'application/pdf', url: 'http://ris.local/report/DR-202605-001.pdf', title: '头颅CT平扫报告' }],
-}
+  resourceType: "DiagnosticReport",
+  id: "DR-202605-001",
+  status: "final",
+  category: [
+    {
+      coding: [
+        { system: "http://loinc.org", code: "LP29684-5", display: "Radiology" },
+      ],
+    },
+  ],
+  code: {
+    coding: [
+      { system: "http://loinc.org", code: "18748-4", display: "CT Head" },
+    ],
+    text: "头颅CT平扫",
+  },
+  subject: { reference: "Patient/RAD-P004", display: "赵晓敏" },
+  effectiveDateTime: "2026-05-01T10:30:00Z",
+  issued: "2026-05-01T11:00:00Z",
+  performer: [{ reference: "Practitioner/DR001", display: "王建国" }],
+  conclusion: "未见明显异常",
+  presentedForm: [
+    {
+      contentType: "application/pdf",
+      url: "http://ris.local/report/DR-202605-001.pdf",
+      title: "头颅CT平扫报告",
+    },
+  ],
+};
 
 const mockFHIRObservation: FHIRObservation = {
-  resourceType: 'Observation',
-  id: 'OBS-DLP-001',
-  status: 'final',
-  category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'imaging', display: 'Imaging' }] }],
-  code: { coding: [{ system: 'http://loinc.org', code: '96915-5', display: 'CT dose and image quality' }], text: 'CT剂量DLP' },
-  subject: { reference: 'Patient/RAD-P004', display: '赵晓敏' },
-  effectiveDateTime: '2026-05-01T10:30:00Z',
-  valueQuantity: { value: 680, unit: 'mGy·cm', system: 'http://unitsofmeasure.org', code: 'mGy.cm' },
-  referenceRange: [{ low: { value: 0 }, high: { value: 800 }, type: 'normal' }],
-}
+  resourceType: "Observation",
+  id: "OBS-DLP-001",
+  status: "final",
+  category: [
+    {
+      coding: [
+        {
+          system: "http://terminology.hl7.org/CodeSystem/observation-category",
+          code: "imaging",
+          display: "Imaging",
+        },
+      ],
+    },
+  ],
+  code: {
+    coding: [
+      {
+        system: "http://loinc.org",
+        code: "96915-5",
+        display: "CT dose and image quality",
+      },
+    ],
+    text: "CT剂量DLP",
+  },
+  subject: { reference: "Patient/RAD-P004", display: "赵晓敏" },
+  effectiveDateTime: "2026-05-01T10:30:00Z",
+  valueQuantity: {
+    value: 680,
+    unit: "mGy·cm",
+    system: "http://unitsofmeasure.org",
+    code: "mGy.cm",
+  },
+  referenceRange: [{ low: { value: 0 }, high: { value: 800 }, type: "normal" }],
+};
 
 const mockFHIRBundle = {
-  resourceType: 'Bundle',
-  type: 'transaction',
+  resourceType: "Bundle",
+  type: "transaction",
   entry: [
-    { resource: mockFHIRReport, request: { method: 'POST', url: 'DiagnosticReport' } },
-    { resource: mockFHIRObservation, request: { method: 'POST', url: 'Observation' } },
+    {
+      resource: mockFHIRReport,
+      request: { method: "POST", url: "DiagnosticReport" },
+    },
+    {
+      resource: mockFHIRObservation,
+      request: { method: "POST", url: "Observation" },
+    },
   ],
-}
+};
 
 const regulatorTargets: RegulatorTarget[] = [
-  { id: 'R001', name: '国家卫生健康委员会', shortName: '卫健委', icon: Building2, endpoint: 'https://api.nhc.gov.cn/report/v1', format: 'FHIR R4', status: 'online', lastSubmission: '2026-05-05 10:30', template: 'FHIR DiagnosticReport' },
-  { id: 'R002', name: '国家医疗保障局', shortName: '医保局', icon: ShieldCheck, endpoint: 'https://api.nhsa.gov.cn/data/v2', format: 'CSV/XML', status: 'online', lastSubmission: '2026-05-05 10:35', template: '医保结算数据模板' },
-  { id: 'R003', name: '中国疾病预防控制中心', shortName: '疾控中心', icon: Activity, endpoint: 'https://report.chinacdc.cn/rad/v1', format: 'FHIR R4', status: 'online', lastSubmission: '2026-05-05 10:40', template: '辐射剂量监测模板' },
-  { id: 'R004', name: '省卫生健康委员会', shortName: '省卫健委', icon: Globe, endpoint: 'https://api.zjws.gov.cn/report', format: 'JSON', status: 'degraded', lastSubmission: '2026-05-04 09:00', template: '省级数据上报模板' },
-]
+  {
+    id: "R001",
+    name: "国家卫生健康委员会",
+    shortName: "卫健委",
+    icon: Building2,
+    endpoint: "https://api.nhc.gov.cn/report/v1",
+    format: "FHIR R4",
+    status: "online",
+    lastSubmission: "2026-05-05 10:30",
+    template: "FHIR DiagnosticReport",
+  },
+  {
+    id: "R002",
+    name: "国家医疗保障局",
+    shortName: "医保局",
+    icon: ShieldCheck,
+    endpoint: "https://api.nhsa.gov.cn/data/v2",
+    format: "CSV/XML",
+    status: "online",
+    lastSubmission: "2026-05-05 10:35",
+    template: "医保结算数据模板",
+  },
+  {
+    id: "R003",
+    name: "中国疾病预防控制中心",
+    shortName: "疾控中心",
+    icon: Activity,
+    endpoint: "https://report.chinacdc.cn/rad/v1",
+    format: "FHIR R4",
+    status: "online",
+    lastSubmission: "2026-05-05 10:40",
+    template: "辐射剂量监测模板",
+  },
+  {
+    id: "R004",
+    name: "省卫生健康委员会",
+    shortName: "省卫健委",
+    icon: Globe,
+    endpoint: "https://api.zjws.gov.cn/report",
+    format: "JSON",
+    status: "degraded",
+    lastSubmission: "2026-05-04 09:00",
+    template: "省级数据上报模板",
+  },
+];
 
 const validationChecks: ValidationCheck[] = [
-  { id: 'V001', field: '检查人数', type: 'completeness', status: 'pass', message: '字段完整', severity: 'error' },
-  { id: 'V002', field: '阳性率', type: 'consistency', status: 'pass', message: '阳性率在合理范围(20-60%)', severity: 'error' },
-  { id: 'V003', field: '合格率', type: 'completeness', status: 'pass', message: '所有设备类型合格率已填写', severity: 'error' },
-  { id: 'V004', field: 'DLP总量', type: 'consistency', status: 'warning', message: 'CT的DLP总量较上月增长15%，需确认', severity: 'warning' },
-  { id: 'V005', field: '预警次数', type: 'business', status: 'pass', message: '预警次数在正常范围', severity: 'error' },
-  { id: 'V006', field: '高剂量人数', type: 'business', status: 'fail', message: 'DSA高剂量人数占比超过30%', severity: 'warning' },
-  { id: 'V007', field: '上报月份', type: 'consistency', status: 'pass', message: '上报月份与数据周期一致', severity: 'error' },
-  { id: 'V008', field: '签名完整性', type: 'completeness', status: 'pass', message: '数字签名已生成', severity: 'error' },
-]
+  {
+    id: "V001",
+    field: "检查人数",
+    type: "completeness",
+    status: "pass",
+    message: "字段完整",
+    severity: "error",
+  },
+  {
+    id: "V002",
+    field: "阳性率",
+    type: "consistency",
+    status: "pass",
+    message: "阳性率在合理范围(20-60%)",
+    severity: "error",
+  },
+  {
+    id: "V003",
+    field: "合格率",
+    type: "completeness",
+    status: "pass",
+    message: "所有设备类型合格率已填写",
+    severity: "error",
+  },
+  {
+    id: "V004",
+    field: "DLP总量",
+    type: "consistency",
+    status: "warning",
+    message: "CT的DLP总量较上月增长15%，需确认",
+    severity: "warning",
+  },
+  {
+    id: "V005",
+    field: "预警次数",
+    type: "business",
+    status: "pass",
+    message: "预警次数在正常范围",
+    severity: "error",
+  },
+  {
+    id: "V006",
+    field: "高剂量人数",
+    type: "business",
+    status: "fail",
+    message: "DSA高剂量人数占比超过30%",
+    severity: "warning",
+  },
+  {
+    id: "V007",
+    field: "上报月份",
+    type: "consistency",
+    status: "pass",
+    message: "上报月份与数据周期一致",
+    severity: "error",
+  },
+  {
+    id: "V008",
+    field: "签名完整性",
+    type: "completeness",
+    status: "pass",
+    message: "数字签名已生成",
+    severity: "error",
+  },
+];
 
 const submissionHistory: SubmissionRecord[] = [
-  { id: 'SH001', reportType: '辐射剂量', submittedAt: '2026-05-05 10:30', target: '卫健委', status: 'success', signature: '0x8a3f9c2e7b1d5f4a', receiptId: 'NHC-202605-001', version: 1 },
-  { id: 'SH002', reportType: '辐射剂量', submittedAt: '2026-05-05 10:35', target: '医保局', status: 'success', signature: '0x4b1e7d3f8c2a6f9d', receiptId: 'NHSA-202605-001', version: 1 },
-  { id: 'SH003', reportType: '辐射剂量', submittedAt: '2026-05-05 10:40', target: '疾控中心', status: 'success', signature: '0x7d2c9e4f1a3b8f6e', receiptId: 'CDC-202605-001', version: 1 },
-  { id: 'SH004', reportType: '检查统计', submittedAt: '2026-05-06 09:00', target: '卫健委', status: 'failed', signature: '0x3e5f8a2c7b1d9f4e', receiptId: '', version: 1, amendedVersion: 2 },
-  { id: 'SH005', reportType: '检查统计', submittedAt: '2026-05-06 09:30', target: '卫健委', status: 'amended', signature: '0x9f1e3c5a7b2d8f6e', receiptId: 'NHC-202605-002', version: 2, amendedVersion: 1 },
-  { id: 'SH006', reportType: '报告质量', submittedAt: '2026-05-06 10:00', target: '卫健委', status: 'success', signature: '0x6a2d8f4c1e3b9f7e', receiptId: 'NHC-202605-003', version: 1 },
-]
+  {
+    id: "SH001",
+    reportType: "辐射剂量",
+    submittedAt: "2026-05-05 10:30",
+    target: "卫健委",
+    status: "success",
+    signature: "0x8a3f9c2e7b1d5f4a",
+    receiptId: "NHC-202605-001",
+    version: 1,
+  },
+  {
+    id: "SH002",
+    reportType: "辐射剂量",
+    submittedAt: "2026-05-05 10:35",
+    target: "医保局",
+    status: "success",
+    signature: "0x4b1e7d3f8c2a6f9d",
+    receiptId: "NHSA-202605-001",
+    version: 1,
+  },
+  {
+    id: "SH003",
+    reportType: "辐射剂量",
+    submittedAt: "2026-05-05 10:40",
+    target: "疾控中心",
+    status: "success",
+    signature: "0x7d2c9e4f1a3b8f6e",
+    receiptId: "CDC-202605-001",
+    version: 1,
+  },
+  {
+    id: "SH004",
+    reportType: "检查统计",
+    submittedAt: "2026-05-06 09:00",
+    target: "卫健委",
+    status: "failed",
+    signature: "0x3e5f8a2c7b1d9f4e",
+    receiptId: "",
+    version: 1,
+    amendedVersion: 2,
+  },
+  {
+    id: "SH005",
+    reportType: "检查统计",
+    submittedAt: "2026-05-06 09:30",
+    target: "卫健委",
+    status: "amended",
+    signature: "0x9f1e3c5a7b2d8f6e",
+    receiptId: "NHC-202605-002",
+    version: 2,
+    amendedVersion: 1,
+  },
+  {
+    id: "SH006",
+    reportType: "报告质量",
+    submittedAt: "2026-05-06 10:00",
+    target: "卫健委",
+    status: "success",
+    signature: "0x6a2d8f4c1e3b9f7e",
+    receiptId: "NHC-202605-003",
+    version: 1,
+  },
+];
 
 const scheduledReports: ScheduledReportConfig[] = [
-  { id: 'SC001', name: '日检查统计', type: '检查统计', schedule: 'daily', format: 'CSV', recipients: ['zhang@hospital.com', 'li@nhc.gov.cn'], enabled: true, lastRun: '2026-05-10 23:00', nextRun: '2026-05-11 23:00' },
-  { id: 'SC002', name: '月度剂量报告', type: '辐射剂量', schedule: 'monthly', format: 'FHIR JSON', recipients: ['radiation@hospital.com', 'dose@nhc.gov.cn'], enabled: true, lastRun: '2026-05-05 10:00', nextRun: '2026-06-05 10:00' },
-  { id: 'SC003', name: '季度质量报告', type: '报告质量', schedule: 'quarterly', format: 'PDF', recipients: ['qa@hospital.com', 'quality@nhc.gov.cn'], enabled: false, lastRun: '2026-04-01 09:00', nextRun: '2026-07-01 09:00' },
-  { id: 'SC004', name: '周设备利用率', type: '检查统计', schedule: 'weekly', format: 'CSV', recipients: ['admin@hospital.com'], enabled: true, lastRun: '2026-05-08 08:00', nextRun: '2026-05-15 08:00' },
-]
+  {
+    id: "SC001",
+    name: "日检查统计",
+    type: "检查统计",
+    schedule: "daily",
+    format: "CSV",
+    recipients: ["zhang@hospital.com", "li@nhc.gov.cn"],
+    enabled: true,
+    lastRun: "2026-05-10 23:00",
+    nextRun: "2026-05-11 23:00",
+  },
+  {
+    id: "SC002",
+    name: "月度剂量报告",
+    type: "辐射剂量",
+    schedule: "monthly",
+    format: "FHIR JSON",
+    recipients: ["radiation@hospital.com", "dose@nhc.gov.cn"],
+    enabled: true,
+    lastRun: "2026-05-05 10:00",
+    nextRun: "2026-06-05 10:00",
+  },
+  {
+    id: "SC003",
+    name: "季度质量报告",
+    type: "报告质量",
+    schedule: "quarterly",
+    format: "PDF",
+    recipients: ["qa@hospital.com", "quality@nhc.gov.cn"],
+    enabled: false,
+    lastRun: "2026-04-01 09:00",
+    nextRun: "2026-07-01 09:00",
+  },
+  {
+    id: "SC004",
+    name: "周设备利用率",
+    type: "检查统计",
+    schedule: "weekly",
+    format: "CSV",
+    recipients: ["admin@hospital.com"],
+    enabled: true,
+    lastRun: "2026-05-08 08:00",
+    nextRun: "2026-05-15 08:00",
+  },
+];
 
 // ============ 工具函数 ============
 // [UI] 上报状态颜色统一由 @/theme/statusTokens 提供 (单一来源)
 const NR_STATUS_LEVEL: Record<string, string> = {
-  '待上报': 'warning',
-  '已上报': 'info',
-  '已确认': 'success',
-  '已驳回': 'critical',
-  '待审核': 'warning',
-  '已通过': 'success',
-}
+  待上报: "warning",
+  已上报: "info",
+  已确认: "success",
+  已驳回: "critical",
+  待审核: "warning",
+  已通过: "success",
+};
 const NR_STATUS_LABEL: Record<string, string> = {
-  '待上报': t('nationalReportPage.statusPendingSubmit'),
-  '已上报': t('nationalReportPage.statusSubmitted'),
-  '已确认': t('nationalReportPage.statusConfirmed'),
-  '已驳回': t('nationalReportPage.statusRejected'),
-  '待审核': t('nationalReportPage.statusPendingReview'),
-  '已通过': t('nationalReportPage.statusPassed'),
-}
+  待上报: t("nationalReportPage.statusPendingSubmit"),
+  已上报: t("nationalReportPage.statusSubmitted"),
+  已确认: t("nationalReportPage.statusConfirmed"),
+  已驳回: t("nationalReportPage.statusRejected"),
+  待审核: t("nationalReportPage.statusPendingReview"),
+  已通过: t("nationalReportPage.statusPassed"),
+};
 const getStatusBadge = (status: string) => (
-  <StatusTag status={status} tone={severityTone(NR_STATUS_LEVEL[status] ?? 'neutral')}>
+  <StatusTag
+    status={status}
+    tone={severityTone(NR_STATUS_LEVEL[status] ?? "neutral")}
+  >
     {NR_STATUS_LABEL[status] ?? status}
   </StatusTag>
-)
+);
 
 const getModalityBadge = (modality: string) => {
-  const color = modalityColors[modality] || COLORS.primary
+  const color = modalityColors[modality] || COLORS.primary;
   return (
-    <span style={{ padding: '3px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, backgroundColor: `${color}15`, color: color }}>
+    <span
+      style={{
+        padding: "3px 10px",
+        borderRadius: "4px",
+        fontSize: "11px",
+        fontWeight: 600,
+        backgroundColor: `${color}15`,
+        color: color,
+      }}
+    >
       {modality}
     </span>
-  )
-}
+  );
+};
 
 // ============ 导出函数 ============
 const exportToCSV = (data: any[], filename: string, headers: string[]) => {
   const csvContent = [
-    headers.join(','),
-    ...data.map(row => Object.values(row).join(','))
-  ].join('\n')
+    headers.join(","),
+    ...data.map((row) => Object.values(row).join(",")),
+  ].join("\n");
 
-  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = filename
-  link.click()
-  URL.revokeObjectURL(link.href)
-}
+  const blob = new Blob(["\ufeff" + csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+};
 
 // ============ Phase 5b 子组件 ============
 
 // 1. FHIR-Based Reporting 组件
 const FHIRReportPanel = () => {
-  const [fhirView, setFhirView] = useState<'report' | 'observation' | 'bundle' | 'export'>('report')
-  const [exportSuccess, setExportSuccess] = useState(false)
+  const [fhirView, setFhirView] = useState<
+    "report" | "observation" | "bundle" | "export"
+  >("report");
+  const [exportSuccess, setExportSuccess] = useState(false);
 
   const handleFHIRExport = () => {
     const bundle = {
       ...JSON.parse(JSON.stringify(mockFHIRBundle)),
       timestamp: new Date().toISOString(),
-    }
-    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/fhir+json;charset=utf-8' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `fhir-bundle-${new Date().toISOString().slice(0, 10)}.json`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(link.href)
-    setExportSuccess(true)
-    setTimeout(() => setExportSuccess(false), 3000)
-  }
+    };
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], {
+      type: "application/fhir+json;charset=utf-8",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `fhir-bundle-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    setExportSuccess(true);
+    setTimeout(() => setExportSuccess(false), 3000);
+  };
 
   const fhirTabs = [
-    { key: 'report', label: t('nationalReport.fhirTabReport') },
-    { key: 'observation', label: t('nationalReport.fhirTabObservation') },
-    { key: 'bundle', label: t('nationalReport.fhirTabBundle') },
-    { key: 'export', label: t('nationalReport.fhirTabExport') },
-  ]
+    { key: "report", label: t("nationalReport.fhirTabReport") },
+    { key: "observation", label: t("nationalReport.fhirTabObservation") },
+    { key: "bundle", label: t("nationalReport.fhirTabBundle") },
+    { key: "export", label: t("nationalReport.fhirTabExport") },
+  ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
       {/* FHIR信息头 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-          <FileJson size={18} color={COLORS.primary} /> {t('nationalReport.fhirTitle')}
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 8,
+          padding: "var(--space-4, 16px)",
+          border: "1px solid var(--border-color)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            marginBottom: "var(--space-3, 12px)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <FileJson size={18} color={COLORS.primary} />{" "}
+          {t("nationalReport.fhirTitle")}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirVersion')}</span> <span style={{ fontSize: 12, fontWeight: 600 }}>R4 (4.0.1)</span></div>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>IG:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>IHE-RAD-IG v3.0</span></div>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirValidation')}</span> <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}>{t('nationalReportPage.igCompliant')}</span></div>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirResourceCount')}</span> <span style={{ fontSize: 12, fontWeight: 600 }}>{mockFHIRBundle.entry.length}</span></div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "var(--space-3, 12px)",
+          }}
+        >
+          <div>
+            <span style={{ fontSize: 12, color: COLORS.textMuted }}>
+              {t("nationalReport.fhirVersion")}
+            </span>{" "}
+            <span style={{ fontSize: 12, fontWeight: 600 }}>R4 (4.0.1)</span>
+          </div>
+          <div>
+            <span style={{ fontSize: 12, color: COLORS.textMuted }}>IG:</span>{" "}
+            <span style={{ fontSize: 12, fontWeight: 600 }}>
+              IHE-RAD-IG v3.0
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: 12, color: COLORS.textMuted }}>
+              {t("nationalReport.fhirValidation")}
+            </span>{" "}
+            <span
+              style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}
+            >
+              {t("nationalReportPage.igCompliant")}
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: 12, color: COLORS.textMuted }}>
+              {t("nationalReport.fhirResourceCount")}
+            </span>{" "}
+            <span style={{ fontSize: 12, fontWeight: 600 }}>
+              {mockFHIRBundle.entry.length}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Tab切换 */}
-      <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: 'var(--space-1, 4px)', borderRadius: 8, width: 'fit-content' }}>
-        {fhirTabs.map(t => (
-          <button key={t.key} onClick={() => setFhirView(t.key as any)}
-            style={{ padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: fhirView === t.key ? COLORS.primary : 'transparent', color: fhirView === t.key ? '#fff' : COLORS.textMuted }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "var(--space-1, 4px)",
+          background: "var(--bg-card)",
+          padding: "var(--space-1, 4px)",
+          borderRadius: 8,
+          width: "fit-content",
+        }}
+      >
+        {fhirTabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setFhirView(t.key as any)}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 6,
+              border: "none",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              background: fhirView === t.key ? COLORS.primary : "transparent",
+              color: fhirView === t.key ? "#fff" : COLORS.textMuted,
+            }}
+          >
             {t.label}
           </button>
         ))}
       </div>
 
       {/* FHIR内容展示 */}
-      {fhirView === 'report' && (
-        <div style={{ background: '#1e293b', borderRadius: 8, padding: 'var(--space-4, 16px)', overflow: 'auto', maxHeight: 400 }}>
-          <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRReport, null, 2)}</pre>
+      {fhirView === "report" && (
+        <div
+          style={{
+            background: "#1e293b",
+            borderRadius: 8,
+            padding: "var(--space-4, 16px)",
+            overflow: "auto",
+            maxHeight: 400,
+          }}
+        >
+          <pre
+            style={{
+              color: "#e2e8f0",
+              fontSize: 12,
+              margin: 0,
+              fontFamily: "monospace",
+            }}
+          >
+            {JSON.stringify(mockFHIRReport, null, 2)}
+          </pre>
         </div>
       )}
-      {fhirView === 'observation' && (
-        <div style={{ background: '#1e293b', borderRadius: 8, padding: 'var(--space-4, 16px)', overflow: 'auto', maxHeight: 400 }}>
-          <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRObservation, null, 2)}</pre>
+      {fhirView === "observation" && (
+        <div
+          style={{
+            background: "#1e293b",
+            borderRadius: 8,
+            padding: "var(--space-4, 16px)",
+            overflow: "auto",
+            maxHeight: 400,
+          }}
+        >
+          <pre
+            style={{
+              color: "#e2e8f0",
+              fontSize: 12,
+              margin: 0,
+              fontFamily: "monospace",
+            }}
+          >
+            {JSON.stringify(mockFHIRObservation, null, 2)}
+          </pre>
         </div>
       )}
-      {fhirView === 'bundle' && (
-        <div style={{ background: '#1e293b', borderRadius: 8, padding: 'var(--space-4, 16px)', overflow: 'auto', maxHeight: 400 }}>
-          <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRBundle, null, 2)}</pre>
+      {fhirView === "bundle" && (
+        <div
+          style={{
+            background: "#1e293b",
+            borderRadius: 8,
+            padding: "var(--space-4, 16px)",
+            overflow: "auto",
+            maxHeight: 400,
+          }}
+        >
+          <pre
+            style={{
+              color: "#e2e8f0",
+              fontSize: 12,
+              margin: 0,
+              fontFamily: "monospace",
+            }}
+          >
+            {JSON.stringify(mockFHIRBundle, null, 2)}
+          </pre>
         </div>
       )}
-      {fhirView === 'export' && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <FileJson size={48} color={COLORS.primary} style={{ marginBottom: 'var(--space-3, 12px)' }} />
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--space-2, 8px)' }}>{t('nationalReport.fhirExportTitle')}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 'var(--space-4, 16px)' }}>{t('nationalReport.fhirExportDesc')}</div>
-          <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-            <Download size={16} /> {t('nationalReport.fhirExportBtn')}
+      {fhirView === "export" && (
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            padding: "var(--space-5, 20px)",
+            border: "1px solid var(--border-color)",
+            textAlign: "center",
+          }}
+        >
+          <FileJson
+            size={48}
+            color={COLORS.primary}
+            style={{ marginBottom: "var(--space-3, 12px)" }}
+          />
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              marginBottom: "var(--space-2, 8px)",
+            }}
+          >
+            {t("nationalReport.fhirExportTitle")}
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: COLORS.textMuted,
+              marginBottom: "var(--space-4, 16px)",
+            }}
+          >
+            {t("nationalReport.fhirExportDesc")}
+          </div>
+          <button
+            onClick={handleFHIRExport}
+            style={{
+              padding: "10px 24px",
+              background: COLORS.primary,
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
+            <Download size={16} /> {t("nationalReport.fhirExportBtn")}
           </button>
-          {exportSuccess && <div style={{ marginTop: 'var(--space-3, 12px)', color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> {t('nationalReport.fhirExportSuccess')}</div>}
+          {exportSuccess && (
+            <div
+              style={{
+                marginTop: "var(--space-3, 12px)",
+                color: COLORS.success,
+                fontSize: 12,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+              }}
+            >
+              <CheckCircle size={14} /> {t("nationalReport.fhirExportSuccess")}
+            </div>
+          )}
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 // 2. 多监管机构支持组件
 const MultiRegulatorPanel = () => {
-  const [batchStatus, setBatchStatus] = useState<string | null>(null)
-  const [submissions, setSubmissions] = useState<{ targetId: string; status: string }[]>([])
+  const [batchStatus, setBatchStatus] = useState<string | null>(null);
+  const [submissions, setSubmissions] = useState<
+    { targetId: string; status: string }[]
+  >([]);
 
   const handleBatchSubmit = () => {
-    setBatchStatus('submitting')
-    setSubmissions(regulatorTargets.filter(t => t.status === 'online').map(t => ({ targetId: t.id, status: 'pending' })))
+    setBatchStatus("submitting");
+    setSubmissions(
+      regulatorTargets
+        .filter((t) => t.status === "online")
+        .map((t) => ({ targetId: t.id, status: "pending" })),
+    );
     setTimeout(() => {
-      setSubmissions(regulatorTargets.filter(t => t.status === 'online').map(t => ({ targetId: t.id, status: 'success' })))
-      setBatchStatus('done')
-      setTimeout(() => setBatchStatus(null), 3000)
-    }, 2000)
-  }
+      setSubmissions(
+        regulatorTargets
+          .filter((t) => t.status === "online")
+          .map((t) => ({ targetId: t.id, status: "success" })),
+      );
+      setBatchStatus("done");
+      setTimeout(() => setBatchStatus(null), 3000);
+    }, 2000);
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-          <Globe size={18} color={COLORS.primary} /> {t('nationalReport.regConfig')}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <Globe size={18} color={COLORS.primary} />{" "}
+          {t("nationalReport.regConfig")}
         </div>
-        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
-          <button onClick={handleBatchSubmit} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Send size={14} /> {batchStatus === 'submitting' ? t('nationalReport.batchSubmitting') : t('nationalReport.batchSubmitAll')}
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
+          <button
+            onClick={handleBatchSubmit}
+            style={{
+              padding: "8px 16px",
+              background: COLORS.primary,
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Send size={14} />{" "}
+            {batchStatus === "submitting"
+              ? t("nationalReport.batchSubmitting")
+              : t("nationalReport.batchSubmitAll")}
           </button>
         </div>
       </div>
 
       {/* 监管机构卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)' }}>
-        {regulatorTargets.map(reg => {
-          const subStatus = submissions.find(s => s.targetId === reg.id)
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "var(--space-3, 12px)",
+        }}
+      >
+        {regulatorTargets.map((reg) => {
+          const subStatus = submissions.find((s) => s.targetId === reg.id);
           return (
-            <div key={reg.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
-                <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.primary }}><reg.icon size={20} /></div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{reg.name}</div>
-                  <div style={{ fontSize: 12, color: COLORS.textMuted }}>{reg.shortName} · {reg.format}</div>
+            <div
+              key={reg.id}
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 8,
+                padding: "var(--space-4, 16px)",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-3, 12px)",
+                  marginBottom: "var(--space-3, 12px)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 8,
+                    background: "var(--color-info-bg)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: COLORS.primary,
+                  }}
+                >
+                  <reg.icon size={20} />
                 </div>
-                <div style={{
-                  padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
-                background: reg.status === 'online' ? 'var(--color-success-bg)' : reg.status === 'degraded' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
-                color: reg.status === 'online' ? 'var(--color-success)' : reg.status === 'degraded' ? 'var(--color-warning)' : 'var(--color-error)'
-                }}>{reg.status === 'online' ? t('nationalReport.regOnline') : reg.status === 'degraded' ? t('nationalReport.regDegraded') : t('nationalReport.regOffline')}</div>
+                <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    {reg.name}
+                  </div>
+                  <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+                    {reg.shortName} · {reg.format}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 12,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background:
+                      reg.status === "online"
+                        ? "var(--color-success-bg)"
+                        : reg.status === "degraded"
+                          ? "var(--color-warning-bg)"
+                          : "var(--color-error-bg)",
+                    color:
+                      reg.status === "online"
+                        ? "var(--color-success)"
+                        : reg.status === "degraded"
+                          ? "var(--color-warning)"
+                          : "var(--color-error)",
+                  }}
+                >
+                  {reg.status === "online"
+                    ? t("nationalReport.regOnline")
+                    : reg.status === "degraded"
+                      ? t("nationalReport.regDegraded")
+                      : t("nationalReport.regOffline")}
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 'var(--space-1, 4px)' }}>{t('nationalReport.regEndpoint', { endpoint: reg.endpoint })}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.regLastSubmit', { time: reg.lastSubmission })}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: COLORS.textMuted,
+                  marginBottom: "var(--space-1, 4px)",
+                }}
+              >
+                {t("nationalReport.regEndpoint", { endpoint: reg.endpoint })}
+              </div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.regLastSubmit", {
+                  time: reg.lastSubmission,
+                })}
+              </div>
               {subStatus && (
-                <div style={{ marginTop: 'var(--space-2, 8px)', padding: '6px 10px', background: subStatus.status === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: subStatus.status === 'success' ? 'var(--color-success)' : 'var(--color-warning)' }}>
-                  {subStatus.status === 'success' ? t('nationalReport.submittedOk') : t('nationalReport.submittingShort')}
+                <div
+                  style={{
+                    marginTop: "var(--space-2, 8px)",
+                    padding: "6px 10px",
+                    background:
+                      subStatus.status === "success"
+                        ? "var(--color-success-bg)"
+                        : "var(--color-warning-bg)",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color:
+                      subStatus.status === "success"
+                        ? "var(--color-success)"
+                        : "var(--color-warning)",
+                  }}
+                >
+                  {subStatus.status === "success"
+                    ? t("nationalReport.submittedOk")
+                    : t("nationalReport.submittingShort")}
                 </div>
               )}
             </div>
-          )
+          );
         })}
       </div>
 
       {/* 提交状态 */}
-      {batchStatus === 'done' && (
-        <div style={{ padding: '12px 16px', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--color-success-600)' }}>
-          <CheckCircle size={14} /> {t('nationalReport.batchDone', { count: regulatorTargets.filter(t => t.status === 'online').length })}
+      {batchStatus === "done" && (
+        <div
+          style={{
+            padding: "12px 16px",
+            background: "var(--color-success-bg)",
+            borderRadius: 8,
+            border: "1px solid #bbf7d0",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+            fontSize: 12,
+            color: "var(--color-success-600)",
+          }}
+        >
+          <CheckCircle size={14} />{" "}
+          {t("nationalReport.batchDone", {
+            count: regulatorTargets.filter((t) => t.status === "online").length,
+          })}
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 // 3. 预提交验证组件
 const PreSubmissionValidation = () => {
-  const score = Math.round(validationChecks.filter(v => v.status === 'pass').length / validationChecks.length * 100)
+  const score = Math.round(
+    (validationChecks.filter((v) => v.status === "pass").length /
+      validationChecks.length) *
+      100,
+  );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
       {/* 验证评分 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-5, 20px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-        <div style={{ position: 'relative', width: 120, height: 120, margin: '0 auto 12px' }}>
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 8,
+          padding: "var(--space-5, 20px)",
+          border: "1px solid var(--border-color)",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: 120,
+            height: 120,
+            margin: "0 auto 12px",
+          }}
+        >
           <svg width="120" height="120" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border-color)" strokeWidth="8" />
-            <circle cx="60" cy="60" r="54" fill="none" stroke={score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger} strokeWidth="8" strokeDasharray={`${(score / 100) * 339.292} 339.292`} transform="rotate(-90 60 60)" />
+            <circle
+              cx="60"
+              cy="60"
+              r="54"
+              fill="none"
+              stroke="var(--border-color)"
+              strokeWidth="8"
+            />
+            <circle
+              cx="60"
+              cy="60"
+              r="54"
+              fill="none"
+              stroke={
+                score >= 90
+                  ? COLORS.success
+                  : score >= 70
+                    ? COLORS.warning
+                    : COLORS.danger
+              }
+              strokeWidth="8"
+              strokeDasharray={`${(score / 100) * 339.292} 339.292`}
+              transform="rotate(-90 60 60)"
+            />
           </svg>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 30, fontWeight: 800, color: score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger }}>{score}</span>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 30,
+                fontWeight: 800,
+                color:
+                  score >= 90
+                    ? COLORS.success
+                    : score >= 70
+                      ? COLORS.warning
+                      : COLORS.danger,
+              }}
+            >
+              {score}
+            </span>
           </div>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t('nationalReport.validateScore')}</div>
-        <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.validateRules', { count: validationChecks.length })}</div>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+          }}
+        >
+          {t("nationalReport.validateScore")}
+        </div>
+        <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+          {t("nationalReport.validateRules", {
+            count: validationChecks.length,
+          })}
+        </div>
       </div>
 
       {/* 校验明细 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>{t('nationalReport.validateDetail')}</div>
-        <div style={{ padding: 'var(--space-2, 8px)' }}>
-          {validationChecks.map(check => (
-            <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 'var(--space-1, 4px)', background: check.status === 'pass' ? 'var(--content-bg)' : check.status === 'warning' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' }}>
-              {check.status === 'pass' ? <CheckCircle size={14} color={COLORS.success} /> : check.status === 'warning' ? <AlertTriangle size={14} color={COLORS.warning} /> : <XCircle size={14} color={COLORS.danger} />}
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 8,
+          border: "1px solid var(--border-color)",
+        }}
+      >
+        <div
+          style={{
+            padding: "12px 16px",
+            borderBottom: "1px solid var(--border-color)",
+            fontWeight: 600,
+            fontSize: 14,
+          }}
+        >
+          {t("nationalReport.validateDetail")}
+        </div>
+        <div style={{ padding: "var(--space-2, 8px)" }}>
+          {validationChecks.map((check) => (
+            <div
+              key={check.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "8px 12px",
+                borderRadius: 6,
+                marginBottom: "var(--space-1, 4px)",
+                background:
+                  check.status === "pass"
+                    ? "var(--content-bg)"
+                    : check.status === "warning"
+                      ? "var(--color-warning-bg)"
+                      : "var(--color-error-bg)",
+              }}
+            >
+              {check.status === "pass" ? (
+                <CheckCircle size={14} color={COLORS.success} />
+              ) : check.status === "warning" ? (
+                <AlertTriangle size={14} color={COLORS.warning} />
+              ) : (
+                <XCircle size={14} color={COLORS.danger} />
+              )}
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{check.field}</div>
-                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{check.message}</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {check.field}
+                </div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+                  {check.message}
+                </div>
               </div>
-              <span style={{
-                padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                background: check.type === 'completeness' ? 'var(--color-info-bg)' : check.type === 'consistency' ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
-                color: check.type === 'completeness' ? 'var(--color-primary)' : check.type === 'consistency' ? '#7c3aed' : 'var(--color-warning)'
-              }}>
-                {check.type === 'completeness' ? t('nationalReport.typeCompleteness') : check.type === 'consistency' ? t('nationalReport.typeConsistency') : t('nationalReport.typeBusiness')}
+              <span
+                style={{
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  background:
+                    check.type === "completeness"
+                      ? "var(--color-info-bg)"
+                      : check.type === "consistency"
+                        ? "var(--color-info-bg)"
+                        : "var(--color-warning-bg)",
+                  color:
+                    check.type === "completeness"
+                      ? "var(--color-primary)"
+                      : check.type === "consistency"
+                        ? "#7c3aed"
+                        : "var(--color-warning)",
+                }}
+              >
+                {check.type === "completeness"
+                  ? t("nationalReport.typeCompleteness")
+                  : check.type === "consistency"
+                    ? t("nationalReport.typeConsistency")
+                    : t("nationalReport.typeBusiness")}
               </span>
             </div>
           ))}
@@ -931,26 +1969,67 @@ const PreSubmissionValidation = () => {
       </div>
 
       {score < 100 && (
-        <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
-          <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
-          <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
-            <strong>{t('nationalReportPage.qualityTip')}</strong>{t('nationalReport.validateWarning', { count: validationChecks.filter(v => v.status !== 'pass').length })}
+        <div
+          style={{
+            padding: "12px 16px",
+            background: "var(--color-warning-bg)",
+            borderRadius: 8,
+            border: "1px solid #fde68a",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <AlertTriangle
+            size={14}
+            color={COLORS.warning}
+            style={{ marginTop: 2 }}
+          />
+          <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
+            <strong>{t("nationalReportPage.qualityTip")}</strong>
+            {t("nationalReport.validateWarning", {
+              count: validationChecks.filter((v) => v.status !== "pass").length,
+            })}
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 // 4. 提交审计追踪组件
 const SubmissionAuditTrail = () => {
-  const [selectedSubmission, setSelectedSubmission] = useState<SubmissionRecord | null>(null)
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<SubmissionRecord | null>(null);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-          <Clock size={16} color={COLORS.primary} /> {t('nationalReport.auditHistory')}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 8,
+          border: "1px solid var(--border-color)",
+        }}
+      >
+        <div
+          style={{
+            padding: "12px 16px",
+            borderBottom: "1px solid var(--border-color)",
+            fontWeight: 600,
+            fontSize: 14,
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <Clock size={16} color={COLORS.primary} />{" "}
+          {t("nationalReport.auditHistory")}
         </div>
         <DataTable
           rowKey="id"
@@ -958,277 +2037,982 @@ const SubmissionAuditTrail = () => {
           showPagination={false}
           showExport={false}
           showDensity={false}
-          onRow={(record) => ({ onClick: () => setSelectedSubmission(record), style: { cursor: 'pointer' } })}
+          onRow={(record) => ({
+            onClick: () => setSelectedSubmission(record),
+            style: { cursor: "pointer" },
+          })}
           columns={[
-            { title: t('nationalReport.thReportType'), dataIndex: 'reportType', render: (value: string) => <span style={{ fontWeight: 600 }}>{value}</span> },
-            { title: t('nationalReport.thSubmitTime'), dataIndex: 'submittedAt', render: (value: string) => <span style={{ color: 'var(--text-secondary)' }}>{value}</span> },
-            { title: t('nationalReport.thTarget'), dataIndex: 'target' },
             {
-              title: t('nationalReport.thStatus'),
-              key: 'status',
+              title: t("nationalReport.thReportType"),
+              dataIndex: "reportType",
+              render: (value: string) => (
+                <span style={{ fontWeight: 600 }}>{value}</span>
+              ),
+            },
+            {
+              title: t("nationalReport.thSubmitTime"),
+              dataIndex: "submittedAt",
+              render: (value: string) => (
+                <span style={{ color: "var(--text-secondary)" }}>{value}</span>
+              ),
+            },
+            { title: t("nationalReport.thTarget"), dataIndex: "target" },
+            {
+              title: t("nationalReport.thStatus"),
+              key: "status",
               render: (_v, s) => {
-                const level = s.status === 'success' ? 'success' : s.status === 'failed' ? 'critical' : s.status === 'amended' ? 'warning' : 'info'
-                const label = s.status === 'success' ? t('nationalReport.statusSuccess') : s.status === 'failed' ? t('nationalReport.statusFailed') : s.status === 'amended' ? t('nationalReport.statusAmended') : t('nationalReport.statusPending')
-                return <StatusTag status={s.status} tone={severityTone(level)}>{label}</StatusTag>
+                const level =
+                  s.status === "success"
+                    ? "success"
+                    : s.status === "failed"
+                      ? "critical"
+                      : s.status === "amended"
+                        ? "warning"
+                        : "info";
+                const label =
+                  s.status === "success"
+                    ? t("nationalReport.statusSuccess")
+                    : s.status === "failed"
+                      ? t("nationalReport.statusFailed")
+                      : s.status === "amended"
+                        ? t("nationalReport.statusAmended")
+                        : t("nationalReport.statusPending");
+                return (
+                  <StatusTag status={s.status} tone={severityTone(level)}>
+                    {label}
+                  </StatusTag>
+                );
               },
             },
-            { title: t('nationalReport.thSignature'), dataIndex: 'signature', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{value.substring(0, 12)}...</span> },
-            { title: t('nationalReport.thReceipt'), dataIndex: 'receiptId', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value || '-'}</span> },
-            { title: t('nationalReport.thVersion'), key: 'version', render: (_v, s) => <>v{s.version}{s.amendedVersion ? ` ${t('nationalReport.origVersion', { version: s.amendedVersion })}` : ''}</> },
+            {
+              title: t("nationalReport.thSignature"),
+              dataIndex: "signature",
+              render: (value: string) => (
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-secondary)",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {value.substring(0, 12)}...
+                </span>
+              ),
+            },
+            {
+              title: t("nationalReport.thReceipt"),
+              dataIndex: "receiptId",
+              render: (value: string) => (
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {value || "-"}
+                </span>
+              ),
+            },
+            {
+              title: t("nationalReport.thVersion"),
+              key: "version",
+              render: (_v, s) => (
+                <>
+                  v{s.version}
+                  {s.amendedVersion
+                    ? ` ${t("nationalReport.origVersion", { version: s.amendedVersion })}`
+                    : ""}
+                </>
+              ),
+            },
           ]}
         />
       </div>
 
       {/* 数字签名详情 */}
       {selectedSubmission && (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-              <Fingerprint size={16} color={COLORS.primary} /> {t('nationalReport.signatureDetail')}
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            padding: "var(--space-4, 16px)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
+              <Fingerprint size={16} color={COLORS.primary} />{" "}
+              {t("nationalReport.signatureDetail")}
             </div>
-            <button aria-label="关闭" onClick={() => setSelectedSubmission(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted }}><X size={16} /></button>
+            <button
+              aria-label="关闭"
+              onClick={() => setSelectedSubmission(null)}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: COLORS.textMuted,
+              }}
+            >
+              <X size={16} />
+            </button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigFingerprint')}</span><div style={{ fontSize: 12, fontWeight: 600, fontFamily: 'monospace', wordBreak: 'break-all' }}>{selectedSubmission.signature}</div></div>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigAlgorithm')}</span><div style={{ fontSize: 12, fontWeight: 600 }}>SHA-256 with RSA</div></div>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigTime')}</span><div style={{ fontSize: 12, fontWeight: 600 }}>{selectedSubmission.submittedAt}</div></div>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigPerson')}</span><div style={{ fontSize: 12, fontWeight: 600 }}>{t('nationalReport.sigPersonValue')}</div></div>
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
+          >
+            <div>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.sigFingerprint")}
+              </span>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  fontFamily: "monospace",
+                  wordBreak: "break-all",
+                }}
+              >
+                {selectedSubmission.signature}
+              </div>
+            </div>
+            <div>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.sigAlgorithm")}
+              </span>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>
+                SHA-256 with RSA
+              </div>
+            </div>
+            <div>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.sigTime")}
+              </span>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>
+                {selectedSubmission.submittedAt}
+              </div>
+            </div>
+            <div>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.sigPerson")}
+              </span>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>
+                {t("nationalReport.sigPersonValue")}
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* 统计 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{submissionHistory.length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.totalSubmissions')}</div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "var(--space-3, 12px)",
+        }}
+      >
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+            border: "1px solid var(--border-color)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>
+            {submissionHistory.length}
+          </div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+            {t("nationalReport.totalSubmissions")}
+          </div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success }}>{submissionHistory.filter(s => s.status === 'success').length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.successCount')}</div>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+            border: "1px solid var(--border-color)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success }}>
+            {submissionHistory.filter((s) => s.status === "success").length}
+          </div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+            {t("nationalReport.successCount")}
+          </div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.danger }}>{submissionHistory.filter(s => s.status === 'failed').length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.failedCount')}</div>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+            border: "1px solid var(--border-color)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.danger }}>
+            {submissionHistory.filter((s) => s.status === "failed").length}
+          </div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+            {t("nationalReport.failedCount")}
+          </div>
         </div>
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>{submissionHistory.filter(s => s.amendedVersion).length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.amendedCount')}</div>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+            border: "1px solid var(--border-color)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>
+            {submissionHistory.filter((s) => s.amendedVersion).length}
+          </div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+            {t("nationalReport.amendedCount")}
+          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 // 5. 计划报告组件
 const ScheduledReportsPanel = () => {
-  const [schedules, setSchedules] = useState(scheduledReports)
-  const [runStatus, setRunStatus] = useState<string | null>(null)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [planForm, setPlanForm] = useState({ name: '', type: '国家报告', schedule: 'monthly' as ScheduledReportConfig['schedule'], format: 'PDF', recipients: '' })
+  const [schedules, setSchedules] = useState(scheduledReports);
+  const [runStatus, setRunStatus] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [planForm, setPlanForm] = useState({
+    name: "",
+    type: "国家报告",
+    schedule: "monthly" as ScheduledReportConfig["schedule"],
+    format: "PDF",
+    recipients: "",
+  });
 
   const toggleSchedule = (id: string) => {
-    setSchedules(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s))
-  }
+    setSchedules((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s)),
+    );
+  };
 
   const handleRunNow = (id: string) => {
-    setRunStatus(id)
+    setRunStatus(id);
     setTimeout(() => {
-      setSchedules(prev => prev.map(s => s.id === id ? { ...s, lastRun: new Date().toISOString().slice(0, 16).replace('T', ' ') } : s))
-      setRunStatus(null)
-    }, 2000)
-  }
+      setSchedules((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                lastRun: new Date()
+                  .toISOString()
+                  .slice(0, 16)
+                  .replace("T", " "),
+              }
+            : s,
+        ),
+      );
+      setRunStatus(null);
+    }, 2000);
+  };
 
   const handleCreateSchedule = async () => {
-    if (!planForm.name.trim()) return
-    setSaving(true)
+    if (!planForm.name.trim()) return;
+    setSaving(true);
     try {
       await datareportApi.createNationalReport({
         reportMonth: new Date().toISOString().slice(0, 7),
         modality: planForm.type,
-        status: '草稿',
-      })
-    } catch { /* 演示环境使用本地状态 */ }
-    const recipients = planForm.recipients.split(/[,，;；]/).map(s => s.trim()).filter(Boolean)
-    const nextRun = new Date(Date.now() + 86400000).toISOString().slice(0, 16).replace('T', ' ')
-    setSchedules(prev => [{
-      id: `SCH-${Date.now().toString(36).toUpperCase()}`,
-      name: planForm.name.trim(),
-      type: planForm.type,
-      schedule: planForm.schedule,
-      format: planForm.format,
-      recipients: recipients.length > 0 ? recipients : ['system@hospital.cn'],
-      enabled: true,
-      lastRun: t('nationalReportPage.notRunYet'),
-      nextRun,
-    }, ...prev])
-    setShowCreateModal(false)
-    setPlanForm({ name: '', type: '国家报告', schedule: 'monthly', format: 'PDF', recipients: '' })
-    setSaving(false)
-  }
+        status: "草稿",
+      });
+    } catch {
+      /* 演示环境使用本地状态 */
+    }
+    const recipients = planForm.recipients
+      .split(/[,，;；]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const nextRun = new Date(Date.now() + 86400000)
+      .toISOString()
+      .slice(0, 16)
+      .replace("T", " ");
+    setSchedules((prev) => [
+      {
+        id: `SCH-${Date.now().toString(36).toUpperCase()}`,
+        name: planForm.name.trim(),
+        type: planForm.type,
+        schedule: planForm.schedule,
+        format: planForm.format,
+        recipients: recipients.length > 0 ? recipients : ["system@hospital.cn"],
+        enabled: true,
+        lastRun: t("nationalReportPage.notRunYet"),
+        nextRun,
+      },
+      ...prev,
+    ]);
+    setShowCreateModal(false);
+    setPlanForm({
+      name: "",
+      type: "国家报告",
+      schedule: "monthly",
+      format: "PDF",
+      recipients: "",
+    });
+    setSaving(false);
+  };
 
-  const scheduleLabels: Record<string, string> = { daily: t('nationalReport.scheduleDaily'), weekly: t('nationalReport.scheduleWeekly'), monthly: t('nationalReport.scheduleMonthly'), quarterly: t('nationalReport.scheduleQuarterly') }
+  const scheduleLabels: Record<string, string> = {
+    daily: t("nationalReport.scheduleDaily"),
+    weekly: t("nationalReport.scheduleWeekly"),
+    monthly: t("nationalReport.scheduleMonthly"),
+    quarterly: t("nationalReport.scheduleQuarterly"),
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-          <Calendar size={18} color={COLORS.primary} /> {t('nationalReport.scheduleTitle')}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <Calendar size={18} color={COLORS.primary} />{" "}
+          {t("nationalReport.scheduleTitle")}
         </div>
-        <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Plus size={14} /> {t('nationalReport.newPlan')}
+        <button
+          onClick={() => setShowCreateModal(true)}
+          style={{
+            padding: "8px 16px",
+            background: COLORS.primary,
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <Plus size={14} /> {t("nationalReport.newPlan")}
         </button>
       </div>
 
-      {schedules.map(s => (
-        <div key={s.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 8,
-                background: s.enabled ? 'var(--color-info-bg)' : 'var(--content-bg)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.enabled ? COLORS.primary : COLORS.textMuted
-              }}><FileText size={18} /></div>
+      {schedules.map((s) => (
+        <div
+          key={s.id}
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            padding: "var(--space-4, 16px)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  background: s.enabled
+                    ? "var(--color-info-bg)"
+                    : "var(--content-bg)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: s.enabled ? COLORS.primary : COLORS.textMuted,
+                }}
+              >
+                <FileText size={18} />
+              </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{s.name}</div>
-                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{s.type} · {scheduleLabels[s.schedule]} · {s.format}</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {s.name}
+                </div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+                  {s.type} · {scheduleLabels[s.schedule]} · {s.format}
+                </div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-              <label style={{ position: 'relative', display: 'inline-block', width: 40, height: 22 }}>
-                <input type="checkbox" checked={s.enabled} onChange={() => toggleSchedule(s.id)} style={{ opacity: 0, width: 0, height: 0 }} />
-                <span style={{
-                  position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 22,
-                  backgroundColor: s.enabled ? COLORS.primary : '#d1d5db', transition: '0.3s'
-                }}>
-                  <span style={{
-                    position: 'absolute', content: '', height: 18, width: 18, borderRadius: '50%', left: s.enabled ? 20 : 2, top: 2,
-                    backgroundColor: 'var(--bg-card)', transition: '0.3s'
-                  }} />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
+              <label
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                  width: 40,
+                  height: 22,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={s.enabled}
+                  onChange={() => toggleSchedule(s.id)}
+                  style={{ opacity: 0, width: 0, height: 0 }}
+                />
+                <span
+                  style={{
+                    position: "absolute",
+                    cursor: "pointer",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    borderRadius: 22,
+                    backgroundColor: s.enabled ? COLORS.primary : "#d1d5db",
+                    transition: "0.3s",
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      content: "",
+                      height: 18,
+                      width: 18,
+                      borderRadius: "50%",
+                      left: s.enabled ? 20 : 2,
+                      top: 2,
+                      backgroundColor: "var(--bg-card)",
+                      transition: "0.3s",
+                    }}
+                  />
                 </span>
               </label>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.lastRun')}</div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 10,
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 6,
+                padding: "8px 12px",
+              }}
+            >
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.lastRun")}
+              </div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.lastRun}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.nextRun')}</div>
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 6,
+                padding: "8px 12px",
+              }}
+            >
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.nextRun")}
+              </div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.nextRun}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.recipients')}</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>{t('nationalReport.recipientCount', { count: s.recipients.length })}</div>
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 6,
+                padding: "8px 12px",
+              }}
+            >
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>
+                {t("nationalReport.recipients")}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: COLORS.textMuted,
+                }}
+              >
+                {t("nationalReport.recipientCount", {
+                  count: s.recipients.length,
+                })}
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div style={{ display: "flex", gap: "var(--space-1, 4px)" }}>
               {s.recipients.map((r, idx) => (
-                <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: COLORS.primary, borderRadius: 4, fontSize: 12 }}>{r}</span>
+                <span
+                  key={idx}
+                  style={{
+                    padding: "2px 8px",
+                    background: "var(--color-info-bg)",
+                    color: COLORS.primary,
+                    borderRadius: 4,
+                    fontSize: 12,
+                  }}
+                >
+                  {r}
+                </span>
               ))}
             </div>
-            <button onClick={() => handleRunNow(s.id)} disabled={runStatus === s.id}
-              style={{ padding: '6px 14px', background: s.enabled ? COLORS.primary : '#d1d5db', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: s.enabled ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Repeat size={14} /> {runStatus === s.id ? t('nationalReport.running') : t('nationalReport.runNow')}
+            <button
+              onClick={() => handleRunNow(s.id)}
+              disabled={runStatus === s.id}
+              style={{
+                padding: "6px 14px",
+                background: s.enabled ? COLORS.primary : "#d1d5db",
+                color: "#fff",
+                border: "none",
+                borderRadius: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: s.enabled ? "pointer" : "not-allowed",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Repeat size={14} />{" "}
+              {runStatus === s.id
+                ? t("nationalReport.running")
+                : t("nationalReport.runNow")}
             </button>
           </div>
         </div>
       ))}
 
       {/* 失败重试逻辑 */}
-      <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
-        <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
-        <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
-          <strong>{t('nationalReportPage.autoRetryLabel')}</strong>{t('nationalReport.autoRetry')}
+      <div
+        style={{
+          padding: "12px 16px",
+          background: "var(--color-warning-bg)",
+          borderRadius: 8,
+          border: "1px solid #fde68a",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "var(--space-2, 8px)",
+        }}
+      >
+        <AlertTriangle
+          size={14}
+          color={COLORS.warning}
+          style={{ marginTop: 2 }}
+        />
+        <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
+          <strong>{t("nationalReportPage.autoRetryLabel")}</strong>
+          {t("nationalReport.autoRetry")}
         </div>
       </div>
 
       {showCreateModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
-          <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, width: 'min(460px, calc(100vw - 32px))', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Calendar size={16} color={COLORS.primary} /> {t('nationalReport.newPlanTitle')}</div>
-              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 'var(--space-1, 4px)' }}>×</button>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(15,23,42,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setShowCreateModal(false)}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              width: "min(460px, calc(100vw - 32px))",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "14px 20px",
+                borderBottom: "1px solid var(--border-color)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
+                <Calendar size={16} color={COLORS.primary} />{" "}
+                {t("nationalReport.newPlanTitle")}
+              </div>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-secondary)",
+                  fontSize: 18,
+                  padding: "var(--space-1, 4px)",
+                }}
+              >
+                ×
+              </button>
             </div>
-            <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+            <div
+              style={{
+                padding: "var(--space-5, 20px)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-3, 12px)",
+              }}
+            >
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planNameRequired')}</label>
-                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder={t('nationalReport.placeholderPlanName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    marginBottom: 6,
+                  }}
+                >
+                  {t("nationalReport.planNameRequired")}
+                </label>
+                <input
+                  value={planForm.name}
+                  onChange={(e) =>
+                    setPlanForm({ ...planForm, name: e.target.value })
+                  }
+                  placeholder={t("nationalReport.placeholderPlanName")}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    boxSizing: "border-box",
+                  }}
+                />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 10,
+                }}
+              >
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planType')}</label>
-                  <select value={planForm.type} onChange={e => setPlanForm({ ...planForm, type: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
-                    {[{v: '国家数据报告', l: t('nationalReport.planTypeNational')}, {v: '科室数据报告', l: t('nationalReport.planTypeDept')}, {v: '影像质量报告', l: t('nationalReport.planTypeQuality')}, {v: '剂量监测报告', l: t('nationalReport.planTypeDose')}].map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
-                  </select>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      marginBottom: 6,
+                    }}
+                  >
+                    {t("nationalReport.planType")}
+                  </label>
+                  <AppSelectField
+                    value={planForm.type}
+                    onChange={(v) =>
+                      setPlanForm({ ...planForm, type: String(v ?? "") })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                    options={[
+                      {
+                        v: "国家数据报告",
+                        l: t("nationalReport.planTypeNational"),
+                      },
+                      {
+                        v: "科室数据报告",
+                        l: t("nationalReport.planTypeDept"),
+                      },
+                      {
+                        v: "影像质量报告",
+                        l: t("nationalReport.planTypeQuality"),
+                      },
+                      {
+                        v: "剂量监测报告",
+                        l: t("nationalReport.planTypeDose"),
+                      },
+                    ].map((o) => ({ value: o.v, label: o.l }))}
+                  />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.scheduleFreq')}</label>
-                  <select value={planForm.schedule} onChange={e => setPlanForm({ ...planForm, schedule: e.target.value as ScheduledReportConfig['schedule'] })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
-                    {Object.entries(scheduleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                  </select>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      marginBottom: 6,
+                    }}
+                  >
+                    {t("nationalReport.scheduleFreq")}
+                  </label>
+                  <AppSelectField
+                    value={planForm.schedule}
+                    onChange={(v) =>
+                      setPlanForm({
+                        ...planForm,
+                        schedule: String(
+                          v ?? "",
+                        ) as ScheduledReportConfig["schedule"],
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                    options={Object.entries(scheduleLabels).map(([k, v]) => ({
+                      value: k,
+                      label: v,
+                    }))}
+                  />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 10,
+                }}
+              >
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.exportFormat')}</label>
-                  <select value={planForm.format} onChange={e => setPlanForm({ ...planForm, format: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
-                    {['PDF', 'CSV', 'Excel', 'XML'].map(f => <option key={f} value={f}>{f}</option>)}
-                  </select>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      marginBottom: 6,
+                    }}
+                  >
+                    {t("nationalReport.exportFormat")}
+                  </label>
+                  <AppSelectField
+                    value={planForm.format}
+                    onChange={(v) =>
+                      setPlanForm({ ...planForm, format: String(v ?? "") })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                    options={["PDF", "CSV", "Excel", "XML"].map((f) => ({
+                      value: f,
+                      label: f,
+                    }))}
+                  />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.recipientsLabel')}</label>
-                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder={t('nationalReportPage.recipientsPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      marginBottom: 6,
+                    }}
+                  >
+                    {t("nationalReport.recipientsLabel")}
+                  </label>
+                  <input
+                    value={planForm.recipients}
+                    onChange={(e) =>
+                      setPlanForm({ ...planForm, recipients: e.target.value })
+                    }
+                    placeholder={t("nationalReportPage.recipientsPlaceholder")}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                      boxSizing: "border-box",
+                    }}
+                  />
                 </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
-                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('nationalReport.cancel')}</button>
-                <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? t('nationalReport.creating') : t('nationalReport.createPlan')}</button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "var(--space-2, 8px)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  style={{
+                    padding: "8px 20px",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    background: "var(--bg-card)",
+                    color: "var(--text-secondary)",
+                    fontSize: 12,
+                    cursor: "pointer",
+                  }}
+                >
+                  {t("nationalReport.cancel")}
+                </button>
+                <button
+                  onClick={() => void handleCreateSchedule()}
+                  disabled={!planForm.name.trim() || saving}
+                  style={{
+                    padding: "8px 20px",
+                    border: "none",
+                    borderRadius: 6,
+                    background:
+                      planForm.name.trim() && !saving
+                        ? COLORS.primary
+                        : "#9ca3af",
+                    color: "#fff",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor:
+                      planForm.name.trim() && !saving
+                        ? "pointer"
+                        : "not-allowed",
+                  }}
+                >
+                  {saving
+                    ? t("nationalReport.creating")
+                    : t("nationalReport.createPlan")}
+                </button>
               </div>
             </div>
           </Card>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 // ============ 主组件 ============
 export default function NationalReportPage() {
-  const [activeTab, setActiveTab] = useState<'exam' | 'dose' | 'quality' | 'log' | 'fhir' | 'regulator' | 'validation' | 'audit' | 'schedule'>('exam')
-  const [selectedMonth] = useState('2026-05')
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [showSubmitModal, setShowSubmitModal] = useState(false)
-  const [submitType, setSubmitType] = useState<'exam' | 'dose' | 'quality'>('exam')
-  const [submitSuccess, setSubmitSuccess] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [doseData, setDoseData] = useState<DoseReport[]>(doseReportData)
-  const [examStats, setExamStats] = useState<ExamStatistics[]>(examStatisticsData)
-  const [reportLogs, setReportLogs] = useState<ReportLog[]>(reportLogData)
-  const [monthlyTrends, setMonthlyTrends] = useState(monthlyTrendData)
-  const [qualityData, setQualityData] = useState<QualityReport[]>(qualityReportData)
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
-  const [submitLoading, setSubmitLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<
+    | "exam"
+    | "dose"
+    | "quality"
+    | "log"
+    | "fhir"
+    | "regulator"
+    | "validation"
+    | "audit"
+    | "schedule"
+  >("exam");
+  const [selectedMonth] = useState("2026-05");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submitType, setSubmitType] = useState<"exam" | "dose" | "quality">(
+    "exam",
+  );
+  const [submitSuccess, setSubmitSuccess] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [doseData, setDoseData] = useState<DoseReport[]>(doseReportData);
+  const [examStats, setExamStats] =
+    useState<ExamStatistics[]>(examStatisticsData);
+  const [reportLogs, setReportLogs] = useState<ReportLog[]>(reportLogData);
+  const [monthlyTrends, setMonthlyTrends] = useState(monthlyTrendData);
+  const [qualityData, setQualityData] =
+    useState<QualityReport[]>(qualityReportData);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   // [W2-B] 上报详情 (getNationalReport / getDataReport)
-  const [detailOpen, setDetailOpen] = useState(false)
-  const [detailLoading, setDetailLoading] = useState(false)
-  const [detailItem, setDetailItem] = useState<any>(null)
-  const [detailType, setDetailType] = useState<'national' | 'data'>('national')
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailItem, setDetailItem] = useState<any>(null);
+  const [detailType, setDetailType] = useState<"national" | "data">("national");
 
   // [W2-B] 新建上报 (createNationalReport / createDataReport)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [createType, setCreateType] = useState<'national' | 'data'>('national')
-  const [creating, setCreating] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createType, setCreateType] = useState<"national" | "data">("national");
+  const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>({
     reportMonth: new Date().toISOString().slice(0, 7),
-    modality: 'CT',
+    modality: "CT",
     totalExams: 0,
     totalDLP: 0,
     avgDLP: 0,
@@ -1242,100 +3026,135 @@ export default function NationalReportPage() {
     qualifiedRate: 0,
     excellentRate: 0,
     avgScore: 0,
-  })
+  });
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     void (async () => {
-      setLoading(true)
-      setLoadError('')
-      const [examRes, doseRes, logRes, trendRes, qualityRes] = await Promise.allSettled([
-        datareportApi.listExamStatistics(),
-        datareportApi.listNationalReports(),
-        datareportApi.listReportLogs(),
-        datareportApi.getMonthlyTrends(),
-        datareportApi.listDataReports(),
-      ])
-      if (cancelled) return
-      if (examRes.status === 'fulfilled' && examRes.value.success && Array.isArray(examRes.value.data)) {
-        setExamStats(examRes.value.data)
+      setLoading(true);
+      setLoadError("");
+      const [examRes, doseRes, logRes, trendRes, qualityRes] =
+        await Promise.allSettled([
+          datareportApi.listExamStatistics(),
+          datareportApi.listNationalReports(),
+          datareportApi.listReportLogs(),
+          datareportApi.getMonthlyTrends(),
+          datareportApi.listDataReports(),
+        ]);
+      if (cancelled) return;
+      if (
+        examRes.status === "fulfilled" &&
+        examRes.value.success &&
+        Array.isArray(examRes.value.data)
+      ) {
+        setExamStats(examRes.value.data);
       }
-      if (doseRes.status === 'fulfilled' && doseRes.value.success && Array.isArray(doseRes.value.data)) {
-        setDoseData(doseRes.value.data)
+      if (
+        doseRes.status === "fulfilled" &&
+        doseRes.value.success &&
+        Array.isArray(doseRes.value.data)
+      ) {
+        setDoseData(doseRes.value.data);
       }
-      if (logRes.status === 'fulfilled' && logRes.value.success && Array.isArray(logRes.value.data)) {
-        setReportLogs(logRes.value.data)
+      if (
+        logRes.status === "fulfilled" &&
+        logRes.value.success &&
+        Array.isArray(logRes.value.data)
+      ) {
+        setReportLogs(logRes.value.data);
       }
-      if (trendRes.status === 'fulfilled' && trendRes.value.success && Array.isArray(trendRes.value.data)) {
-        setMonthlyTrends(trendRes.value.data)
+      if (
+        trendRes.status === "fulfilled" &&
+        trendRes.value.success &&
+        Array.isArray(trendRes.value.data)
+      ) {
+        setMonthlyTrends(trendRes.value.data);
       }
-      if (qualityRes.status === 'fulfilled' && qualityRes.value.success && Array.isArray(qualityRes.value.data)) {
-        setQualityData(qualityRes.value.data)
+      if (
+        qualityRes.status === "fulfilled" &&
+        qualityRes.value.success &&
+        Array.isArray(qualityRes.value.data)
+      ) {
+        setQualityData(qualityRes.value.data);
       }
       const failed = [examRes, doseRes, logRes, trendRes, qualityRes].filter(
-        r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success),
-      )
-      if (failed.length > 0) setLoadError(t('nationalReport.loadError'))
-      setLoading(false)
-    })()
-    return () => { cancelled = true }
-  }, [])
+        (r) =>
+          r.status === "rejected" ||
+          (r.status === "fulfilled" && !r.value.success),
+      );
+      if (failed.length > 0) setLoadError(t("nationalReport.loadError"));
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 统计数据
-  const totalExams = examStats.reduce((sum, item) => sum + item.examCount, 0)
-  const totalPositive = examStats.reduce((sum, item) => sum + item.positiveCount, 0)
-  const avgQualifiedRate = examStats.length > 0 ? examStats.reduce((sum, item) => sum + item.qualifiedRate, 0) / examStats.length : 0
-  const pendingReports = doseData.filter(d => d.status === '待上报').length
+  const totalExams = examStats.reduce((sum, item) => sum + item.examCount, 0);
+  const totalPositive = examStats.reduce(
+    (sum, item) => sum + item.positiveCount,
+    0,
+  );
+  const avgQualifiedRate =
+    examStats.length > 0
+      ? examStats.reduce((sum, item) => sum + item.qualifiedRate, 0) /
+        examStats.length
+      : 0;
+  const pendingReports = doseData.filter((d) => d.status === "待上报").length;
 
   // 筛选数据
-  const filteredExamData = examStats.filter(item =>
-    item.examType.includes(searchKeyword) || item.modality.includes(searchKeyword)
-  )
+  const filteredExamData = examStats.filter(
+    (item) =>
+      item.examType.includes(searchKeyword) ||
+      item.modality.includes(searchKeyword),
+  );
 
-  const filteredDoseData = doseData.filter(item =>
-    item.reportMonth === selectedMonth || searchKeyword === ''
-  )
+  const filteredDoseData = doseData.filter(
+    (item) => item.reportMonth === selectedMonth || searchKeyword === "",
+  );
 
   const refreshDoseData = async () => {
-    const res = await datareportApi.listNationalReports()
-    if (res.success && Array.isArray(res.data)) setDoseData(res.data)
-  }
+    const res = await datareportApi.listNationalReports();
+    if (res.success && Array.isArray(res.data)) setDoseData(res.data);
+  };
 
   const refreshQualityData = async () => {
-    const res = await datareportApi.listDataReports()
-    if (res.success && Array.isArray(res.data)) setQualityData(res.data)
-  }
+    const res = await datareportApi.listDataReports();
+    if (res.success && Array.isArray(res.data)) setQualityData(res.data);
+  };
 
   const refreshLogs = async () => {
-    const res = await datareportApi.listReportLogs()
-    if (res.success && Array.isArray(res.data)) setReportLogs(res.data)
-  }
+    const res = await datareportApi.listReportLogs();
+    if (res.success && Array.isArray(res.data)) setReportLogs(res.data);
+  };
 
   // [W2-B] 上报详情 (getNationalReport / getDataReport)
-  const handleViewDetail = async (type: 'national' | 'data', id: string) => {
-    setDetailType(type)
-    setDetailOpen(true)
-    setDetailLoading(true)
-    setDetailItem(null)
-    const res = type === 'national'
-      ? await datareportApi.getNationalReport(id)
-      : await datareportApi.getDataReport(id)
+  const handleViewDetail = async (type: "national" | "data", id: string) => {
+    setDetailType(type);
+    setDetailOpen(true);
+    setDetailLoading(true);
+    setDetailItem(null);
+    const res =
+      type === "national"
+        ? await datareportApi.getNationalReport(id)
+        : await datareportApi.getDataReport(id);
     if (res.success) {
-      setDetailItem(Array.isArray(res.data) ? res.data[0] : res.data)
+      setDetailItem(Array.isArray(res.data) ? res.data[0] : res.data);
     } else {
-      setDetailItem(null)
-      setLoadError(res.error?.message ?? t('nationalReport.errDetail'))
+      setDetailItem(null);
+      setLoadError(res.error?.message ?? t("nationalReport.errDetail"));
     }
-    setDetailLoading(false)
-  }
+    setDetailLoading(false);
+  };
 
   // [W2-B] 新建上报 (createNationalReport / createDataReport)
   const handleCreate = async () => {
-    setCreating(true)
+    setCreating(true);
     try {
-      const body = { ...createForm }
-      let res
-      if (createType === 'national') {
+      const body = { ...createForm };
+      let res;
+      if (createType === "national") {
         res = await datareportApi.createNationalReport({
           reportMonth: body.reportMonth,
           modality: body.modality,
@@ -1346,10 +3165,10 @@ export default function NationalReportPage() {
           avgCTDI: Number(body.avgCTDI || 0),
           alertCount: Number(body.alertCount || 0),
           highDoseCount: Number(body.highDoseCount || 0),
-        })
+        });
       } else {
         res = await datareportApi.createDataReport({
-          reportType: '报告质量',
+          reportType: "报告质量",
           reportMonth: body.reportMonth,
           totalReports: Number(body.totalReports || 0),
           qualifiedReports: Number(body.qualifiedReports || 0),
@@ -1357,40 +3176,53 @@ export default function NationalReportPage() {
           qualifiedRate: Number(body.qualifiedRate || 0),
           excellentRate: Number(body.excellentRate || 0),
           avgScore: Number(body.avgScore || 0),
-        })
+        });
       }
       if (res.success) {
-        setCreateOpen(false)
-        setSubmitSuccess(t('nationalReport.createdSuccess', { type: createType === 'national' ? t('nationalReport.typeDose') : t('nationalReport.typeQuality') }))
-        if (createType === 'national') await refreshDoseData()
-        else await refreshQualityData()
-        await refreshLogs()
-        setTimeout(() => setSubmitSuccess(''), 3000)
+        setCreateOpen(false);
+        setSubmitSuccess(
+          t("nationalReport.createdSuccess", {
+            type:
+              createType === "national"
+                ? t("nationalReport.typeDose")
+                : t("nationalReport.typeQuality"),
+          }),
+        );
+        if (createType === "national") await refreshDoseData();
+        else await refreshQualityData();
+        await refreshLogs();
+        setTimeout(() => setSubmitSuccess(""), 3000);
       } else {
-        setLoadError(res.error?.message ?? t('nationalReport.errCreate'))
+        setLoadError(res.error?.message ?? t("nationalReport.errCreate"));
       }
     } catch (e: any) {
-      setLoadError(t('nationalReport.errCreateDetail', { msg: e?.message || String(e) }))
+      setLoadError(
+        t("nationalReport.errCreateDetail", { msg: e?.message || String(e) }),
+      );
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
   const handleSubmitReport = async () => {
-    setShowSubmitModal(false)
-    setSubmitLoading(true)
-    const now = new Date().toISOString().slice(0, 16).replace('T', ' ')
+    setShowSubmitModal(false);
+    setSubmitLoading(true);
+    const now = new Date().toISOString().slice(0, 16).replace("T", " ");
     try {
-      if (submitType === 'dose') {
-        const pending = doseData.filter(d => d.reportMonth === selectedMonth)
+      if (submitType === "dose") {
+        const pending = doseData.filter((d) => d.reportMonth === selectedMonth);
         if (pending.length > 0) {
           for (const d of pending) {
-            await datareportApi.createNationalReport({ ...d, status: '已上报', submitTime: now })
+            await datareportApi.createNationalReport({
+              ...d,
+              status: "已上报",
+              submitTime: now,
+            });
           }
         } else {
           await datareportApi.createNationalReport({
             reportMonth: selectedMonth,
-            modality: 'CT',
+            modality: "CT",
             totalExams: examStats.reduce((s, i) => s + i.examCount, 0),
             totalDLP: 0,
             avgDLP: 0,
@@ -1398,28 +3230,34 @@ export default function NationalReportPage() {
             avgCTDI: 0,
             alertCount: 0,
             highDoseCount: 0,
-            status: '已上报',
+            status: "已上报",
             submitTime: now,
-          })
+          });
         }
-        await refreshDoseData()
-      } else if (submitType === 'quality') {
+        await refreshDoseData();
+      } else if (submitType === "quality") {
         await datareportApi.createDataReport({
-          reportType: '报告质量',
+          reportType: "报告质量",
           reportMonth: selectedMonth,
           totalReports: qualityData.reduce((s, d) => s + d.totalReports, 0),
-          qualifiedReports: qualityData.reduce((s, d) => s + d.qualifiedReports, 0),
-          excellentReports: qualityData.reduce((s, d) => s + d.excellentReports, 0),
+          qualifiedReports: qualityData.reduce(
+            (s, d) => s + d.qualifiedReports,
+            0,
+          ),
+          excellentReports: qualityData.reduce(
+            (s, d) => s + d.excellentReports,
+            0,
+          ),
           qualifiedRate: 97.0,
           excellentRate: 30.0,
           avgScore: 87.0,
-          status: '已上报',
-        })
-        await refreshQualityData()
+          status: "已上报",
+        });
+        await refreshQualityData();
       } else {
         await datareportApi.createNationalReport({
           reportMonth: selectedMonth,
-          modality: 'CT',
+          modality: "CT",
           totalExams: examStats.reduce((s, i) => s + i.examCount, 0),
           totalDLP: 0,
           avgDLP: 0,
@@ -1427,30 +3265,74 @@ export default function NationalReportPage() {
           avgCTDI: 0,
           alertCount: 0,
           highDoseCount: 0,
-          status: '已上报',
+          status: "已上报",
           submitTime: now,
-        })
-        await refreshDoseData()
+        });
+        await refreshDoseData();
       }
-      await refreshLogs()
-      setSubmitSuccess(t('nationalReport.submittedSuccess', { type: submitType === 'exam' ? t('nationalReport.typeExam') : submitType === 'dose' ? t('nationalReport.typeDose') : t('nationalReport.typeQuality') }))
-      setTimeout(() => setSubmitSuccess(''), 3000)
+      await refreshLogs();
+      setSubmitSuccess(
+        t("nationalReport.submittedSuccess", {
+          type:
+            submitType === "exam"
+              ? t("nationalReport.typeExam")
+              : submitType === "dose"
+                ? t("nationalReport.typeDose")
+                : t("nationalReport.typeQuality"),
+        }),
+      );
+      setTimeout(() => setSubmitSuccess(""), 3000);
     } catch (e: any) {
-      setLoadError(t('nationalReport.errSubmit', { msg: e?.message || String(e) }))
+      setLoadError(
+        t("nationalReport.errSubmit", { msg: e?.message || String(e) }),
+      );
     } finally {
-      setSubmitLoading(false)
+      setSubmitLoading(false);
     }
-  }
+  };
 
-  const handleExport = (type: 'exam' | 'dose' | 'quality') => {
-    if (type === 'exam') {
-      exportToCSV(examStats, 'exam_statistics.csv', ['ID', t('nationalReport.thModality'), t('nationalReport.thExamType'), t('nationalReport.thExamCount'), t('nationalReport.thPositive'), t('nationalReport.thPositiveRate'), t('nationalReport.thAvgTime'), t('nationalReport.thQualifiedRate')])
-    } else if (type === 'dose') {
-      exportToCSV(doseData, 'dose_report.csv', ['ID', t('nationalReport.thMonth'), t('nationalReport.thModality'), t('nationalReport.csvTotalExams'), t('nationalReport.thTotalDlp'), t('nationalReport.thAvgDlp'), t('nationalReport.csvTotalCtdi'), t('nationalReport.csvAvgCtdi'), t('nationalReport.thAlertCount'), t('nationalReport.thHighDose'), t('nationalReport.thStatus')])
+  const handleExport = (type: "exam" | "dose" | "quality") => {
+    if (type === "exam") {
+      exportToCSV(examStats, "exam_statistics.csv", [
+        "ID",
+        t("nationalReport.thModality"),
+        t("nationalReport.thExamType"),
+        t("nationalReport.thExamCount"),
+        t("nationalReport.thPositive"),
+        t("nationalReport.thPositiveRate"),
+        t("nationalReport.thAvgTime"),
+        t("nationalReport.thQualifiedRate"),
+      ]);
+    } else if (type === "dose") {
+      exportToCSV(doseData, "dose_report.csv", [
+        "ID",
+        t("nationalReport.thMonth"),
+        t("nationalReport.thModality"),
+        t("nationalReport.csvTotalExams"),
+        t("nationalReport.thTotalDlp"),
+        t("nationalReport.thAvgDlp"),
+        t("nationalReport.csvTotalCtdi"),
+        t("nationalReport.csvAvgCtdi"),
+        t("nationalReport.thAlertCount"),
+        t("nationalReport.thHighDose"),
+        t("nationalReport.thStatus"),
+      ]);
     } else {
-      exportToCSV(qualityReportData, 'quality_report.csv', ['ID', t('nationalReport.thMonth'), t('nationalReport.thTotalReports'), t('nationalReport.thQualified'), t('nationalReport.thExcellent'), t('nationalReport.thQualifiedRate'), t('nationalReport.thExcellentRate'), t('nationalReport.thAvgScore'), t('nationalReport.thIssues'), t('nationalReport.improvement'), t('nationalReport.thStatus')])
+      exportToCSV(qualityReportData, "quality_report.csv", [
+        "ID",
+        t("nationalReport.thMonth"),
+        t("nationalReport.thTotalReports"),
+        t("nationalReport.thQualified"),
+        t("nationalReport.thExcellent"),
+        t("nationalReport.thQualifiedRate"),
+        t("nationalReport.thExcellentRate"),
+        t("nationalReport.thAvgScore"),
+        t("nationalReport.thIssues"),
+        t("nationalReport.improvement"),
+        t("nationalReport.thStatus"),
+      ]);
     }
-  }
+  };
 
   return (
     <div style={styles.pageContainer}>
@@ -1459,42 +3341,86 @@ export default function NationalReportPage() {
         <div>
           <div style={styles.headerTitle}>
             <Database size={24} />
-            <span>{t('nationalReport.title')}</span>
+            <span>{t("nationalReport.title")}</span>
           </div>
-          <div style={styles.headerSubtitle}>{t('nationalReport.subtitle')}</div>
+          <div style={styles.headerSubtitle}>
+            {t("nationalReport.subtitle")}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: "flex", gap: "12px" }}>
           <button
-              style={{ ...styles.button, background: 'var(--color-success)', color: '#fff' }}
+            style={{
+              ...styles.button,
+              background: "var(--color-success)",
+              color: "#fff",
+            }}
             onClick={() => {
-              setCreateType('national')
-              setCreateForm(f => ({ ...f, reportMonth: new Date().toISOString().slice(0, 7) }))
-              setCreateOpen(true)
+              setCreateType("national");
+              setCreateForm((f) => ({
+                ...f,
+                reportMonth: new Date().toISOString().slice(0, 7),
+              }));
+              setCreateOpen(true);
             }}
           >
             <Plus size={16} />
-            {t('nationalReport.newReport')}
+            {t("nationalReport.newReport")}
           </button>
-          <button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => handleExport(activeTab as any)}>
+          <button
+            style={{ ...styles.button, ...styles.buttonOutline }}
+            onClick={() => handleExport(activeTab as any)}
+          >
             <Download size={16} />
-            {t('nationalReport.exportReport')}
+            {t("nationalReport.exportReport")}
           </button>
-          <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => { setSubmitType(activeTab as any); setShowSubmitModal(true); }}>
+          <button
+            style={{ ...styles.button, ...styles.buttonPrimary }}
+            onClick={() => {
+              setSubmitType(activeTab as any);
+              setShowSubmitModal(true);
+            }}
+          >
             <Upload size={16} />
-            {t('nationalReport.submitData')}
+            {t("nationalReport.submitData")}
           </button>
         </div>
       </div>
 
       {/* [W2-B] 加载/错误提示 */}
       {loadError && (
-          <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div
+          style={{
+            margin: "12px 24px 0",
+            padding: "10px 14px",
+            background: "var(--color-error-bg)",
+            border: "1px solid #fecaca",
+            borderRadius: 6,
+            fontSize: 12,
+            color: "var(--color-error)",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
           <AlertTriangle size={14} /> {loadError}
         </div>
       )}
       {loading && (
-          <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 6, fontSize: 12, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <RefreshCw size={14} /> {t('nationalReport.loading')}
+        <div
+          style={{
+            margin: "12px 24px 0",
+            padding: "10px 14px",
+            background: "var(--color-info-bg)",
+            border: "1px solid #bfdbfe",
+            borderRadius: 6,
+            fontSize: 12,
+            color: "var(--color-primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <RefreshCw size={14} /> {t("nationalReport.loading")}
         </div>
       )}
 
@@ -1503,53 +3429,68 @@ export default function NationalReportPage() {
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <BarChart3 size={14} />
-            {t('nationalReport.totalExams')}
+            {t("nationalReport.totalExams")}
           </div>
           <div style={styles.statValue}>{totalExams.toLocaleString()}</div>
           <div style={{ ...styles.statChange, color: COLORS.success }}>
             <TrendingUp size={14} />
-            <span>{t('nationalReport.momUp')}</span>
+            <span>{t("nationalReport.momUp")}</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <Activity size={14} />
-            {t('nationalReport.totalPositive')}
+            {t("nationalReport.totalPositive")}
           </div>
-          <div style={{ ...styles.statValue, color: COLORS.warning }}>{totalPositive.toLocaleString()}</div>
+          <div style={{ ...styles.statValue, color: COLORS.warning }}>
+            {totalPositive.toLocaleString()}
+          </div>
           <div style={{ ...styles.statChange, color: COLORS.textMuted }}>
-            <span>{t('nationalReport.positiveRate', { rate: ((totalPositive / totalExams) * 100).toFixed(1) })}</span>
+            <span>
+              {t("nationalReport.positiveRate", {
+                rate: ((totalPositive / totalExams) * 100).toFixed(1),
+              })}
+            </span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <ShieldCheck size={14} />
-            {t('nationalReport.avgQualified')}
+            {t("nationalReport.avgQualified")}
           </div>
-          <div style={{ ...styles.statValue, color: COLORS.success }}>{avgQualifiedRate.toFixed(1)}%</div>
+          <div style={{ ...styles.statValue, color: COLORS.success }}>
+            {avgQualifiedRate.toFixed(1)}%
+          </div>
           <div style={{ ...styles.statChange, color: COLORS.success }}>
             <CheckCircle size={14} />
-            <span>{t('nationalReport.meetsStandard')}</span>
+            <span>{t("nationalReport.meetsStandard")}</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <AlertTriangle size={14} />
-            {t('nationalReport.pendingReports')}
+            {t("nationalReport.pendingReports")}
           </div>
-          <div style={{ ...styles.statValue, color: pendingReports > 0 ? COLORS.warning : COLORS.success }}>{pendingReports}</div>
+          <div
+            style={{
+              ...styles.statValue,
+              color: pendingReports > 0 ? COLORS.warning : COLORS.success,
+            }}
+          >
+            {pendingReports}
+          </div>
           <div style={{ ...styles.statChange, color: COLORS.textMuted }}>
-            <span>{t('nationalReport.submitPrompt')}</span>
+            <span>{t("nationalReport.submitPrompt")}</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <Calendar size={14} />
-            {t('nationalReport.reportCycle')}
+            {t("nationalReport.reportCycle")}
           </div>
           <div style={styles.statValue}>{selectedMonth}</div>
           <div style={{ ...styles.statChange, color: COLORS.textMuted }}>
-            <span>{t('nationalReport.monthly')}</span>
+            <span>{t("nationalReport.monthly")}</span>
           </div>
         </div>
       </div>
@@ -1559,21 +3500,66 @@ export default function NationalReportPage() {
         {/* 左侧面板 */}
         <div style={styles.leftPanel}>
           <div style={styles.panelHeader}>
-            <span>{t('nationalReport.reportTypePanel')}</span>
+            <span>{t("nationalReport.reportTypePanel")}</span>
             <Filter size={14} />
           </div>
           <div style={styles.panelBody}>
             {[
-              { key: 'exam', label: t('nationalReport.navExam'), icon: Scan, count: examStats.length },
-              { key: 'dose', label: t('nationalReport.navDose'), icon: Radio, count: doseData.length },
-              { key: 'quality', label: t('nationalReport.navQuality'), icon: ShieldCheck, count: qualityData.length },
-              { key: 'log', label: t('nationalReport.navLog'), icon: Clock, count: reportLogs.length },
-              { key: 'fhir', label: t('nationalReport.navFhir'), icon: FileJson, count: 3 },
-              { key: 'regulator', label: t('nationalReport.navRegulator'), icon: Globe, count: regulatorTargets.length },
-              { key: 'validation', label: t('nationalReport.navValidation'), icon: CheckCircle, count: validationChecks.length },
-              { key: 'audit', label: t('nationalReport.navAudit'), icon: Fingerprint, count: submissionHistory.length },
-              { key: 'schedule', label: t('nationalReport.navSchedule'), icon: Calendar, count: scheduledReports.length },
-            ].map(item => (
+              {
+                key: "exam",
+                label: t("nationalReport.navExam"),
+                icon: Scan,
+                count: examStats.length,
+              },
+              {
+                key: "dose",
+                label: t("nationalReport.navDose"),
+                icon: Radio,
+                count: doseData.length,
+              },
+              {
+                key: "quality",
+                label: t("nationalReport.navQuality"),
+                icon: ShieldCheck,
+                count: qualityData.length,
+              },
+              {
+                key: "log",
+                label: t("nationalReport.navLog"),
+                icon: Clock,
+                count: reportLogs.length,
+              },
+              {
+                key: "fhir",
+                label: t("nationalReport.navFhir"),
+                icon: FileJson,
+                count: 3,
+              },
+              {
+                key: "regulator",
+                label: t("nationalReport.navRegulator"),
+                icon: Globe,
+                count: regulatorTargets.length,
+              },
+              {
+                key: "validation",
+                label: t("nationalReport.navValidation"),
+                icon: CheckCircle,
+                count: validationChecks.length,
+              },
+              {
+                key: "audit",
+                label: t("nationalReport.navAudit"),
+                icon: Fingerprint,
+                count: submissionHistory.length,
+              },
+              {
+                key: "schedule",
+                label: t("nationalReport.navSchedule"),
+                icon: Calendar,
+                count: scheduledReports.length,
+              },
+            ].map((item) => (
               <div
                 key={item.key}
                 role="button"
@@ -1583,32 +3569,90 @@ export default function NationalReportPage() {
                   ...(activeTab === item.key ? styles.listItemActive : {}),
                 }}
                 onClick={() => setActiveTab(item.key as any)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(item.key as any) } }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setActiveTab(item.key as any);
+                  }
+                }}
               >
-                <item.icon size={18} color={activeTab === item.key ? COLORS.primary : COLORS.textMuted} />
+                <item.icon
+                  size={18}
+                  color={
+                    activeTab === item.key ? COLORS.primary : COLORS.textMuted
+                  }
+                />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', fontWeight: 500 }}>{item.label}</div>
-                  <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('nationalReport.countSuffix', { count: item.count })}</div>
+                  <div style={{ fontSize: "12px", fontWeight: 500 }}>
+                    {item.label}
+                  </div>
+                  <div style={{ fontSize: "11px", color: COLORS.textMuted }}>
+                    {t("nationalReport.countSuffix", { count: item.count })}
+                  </div>
                 </div>
-                {activeTab === item.key && <ChevronRight size={16} color={COLORS.primary} />}
+                {activeTab === item.key && (
+                  <ChevronRight size={16} color={COLORS.primary} />
+                )}
               </div>
             ))}
           </div>
 
           {/* 月度趋势图 */}
-          <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: COLORS.textDark }}>{t('nationalReport.examTrend')}</div>
+          <div
+            style={{
+              padding: "12px",
+              borderTop: "1px solid var(--border-color)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                marginBottom: "8px",
+                color: COLORS.textDark,
+              }}
+            >
+              {t("nationalReport.examTrend")}
+            </div>
             <div style={styles.chartContainer}>
               <ChartContainer height={160}>
                 <LineChart data={monthlyTrends}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} interval={autoInterval(monthlyTrends.length)} tickFormatter={(v: string) => (v && v.length > 6 ? `${v.slice(0, 6)}…` : v)} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--border-color)"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12 }}
+                    interval={autoInterval(monthlyTrends.length)}
+                    tickFormatter={(v: string) =>
+                      v && v.length > 6 ? `${v.slice(0, 6)}…` : v
+                    }
+                  />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip contentStyle={{ fontSize: 12 }} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line type="monotone" dataKey="CT" stroke={COLORS.ct} strokeWidth={2} dot={{ r: 3 }} />
-                  <Line type="monotone" dataKey="MRI" stroke={COLORS.mri} strokeWidth={2} dot={{ r: 3 }} />
-                  <Line type="monotone" dataKey="DR" stroke={COLORS.dr} strokeWidth={2} dot={{ r: 3 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="CT"
+                    stroke={COLORS.ct}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="MRI"
+                    stroke={COLORS.mri}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="DR"
+                    stroke={COLORS.dr}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                  />
                 </LineChart>
               </ChartContainer>
             </div>
@@ -1618,24 +3662,45 @@ export default function NationalReportPage() {
         {/* 中间面板 */}
         <div style={styles.middlePanel}>
           <div style={styles.tabContainer}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: 'auto' }}>
-              <span style={{ fontWeight: 600 }}>{activeTab === 'exam' ? t('nationalReport.tabExam') : activeTab === 'dose' ? t('nationalReport.tabDose') : activeTab === 'quality' ? t('nationalReport.tabQuality') : t('nationalReport.tabLog')}</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                marginRight: "auto",
+              }}
+            >
+              <span style={{ fontWeight: 600 }}>
+                {activeTab === "exam"
+                  ? t("nationalReport.tabExam")
+                  : activeTab === "dose"
+                    ? t("nationalReport.tabDose")
+                    : activeTab === "quality"
+                      ? t("nationalReport.tabQuality")
+                      : t("nationalReport.tabLog")}
+              </span>
             </div>
             <div style={styles.searchBox}>
               <Search size={14} color={COLORS.textMuted} />
               <input
                 type="text"
-                placeholder={t('nationalReport.searchPlaceholder')}
+                placeholder={t("nationalReport.searchPlaceholder")}
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                style={{ ...styles.input, border: 'none', background: 'transparent', width: '120px', padding: '4px' }}
+                style={{
+                  ...styles.input,
+                  border: "none",
+                  background: "transparent",
+                  width: "120px",
+                  padding: "4px",
+                }}
               />
             </div>
           </div>
 
-          <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
+          <div style={{ flex: 1, overflow: "auto", padding: "12px" }}>
             {/* 检查统计表格 */}
-            {activeTab === 'exam' && (
+            {activeTab === "exam" && (
               <DataTable
                 rowKey="id"
                 dataSource={filteredExamData}
@@ -1643,24 +3708,71 @@ export default function NationalReportPage() {
                 showExport={false}
                 showDensity={false}
                 columns={[
-                  { title: t('nationalReport.thModality'), dataIndex: 'modality', render: (value: string) => getModalityBadge(value) },
-                  { title: t('nationalReport.thExamType'), dataIndex: 'examType' },
-                  { title: t('nationalReport.thExamCount'), dataIndex: 'examCount', align: 'right', render: (value: number) => <span style={{ fontWeight: 600 }}>{value.toLocaleString()}</span> },
-                  { title: t('nationalReport.thPositive'), dataIndex: 'positiveCount', align: 'right', render: (value: number) => <span style={{ color: 'var(--color-warning)' }}>{value}</span> },
-                  { title: t('nationalReport.thPositiveRate'), dataIndex: 'positiveRate', align: 'right', render: (value: number) => `${value}%` },
-                  { title: t('nationalReport.thAvgTime'), dataIndex: 'avgReportTime', align: 'right', render: (value: number) => t('nationalReport.minutes', { count: value }) },
                   {
-                    title: t('nationalReport.thQualifiedRate'),
-                    dataIndex: 'qualifiedRate',
-                    align: 'right',
-                    render: (value: number) => <span style={{ color: value >= 95 ? 'var(--color-success)' : 'var(--color-warning)' }}>{value}%</span>,
+                    title: t("nationalReport.thModality"),
+                    dataIndex: "modality",
+                    render: (value: string) => getModalityBadge(value),
+                  },
+                  {
+                    title: t("nationalReport.thExamType"),
+                    dataIndex: "examType",
+                  },
+                  {
+                    title: t("nationalReport.thExamCount"),
+                    dataIndex: "examCount",
+                    align: "right",
+                    render: (value: number) => (
+                      <span style={{ fontWeight: 600 }}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("nationalReport.thPositive"),
+                    dataIndex: "positiveCount",
+                    align: "right",
+                    render: (value: number) => (
+                      <span style={{ color: "var(--color-warning)" }}>
+                        {value}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("nationalReport.thPositiveRate"),
+                    dataIndex: "positiveRate",
+                    align: "right",
+                    render: (value: number) => `${value}%`,
+                  },
+                  {
+                    title: t("nationalReport.thAvgTime"),
+                    dataIndex: "avgReportTime",
+                    align: "right",
+                    render: (value: number) =>
+                      t("nationalReport.minutes", { count: value }),
+                  },
+                  {
+                    title: t("nationalReport.thQualifiedRate"),
+                    dataIndex: "qualifiedRate",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          color:
+                            value >= 95
+                              ? "var(--color-success)"
+                              : "var(--color-warning)",
+                        }}
+                      >
+                        {value}%
+                      </span>
+                    ),
                   },
                 ]}
               />
             )}
 
             {/* 辐射剂量表格 */}
-            {activeTab === 'dose' && (
+            {activeTab === "dose" && (
               <DataTable
                 rowKey="id"
                 dataSource={filteredDoseData}
@@ -1669,24 +3781,90 @@ export default function NationalReportPage() {
                 showDensity={false}
                 scroll={{ x: 1200 }}
                 columns={[
-                  { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
-                  { title: t('nationalReport.thModality'), dataIndex: 'modality', render: (value: string) => getModalityBadge(value) },
-                  { title: t('nationalReport.thTotalExams'), dataIndex: 'totalExams', align: 'right', render: (value: number) => <span style={{ fontWeight: 600 }}>{value.toLocaleString()}</span> },
-                  { title: t('nationalReport.thTotalDlp'), dataIndex: 'totalDLP', align: 'right', render: (value: number) => (value > 0 ? value.toLocaleString() : '-') },
-                  { title: t('nationalReport.thAvgDlp'), dataIndex: 'avgDLP', align: 'right', render: (value: number) => (value > 0 ? value : '-') },
-                  { title: t('nationalReport.thAvgCtdi'), dataIndex: 'avgCTDI', align: 'right', render: (value: number) => (value > 0 ? value : '-') },
-                  { title: t('nationalReport.thAlertCount'), dataIndex: 'alertCount', align: 'right', render: (value: number) => <span style={{ color: value > 0 ? 'var(--color-warning)' : 'var(--color-success)' }}>{value}</span> },
-                  { title: t('nationalReport.thHighDose'), dataIndex: 'highDoseCount', align: 'right' },
-                  { title: t('nationalReport.thStatus'), key: 'status', render: (_v, item) => getStatusBadge(item.status) },
                   {
-                    title: t('nationalReport.thAction'),
-                    key: 'action',
+                    title: t("nationalReport.thMonth"),
+                    dataIndex: "reportMonth",
+                  },
+                  {
+                    title: t("nationalReport.thModality"),
+                    dataIndex: "modality",
+                    render: (value: string) => getModalityBadge(value),
+                  },
+                  {
+                    title: t("nationalReport.thTotalExams"),
+                    dataIndex: "totalExams",
+                    align: "right",
+                    render: (value: number) => (
+                      <span style={{ fontWeight: 600 }}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("nationalReport.thTotalDlp"),
+                    dataIndex: "totalDLP",
+                    align: "right",
+                    render: (value: number) =>
+                      value > 0 ? value.toLocaleString() : "-",
+                  },
+                  {
+                    title: t("nationalReport.thAvgDlp"),
+                    dataIndex: "avgDLP",
+                    align: "right",
+                    render: (value: number) => (value > 0 ? value : "-"),
+                  },
+                  {
+                    title: t("nationalReport.thAvgCtdi"),
+                    dataIndex: "avgCTDI",
+                    align: "right",
+                    render: (value: number) => (value > 0 ? value : "-"),
+                  },
+                  {
+                    title: t("nationalReport.thAlertCount"),
+                    dataIndex: "alertCount",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          color:
+                            value > 0
+                              ? "var(--color-warning)"
+                              : "var(--color-success)",
+                        }}
+                      >
+                        {value}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("nationalReport.thHighDose"),
+                    dataIndex: "highDoseCount",
+                    align: "right",
+                  },
+                  {
+                    title: t("nationalReport.thStatus"),
+                    key: "status",
+                    render: (_v, item) => getStatusBadge(item.status),
+                  },
+                  {
+                    title: t("nationalReport.thAction"),
+                    key: "action",
                     render: (_v, item) => (
                       <button
-                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
-                        onClick={() => void handleViewDetail('national', item.id)}
+                        style={{
+                          ...styles.button,
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          ...styles.buttonOutline,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                        onClick={() =>
+                          void handleViewDetail("national", item.id)
+                        }
                       >
-                        <Eye size={14} /> {t('nationalReport.detail')}
+                        <Eye size={14} /> {t("nationalReport.detail")}
                       </button>
                     ),
                   },
@@ -1695,7 +3873,7 @@ export default function NationalReportPage() {
             )}
 
             {/* 报告质量表格 */}
-            {activeTab === 'quality' && (
+            {activeTab === "quality" && (
               <DataTable
                 rowKey="id"
                 dataSource={qualityData}
@@ -1704,34 +3882,108 @@ export default function NationalReportPage() {
                 showDensity={false}
                 scroll={{ x: 1200 }}
                 columns={[
-                  { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
-                  { title: t('nationalReport.thTotalReports'), dataIndex: 'totalReports', align: 'right', render: (value: number) => <span style={{ fontWeight: 600 }}>{value.toLocaleString()}</span> },
-                  { title: t('nationalReport.thQualified'), dataIndex: 'qualifiedReports', align: 'right' },
-                  { title: t('nationalReport.thExcellent'), dataIndex: 'excellentReports', align: 'right' },
-                  { title: t('nationalReport.thQualifiedRate'), dataIndex: 'qualifiedRate', align: 'right', render: (value: number) => <span style={{ color: value >= 95 ? 'var(--color-success)' : 'var(--color-warning)' }}>{value}%</span> },
-                  { title: t('nationalReport.thExcellentRate'), dataIndex: 'excellentRate', align: 'right', render: (value: number) => `${value}%` },
-                  { title: t('nationalReport.thAvgScore'), dataIndex: 'avgScore', align: 'right' },
                   {
-                    title: t('nationalReport.thIssues'),
-                    dataIndex: 'commonIssues',
+                    title: t("nationalReport.thMonth"),
+                    dataIndex: "reportMonth",
+                  },
+                  {
+                    title: t("nationalReport.thTotalReports"),
+                    dataIndex: "totalReports",
+                    align: "right",
+                    render: (value: number) => (
+                      <span style={{ fontWeight: 600 }}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("nationalReport.thQualified"),
+                    dataIndex: "qualifiedReports",
+                    align: "right",
+                  },
+                  {
+                    title: t("nationalReport.thExcellent"),
+                    dataIndex: "excellentReports",
+                    align: "right",
+                  },
+                  {
+                    title: t("nationalReport.thQualifiedRate"),
+                    dataIndex: "qualifiedRate",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          color:
+                            value >= 95
+                              ? "var(--color-success)"
+                              : "var(--color-warning)",
+                        }}
+                      >
+                        {value}%
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("nationalReport.thExcellentRate"),
+                    dataIndex: "excellentRate",
+                    align: "right",
+                    render: (value: number) => `${value}%`,
+                  },
+                  {
+                    title: t("nationalReport.thAvgScore"),
+                    dataIndex: "avgScore",
+                    align: "right",
+                  },
+                  {
+                    title: t("nationalReport.thIssues"),
+                    dataIndex: "commonIssues",
                     render: (value: string[]) => (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                      >
                         {(value || []).slice(0, 2).map((issue, idx) => (
-                          <span key={idx} style={{ padding: '2px 6px', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderRadius: 4, fontSize: 10 }}>{issue}</span>
+                          <span
+                            key={idx}
+                            style={{
+                              padding: "2px 6px",
+                              background: "var(--color-warning-bg)",
+                              color: "var(--color-warning)",
+                              borderRadius: 4,
+                              fontSize: 10,
+                            }}
+                          >
+                            {issue}
+                          </span>
                         ))}
                       </div>
                     ),
                   },
-                  { title: t('nationalReport.thStatus'), key: 'status', render: (_v, item) => getStatusBadge(item.status) },
                   {
-                    title: t('nationalReport.thAction'),
-                    key: 'action',
+                    title: t("nationalReport.thStatus"),
+                    key: "status",
+                    render: (_v, item) => getStatusBadge(item.status),
+                  },
+                  {
+                    title: t("nationalReport.thAction"),
+                    key: "action",
                     render: (_v, item) => (
                       <button
-                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
-                        onClick={() => void handleViewDetail('data', item.id)}
+                        style={{
+                          ...styles.button,
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          ...styles.buttonOutline,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                        onClick={() => void handleViewDetail("data", item.id)}
                       >
-                        <Eye size={14} /> {t('nationalReport.detail')}
+                        <Eye size={14} /> {t("nationalReport.detail")}
                       </button>
                     ),
                   },
@@ -1740,22 +3992,22 @@ export default function NationalReportPage() {
             )}
 
             {/* FHIR标准化报告 */}
-            {activeTab === 'fhir' && <FHIRReportPanel />}
+            {activeTab === "fhir" && <FHIRReportPanel />}
 
             {/* 多监管机构 */}
-            {activeTab === 'regulator' && <MultiRegulatorPanel />}
+            {activeTab === "regulator" && <MultiRegulatorPanel />}
 
             {/* 预提交验证 */}
-            {activeTab === 'validation' && <PreSubmissionValidation />}
+            {activeTab === "validation" && <PreSubmissionValidation />}
 
             {/* 审计追踪 */}
-            {activeTab === 'audit' && <SubmissionAuditTrail />}
+            {activeTab === "audit" && <SubmissionAuditTrail />}
 
             {/* 计划报告 */}
-            {activeTab === 'schedule' && <ScheduledReportsPanel />}
+            {activeTab === "schedule" && <ScheduledReportsPanel />}
 
             {/* 上报记录 */}
-            {activeTab === 'log' && (
+            {activeTab === "log" && (
               <DataTable
                 rowKey="id"
                 dataSource={reportLogs}
@@ -1764,19 +4016,49 @@ export default function NationalReportPage() {
                 showDensity={false}
                 columns={[
                   {
-                    title: t('nationalReport.thReportType'),
-                    dataIndex: 'reportType',
+                    title: t("nationalReport.thReportType"),
+                    dataIndex: "reportType",
                     render: (value: string) => (
-                      <StatusTag status={value} tone={severityTone(value === 'dose' ? 'warning' : value === 'exam' ? 'info' : 'success')}>
-                        {value === 'dose' ? t('nationalReport.typeDose') : value === 'exam' ? t('nationalReport.typeExam') : t('nationalReport.typeQuality')}
+                      <StatusTag
+                        status={value}
+                        tone={severityTone(
+                          value === "dose"
+                            ? "warning"
+                            : value === "exam"
+                              ? "info"
+                              : "success",
+                        )}
+                      >
+                        {value === "dose"
+                          ? t("nationalReport.typeDose")
+                          : value === "exam"
+                            ? t("nationalReport.typeExam")
+                            : t("nationalReport.typeQuality")}
                       </StatusTag>
                     ),
                   },
-                  { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
-                  { title: t('nationalReport.thSubmitTime'), dataIndex: 'submitTime' },
-                  { title: t('nationalReport.thOperator'), dataIndex: 'operator' },
-                  { title: t('nationalReport.thStatus'), key: 'status', render: (_v, item) => getStatusBadge(item.status) },
-                  { title: t('nationalReport.thNote'), dataIndex: 'note', render: (value: string) => value || '-' },
+                  {
+                    title: t("nationalReport.thMonth"),
+                    dataIndex: "reportMonth",
+                  },
+                  {
+                    title: t("nationalReport.thSubmitTime"),
+                    dataIndex: "submitTime",
+                  },
+                  {
+                    title: t("nationalReport.thOperator"),
+                    dataIndex: "operator",
+                  },
+                  {
+                    title: t("nationalReport.thStatus"),
+                    key: "status",
+                    render: (_v, item) => getStatusBadge(item.status),
+                  },
+                  {
+                    title: t("nationalReport.thNote"),
+                    dataIndex: "note",
+                    render: (value: string) => value || "-",
+                  },
                 ]}
               />
             )}
@@ -1784,12 +4066,39 @@ export default function NationalReportPage() {
 
           {/* 分页 */}
           <div style={styles.pagination}>
-            <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
-              {t('nationalReport.recordCount', { count: activeTab === 'exam' ? filteredExamData.length : activeTab === 'dose' ? filteredDoseData.length : activeTab === 'quality' ? qualityData.length : reportLogs.length })}
+            <div style={{ fontSize: "12px", color: COLORS.textMuted }}>
+              {t("nationalReport.recordCount", {
+                count:
+                  activeTab === "exam"
+                    ? filteredExamData.length
+                    : activeTab === "dose"
+                      ? filteredDoseData.length
+                      : activeTab === "quality"
+                        ? qualityData.length
+                        : reportLogs.length,
+              })}
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>{t('nationalReport.prevPage')}</button>
-              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(currentPage + 1)}>{t('nationalReport.nextPage')}</button>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                style={{
+                  ...styles.button,
+                  padding: "6px 12px",
+                  fontSize: "12px",
+                }}
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              >
+                {t("nationalReport.prevPage")}
+              </button>
+              <button
+                style={{
+                  ...styles.button,
+                  padding: "6px 12px",
+                  fontSize: "12px",
+                }}
+                onClick={() => setCurrentPage(currentPage + 1)}
+              >
+                {t("nationalReport.nextPage")}
+              </button>
             </div>
           </div>
         </div>
@@ -1798,7 +4107,7 @@ export default function NationalReportPage() {
         <div style={styles.rightPanel}>
           {/* 设备分布 */}
           <div style={styles.panelHeader}>
-            <span>{t('nationalReport.deviceDist')}</span>
+            <span>{t("nationalReport.deviceDist")}</span>
             <PieChartIcon size={14} />
           </div>
           <div style={styles.chartContainer}>
@@ -1821,72 +4130,196 @@ export default function NationalReportPage() {
               </PieChart>
             </ChartContainer>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '0 12px 12px' }}>
-            {deviceDistribution.map(item => (
-              <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: item.color }} />
-                <span style={{ fontSize: '11px' }}>{item.name} {item.value}%</span>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              padding: "0 12px 12px",
+            }}
+          >
+            {deviceDistribution.map((item) => (
+              <div
+                key={item.name}
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <div
+                  style={{
+                    width: "10px",
+                    height: "10px",
+                    borderRadius: "2px",
+                    background: item.color,
+                  }}
+                />
+                <span style={{ fontSize: "11px" }}>
+                  {item.name} {item.value}%
+                </span>
               </div>
             ))}
           </div>
 
           {/* 上报进度 */}
-          <div style={{ ...styles.panelHeader, borderTop: '1px solid var(--border-color)' }}>
-            <span>{t('nationalReport.reportProgress')}</span>
+          <div
+            style={{
+              ...styles.panelHeader,
+              borderTop: "1px solid var(--border-color)",
+            }}
+          >
+            <span>{t("nationalReport.reportProgress")}</span>
             <Globe size={14} />
           </div>
-          <div style={{ padding: '12px' }}>
+          <div style={{ padding: "12px" }}>
             {[
-              { label: t('nationalReport.navExam'), progress: 80, color: COLORS.ct },
-              { label: t('nationalReport.navDose'), progress: 65, color: COLORS.mri },
-              { label: t('nationalReport.navQuality'), progress: 50, color: COLORS.dr },
+              {
+                label: t("nationalReport.navExam"),
+                progress: 80,
+                color: COLORS.ct,
+              },
+              {
+                label: t("nationalReport.navDose"),
+                progress: 65,
+                color: COLORS.mri,
+              },
+              {
+                label: t("nationalReport.navQuality"),
+                progress: 50,
+                color: COLORS.dr,
+              },
             ].map((item, idx) => (
-              <div key={idx} style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px' }}>{item.label}</span>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: item.color }}>{item.progress}%</span>
+              <div key={idx} style={{ marginBottom: "12px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <span style={{ fontSize: "12px" }}>{item.label}</span>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: item.color,
+                    }}
+                  >
+                    {item.progress}%
+                  </span>
                 </div>
                 <div style={styles.progressBar}>
-                  <div style={{ ...styles.progressFill, width: `${item.progress}%`, backgroundColor: item.color }} />
+                  <div
+                    style={{
+                      ...styles.progressFill,
+                      width: `${item.progress}%`,
+                      backgroundColor: item.color,
+                    }}
+                  />
                 </div>
               </div>
             ))}
           </div>
 
           {/* 最新上报动态 */}
-          <div style={{ ...styles.panelHeader, borderTop: '1px solid var(--border-color)' }}>
-            <span>{t('nationalReport.latestActivity')}</span>
+          <div
+            style={{
+              ...styles.panelHeader,
+              borderTop: "1px solid var(--border-color)",
+            }}
+          >
+            <span>{t("nationalReport.latestActivity")}</span>
             <Activity size={14} />
           </div>
-          <div style={{ ...styles.panelBody, padding: '12px' }}>
-            {reportLogs.slice(0, 3).map(item => (
-              <div key={item.id} style={{ display: 'flex', gap: '10px', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid var(--border-light)' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ ...styles.panelBody, padding: "12px" }}>
+            {reportLogs.slice(0, 3).map((item) => (
+              <div
+                key={item.id}
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  marginBottom: "12px",
+                  paddingBottom: "12px",
+                  borderBottom: "1px solid var(--border-light)",
+                }}
+              >
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "8px",
+                    background: "var(--color-info-bg)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <FileText size={14} color={COLORS.primary} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', fontWeight: 500 }}>{t('nationalReport.dataUpdated', { type: item.reportType === 'dose' ? t('nationalReport.typeDose') : item.reportType === 'exam' ? t('nationalReport.typeExam') : t('nationalReport.typeQuality'), status: item.status })}</div>
-                  <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{item.submitTime}</div>
+                  <div style={{ fontSize: "12px", fontWeight: 500 }}>
+                    {t("nationalReport.dataUpdated", {
+                      type:
+                        item.reportType === "dose"
+                          ? t("nationalReport.typeDose")
+                          : item.reportType === "exam"
+                            ? t("nationalReport.typeExam")
+                            : t("nationalReport.typeQuality"),
+                      status: item.status,
+                    })}
+                  </div>
+                  <div style={{ fontSize: "11px", color: COLORS.textMuted }}>
+                    {item.submitTime}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* 快捷操作 */}
-          <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>{t('nationalReport.quickActions')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button style={{ ...styles.button, ...styles.buttonOutline, justifyContent: 'center' }} onClick={() => handleExport('exam')}>
+          <div
+            style={{
+              padding: "12px",
+              borderTop: "1px solid var(--border-color)",
+            }}
+          >
+            <div
+              style={{ fontSize: "12px", fontWeight: 600, marginBottom: "8px" }}
+            >
+              {t("nationalReport.quickActions")}
+            </div>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
+              <button
+                style={{
+                  ...styles.button,
+                  ...styles.buttonOutline,
+                  justifyContent: "center",
+                }}
+                onClick={() => handleExport("exam")}
+              >
                 <Download size={14} />
-                {t('nationalReport.exportExam')}
+                {t("nationalReport.exportExam")}
               </button>
-              <button style={{ ...styles.button, ...styles.buttonOutline, justifyContent: 'center' }} onClick={() => handleExport('dose')}>
+              <button
+                style={{
+                  ...styles.button,
+                  ...styles.buttonOutline,
+                  justifyContent: "center",
+                }}
+                onClick={() => handleExport("dose")}
+              >
                 <Download size={14} />
-                {t('nationalReport.exportDose')}
+                {t("nationalReport.exportDose")}
               </button>
-              <button style={{ ...styles.button, ...styles.buttonOutline, justifyContent: 'center' }} onClick={() => handleExport('quality')}>
+              <button
+                style={{
+                  ...styles.button,
+                  ...styles.buttonOutline,
+                  justifyContent: "center",
+                }}
+                onClick={() => handleExport("quality")}
+              >
                 <Download size={14} />
-                {t('nationalReport.exportQuality')}
+                {t("nationalReport.exportQuality")}
               </button>
             </div>
           </div>
@@ -1896,13 +4329,16 @@ export default function NationalReportPage() {
       {/* 底部统计图 */}
       <div style={styles.bottomPanel}>
         <div style={styles.panelHeader}>
-          <span>{t('nationalReport.yearlyComparison')}</span>
+          <span>{t("nationalReport.yearlyComparison")}</span>
           <BarChart3 size={14} />
         </div>
-        <div style={{ padding: '16px' }}>
+        <div style={{ padding: "16px" }}>
           <ChartContainer height={200}>
             <BarChart data={monthlyTrends}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--border-color)"
+              />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip contentStyle={{ fontSize: 12 }} />
@@ -1920,73 +4356,289 @@ export default function NationalReportPage() {
       {/* [W2-B] 上报详情 Modal (getNationalReport / getDataReport) */}
       {detailOpen && (
         <div style={styles.modal} onClick={() => setDetailOpen(false)}>
-          <div style={{ ...styles.modalContent, maxWidth: 640 }} onClick={e => e.stopPropagation()}>
+          <div
+            style={{ ...styles.modalContent, maxWidth: 640 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={styles.modalHeader}>
-              <span>{detailType === 'national' ? t('nationalReport.detailTitleDose') : t('nationalReport.detailTitleQuality')}</span>
-              <X size={18} style={{ cursor: 'pointer' }} onClick={() => setDetailOpen(false)} />
+              <span>
+                {detailType === "national"
+                  ? t("nationalReport.detailTitleDose")
+                  : t("nationalReport.detailTitleQuality")}
+              </span>
+              <X
+                size={18}
+                style={{ cursor: "pointer" }}
+                onClick={() => setDetailOpen(false)}
+              />
             </div>
             <div style={styles.modalBody}>
               {detailLoading ? (
                 <div style={{ ...styles.emptyState }}>
-                  <RefreshCw size={20} style={{ animation: 'spin 1s linear infinite' }} />
-                  <div style={{ marginTop: 'var(--space-2, 8px)' }}>{t('nationalReport.detailLoading')}</div>
+                  <RefreshCw
+                    size={20}
+                    style={{ animation: "spin 1s linear infinite" }}
+                  />
+                  <div style={{ marginTop: "var(--space-2, 8px)" }}>
+                    {t("nationalReport.detailLoading")}
+                  </div>
                 </div>
               ) : !detailItem ? (
                 <div style={styles.emptyState}>
-                  <AlertCircle size={32} style={{ marginBottom: 'var(--space-2, 8px)' }} />
-                  <div>{t('nationalReport.notFound')}</div>
+                  <AlertCircle
+                    size={32}
+                    style={{ marginBottom: "var(--space-2, 8px)" }}
+                  />
+                  <div>{t("nationalReport.notFound")}</div>
                 </div>
               ) : (
                 <div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', fontSize: 12 }}>
-                    {detailType === 'national' ? (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "12px 16px",
+                      fontSize: 12,
+                    }}
+                  >
+                    {detailType === "national" ? (
                       <>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fMonth')}</span><b>{detailItem.reportMonth ?? '-'}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fModality')}</span>{getModalityBadge(detailItem.modality ?? '-')}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fTotalExams')}</span><b>{(detailItem.totalExams ?? 0).toLocaleString()}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fTotalDlp')}</span><b>{(detailItem.totalDLP ?? 0).toLocaleString()} mGy·cm</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAvgDlp')}</span><b>{detailItem.avgDLP ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAvgCtdi')}</span><b>{detailItem.avgCTDI ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAlertCount')}</span><b style={{ color: detailItem.alertCount > 0 ? COLORS.warning : COLORS.success }}>{detailItem.alertCount ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fHighDose')}</span><b>{detailItem.highDoseCount ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fStatus')}</span>{getStatusBadge(detailItem.status ?? '-')}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fSubmitTime')}</span>{detailItem.submitTime || '-'}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fConfirmTime')}</span>{detailItem.confirmTime || '-'}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fConfirmOrg')}</span>{detailItem.confirmOrg || '-'}</div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fMonth")}
+                          </span>
+                          <b>{detailItem.reportMonth ?? "-"}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fModality")}
+                          </span>
+                          {getModalityBadge(detailItem.modality ?? "-")}
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fTotalExams")}
+                          </span>
+                          <b>{(detailItem.totalExams ?? 0).toLocaleString()}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fTotalDlp")}
+                          </span>
+                          <b>
+                            {(detailItem.totalDLP ?? 0).toLocaleString()} mGy·cm
+                          </b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fAvgDlp")}
+                          </span>
+                          <b>{detailItem.avgDLP ?? 0}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fAvgCtdi")}
+                          </span>
+                          <b>{detailItem.avgCTDI ?? 0}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fAlertCount")}
+                          </span>
+                          <b
+                            style={{
+                              color:
+                                detailItem.alertCount > 0
+                                  ? COLORS.warning
+                                  : COLORS.success,
+                            }}
+                          >
+                            {detailItem.alertCount ?? 0}
+                          </b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fHighDose")}
+                          </span>
+                          <b>{detailItem.highDoseCount ?? 0}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fStatus")}
+                          </span>
+                          {getStatusBadge(detailItem.status ?? "-")}
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fSubmitTime")}
+                          </span>
+                          {detailItem.submitTime || "-"}
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fConfirmTime")}
+                          </span>
+                          {detailItem.confirmTime || "-"}
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fConfirmOrg")}
+                          </span>
+                          {detailItem.confirmOrg || "-"}
+                        </div>
                       </>
                     ) : (
                       <>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fMonth')}</span><b>{detailItem.reportMonth ?? '-'}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fReportType')}</span><b>{detailItem.reportType ?? '-'}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fTotalReports')}</span><b>{(detailItem.totalReports ?? 0).toLocaleString()}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fQualified')}</span><b>{detailItem.qualifiedReports ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fExcellent')}</span><b>{detailItem.excellentReports ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fQualifiedRate')}</span><b style={{ color: (detailItem.qualifiedRate ?? 0) >= 95 ? COLORS.success : COLORS.warning }}>{detailItem.qualifiedRate ?? 0}%</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fExcellentRate')}</span><b>{detailItem.excellentRate ?? 0}%</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAvgScore')}</span><b>{detailItem.avgScore ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fStatus')}</span>{getStatusBadge(detailItem.status ?? '-')}</div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fMonth")}
+                          </span>
+                          <b>{detailItem.reportMonth ?? "-"}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fReportType")}
+                          </span>
+                          <b>{detailItem.reportType ?? "-"}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fTotalReports")}
+                          </span>
+                          <b>
+                            {(detailItem.totalReports ?? 0).toLocaleString()}
+                          </b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fQualified")}
+                          </span>
+                          <b>{detailItem.qualifiedReports ?? 0}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fExcellent")}
+                          </span>
+                          <b>{detailItem.excellentReports ?? 0}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fQualifiedRate")}
+                          </span>
+                          <b
+                            style={{
+                              color:
+                                (detailItem.qualifiedRate ?? 0) >= 95
+                                  ? COLORS.success
+                                  : COLORS.warning,
+                            }}
+                          >
+                            {detailItem.qualifiedRate ?? 0}%
+                          </b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fExcellentRate")}
+                          </span>
+                          <b>{detailItem.excellentRate ?? 0}%</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fAvgScore")}
+                          </span>
+                          <b>{detailItem.avgScore ?? 0}</b>
+                        </div>
+                        <div>
+                          <span style={{ color: COLORS.textMuted }}>
+                            {t("nationalReport.fStatus")}
+                          </span>
+                          {getStatusBadge(detailItem.status ?? "-")}
+                        </div>
                       </>
                     )}
                   </div>
-                  {(detailItem.commonIssues?.length > 0 || detailItem.improvementMeasures?.length > 0) && (
-                    <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}>
+                  {(detailItem.commonIssues?.length > 0 ||
+                    detailItem.improvementMeasures?.length > 0) && (
+                    <div
+                      style={{
+                        marginTop: "var(--space-4, 16px)",
+                        padding: "var(--space-3, 12px)",
+                        background: "var(--bg-card)",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    >
                       {detailItem.commonIssues?.length > 0 && (
-                        <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-                          <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 'var(--space-1, 4px)' }}>{t('nationalReport.commonIssues')}</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
-                            {detailItem.commonIssues.map((issue: string, idx: number) => (
-                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderRadius: 4, fontSize: 12 }}>{issue}</span>
-                            ))}
+                        <div style={{ marginBottom: "var(--space-2, 8px)" }}>
+                          <div
+                            style={{
+                              fontWeight: 600,
+                              color: COLORS.warning,
+                              marginBottom: "var(--space-1, 4px)",
+                            }}
+                          >
+                            {t("nationalReport.commonIssues")}
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "var(--space-1, 4px)",
+                            }}
+                          >
+                            {detailItem.commonIssues.map(
+                              (issue: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  style={{
+                                    padding: "2px 8px",
+                                    background: "var(--color-warning-bg)",
+                                    color: "var(--color-warning)",
+                                    borderRadius: 4,
+                                    fontSize: 12,
+                                  }}
+                                >
+                                  {issue}
+                                </span>
+                              ),
+                            )}
                           </div>
                         </div>
                       )}
                       {detailItem.improvementMeasures?.length > 0 && (
                         <div>
-                          <div style={{ fontWeight: 600, color: COLORS.success, marginBottom: 'var(--space-1, 4px)' }}>{t('nationalReport.improvement')}</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1, 4px)' }}>
-                            {detailItem.improvementMeasures.map((m: string, idx: number) => (
-                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-success-bg)', color: 'var(--color-success)', borderRadius: 4, fontSize: 12 }}>{m}</span>
-                            ))}
+                          <div
+                            style={{
+                              fontWeight: 600,
+                              color: COLORS.success,
+                              marginBottom: "var(--space-1, 4px)",
+                            }}
+                          >
+                            {t("nationalReport.improvement")}
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "var(--space-1, 4px)",
+                            }}
+                          >
+                            {detailItem.improvementMeasures.map(
+                              (m: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  style={{
+                                    padding: "2px 8px",
+                                    background: "var(--color-success-bg)",
+                                    color: "var(--color-success)",
+                                    borderRadius: 4,
+                                    fontSize: 12,
+                                  }}
+                                >
+                                  {m}
+                                </span>
+                              ),
+                            )}
                           </div>
                         </div>
                       )}
@@ -1996,8 +4648,15 @@ export default function NationalReportPage() {
               )}
             </div>
             <div style={styles.modalFooter}>
-              <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setDetailOpen(false)}>
-                {t('nationalReport.close')}
+              <button
+                style={{
+                  ...styles.button,
+                  background: "var(--bg-card)",
+                  color: COLORS.textDark,
+                }}
+                onClick={() => setDetailOpen(false)}
+              >
+                {t("nationalReport.close")}
               </button>
             </div>
           </div>
@@ -2007,103 +4666,350 @@ export default function NationalReportPage() {
       {/* [W2-B] 新建上报 Modal (createNationalReport / createDataReport) */}
       {createOpen && (
         <div style={styles.modal} onClick={() => setCreateOpen(false)}>
-          <div style={{ ...styles.modalContent, maxWidth: 560 }} onClick={e => e.stopPropagation()}>
+          <div
+            style={{ ...styles.modalContent, maxWidth: 560 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={styles.modalHeader}>
-              <span>{t('nationalReport.createDose')}</span>
-              <X size={18} style={{ cursor: 'pointer' }} onClick={() => setCreateOpen(false)} />
+              <span>{t("nationalReport.createDose")}</span>
+              <X
+                size={18}
+                style={{ cursor: "pointer" }}
+                onClick={() => setCreateOpen(false)}
+              />
             </div>
             <div style={styles.modalBody}>
-              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
                 <button
-                  style={{ ...styles.button, flex: 1, ...(createType === 'national' ? styles.buttonPrimary : styles.buttonOutline) }}
-                  onClick={() => setCreateType('national')}
+                  style={{
+                    ...styles.button,
+                    flex: 1,
+                    ...(createType === "national"
+                      ? styles.buttonPrimary
+                      : styles.buttonOutline),
+                  }}
+                  onClick={() => setCreateType("national")}
                 >
-                  {t('nationalReport.btnDoseReport')}
+                  {t("nationalReport.btnDoseReport")}
                 </button>
                 <button
-                  style={{ ...styles.button, flex: 1, ...(createType === 'data' ? styles.buttonPrimary : styles.buttonOutline) }}
-                  onClick={() => setCreateType('data')}
+                  style={{
+                    ...styles.button,
+                    flex: 1,
+                    ...(createType === "data"
+                      ? styles.buttonPrimary
+                      : styles.buttonOutline),
+                  }}
+                  onClick={() => setCreateType("data")}
                 >
-                  {t('nationalReport.btnQualityReport')}
+                  {t("nationalReport.btnQualityReport")}
                 </button>
               </div>
 
-              {createType === 'national' ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
+              {createType === "national" ? (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "12px 16px",
+                  }}
+                >
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fMonthRequired')}</label>
-                    <input type="month" value={createForm.reportMonth} onChange={e => setCreateForm(f => ({ ...f, reportMonth: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fMonthRequired")}
+                    </label>
+                    <input
+                      type="month"
+                      value={createForm.reportMonth}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          reportMonth: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fModalityRequired')}</label>
-                    <select value={createForm.modality} onChange={e => setCreateForm(f => ({ ...f, modality: e.target.value }))} style={styles.input}>
-                      {['CT', 'MRI', 'DR', 'MG', 'DSA'].map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fModalityRequired")}
+                    </label>
+                    <AppSelectField
+                      value={createForm.modality}
+                      onChange={(v) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          modality: String(v ?? ""),
+                        }))
+                      }
+                      style={styles.input}
+                      options={["CT", "MRI", "DR", "MG", "DSA"].map((m) => ({
+                        value: m,
+                        label: m,
+                      }))}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fTotalExamsRequired')}</label>
-                    <input type="number" min={0} value={createForm.totalExams} onChange={e => setCreateForm(f => ({ ...f, totalExams: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fTotalExamsRequired")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.totalExams}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          totalExams: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fTotalDlpForm')}</label>
-                    <input type="number" min={0} value={createForm.totalDLP} onChange={e => setCreateForm(f => ({ ...f, totalDLP: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fTotalDlpForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.totalDLP}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          totalDLP: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fAvgDlpForm')}</label>
-                    <input type="number" min={0} value={createForm.avgDLP} onChange={e => setCreateForm(f => ({ ...f, avgDLP: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fAvgDlpForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.avgDLP}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({ ...f, avgDLP: e.target.value }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fAvgCtdiForm')}</label>
-                    <input type="number" min={0} value={createForm.avgCTDI} onChange={e => setCreateForm(f => ({ ...f, avgCTDI: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fAvgCtdiForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.avgCTDI}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          avgCTDI: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fAlertCountForm')}</label>
-                    <input type="number" min={0} value={createForm.alertCount} onChange={e => setCreateForm(f => ({ ...f, alertCount: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fAlertCountForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.alertCount}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          alertCount: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fHighDoseForm')}</label>
-                    <input type="number" min={0} value={createForm.highDoseCount} onChange={e => setCreateForm(f => ({ ...f, highDoseCount: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fHighDoseForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.highDoseCount}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          highDoseCount: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "12px 16px",
+                  }}
+                >
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fMonthRequired')}</label>
-                    <input type="month" value={createForm.reportMonth} onChange={e => setCreateForm(f => ({ ...f, reportMonth: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fMonthRequired")}
+                    </label>
+                    <input
+                      type="month"
+                      value={createForm.reportMonth}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          reportMonth: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fTotalReportsRequired')}</label>
-                    <input type="number" min={0} value={createForm.totalReports} onChange={e => setCreateForm(f => ({ ...f, totalReports: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fTotalReportsRequired")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.totalReports}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          totalReports: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fQualifiedReports')}</label>
-                    <input type="number" min={0} value={createForm.qualifiedReports} onChange={e => setCreateForm(f => ({ ...f, qualifiedReports: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fQualifiedReports")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.qualifiedReports}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          qualifiedReports: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fExcellentReports')}</label>
-                    <input type="number" min={0} value={createForm.excellentReports} onChange={e => setCreateForm(f => ({ ...f, excellentReports: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fExcellentReports")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={createForm.excellentReports}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          excellentReports: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fQualifiedRateForm')}</label>
-                    <input type="number" min={0} max={100} value={createForm.qualifiedRate} onChange={e => setCreateForm(f => ({ ...f, qualifiedRate: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fQualifiedRateForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={createForm.qualifiedRate}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          qualifiedRate: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fExcellentRateForm')}</label>
-                    <input type="number" min={0} max={100} value={createForm.excellentRate} onChange={e => setCreateForm(f => ({ ...f, excellentRate: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fExcellentRateForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={createForm.excellentRate}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          excellentRate: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>{t('nationalReport.fAvgScoreForm')}</label>
-                    <input type="number" min={0} max={100} value={createForm.avgScore} onChange={e => setCreateForm(f => ({ ...f, avgScore: e.target.value }))} style={styles.input} />
+                    <label style={styles.formLabel}>
+                      {t("nationalReport.fAvgScoreForm")}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={createForm.avgScore}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          avgScore: e.target.value,
+                        }))
+                      }
+                      style={styles.input}
+                    />
                   </div>
                 </div>
               )}
             </div>
             <div style={styles.modalFooter}>
-              <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setCreateOpen(false)}>
-                {t('nationalReport.cancel')}
+              <button
+                style={{
+                  ...styles.button,
+                  background: "var(--bg-card)",
+                  color: COLORS.textDark,
+                }}
+                onClick={() => setCreateOpen(false)}
+              >
+                {t("nationalReport.cancel")}
               </button>
-              <button style={{ ...styles.button, ...styles.buttonPrimary }} disabled={creating} onClick={() => void handleCreate()}>
-                {creating ? t('nationalReport.creating') : <><Check size={14} /> {t('nationalReport.createReport')}</>}
+              <button
+                style={{ ...styles.button, ...styles.buttonPrimary }}
+                disabled={creating}
+                onClick={() => void handleCreate()}
+              >
+                {creating ? (
+                  t("nationalReport.creating")
+                ) : (
+                  <>
+                    <Check size={14} /> {t("nationalReport.createReport")}
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -2113,37 +5019,81 @@ export default function NationalReportPage() {
       {/* 上报确认弹窗 */}
       {showSubmitModal && (
         <div style={styles.modal} onClick={() => setShowSubmitModal(false)}>
-          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <span>{t('nationalReport.confirmTitle')}</span>
-              <X size={18} style={{ cursor: 'pointer' }} onClick={() => setShowSubmitModal(false)} />
+              <span>{t("nationalReport.confirmTitle")}</span>
+              <X
+                size={18}
+                style={{ cursor: "pointer" }}
+                onClick={() => setShowSubmitModal(false)}
+              />
             </div>
             <div style={styles.modalBody}>
-              <div style={{ marginBottom: '16px', padding: '16px', background: 'var(--bg-card)', borderRadius: '8px' }}>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }}>
-                  <strong>{t('nationalReport.confirmType')}</strong>
-                  {submitType === 'exam' ? t('nationalReport.navExam') : submitType === 'dose' ? t('nationalReport.navDose') : t('nationalReport.navQuality')}
+              <div
+                style={{
+                  marginBottom: "16px",
+                  padding: "16px",
+                  background: "var(--bg-card)",
+                  borderRadius: "8px",
+                }}
+              >
+                <div style={{ fontSize: "12px", marginBottom: "8px" }}>
+                  <strong>{t("nationalReport.confirmType")}</strong>
+                  {submitType === "exam"
+                    ? t("nationalReport.navExam")
+                    : submitType === "dose"
+                      ? t("nationalReport.navDose")
+                      : t("nationalReport.navQuality")}
                 </div>
-                <div style={{ fontSize: '12px', marginBottom: '8px' }}>
-                  <strong>{t('nationalReport.confirmCycle')}</strong>{selectedMonth}
+                <div style={{ fontSize: "12px", marginBottom: "8px" }}>
+                  <strong>{t("nationalReport.confirmCycle")}</strong>
+                  {selectedMonth}
                 </div>
-                <div style={{ fontSize: '12px' }}>
-                  <strong>{t('nationalReport.confirmContent')}</strong>
-                  {submitType === 'exam' ? t('nationalReport.confirmExamCount', { count: examStats.length }) :
-                    submitType === 'dose' ? t('nationalReport.confirmDoseCount', { count: doseData.filter(d => d.reportMonth === selectedMonth).length }) :
-                   t('nationalReport.confirmQualityCount', { count: qualityData.length })}
+                <div style={{ fontSize: "12px" }}>
+                  <strong>{t("nationalReport.confirmContent")}</strong>
+                  {submitType === "exam"
+                    ? t("nationalReport.confirmExamCount", {
+                        count: examStats.length,
+                      })
+                    : submitType === "dose"
+                      ? t("nationalReport.confirmDoseCount", {
+                          count: doseData.filter(
+                            (d) => d.reportMonth === selectedMonth,
+                          ).length,
+                        })
+                      : t("nationalReport.confirmQualityCount", {
+                          count: qualityData.length,
+                        })}
                 </div>
               </div>
-              <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
-                {t('nationalReport.confirmHint')}
+              <div style={{ fontSize: "12px", color: COLORS.textMuted }}>
+                {t("nationalReport.confirmHint")}
               </div>
             </div>
             <div style={styles.modalFooter}>
-              <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setShowSubmitModal(false)}>
-                {t('nationalReport.cancel')}
+              <button
+                style={{
+                  ...styles.button,
+                  background: "var(--bg-card)",
+                  color: COLORS.textDark,
+                }}
+                onClick={() => setShowSubmitModal(false)}
+              >
+                {t("nationalReport.cancel")}
               </button>
-              <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => void handleSubmitReport()}>
-                {submitLoading ? <><RefreshCw size={14} /> {t('nationalReport.submitting')}</> : <><Check size={14} /> {t('nationalReport.confirmSubmit')}</>}
+              <button
+                style={{ ...styles.button, ...styles.buttonPrimary }}
+                onClick={() => void handleSubmitReport()}
+              >
+                {submitLoading ? (
+                  <>
+                    <RefreshCw size={14} /> {t("nationalReport.submitting")}
+                  </>
+                ) : (
+                  <>
+                    <Check size={14} /> {t("nationalReport.confirmSubmit")}
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -2152,25 +5102,27 @@ export default function NationalReportPage() {
 
       {/* 成功提示Toast */}
       {submitSuccess && (
-        <div style={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          backgroundColor: COLORS.success,
-          color: 'white',
-          padding: '12px 20px',
-          borderRadius: 8,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-2, 8px)',
-          zIndex: 2000,
-          animation: 'slideIn 0.3s ease-out',
-        }}>
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            backgroundColor: COLORS.success,
+            color: "white",
+            padding: "12px 20px",
+            borderRadius: 8,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+            zIndex: 2000,
+            animation: "slideIn 0.3s ease-out",
+          }}
+        >
           <CheckCircle size={18} />
           <span style={{ fontSize: 14, fontWeight: 500 }}>{submitSuccess}</span>
         </div>
       )}
     </div>
-  )
+  );
 }

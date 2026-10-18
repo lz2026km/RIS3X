@@ -38,6 +38,8 @@ import { reportQualityApi } from "../services/api";
 import { qualityScoringCenterApi } from "../services/api/qualityScoringCenterApi";
 import { t } from "../i18n/appI18n";
 import { PageContainer } from "../components/common";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../components/common/AppSelectField";
 
 // [G005 W4A] /defect-library/items/:id 详情形状 (后端 DefectItem)
 interface LibraryDefectDetail {
@@ -52,19 +54,22 @@ interface LibraryDefectDetail {
 }
 
 const PAGE_TO_LIBRARY_CATEGORY: Record<string, string> = {
-  description: 'STRUCT',
-  terminology: 'TERM',
-  format: 'STRUCT',
-  logic: 'ACCUR',
-  critical: 'PROC',
-  completeness: 'STRUCT',
-}
+  description: "STRUCT",
+  terminology: "TERM",
+  format: "STRUCT",
+  logic: "ACCUR",
+  critical: "PROC",
+  completeness: "STRUCT",
+};
 
-const PAGE_TO_LIBRARY_SEVERITY: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
-  minor: 'low',
-  major: 'medium',
-  critical: 'critical',
-}
+const PAGE_TO_LIBRARY_SEVERITY: Record<
+  string,
+  "low" | "medium" | "high" | "critical"
+> = {
+  minor: "low",
+  major: "medium",
+  critical: "critical",
+};
 
 // ============================================================
 // 分类配置
@@ -85,10 +90,16 @@ const CATEGORY_CONFIG: Record<
     bg: "#8b5cf622",
     icon: BookOpen,
   },
-  format: { labelKey: "reportDefect.cat.format", color: "var(--color-info-600)", bg: "#06b6d422", icon: Hash },
+  format: {
+    labelKey: "reportDefect.cat.format",
+    color: "var(--color-info-600)",
+    bg: "#06b6d422",
+    icon: Hash,
+  },
   logic: {
     labelKey: "reportDefect.cat.logic",
-    color: "var(--color-error-500)", bg: "#ef444422",
+    color: "var(--color-error-500)",
+    bg: "#ef444422",
     icon: AlertOctagon,
   },
   critical: {
@@ -99,15 +110,28 @@ const CATEGORY_CONFIG: Record<
   },
   completeness: {
     labelKey: "reportDefect.cat.completeness",
-    color: "var(--color-warning-500)", bg: "#f59e0b22",
+    color: "var(--color-warning-500)",
+    bg: "#f59e0b22",
     icon: ListChecks,
   },
 };
 
 const SEVERITY_CONFIG = {
-  minor: { labelKey: "reportDefect.sev.minor", color: "var(--color-primary-500)", bg: "#3b82f622" },
-  major: { labelKey: "reportDefect.sev.major", color: "var(--color-warning-500)", bg: "#f59e0b22" },
-  critical: { labelKey: "reportDefect.sev.critical", color: "var(--color-error-500)", bg: "#ef444422" },
+  minor: {
+    labelKey: "reportDefect.sev.minor",
+    color: "var(--color-primary-500)",
+    bg: "#3b82f622",
+  },
+  major: {
+    labelKey: "reportDefect.sev.major",
+    color: "var(--color-warning-500)",
+    bg: "#f59e0b22",
+  },
+  critical: {
+    labelKey: "reportDefect.sev.critical",
+    color: "var(--color-error-500)",
+    bg: "#ef444422",
+  },
 };
 
 // ============================================================
@@ -130,7 +154,8 @@ export default function ReportDefectLibraryPage() {
   const [showTriggersModal, setShowTriggersModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<DefectItem | null>(null);
   // [G005 W4A] 缺陷库单项详情 (GET /defect-library/items/:id)
-  const [libraryDetail, setLibraryDetail] = useState<LibraryDefectDetail | null>(null);
+  const [libraryDetail, setLibraryDetail] =
+    useState<LibraryDefectDetail | null>(null);
   const [libraryDetailOpen, setLibraryDetailOpen] = useState(false);
   const [libraryDetailLoading, setLibraryDetailLoading] = useState(false);
   const [formState, setFormState] = useState({
@@ -161,40 +186,53 @@ export default function ReportDefectLibraryPage() {
     (async () => {
       setLoading(true);
       try {
-        const res = await reportQualityApi.getDefectLibrary()
+        const res = await reportQualityApi.getDefectLibrary();
         // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
-        const entries = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
-        if (!cancelled && res.success && Array.isArray(entries) && entries.length) {
+        const entries = Array.isArray(res.data)
+          ? res.data
+          : (res.data?.items ?? []);
+        if (
+          !cancelled &&
+          res.success &&
+          Array.isArray(entries) &&
+          entries.length
+        ) {
           const mapped: DefectItem[] = entries.map((entry, i) => {
-            const detail = (entry.detail || {}) as Record<string, unknown>
+            const detail = (entry.detail || {}) as Record<string, unknown>;
             return {
               id: entry.id,
               code: (detail.code as string) || `DEF-${i + 1}`,
-              name: (detail.name as string) || t('reportDefect.unknown'),
-              category: (detail.category as DefectCategory) || 'description',
-              severity: (detail.severity as DefectItem['severity']) || 'minor',
-              description: (detail.description as string) || '',
+              name: (detail.name as string) || t("reportDefect.unknown"),
+              category: (detail.category as DefectCategory) || "description",
+              severity: (detail.severity as DefectItem["severity"]) || "minor",
+              description: (detail.description as string) || "",
               examples: (detail.examples as string[]) || [],
-              solution: (detail.solution as string) || '',
+              solution: (detail.solution as string) || "",
               count: (detail.count as number) || 0,
-            }
-          })
-          setDefects(mapped)
+            };
+          });
+          setDefects(mapped);
         }
-        const statsRes = await reportQualityApi.getStats()
+        const statsRes = await reportQualityApi.getStats();
         if (!cancelled && statsRes.success && statsRes.data) {
-          const stats = statsRes.data
-          setApiKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
+          const stats = statsRes.data;
+          setApiKpi((prev) => ({
+            ...prev,
+            totalEvaluated: stats.total,
+            avgScore: stats.avgScore,
+          }));
         }
-        if (!cancelled) setLoadError(null)
+        if (!cancelled) setLoadError(null);
       } catch {
-        if (!cancelled) setLoadError(t('w9.states.error'))
+        if (!cancelled) setLoadError(t("w9.states.error"));
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
-    })()
-    return () => { cancelled = true }
-  }, [])
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const resetForm = () => {
     setFormState({
@@ -227,18 +265,19 @@ export default function ReportDefectLibraryPage() {
 
   // [G005 W4A] 打开缺陷库单项详情 (GET /defect-library/items/:id)
   const openLibraryDetail = async (d: DefectItem) => {
-    setLibraryDetailOpen(true)
-    setLibraryDetailLoading(true)
-    setLibraryDetail(null)
+    setLibraryDetailOpen(true);
+    setLibraryDetailLoading(true);
+    setLibraryDetail(null);
     try {
-      const res = await qualityScoringCenterApi.getDefectItem(d.id)
-      if (res.success && res.data) setLibraryDetail(res.data as unknown as LibraryDefectDetail)
+      const res = await qualityScoringCenterApi.getDefectItem(d.id);
+      if (res.success && res.data)
+        setLibraryDetail(res.data as unknown as LibraryDefectDetail);
     } catch {
-      setLibraryDetail(null)
+      setLibraryDetail(null);
     } finally {
-      setLibraryDetailLoading(false)
+      setLibraryDetailLoading(false);
     }
-  }
+  };
 
   const handleSaveNew = async () => {
     if (!formState.code.trim() || !formState.name.trim()) {
@@ -299,12 +338,14 @@ export default function ReportDefectLibraryPage() {
       solution: formState.solution.trim(),
     });
     // [G005 W4A] 同步缺陷库单项 (PATCH /defect-library/items/:id)
-    await qualityScoringCenterApi.updateDefectItem(selectedDefect.id, {
-      name: formState.name.trim() || selectedDefect.name,
-      categoryCode: PAGE_TO_LIBRARY_CATEGORY[formState.category] ?? 'STRUCT',
-      severity: PAGE_TO_LIBRARY_SEVERITY[formState.severity] ?? 'medium',
-      description: formState.description.trim(),
-    }).catch(() => null);
+    await qualityScoringCenterApi
+      .updateDefectItem(selectedDefect.id, {
+        name: formState.name.trim() || selectedDefect.name,
+        categoryCode: PAGE_TO_LIBRARY_CATEGORY[formState.category] ?? "STRUCT",
+        severity: PAGE_TO_LIBRARY_SEVERITY[formState.severity] ?? "medium",
+        description: formState.description.trim(),
+      })
+      .catch(() => null);
   };
 
   const confirmDeleteDefect = (d: DefectItem) => {
@@ -358,32 +399,107 @@ export default function ReportDefectLibraryPage() {
 
   const defectColumns: ColumnsType<DefectItem> = [
     {
-      title: t("w3tables.col.category"), dataIndex: "category", key: "category", width: 150,
+      title: t("w3tables.col.category"),
+      dataIndex: "category",
+      key: "category",
+      width: 150,
       render: (_: unknown, d) => {
-        const cConf = CATEGORY_CONFIG[d.category] ?? CATEGORY_CONFIG.description;
+        const cConf =
+          CATEGORY_CONFIG[d.category] ?? CATEGORY_CONFIG.description;
         const sConf = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.minor;
         return (
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)', flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, padding: "1px 5px", borderRadius: 2, background: cConf.bg, color: cConf.color, fontWeight: 600 }}>{t(cConf.labelKey)}</span>
-            <span style={{ fontSize: 12, padding: "1px 4px", borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700 }}>{t(sConf.labelKey)}</span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-1, 4px)",
+              flexWrap: "wrap",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 12,
+                padding: "1px 5px",
+                borderRadius: 2,
+                background: cConf.bg,
+                color: cConf.color,
+                fontWeight: 600,
+              }}
+            >
+              {t(cConf.labelKey)}
+            </span>
+            <span
+              style={{
+                fontSize: 12,
+                padding: "1px 4px",
+                borderRadius: 2,
+                background: sConf.bg,
+                color: sConf.color,
+                fontWeight: 700,
+              }}
+            >
+              {t(sConf.labelKey)}
+            </span>
           </div>
         );
       },
     },
-    { title: t("w3tables.col.name"), dataIndex: "name", key: "name", render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{v}</span> },
-    { title: t("w3tables.col.code"), dataIndex: "code", key: "code", width: 110, render: (v: string) => <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{v}</span> },
-    { title: t("w3tables.col.count"), dataIndex: "count", key: "count", width: 80, align: "right", render: (v: number) => <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)" }}>×{v}</span> },
+    {
+      title: t("w3tables.col.name"),
+      dataIndex: "name",
+      key: "name",
+      render: (v: string) => (
+        <span
+          style={{
+            fontSize: 12,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+          }}
+        >
+          {v}
+        </span>
+      ),
+    },
+    {
+      title: t("w3tables.col.code"),
+      dataIndex: "code",
+      key: "code",
+      width: 110,
+      render: (v: string) => (
+        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+          {v}
+        </span>
+      ),
+    },
+    {
+      title: t("w3tables.col.count"),
+      dataIndex: "count",
+      key: "count",
+      width: 80,
+      align: "right",
+      render: (v: number) => (
+        <span
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: "var(--text-secondary)",
+          }}
+        >
+          ×{v}
+        </span>
+      ),
+    },
   ];
 
   return (
     <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
-      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* 顶部 */}
       <div
         style={{
-          marginBottom: 'var(--space-4, 16px)',
+          marginBottom: "var(--space-4, 16px)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -396,10 +512,11 @@ export default function ReportDefectLibraryPage() {
               margin: 0,
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-2, 8px)',
+              gap: "var(--space-2, 8px)",
             }}
           >
-            <AlertOctagon size={20} color="var(--color-error-600)" /> {t('reportDefect.title')}
+            <AlertOctagon size={20} color="var(--color-error-600)" />{" "}
+            {t("reportDefect.title")}
             <span
               style={{
                 fontSize: 12,
@@ -413,11 +530,20 @@ export default function ReportDefectLibraryPage() {
               R4
             </span>
           </Typography.Title>
-          <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
-            {t('reportDefect.summary', { count: defectList.length, evaluated: apiKpi.totalEvaluated })}
+          <p
+            style={{
+              fontSize: 12,
+              color: "var(--text-secondary)",
+              margin: "4px 0 0",
+            }}
+          >
+            {t("reportDefect.summary", {
+              count: defectList.length,
+              evaluated: apiKpi.totalEvaluated,
+            })}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
           <button
             onClick={openAddModal}
             style={{
@@ -431,10 +557,10 @@ export default function ReportDefectLibraryPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
-            <Plus size={12} /> {t('reportDefect.addDefect')}
+            <Plus size={12} /> {t("reportDefect.addDefect")}
           </button>
         </div>
       </div>
@@ -444,8 +570,8 @@ export default function ReportDefectLibraryPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(6, 1fr)",
-          gap: 'var(--space-2, 8px)',
-          marginBottom: 'var(--space-4, 16px)',
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
         {Object.entries(CATEGORY_CONFIG).map(([key, conf]) => {
@@ -459,7 +585,7 @@ export default function ReportDefectLibraryPage() {
               }
               style={{
                 background: "var(--bg-card)",
-                padding: 'var(--space-3, 12px)',
+                padding: "var(--space-3, 12px)",
                 borderRadius: 8,
                 border: `2px solid ${filterCategory === key ? conf.color : "var(--border-color, #e2e8f0)"}`,
                 cursor: "pointer",
@@ -469,7 +595,7 @@ export default function ReportDefectLibraryPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-2, 8px)',
+                  gap: "var(--space-2, 8px)",
                   marginBottom: 6,
                 }}
               >
@@ -488,19 +614,29 @@ export default function ReportDefectLibraryPage() {
                   <Icon size={14} />
                 </div>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {t(conf.labelKey)}
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 'var(--space-1, 4px)' }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
                 <span
                   style={{ fontSize: 18, fontWeight: 700, color: conf.color }}
                 >
                   {stat.count}
                 </span>
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  {t('reportDefect.categoryStat', { count: stat.totalCount })}
+                  {t("reportDefect.categoryStat", { count: stat.totalCount })}
                 </span>
               </div>
             </div>
@@ -511,10 +647,11 @@ export default function ReportDefectLibraryPage() {
       {/* Top 5 触发排行 */}
       <div
         style={{
-          background: "linear-gradient(135deg, var(--color-warning-bg) 0%, var(--color-warning-bg) 100%)",
+          background:
+            "linear-gradient(135deg, var(--color-warning-bg) 0%, var(--color-warning-bg) 100%)",
           borderRadius: 8,
-          padding: 'var(--space-3, 12px)',
-          marginBottom: 'var(--space-4, 16px)',
+          padding: "var(--space-3, 12px)",
+          marginBottom: "var(--space-4, 16px)",
           border: "1px solid var(--color-warning-300, #fcd34d)",
         }}
       >
@@ -523,19 +660,19 @@ export default function ReportDefectLibraryPage() {
             fontSize: 12,
             fontWeight: 700,
             color: "#92400e",
-            marginBottom: 'var(--space-2, 8px)',
+            marginBottom: "var(--space-2, 8px)",
             display: "flex",
             alignItems: "center",
             gap: 6,
           }}
         >
-          <TrendingUp size={13} /> {t('reportDefect.top5')}
+          <TrendingUp size={13} /> {t("reportDefect.top5")}
         </div>
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(5, 1fr)",
-            gap: 'var(--space-2, 8px)',
+            gap: "var(--space-2, 8px)",
           }}
         >
           {apiKpi.defectTopList.map((d, i) => {
@@ -546,12 +683,14 @@ export default function ReportDefectLibraryPage() {
                 style={{
                   background: "var(--bg-card)",
                   borderRadius: 6,
-                  padding: 'var(--space-2, 8px)',
+                  padding: "var(--space-2, 8px)",
                   border: "1px solid var(--color-warning-400)",
                 }}
               >
-                <div style={{ fontSize: 12, color: "#92400e", fontWeight: 700 }}>
-                  {t('reportDefect.rank', { n: i + 1 })}
+                <div
+                  style={{ fontSize: 12, color: "#92400e", fontWeight: 700 }}
+                >
+                  {t("reportDefect.rank", { n: i + 1 })}
                 </div>
                 <div
                   style={{
@@ -563,13 +702,15 @@ export default function ReportDefectLibraryPage() {
                 >
                   {d.name}
                 </div>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{d.code}</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {d.code}
+                </div>
                 <div
                   style={{
                     fontSize: 18,
                     fontWeight: 700,
                     color: "var(--color-error-600)",
-                    marginTop: 'var(--space-1, 4px)',
+                    marginTop: "var(--space-1, 4px)",
                   }}
                 >
                   {d.count}
@@ -583,7 +724,7 @@ export default function ReportDefectLibraryPage() {
                       background: SEVERITY_CONFIG[defect.severity].bg,
                       color: SEVERITY_CONFIG[defect.severity].color,
                       fontWeight: 700,
-                      marginTop: 'var(--space-1, 4px)',
+                      marginTop: "var(--space-1, 4px)",
                       display: "inline-block",
                     }}
                   >
@@ -597,7 +738,11 @@ export default function ReportDefectLibraryPage() {
       </div>
 
       <div
-        style={{ display: "grid", gridTemplateColumns: "420px 1fr", gap: 'var(--space-3, 12px)' }}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "420px 1fr",
+          gap: "var(--space-3, 12px)",
+        }}
       >
         {/* 左：缺陷列表 */}
         <div
@@ -609,7 +754,10 @@ export default function ReportDefectLibraryPage() {
           }}
         >
           <div
-            style={{ padding: "8px 12px", borderBottom: "1px solid var(--border-color)" }}
+            style={{
+              padding: "8px 12px",
+              borderBottom: "1px solid var(--border-color)",
+            }}
           >
             <div
               style={{
@@ -633,31 +781,33 @@ export default function ReportDefectLibraryPage() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder={t('reportDefect.searchPlaceholder')}
+                  placeholder={t("reportDefect.searchPlaceholder")}
                   style={{
                     width: "100%",
                     padding: "5px 8px 5px 26px",
                     border: "1px solid var(--border-color)",
                     borderRadius: 4,
-                    fontSize: 12, }}
+                    fontSize: 12,
+                  }}
                 />
               </div>
-              <select
+              <AppSelectField
                 value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value)}
+                onChange={(v) => setFilterSeverity(String(v ?? ""))}
+                options={[
+                  { value: "all", label: t("reportDefect.all") },
+                  { value: "critical", label: t("reportDefect.sev.critical") },
+                  { value: "major", label: t("reportDefect.sev.major") },
+                  { value: "minor", label: t("reportDefect.sev.minor") },
+                ]}
                 style={selectStyle}
-              >
-                <option value="all">{t('reportDefect.all')}</option>
-                <option value="critical">{t('reportDefect.sev.critical')}</option>
-                <option value="major">{t('reportDefect.sev.major')}</option>
-                <option value="minor">{t('reportDefect.sev.minor')}</option>
-              </select>
+              />
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               <strong style={{ color: "var(--color-primary-800)" }}>
                 {filteredDefects.length}
               </strong>{" "}
-              {t('reportDefect.ofItems', { count: defects.length })}
+              {t("reportDefect.ofItems", { count: defects.length })}
             </div>
           </div>
           <DataTable<DefectItem>
@@ -666,13 +816,19 @@ export default function ReportDefectLibraryPage() {
             rowKey="id"
             loading={loading}
             showPagination={false}
-            emptyText={t('w9.states.noResults')}
+            emptyText={t("w9.states.noResults")}
             onRow={(d) => ({
               onClick: () => setSelectedDefect(d),
               style: {
                 cursor: "pointer",
-                background: selectedDefect?.id === d.id ? "var(--color-info-bg)" : undefined,
-                borderLeft: selectedDefect?.id === d.id ? "3px solid var(--color-primary-500)" : "3px solid transparent",
+                background:
+                  selectedDefect?.id === d.id
+                    ? "var(--color-info-bg)"
+                    : undefined,
+                borderLeft:
+                  selectedDefect?.id === d.id
+                    ? "3px solid var(--color-primary-500)"
+                    : "3px solid transparent",
               },
             })}
             scroll={{ x: "max-content" }}
@@ -685,7 +841,7 @@ export default function ReportDefectLibraryPage() {
             style={{
               background: "var(--bg-card)",
               borderRadius: 8,
-              padding: 'var(--space-4, 16px)',
+              padding: "var(--space-4, 16px)",
               border: "1px solid var(--border-color)",
             }}
           >
@@ -693,8 +849,8 @@ export default function ReportDefectLibraryPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 'var(--space-3, 12px)',
-                marginBottom: 'var(--space-4, 16px)',
+                gap: "var(--space-3, 12px)",
+                marginBottom: "var(--space-4, 16px)",
               }}
             >
               <div
@@ -716,18 +872,29 @@ export default function ReportDefectLibraryPage() {
               </div>
               <div style={{ flex: 1 }}>
                 <div
-                  style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {selectedDefect.name}
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  {t('reportDefect.codeLabel')}{selectedDefect.code}
+                  {t("reportDefect.codeLabel")}
+                  {selectedDefect.code}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t('reportDefect.triggerCount')}</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  {t("reportDefect.triggerCount")}
+                </div>
                 <div
-                  style={{ fontSize: 24, fontWeight: 700, color: "var(--color-error-600)" }}
+                  style={{
+                    fontSize: 24,
+                    fontWeight: 700,
+                    color: "var(--color-error-600)",
+                  }}
                 >
                   {selectedDefect.count}
                 </div>
@@ -735,7 +902,13 @@ export default function ReportDefectLibraryPage() {
             </div>
 
             {/* 标签行 */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 'var(--space-3, 12px)' }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
               <span
                 style={{
                   fontSize: 12,
@@ -758,14 +931,15 @@ export default function ReportDefectLibraryPage() {
                   fontWeight: 600,
                 }}
               >
-                {t('reportDefect.severityLabel')}{t(SEVERITY_CONFIG[selectedDefect.severity].labelKey)}
+                {t("reportDefect.severityLabel")}
+                {t(SEVERITY_CONFIG[selectedDefect.severity].labelKey)}
               </span>
             </div>
 
             {/* 描述 */}
             <div
               style={{
-                marginBottom: 'var(--space-3, 12px)',
+                marginBottom: "var(--space-3, 12px)",
                 padding: 10,
                 background: "var(--bg-card)",
                 borderRadius: 6,
@@ -776,18 +950,24 @@ export default function ReportDefectLibraryPage() {
                   fontSize: 12,
                   color: "var(--text-secondary)",
                   fontWeight: 600,
-                  marginBottom: 'var(--space-1, 4px)',
+                  marginBottom: "var(--space-1, 4px)",
                 }}
               >
-                {t('reportDefect.description')}
+                {t("reportDefect.description")}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-primary)", lineHeight: 1.6 }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-primary)",
+                  lineHeight: 1.6,
+                }}
+              >
                 {selectedDefect.description}
               </div>
             </div>
 
             {/* 示例 */}
-            <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ marginBottom: "var(--space-3, 12px)" }}>
               <div
                 style={{
                   fontSize: 12,
@@ -796,17 +976,17 @@ export default function ReportDefectLibraryPage() {
                   marginBottom: 6,
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                 }}
               >
-                <MessageSquare size={12} /> {t('reportDefect.examples')}
+                <MessageSquare size={12} /> {t("reportDefect.examples")}
               </div>
               {selectedDefect.examples.map((ex, i) => (
                 <div
                   key={i}
                   style={{
-                    padding: 'var(--space-2, 8px)',
-                    marginBottom: 'var(--space-1, 4px)',
+                    padding: "var(--space-2, 8px)",
+                    marginBottom: "var(--space-1, 4px)",
                     background: "var(--color-error-bg)",
                     borderLeft: "3px solid var(--color-error-600)",
                     borderRadius: 4,
@@ -833,13 +1013,13 @@ export default function ReportDefectLibraryPage() {
                   fontSize: 12,
                   color: "#047857",
                   fontWeight: 700,
-                  marginBottom: 'var(--space-1, 4px)',
+                  marginBottom: "var(--space-1, 4px)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                 }}
               >
-                <Lightbulb size={12} /> {t('reportDefect.solution')}
+                <Lightbulb size={12} /> {t("reportDefect.solution")}
               </div>
               <div style={{ fontSize: 12, color: "#065f46", lineHeight: 1.6 }}>
                 {selectedDefect.solution}
@@ -850,9 +1030,9 @@ export default function ReportDefectLibraryPage() {
             <div
               style={{
                 display: "flex",
-                gap: 'var(--space-2, 8px)',
-                marginTop: 'var(--space-3, 12px)',
-                paddingTop: 'var(--space-3, 12px)',
+                gap: "var(--space-2, 8px)",
+                marginTop: "var(--space-3, 12px)",
+                paddingTop: "var(--space-3, 12px)",
                 borderTop: "1px solid var(--border-color)",
               }}
             >
@@ -868,10 +1048,10 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                 }}
               >
-                <Edit2 size={11} /> {t('reportDefect.edit')}
+                <Edit2 size={11} /> {t("reportDefect.edit")}
               </button>
               <button
                 onClick={() => void openLibraryDetail(selectedDefect)}
@@ -885,10 +1065,10 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                 }}
               >
-                <Eye size={11} /> {t('w4a.defect.viewDetail')}
+                <Eye size={11} /> {t("w4a.defect.viewDetail")}
               </button>
               <button
                 onClick={() => {
@@ -905,10 +1085,10 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                 }}
               >
-                <Eye size={11} /> {t('reportDefect.triggers')}
+                <Eye size={11} /> {t("reportDefect.triggers")}
               </button>
               <button
                 type="button"
@@ -924,11 +1104,11 @@ export default function ReportDefectLibraryPage() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-1, 4px)',
+                  gap: "var(--space-1, 4px)",
                   marginLeft: "auto",
                 }}
               >
-                <Trash2 size={14} /> {t('reportDefect.delete')}
+                <Trash2 size={14} /> {t("reportDefect.delete")}
               </button>
             </div>
           </div>
@@ -937,43 +1117,117 @@ export default function ReportDefectLibraryPage() {
 
       {/* [G005 W4A] 缺陷库单项详情 Drawer (GET /defect-library/items/:id) */}
       <Drawer
-        title={`${t('w4a.defect.viewDetail')}${libraryDetail ? ` · ${libraryDetail.code}` : ''}`}
+        title={`${t("w4a.defect.viewDetail")}${libraryDetail ? ` · ${libraryDetail.code}` : ""}`}
         width={420}
         open={libraryDetailOpen}
         onClose={() => setLibraryDetailOpen(false)}
       >
         {libraryDetailLoading ? (
-          <LoadingBanner message={t('w9.states.loading')} />
+          <LoadingBanner message={t("w9.states.loading")} />
         ) : libraryDetail ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{libraryDetail.name}</div>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
+                {libraryDetail.name}
+              </div>
               <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
                 <Tag>{libraryDetail.code}</Tag>
                 <Tag color="geekblue">{libraryDetail.categoryCode}</Tag>
-                <Tag color={libraryDetail.severity === "critical" ? "red" : libraryDetail.severity === "high" ? "orange" : libraryDetail.severity === "medium" ? "blue" : "default"}>{libraryDetail.severity}</Tag>
-                <Tag color="green">{t('w4a.defect.libraryLoaded')}</Tag>
+                <Tag
+                  color={
+                    libraryDetail.severity === "critical"
+                      ? "red"
+                      : libraryDetail.severity === "high"
+                        ? "orange"
+                        : libraryDetail.severity === "medium"
+                          ? "blue"
+                          : "default"
+                  }
+                >
+                  {libraryDetail.severity}
+                </Tag>
+                <Tag color="green">{t("w4a.defect.libraryLoaded")}</Tag>
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t('reportDefect.description')}</div>
-              <div style={{ fontSize: 12, lineHeight: 1.7, color: "var(--text-primary)" }}>{libraryDetail.description}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "var(--text-secondary)",
+                  marginBottom: "var(--space-1, 4px)",
+                }}
+              >
+                {t("reportDefect.description")}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  lineHeight: 1.7,
+                  color: "var(--text-primary)",
+                }}
+              >
+                {libraryDetail.description}
+              </div>
             </div>
             {libraryDetail.standard && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t('w4a.defect.standard')}</div>
-                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{libraryDetail.standard}</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("w4a.defect.standard")}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
+                  {libraryDetail.standard}
+                </div>
               </div>
             )}
             {libraryDetail.checkMethod && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t('w4a.defect.checkMethod')}</div>
-                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{libraryDetail.checkMethod}</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("w4a.defect.checkMethod")}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
+                  {libraryDetail.checkMethod}
+                </div>
               </div>
             )}
           </div>
         ) : (
-          <div style={{ textAlign: "center", padding: 'var(--space-6, 24px)', color: "var(--text-secondary)", fontSize: 12 }}>{t('w9.states.noResults')}</div>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "var(--space-6, 24px)",
+              color: "var(--text-secondary)",
+              fontSize: 12,
+            }}
+          >
+            {t("w9.states.noResults")}
+          </div>
         )}
       </Drawer>
 
@@ -981,7 +1235,7 @@ export default function ReportDefectLibraryPage() {
       <AppModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title={t('reportDefect.addTitle')}
+        title={t("reportDefect.addTitle")}
         icon={<Plus size={18} />}
         iconBg="var(--color-info-bg)"
         iconColor="var(--color-primary-800)"
@@ -1001,7 +1255,7 @@ export default function ReportDefectLibraryPage() {
                 cursor: "pointer",
               }}
             >
-              {t('reportDefect.cancel')}
+              {t("reportDefect.cancel")}
             </button>
             <button
               onClick={handleSaveNew}
@@ -1019,7 +1273,7 @@ export default function ReportDefectLibraryPage() {
                 gap: 6,
               }}
             >
-              <Save size={12} /> {t('reportDefect.save')}
+              <Save size={12} /> {t("reportDefect.save")}
             </button>
           </>
         }
@@ -1035,7 +1289,7 @@ export default function ReportDefectLibraryPage() {
       <AppModal
         open={showEditModal}
         onClose={() => setShowEditModal(false)}
-        title={t('reportDefect.editTitle')}
+        title={t("reportDefect.editTitle")}
         icon={<Edit2 size={18} />}
         iconBg="var(--color-warning-bg)"
         iconColor="#b45309"
@@ -1055,7 +1309,7 @@ export default function ReportDefectLibraryPage() {
                 cursor: "pointer",
               }}
             >
-              {t('reportDefect.cancel')}
+              {t("reportDefect.cancel")}
             </button>
             <button
               onClick={handleSaveEdit}
@@ -1073,7 +1327,7 @@ export default function ReportDefectLibraryPage() {
                 gap: 6,
               }}
             >
-              <Save size={12} /> {t('reportDefect.saveEdit')}
+              <Save size={12} /> {t("reportDefect.saveEdit")}
             </button>
           </>
         }
@@ -1089,7 +1343,7 @@ export default function ReportDefectLibraryPage() {
       <AppModal
         open={showTriggersModal}
         onClose={() => setShowTriggersModal(false)}
-        title={t('reportDefect.triggers')}
+        title={t("reportDefect.triggers")}
         icon={<Activity size={18} />}
         iconBg="var(--color-success-bg)"
         iconColor="#15803d"
@@ -1101,16 +1355,31 @@ export default function ReportDefectLibraryPage() {
               style={{
                 background: "var(--bg-card)",
                 borderRadius: 8,
-                padding: 'var(--space-3, 12px)',
+                padding: "var(--space-3, 12px)",
                 border: "1px solid var(--border-color)",
-                marginBottom: 'var(--space-3, 12px)',
+                marginBottom: "var(--space-3, 12px)",
               }}
             >
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
                 {selectedDefect.name}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                {t('reportDefect.codeInline', { code: selectedDefect.code, count: selectedDefect.count })}
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: 2,
+                }}
+              >
+                {t("reportDefect.codeInline", {
+                  code: selectedDefect.code,
+                  count: selectedDefect.count,
+                })}
               </div>
             </div>
             {selectedDefect.count > 0 ? (
@@ -1134,16 +1403,26 @@ export default function ReportDefectLibraryPage() {
                           justifyContent: "space-between",
                         }}
                       >
-                        <span>{t('reportDefect.triggerRecord', { n: i + 1 })}</span>
+                        <span>
+                          {t("reportDefect.triggerRecord", { n: i + 1 })}
+                        </span>
                         <span
-                          style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}
+                          style={{
+                            fontFamily: "monospace",
+                            color: "var(--text-secondary)",
+                          }}
                         >
                           2026-05-{(i + 1).toString().padStart(2, "0")} 09:
                           {10 + i * 3}
                         </span>
                       </div>
-                      <div style={{ color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
-                        {t('reportDefect.operatorInfo', { id: 1000 + i })}
+                      <div
+                        style={{
+                          color: "var(--text-secondary)",
+                          marginTop: "var(--space-1, 4px)",
+                        }}
+                      >
+                        {t("reportDefect.operatorInfo", { id: 1000 + i })}
                       </div>
                     </div>
                   ),
@@ -1153,12 +1432,12 @@ export default function ReportDefectLibraryPage() {
               <div
                 style={{
                   textAlign: "center",
-                  padding: 'var(--space-6, 24px)',
+                  padding: "var(--space-6, 24px)",
                   color: "var(--text-secondary)",
                   fontSize: 12,
                 }}
               >
-                {t('reportDefect.noTriggers')}
+                {t("reportDefect.noTriggers")}
               </div>
             )}
           </div>
@@ -1168,9 +1447,9 @@ export default function ReportDefectLibraryPage() {
       {/* 删除确认 Modal */}
       <ConfirmDialog
         open={!!confirmDelete}
-        title={t('reportDefect.deleteTitle')}
+        title={t("reportDefect.deleteTitle")}
         message={`确定删除缺陷 "${confirmDelete?.name}" 吗?该操作不可撤销。`}
-        confirmText={t('reportDefect.delete')}
+        confirmText={t("reportDefect.delete")}
         variant="danger"
         onCancel={() => setConfirmDelete(null)}
         onConfirm={performDelete}
@@ -1185,7 +1464,8 @@ export default function ReportDefectLibraryPage() {
             top: 24,
             left: "50%",
             transform: "translateX(-50%)",
-            background: toast.type === "success" ? "#059669" : "var(--color-error-600)",
+            background:
+              toast.type === "success" ? "#059669" : "var(--color-error-600)",
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,
@@ -1231,39 +1511,46 @@ function DefectFormFields({
     padding: "8px 12px",
     borderRadius: 6,
     border: "1px solid var(--border-color)",
-    fontSize: 12, boxSizing: "border-box",
+    fontSize: 12,
+    boxSizing: "border-box",
   };
   const labelStyle: React.CSSProperties = {
     fontSize: 12,
     fontWeight: 600,
     color: "var(--text-primary)",
-    marginBottom: 'var(--space-1, 4px)',
+    marginBottom: "var(--space-1, 4px)",
     display: "block",
   };
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-3, 12px)",
+      }}
+    >
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div>
           <label htmlFor={`${idPrefix}code`} style={labelStyle}>
-            {t('reportDefect.field.code')}
+            {t("reportDefect.field.code")}
           </label>
           <input
             id={`${idPrefix}code`}
             value={formState.code}
             onChange={(e) => set("code", e.target.value)}
-            placeholder={t('reportDefect.field.codePlaceholder')}
+            placeholder={t("reportDefect.field.codePlaceholder")}
             style={inputStyle}
           />
         </div>
         <div>
           <label htmlFor={`${idPrefix}name`} style={labelStyle}>
-            {t('reportDefect.field.name')}
+            {t("reportDefect.field.name")}
           </label>
           <input
             id={`${idPrefix}name`}
             value={formState.name}
             onChange={(e) => set("name", e.target.value)}
-            placeholder={t('reportDefect.field.namePlaceholder')}
+            placeholder={t("reportDefect.field.namePlaceholder")}
             style={inputStyle}
           />
         </div>
@@ -1271,64 +1558,60 @@ function DefectFormFields({
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div>
           <label htmlFor={`${idPrefix}category`} style={labelStyle}>
-            {t('reportDefect.field.category')}
+            {t("reportDefect.field.category")}
           </label>
-          <select
+          <AppSelectField
             id={`${idPrefix}category`}
             value={formState.category}
-            onChange={(e) => set("category", e.target.value as DefectCategory)}
+            onChange={(v) => set("category", String(v ?? "") as DefectCategory)}
+            options={Object.entries(CATEGORY_CONFIG).map(([k, v]) => ({
+              value: k,
+              label: t(v.labelKey),
+            }))}
             style={inputStyle}
-          >
-            {Object.entries(CATEGORY_CONFIG).map(([k, v]) => (
-              <option key={k} value={k}>
-                {t(v.labelKey)}
-              </option>
-            ))}
-          </select>
+          />
         </div>
         <div>
           <label htmlFor={`${idPrefix}severity`} style={labelStyle}>
-            {t('reportDefect.field.severity')}
+            {t("reportDefect.field.severity")}
           </label>
-          <select
+          <AppSelectField
             id={`${idPrefix}severity`}
             value={formState.severity}
-            onChange={(e) =>
-              set("severity", e.target.value as DefectItem["severity"])
+            onChange={(v) =>
+              set("severity", String(v ?? "") as DefectItem["severity"])
             }
+            options={Object.entries(SEVERITY_CONFIG).map(([k, v]) => ({
+              value: k,
+              label: t(v.labelKey),
+            }))}
             style={inputStyle}
-          >
-            {Object.entries(SEVERITY_CONFIG).map(([k, v]) => (
-              <option key={k} value={k}>
-                {t(v.labelKey)}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       </div>
       <div>
         <label htmlFor={`${idPrefix}description`} style={labelStyle}>
-          {t('reportDefect.field.description')}
+          {t("reportDefect.field.description")}
         </label>
         <textarea
           id={`${idPrefix}description`}
           value={formState.description}
           onChange={(e) => set("description", e.target.value)}
           rows={3}
-          placeholder={t('reportDefect.field.descriptionPlaceholder')}
+          placeholder={t("reportDefect.field.descriptionPlaceholder")}
           style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
         />
       </div>
       <div>
         <label htmlFor={`${idPrefix}solution`} style={labelStyle}>
-          {t('reportDefect.field.solution')}
+          {t("reportDefect.field.solution")}
         </label>
         <textarea
           id={`${idPrefix}solution`}
           value={formState.solution}
           onChange={(e) => set("solution", e.target.value)}
           rows={2}
-          placeholder={t('reportDefect.field.solutionPlaceholder')}
+          placeholder={t("reportDefect.field.solutionPlaceholder")}
           style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
         />
       </div>
@@ -1343,4 +1626,5 @@ const selectStyle: React.CSSProperties = {
   padding: "3px 8px",
   border: "1px solid var(--border-color)",
   borderRadius: 4,
-  fontSize: 12, };
+  fontSize: 12,
+};

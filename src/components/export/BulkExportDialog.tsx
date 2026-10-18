@@ -2,12 +2,24 @@
  * G005 放射RIS系统 v3.0.6.0 - 批量导出对话框
  * Phase R7:多报告批量导出 + 进度
  */
-import React, { useState, useCallback, useEffect } from 'react';
-import { Download, X, Loader2, CheckCircle2, AlertCircle, FileText } from 'lucide-react';
-import { BulkExporter } from '../../services/export/bulk/BulkExporter';
-import type { BulkExportResult, ExportProgressInfo, ExportFormatV2 } from '../../types/export';
-import { ExportProgressTracker } from './ExportProgressTracker';
-import { uniqueId } from '../../utils/uniqueId';
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  Download,
+  X,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
+import { BulkExporter } from "../../services/export/bulk/BulkExporter";
+import type {
+  BulkExportResult,
+  ExportProgressInfo,
+  ExportFormatV2,
+} from "../../types/export";
+import { ExportProgressTracker } from "./ExportProgressTracker";
+import { AppSelectField } from "../common/AppSelectField";
+import { uniqueId } from "../../utils/uniqueId";
 
 interface BulkExportDialogProps {
   open: boolean;
@@ -16,9 +28,22 @@ interface BulkExportDialogProps {
   defaultFormat?: ExportFormatV2;
 }
 
-const FORMATS: ExportFormatV2[] = ['pdf', 'word', 'html', 'txt', 'csv', 'pptx', 'json'];
+const FORMATS: ExportFormatV2[] = [
+  "pdf",
+  "word",
+  "html",
+  "txt",
+  "csv",
+  "pptx",
+  "json",
+];
 
-export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClose, reportIds, defaultFormat = 'pdf' }) => {
+export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({
+  open,
+  onClose,
+  reportIds,
+  defaultFormat = "pdf",
+}) => {
   const [format, setFormat] = useState<ExportFormatV2>(defaultFormat);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState<ExportProgressInfo | null>(null);
@@ -35,11 +60,13 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
   const handleExport = useCallback(async () => {
     setRunning(true);
     setResult(null);
-    const jobId = uniqueId('bulk');
+    const jobId = uniqueId("bulk");
     try {
-      const reports = reportIds.map(id => ({ id }));
+      const reports = reportIds.map((id) => ({ id }));
       const promise = BulkExporter.exportBatch(reports, format, {});
-      const unsub = BulkExporter.subscribe(jobId, (info) => setProgress({ ...info }));
+      const unsub = BulkExporter.subscribe(jobId, (info) =>
+        setProgress({ ...info }),
+      );
       const res = await promise;
       unsub();
       setResult(res);
@@ -54,7 +81,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
   const handleDownload = useCallback(() => {
     if (!result?.archiveBlob || !result?.fileName) return;
     const url = URL.createObjectURL(result.archiveBlob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = result.fileName;
     document.body.appendChild(a);
@@ -66,32 +93,122 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
   if (!open) return null;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050 }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.4)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1050,
+      }}
+    >
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 12,
+          width: 520,
+          maxHeight: "80vh",
+          overflow: "auto",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+        }}
+      >
+        <div
+          style={{
+            padding: "16px 20px",
+            borderBottom: "1px solid #e2e8f0",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
             <Download size={18} color="var(--color-error-600)" />
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>批量导出 ({reportIds.length} 份)</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: "#1e293b" }}>
+              批量导出 ({reportIds.length} 份)
+            </span>
           </div>
-          <button aria-label="关闭" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+          <button
+            aria-label="关闭"
+            onClick={onClose}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "var(--space-1, 4px)",
+            }}
+          >
+            <X size={18} />
+          </button>
         </div>
 
-        <div style={{ padding: 'var(--space-5, 20px)' }}>
-          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 6 }}>导出格式</label>
-            <select value={format} onChange={e => setFormat(e.target.value as ExportFormatV2)}
-              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}>
-              {FORMATS.map(f => <option key={f} value={f}>{f.toUpperCase()}</option>)}
-            </select>
+        <div style={{ padding: "var(--space-5, 20px)" }}>
+          <div style={{ marginBottom: "var(--space-4, 16px)" }}>
+            <label
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#475569",
+                display: "block",
+                marginBottom: 6,
+              }}
+            >
+              导出格式
+            </label>
+            <AppSelectField
+              value={format}
+              onChange={(v) => setFormat(String(v ?? "") as ExportFormatV2)}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                border: "1px solid #cbd5e1",
+                borderRadius: 6,
+                fontSize: 12,
+              }}
+              options={FORMATS.map((f) => ({
+                value: f,
+                label: f.toUpperCase(),
+              }))}
+            />
           </div>
 
-          <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
+          <div
+            style={{
+              marginBottom: "var(--space-4, 16px)",
+              padding: "var(--space-3, 12px)",
+              background: "var(--bg-primary)",
+              borderRadius: 8,
+              border: "1px solid #e2e8f0",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#64748b",
+                marginBottom: "var(--space-2, 8px)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <FileText size={12} /> 已选报告
             </div>
-            <div style={{ maxHeight: 120, overflowY: 'auto' }}>
-              {reportIds.map(id => (
-                <div key={id} style={{ fontSize: 12, color: '#475569', padding: '2px 0' }}>{id}</div>
+            <div style={{ maxHeight: 120, overflowY: "auto" }}>
+              {reportIds.map((id) => (
+                <div
+                  key={id}
+                  style={{ fontSize: 12, color: "#475569", padding: "2px 0" }}
+                >
+                  {id}
+                </div>
               ))}
             </div>
           </div>
@@ -99,28 +216,77 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
           {progress && <ExportProgressTracker progress={progress} />}
 
           {result && (
-            <div style={{ padding: 'var(--space-3, 12px)', background: result.failureCount === 0 ? '#f0fdf4' : '#fef2f2', borderRadius: 8, marginBottom: 'var(--space-3, 12px)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: result.failureCount === 0 ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>
-                {result.failureCount === 0 ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                {result.failureCount === 0 ? '全部导出成功' : `${result.successCount} 成功, ${result.failureCount} 失败`}
+            <div
+              style={{
+                padding: "var(--space-3, 12px)",
+                background: result.failureCount === 0 ? "#f0fdf4" : "#fef2f2",
+                borderRadius: 8,
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color:
+                    result.failureCount === 0
+                      ? "var(--color-success-600)"
+                      : "var(--color-error-600)",
+                }}
+              >
+                {result.failureCount === 0 ? (
+                  <CheckCircle2 size={16} />
+                ) : (
+                  <AlertCircle size={16} />
+                )}
+                {result.failureCount === 0
+                  ? "全部导出成功"
+                  : `${result.successCount} 成功, ${result.failureCount} 失败`}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>耗时 {(result.durationMs / 1000).toFixed(1)}s</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#64748b",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                耗时 {(result.durationMs / 1000).toFixed(1)}s
+              </div>
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)' }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-2, 8px)",
+              marginTop: "var(--space-4, 16px)",
+            }}
+          >
             {result?.archiveBlob && (
-              <button onClick={handleDownload} style={btnPrimary}><Download size={14} /> 下载 ZIP</button>
+              <button onClick={handleDownload} style={btnPrimary}>
+                <Download size={14} /> 下载 ZIP
+              </button>
             )}
             {!running && !result && (
-              <button onClick={handleExport} disabled={reportIds.length === 0} style={reportIds.length === 0 ? btnDisabled : btnPrimary}>
+              <button
+                onClick={handleExport}
+                disabled={reportIds.length === 0}
+                style={reportIds.length === 0 ? btnDisabled : btnPrimary}
+              >
                 <Download size={14} /> 开始导出
               </button>
             )}
             {running && (
-              <button disabled style={btnDisabled}><Loader2 size={14} className="spin" /> 导出中...</button>
+              <button disabled style={btnDisabled}>
+                <Loader2 size={14} className="spin" /> 导出中...
+              </button>
             )}
-            <button onClick={onClose} style={btnSecondary}>关闭</button>
+            <button onClick={onClose} style={btnSecondary}>
+              关闭
+            </button>
           </div>
         </div>
       </div>
@@ -129,14 +295,31 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
 };
 
 const btnPrimary: React.CSSProperties = {
-  flex: 1, padding: '8px 16px', border: 'none', borderRadius: 6,
-  background: 'linear-gradient(135deg, var(--color-error-600), #b91c1c)', color: '#fff',
-  fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
+  flex: 1,
+  padding: "8px 16px",
+  border: "none",
+  borderRadius: 6,
+  background: "linear-gradient(135deg, var(--color-error-600), #b91c1c)",
+  color: "#fff",
+  fontSize: 12,
+  fontWeight: 600,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  justifyContent: "center",
 };
 const btnSecondary: React.CSSProperties = {
-  padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6,
-  background: 'var(--bg-card)', color: '#475569', fontSize: 12, cursor: 'pointer',
+  padding: "8px 16px",
+  border: "1px solid #cbd5e1",
+  borderRadius: 6,
+  background: "var(--bg-card)",
+  color: "#475569",
+  fontSize: 12,
+  cursor: "pointer",
 };
 const btnDisabled: React.CSSProperties = {
-  ...btnPrimary, background: '#cbd5e1', cursor: 'not-allowed',
+  ...btnPrimary,
+  background: "#cbd5e1",
+  cursor: "not-allowed",
 };

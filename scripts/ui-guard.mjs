@@ -36,6 +36,9 @@ let spacingTokens = 0;
 let maxContentScroll = 0;
 let tableComponentsBare = 0;
 let scrollYNumeric = 0;
+// [v3.0.6.16-6] 原生 <button>: design-system.css 已统一补 hover/active/disabled/focus 语义;
+// 预算锁定防止继续扩散 (新按钮请用 antd Button 或 ActionButton)
+let nativeButton = 0;
 const FONT_SCALE = new Set(["10", "11", "12", "14", "16", "18", "20", "24", "30", "36", "48"]);
 const SPACE_SCALE = new Set([4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96]);
 const SPACING_KEYS = ["marginTop", "marginBottom", "marginLeft", "marginRight", "margin", "paddingTop", "paddingBottom", "paddingLeft", "paddingRight", "padding", "gap", "rowGap", "columnGap"];
@@ -84,11 +87,12 @@ for (const f of components) {
   maxContentScroll += (c.match(/x:\s*['"]max-content['"]/g) || []).length;
   scrollYNumeric += (c.match(/\by:\s*\d{2,}\b/g) || []).length;
 }
-for (const f of pages) {
-  const c = readFileSync(f, "utf8");
-  maxContentScroll += (c.match(/x:\s*['"]max-content['"]/g) || []).length;
-  scrollYNumeric += (c.match(/\by:\s*\d{2,}\b/g) || []).length;
-}
+  for (const f of pages) {
+    const c = readFileSync(f, "utf8");
+    maxContentScroll += (c.match(/x:\s*['"]max-content['"]/g) || []).length;
+    scrollYNumeric += (c.match(/\by:\s*\d{2,}\b/g) || []).length;
+    nativeButton += (c.match(/<button[\s>]/g) || []).length;
+  }
 
 const BUDGET = {
   antdTable: 0,
@@ -104,6 +108,7 @@ const BUDGET = {
   tableComponentsBare: 0, // 只减不增 (src/components 内禁止裸 <Table>; v3.0.6.15-5 已清零)
   maxContentScroll: 339, // 只减不增 (scroll.x='max-content'; 运行时已被归一列宽替换, 逐页清理)
   scrollYNumeric: 44, // 只减不增 (scroll.y 固定像素; 应改为容器自适应)
+  nativeButton: 1859, // 只减不增 (原生 <button>; 已由 design-system.css 统一 hover/active/disabled/focus 语义)
 };
 
 const checks = [
@@ -120,6 +125,7 @@ const checks = [
   ["tableComponentsBare", tableComponentsBare, "src/components 内裸 <Table> (请改用 <DataTable>)"],
   ["maxContentScroll", maxContentScroll, "scroll.x='max-content' (会撑破容器且抑制 ellipsis)"],
   ["scrollYNumeric", scrollYNumeric, "scroll.y 固定像素 (应改为容器/视口自适应)"],
+  ["nativeButton", nativeButton, "原生 <button> (新按钮请用 antd Button / ActionButton)"],
 ];
 
 let failed = false;

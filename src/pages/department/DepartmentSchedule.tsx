@@ -1,24 +1,44 @@
 import { useState } from "react";
-import dayjs from 'dayjs'
+import dayjs from "dayjs";
 import { message, DatePicker } from "antd";
 import { AlertTriangle, Clock, Plus } from "lucide-react";
 import { regionalApi } from "../../services/api";
 import { Send } from "lucide-react";
 import {
   Tooltip,
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 import { ChartContainer, chartDefaults } from "../../components/charts";
 import { DataTable } from "../../components/common";
+import { AppSelectField } from "../../components/common/AppSelectField";
 import { t } from "../../i18n/appI18n";
 
 const C = {
-  primary: "var(--color-primary-800)", primaryLight: "var(--color-primary-500)", primaryLighter: "#dbeafe",
-  accent: "var(--color-info-600)", white: "#ffffff", bg: "#e8e8e8", border: "#d1d5db",
-  borderLight: "var(--border-color, #e5e7eb)", textDark: "#1f2937", textMid: "#4b5563", textLight: "#9ca3af",
-  success: "#059669", successBg: "#d1fae5", warning: "var(--color-warning-600)", warningBg: "#fef3c7",
-  danger: "var(--color-error-600)", dangerBg: "#fee2e2", info: "var(--color-primary-600)", infoBg: "#dbeafe",
-  purple: "#7c3aed", purpleBg: "#ede9fe",
+  primary: "var(--color-primary-800)",
+  primaryLight: "var(--color-primary-500)",
+  primaryLighter: "#dbeafe",
+  accent: "var(--color-info-600)",
+  white: "#ffffff",
+  bg: "#e8e8e8",
+  border: "#d1d5db",
+  borderLight: "var(--border-color, #e5e7eb)",
+  textDark: "#1f2937",
+  textMid: "#4b5563",
+  textLight: "#9ca3af",
+  success: "#059669",
+  successBg: "#d1fae5",
+  warning: "var(--color-warning-600)",
+  warningBg: "#fef3c7",
+  danger: "var(--color-error-600)",
+  dangerBg: "#fee2e2",
+  info: "var(--color-primary-600)",
+  infoBg: "#dbeafe",
+  purple: "#7c3aed",
+  purpleBg: "#ede9fe",
 };
 
 type LeaveStatus = "pending" | "approved" | "rejected";
@@ -65,14 +85,94 @@ interface ScheduleApiRow {
 }
 
 const ATTENDANCE_DATA: AttendanceRow[] = [
-  { staffId: "S001", name: "张伟明", date: "2026-04-28", shift: "day", checkIn: "07:55", checkOut: "18:02", status: "normal", late: 0, early: 0 },
-  { staffId: "S002", name: "李秀英", date: "2026-04-28", shift: "day", checkIn: "08:01", checkOut: "18:05", status: "normal", late: 1, early: 0 },
-  { staffId: "S003", name: "王建国", date: "2026-04-28", shift: "day", checkIn: "07:58", checkOut: "19:30", status: "normal", late: 0, early: 0 },
-  { staffId: "S004", name: "刘芳", date: "2026-04-28", shift: "morning", checkIn: "07:52", checkOut: "12:15", status: "normal", late: 0, early: 1 },
-  { staffId: "S006", name: "赵志刚", date: "2026-04-28", shift: "morning", checkIn: "08:00", checkOut: "12:00", status: "normal", late: 0, early: 0 },
-  { staffId: "S007", name: "孙伟", date: "2026-04-28", shift: "afternoon", checkIn: "12:05", checkOut: "18:30", status: "late", late: 1, early: 0 },
-  { staffId: "S009", name: "吴敏", date: "2026-04-28", shift: "day", checkIn: "07:56", checkOut: "18:00", status: "normal", late: 0, early: 0 },
-  { staffId: "S013", name: "马云飞", date: "2026-04-28", shift: "day", checkIn: "08:10", checkOut: "17:45", status: "late", late: 1, early: 1 },
+  {
+    staffId: "S001",
+    name: "张伟明",
+    date: "2026-04-28",
+    shift: "day",
+    checkIn: "07:55",
+    checkOut: "18:02",
+    status: "normal",
+    late: 0,
+    early: 0,
+  },
+  {
+    staffId: "S002",
+    name: "李秀英",
+    date: "2026-04-28",
+    shift: "day",
+    checkIn: "08:01",
+    checkOut: "18:05",
+    status: "normal",
+    late: 1,
+    early: 0,
+  },
+  {
+    staffId: "S003",
+    name: "王建国",
+    date: "2026-04-28",
+    shift: "day",
+    checkIn: "07:58",
+    checkOut: "19:30",
+    status: "normal",
+    late: 0,
+    early: 0,
+  },
+  {
+    staffId: "S004",
+    name: "刘芳",
+    date: "2026-04-28",
+    shift: "morning",
+    checkIn: "07:52",
+    checkOut: "12:15",
+    status: "normal",
+    late: 0,
+    early: 1,
+  },
+  {
+    staffId: "S006",
+    name: "赵志刚",
+    date: "2026-04-28",
+    shift: "morning",
+    checkIn: "08:00",
+    checkOut: "12:00",
+    status: "normal",
+    late: 0,
+    early: 0,
+  },
+  {
+    staffId: "S007",
+    name: "孙伟",
+    date: "2026-04-28",
+    shift: "afternoon",
+    checkIn: "12:05",
+    checkOut: "18:30",
+    status: "late",
+    late: 1,
+    early: 0,
+  },
+  {
+    staffId: "S009",
+    name: "吴敏",
+    date: "2026-04-28",
+    shift: "day",
+    checkIn: "07:56",
+    checkOut: "18:00",
+    status: "normal",
+    late: 0,
+    early: 0,
+  },
+  {
+    staffId: "S013",
+    name: "马云飞",
+    date: "2026-04-28",
+    shift: "day",
+    checkIn: "08:10",
+    checkOut: "17:45",
+    status: "late",
+    late: 1,
+    early: 1,
+  },
 ];
 
 const ATTENDANCE_MONTHLY = [
@@ -83,26 +183,140 @@ const ATTENDANCE_MONTHLY = [
 ];
 
 const LEAVE_REQUESTS: LeaveRequest[] = [
-  { id: "L001", staffId: "S004", name: "刘芳", type: "年假", startDate: "2026-05-06", endDate: "2026-05-08", days: 3, reason: "家庭旅行", status: "pending", applyDate: "2026-04-25" },
-  { id: "L002", staffId: "S007", name: "孙伟", type: "病假", startDate: "2026-04-29", endDate: "2026-04-29", days: 1, reason: "感冒发热", status: "pending", applyDate: "2026-04-28" },
-  { id: "L003", staffId: "S010", name: "郑晓丽", type: "事假", startDate: "2026-05-10", endDate: "2026-05-12", days: 3, reason: "处理私事", status: "approved", applyDate: "2026-04-20" },
-  { id: "L004", staffId: "S014", name: "李雪", type: "病假", startDate: "2026-04-30", endDate: "2026-04-30", days: 1, reason: "身体不适", status: "rejected", applyDate: "2026-04-27" },
+  {
+    id: "L001",
+    staffId: "S004",
+    name: "刘芳",
+    type: "年假",
+    startDate: "2026-05-06",
+    endDate: "2026-05-08",
+    days: 3,
+    reason: "家庭旅行",
+    status: "pending",
+    applyDate: "2026-04-25",
+  },
+  {
+    id: "L002",
+    staffId: "S007",
+    name: "孙伟",
+    type: "病假",
+    startDate: "2026-04-29",
+    endDate: "2026-04-29",
+    days: 1,
+    reason: "感冒发热",
+    status: "pending",
+    applyDate: "2026-04-28",
+  },
+  {
+    id: "L003",
+    staffId: "S010",
+    name: "郑晓丽",
+    type: "事假",
+    startDate: "2026-05-10",
+    endDate: "2026-05-12",
+    days: 3,
+    reason: "处理私事",
+    status: "approved",
+    applyDate: "2026-04-20",
+  },
+  {
+    id: "L004",
+    staffId: "S014",
+    name: "李雪",
+    type: "病假",
+    startDate: "2026-04-30",
+    endDate: "2026-04-30",
+    days: 1,
+    reason: "身体不适",
+    status: "rejected",
+    applyDate: "2026-04-27",
+  },
 ];
 
-const LeaveRow = ({ leave, onApprove, onReject }: { leave: LeaveRequest; onApprove: () => void; onReject: () => void }) => {
-  const statusStyles = { pending: { bg: C.warningBg, color: C.warning }, approved: { bg: C.successBg, color: C.success }, rejected: { bg: C.dangerBg, color: C.danger } };
+const LeaveRow = ({
+  leave,
+  onApprove,
+  onReject,
+}: {
+  leave: LeaveRequest;
+  onApprove: () => void;
+  onReject: () => void;
+}) => {
+  const statusStyles = {
+    pending: { bg: C.warningBg, color: C.warning },
+    approved: { bg: C.successBg, color: C.success },
+    rejected: { bg: C.dangerBg, color: C.danger },
+  };
   const s = statusStyles[leave.status] || statusStyles.pending;
   return (
-    <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", borderBottom: `1px solid ${C.borderLight}`, gap: 'var(--space-4, 16px)', fontSize: 12 }}>
-      <div style={{ flex: 1, fontWeight: 500, color: C.textDark }}>{leave.name}</div>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        padding: "10px 16px",
+        borderBottom: `1px solid ${C.borderLight}`,
+        gap: "var(--space-4, 16px)",
+        fontSize: 12,
+      }}
+    >
+      <div style={{ flex: 1, fontWeight: 500, color: C.textDark }}>
+        {leave.name}
+      </div>
       <div style={{ flex: 1, color: C.primary }}>{leave.type}</div>
-      <div style={{ flex: 1, color: C.textDark }}>{leave.startDate} ~ {leave.endDate}</div>
-      <div style={{ flex: 1, color: C.textMid }}>{leave.days}{t("deptSched.days")}</div>
-      <div style={{ flex: 1 }}><span style={{ padding: "2px 8px", borderRadius: 4, background: s.bg, color: s.color, fontSize: 12 }}>{leave.status === "pending" ? t("deptSched.leavePending") : leave.status === "approved" ? t("deptSched.leaveApproved") : t("deptSched.leaveRejected")}</span></div>
+      <div style={{ flex: 1, color: C.textDark }}>
+        {leave.startDate} ~ {leave.endDate}
+      </div>
+      <div style={{ flex: 1, color: C.textMid }}>
+        {leave.days}
+        {t("deptSched.days")}
+      </div>
+      <div style={{ flex: 1 }}>
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 4,
+            background: s.bg,
+            color: s.color,
+            fontSize: 12,
+          }}
+        >
+          {leave.status === "pending"
+            ? t("deptSched.leavePending")
+            : leave.status === "approved"
+              ? t("deptSched.leaveApproved")
+              : t("deptSched.leaveRejected")}
+        </span>
+      </div>
       {leave.status === "pending" && (
-        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
-          <button onClick={onApprove} style={{ padding: "4px 12px", background: C.success, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.approve")}</button>
-          <button onClick={onReject} style={{ padding: "4px 12px", background: C.danger, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.reject")}</button>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
+          <button
+            onClick={onApprove}
+            style={{
+              padding: "4px 12px",
+              background: C.success,
+              color: "white",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+          >
+            {t("deptSched.approve")}
+          </button>
+          <button
+            onClick={onReject}
+            style={{
+              padding: "4px 12px",
+              background: C.danger,
+              color: "white",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+          >
+            {t("deptSched.reject")}
+          </button>
         </div>
       )}
     </div>
@@ -113,33 +327,60 @@ export default function DepartmentSchedule() {
   const [leaveList, setLeaveList] = useState(LEAVE_REQUESTS);
   const [dateFrom, setDateFrom] = useState("2026-04-28");
   const [dateTo, setDateTo] = useState("2026-04-28");
-  const [attendanceRows, setAttendanceRows] = useState<AttendanceRow[]>(ATTENDANCE_DATA);
+  const [attendanceRows, setAttendanceRows] =
+    useState<AttendanceRow[]>(ATTENDANCE_DATA);
   const [querying, setQuerying] = useState(false);
   const [showLeaveForm, setShowLeaveForm] = useState(false);
-  const [newLeave, setNewLeave] = useState({ name: "", type: "年假", startDate: "", endDate: "", days: 1, reason: "" });
+  const [newLeave, setNewLeave] = useState({
+    name: "",
+    type: "年假",
+    startDate: "",
+    endDate: "",
+    days: 1,
+    reason: "",
+  });
   const [attendResult, setAttendResult] = useState("");
 
-  const handleApprove = (id: string) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "approved" } : l)); };
-  const handleReject = (id: string) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "rejected" } : l)); };
+  const handleApprove = (id: string) => {
+    setLeaveList((list) =>
+      list.map((l) => (l.id === id ? { ...l, status: "approved" } : l)),
+    );
+  };
+  const handleReject = (id: string) => {
+    setLeaveList((list) =>
+      list.map((l) => (l.id === id ? { ...l, status: "rejected" } : l)),
+    );
+  };
 
   const handleQuery = async () => {
     setQuerying(true);
     setAttendResult("");
     try {
       const res = await regionalApi.getDepartmentSchedule();
-      const rows: ScheduleApiRow[] = res.success && Array.isArray(res.data) && res.data.length > 0 ? res.data : ATTENDANCE_DATA;
-      setAttendanceRows(rows.map((r, i) => ({
-        staffId: r.staffId || `S${String(i + 1).padStart(3, '0')}`,
-        name: r.staffName || r.name || t("deptSched.staffFallback"),
-        date: r.workDate || dateFrom,
-        shift: r.shift || "day",
-        checkIn: r.checkIn || "-",
-        checkOut: r.checkOut || "-",
-        status: r.status || "normal",
-        late: r.lateTimes || 0,
-        early: r.earlyTimes || 0,
-      })));
-      setAttendResult(t('w9e.deptSchedule.queryResult', { from: dateFrom, to: dateTo, count: rows.length }));
+      const rows: ScheduleApiRow[] =
+        res.success && Array.isArray(res.data) && res.data.length > 0
+          ? res.data
+          : ATTENDANCE_DATA;
+      setAttendanceRows(
+        rows.map((r, i) => ({
+          staffId: r.staffId || `S${String(i + 1).padStart(3, "0")}`,
+          name: r.staffName || r.name || t("deptSched.staffFallback"),
+          date: r.workDate || dateFrom,
+          shift: r.shift || "day",
+          checkIn: r.checkIn || "-",
+          checkOut: r.checkOut || "-",
+          status: r.status || "normal",
+          late: r.lateTimes || 0,
+          early: r.earlyTimes || 0,
+        })),
+      );
+      setAttendResult(
+        t("w9e.deptSchedule.queryResult", {
+          from: dateFrom,
+          to: dateTo,
+          count: rows.length,
+        }),
+      );
     } catch {
       setAttendanceRows(ATTENDANCE_DATA);
       setAttendResult(t("deptSched.scheduleUnavailable"));
@@ -149,39 +390,144 @@ export default function DepartmentSchedule() {
   };
 
   const handleCreateLeave = () => {
-    if (!newLeave.name.trim() || !newLeave.startDate || !newLeave.endDate) { message.warning(t("deptSched.fillRequired")); return; }
-    setLeaveList(prev => [...prev, {
-      id: `L${Date.now()}`,
-      staffId: `S${String(Date.now()).slice(-4)}`,
-      name: newLeave.name,
-      type: newLeave.type,
-      startDate: newLeave.startDate,
-      endDate: newLeave.endDate,
-      days: newLeave.days,
-      reason: newLeave.reason || "-",
-      status: "pending",
-      applyDate: new Date().toISOString().split("T")[0] ?? "",
-    }]);
+    if (!newLeave.name.trim() || !newLeave.startDate || !newLeave.endDate) {
+      message.warning(t("deptSched.fillRequired"));
+      return;
+    }
+    setLeaveList((prev) => [
+      ...prev,
+      {
+        id: `L${Date.now()}`,
+        staffId: `S${String(Date.now()).slice(-4)}`,
+        name: newLeave.name,
+        type: newLeave.type,
+        startDate: newLeave.startDate,
+        endDate: newLeave.endDate,
+        days: newLeave.days,
+        reason: newLeave.reason || "-",
+        status: "pending",
+        applyDate: new Date().toISOString().split("T")[0] ?? "",
+      },
+    ]);
     setShowLeaveForm(false);
-    setNewLeave({ name: "", type: "年假", startDate: "", endDate: "", days: 1, reason: "" });
+    setNewLeave({
+      name: "",
+      type: "年假",
+      startDate: "",
+      endDate: "",
+      days: 1,
+      reason: "",
+    });
   };
 
-  const panelStyle = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
-  const panelHeaderStyle = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-primary)" };
+  const panelStyle = {
+    background: C.white,
+    borderRadius: 8,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: `1px solid ${C.borderLight}`,
+    overflow: "hidden",
+  };
+  const panelHeaderStyle = {
+    padding: "12px 16px",
+    borderBottom: `1px solid ${C.borderLight}`,
+    fontSize: 14,
+    fontWeight: 600,
+    color: C.textDark,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    background: "var(--bg-primary)",
+  };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 320px",
+        gap: "var(--space-4, 16px)",
+        marginBottom: "var(--space-4, 16px)",
+      }}
+    >
       <div style={panelStyle}>
         <div style={panelHeaderStyle}>
-          <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbeb)', color: 'var(--color-warning-600)', border: '1px solid var(--color-warning-300, #fcd34d)', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
-          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
-            <DatePicker size="small" value={dateFrom ? dayjs(dateFrom) : null} onChange={(d) => setDateFrom(d ? d.format('YYYY-MM-DD') : '')} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-            <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
-            <DatePicker size="small" value={dateTo ? dayjs(dateTo) : null} onChange={(d) => setDateTo(d ? d.format('YYYY-MM-DD') : '')} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-            <button onClick={() => void handleQuery()} disabled={querying} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: querying ? "wait" : "pointer", fontSize: 12 }}>{querying ? t("deptSched.querying") : t("deptSched.query")}</button>
+          <span>
+            {t("deptSched.attendanceRecords")}{" "}
+            {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}
+            <span
+              style={{
+                fontSize: 11,
+                padding: "2px 8px",
+                borderRadius: 10,
+                background: "var(--color-warning-bg, #fffbeb)",
+                color: "var(--color-warning-600)",
+                border: "1px solid var(--color-warning-300, #fcd34d)",
+                fontWeight: 600,
+              }}
+            >
+              {t("deptSched.demoBadge")}
+            </span>
+          </span>
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-2, 8px)",
+              alignItems: "center",
+            }}
+          >
+            <DatePicker
+              size="small"
+              value={dateFrom ? dayjs(dateFrom) : null}
+              onChange={(d) => setDateFrom(d ? d.format("YYYY-MM-DD") : "")}
+              style={{
+                padding: "4px 8px",
+                border: `1px solid ${C.border}`,
+                borderRadius: 4,
+                fontSize: 12,
+              }}
+            />
+            <span style={{ fontSize: 12, color: C.textMid }}>
+              {t("deptSched.to")}
+            </span>
+            <DatePicker
+              size="small"
+              value={dateTo ? dayjs(dateTo) : null}
+              onChange={(d) => setDateTo(d ? d.format("YYYY-MM-DD") : "")}
+              style={{
+                padding: "4px 8px",
+                border: `1px solid ${C.border}`,
+                borderRadius: 4,
+                fontSize: 12,
+              }}
+            />
+            <button
+              onClick={() => void handleQuery()}
+              disabled={querying}
+              style={{
+                padding: "4px 12px",
+                background: C.primary,
+                color: C.white,
+                border: "none",
+                borderRadius: 4,
+                cursor: querying ? "wait" : "pointer",
+                fontSize: 12,
+              }}
+            >
+              {querying ? t("deptSched.querying") : t("deptSched.query")}
+            </button>
           </div>
         </div>
-        {attendResult && <div style={{ padding: "8px 16px", background: C.infoBg, color: C.info, fontSize: 12 }}>{attendResult}</div>}
+        {attendResult && (
+          <div
+            style={{
+              padding: "8px 16px",
+              background: C.infoBg,
+              color: C.info,
+              fontSize: 12,
+            }}
+          >
+            {attendResult}
+          </div>
+        )}
         <div style={{ overflow: "auto" }}>
           <DataTable
             rowKey="staffId"
@@ -190,82 +536,379 @@ export default function DepartmentSchedule() {
             showExport={false}
             showDensity={false}
             columns={[
-              { title: t("deptSched.colName"), dataIndex: "name", key: "name", render: (v: string) => <span style={{ fontWeight: 500, color: C.textDark }}>{v}</span> },
               {
-                title: t("deptSched.colShift"), dataIndex: "shift", key: "shift",
+                title: t("deptSched.colName"),
+                dataIndex: "name",
+                key: "name",
                 render: (v: string) => (
-                  <span style={{ color: C.textMid }}>{v === "morning" ? t("deptSched.shiftMorning") : v === "afternoon" ? t("deptSched.shiftAfternoon") : v === "night" ? t("deptSched.shiftNight") : t("deptSched.shiftDay")}</span>
-                ),
-              },
-              { title: t("deptSched.colCheckIn"), dataIndex: "checkIn", key: "checkIn", render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
-              { title: t("deptSched.colCheckOut"), dataIndex: "checkOut", key: "checkOut", render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
-              {
-                title: t("deptSched.colStatus"), dataIndex: "status", key: "status",
-                render: (v: string) => (
-                  <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: v === "normal" ? C.successBg : C.warningBg, color: v === "normal" ? C.success : C.warning }}>{v === "normal" ? t("deptSched.statusNormal") : t("deptSched.statusAbnormal")}</span>
+                  <span style={{ fontWeight: 500, color: C.textDark }}>
+                    {v}
+                  </span>
                 ),
               },
               {
-                title: t("deptSched.colAbnormal"), key: "abnormal",
+                title: t("deptSched.colShift"),
+                dataIndex: "shift",
+                key: "shift",
+                render: (v: string) => (
+                  <span style={{ color: C.textMid }}>
+                    {v === "morning"
+                      ? t("deptSched.shiftMorning")
+                      : v === "afternoon"
+                        ? t("deptSched.shiftAfternoon")
+                        : v === "night"
+                          ? t("deptSched.shiftNight")
+                          : t("deptSched.shiftDay")}
+                  </span>
+                ),
+              },
+              {
+                title: t("deptSched.colCheckIn"),
+                dataIndex: "checkIn",
+                key: "checkIn",
+                render: (v: string) => (
+                  <span style={{ color: C.textMid }}>{v}</span>
+                ),
+              },
+              {
+                title: t("deptSched.colCheckOut"),
+                dataIndex: "checkOut",
+                key: "checkOut",
+                render: (v: string) => (
+                  <span style={{ color: C.textMid }}>{v}</span>
+                ),
+              },
+              {
+                title: t("deptSched.colStatus"),
+                dataIndex: "status",
+                key: "status",
+                render: (v: string) => (
+                  <span
+                    style={{
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                      fontSize: 12,
+                      background: v === "normal" ? C.successBg : C.warningBg,
+                      color: v === "normal" ? C.success : C.warning,
+                    }}
+                  >
+                    {v === "normal"
+                      ? t("deptSched.statusNormal")
+                      : t("deptSched.statusAbnormal")}
+                  </span>
+                ),
+              },
+              {
+                title: t("deptSched.colAbnormal"),
+                key: "abnormal",
                 render: (_: unknown, a: AttendanceRow) => (
-                  <span style={{ color: a.late > 0 ? C.danger : a.early > 0 ? C.warning : C.success }}>{a.late > 0 ? t("deptSched.lateTimes", { count: a.late }) : a.early > 0 ? t("deptSched.earlyTimes", { count: a.early }) : t("deptSched.none")}</span>
+                  <span
+                    style={{
+                      color:
+                        a.late > 0
+                          ? C.danger
+                          : a.early > 0
+                            ? C.warning
+                            : C.success,
+                    }}
+                  >
+                    {a.late > 0
+                      ? t("deptSched.lateTimes", { count: a.late })
+                      : a.early > 0
+                        ? t("deptSched.earlyTimes", { count: a.early })
+                        : t("deptSched.none")}
+                  </span>
                 ),
               },
             ]}
           />
         </div>
-        <div style={{ padding: 'var(--space-4, 16px)', borderTop: `1px solid ${C.borderLight}` }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 'var(--space-3, 12px)' }}>{t("deptSched.monthlyTrend")}</div>
+        <div
+          style={{
+            padding: "var(--space-4, 16px)",
+            borderTop: `1px solid ${C.borderLight}`,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: C.textDark,
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            {t("deptSched.monthlyTrend")}
+          </div>
           <ChartContainer type="area" height={160}>
             <AreaChart data={ATTENDANCE_MONTHLY} margin={chartDefaults.margin}>
               <CartesianGrid {...chartDefaults.grid} stroke={C.borderLight} />
-              <XAxis dataKey="month" {...chartDefaults.axis} /><YAxis domain={[90, 105]} {...chartDefaults.axis} /><Tooltip {...chartDefaults.tooltip} />
-              <Area type="monotone" dataKey="present" stackId="1" stroke={C.success} fill={C.successBg} name={t("deptSched.presentRate")} />
-              <Area type="monotone" dataKey="late" stackId="2" stroke={C.warning} fill={C.warningBg} name={t("deptSched.lateRate")} />
+              <XAxis dataKey="month" {...chartDefaults.axis} />
+              <YAxis domain={[90, 105]} {...chartDefaults.axis} />
+              <Tooltip {...chartDefaults.tooltip} />
+              <Area
+                type="monotone"
+                dataKey="present"
+                stackId="1"
+                stroke={C.success}
+                fill={C.successBg}
+                name={t("deptSched.presentRate")}
+              />
+              <Area
+                type="monotone"
+                dataKey="late"
+                stackId="2"
+                stroke={C.warning}
+                fill={C.warningBg}
+                name={t("deptSched.lateRate")}
+              />
             </AreaChart>
           </ChartContainer>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
         <div style={panelStyle}>
-          <div style={panelHeaderStyle}><span>{t("deptSched.leaveRequests")}</span><button onClick={() => setShowLeaveForm(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Plus style={{ width: 12, height: 12 }} /> {t("deptSched.newRequest")}</button></div>
+          <div style={panelHeaderStyle}>
+            <span>{t("deptSched.leaveRequests")}</span>
+            <button
+              onClick={() => setShowLeaveForm(true)}
+              style={{
+                padding: "4px 10px",
+                background: C.primary,
+                color: C.white,
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+                fontSize: 12,
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
+              <Plus style={{ width: 12, height: 12 }} />{" "}
+              {t("deptSched.newRequest")}
+            </button>
+          </div>
           {showLeaveForm && (
-            <div style={{ padding: 'var(--space-3, 12px)', borderBottom: `1px solid ${C.borderLight}`, display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
-              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
-                <input placeholder={t("deptSched.namePlaceholder")} value={newLeave.name} onChange={e => setNewLeave({ ...newLeave, name: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-                <select value={newLeave.type} onChange={e => setNewLeave({ ...newLeave, type: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}>
-                  <option>年假</option><option>病假</option><option>事假</option><option>调休</option>
-                </select>
+            <div
+              style={{
+                padding: "var(--space-3, 12px)",
+                borderBottom: `1px solid ${C.borderLight}`,
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
+              <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
+                <input
+                  placeholder={t("deptSched.namePlaceholder")}
+                  value={newLeave.name}
+                  onChange={(e) =>
+                    setNewLeave({ ...newLeave, name: e.target.value })
+                  }
+                  style={{
+                    flex: 1,
+                    padding: "6px 8px",
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 4,
+                    fontSize: 12,
+                  }}
+                />
+                <AppSelectField
+                  value={newLeave.type}
+                  onChange={(v) =>
+                    setNewLeave({ ...newLeave, type: String(v ?? "") })
+                  }
+                  style={{
+                    padding: "6px 8px",
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 4,
+                    fontSize: 12,
+                  }}
+                  options={["年假", "病假", "事假", "调休"].map((u) => ({
+                    value: u,
+                    label: u,
+                  }))}
+                />
               </div>
-              <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
-                <DatePicker size="small" value={newLeave.startDate ? dayjs(newLeave.startDate) : null} onChange={(d) => setNewLeave({ ...newLeave, startDate: d ? d.format('YYYY-MM-DD') : '' })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-                <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
-                <DatePicker size="small" value={newLeave.endDate ? dayjs(newLeave.endDate) : null} onChange={(d) => setNewLeave({ ...newLeave, endDate: d ? d.format('YYYY-MM-DD') : '' })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+              <div
+                style={{
+                  display: "flex",
+                  gap: "var(--space-2, 8px)",
+                  alignItems: "center",
+                }}
+              >
+                <DatePicker
+                  size="small"
+                  value={newLeave.startDate ? dayjs(newLeave.startDate) : null}
+                  onChange={(d) =>
+                    setNewLeave({
+                      ...newLeave,
+                      startDate: d ? d.format("YYYY-MM-DD") : "",
+                    })
+                  }
+                  style={{
+                    flex: 1,
+                    padding: "6px 8px",
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 4,
+                    fontSize: 12,
+                  }}
+                />
+                <span style={{ fontSize: 12, color: C.textMid }}>
+                  {t("deptSched.to")}
+                </span>
+                <DatePicker
+                  size="small"
+                  value={newLeave.endDate ? dayjs(newLeave.endDate) : null}
+                  onChange={(d) =>
+                    setNewLeave({
+                      ...newLeave,
+                      endDate: d ? d.format("YYYY-MM-DD") : "",
+                    })
+                  }
+                  style={{
+                    flex: 1,
+                    padding: "6px 8px",
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 4,
+                    fontSize: 12,
+                  }}
+                />
               </div>
-              <input placeholder={t("deptSched.reasonPlaceholder")} value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 'var(--space-2, 8px)' }}>
-                <button onClick={() => setShowLeaveForm(false)} style={{ padding: "4px 10px", background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.cancel")}</button>
-                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><Send size={11} />{t("deptSched.submit")}</button>
+              <input
+                placeholder={t("deptSched.reasonPlaceholder")}
+                value={newLeave.reason}
+                onChange={(e) =>
+                  setNewLeave({ ...newLeave, reason: e.target.value })
+                }
+                style={{
+                  padding: "6px 8px",
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 4,
+                  fontSize: 12,
+                }}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
+                <button
+                  onClick={() => setShowLeaveForm(false)}
+                  style={{
+                    padding: "4px 10px",
+                    background: C.white,
+                    color: C.textMid,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontSize: 12,
+                  }}
+                >
+                  {t("deptSched.cancel")}
+                </button>
+                <button
+                  onClick={handleCreateLeave}
+                  style={{
+                    padding: "4px 10px",
+                    background: C.primary,
+                    color: C.white,
+                    border: "none",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-1, 4px)",
+                  }}
+                >
+                  <Send size={11} />
+                  {t("deptSched.submit")}
+                </button>
               </div>
             </div>
           )}
           <div style={{ overflow: "auto" }}>
-            {leaveList.map((leave) => <LeaveRow key={leave.id} leave={leave} onApprove={() => handleApprove(leave.id)} onReject={() => handleReject(leave.id)} />)}
+            {leaveList.map((leave) => (
+              <LeaveRow
+                key={leave.id}
+                leave={leave}
+                onApprove={() => handleApprove(leave.id)}
+                onReject={() => handleReject(leave.id)}
+              />
+            ))}
           </div>
         </div>
         <div style={panelStyle}>
-          <div style={panelHeaderStyle}><span>{t("deptSched.lateEarlyStats")}</span><span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.thisMonth")}</span></div>
-          <div style={{ padding: 'var(--space-4, 16px)' }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)' }}>
-              <div style={{ textAlign: "center", padding: 'var(--space-4, 16px)', background: C.warningBg, borderRadius: 8 }}>
-                <AlertTriangle style={{ width: 24, height: 24, color: C.warning, margin: "0 auto 8px" }} />
-                <div style={{ fontSize: 24, fontWeight: 700, color: C.warning }}>8</div>
-                <div style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.lateCount")}</div>
+          <div style={panelHeaderStyle}>
+            <span>{t("deptSched.lateEarlyStats")}</span>
+            <span style={{ fontSize: 12, color: C.textMid }}>
+              {t("deptSched.thisMonth")}
+            </span>
+          </div>
+          <div style={{ padding: "var(--space-4, 16px)" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "var(--space-3, 12px)",
+              }}
+            >
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "var(--space-4, 16px)",
+                  background: C.warningBg,
+                  borderRadius: 8,
+                }}
+              >
+                <AlertTriangle
+                  style={{
+                    width: 24,
+                    height: 24,
+                    color: C.warning,
+                    margin: "0 auto 8px",
+                  }}
+                />
+                <div
+                  style={{ fontSize: 24, fontWeight: 700, color: C.warning }}
+                >
+                  8
+                </div>
+                <div style={{ fontSize: 12, color: C.textMid }}>
+                  {t("deptSched.lateCount")}
+                </div>
               </div>
-              <div style={{ textAlign: "center", padding: 'var(--space-4, 16px)', background: C.infoBg, borderRadius: 8 }}>
-                <Clock style={{ width: 24, height: 24, color: C.info, margin: "0 auto 8px" }} />
-                <div style={{ fontSize: 24, fontWeight: 700, color: C.info }}>4</div>
-                <div style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.earlyCount")}</div>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "var(--space-4, 16px)",
+                  background: C.infoBg,
+                  borderRadius: 8,
+                }}
+              >
+                <Clock
+                  style={{
+                    width: 24,
+                    height: 24,
+                    color: C.info,
+                    margin: "0 auto 8px",
+                  }}
+                />
+                <div style={{ fontSize: 24, fontWeight: 700, color: C.info }}>
+                  4
+                </div>
+                <div style={{ fontSize: 12, color: C.textMid }}>
+                  {t("deptSched.earlyCount")}
+                </div>
               </div>
             </div>
           </div>

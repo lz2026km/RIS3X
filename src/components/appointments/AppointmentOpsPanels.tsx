@@ -1,217 +1,628 @@
-import { useCallback, useEffect, useState } from 'react'
-import { ListChecks, Bell, UserX, RefreshCw, Plus, Send, ScanLine, RotateCcw, Check } from 'lucide-react'
-import { t } from '../../i18n/appI18n'
+import { useCallback, useEffect, useState } from "react";
+import {
+  ListChecks,
+  Bell,
+  UserX,
+  RefreshCw,
+  Plus,
+  Send,
+  ScanLine,
+  RotateCcw,
+  Check,
+} from "lucide-react";
+import { t } from "../../i18n/appI18n";
+import { AppSelectField } from "../common/AppSelectField";
 import {
   appointmentApi,
   type WaitlistEntryDto,
   type ReminderPlanDto,
   type NoShowRecordDto,
-} from '../../services/api'
+} from "../../services/api";
 
-type Tab = 'WAITLIST' | 'REMINDER' | 'NOSHOW'
+type Tab = "WAITLIST" | "REMINDER" | "NOSHOW";
 
-const borderGray = 'var(--border-color)'
-const primaryBlue = 'var(--color-primary-800)'
-const textGray = '#64748b'
+const borderGray = "var(--border-color)";
+const primaryBlue = "var(--color-primary-800)";
+const textGray = "#64748b";
 
 const priorityLabel = (p: string): string =>
-  p === 'critical' ? t('w5Appt.priorityCritical') : p === 'urgent' ? t('w5Appt.priorityUrgent') : t('w5Appt.priorityNormal')
+  p === "critical"
+    ? t("w5Appt.priorityCritical")
+    : p === "urgent"
+      ? t("w5Appt.priorityUrgent")
+      : t("w5Appt.priorityNormal");
 
 const priorityColor = (p: string): string =>
-  p === 'critical' ? 'var(--color-error-600)' : p === 'urgent' ? 'var(--color-warning-500)' : textGray
+  p === "critical"
+    ? "var(--color-error-600)"
+    : p === "urgent"
+      ? "var(--color-warning-500)"
+      : textGray;
 
 export default function AppointmentOpsPanels() {
-  const [tab, setTab] = useState<Tab>('WAITLIST')
-  const [waitlist, setWaitlist] = useState<WaitlistEntryDto[]>([])
-  const [reminders, setReminders] = useState<ReminderPlanDto[]>([])
-  const [noShows, setNoShows] = useState<NoShowRecordDto[]>([])
-  const [busy, setBusy] = useState(false)
-  const [toast, setToast] = useState('')
-  const [newPatient, setNewPatient] = useState('')
-  const [newModality, setNewModality] = useState('CT')
-  const [newPriority, setNewPriority] = useState('normal')
+  const [tab, setTab] = useState<Tab>("WAITLIST");
+  const [waitlist, setWaitlist] = useState<WaitlistEntryDto[]>([]);
+  const [reminders, setReminders] = useState<ReminderPlanDto[]>([]);
+  const [noShows, setNoShows] = useState<NoShowRecordDto[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState("");
+  const [newPatient, setNewPatient] = useState("");
+  const [newModality, setNewModality] = useState("CT");
+  const [newPriority, setNewPriority] = useState("normal");
 
-  const flash = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2000) }
+  const flash = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2000);
+  };
 
   const load = useCallback(async () => {
-    setBusy(true)
+    setBusy(true);
     try {
       const [w, r, n] = await Promise.all([
         appointmentApi.getWaitlist(),
         appointmentApi.getReminderPlans(),
         appointmentApi.getNoShowList(),
-      ])
-      if (w.success && Array.isArray(w.data)) setWaitlist(w.data)
-      if (r.success && Array.isArray(r.data)) setReminders(r.data)
-      if (n.success && Array.isArray(n.data)) setNoShows(n.data)
-    } catch { /* demo 回退 */ }
-    setBusy(false)
-  }, [])
+      ]);
+      if (w.success && Array.isArray(w.data)) setWaitlist(w.data);
+      if (r.success && Array.isArray(r.data)) setReminders(r.data);
+      if (n.success && Array.isArray(n.data)) setNoShows(n.data);
+    } catch {
+      /* demo 回退 */
+    }
+    setBusy(false);
+  }, []);
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const addWaitlist = async () => {
-    if (!newPatient.trim()) return
-    const res = await appointmentApi.addWaitlist({ patientName: newPatient, modality: newModality, priority: newPriority })
-    if (res.success) { setNewPatient(''); flash(t('w5Appt.opsAdded')); void load() }
-  }
+    if (!newPatient.trim()) return;
+    const res = await appointmentApi.addWaitlist({
+      patientName: newPatient,
+      modality: newModality,
+      priority: newPriority,
+    });
+    if (res.success) {
+      setNewPatient("");
+      flash(t("w5Appt.opsAdded"));
+      void load();
+    }
+  };
 
   const assign = async (id: string) => {
-    const res = await appointmentApi.assignWaitlist(id, { deviceId: 'DEV-CT-01' })
-    if (res.success) { flash(t('w5Appt.opsAssigned')); void load() }
-  }
+    const res = await appointmentApi.assignWaitlist(id, {
+      deviceId: "DEV-CT-01",
+    });
+    if (res.success) {
+      flash(t("w5Appt.opsAssigned"));
+      void load();
+    }
+  };
 
   const fireOne = async (id: string) => {
-    const res = await appointmentApi.fireReminderPlan(id)
-    if (res.success) { flash(t('w5Appt.opsFired')); void load() }
-  }
+    const res = await appointmentApi.fireReminderPlan(id);
+    if (res.success) {
+      flash(t("w5Appt.opsFired"));
+      void load();
+    }
+  };
 
   const fireDue = async () => {
-    const res = await appointmentApi.fireDueReminders()
-    if (res.success) { flash(`${t('w5Appt.opsFired')} (${Array.isArray(res.data) ? res.data.length : 0})`); void load() }
-  }
+    const res = await appointmentApi.fireDueReminders();
+    if (res.success) {
+      flash(
+        `${t("w5Appt.opsFired")} (${Array.isArray(res.data) ? res.data.length : 0})`,
+      );
+      void load();
+    }
+  };
 
   const scan = async () => {
-    const res = await appointmentApi.scanNoShow(30)
-    if (res.success) { flash(t('w5Appt.opsScanDone')); void load() }
-  }
+    const res = await appointmentApi.scanNoShow(30);
+    if (res.success) {
+      flash(t("w5Appt.opsScanDone"));
+      void load();
+    }
+  };
 
   const restore = async (id: string) => {
-    const res = await appointmentApi.restoreNoShow(id)
-    if (res.success) { flash(t('w5Appt.opsRestored')); void load() }
-  }
+    const res = await appointmentApi.restoreNoShow(id);
+    if (res.success) {
+      flash(t("w5Appt.opsRestored"));
+      void load();
+    }
+  };
 
   const tabBtn = (key: Tab, label: string, icon: React.ReactNode) => (
     <button
       key={key}
       onClick={() => setTab(key)}
       style={{
-        padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5,
-        background: tab === key ? primaryBlue : 'var(--bg-deep)', color: tab === key ? '#fff' : textGray,
+        padding: "6px 14px",
+        borderRadius: 6,
+        border: "none",
+        cursor: "pointer",
+        fontSize: 12,
+        fontWeight: 700,
+        display: "flex",
+        alignItems: "center",
+        gap: 5,
+        background: tab === key ? primaryBlue : "var(--bg-deep)",
+        color: tab === key ? "#fff" : textGray,
       }}
     >
-      {icon}{label}
+      {icon}
+      {label}
     </button>
-  )
+  );
 
-  const th = (label: string) => <th key={label} style={{ padding: '7px 10px', textAlign: 'left', fontWeight: 700, color: textGray, whiteSpace: 'nowrap', fontSize: 11 }}>{label}</th>
-  const td = (children: React.ReactNode, key: string) => <td key={key} style={{ padding: '7px 10px', fontSize: 12, color: '#334155' }}>{children}</td>
+  const th = (label: string) => (
+    <th
+      key={label}
+      style={{
+        padding: "7px 10px",
+        textAlign: "left",
+        fontWeight: 700,
+        color: textGray,
+        whiteSpace: "nowrap",
+        fontSize: 11,
+      }}
+    >
+      {label}
+    </th>
+  );
+  const td = (children: React.ReactNode, key: string) => (
+    <td
+      key={key}
+      style={{ padding: "7px 10px", fontSize: 12, color: "#334155" }}
+    >
+      {children}
+    </td>
+  );
 
   return (
-    <div data-testid="appointment-ops" style={{ background: 'var(--bg-card)', borderRadius: 10, border: `1px solid ${borderGray}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginRight: 6 }}>{t('w5Appt.opsTitle')}</div>
-        {tabBtn('WAITLIST', t('w5Appt.opsWaitlist'), <ListChecks size={13} />)}
-        {tabBtn('REMINDER', t('w5Appt.opsReminderPlan'), <Bell size={13} />)}
-        {tabBtn('NOSHOW', t('w5Appt.opsNoShow'), <UserX size={13} />)}
-        <button onClick={() => void load()} style={{ marginLeft: 'auto', padding: '5px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: textGray, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-          <RefreshCw size={12} /> {busy ? '...' : t('w5Appt.opsRefresh')}
+    <div
+      data-testid="appointment-ops"
+      style={{
+        background: "var(--bg-card)",
+        borderRadius: 10,
+        border: `1px solid ${borderGray}`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          padding: "10px 14px",
+          borderBottom: `1px solid ${borderGray}`,
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: primaryBlue,
+            marginRight: 6,
+          }}
+        >
+          {t("w5Appt.opsTitle")}
+        </div>
+        {tabBtn("WAITLIST", t("w5Appt.opsWaitlist"), <ListChecks size={13} />)}
+        {tabBtn("REMINDER", t("w5Appt.opsReminderPlan"), <Bell size={13} />)}
+        {tabBtn("NOSHOW", t("w5Appt.opsNoShow"), <UserX size={13} />)}
+        <button
+          onClick={() => void load()}
+          style={{
+            marginLeft: "auto",
+            padding: "5px 10px",
+            borderRadius: 6,
+            border: `1px solid ${borderGray}`,
+            background: "var(--bg-card)",
+            color: textGray,
+            fontSize: 12,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-1, 4px)",
+          }}
+        >
+          <RefreshCw size={12} /> {busy ? "..." : t("w5Appt.opsRefresh")}
         </button>
-        {toast && <span style={{ fontSize: 11, color: '#059669', fontWeight: 700 }}>{toast}</span>}
+        {toast && (
+          <span style={{ fontSize: 11, color: "#059669", fontWeight: 700 }}>
+            {toast}
+          </span>
+        )}
       </div>
 
-      <div style={{ padding: 'var(--space-3, 12px)', overflowX: 'auto' }}>
-        {tab === 'WAITLIST' && (
+      <div style={{ padding: "var(--space-3, 12px)", overflowX: "auto" }}>
+        {tab === "WAITLIST" && (
           <>
-            <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
-              <input placeholder={t('w5Appt.opsPatient')} value={newPatient} onChange={(e) => setNewPatient(e.target.value)} style={{ padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: primaryBlue }} />
-              <select value={newModality} onChange={(e) => setNewModality(e.target.value)} style={{ padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: primaryBlue }}>
-                {['CT', 'MR', 'DR', 'US'].map((m) => <option key={m} value={m}>{m}</option>)}
-              </select>
-              <select value={newPriority} onChange={(e) => setNewPriority(e.target.value)} style={{ padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: primaryBlue }}>
-                <option value="normal">{t('w5Appt.priorityNormal')}</option>
-                <option value="urgent">{t('w5Appt.priorityUrgent')}</option>
-                <option value="critical">{t('w5Appt.priorityCritical')}</option>
-              </select>
-              <button onClick={() => void addWaitlist()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-                <Plus size={13} /> {t('w5Appt.opsAdd')}
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                marginBottom: 10,
+                flexWrap: "wrap",
+              }}
+            >
+              <input
+                placeholder={t("w5Appt.opsPatient")}
+                value={newPatient}
+                onChange={(e) => setNewPatient(e.target.value)}
+                style={{
+                  padding: "5px 8px",
+                  border: `1px solid ${borderGray}`,
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: primaryBlue,
+                }}
+              />
+              <AppSelectField
+                value={newModality}
+                onChange={(v) => setNewModality(String(v ?? ""))}
+                style={{
+                  padding: "5px 8px",
+                  border: `1px solid ${borderGray}`,
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: primaryBlue,
+                }}
+                options={["CT", "MR", "DR", "US"].map((m) => ({
+                  value: m,
+                  label: m,
+                }))}
+              />
+              <AppSelectField
+                value={newPriority}
+                onChange={(v) => setNewPriority(String(v ?? ""))}
+                style={{
+                  padding: "5px 8px",
+                  border: `1px solid ${borderGray}`,
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: primaryBlue,
+                }}
+                options={[
+                  { value: "normal", label: t("w5Appt.priorityNormal") },
+                  { value: "urgent", label: t("w5Appt.priorityUrgent") },
+                  { value: "critical", label: t("w5Appt.priorityCritical") },
+                ]}
+              />
+              <button
+                onClick={() => void addWaitlist()}
+                style={{
+                  padding: "5px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: primaryBlue,
+                  color: "#fff",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
+                <Plus size={13} /> {t("w5Appt.opsAdd")}
               </button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
-              <thead><tr style={{ borderBottom: `2px solid ${borderGray}` }}>{[t('w5Appt.opsSeq'), t('w5Appt.opsPatient'), t('w5Appt.opsModality'), t('w5Appt.opsPriority'), t('w5Appt.opsStatus'), t('w5Appt.opsActions')].map(th)}</tr></thead>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                minWidth: 640,
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${borderGray}` }}>
+                  {[
+                    t("w5Appt.opsSeq"),
+                    t("w5Appt.opsPatient"),
+                    t("w5Appt.opsModality"),
+                    t("w5Appt.opsPriority"),
+                    t("w5Appt.opsStatus"),
+                    t("w5Appt.opsActions"),
+                  ].map(th)}
+                </tr>
+              </thead>
               <tbody>
                 {waitlist.map((w) => (
-                  <tr key={w.id} data-testid={`waitlist-row-${w.id}`} style={{ borderBottom: `1px solid ${borderGray}` }}>
-                    {td(w.seq ?? '-', 'seq')}
-                    {td(<b style={{ color: primaryBlue }}>{w.patientName}</b>, 'name')}
-                    {td(w.modality, 'mod')}
-                    {td(<span style={{ color: priorityColor(w.priority), fontWeight: 700 }}>{priorityLabel(w.priority)}</span>, 'pri')}
-                    {td(w.status === 'ASSIGNED' ? t('w5Appt.statusAssigned') : t('w5Appt.statusWaiting'), 'st')}
+                  <tr
+                    key={w.id}
+                    data-testid={`waitlist-row-${w.id}`}
+                    style={{ borderBottom: `1px solid ${borderGray}` }}
+                  >
+                    {td(w.seq ?? "-", "seq")}
                     {td(
-                      w.status !== 'ASSIGNED' ? (
-                        <button onClick={() => void assign(w.id)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${primaryBlue}`, background: 'var(--bg-card)', color: primaryBlue, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                          <Check size={11} /> {t('w5Appt.opsAssign')}
+                      <b style={{ color: primaryBlue }}>{w.patientName}</b>,
+                      "name",
+                    )}
+                    {td(w.modality, "mod")}
+                    {td(
+                      <span
+                        style={{
+                          color: priorityColor(w.priority),
+                          fontWeight: 700,
+                        }}
+                      >
+                        {priorityLabel(w.priority)}
+                      </span>,
+                      "pri",
+                    )}
+                    {td(
+                      w.status === "ASSIGNED"
+                        ? t("w5Appt.statusAssigned")
+                        : t("w5Appt.statusWaiting"),
+                      "st",
+                    )}
+                    {td(
+                      w.status !== "ASSIGNED" ? (
+                        <button
+                          onClick={() => void assign(w.id)}
+                          style={{
+                            padding: "3px 10px",
+                            borderRadius: 6,
+                            border: `1px solid ${primaryBlue}`,
+                            background: "var(--bg-card)",
+                            color: primaryBlue,
+                            fontSize: 11,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 3,
+                          }}
+                        >
+                          <Check size={11} /> {t("w5Appt.opsAssign")}
                         </button>
-                      ) : <span style={{ color: '#059669' }}></span>,
-                      'act')}
+                      ) : (
+                        <span style={{ color: "#059669" }}></span>
+                      ),
+                      "act",
+                    )}
                   </tr>
                 ))}
-                {waitlist.length === 0 && <tr><td colSpan={6} style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
+                {waitlist.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      style={{
+                        padding: "var(--space-5, 20px)",
+                        textAlign: "center",
+                        color: textGray,
+                        fontSize: 12,
+                      }}
+                    >
+                      {t("w5Appt.opsEmpty")}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </>
         )}
 
-        {tab === 'REMINDER' && (
+        {tab === "REMINDER" && (
           <>
             <div style={{ marginBottom: 10 }}>
-              <button onClick={() => void fireDue()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: primaryBlue, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-                <Send size={13} /> {t('w5Appt.opsFireDue')}
+              <button
+                onClick={() => void fireDue()}
+                style={{
+                  padding: "5px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: primaryBlue,
+                  color: "#fff",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
+                <Send size={13} /> {t("w5Appt.opsFireDue")}
               </button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
-              <thead><tr style={{ borderBottom: `2px solid ${borderGray}` }}>{[t('w5Appt.opsPatient'), t('w5Appt.opsChannel'), t('w5Appt.opsScheduledAt'), t('w5Appt.opsStatus'), t('w5Appt.opsActions')].map(th)}</tr></thead>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                minWidth: 720,
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${borderGray}` }}>
+                  {[
+                    t("w5Appt.opsPatient"),
+                    t("w5Appt.opsChannel"),
+                    t("w5Appt.opsScheduledAt"),
+                    t("w5Appt.opsStatus"),
+                    t("w5Appt.opsActions"),
+                  ].map(th)}
+                </tr>
+              </thead>
               <tbody>
                 {reminders.map((r) => (
-                  <tr key={r.id} data-testid={`reminder-row-${r.id}`} style={{ borderBottom: `1px solid ${borderGray}` }}>
-                    {td(<b style={{ color: primaryBlue }}>{r.patientName}</b>, 'name')}
-                    {td(r.channel, 'ch')}
-                    {td(new Date(r.scheduledAt).toLocaleString('zh-CN'), 'at')}
-                    {td(r.status === 'SENT' ? t('w5Appt.statusSent') : t('w5Appt.statusPending'), 'st')}
+                  <tr
+                    key={r.id}
+                    data-testid={`reminder-row-${r.id}`}
+                    style={{ borderBottom: `1px solid ${borderGray}` }}
+                  >
                     {td(
-                      r.status !== 'SENT' ? (
-                        <button onClick={() => void fireOne(r.id)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${primaryBlue}`, background: 'var(--bg-card)', color: primaryBlue, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                          <Send size={11} /> {t('w5Appt.opsFire')}
+                      <b style={{ color: primaryBlue }}>{r.patientName}</b>,
+                      "name",
+                    )}
+                    {td(r.channel, "ch")}
+                    {td(new Date(r.scheduledAt).toLocaleString("zh-CN"), "at")}
+                    {td(
+                      r.status === "SENT"
+                        ? t("w5Appt.statusSent")
+                        : t("w5Appt.statusPending"),
+                      "st",
+                    )}
+                    {td(
+                      r.status !== "SENT" ? (
+                        <button
+                          onClick={() => void fireOne(r.id)}
+                          style={{
+                            padding: "3px 10px",
+                            borderRadius: 6,
+                            border: `1px solid ${primaryBlue}`,
+                            background: "var(--bg-card)",
+                            color: primaryBlue,
+                            fontSize: 11,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 3,
+                          }}
+                        >
+                          <Send size={11} /> {t("w5Appt.opsFire")}
                         </button>
-                      ) : <span style={{ color: '#059669' }}></span>,
-                      'act')}
+                      ) : (
+                        <span style={{ color: "#059669" }}></span>
+                      ),
+                      "act",
+                    )}
                   </tr>
                 ))}
-                {reminders.length === 0 && <tr><td colSpan={5} style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
+                {reminders.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      style={{
+                        padding: "var(--space-5, 20px)",
+                        textAlign: "center",
+                        color: textGray,
+                        fontSize: 12,
+                      }}
+                    >
+                      {t("w5Appt.opsEmpty")}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </>
         )}
 
-        {tab === 'NOSHOW' && (
+        {tab === "NOSHOW" && (
           <>
             <div style={{ marginBottom: 10 }}>
-              <button onClick={() => void scan()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: 'var(--color-error-600)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-                <ScanLine size={13} /> {t('w5Appt.opsScan')}
+              <button
+                onClick={() => void scan()}
+                style={{
+                  padding: "5px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: "var(--color-error-600)",
+                  color: "#fff",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
+                <ScanLine size={13} /> {t("w5Appt.opsScan")}
               </button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
-              <thead><tr style={{ borderBottom: `2px solid ${borderGray}` }}>{[t('w5Appt.opsAppointment'), t('w5Appt.opsPatient'), t('w5Appt.opsMarkedAt'), t('w5Appt.opsStatus'), t('w5Appt.opsActions')].map(th)}</tr></thead>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                minWidth: 640,
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${borderGray}` }}>
+                  {[
+                    t("w5Appt.opsAppointment"),
+                    t("w5Appt.opsPatient"),
+                    t("w5Appt.opsMarkedAt"),
+                    t("w5Appt.opsStatus"),
+                    t("w5Appt.opsActions"),
+                  ].map(th)}
+                </tr>
+              </thead>
               <tbody>
                 {noShows.map((n) => (
-                  <tr key={n.id} data-testid={`noshow-row-${n.id}`} style={{ borderBottom: `1px solid ${borderGray}` }}>
-                    {td(<span style={{ fontFamily: 'monospace', color: primaryBlue }}>{n.appointmentId}</span>, 'apt')}
-                    {td(n.patientName ?? '-', 'name')}
-                    {td(new Date(n.markedAt).toLocaleString('zh-CN'), 'at')}
-                    {td(<span style={{ color: 'var(--color-error-600)', fontWeight: 700 }}>{t('w5Appt.statusNoShow')}</span>, 'st')}
+                  <tr
+                    key={n.id}
+                    data-testid={`noshow-row-${n.id}`}
+                    style={{ borderBottom: `1px solid ${borderGray}` }}
+                  >
                     {td(
-                      <button onClick={() => void restore(n.appointmentId)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: textGray, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <RotateCcw size={11} /> {t('w5Appt.opsRestore')}
+                      <span
+                        style={{ fontFamily: "monospace", color: primaryBlue }}
+                      >
+                        {n.appointmentId}
+                      </span>,
+                      "apt",
+                    )}
+                    {td(n.patientName ?? "-", "name")}
+                    {td(new Date(n.markedAt).toLocaleString("zh-CN"), "at")}
+                    {td(
+                      <span
+                        style={{
+                          color: "var(--color-error-600)",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {t("w5Appt.statusNoShow")}
+                      </span>,
+                      "st",
+                    )}
+                    {td(
+                      <button
+                        onClick={() => void restore(n.appointmentId)}
+                        style={{
+                          padding: "3px 10px",
+                          borderRadius: 6,
+                          border: `1px solid ${borderGray}`,
+                          background: "var(--bg-card)",
+                          color: textGray,
+                          fontSize: 11,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 3,
+                        }}
+                      >
+                        <RotateCcw size={11} /> {t("w5Appt.opsRestore")}
                       </button>,
-                      'act')}
+                      "act",
+                    )}
                   </tr>
                 ))}
-                {noShows.length === 0 && <tr><td colSpan={5} style={{ padding: 'var(--space-5, 20px)', textAlign: 'center', color: textGray, fontSize: 12 }}>{t('w5Appt.opsEmpty')}</td></tr>}
+                {noShows.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      style={{
+                        padding: "var(--space-5, 20px)",
+                        textAlign: "center",
+                        color: textGray,
+                        fontSize: 12,
+                      }}
+                    >
+                      {t("w5Appt.opsEmpty")}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </>
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * G005 Radiology RIS - Design System CSS
  * Phase T2-W4: 瀹屾暣 Design Tokens 浣撶郴(200+ 鍙橀噺)
  *
@@ -624,76 +624,135 @@
    ============================================================ */
 
 :root,
-[data-theme='light'] {
-  --bg-primary: #f8fafc; --bg-secondary: #ffffff; --bg-card: #ffffff;
-  --bg-sidebar: var(--color-primary-950); --bg-header: #1e293b;
-  --bg-hover: rgba(0, 0, 0, 0.04); --bg-elevated: #ffffff; --bg-deep: #f1f5f9;
-  --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8;
-  --text-sidebar: #ffffff; --text-header: #f1f5f9; --text-inverse: #ffffff;
-  --border-color: #e2e8f0; --border-light: #f1f5f9;
-  --border-subtle: rgba(0, 0, 0, 0.06); --border-default: rgba(0, 0, 0, 0.1);
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-sidebar: var(--color-primary-950);
+  --bg-header: #1e293b;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-elevated: #ffffff;
+  --bg-deep: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-sidebar: #ffffff;
+  --text-header: #f1f5f9;
+  --text-inverse: #ffffff;
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.1);
   --border-strong: rgba(0, 0, 0, 0.16);
-  --color-accent: #3b82f6; --color-success: #16a34a; --color-warning: #d97706;
-  --color-error: #dc2626; --color-info: #2563eb;
+  --color-accent: #3b82f6;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
 
   /* compatibility aliases -> same value */
-  --content-bg: var(--bg-primary); --content-fg: var(--text-primary);
-  --header-bg: var(--bg-header); --header-fg: var(--text-header);
+  --content-bg: var(--bg-primary);
+  --content-fg: var(--text-primary);
+  --header-bg: var(--bg-header);
+  --header-fg: var(--text-header);
   --header-border: var(--border-color);
-  --sidebar-bg: var(--bg-sidebar); --sidebar-fg: var(--text-sidebar);
+  --sidebar-bg: var(--bg-sidebar);
+  --sidebar-fg: var(--text-sidebar);
 }
 
-[data-theme='dark'] {
-  --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
-  --bg-sidebar: #0f172a; --bg-header: #1e293b;
-  --bg-hover: rgba(255, 255, 255, 0.06); --bg-elevated: #334155; --bg-deep: #020617;
-  --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #64748b;
-  --text-sidebar: #f1f5f9; --text-header: #f1f5f9; --text-inverse: #0f172a;
-  --border-color: #334155; --border-light: #1e293b;
-  --border-subtle: rgba(255, 255, 255, 0.06); --border-default: rgba(255, 255, 255, 0.1);
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-sidebar: #0f172a;
+  --bg-header: #1e293b;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-elevated: #334155;
+  --bg-deep: #020617;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --text-sidebar: #f1f5f9;
+  --text-header: #f1f5f9;
+  --text-inverse: #0f172a;
+  --border-color: #334155;
+  --border-light: #1e293b;
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --color-accent: #60a5fa; --color-success: #4ade80; --color-warning: #fbbf24;
-  --color-error: #f87171; --color-info: #60a5fa;
+  --color-accent: #60a5fa;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
 
   /* compatibility aliases -> same value */
-  --content-bg: var(--bg-primary); --content-fg: var(--text-primary);
-  --header-bg: var(--bg-header); --header-fg: var(--text-header);
+  --content-bg: var(--bg-primary);
+  --content-fg: var(--text-primary);
+  --header-bg: var(--bg-header);
+  --header-fg: var(--text-header);
   --header-border: var(--border-color);
-  --sidebar-bg: var(--bg-sidebar); --sidebar-fg: var(--text-sidebar);
+  --sidebar-bg: var(--bg-sidebar);
+  --sidebar-fg: var(--text-sidebar);
 }
 
-[data-theme='high-contrast'] {
-  --bg-primary: #000000; --bg-secondary: #0a0a0a; --bg-card: #1a1a1a;
-  --bg-sidebar: #000000; --bg-header: #0a0a0a;
-  --bg-hover: rgba(255, 255, 255, 0.1); --bg-elevated: #2a2a2a; --bg-deep: #000000;
-  --text-primary: #ffffff; --text-secondary: #f0f0f0; --text-muted: #cccccc;
-  --text-sidebar: #ffffff; --text-header: #ffffff; --text-inverse: #000000;
-  --border-color: #ffffff; --border-light: #666666;
-  --border-subtle: rgba(255, 255, 255, 0.4); --border-default: rgba(255, 255, 255, 0.6);
+[data-theme="high-contrast"] {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-card: #1a1a1a;
+  --bg-sidebar: #000000;
+  --bg-header: #0a0a0a;
+  --bg-hover: rgba(255, 255, 255, 0.1);
+  --bg-elevated: #2a2a2a;
+  --bg-deep: #000000;
+  --text-primary: #ffffff;
+  --text-secondary: #f0f0f0;
+  --text-muted: #cccccc;
+  --text-sidebar: #ffffff;
+  --text-header: #ffffff;
+  --text-inverse: #000000;
+  --border-color: #ffffff;
+  --border-light: #666666;
+  --border-subtle: rgba(255, 255, 255, 0.4);
+  --border-default: rgba(255, 255, 255, 0.6);
   --border-strong: rgba(255, 255, 255, 0.8);
-  --color-accent: #ffff00; --color-success: #00ff00; --color-warning: #ffcc00;
-  --color-error: #ff4444; --color-info: #66ccff;
-  --shadow-sm: none; --shadow-md: none;
-  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 10px;
+  --color-accent: #ffff00;
+  --color-success: #00ff00;
+  --color-warning: #ffcc00;
+  --color-error: #ff4444;
+  --color-info: #66ccff;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
 
   /* 鎰忎箟鑹茶儗鏅?闈炲父瑙夊彲鍙?*/
-  --color-success-bg: #002800; --color-success-border: #00ff00;
-  --color-warning-bg: #2a2000; --color-warning-border: #ffcc00;
-  --color-error-bg: #2a0000; --color-error-border: #ff4444;
-  --color-info-bg: #001528; --color-info-border: #66ccff;
-  --color-pending-bg: #001528; --color-pending-border: #66ccff;
+  --color-success-bg: #002800;
+  --color-success-border: #00ff00;
+  --color-warning-bg: #2a2000;
+  --color-warning-border: #ffcc00;
+  --color-error-bg: #2a0000;
+  --color-error-border: #ff4444;
+  --color-info-bg: #001528;
+  --color-info-border: #66ccff;
+  --color-pending-bg: #001528;
+  --color-pending-border: #66ccff;
 
   /* compatibility aliases -> same value */
-  --content-bg: var(--bg-primary); --content-fg: var(--text-primary);
-  --header-bg: var(--bg-header); --header-fg: var(--text-header);
+  --content-bg: var(--bg-primary);
+  --content-fg: var(--text-primary);
+  --header-bg: var(--bg-header);
+  --header-fg: var(--text-header);
   --header-border: var(--border-color);
-  --sidebar-bg: var(--bg-sidebar); --sidebar-fg: var(--text-sidebar);
+  --sidebar-bg: var(--bg-sidebar);
+  --sidebar-fg: var(--text-sidebar);
 }
 
 /* high-contrast: forced outline + enhanced focus ring */
-[data-theme='high-contrast'] *:focus-visible {
+[data-theme="high-contrast"] *:focus-visible {
   outline: 3px solid #ffff00 !important;
   outline-offset: 3px !important;
 }
@@ -701,22 +760,30 @@
 /* system-level prefers-contrast: more fallback (WCAG 2.2) */
 @media (prefers-contrast: more) {
   :root {
-    --border-subtle: rgba(0, 0, 0, 0.2); --border-default: rgba(0, 0, 0, 0.35);
+    --border-subtle: rgba(0, 0, 0, 0.2);
+    --border-default: rgba(0, 0, 0, 0.35);
     --border-strong: rgba(0, 0, 0, 0.5);
-    --text-primary: #000000; --text-secondary: #1a1a1a;
+    --text-primary: #000000;
+    --text-secondary: #1a1a1a;
   }
-  [data-theme='dark'] {
-    --border-subtle: rgba(255, 255, 255, 0.25); --border-default: rgba(255, 255, 255, 0.4);
+  [data-theme="dark"] {
+    --border-subtle: rgba(255, 255, 255, 0.25);
+    --border-default: rgba(255, 255, 255, 0.4);
     --border-strong: rgba(255, 255, 255, 0.6);
-    --text-primary: #ffffff; --text-secondary: #e0e0e0;
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
   }
 }
 
 /* system-level prefers-color-scheme fallback */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
-    --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #64748b;
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
     --border-color: #334155;
   }
 }
@@ -872,7 +939,8 @@
 [data-theme="dark"] .ant-dropdown-menu-item {
   color: var(--overlay-fg);
 }
-[data-theme="dark"] .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+[data-theme="dark"]
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled),
 [data-theme="dark"] .ant-dropdown-menu-item:hover {
   background: var(--overlay-hover);
 }
@@ -1043,7 +1111,7 @@
 
 /* --- 14.2 Authoritative enterprise root (light) --- */
 :root,
-[data-theme='light'] {
+[data-theme="light"] {
   /* single enterprise deep-blue primary */
   --color-primary: #1d4ed8;
   --color-primary-hover: #2563eb;
@@ -1059,9 +1127,12 @@
 
   /* elevation scale (enterprise elevation-1..4) */
   --elevation-1: 0 1px 2px 0 rgb(15 23 42 / 0.06);
-  --elevation-2: 0 2px 4px -1px rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.06);
-  --elevation-3: 0 4px 8px -2px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.06);
-  --elevation-4: 0 8px 16px -4px rgb(15 23 42 / 0.12), 0 4px 8px -4px rgb(15 23 42 / 0.08);
+  --elevation-2:
+    0 2px 4px -1px rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.06);
+  --elevation-3:
+    0 4px 8px -2px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.06);
+  --elevation-4:
+    0 8px 16px -4px rgb(15 23 42 / 0.12), 0 4px 8px -4px rgb(15 23 42 / 0.08);
 
   /* focus ring aligned to the enterprise primary */
   --shadow-focus: 0 0 0 3px rgb(29 78 216 / 0.4);
@@ -1164,13 +1235,90 @@
 
   /* dark elevation scale (heavier, night-reading friendly) */
   --elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --elevation-2: 0 2px 4px -1px rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-  --elevation-3: 0 4px 8px -2px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.35);
-  --elevation-4: 0 8px 16px -4px rgb(0 0 0 / 0.55), 0 4px 8px -4px rgb(0 0 0 / 0.4);
+  --elevation-2:
+    0 2px 4px -1px rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --elevation-3:
+    0 4px 8px -2px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.35);
+  --elevation-4:
+    0 8px 16px -4px rgb(0 0 0 / 0.55), 0 4px 8px -4px rgb(0 0 0 / 0.4);
   --shadow-focus: 0 0 0 3px rgb(37 99 235 / 0.55);
   --shadow-focus-ring: var(--shadow-focus);
 
   /* density tokens resolve from the same values in dark */
   --density-cell-pad-y: 8px;
   --density-cell-pad-x: 12px;
+}
+
+/* ============================================================================
+   [v3.0.6.16-6] 原生 <button> / <select> 归一
+   ----------------------------------------------------------------------------
+   背景: 全站 159 个文件里有 1150 个裸 <button>、44 个文件里有 113 个裸 <select>,
+   它们各自用内联样式拼外观, 因此:
+     - 没有 hover / active 反馈 (点了像没反应)
+     - 没有 disabled 语义 (看起来能点其实点了没反应)
+     - <select> 用操作系统原生外观, 与 antd 设计体系明显割裂 (演示时最扎眼)
+   这里用一层低优先级样式补齐状态语义, 不改动任何调用点、不覆盖内联样式
+   (仅作用于未显式声明这些属性的元素), 因此不会引起视觉回归。
+   ============================================================================ */
+
+/* 原生按钮: 状态过渡 + hover/active/disabled 语义 (仅补齐, 不覆盖内联值) */
+button:not([class*="ant-"]):not([data-no-ds-normalize]) {
+  transition:
+    filter 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+button:not([class*="ant-"]):not([data-no-ds-normalize]):hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+button:not([class*="ant-"]):not([data-no-ds-normalize]):active:not(:disabled) {
+  filter: brightness(0.92);
+}
+button:not([class*="ant-"]):not([data-no-ds-normalize]):focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+button:not([class*="ant-"]):not([data-no-ds-normalize]):disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* 原生下拉: 对齐 antd 输入框外观 (高度/圆角/边框/字号/焦点环) */
+select:not([class*="ant-"]):not([data-no-ds-normalize]) {
+  min-height: 28px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-color, #d9d9d9);
+  border-radius: 6px;
+  background: var(--bg-card, #ffffff);
+  color: var(--text-primary, #1e293b);
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+select:not([class*="ant-"]):not([data-no-ds-normalize]):hover:not(:disabled) {
+  border-color: var(--color-primary-400, #60a5fa);
+}
+select:not([class*="ant-"]):not([data-no-ds-normalize]):focus {
+  border-color: var(--color-primary-500, #3b82f6);
+  box-shadow: var(--shadow-focus, 0 0 0 3px rgb(37 99 235 / 0.25));
+  outline: none;
+}
+select:not([class*="ant-"]):not([data-no-ds-normalize]):disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: var(--color-gray-50, #f8fafc);
+}
+
+/* 原生文本输入 / 文本域: 同样的焦点环, 保证键盘用户能看见落点 */
+input:not([class*="ant-"]):not([type="checkbox"]):not([type="radio"]):not(
+    [data-no-ds-normalize]
+  ):focus-visible,
+textarea:not([class*="ant-"]):not([data-no-ds-normalize]):focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 1px;
 }

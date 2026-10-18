@@ -1,10 +1,12 @@
 import { cardiacSpecialtyApi } from "../../services/api/cardiacSpecialtyApi";
-import { CardiacAnalysis } from '../../services/api/cardiacSpecialtyApi'
+import { CardiacAnalysis } from "../../services/api/cardiacSpecialtyApi";
 import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 import { message, Spin, Alert, Button, Typography } from "antd";
 import { Search, Download, Database, Eye, RefreshCw } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { DataTable } from "../../components/common";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../../components/common/AppSelectField";
 
 const { Title } = Typography;
 
@@ -147,41 +149,94 @@ export default function CvDatabasePage() {
 
   // [v3.0.6.11-98 Wave3B P2] 导出: 当前病例列表 → 真实 CSV (BOM 支持 Excel 中文)
   const handleExport = () => {
-    const header = ['病例ID', '患者', '患者ID', '设备', '部位', '检查日期', '检查号', '诊断', 'CAD-RADS', 'EF(%)', '病灶数', '关键发现']
-    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const header = [
+      "病例ID",
+      "患者",
+      "患者ID",
+      "设备",
+      "部位",
+      "检查日期",
+      "检查号",
+      "诊断",
+      "CAD-RADS",
+      "EF(%)",
+      "病灶数",
+      "关键发现",
+    ];
+    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const rows = filtered.map((c) => [
-      c.id, c.patientName, c.patientId, c.modality, c.anatomy, c.studyDate,
-      c.accessionNumber, c.diagnosis, c.cadRads ?? '', c.efPercent ?? '', c.lesionCount, c.keyFindings,
-    ])
-    const csv = '\ufeff' + [header.map(esc).join(','), ...rows.map((r) => r.map(esc).join(','))].join('\r\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `CV影像数据库_${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    message.success(`已导出 ${filtered.length} 条病例记录`)
-  }
+      c.id,
+      c.patientName,
+      c.patientId,
+      c.modality,
+      c.anatomy,
+      c.studyDate,
+      c.accessionNumber,
+      c.diagnosis,
+      c.cadRads ?? "",
+      c.efPercent ?? "",
+      c.lesionCount,
+      c.keyFindings,
+    ]);
+    const csv =
+      "\ufeff" +
+      [
+        header.map(esc).join(","),
+        ...rows.map((r) => r.map(esc).join(",")),
+      ].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `CV影像数据库_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    message.success(`已导出 ${filtered.length} 条病例记录`);
+  };
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <div style={{ padding: "var(--space-6, 24px)" }}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 'var(--space-5, 20px)',
+          marginBottom: "var(--space-5, 20px)",
         }}
       >
-        <Title level={4}
-          style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', margin: 0 }}
+        <Title
+          level={4}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+            margin: 0,
+          }}
         >
-          <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg, #f0fdf4)' : '#eff6ff', color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}`, fontWeight: 400 }}>{dataSource === 'real' ? 'AI 接口实时' : '演示数据(回退)'}</span>
+          <Database size={24} /> CV 影像数据库{" "}
+          <span
+            style={{
+              fontSize: 11,
+              padding: "2px 8px",
+              borderRadius: 10,
+              background:
+                dataSource === "real"
+                  ? "var(--color-success-bg, #f0fdf4)"
+                  : "#eff6ff",
+              color:
+                dataSource === "real"
+                  ? "var(--color-success-600)"
+                  : "var(--color-primary-800)",
+              border: `1px solid ${dataSource === "real" ? "#bbf7d0" : "#bfdbfe"}`,
+              fontWeight: 400,
+            }}
+          >
+            {dataSource === "real" ? "AI 接口实时" : "演示数据(回退)"}
+          </span>
         </Title>
-        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
           <Button
             size="small"
             icon={<RefreshCw size={16} />}
@@ -210,7 +265,12 @@ export default function CvDatabasePage() {
       </div>
 
       <div
-        style={{ display: "flex", gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)', flexWrap: "wrap" }}
+        style={{
+          display: "flex",
+          gap: "var(--space-3, 12px)",
+          marginBottom: "var(--space-4, 16px)",
+          flexWrap: "wrap",
+        }}
       >
         <div
           style={{
@@ -229,15 +289,21 @@ export default function CvDatabasePage() {
             onChange={(e) => setSearch(e.target.value)}
             style={{
               border: "none",
-              background: "transparent", marginLeft: 'var(--space-2, 8px)',
+              background: "transparent",
+              marginLeft: "var(--space-2, 8px)",
               flex: 1,
               fontSize: 14,
             }}
           />
         </div>
-        <select
+        <AppSelectField
           value={modalityFilter}
-          onChange={(e) => setModalityFilter(e.target.value as CvModality | "")}
+          onChange={(v) =>
+            setModalityFilter(String(v ?? "") as CvModality | "")
+          }
+          placeholder="全部设备"
+          allowClear
+          options={FILTER_MODALITIES.map((m) => ({ value: m, label: m }))}
           style={{
             padding: "6px 12px",
             borderRadius: 6,
@@ -245,17 +311,13 @@ export default function CvDatabasePage() {
             background: "var(--bg-card)",
             fontSize: 14,
           }}
-        >
-          <option value="">全部设备</option>
-          {FILTER_MODALITIES.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
-        <select
+        />
+        <AppSelectField
           value={anatomyFilter}
-          onChange={(e) => setAnatomyFilter(e.target.value as CvAnatomy | "")}
+          onChange={(v) => setAnatomyFilter(String(v ?? "") as CvAnatomy | "")}
+          placeholder="全部部位"
+          allowClear
+          options={FILTER_ANATOMIES.map((a) => ({ value: a, label: a }))}
           style={{
             padding: "6px 12px",
             borderRadius: 6,
@@ -263,23 +325,18 @@ export default function CvDatabasePage() {
             background: "var(--bg-card)",
             fontSize: 14,
           }}
-        >
-          <option value="">全部部位</option>
-          {FILTER_ANATOMIES.map((a) => (
-            <option key={a} value={a}>
-              {a}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
       {error && (
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 'var(--space-4, 16px)' }}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
           title={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
+          action={
+            <Button size="small" onClick={() => void load()}>
+              <RefreshCw size={14} />
               重试
             </Button>
           }
@@ -302,14 +359,27 @@ export default function CvDatabasePage() {
             showDensity={false}
             emptyText="未找到病例。"
             columns={[
-              { title: "病例 ID", dataIndex: "id", key: "id", render: (v: string) => <span style={{ fontWeight: 500 }}>{v}</span> },
               {
-                title: "患者", key: "patient",
+                title: "病例 ID",
+                dataIndex: "id",
+                key: "id",
+                render: (v: string) => (
+                  <span style={{ fontWeight: 500 }}>{v}</span>
+                ),
+              },
+              {
+                title: "患者",
+                key: "patient",
                 render: (_: unknown, c: CvCase) => (
                   <>
                     {c.patientName}
                     <br />
-                    <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-muted, #94a3b8)",
+                      }}
+                    >
                       {c.patientId}
                       {c.age ? ` | ${c.age}岁 ${c.gender ?? ""}` : ""}
                     </span>
@@ -317,7 +387,9 @@ export default function CvDatabasePage() {
                 ),
               },
               {
-                title: "设备", dataIndex: "modality", key: "modality",
+                title: "设备",
+                dataIndex: "modality",
+                key: "modality",
                 render: (v: string) => (
                   <span
                     style={{
@@ -334,28 +406,65 @@ export default function CvDatabasePage() {
                 ),
               },
               {
-                title: "部位", dataIndex: "anatomy", key: "anatomy",
-                render: (v: string) => <span style={{ textTransform: "capitalize" }}>{v}</span>,
-              },
-              { title: "日期", dataIndex: "studyDate", key: "studyDate", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
-              {
-                title: "诊断", dataIndex: "diagnosis", key: "diagnosis",
+                title: "部位",
+                dataIndex: "anatomy",
+                key: "anatomy",
                 render: (v: string) => (
-                  <span style={{ display: "inline-block", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "bottom" }}>{v}</span>
+                  <span style={{ textTransform: "capitalize" }}>{v}</span>
                 ),
               },
-              { title: "病变数", dataIndex: "lesionCount", key: "lesionCount", align: "center" },
               {
-                title: "SR", key: "hasSrReport", align: "center",
+                title: "日期",
+                dataIndex: "studyDate",
+                key: "studyDate",
+                render: (v: string) => (
+                  <span style={{ color: "var(--text-muted, #64748b)" }}>
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "诊断",
+                dataIndex: "diagnosis",
+                key: "diagnosis",
+                render: (v: string) => (
+                  <span
+                    style={{
+                      display: "inline-block",
+                      maxWidth: 200,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      verticalAlign: "bottom",
+                    }}
+                  >
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "病变数",
+                dataIndex: "lesionCount",
+                key: "lesionCount",
+                align: "center",
+              },
+              {
+                title: "SR",
+                key: "hasSrReport",
+                align: "center",
                 render: (_: unknown, c: CvCase) =>
                   c.hasSrReport ? (
                     <span style={{ color: "var(--color-success-600)" }}></span>
                   ) : (
-                    <span style={{ color: 'var(--text-muted, #94a3b8)' }}>—</span>
+                    <span style={{ color: "var(--text-muted, #94a3b8)" }}>
+                      —
+                    </span>
                   ),
               },
               {
-                title: "操作", key: "actions", align: "center",
+                title: "操作",
+                key: "actions",
+                align: "center",
                 render: (_: unknown, c: CvCase) => (
                   <button
                     onClick={() => setSelectedCase(c)}
@@ -369,7 +478,7 @@ export default function CvDatabasePage() {
                       fontSize: 12,
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 'var(--space-1, 4px)',
+                      gap: "var(--space-1, 4px)",
                     }}
                   >
                     <Eye size={14} /> 查看
@@ -398,7 +507,7 @@ export default function CvDatabasePage() {
             style={{
               background: "var(--bg-card)",
               borderRadius: 12,
-              padding: 'var(--space-6, 24px)',
+              padding: "var(--space-6, 24px)",
               maxWidth: 600,
               width: "90%",
               maxHeight: "80vh",
@@ -417,19 +526,44 @@ export default function CvDatabasePage() {
                 fontSize: 14,
               }}
             >
-              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>患者 ID</dt>
+              <dt
+                style={{ color: "var(--text-muted, #64748b)", fontWeight: 500 }}
+              >
+                患者 ID
+              </dt>
               <dd>{selectedCase.patientId}</dd>
-              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>设备</dt>
+              <dt
+                style={{ color: "var(--text-muted, #64748b)", fontWeight: 500 }}
+              >
+                设备
+              </dt>
               <dd>{selectedCase.modality}</dd>
-              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>部位</dt>
+              <dt
+                style={{ color: "var(--text-muted, #64748b)", fontWeight: 500 }}
+              >
+                部位
+              </dt>
               <dd>{selectedCase.anatomy}</dd>
-              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>检查日期</dt>
+              <dt
+                style={{ color: "var(--text-muted, #64748b)", fontWeight: 500 }}
+              >
+                检查日期
+              </dt>
               <dd>{selectedCase.studyDate}</dd>
-              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>诊断</dt>
+              <dt
+                style={{ color: "var(--text-muted, #64748b)", fontWeight: 500 }}
+              >
+                诊断
+              </dt>
               <dd>{selectedCase.diagnosis}</dd>
               {selectedCase.cadRads && (
                 <>
-                  <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
+                  <dt
+                    style={{
+                      color: "var(--text-muted, #64748b)",
+                      fontWeight: 500,
+                    }}
+                  >
                     CAD-RADS
                   </dt>
                   <dd>{selectedCase.cadRads}</dd>
@@ -437,16 +571,31 @@ export default function CvDatabasePage() {
               )}
               {selectedCase.efPercent !== undefined && (
                 <>
-                  <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>EF</dt>
+                  <dt
+                    style={{
+                      color: "var(--text-muted, #64748b)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    EF
+                  </dt>
                   <dd>{selectedCase.efPercent}%</dd>
                 </>
               )}
-              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
+              <dt
+                style={{ color: "var(--text-muted, #64748b)", fontWeight: 500 }}
+              >
                 关键所见
               </dt>
               <dd>{selectedCase.keyFindings}</dd>
             </dl>
-            <div style={{ marginTop: 'var(--space-5, 20px)', display: "flex", gap: 'var(--space-2, 8px)' }}>
+            <div
+              style={{
+                marginTop: "var(--space-5, 20px)",
+                display: "flex",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
               <button
                 onClick={() => {
                   const url = `/api/v1/cardiac/visualizer/${selectedCase.id}`;
@@ -471,7 +620,7 @@ export default function CvDatabasePage() {
                 style={{
                   padding: "8px 20px",
                   background: "var(--bg-primary)",
-                  color: 'var(--text-primary, #1e293b)',
+                  color: "var(--text-primary, #1e293b)",
                   border: "1px solid var(--border-color, #e2e8f0)",
                   borderRadius: 6,
                   cursor: "pointer",

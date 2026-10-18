@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { setToken } from '@/utils/auth';
-import { currentApiMode } from '@/services/api/client';
-import { authApi } from '@/services/api/authApi';
-import { normalizeRole } from '@/services/auth/roleUtils';
-import type { UserRole } from '@/types';
-import { t } from '../i18n/appI18n';
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { setToken } from "@/utils/auth";
+import { currentApiMode } from "@/services/api/client";
+import { authApi } from "@/services/api/authApi";
+import { normalizeRole } from "@/services/auth/roleUtils";
+import type { UserRole } from "@/types";
+import { t } from "../i18n/appI18n";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../components/common/AppSelectField";
 import {
   Radio,
   ScanLine,
@@ -19,41 +21,58 @@ import {
   Sparkles,
   Loader2,
   type LucideIcon,
-} from 'lucide-react';
-import { Typography } from 'antd';
+} from "lucide-react";
+import { Typography } from "antd";
 
 const { Title } = Typography;
 
 const HOSPITAL_NAME =
-  (typeof window !== 'undefined' &&
+  (typeof window !== "undefined" &&
     (window as unknown as { __HOSPITAL_NAME__?: string }).__HOSPITAL_NAME__) ||
-  '汉东省人民医院';
+  "汉东省人民医院";
 
 const DEMO_USERS: { label: string; role: UserRole; name: string }[] = [
-  { label: t('login.role.admin'), role: '管理员', name: '系统管理员' },
-  { label: t('login.role.director'), role: '主任', name: '张主任' },
-  { label: t('login.role.doctor'), role: '医生', name: '李医生' },
-  { label: t('login.role.technician'), role: '技师', name: '王技师' },
-  { label: t('login.role.nurse'), role: '护士', name: '赵护士' },
+  { label: t("login.role.admin"), role: "管理员", name: "系统管理员" },
+  { label: t("login.role.director"), role: "主任", name: "张主任" },
+  { label: t("login.role.doctor"), role: "医生", name: "李医生" },
+  { label: t("login.role.technician"), role: "技师", name: "王技师" },
+  { label: t("login.role.nurse"), role: "护士", name: "赵护士" },
 ];
 
 const BRAND_FEATURES: { icon: LucideIcon; title: string; desc: string }[] = [
-  { icon: ScanLine, title: t('login.feat.diagnosis.title'), desc: t('login.feat.diagnosis.desc') },
-  { icon: BrainCircuit, title: t('login.feat.ai.title'), desc: t('login.feat.ai.desc') },
-  { icon: ShieldCheck, title: t('login.feat.qc.title'), desc: t('login.feat.qc.desc') },
-  { icon: Activity, title: t('login.feat.device.title'), desc: t('login.feat.device.desc') },
+  {
+    icon: ScanLine,
+    title: t("login.feat.diagnosis.title"),
+    desc: t("login.feat.diagnosis.desc"),
+  },
+  {
+    icon: BrainCircuit,
+    title: t("login.feat.ai.title"),
+    desc: t("login.feat.ai.desc"),
+  },
+  {
+    icon: ShieldCheck,
+    title: t("login.feat.qc.title"),
+    desc: t("login.feat.qc.desc"),
+  },
+  {
+    icon: Activity,
+    title: t("login.feat.device.title"),
+    desc: t("login.feat.device.desc"),
+  },
 ];
 
 const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '10px 12px 10px 36px',
+  width: "100%",
+  padding: "10px 12px 10px 36px",
   borderRadius: 10,
-  border: '1px solid var(--border-color)',
-  background: 'var(--bg-secondary)',
-  color: 'var(--text-primary)',
+  border: "1px solid var(--border-color)",
+  background: "var(--bg-secondary)",
+  color: "var(--text-primary)",
   fontSize: 14,
   marginBottom: 14,
-  boxSizing: 'border-box', };
+  boxSizing: "border-box",
+};
 
 /**
  * 登录页专属样式:
@@ -119,22 +138,25 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<UserRole>('管理员');
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>("管理员");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [_submitting, setSubmitting] = useState(false);
 
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';
+  const from =
+    (location.state as { from?: { pathname?: string } } | null)?.from
+      ?.pathname ?? "/";
 
   useEffect(() => {
-    if (isAuthenticated && location.pathname === '/login') navigate(from, { replace: true });
+    if (isAuthenticated && location.pathname === "/login")
+      navigate(from, { replace: true });
   }, [isAuthenticated, navigate, from, location.pathname]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
-      setError(t('login.enterCredentials'));
+      setError(t("login.enterCredentials"));
       return;
     }
     setSubmitting(true);
@@ -144,56 +166,68 @@ export default function LoginPage() {
       if (response.success && response.data?.token) {
         setToken({
           token: response.data.token,
-          refreshToken: '',
+          refreshToken: "",
           expiresAt: response.data.expiresAt ?? Date.now() + 15 * 60 * 1000,
-          userId: response.data.userId ?? '',
+          userId: response.data.userId ?? "",
           userName: response.data.userName ?? username.trim(),
           role: response.data.role ?? selectedRole,
         });
         // v3.0.6.11-73: real 模式下以服务端返回角色为准 (英文枚举, 已归一化);
         // mock 演示模式保留角色选择器 (中文), useAuth/useRBAC 均兼容两种格式
-        const role = currentApiMode() === 'real' && response.data.role
-          ? normalizeRole(response.data.role)
-          : selectedRole;
+        const role =
+          currentApiMode() === "real" && response.data.role
+            ? normalizeRole(response.data.role)
+            : selectedRole;
         const payload = {
           id: response.data.userId || `demo-${selectedRole}`,
-          name: response.data.userName || DEMO_USERS.find(d => d.role === selectedRole)?.name || selectedRole,
+          name:
+            response.data.userName ||
+            DEMO_USERS.find((d) => d.role === selectedRole)?.name ||
+            selectedRole,
           role,
-          department: '放射科',
-          phone: '',
+          department: "放射科",
+          phone: "",
           username: username.trim(),
-          title: response.data.title || DEMO_USERS.find(d => d.role === selectedRole)?.label || '',
+          title:
+            response.data.title ||
+            DEMO_USERS.find((d) => d.role === selectedRole)?.label ||
+            "",
         };
-        try { localStorage.setItem('ris_current_user', JSON.stringify(payload)); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+        try {
+          localStorage.setItem("ris_current_user", JSON.stringify(payload));
+        } catch (e) {
+          console.warn("[F03] Error:", (e as Error)?.message);
+        }
         navigate(from, { replace: true });
         return;
       }
-      if (currentApiMode() === 'real') {
-        setError(response.error?.message ?? t('login.loginFailed'));
+      if (currentApiMode() === "real") {
+        setError(response.error?.message ?? t("login.loginFailed"));
         setSubmitting(false);
         return;
       }
     } catch (err) {
-      if (currentApiMode() === 'real') {
-        setError(err instanceof Error ? err.message : t('login.loginFailed'));
+      if (currentApiMode() === "real") {
+        setError(err instanceof Error ? err.message : t("login.loginFailed"));
         setSubmitting(false);
         return;
       }
     }
-    const matched = DEMO_USERS.find((d) => d.role === selectedRole) ?? DEMO_USERS[0]!;
+    const matched =
+      DEMO_USERS.find((d) => d.role === selectedRole) ?? DEMO_USERS[0]!;
     const payload = {
       id: `demo-${selectedRole}`,
       name: matched.name,
       role: selectedRole,
-      department: '放射科',
-      phone: '',
+      department: "放射科",
+      phone: "",
       username: username.trim(),
       title: matched.label,
     };
     try {
-      localStorage.setItem('ris_current_user', JSON.stringify(payload));
+      localStorage.setItem("ris_current_user", JSON.stringify(payload));
     } catch (err) {
-      setError('无法写入登录状态: ' + (err as Error).message);
+      setError("无法写入登录状态: " + (err as Error).message);
       setSubmitting(false);
       return;
     }
@@ -203,10 +237,11 @@ export default function LoginPage() {
   return (
     <main
       className="anim-fade-in"
-      style={{ display: 'flex',
-        overflowY: 'auto',
-        background: 'var(--bg-primary)',
-        color: 'var(--text-primary)',
+      style={{
+        display: "flex",
+        overflowY: "auto",
+        background: "var(--bg-primary)",
+        color: "var(--text-primary)",
       }}
     >
       <style>{loginPageStyles}</style>
@@ -215,35 +250,77 @@ export default function LoginPage() {
       <aside
         className="login-brand"
         style={{
-          flex: '1.15 1 0%',
+          flex: "1.15 1 0%",
           minWidth: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: 'clamp(32px, 6vw, 88px)',
-          color: '#fff',
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "clamp(32px, 6vw, 88px)",
+          color: "#fff",
         }}
       >
         {/* 背景装饰 */}
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 260, height: 260, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
-        <div style={{ position: 'absolute', bottom: -40, right: 140, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+        <div
+          style={{
+            position: "absolute",
+            top: -60,
+            right: -60,
+            width: 260,
+            height: 260,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.05)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: -40,
+            right: 140,
+            width: 140,
+            height: 140,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.04)",
+          }}
+        />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 560 }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 560 }}>
           <div className="login-brand-icon">
             <Radio size={40} color="currentColor" />
           </div>
-          <Title level={4} style={{ margin: '24px 0 8px', letterSpacing: '1px' }}>
-            {t('login.systemName')}
+          <Title
+            level={4}
+            style={{ margin: "24px 0 8px", letterSpacing: "1px" }}
+          >
+            {t("login.systemName")}
           </Title>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>
-            {t('login.tagline')}
+          <p
+            style={{
+              margin: 0,
+              fontSize: 16,
+              fontWeight: 500,
+              color: "rgba(255,255,255,0.92)",
+            }}
+          >
+            {t("login.tagline")}
           </p>
-          <p style={{ margin: '10px 0 32px', fontSize: 12, lineHeight: 1.8, maxWidth: 480, color: 'rgba(255,255,255,0.66)' }}>
-            {t('login.description')}
+          <p
+            style={{
+              margin: "10px 0 32px",
+              fontSize: 12,
+              lineHeight: 1.8,
+              maxWidth: 480,
+              color: "rgba(255,255,255,0.66)",
+            }}
+          >
+            {t("login.description")}
           </p>
           <div
             className="anim-stagger"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 'var(--space-3, 12px)' }}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+              gap: "var(--space-3, 12px)",
+            }}
           >
             {BRAND_FEATURES.map((f) => (
               <div key={f.title} className="login-brand-card">
@@ -251,8 +328,25 @@ export default function LoginPage() {
                   <f.icon size={18} color="currentColor" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 'var(--space-1, 4px)' }}>{f.title}</div>
-                  <div style={{ fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.7)' }}>{f.desc}</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#fff",
+                      marginBottom: "var(--space-1, 4px)",
+                    }}
+                  >
+                    {f.title}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      lineHeight: 1.6,
+                      color: "rgba(255,255,255,0.7)",
+                    }}
+                  >
+                    {f.desc}
+                  </div>
                 </div>
               </div>
             ))}
@@ -263,68 +357,151 @@ export default function LoginPage() {
       {/* 右侧表单区 */}
       <section
         style={{
-          flex: '1 1 0%',
+          flex: "1 1 0%",
           minWidth: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '64px 32px 104px',
-          position: 'relative',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "64px 32px 104px",
+          position: "relative",
         }}
       >
         <form
           onSubmit={handleLogin}
-          aria-label={t('login.formAria')}
+          aria-label={t("login.formAria")}
           className="anim-fade-in-up"
           style={{
-            width: 'min(400px, 100%)',
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
+            width: "min(400px, 100%)",
+            background: "var(--bg-card)",
+            border: "1px solid var(--border-color)",
             borderRadius: 16,
-            padding: '36px 32px',
-            boxShadow: 'var(--shadow-xl)',
+            padding: "36px 32px",
+            boxShadow: "var(--shadow-xl)",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-2, 8px)' }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-3, 12px)",
+              marginBottom: "var(--space-2, 8px)",
+            }}
+          >
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: "var(--color-primary-600)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                flexShrink: 0,
+              }}
+            >
               <Radio size={22} color="currentColor" />
             </div>
             <div>
-              <Title level={5} style={{ margin: 0 }}>{t('login.welcome')}</Title>
-              <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-secondary)' }}>
-                {t('login.systemName')} · {HOSPITAL_NAME}
+              <Title level={5} style={{ margin: 0 }}>
+                {t("login.welcome")}
+              </Title>
+              <p
+                style={{
+                  margin: "2px 0 0",
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {t("login.systemName")} · {HOSPITAL_NAME}
               </p>
             </div>
           </div>
 
           {user && (
-            <div role="status" style={{ margin: '16px 0 4px', padding: '10px 12px', background: 'var(--color-info-bg)', border: '1px solid var(--color-info-border)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
-              {t('login.loggedInPrefix')}<strong style={{ color: 'var(--text-primary)' }}>{user.name}</strong>{t('login.loggedInSuffix', { role: user.role })}
+            <div
+              role="status"
+              style={{
+                margin: "16px 0 4px",
+                padding: "10px 12px",
+                background: "var(--color-info-bg)",
+                border: "1px solid var(--color-info-border)",
+                borderRadius: 8,
+                fontSize: 12,
+                color: "var(--text-secondary)",
+              }}
+            >
+              {t("login.loggedInPrefix")}
+              <strong style={{ color: "var(--text-primary)" }}>
+                {user.name}
+              </strong>
+              {t("login.loggedInSuffix", { role: user.role })}
             </div>
           )}
 
           {/* WCAG 2.1 AA: 颜色对比度 ≥ 4.5:1（正文）/ 3:1（大文本）。边框使用 var(--border-color)（深色模式 #334155，对比度 4.7:1） */}
-          <label htmlFor="login-role" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, marginTop: 'var(--space-5, 20px)' }}>
-            {t('login.demoRole')}
+          <label
+            htmlFor="login-role"
+            style={{
+              display: "block",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 6,
+              marginTop: "var(--space-5, 20px)",
+            }}
+          >
+            {t("login.demoRole")}
           </label>
-          <div style={{ position: 'relative' }}>
-            <KeyRound size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-            <select
+          <div style={{ position: "relative" }}>
+            <KeyRound
+              size={15}
+              style={{
+                position: "absolute",
+                left: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-muted)",
+                pointerEvents: "none",
+              }}
+            />
+            <AppSelectField
               id="login-role"
               value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+              onChange={(v) => setSelectedRole(String(v ?? "") as UserRole)}
+              options={DEMO_USERS.map((d) => ({
+                value: d.role,
+                label: d.label,
+              }))}
               style={inputStyle}
-            >
-              {DEMO_USERS.map((d) => (
-                <option key={d.role} value={d.role}>{d.label}</option>
-              ))}
-            </select>
+            />
           </div>
 
-          <label htmlFor="login-username" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('login.username')}</label>
-          <div style={{ position: 'relative' }}>
-            <User size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+          <label
+            htmlFor="login-username"
+            style={{
+              display: "block",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 6,
+            }}
+          >
+            {t("login.username")}
+          </label>
+          <div style={{ position: "relative" }}>
+            <User
+              size={15}
+              style={{
+                position: "absolute",
+                left: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-muted)",
+                pointerEvents: "none",
+              }}
+            />
             <input
               id="login-username"
               value={username}
@@ -334,9 +511,30 @@ export default function LoginPage() {
             />
           </div>
 
-          <label htmlFor="login-password" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('login.password')}</label>
-          <div style={{ position: 'relative' }}>
-            <Lock size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+          <label
+            htmlFor="login-password"
+            style={{
+              display: "block",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 6,
+            }}
+          >
+            {t("login.password")}
+          </label>
+          <div style={{ position: "relative" }}>
+            <Lock
+              size={15}
+              style={{
+                position: "absolute",
+                left: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-muted)",
+                pointerEvents: "none",
+              }}
+            />
             <input
               id="login-password"
               type="password"
@@ -348,7 +546,18 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div role="alert" style={{ marginBottom: 14, padding: '10px 12px', background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', color: 'var(--color-error)', borderRadius: 8, fontSize: 12 }}>
+            <div
+              role="alert"
+              style={{
+                marginBottom: 14,
+                padding: "10px 12px",
+                background: "var(--color-error-bg)",
+                border: "1px solid var(--color-error-border)",
+                color: "var(--color-error)",
+                borderRadius: 8,
+                fontSize: 12,
+              }}
+            >
               {error}
             </div>
           )}
@@ -357,37 +566,68 @@ export default function LoginPage() {
             type="submit"
             disabled={_submitting}
             style={{
-              width: '100%',
-              padding: '11px 12px',
+              width: "100%",
+              padding: "11px 12px",
               borderRadius: 10,
-              border: 'none',
-              background: 'var(--color-accent)',
-              color: 'var(--text-inverse)',
+              border: "none",
+              background: "var(--color-accent)",
+              color: "var(--text-inverse)",
               fontSize: 14,
               fontWeight: 700,
-              cursor: _submitting ? 'wait' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 'var(--space-2, 8px)',
+              cursor: _submitting ? "wait" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "var(--space-2, 8px)",
               opacity: _submitting ? 0.85 : 1,
             }}
           >
             {_submitting && <Loader2 size={16} className="anim-spin" />}
-            {_submitting ? t('login.loggingIn') : t('login.signIn')}
+            {_submitting ? t("login.loggingIn") : t("login.signIn")}
           </button>
 
-          <div style={{ marginTop: 18, padding: '12px 14px', background: 'var(--color-pending-bg)', border: '1px solid var(--color-pending-border)', borderRadius: 10, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div
+            style={{
+              marginTop: 18,
+              padding: "12px 14px",
+              background: "var(--color-pending-bg)",
+              border: "1px solid var(--color-pending-border)",
+              borderRadius: 10,
+              fontSize: 12,
+              color: "var(--text-secondary)",
+              lineHeight: 1.7,
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                marginBottom: "var(--space-1, 4px)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
               <Sparkles size={14} />
-              {t('login.demoEnv')}
+              {t("login.demoEnv")}
             </div>
-            {t('login.demoHint')}
+            {t("login.demoHint")}
           </div>
         </form>
 
-        <footer style={{ position: 'absolute', bottom: 20, left: 0, right: 0, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>
-          <span>{'\u00A9'}</span> {new Date().getFullYear()} {HOSPITAL_NAME} · {t('login.footerSuffix')}
+        <footer
+          style={{
+            position: "absolute",
+            bottom: 20,
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            fontSize: 12,
+            color: "var(--text-muted)",
+          }}
+        >
+          <span>{"\u00A9"}</span> {new Date().getFullYear()} {HOSPITAL_NAME} ·{" "}
+          {t("login.footerSuffix")}
         </footer>
       </section>
     </main>

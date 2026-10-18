@@ -4,56 +4,78 @@
 // [W2-A] 存证记录由 auditApi 审计事件派生 (后端无存证端点); 验证为本地一致性校验
 // ============================================================
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Link2, Database, Hash, CheckCircle2, Clock, Search, Copy,
-  ExternalLink, Shield, Box, GitBranch, Loader2, XCircle,
-} from 'lucide-react';
+  Link2,
+  Database,
+  Hash,
+  CheckCircle2,
+  Clock,
+  Search,
+  Copy,
+  ExternalLink,
+  Shield,
+  Box,
+  GitBranch,
+  Loader2,
+  XCircle,
+} from "lucide-react";
 import {
   BLOCKCHAIN_RECORDS,
   type BlockchainRecord,
-} from '../data/deliveryExportSignatureMock';
-import { auditApi } from '../services/api/auditApi';
-import { StatCard } from '../components/common';
-import { Typography } from 'antd';
+} from "../data/deliveryExportSignatureMock";
+import { auditApi } from "../services/api/auditApi";
+import { StatCard } from "../components/common";
+import { AppSelectField } from "../components/common/AppSelectField";
+import { Typography } from "antd";
 
-const { Title } = Typography
-import { t } from '../i18n/appI18n';
+const { Title } = Typography;
+import { t } from "../i18n/appI18n";
 import { PageContainer } from "../components/common";
 
 // ============================================================
 // 状态配置
 // ============================================================
 const STATUS_CONFIG = {
-  pending:   { color: 'var(--color-warning-500)', bg: '#f59e0b22' },
-  confirmed: { color: '#10b981', bg: '#22c55e22' },
-  invalid:   { color: 'var(--color-error-500)', bg: '#ef444422' },
+  pending: { color: "var(--color-warning-500)", bg: "#f59e0b22" },
+  confirmed: { color: "#10b981", bg: "#22c55e22" },
+  invalid: { color: "var(--color-error-500)", bg: "#ef444422" },
 };
 
-const blockchainStatusLabel = (s: string): string => ({
-  pending: t('blockchain.statusPending'),
-  confirmed: t('blockchain.statusConfirmed'),
-  invalid: t('blockchain.statusInvalid'),
-}[s] ?? s);
+const blockchainStatusLabel = (s: string): string =>
+  ({
+    pending: t("blockchain.statusPending"),
+    confirmed: t("blockchain.statusConfirmed"),
+    invalid: t("blockchain.statusInvalid"),
+  })[s] ?? s;
 
 // FNV-1a 32bit → hex (本地一致性校验用, 非密码学哈希)
 function fnv1a(str: string): string {
-  let h = 0x811c9dc5
+  let h = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i)
-    h = Math.imul(h, 0x01000193)
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
   }
-  return (h >>> 0).toString(16).padStart(8, '0')
+  return (h >>> 0).toString(16).padStart(8, "0");
 }
 
 function pad64(hex8: string): string {
-  return hex8.repeat(8).slice(0, 64)
+  return hex8.repeat(8).slice(0, 64);
 }
 
 // 派生记录的完整性摘要
-function recordDigest(r: { reportId: string; timestamp: string; signers: string[]; blockNumber: number }): string {
-  return pad64(fnv1a(`${r.reportId}|${r.timestamp}|${r.signers.join('、')}|${r.blockNumber}`))
+function recordDigest(r: {
+  reportId: string;
+  timestamp: string;
+  signers: string[];
+  blockNumber: number;
+}): string {
+  return pad64(
+    fnv1a(
+      `${r.reportId}|${r.timestamp}|${r.signers.join("、")}|${r.blockNumber}`,
+    ),
+  );
 }
 
 // ============================================================
@@ -61,187 +83,405 @@ function recordDigest(r: { reportId: string; timestamp: string; signers: string[
 // ============================================================
 export default function BlockchainProofPage() {
   const navigate = useNavigate();
-  const [records, setRecords] = useState<BlockchainRecord[]>(BLOCKCHAIN_RECORDS);
-  const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [selectedRecordId, setSelectedRecordId] = useState<string | null>('bc-001');
+  const [records, setRecords] =
+    useState<BlockchainRecord[]>(BLOCKCHAIN_RECORDS);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [selectedRecordId, setSelectedRecordId] = useState<string | null>(
+    "bc-001",
+  );
   const [verifying, setVerifying] = useState(false);
-  const [verifyResult, setVerifyResult] = useState<'idle' | 'success' | 'failed'>('idle');
+  const [verifyResult, setVerifyResult] = useState<
+    "idle" | "success" | "failed"
+  >("idle");
   // [W2-A] 数据源
   const [loading, setLoading] = useState(true);
-  const [source, setSource] = useState<'api' | 'demo'>('demo');
-  const [apiError, setApiError] = useState('');
+  const [source, setSource] = useState<"api" | "demo">("demo");
+  const [apiError, setApiError] = useState("");
   const digestsRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function load() {
-      setLoading(true)
-      setApiError('')
+      setLoading(true);
+      setApiError("");
       try {
-        const res = await auditApi.list({ resource: 'report', pageSize: 50 })
-        const items = res.data?.items ?? []
+        const res = await auditApi.list({ resource: "report", pageSize: 50 });
+        const items = res.data?.items ?? [];
         if (Array.isArray(items) && items.length > 0) {
-          const derived: BlockchainRecord[] = items.slice(0, 30).map((e: any, i: number) => {
-            const reportId = e.resourceId ?? e.id ?? `rpt-${i}`
-            const timestamp = String(e.createdAt || '').replace('T', ' ').slice(0, 19)
-            const rec: BlockchainRecord = {
-              id: `bc-audit-${e.id ?? i}`,
-              reportId,
-              reportHash: '0x' + recordDigest({ reportId, timestamp, signers: [e.username ?? e.userId ?? 'system'], blockNumber: 182300 + i }),
-              blockHash: '0x' + pad64(fnv1a(`block-${e.id ?? i}`)),
-              blockNumber: 182300 + i,
-              chainName: t('blockchain.chainName'),
-              txHash: `0xtx-${String(e.id ?? i)}`,
-              timestamp,
-              signers: [e.username ?? e.userId ?? t('blockchain.systemSigner')],
-              status: e.status === 'SUCCESS' ? 'confirmed' : 'pending',
-              confirmations: 6 + i,
-              merkleRoot: '0x' + pad64(fnv1a(`merkle-${e.id ?? i}`)),
-              explorerUrl: '',
-            }
-            digestsRef.current.set(rec.id, recordDigest({ reportId, timestamp, signers: rec.signers, blockNumber: rec.blockNumber }))
-            return rec
-          })
+          const derived: BlockchainRecord[] = items
+            .slice(0, 30)
+            .map((e: any, i: number) => {
+              const reportId = e.resourceId ?? e.id ?? `rpt-${i}`;
+              const timestamp = String(e.createdAt || "")
+                .replace("T", " ")
+                .slice(0, 19);
+              const rec: BlockchainRecord = {
+                id: `bc-audit-${e.id ?? i}`,
+                reportId,
+                reportHash:
+                  "0x" +
+                  recordDigest({
+                    reportId,
+                    timestamp,
+                    signers: [e.username ?? e.userId ?? "system"],
+                    blockNumber: 182300 + i,
+                  }),
+                blockHash: "0x" + pad64(fnv1a(`block-${e.id ?? i}`)),
+                blockNumber: 182300 + i,
+                chainName: t("blockchain.chainName"),
+                txHash: `0xtx-${String(e.id ?? i)}`,
+                timestamp,
+                signers: [
+                  e.username ?? e.userId ?? t("blockchain.systemSigner"),
+                ],
+                status: e.status === "SUCCESS" ? "confirmed" : "pending",
+                confirmations: 6 + i,
+                merkleRoot: "0x" + pad64(fnv1a(`merkle-${e.id ?? i}`)),
+                explorerUrl: "",
+              };
+              digestsRef.current.set(
+                rec.id,
+                recordDigest({
+                  reportId,
+                  timestamp,
+                  signers: rec.signers,
+                  blockNumber: rec.blockNumber,
+                }),
+              );
+              return rec;
+            });
           if (derived.length > 0) {
-            setRecords(derived)
-            setSelectedRecordId(derived[0]!.id)
-            setSource('api')
+            setRecords(derived);
+            setSelectedRecordId(derived[0]!.id);
+            setSource("api");
           }
         }
       } catch (e) {
-        setApiError(e instanceof Error ? e.message : t('blockchain.loadFailed'))
+        setApiError(
+          e instanceof Error ? e.message : t("blockchain.loadFailed"),
+        );
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
     }
-    void load()
-    return () => { cancelled = true }
-  }, [])
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const filteredRecords = records.filter(r => {
-    if (filterStatus !== 'all' && r.status !== filterStatus) return false;
+  const filteredRecords = records.filter((r) => {
+    if (filterStatus !== "all" && r.status !== filterStatus) return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!r.reportId.toLowerCase().includes(q) &&
-          !r.txHash.toLowerCase().includes(q) &&
-          !r.reportHash.toLowerCase().includes(q)) return false;
+      if (
+        !r.reportId.toLowerCase().includes(q) &&
+        !r.txHash.toLowerCase().includes(q) &&
+        !r.reportHash.toLowerCase().includes(q)
+      )
+        return false;
     }
     return true;
   });
 
-  const selected = records.find(r => r.id === selectedRecordId);
+  const selected = records.find((r) => r.id === selectedRecordId);
 
   // 本地一致性校验: API 派生记录重算摘要比对; 演示记录做结构 + 状态校验
   const handleVerify = () => {
     if (!selected) return;
     setVerifying(true);
-    setVerifyResult('idle');
+    setVerifyResult("idle");
     setTimeout(() => {
       setVerifying(false);
       let ok = false;
       const expected = digestsRef.current.get(selected.id);
       if (expected) {
-        ok = selected.reportHash === '0x' + expected;
+        ok = selected.reportHash === "0x" + expected;
       } else {
-        const structuralOk = selected.reportHash.startsWith('0x') &&
+        const structuralOk =
+          selected.reportHash.startsWith("0x") &&
           selected.reportHash.length >= 34 &&
           selected.txHash.length > 0 &&
           selected.blockNumber > 0;
-        const statusOk = selected.status !== 'invalid';
+        const statusOk = selected.status !== "invalid";
         ok = structuralOk && statusOk;
       }
-      setVerifyResult(ok ? 'success' : 'failed');
+      setVerifyResult(ok ? "success" : "failed");
     }, 1200);
   };
 
   return (
     <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {/* 顶部 */}
-      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div
+        style={{
+          marginBottom: "var(--space-4, 16px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <div>
-          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-            <Link2 size={20} color="#7c3aed" /> {t('blockchain.title')}
-            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
-            <span style={{
-              fontSize: 11, padding: '2px 8px', borderRadius: 10,
-              background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-              color: source === 'api' ? 'var(--color-success-600)' : '#92400e',
-              border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
-              fontWeight: 500,
-            }}>
-              {loading ? t('blockchain.syncing') : source === 'api' ? t('blockchain.sourceApi') : t('blockchain.sourceDemo')}
+          <Title
+            level={4}
+            style={{
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
+            <Link2 size={20} color="#7c3aed" /> {t("blockchain.title")}
+            <span
+              style={{
+                fontSize: 12,
+                padding: "2px 6px",
+                background: "#10b981",
+                color: "#fff",
+                borderRadius: 3,
+                fontWeight: 700,
+              }}
+            >
+              R6
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                padding: "2px 8px",
+                borderRadius: 10,
+                background:
+                  source === "api"
+                    ? "var(--color-success-bg)"
+                    : "var(--color-warning-bg)",
+                color:
+                  source === "api" ? "var(--color-success-600)" : "#92400e",
+                border: `1px solid ${source === "api" ? "#bbf7d0" : "#fde68a"}`,
+                fontWeight: 500,
+              }}
+            >
+              {loading
+                ? t("blockchain.syncing")
+                : source === "api"
+                  ? t("blockchain.sourceApi")
+                  : t("blockchain.sourceDemo")}
             </span>
           </Title>
-          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            {t('blockchain.subtitle')}
-            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 'var(--space-2, 8px)' }}>{apiError}</span>}
+          <p
+            style={{
+              fontSize: 12,
+              color: "var(--text-secondary)",
+              margin: "4px 0 0",
+            }}
+          >
+            {t("blockchain.subtitle")}
+            {apiError && (
+              <span
+                style={{
+                  color: "var(--color-error-600)",
+                  marginLeft: "var(--space-2, 8px)",
+                }}
+              >
+                {apiError}
+              </span>
+            )}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
           <button
-            onClick={() => navigate('/ca-signature')}
-            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
+            onClick={() => navigate("/ca-signature")}
+            style={{
+              padding: "6px 12px",
+              border: "1px solid var(--border-color)",
+              borderRadius: 6,
+              background: "var(--bg-card)",
+              color: "var(--text-secondary)",
+              fontSize: 12,
+              cursor: "pointer",
+            }}
           >
-            {t('blockchain.caSignature')}
+            {t("blockchain.caSignature")}
           </button>
         </div>
       </div>
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
-        <KpiCard icon={Database} label={t('blockchain.statTotal')} value={records.length} color="#7c3aed" />
-        <KpiCard icon={CheckCircle2} label={t('blockchain.statConfirmed')} value={records.filter(r => r.status === 'confirmed').length} color="#10b981" />
-        <KpiCard icon={Clock} label={t('blockchain.statPending')} value={records.filter(r => r.status === 'pending').length} color="var(--color-warning-500)" />
-        <KpiCard icon={Shield} label={t('blockchain.statLatestBlock')} value={records[0]?.blockNumber.toLocaleString() || '182360'} color="var(--color-primary-500)" />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-4, 16px)",
+        }}
+      >
+        <KpiCard
+          icon={Database}
+          label={t("blockchain.statTotal")}
+          value={records.length}
+          color="#7c3aed"
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          label={t("blockchain.statConfirmed")}
+          value={records.filter((r) => r.status === "confirmed").length}
+          color="#10b981"
+        />
+        <KpiCard
+          icon={Clock}
+          label={t("blockchain.statPending")}
+          value={records.filter((r) => r.status === "pending").length}
+          color="var(--color-warning-500)"
+        />
+        <KpiCard
+          icon={Shield}
+          label={t("blockchain.statLatestBlock")}
+          value={records[0]?.blockNumber.toLocaleString() || "182360"}
+          color="var(--color-primary-500)"
+        />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 'var(--space-3, 12px)' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "460px 1fr",
+          gap: "var(--space-3, 12px)",
+        }}
+      >
         {/* 左：存证列表 */}
-        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-              <div style={{ position: 'relative', flex: 1 }}>
-                <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 8,
+            border: "1px solid var(--border-color)",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              padding: "8px 12px",
+              borderBottom: "1px solid var(--border-color)",
+            }}
+          >
+            <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <Search
+                  size={11}
+                  style={{
+                    position: "absolute",
+                    left: 8,
+                    top: 8,
+                    color: "var(--text-secondary)",
+                  }}
+                />
                 <input
                   type="text"
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder={t('blockchain.searchPlaceholder')}
-                  style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12,}}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t("blockchain.searchPlaceholder")}
+                  style={{
+                    width: "100%",
+                    padding: "5px 8px 5px 26px",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 4,
+                    fontSize: 12,
+                  }}
                 />
               </div>
-              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
-                <option value="all">{t('blockchain.filterAll')}</option>
-                <option value="confirmed">{t('blockchain.filterConfirmed')}</option>
-                <option value="pending">{t('blockchain.filterPending')}</option>
-              </select>
+              <AppSelectField
+                value={filterStatus}
+                onChange={(v) => setFilterStatus(String(v ?? ""))}
+                style={selectStyle}
+                options={[
+                  { value: "all", label: t("blockchain.filterAll") },
+                  {
+                    value: "confirmed",
+                    label: t("blockchain.filterConfirmed"),
+                  },
+                  { value: "pending", label: t("blockchain.filterPending") },
+                ]}
+              />
             </div>
           </div>
-          <div style={{ maxHeight: 600, overflowY: 'auto' }}>
-            {filteredRecords.map(r => {
+          <div style={{ maxHeight: 600, overflowY: "auto" }}>
+            {filteredRecords.map((r) => {
               const sConf = STATUS_CONFIG[r.status];
               const isSelected = selectedRecordId === r.id;
               return (
                 <div
                   key={r.id}
-                  onClick={() => { setSelectedRecordId(r.id); setVerifyResult('idle'); }}
+                  onClick={() => {
+                    setSelectedRecordId(r.id);
+                    setVerifyResult("idle");
+                  }}
                   style={{
-                    padding: 10, borderBottom: '1px solid var(--border-light)',
-                    background: isSelected ? '#faf5ff' : 'transparent',
-                    borderLeft: isSelected ? '3px solid #7c3aed' : '3px solid transparent',
-                    cursor: 'pointer',
+                    padding: 10,
+                    borderBottom: "1px solid var(--border-light)",
+                    background: isSelected ? "#faf5ff" : "transparent",
+                    borderLeft: isSelected
+                      ? "3px solid #7c3aed"
+                      : "3px solid transparent",
+                    cursor: "pointer",
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-1, 4px)",
+                      marginBottom: "var(--space-1, 4px)",
+                    }}
+                  >
                     <Box size={11} color="#7c3aed" />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t('blockchain.blockPrefix')}{r.blockNumber}</span>
-                    <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 600, marginLeft: 'auto' }}>{blockchainStatusLabel(r.status)}</span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      {t("blockchain.blockPrefix")}
+                      {r.blockNumber}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        padding: "1px 4px",
+                        borderRadius: 2,
+                        background: sConf.bg,
+                        color: sConf.color,
+                        fontWeight: 600,
+                        marginLeft: "auto",
+                      }}
+                    >
+                      {blockchainStatusLabel(r.status)}
+                    </span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('blockchain.reportPrefix')}{r.reportId}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace', marginTop: 2 }}>{r.txHash.slice(0, 24)}...</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-                    <Clock size={9} /> {r.timestamp} · {t('blockchain.confirmations', { count: r.confirmations })}
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                    {t("blockchain.reportPrefix")}
+                    {r.reportId}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-secondary)",
+                      fontFamily: "monospace",
+                      marginTop: 2,
+                    }}
+                  >
+                    {r.txHash.slice(0, 24)}...
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-secondary)",
+                      marginTop: "var(--space-1, 4px)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-1, 4px)",
+                    }}
+                  >
+                    <Clock size={9} /> {r.timestamp} ·{" "}
+                    {t("blockchain.confirmations", { count: r.confirmations })}
                   </div>
                 </div>
               );
@@ -251,118 +491,365 @@ export default function BlockchainProofPage() {
 
         {/* 右：详情 + 验证 */}
         {selected && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
             {/* 头部 */}
-            <div style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)6fe' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: 12,
-                  background: 'linear-gradient(135deg, #7c3aed, #5b21b6)', color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
+            <div
+              style={{
+                background: "linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)",
+                borderRadius: 8,
+                padding: "var(--space-4, 16px)",
+                border: "1px solid var(--border-color)6fe",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-3, 12px)",
+                  marginBottom: "var(--space-3, 12px)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 12,
+                    background: "linear-gradient(135deg, #7c3aed, #5b21b6)",
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <Link2 size={28} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, color: '#5b21b6' }}>{selected.chainName}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{t('blockchain.blockPrefix')}{selected.blockNumber}</div>
+                  <div style={{ fontSize: 12, color: "#5b21b6" }}>
+                    {selected.chainName}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    {t("blockchain.blockPrefix")}
+                    {selected.blockNumber}
+                  </div>
                 </div>
-                <span style={{
-                  fontSize: 12, padding: '3px 10px', borderRadius: 4,
-                  background: STATUS_CONFIG[selected.status].bg,
-                  color: STATUS_CONFIG[selected.status].color, fontWeight: 700,
-                }}>{blockchainStatusLabel(selected.status)} · {t('blockchain.confirmations', { count: selected.confirmations })}</span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    padding: "3px 10px",
+                    borderRadius: 4,
+                    background: STATUS_CONFIG[selected.status].bg,
+                    color: STATUS_CONFIG[selected.status].color,
+                    fontWeight: 700,
+                  }}
+                >
+                  {blockchainStatusLabel(selected.status)} ·{" "}
+                  {t("blockchain.confirmations", {
+                    count: selected.confirmations,
+                  })}
+                </span>
               </div>
             </div>
 
             {/* 哈希详情 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Hash size={13} /> {t('blockchain.hashAndSignature')}
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 8,
+                padding: "var(--space-4, 16px)",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                  marginBottom: "var(--space-3, 12px)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Hash size={13} /> {t("blockchain.hashAndSignature")}
               </div>
-              <HashRow label={t('blockchain.reportHash')} value={selected.reportHash} />
-              <HashRow label={t('blockchain.txHash')} value={selected.txHash} />
-              <HashRow label={t('blockchain.blockHash')} value={selected.blockHash} />
-              <HashRow label={t('blockchain.merkleRoot')} value={selected.merkleRoot} />
-              <div style={{ marginTop: 'var(--space-2, 8px)', padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12, color: 'var(--color-primary-800)' }}>
-                <strong>{t('blockchain.signers')}</strong> {selected.signers.join('、')}
+              <HashRow
+                label={t("blockchain.reportHash")}
+                value={selected.reportHash}
+              />
+              <HashRow label={t("blockchain.txHash")} value={selected.txHash} />
+              <HashRow
+                label={t("blockchain.blockHash")}
+                value={selected.blockHash}
+              />
+              <HashRow
+                label={t("blockchain.merkleRoot")}
+                value={selected.merkleRoot}
+              />
+              <div
+                style={{
+                  marginTop: "var(--space-2, 8px)",
+                  padding: 6,
+                  background: "var(--color-info-bg)",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  color: "var(--color-primary-800)",
+                }}
+              >
+                <strong>{t("blockchain.signers")}</strong>{" "}
+                {selected.signers.join("、")}
               </div>
             </div>
 
             {/* 验证操作 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 8,
+                padding: "var(--space-4, 16px)",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
                 <button
                   onClick={handleVerify}
                   disabled={verifying}
                   style={{
-                    flex: 1, padding: '10px 16px', border: 'none', borderRadius: 6,
-                    background: verifying ? '#94a3b8' : 'linear-gradient(135deg, #7c3aed, #5b21b6)',
-                    color: '#fff', fontSize: 12, fontWeight: 600,
-                    cursor: verifying ? 'not-allowed' : 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    flex: 1,
+                    padding: "10px 16px",
+                    border: "none",
+                    borderRadius: 6,
+                    background: verifying
+                      ? "#94a3b8"
+                      : "linear-gradient(135deg, #7c3aed, #5b21b6)",
+                    color: "#fff",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: verifying ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
                   }}
                 >
-                  {verifying ? <Loader2 size={12} className="spin" /> : <Shield size={12} />}
-                  {verifying ? t('blockchain.verifying') : t('blockchain.verify')}
+                  {verifying ? (
+                    <Loader2 size={12} className="spin" />
+                  ) : (
+                    <Shield size={12} />
+                  )}
+                  {verifying
+                    ? t("blockchain.verifying")
+                    : t("blockchain.verify")}
                 </button>
                 <button
-                  onClick={() => selected.explorerUrl && window.open(selected.explorerUrl, '_blank')}
-                  style={{ padding: '10px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}
+                  onClick={() =>
+                    selected.explorerUrl &&
+                    window.open(selected.explorerUrl, "_blank")
+                  }
+                  style={{
+                    padding: "10px 16px",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    background: "var(--bg-card)",
+                    color: "var(--text-secondary)",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-1, 4px)",
+                  }}
                 >
-                  <ExternalLink size={12} /> {t('blockchain.blockExplorer')}
+                  <ExternalLink size={12} /> {t("blockchain.blockExplorer")}
                 </button>
               </div>
 
-              {verifyResult === 'success' && (
-                <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
-                    <CheckCircle2 size={14} /> {t('blockchain.verifyPassed')}
+              {verifyResult === "success" && (
+                <div
+                  style={{
+                    marginTop: "var(--space-3, 12px)",
+                    padding: "var(--space-3, 12px)",
+                    background: "var(--color-success-bg)",
+                    border: "1px solid #6ee7b7",
+                    borderRadius: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginBottom: 6,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#047857",
+                    }}
+                  >
+                    <CheckCircle2 size={14} /> {t("blockchain.verifyPassed")}
                   </div>
-                  <div style={{ fontSize: 12, color: '#065f46', lineHeight: 1.6 }}>
-                    {t('blockchain.passLine1', { block: selected.blockNumber, chain: selected.chainName })}<br/>
-                    {t('blockchain.passLine2')}<br/>
-                    {t('blockchain.passLine3')}{source === 'api' ? t('blockchain.passLine3Api') : t('blockchain.passLine3Demo')}<br/>
-                    {t('blockchain.passLine4')}<br/>
-                    {t('blockchain.passLine5', { time: selected.timestamp })}
+                  <div
+                    style={{ fontSize: 12, color: "#065f46", lineHeight: 1.6 }}
+                  >
+                    {t("blockchain.passLine1", {
+                      block: selected.blockNumber,
+                      chain: selected.chainName,
+                    })}
+                    <br />
+                    {t("blockchain.passLine2")}
+                    <br />
+                    {t("blockchain.passLine3")}
+                    {source === "api"
+                      ? t("blockchain.passLine3Api")
+                      : t("blockchain.passLine3Demo")}
+                    <br />
+                    {t("blockchain.passLine4")}
+                    <br />
+                    {t("blockchain.passLine5", { time: selected.timestamp })}
                   </div>
                 </div>
               )}
-              {verifyResult === 'failed' && (
-                <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-error-bg)', border: '1px solid #fca5a5', borderRadius: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#b91c1c' }}>
-                    <XCircle size={14} /> {t('blockchain.verifyFailed')}
+              {verifyResult === "failed" && (
+                <div
+                  style={{
+                    marginTop: "var(--space-3, 12px)",
+                    padding: "var(--space-3, 12px)",
+                    background: "var(--color-error-bg)",
+                    border: "1px solid #fca5a5",
+                    borderRadius: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginBottom: 6,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#b91c1c",
+                    }}
+                  >
+                    <XCircle size={14} /> {t("blockchain.verifyFailed")}
                   </div>
-                  <div style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6 }}>
-                    {t('blockchain.failLine1')}<br/>
-                    {t('blockchain.failLine2')}
+                  <div
+                    style={{ fontSize: 12, color: "#7f1d1d", lineHeight: 1.6 }}
+                  >
+                    {t("blockchain.failLine1")}
+                    <br />
+                    {t("blockchain.failLine2")}
                   </div>
                 </div>
               )}
             </div>
 
             {/* 区块可视化 */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <GitBranch size={13} /> {t('blockchain.blockStructure')}
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 8,
+                padding: "var(--space-4, 16px)",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                  marginBottom: "var(--space-3, 12px)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <GitBranch size={13} /> {t("blockchain.blockStructure")}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, fontSize: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(5, 1fr)",
+                  gap: 6,
+                  fontSize: 12,
+                }}
+              >
                 {[
-                  { label: t('blockchain.blockHeader'), desc: '# ' + selected.blockNumber, color: '#7c3aed' },
-                  { label: t('blockchain.prevHash'), desc: 'prev_block', color: 'var(--color-primary-500)' },
-                  { label: t('blockchain.merkleRoot'), desc: 'tx_root', color: '#10b981' },
-                  { label: t('blockchain.timestamp'), desc: 'ts', color: 'var(--color-warning-500)' },
-                  { label: t('blockchain.difficultyNonce'), desc: '0x0001', color: 'var(--color-error-600)' },
+                  {
+                    label: t("blockchain.blockHeader"),
+                    desc: "# " + selected.blockNumber,
+                    color: "#7c3aed",
+                  },
+                  {
+                    label: t("blockchain.prevHash"),
+                    desc: "prev_block",
+                    color: "var(--color-primary-500)",
+                  },
+                  {
+                    label: t("blockchain.merkleRoot"),
+                    desc: "tx_root",
+                    color: "#10b981",
+                  },
+                  {
+                    label: t("blockchain.timestamp"),
+                    desc: "ts",
+                    color: "var(--color-warning-500)",
+                  },
+                  {
+                    label: t("blockchain.difficultyNonce"),
+                    desc: "0x0001",
+                    color: "var(--color-error-600)",
+                  },
                 ].map((c, i) => (
-                  <div key={i} style={{
-                    padding: 6, background: '#8b5cf622', border: `1px solid ${c.color}`, borderRadius: 4, textAlign: 'center',
-                  }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.label}</div>
-                    <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2, fontFamily: 'monospace' }}>{c.desc}</div>
+                  <div
+                    key={i}
+                    style={{
+                      padding: 6,
+                      background: "#8b5cf622",
+                      border: `1px solid ${c.color}`,
+                      borderRadius: 4,
+                      textAlign: "center",
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, fontWeight: 700, color: c.color }}
+                    >
+                      {c.label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: "var(--text-secondary)",
+                        marginTop: 2,
+                        fontFamily: "monospace",
+                      }}
+                    >
+                      {c.desc}
+                    </div>
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 'var(--space-2, 8px)', padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                {t('blockchain.blockSummary', { count: selected.signers.length })}
+              <div
+                style={{
+                  marginTop: "var(--space-2, 8px)",
+                  padding: "var(--space-2, 8px)",
+                  background: "var(--bg-card)",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {t("blockchain.blockSummary", {
+                  count: selected.signers.length,
+                })}
               </div>
             </div>
           </div>
@@ -375,19 +862,53 @@ export default function BlockchainProofPage() {
 // ============================================================
 // 哈希行
 // ============================================================
-const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
-      <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{label}</span>
+const HashRow: React.FC<{ label: string; value: string }> = ({
+  label,
+  value,
+}) => (
+  <div style={{ marginBottom: "var(--space-2, 8px)" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 3,
+      }}
+    >
+      <span
+        style={{
+          fontSize: 12,
+          color: "var(--text-secondary)",
+          fontWeight: 600,
+        }}
+      >
+        {label}
+      </span>
       <button
         onClick={() => navigator.clipboard?.writeText(value)}
-        style={{ padding: 1, border: 'none', background: 'transparent', color: 'var(--color-primary-500)', cursor: 'pointer' }}
-        title={t('blockchain.copy')}
+        style={{
+          padding: 1,
+          border: "none",
+          background: "transparent",
+          color: "var(--color-primary-500)",
+          cursor: "pointer",
+        }}
+        title={t("blockchain.copy")}
       >
         <Copy size={10} />
       </button>
     </div>
-    <div style={{ fontSize: 12, color: 'var(--text-primary)', fontFamily: 'monospace', wordBreak: 'break-all', padding: '4px 6px', background: 'var(--bg-card)', borderRadius: 3 }}>
+    <div
+      style={{
+        fontSize: 12,
+        color: "var(--text-primary)",
+        fontFamily: "monospace",
+        wordBreak: "break-all",
+        padding: "4px 6px",
+        background: "var(--bg-card)",
+        borderRadius: 3,
+      }}
+    >
       {value}
     </div>
   </div>
@@ -397,18 +918,42 @@ const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
 // 样式
 // ============================================================
 const selectStyle: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-  fontSize: 12, };
+  padding: "4px 8px",
+  border: "1px solid var(--border-color)",
+  borderRadius: 4,
+  fontSize: 12,
+};
 
 // ============================================================
 // KPI
 // ============================================================
-const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => {
-  const c = ({
-    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
-    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
-  } as Record<string, string>)[color] ?? color;
-  return <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />;
+const KpiCard: React.FC<{
+  icon: any;
+  label: string;
+  value: number | string;
+  color: string;
+}> = ({ icon: Icon, label, value, color }) => {
+  const c =
+    (
+      {
+        "var(--color-error-600)": "error",
+        "var(--color-error-500)": "error",
+        "#ff4d4f": "error",
+        "#cf1322": "error",
+        "var(--color-warning-500)": "warning",
+        "#faad14": "warning",
+        "#fa8c16": "warning",
+        "#ed8936": "warning",
+        "var(--color-success-600)": "success",
+        "var(--color-success-500)": "success",
+        "#52c41a": "success",
+        "#10b981": "success",
+        "var(--color-primary-600)": "primary",
+        "#1890ff": "primary",
+        "var(--color-primary-700)": "primary",
+      } as Record<string, string>
+    )[color] ?? color;
+  return (
+    <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />
+  );
 };

@@ -1,5 +1,7 @@
 import { t } from "../../i18n/appI18n";
 import { Search } from "lucide-react";
+// [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
+import { AppSelectField } from "../../components/common/AppSelectField";
 
 interface DoseSearchPanelProps {
   view: string;
@@ -51,15 +53,15 @@ export default function DoseSearchPanel({
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 'var(--space-4, 16px)',
+        marginBottom: "var(--space-4, 16px)",
       }}
     >
       <div
         style={{
           display: "flex",
-          gap: 'var(--space-1, 4px)',
+          gap: "var(--space-1, 4px)",
           background: "var(--bg-primary)",
-          padding: 'var(--space-1, 4px)',
+          padding: "var(--space-1, 4px)",
           borderRadius: 8,
           flexWrap: "wrap",
         }}
@@ -77,15 +79,20 @@ export default function DoseSearchPanel({
               cursor: "pointer",
               background: view === v.key ? "var(--bg-card)" : "transparent",
               color: view === v.key ? "var(--color-primary-800)" : "#64748b",
-              boxShadow:
-                view === v.key ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+              boxShadow: view === v.key ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
             }}
           >
             {v.label}
           </button>
         ))}
       </div>
-      <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "var(--space-2, 8px)",
+          alignItems: "center",
+        }}
+      >
         <div style={{ position: "relative" }}>
           <Search
             size={14}
@@ -94,7 +101,7 @@ export default function DoseSearchPanel({
               left: 10,
               top: "50%",
               transform: "translateY(-50%)",
-              color: 'var(--text-muted, #94a3b8)',
+              color: "var(--text-muted, #94a3b8)",
             }}
           />
           <input
@@ -107,7 +114,8 @@ export default function DoseSearchPanel({
               borderRadius: 6,
               border: "1px solid var(--border-color, #e2e8f0)",
               fontSize: 12,
-              width: 180, }}
+              width: 180,
+            }}
           />
         </div>
         {view !== "alert" &&
@@ -115,38 +123,39 @@ export default function DoseSearchPanel({
           view !== "trend" &&
           view !== "breast" &&
           view !== "pediatric" && (
-            <select
+            <AppSelectField
               value={modalityFilter}
-              onChange={(e) => setModalityFilter(e.target.value)}
+              onChange={(v) => setModalityFilter(String(v ?? ""))}
+              options={modalities.map((m) => ({ value: m, label: m }))}
               style={{
                 padding: "6px 10px",
                 borderRadius: 6,
                 border: "1px solid var(--border-color, #e2e8f0)",
                 fontSize: 12,
-                color: 'var(--text-primary, #334155)', }}
-            >
-              {modalities.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+                color: "var(--text-primary, #334155)",
+              }}
+            />
           )}
         {view === "alert" && (
-          <select
+          <AppSelectField
             value={alertFilter}
-            onChange={(e) => setAlertFilter(e.target.value)}
+            onChange={(v) => setAlertFilter(String(v ?? ""))}
+            options={[
+              { value: "全部", label: t("doseTrack.allStatus") },
+              { value: "pending", label: t("doseTrack.statusPending") },
+              {
+                value: "acknowledged",
+                label: t("doseTrack.statusAcknowledged"),
+              },
+            ]}
             style={{
               padding: "6px 10px",
               borderRadius: 6,
               border: "1px solid var(--border-color, #e2e8f0)",
               fontSize: 12,
-              color: 'var(--text-primary, #334155)', }}
-          >
-            <option value="全部">{t("doseTrack.allStatus")}</option>
-            <option value="pending">{t("doseTrack.statusPending")}</option>
-            <option value="acknowledged">{t("doseTrack.statusAcknowledged")}</option>
-          </select>
+              color: "var(--text-primary, #334155)",
+            }}
+          />
         )}
       </div>
     </div>
