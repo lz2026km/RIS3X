@@ -12,25 +12,16 @@
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { walk as libWalk, stripComments } from './lib/route-parse.mjs';
 
 const ROOT = process.cwd();
-const SKIP = new Set(['node_modules', 'dist', '.git', 'coverage', 'build']);
 
-function walk(dir, out = []) {
-  let entries;
-  try { entries = readdirSync(dir); } catch { return out; }
-  for (const e of entries) {
-    if (SKIP.has(e)) continue;
-    const p = join(dir, e);
-    let st;
-    try { st = statSync(p); } catch { continue; }
-    if (st.isDirectory()) walk(p, out);
-    else if (/\.tsx$/.test(p)) out.push(p);
-  }
-  return out;
-}
-
-const files = walk(join(ROOT, 'src'));
+// [v3.0.6.16-7] 统一口径: 复用共享库的 walk (跳过 __tests__) 与 stripComments。
+// 此前本 guard 既不剥注释也不排除测试文件 —— 注释里出现的
+// `<Select showSearch>` 会被计入, 测试文件也会被计入, 与另两套守卫口径不一致。
+const files = libWalk(join(ROOT, 'src')).filter(
+  (f) => /\.tsx$/.test(f) && !/\.(test|spec)\./.test(f),
+);
 const rel = (f) => relative(ROOT, f).replace(/\\/g, '/');
 
 // 1) label-less options: .map(v => ({ value: v })) 且无 label
@@ -54,7 +45,7 @@ const MASTER_KEYS = ['DOCTORS', 'OWNER_OPTIONS', 'DEVICE_OPTIONS', 'NURSES', 'ST
 const CLINICAL_ENUM_ALLOWLIST = ['src/pages/eye/ris/IntraocularPressurePage.tsx'];
 
 for (const f of files) {
-  const src = readFileSync(f, 'utf8');
+  const src = stripComments(readFileSync(f, 'utf8'));
   const relF = rel(f);
 
   // label-less: map 到只有 value 的对象
@@ -106,8 +97,8 @@ for (const f of files) {
 
 const BUDGET = {
   labelLessOptions: Number(process.env['GUARD_LABEL_LESS'] ?? 2),
-  hardcodedMasterSelect: Number(process.env['GUARD_HARDCODED_MASTER'] ?? 40),
-  showSearchNoFilter: Number(process.env['GUARD_SEARCH_NOFILTER'] ?? 80),
+  hardcodedMasterSelect: Number(process.env['GUARD_HARDCODED_MASTER'] ?? 0),
+  showSearchNoFilter: Number(process.env['GUARD_SEARCH_NOFILTER'] ?? 0),
   rawDateInput: Number(process.env['GUARD_RAW_DATE'] ?? 0),
   nativeSelect: Number(process.env['GUARD_NATIVE_SELECT'] ?? 0),
 };
