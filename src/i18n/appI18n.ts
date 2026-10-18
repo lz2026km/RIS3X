@@ -15,16 +15,18 @@ export const SUPPORTED_LOCALES: ReadonlyArray<Locale> = ["zh-CN", "en-US"];
 export const DEFAULT_LOCALE: Locale = "zh-CN";
 
 export const translations: Translations = {
-"zh-CN": {
+  "zh-CN": {
     // [v3.0.6.11-106 Wave 10D] Page i18n batch (20 pages)
     "deptStaff.role.director": "主任",
     "worklistPage.unknownPatient": "未知患者",
     "worklistPage.other": "其他",
     "worklistPage.exam": "检查",
     "worklistPage.pollingFailed": "轮询失败",
-    "worklistPage.msg.cannotCheckIn": "检查 {{exam}} 当前状态为「{{status}}」，无法签到",
+    "worklistPage.msg.cannotCheckIn":
+      "检查 {{exam}} 当前状态为「{{status}}」，无法签到",
     "worklistPage.msg.tip": "提示",
-    "worklistPage.prefetchSubmitted": "影像预取已提交: 新入队 {{queued}} 项, 已缓存 {{cached}} 项",
+    "worklistPage.prefetchSubmitted":
+      "影像预取已提交: 新入队 {{queued}} 项, 已缓存 {{cached}} 项",
     "worklistPage.actionLabel.priority": "修改优先级为：{{value}}",
     "worklistPage.actionLabel.room": "分配检查室：{{name}}",
     "worklistPage.actionLabel.print": "打印条码",
@@ -36,14 +38,16 @@ export const translations: Translations = {
     "worklistPage.roomAssignFailed": "批量分配检查室失败",
     "worklistPage.failed": "失败",
     "worklistPage.batchFailed": "批量操作失败",
-    "worklistPage.batchSuccessRefreshed": "成功 {{ok}} 项{{failSuffix}}，已刷新列表",
+    "worklistPage.batchSuccessRefreshed":
+      "成功 {{ok}} 项{{failSuffix}}，已刷新列表",
     "worklistPage.batchSuccessSimple": "成功 {{ok}} 项{{failSuffix}}",
     "worklistPage.batchFailSuffix": "，失败 {{fail}} 项",
     "worklistPage.batch.assign": "批量签到",
     "worklistPage.batchActionFailed": "批量{{action}}失败",
     "worklistPage.cannotSwitchStatus": "无法切换到「{{status}}」",
     "worklistPage.confirmStart": "确认开始检查 {{patient}} 的 {{exam}}？",
-    "worklistPage.confirmCancel": "确认取消 {{patient}} 的检查?该操作不可撤销。",
+    "worklistPage.confirmCancel":
+      "确认取消 {{patient}} 的检查?该操作不可撤销。",
     "worklistPage.techCancel": "技师取消",
     "worklistPage.configureColumns": "配置列表列显隐",
     "worklistPage.hiddenColumns": "已隐藏 {{count}} 列",
@@ -52,20 +56,25 @@ export const translations: Translations = {
     "worklistPage.prefetchAllTitle": "预取当前列表全部检查影像",
     "worklistPage.prefetchAll": "预取全部",
     "worklistPage.slaTrendTip": "{{day}}: {{overdue}}/{{total}} 超期",
-    "worklistPage.modalitySlaLine": "{{total}} 项 · 超时 {{critical}} ({{rate}}%)",
+    "worklistPage.modalitySlaLine":
+      "{{total}} 项 · 超时 {{critical}} ({{rate}}%)",
     "worklistPage.hourRange": "(7-20时)",
     "worklistPage.itemsCount": "({{count}} 项)",
-    "worklistPage.noBatchRecords": "暂无批量操作记录 · 使用上方「批量签到/开始/完成」后自动记录",
+    "worklistPage.noBatchRecords":
+      "暂无批量操作记录 · 使用上方「批量签到/开始/完成」后自动记录",
     "worklistPage.local": "本地",
-    "worklistPage.dataSourceReal": "数据源: 真实接口 (/exams + /worklist) · 列配置/视图模式已本地持久化",
-    "worklistPage.dataSourceFallback": "数据源: 本地 initialData 回退 (后端不可用) · 分析卡基于回退数据",
+    "worklistPage.dataSourceReal":
+      "数据源: 真实接口 (/exams + /worklist) · 列配置/视图模式已本地持久化",
+    "worklistPage.dataSourceFallback":
+      "数据源: 本地 initialData 回退 (后端不可用) · 分析卡基于回退数据",
     "worklistPage.serverStats": "服务器统计",
     "worklistPage.total": "总量:",
     "worklistPage.noStatusDistData": "暂无状态分布数据",
     "worklistPage.noData": "暂无数据",
     "worklistPage.hourCountTip": "{{hour}} 共 {{count}} 项",
     "worklistPage.noStatusDist": "暂无状态分布",
-    "worklistPage.modalityLine": "{{total}} 项 · 进行中 {{inProgress}} · 今日完成 {{todayCompleted}}",
+    "worklistPage.modalityLine":
+      "{{total}} 项 · 进行中 {{inProgress}} · 今日完成 {{todayCompleted}}",
     "worklistPage.printSelectedReports": "打印选中的报告",
     "worklistPage.refreshData": "刷新数据",
     "worklistPage.editPatientInfo": "修改患者信息",
@@ -78,7 +87,8 @@ export const translations: Translations = {
     "worklistPage.printPreview": "打印预览",
     "worklistPage.columnConfig": "列配置",
     "worklistPage.close": "关闭",
-    "worklistPage.columnConfigHint": "选择列表视图要显示的列（配置自动保存到本地，刷新后保留）",
+    "worklistPage.columnConfigHint":
+      "选择列表视图要显示的列（配置自动保存到本地，刷新后保留）",
     "doseTrack.unknownPatient": "未知患者",
     "doseTrack.apiUnavailable": "剂量接口不可用",
     "doseTrack.cumulativeDose": "累计剂量",
@@ -86,14 +96,18 @@ export const translations: Translations = {
     "doseTrack.criticalWarningDelta": "{{critical}}危 / {{warning}}警",
     "doseTrack.avgCtdiDelta": "平均CTDI: {{value}} mGy",
     "doseTrack.refTitle": "剂量参考：",
-    "doseTrack.refText": "CT头颅平扫 DLP参考值约700-800 mGy·cm；胸部CT平扫约400-600 mGy·cm；冠脉CTA约800-1200 mGy·cm； DSA冠脉造影约2000-4000 mGy·m²；乳腺钼靶约3-6 mGy。 根据《医疗照射放射防护标准》GBZ 130-2020要求，对超出指导水平的检查应进行患者剂量优化分析。 法规阈值标注依据国家标准制定，超出阈值时系统自动触发预警机制。 AAPM参考值基于美国医学物理师协会建议；欧盟参考值基于欧盟委员会指南。",
-    "doseTrack.footerVersion": "DoseTrackPage v0.3.0 · G005-001渐进式修改规范 · 最后更新: 2026-05-03",
+    "doseTrack.refText":
+      "CT头颅平扫 DLP参考值约700-800 mGy·cm；胸部CT平扫约400-600 mGy·cm；冠脉CTA约800-1200 mGy·cm； DSA冠脉造影约2000-4000 mGy·m²；乳腺钼靶约3-6 mGy。 根据《医疗照射放射防护标准》GBZ 130-2020要求，对超出指导水平的检查应进行患者剂量优化分析。 法规阈值标注依据国家标准制定，超出阈值时系统自动触发预警机制。 AAPM参考值基于美国医学物理师协会建议；欧盟参考值基于欧盟委员会指南。",
+    "doseTrack.footerVersion":
+      "DoseTrackPage v0.3.0 · G005-001渐进式修改规范 · 最后更新: 2026-05-03",
     "doseTrack.secondHalf": "下半",
     "doseTrack.firstHalf": "上半",
     "doseTrack.unknownDevice": "未知设备",
     "doseTrack.other": "其他",
-    "doseTrack.sourceReal": "数据源: /rdsr/stats + /rdsr/patients + /rdsr/alerts (真实接口)",
-    "doseTrack.sourceDemo": "数据源: 演示回退 (rdsrApi 不可用, 基于 mockData 派生)",
+    "doseTrack.sourceReal":
+      "数据源: /rdsr/stats + /rdsr/patients + /rdsr/alerts (真实接口)",
+    "doseTrack.sourceDemo":
+      "数据源: 演示回退 (rdsrApi 不可用, 基于 mockData 派生)",
     "doseTrack.updatedAt": "更新于 {{time}}",
     "doseTrack.trendTitle": "剂量趋势 (近 30 日)",
     "doseTrack.trendMeta": "总量 {{total}} 项 · 峰值 CTDIvol",
@@ -102,9 +116,11 @@ export const translations: Translations = {
     "doseTrack.maxCtdi": "最高 CTDIvol:",
     "doseTrack.maxDlp": "最高 DLP:",
     "doseTrack.warningCritical": "预警 {{warning}} · 危急 {{critical}}",
-    "doseTrack.headCtdiReference": "参考: 成人头部CT DLP 参考值 ~700-800 mGy·cm",
+    "doseTrack.headCtdiReference":
+      "参考: 成人头部CT DLP 参考值 ~700-800 mGy·cm",
     "doseTrack.patientRankTitle": "患者累计有效剂量排行 TOP 10",
-    "doseTrack.patientRankSubtitle": "按近 1 年累计 DLP 排序 · 年度限值 20 mSv (≈1000 mGy·cm 成人)",
+    "doseTrack.patientRankSubtitle":
+      "按近 1 年累计 DLP 排序 · 年度限值 20 mSv (≈1000 mGy·cm 成人)",
     "doseTrack.examCount": "{{count}} 次检查",
     "doseTrack.overCount": "超标 {{count}}",
     "doseTrack.drlOverTitle": "DRL 超标清单 (按设备)",
@@ -112,12 +128,14 @@ export const translations: Translations = {
     "doseTrack.overLabel": "超标",
     "doseTrack.casesUnit": "例",
     "doseTrack.avgExceed": "平均超",
-    "doseTrack.drlNote": "依据 GBZ 130-2020 医疗照射防护标准: 超出指导水平 (DRL) 的检查应进行剂量优化分析; 超标率 > 12% 的设备建议列入优先优化队列。",
+    "doseTrack.drlNote":
+      "依据 GBZ 130-2020 医疗照射防护标准: 超出指导水平 (DRL) 的检查应进行剂量优化分析; 超标率 > 12% 的设备建议列入优先优化队列。",
     "doseTrack.typeCompareTitle": "检查类型剂量对比",
     "doseTrack.typeCompareSubtitle": "平均 DLP 对比 · 红条为超标项",
     "doseTrack.avgDlpShort": "平均DLP",
     "doseTrack.examVolume": "检查量",
-    "doseTrack.compareRange": "对比范围: {{count}} 类检查 · 参考胸部平扫 400-600 mGy·cm",
+    "doseTrack.compareRange":
+      "对比范围: {{count}} 类检查 · 参考胸部平扫 400-600 mGy·cm",
     "doseTrack.redAboveNormal": "红色 = 高于常规水平",
     "doseTrack.monthlyTrendTitle": "DRL 超标月度趋势",
     "doseTrack.monthlyTrendSubtitle": "近 6 个月超标例数",
@@ -127,17 +145,22 @@ export const translations: Translations = {
     "doseTrack.levelCritical": "危急 (≥2×DRL)",
     "doseTrack.levelWarning": "预警 (1-2×DRL)",
     "doseTrack.levelNormal": "正常 (<DRL)",
-    "doseTrack.criticalExists": "存在 {{count}} 例危急剂量, 建议立即核查扫描协议",
+    "doseTrack.criticalExists":
+      "存在 {{count}} 例危急剂量, 建议立即核查扫描协议",
     "doseTrack.noCriticalWarning": "当前无危急剂量预警",
     "doseTrack.optimizationTitle": "剂量优化建议",
     "doseTrack.sug1Title": "头部CT平扫协议检查",
-    "doseTrack.sug1Desc": "近30日头部检查平均 DLP {{dlp}} mGy·cm, 建议核对扫描范围与 kVp 设置",
+    "doseTrack.sug1Desc":
+      "近30日头部检查平均 DLP {{dlp}} mGy·cm, 建议核对扫描范围与 kVp 设置",
     "doseTrack.sug2Title": "冠脉CTA 心率控制",
-    "doseTrack.sug2Desc": "心率 >75bpm 患者建议使用 β 受体阻滞剂后扫描, 可降低约 20% 剂量",
+    "doseTrack.sug2Desc":
+      "心率 >75bpm 患者建议使用 β 受体阻滞剂后扫描, 可降低约 20% 剂量",
     "doseTrack.sug3Title": "儿童协议专项",
-    "doseTrack.sug3Desc": "儿童检查应使用年龄/体重分组协议, 当前儿童协议引用率 {{rate}}%",
+    "doseTrack.sug3Desc":
+      "儿童检查应使用年龄/体重分组协议, 当前儿童协议引用率 {{rate}}%",
     "doseTrack.sug4Title": "DSA 透视时间控制",
-    "doseTrack.sug4Desc": "DSA 检查平均透视时间偏长, 建议启用剂量报告页与限时提示",
+    "doseTrack.sug4Desc":
+      "DSA 检查平均透视时间偏长, 建议启用剂量报告页与限时提示",
     "doseTrack.priorityHigh": "高",
     "doseTrack.priorityMedium": "中",
     "doseTrack.prioritySuffix": "{{priority}}优先级",
@@ -147,12 +170,15 @@ export const translations: Translations = {
     "doseTrack.dashedLine": "虚线 = 550 mGy·cm (DRL 参考线)",
     "doseTrack.redExceed": "红色 = 超过参考线",
     "doseTrack.reviewListTitle": "复查患者剂量叠加关注清单",
-    "doseTrack.reviewListSubtitle": "30 日内多次检查 · 累计剂量接近/超过年度限值 (成人 20 mSv ≈ 1000 mGy·cm)",
+    "doseTrack.reviewListSubtitle":
+      "30 日内多次检查 · 累计剂量接近/超过年度限值 (成人 20 mSv ≈ 1000 mGy·cm)",
     "doseTrack.cumulativeHigh": "30日累计偏高",
     "doseTrack.cumulative30d": "30日累计 DLP",
     "doseTrack.cumulative1y": "1年累计 DLP",
-    "doseTrack.reviewNote": "依据 GBZ 130-2020: 对反复接受高剂量检查的患者, 系统应生成累计剂量提醒并建议医生评估检查必要性。",
-    "doseTrack.dataSourceLine": "数据源: /rdsr/today + /rdsr/patients + /rdsr/alerts（真实接口）· 日期",
+    "doseTrack.reviewNote":
+      "依据 GBZ 130-2020: 对反复接受高剂量检查的患者, 系统应生成累计剂量提醒并建议医生评估检查必要性。",
+    "doseTrack.dataSourceLine":
+      "数据源: /rdsr/today + /rdsr/patients + /rdsr/alerts（真实接口）· 日期",
     "doseTrack.apiErrorPrefix": "剂量接口不可用: {{error}};",
     "doseTrack.demoDataNote": "演示数据（rdsrApi 未返回, 已回退 mockData）",
     "tplCategory.levelModality": "设备",
@@ -161,12 +187,17 @@ export const translations: Translations = {
     "tplCategory.nameRequired": "请填写分类名称",
     "tplCategory.updateFailed": "更新失败",
     "tplCategory.createFailed": "创建失败",
-    "tplCategory.serviceUnavailableSave": "分类服务暂不可用，已本地回退保存（标注: 待同步后端）",
-    "tplCategory.confirmDelete": "确认删除分类「{{name}}」？其下子分类将保留为静态展示。",
+    "tplCategory.serviceUnavailableSave":
+      "分类服务暂不可用，已本地回退保存（标注: 待同步后端）",
+    "tplCategory.confirmDelete":
+      "确认删除分类「{{name}}」？其下子分类将保留为静态展示。",
     "tplCategory.deleteFailed": "删除失败",
-    "tplCategory.serviceUnavailableRemove": "分类服务暂不可用，已本地移除（标注: 待同步后端）",
-    "tplCategory.movedSuccess": "分类「{{name}}」已移动到目标分类之后（sortOrder={{order}}）",
-    "tplCategory.serviceUnavailableReorder": "分类服务暂不可用，已本地重排序（标注: 待同步后端）",
+    "tplCategory.serviceUnavailableRemove":
+      "分类服务暂不可用，已本地移除（标注: 待同步后端）",
+    "tplCategory.movedSuccess":
+      "分类「{{name}}」已移动到目标分类之后（sortOrder={{order}}）",
+    "tplCategory.serviceUnavailableReorder":
+      "分类服务暂不可用，已本地重排序（标注: 待同步后端）",
     "tplCategory.title": "模板分类管理",
     "tplCategory.realtimeTag": "/templates/categories 实时",
     "tplCategory.staticTag": "本地静态（后端不可用, 回退）",
@@ -205,14 +236,16 @@ export const translations: Translations = {
     "tplCategory.descriptionLabel": "分类描述",
     "tplCategory.descriptionPlaceholder": "该分类下模板的用途说明（选填）",
     "tplCategory.sortOrderLabel": "排序序号",
-    "tplCategory.localFallbackHint": "当前为本地回退模式：保存将仅在本地生效，待后端 /templates/categories 可用后需重新同步。",
+    "tplCategory.localFallbackHint":
+      "当前为本地回退模式：保存将仅在本地生效，待后端 /templates/categories 可用后需重新同步。",
     "tplCategory.cancel": "取消",
     "tplCategory.saving": "保存中...",
     "tplCategory.saveCategory": "保存分类",
     "tplCategory.moveCategory": "移动分类",
     "tplCategory.moveTargetLabel": "移动到目标分类之后",
     "tplCategory.moveTopOption": "置顶（第一个）",
-    "tplCategory.moveHint": "说明：后端分类 DTO 暂无 parent 字段，移动将调整 sortOrder 排序并本地重排（标注: 层级移动待后端支持）。",
+    "tplCategory.moveHint":
+      "说明：后端分类 DTO 暂无 parent 字段，移动将调整 sortOrder 排序并本地重排（标注: 层级移动待后端支持）。",
     "tplCategory.moving": "移动中...",
     "tplCategory.confirmMove": "确认移动",
     "dentalAligner.planCreated": "矫治计划已创建",
@@ -270,9 +303,12 @@ export const translations: Translations = {
     "dentalAligner.notWorn": "待佩戴",
     "dicomViewer.all": "全部",
     "dicomViewer.loadStudiesFailed": "检查列表加载失败",
-    "dicomViewer.noTargetReport": "未指定目标报告: 请携带 ?reportId= 或从报告书写页影像入口进入",
-    "dicomViewer.noAnnotations": "当前暂无标注 — 使用箭头/长度/椭圆等工具在图像上标注后发送",
-    "dicomViewer.annotationsSent": "已发送 {{count}} 条影像标注到报告 (可在报告「影像标注」查看)",
+    "dicomViewer.noTargetReport":
+      "未指定目标报告: 请携带 ?reportId= 或从报告书写页影像入口进入",
+    "dicomViewer.noAnnotations":
+      "当前暂无标注 — 使用箭头/长度/椭圆等工具在图像上标注后发送",
+    "dicomViewer.annotationsSent":
+      "已发送 {{count}} 条影像标注到报告 (可在报告「影像标注」查看)",
     "dicomViewer.annotationSendFailed": "标注发送失败",
     "dicomViewer.annotationSendNetworkError": "标注发送失败:网络异常",
     "dicomViewer.mipGenerateFailed": "MIP 图像生成失败, 请重试",
@@ -281,10 +317,12 @@ export const translations: Translations = {
     "dicomViewer.noAiFindings": "当前检查无 AI 检出结果 (可能无匹配模型)",
     "dicomViewer.aiLoadFailed": "AI 检出加载失败",
     "dicomViewer.storageUnavailable": "浏览器存储不可用, 无法缓存 AI 检出",
-    "dicomViewer.aiCached": "已缓存 {{count}} 条 AI 检出, 跳转报告书写页自动插入",
+    "dicomViewer.aiCached":
+      "已缓存 {{count}} 条 AI 检出, 跳转报告书写页自动插入",
     "dicomViewer.noAiFindingsToInsert": "暂无 AI 检出可插入",
     "dicomViewer.noHangingProtocol": "当前模态无匹配挂片协议",
-    "dicomViewer.hangingApplied": "已应用挂片协议: {{name}} ({{rows}}×{{cols}})",
+    "dicomViewer.hangingApplied":
+      "已应用挂片协议: {{name}} ({{rows}}×{{cols}})",
     "dicomViewer.noHanging": "无挂片 (单视口)",
     "dicomViewer.recommended": "推荐",
     "dicomViewer.title": "DICOM 专业版查看器",
@@ -299,7 +337,8 @@ export const translations: Translations = {
     "dicomViewer.sendAnnotationsCount": "发送 {{count}} 条标注到报告",
     "dicomViewer.sendAnnotations": "发送标注到报告",
     "dicomViewer.sendToReport": "发送到报告",
-    "dicomViewer.sendMipTitle": "从当前检查/序列生成 MIP 截图并发送到报告 (自动插入图注)",
+    "dicomViewer.sendMipTitle":
+      "从当前检查/序列生成 MIP 截图并发送到报告 (自动插入图注)",
     "dicomViewer.sendMip": "发送 MIP 到报告",
     "dicomViewer.lesionTracking": "病灶追踪",
     "dicomViewer.seriesCount": "{{count}} 序列",
@@ -319,7 +358,8 @@ export const translations: Translations = {
     "aiDraft.unknownPatient": "未知患者",
     "aiDraft.chest": "胸部",
     "aiDraft.imagingExam": "影像检查",
-    "aiDraft.clinicalHistoryTemplate": "{{patient}} {{modality}}-{{bodyPart}} 检查,请结合影像所见生成报告初稿",
+    "aiDraft.clinicalHistoryTemplate":
+      "{{patient}} {{modality}}-{{bodyPart}} 检查,请结合影像所见生成报告初稿",
     "aiDraft.demoPatient": "演示患者",
     "aiDraft.enterHistory": "请输入临床病史或选择 AI 场景模板",
     "aiDraft.noExamRecord": "未找到可生成初稿的检查记录,请先选择患者/检查",
@@ -333,7 +373,8 @@ export const translations: Translations = {
     "aiDraft.smartGenerate": "智能生成",
     "aiDraft.aiGenerateFailed": "AI 生成失败",
     "aiDraft.generationComplete": "生成完成！",
-    "aiDraft.serviceUnavailable": "AI 服务暂不可用，已回退离线模板: {{message}}",
+    "aiDraft.serviceUnavailable":
+      "AI 服务暂不可用，已回退离线模板: {{message}}",
     "aiDraft.missingExamRecord": "缺少检查记录,无法创建报告草稿",
     "aiDraft.draftGenerated": "已生成报告草稿 · 报告号 {{reportId}}",
     "aiDraft.createDraftFailed": "创建报告草稿失败:网络异常,请稍后重试",
@@ -343,7 +384,8 @@ export const translations: Translations = {
     "aiDraft.title": "AI 一键自动初稿",
     "aiDraft.realDataHint": "真实数据 · 患者/检查来自 API",
     "aiDraft.demoDataHint": "演示数据 · 患者下拉为演示样本",
-    "aiDraft.subtitle": "基于临床病史 + 影像特征 + 历史相似病例 · 一键生成规范报告初稿",
+    "aiDraft.subtitle":
+      "基于临床病史 + 影像特征 + 历史相似病例 · 一键生成规范报告初稿",
     "aiDraft.llmModel": "LLM 模型",
     "aiDraft.selectPatientExam": "选择患者 / 检查",
     "aiDraft.loading": "加载中…",
@@ -353,20 +395,22 @@ export const translations: Translations = {
     "aiDraft.deviceLabel": "设备：",
     "aiDraft.examDateLabel": "检查日期：",
     "aiDraft.clinicalHistory": "临床病史",
-    "aiDraft.historyPlaceholder": "例：55 岁男性，体检发现右肺结节 1 周。无咳嗽咳痰，无胸痛，无发热...",
+    "aiDraft.historyPlaceholder":
+      "例：55 岁男性，体检发现右肺结节 1 周。无咳嗽咳痰，无胸痛，无发热...",
     "aiDraft.charCount": "{{count}} 字",
     "aiDraft.llmAndRag": "LLM 模型与 RAG",
     "aiDraft.providerMockEngine": "确定性模板引擎",
     "aiDraft.providerDeepseek": "DeepSeek (未配置)",
     "aiDraft.notConfiguredKey": " (未配置 API Key)",
     "aiDraft.ragEnhance": "RAG 增强（检索既往报告作为上下文）",
-    "aiDraft.modelNotConfigured": "所选模型未配置 API Key，已回退确定性模板生成",
+    "aiDraft.modelNotConfigured":
+      "所选模型未配置 API Key，已回退确定性模板生成",
     "aiDraft.scenarioTemplate": "AI 场景模板",
     "aiDraft.confidence": "置信",
     "aiDraft.generating": "正在生成 {{progress}}%",
     "aiDraft.generateButton": "一键生成 AI 报告初稿",
     "aiDraft.emptyTitle": "填写临床病史或选择 AI 场景模板",
-    "aiDraft.emptyHint": "点击\"一键生成\"自动生成报告初稿",
+    "aiDraft.emptyHint": '点击"一键生成"自动生成报告初稿',
     "aiDraft.scenarioLabel": "AI 场景：",
     "aiDraft.sourcesCount": "参考 {{count}} 个来源",
     "aiDraft.ragReports": "{{count}} 份既往报告",
@@ -390,7 +434,8 @@ export const translations: Translations = {
     "blockchain.syncing": "同步中...",
     "blockchain.sourceApi": "数据源: 审计事件派生",
     "blockchain.sourceDemo": "演示数据(后端无存证端点)",
-    "blockchain.subtitle": "国密联盟链（GMCA）· SHA-256 报告哈希 · Merkle 根 · 6 次确认 · 区块浏览器",
+    "blockchain.subtitle":
+      "国密联盟链（GMCA）· SHA-256 报告哈希 · Merkle 根 · 6 次确认 · 区块浏览器",
     "blockchain.caSignature": "CA 签名",
     "blockchain.statTotal": "累计存证",
     "blockchain.statConfirmed": "已确认",
@@ -421,14 +466,16 @@ export const translations: Translations = {
     "blockchain.passLine4": "• 签名人身份有效",
     "blockchain.passLine5": "• 上链时间 {{time}}",
     "blockchain.verifyFailed": "验证失败",
-    "blockchain.failLine1": "• 记录状态为「无效」或哈希与本地一致性重算结果不符",
+    "blockchain.failLine1":
+      "• 记录状态为「无效」或哈希与本地一致性重算结果不符",
     "blockchain.failLine2": "• 该存证疑似被篡改，请勿作为司法证据使用",
     "blockchain.blockStructure": "区块结构",
     "blockchain.blockHeader": "区块头",
     "blockchain.prevHash": "前一哈希",
     "blockchain.timestamp": "时间戳",
     "blockchain.difficultyNonce": "难度/Nonce",
-    "blockchain.blockSummary": "当前区块包含 {{count}} 个报告存证交易 · 6 节点共识完成",
+    "blockchain.blockSummary":
+      "当前区块包含 {{count}} 个报告存证交易 · 6 节点共识完成",
     "blockchain.copy": "复制",
     "worklistToolbar.ptOutpatient": "门诊",
     "worklistToolbar.ptInpatient": "住院",
@@ -628,7 +675,8 @@ export const translations: Translations = {
     "reviewCenter.authorLabel": "报告医生：",
     "reviewCenter.qualityScoreLabel": "质量评分：",
     "reviewCenter.findingsLabel": "检查所见：",
-    "reviewCenter.findingsText": "影像表现符合患者临床病史，请结合化验综合判断。",
+    "reviewCenter.findingsText":
+      "影像表现符合患者临床病史，请结合化验综合判断。",
     "reviewCenter.diagnosisLabel": "诊断意见：",
     "reviewCenter.criticalFindingText": "危急值需紧急处理",
     "reviewCenter.diagnosisText": "考虑炎症可能，建议随访。",
@@ -659,7 +707,8 @@ export const translations: Translations = {
     "mfaSetup.verify": "验证",
     "mfaSetup.done": "完成",
     "mfaSetup.chooseMethod": "选择一个 MFA 方式来增强账户安全性",
-    "mfaSetup.totpAuthenticator": "TOTP 验证器 (Google / Microsoft Authenticator)",
+    "mfaSetup.totpAuthenticator":
+      "TOTP 验证器 (Google / Microsoft Authenticator)",
     "mfaSetup.smsCode": "短信验证码",
     "mfaSetup.emailCode": "邮件验证码",
     "mfaSetup.nextStep": "下一步",
@@ -683,7 +732,8 @@ export const translations: Translations = {
     "mfaSetup.copyBackupCodes": "复制备用码",
     "mfaSetup.disableMfaTitle": "关闭 MFA",
     "mfaSetup.confirmDisable": "确认关闭",
-    "mfaSetup.disableHint": "关闭 MFA 需要二次认证，请输入当前 6 位 TOTP 验证码。",
+    "mfaSetup.disableHint":
+      "关闭 MFA 需要二次认证，请输入当前 6 位 TOTP 验证码。",
     "kiosk.notFound": "未找到匹配的患者，请确认身份证后4位",
     "kiosk.lookupUnavailable": "查询服务暂不可用，请稍后重试",
     "kiosk.checkInFailed": "报到失败，请稍后重试",
@@ -697,7 +747,8 @@ export const translations: Translations = {
     "kiosk.activeRooms": "开放诊室",
     "kiosk.announcementLabel": "签到机设置 · 公告",
     "kiosk.processLabel": "今日就诊流程",
-    "kiosk.processSteps": "1 输入身份证后4位  →  2 核对患者信息  →  3 获取排队号码  →  4 前往等候区",
+    "kiosk.processSteps":
+      "1 输入身份证后4位  →  2 核对患者信息  →  3 获取排队号码  →  4 前往等候区",
     "kiosk.idPlaceholder": "后4位",
     "kiosk.querying": "查询中...",
     "kiosk.confirmCheckIn": "确认报到",
@@ -766,9 +817,11 @@ export const translations: Translations = {
     "riskMgmt.mitigationPlan": "缓解措施",
     "riskMgmt.owner": "负责人",
     "fundusViewer.exportSummaryTitle": "眼底彩照查看器 - 导出摘要",
-    "fundusViewer.exportPatient": "患者: {{name}}  眼别: {{eye}}  设备: {{device}}",
+    "fundusViewer.exportPatient":
+      "患者: {{name}}  眼别: {{eye}}  设备: {{device}}",
     "fundusViewer.exportExam": "检查类型: {{type}}  检查日期: {{date}}",
-    "fundusViewer.exportCounts": "测量项: {{measure}}  病灶标注: {{lesion}}  关键影像: {{key}}",
+    "fundusViewer.exportCounts":
+      "测量项: {{measure}}  病灶标注: {{lesion}}  关键影像: {{key}}",
     "fundusViewer.exportAi": "AI 诊断: {{count}} 条",
     "fundusViewer.loadingData": "加载眼底影像数据...",
     "fundusViewer.noData": "暂无眼底影像数据",
@@ -777,7 +830,8 @@ export const translations: Translations = {
     "fundusViewer.export": "导出",
     "fundusViewer.imageArea": "眼底彩照影像区域 ({{name}})",
     "fundusViewer.sampleLesionTag": "示例病灶标注",
-    "fundusViewer.sampleLesionHint": "演示数据 · 接口无病灶分段数据, 以下为本地示例",
+    "fundusViewer.sampleLesionHint":
+      "演示数据 · 接口无病灶分段数据, 以下为本地示例",
     "fundusViewer.lesionOpticDisc": "视盘 C/D 0.55",
     "fundusViewer.lesionMicroaneurysm": "微动脉瘤 ×8",
     "fundusViewer.lesionHemorrhage": "出血 ×2",
@@ -802,7 +856,8 @@ export const translations: Translations = {
     "octViewer.fovea": "中心凹",
     "octViewer.loadFailed": "检查列表加载失败",
     "octViewer.loadFailedDetail": "OCT 检查列表加载失败",
-    "octViewer.measureHint": "请在影像上依次点击两点，计算两点距离（示例比例 560px 6000μm）",
+    "octViewer.measureHint":
+      "请在影像上依次点击两点，计算两点距离（示例比例 560px 6000μm）",
     "octViewer.measureReset": "已记录两点，点击「测量」可重新开始",
     "octViewer.measureResultMsg": "两点距离: {{um}}μm ({{px}}px，示例比例换算)",
     "octViewer.measureSecondPoint": "已选第 1 点，请在影像上点击第 2 点",
@@ -814,8 +869,10 @@ export const translations: Translations = {
     "octViewer.frameCount": "{{count}} 帧影像",
     "octViewer.bScan": "断层扫描 B-Scan",
     "octViewer.measure": "测量",
-    "octViewer.measureResultAlert": "测量结果: {{um}}μm（{{px}}px）· 示例比例 560px 6000μm（页面无真实比例尺数据，由合成影像派生）",
-    "octViewer.measureToolEnabled": "测量工具已启用: 在影像上依次点击两点测量距离（示例比例 560px 6000μm，点击「测量」重新开始）",
+    "octViewer.measureResultAlert":
+      "测量结果: {{um}}μm（{{px}}px）· 示例比例 560px 6000μm（页面无真实比例尺数据，由合成影像派生）",
+    "octViewer.measureToolEnabled":
+      "测量工具已启用: 在影像上依次点击两点测量距离（示例比例 560px 6000μm，点击「测量」重新开始）",
     "octViewer.scanMode": "扫描模式",
     "octViewer.centralThickness": "中心凹厚度",
     "octViewer.avgRnf": "RNFL 平均厚度",
@@ -918,7 +975,8 @@ export const translations: Translations = {
     "receiverPortal.refresh": "刷新",
     "receiverPortal.pendingNotifications": "待确认通知",
     "receiverPortal.todayNotifications": "今日通知",
-    "receiverPortal.sourceHint": "接收端门户数据来源: GET /critical-ext/receiver (后端 criticalValueNotification status=PENDING),确认接收与临床回执直接写入危急值记录。",
+    "receiverPortal.sourceHint":
+      "接收端门户数据来源: GET /critical-ext/receiver (后端 criticalValueNotification status=PENDING),确认接收与临床回执直接写入危急值记录。",
     "receiverPortal.listTitle": "待接收危急值列表",
     "receiverPortal.noPending": "暂无待接收的危急值通知",
     "receiverPortal.submitReceipt": "提交回执",
@@ -971,6 +1029,9 @@ export const translations: Translations = {
     "mobilePush.allMarkedRead": "已全部标记为已读",
     "mobilePush.deleted": "已删除",
     "mobilePush.allCleared": "已清空所有通知",
+    "mobilePush.markReadFailed": "标记已读失败",
+    "mobilePush.deleteFailed": "删除通知失败",
+    "mobilePush.partialCleared": "已清空, 但有 {n} 条删除失败",
     "mobilePush.testPushSent": "测试推送已发送",
     "mobilePush.title": "移动端推送管理",
     "mobilePush.subtitle": "推送通知配置 · 历史记录 · 测试",
@@ -993,7 +1054,8 @@ export const translations: Translations = {
     "mobilePush.formBody": "内容",
     "mobilePush.sendTestPush": "发送测试推送",
     "mobilePush.subscriptionTypes": "推送订阅类型",
-    "mobilePush.subscriptionHint": "订阅设置与通知中心同步（GET/PUT /notifications/subscriptions），危急值通知始终推荐开启。",
+    "mobilePush.subscriptionHint":
+      "订阅设置与通知中心同步（GET/PUT /notifications/subscriptions），危急值通知始终推荐开启。",
     "mobilePush.category": "分类:",
     "mobilePush.filterAll": "全部",
     "mobilePush.totalPrefix": "共",
@@ -1043,7 +1105,8 @@ export const translations: Translations = {
     "userCenter.confirmNewPasswordPlaceholder": "再次输入新密码",
     "userCenter.confirmChange": "确认修改",
     "userCenter.securityInfo": "安全信息",
-    "userCenter.sessionInvalidated": "修改密码后所有已登录会话将失效，请重新登录。",
+    "userCenter.sessionInvalidated":
+      "修改密码后所有已登录会话将失效，请重新登录。",
     "dimseUpload.destS3": "S3 兼容对象存储",
     "dimseUpload.destVna": "VNA 归档",
     "dimseUpload.destPacs": "本地 PACS",
@@ -1068,7 +1131,8 @@ export const translations: Translations = {
     "dimseUpload.uploadFailed": "上传失败",
     "dimseUpload.uploadFailedRetry": "上传失败, 请检查网络后重试",
     "dimseUpload.title": "DIMSE 归档上传",
-    "dimseUpload.alert": "上传 DICOM 文件至归档存储: 支持标准 .dcm 格式, 上传过程分「读取 → 解析 → 上传」三个阶段实时显示进度",
+    "dimseUpload.alert":
+      "上传 DICOM 文件至归档存储: 支持标准 .dcm 格式, 上传过程分「读取 → 解析 → 上传」三个阶段实时显示进度",
     "dimseUpload.statTotal": "总上传",
     "dimseUpload.statSuccess": "成功",
     "dimseUpload.statFail": "失败",
@@ -1099,7 +1163,8 @@ export const translations: Translations = {
     "snomedEncoder.matchPartial": "部分",
     "snomedEncoder.matchSuggested": "建议",
     "snomedEncoder.title": "SNOMED CT 智能编码器",
-    "snomedEncoder.subtitle": "将放射报告文本自动映射到 SNOMED CT 标准术语编码，支持精确/部分匹配和置信度评分",
+    "snomedEncoder.subtitle":
+      "将放射报告文本自动映射到 SNOMED CT 标准术语编码，支持精确/部分匹配和置信度评分",
     "snomedEncoder.statMatched": "匹配编码",
     "snomedEncoder.statExact": "精确匹配",
     "snomedEncoder.statPartial": "部分匹配",
@@ -1108,11 +1173,13 @@ export const translations: Translations = {
     "snomedEncoder.encoding": "编码中...",
     "snomedEncoder.encode": "SNOMED 编码",
     "snomedEncoder.confirmAllCount": "全部确认 ({{count}})",
-    "snomedEncoder.textPlaceholder": "输入放射科报告文本，例如：\n右肺上叶可见一大小约8mm磨玻璃结节，边界清晰，密度均匀。左肺未见明显异常。",
+    "snomedEncoder.textPlaceholder":
+      "输入放射科报告文本，例如：\n右肺上叶可见一大小约8mm磨玻璃结节，边界清晰，密度均匀。左肺未见明显异常。",
     "snomedEncoder.charCount": "{{count}} 字符 | 支持中英文放射报告",
     "snomedEncoder.confirmedCountLabel": "已确认 {{confirmed}}/{{total}}",
     "snomedEncoder.searchTitle": "SNOMED CT 术语搜索",
-    "snomedEncoder.searchPlaceholder": "搜索 SNOMED CT 术语，如: nodule, fracture, 肺炎",
+    "snomedEncoder.searchPlaceholder":
+      "搜索 SNOMED CT 术语，如: nodule, fracture, 肺炎",
     "snomedEncoder.search": "搜索",
     "snomedEncoder.added": "已添加: {{name}}",
     "snomedEncoder.noTermMatch": "未找到匹配的 SNOMED CT 术语",
@@ -1542,7 +1609,8 @@ export const translations: Translations = {
     "sysAdmin.role.admin": "管理员",
     "sysAdmin.editRolePerms": "编辑角色权限",
     "sysAdmin.okSave": "保存",
-    "sysAdmin.permsPlaceholder": "权限点用顿号、逗号分隔，如 报告签发、危急值处理、质控审核",
+    "sysAdmin.permsPlaceholder":
+      "权限点用顿号、逗号分隔，如 报告签发、危急值处理、质控审核",
     "auditComp.loadFail": "加载失败",
     "auditComp.colId": "编号",
     "auditComp.colUser": "用户",
@@ -1696,9 +1764,11 @@ export const translations: Translations = {
     "aiRads.ruleSourceLocal": "规则来源: 本地",
     "aiRads.insertSuccess": "RADS 评分段落已发送至报告编辑器",
     "aiRads.historyFail": "历史记录加载失败",
-    "aiRads.biradsHint": "BI-RADS 乳腺分级: 选择特征后提交, 系统按特征自动分级 (支持直接指定 biradsCategory)",
+    "aiRads.biradsHint":
+      "BI-RADS 乳腺分级: 选择特征后提交, 系统按特征自动分级 (支持直接指定 biradsCategory)",
     "aiRads.title": "AI 阅片助手 V3 — 多 RADS 自动评分",
-    "aiRads.insertTooltip": "评分结果生成报告段落, 经 insertHtml 通道插入书写页编辑器",
+    "aiRads.insertTooltip":
+      "评分结果生成报告段落, 经 insertHtml 通道插入书写页编辑器",
     "aiRads.insertTitleHtml": "AI 影像辅助分级",
     "aiRads.col.level": "级别",
     "aiRads.col.description": "描述",
@@ -1802,7 +1872,8 @@ export const translations: Translations = {
     "hangProto.confirmDelete": "确认删除该协议?",
     "hangProto.title": "自动布局协议管理",
     "hangProto.applyReading": "应用到阅片",
-    "hangProto.applyDesc": "阅片工作流已接入本页协议规则: DICOM 专业版查看器 (/dicom-viewer) 提供「挂片协议」下拉 (按当前检查模态/部位自动匹配高亮) 与「自动挂片」按钮, 应用后按协议布局 (1×1/1×2/2×1/2×2) 分屏并分配序列。",
+    "hangProto.applyDesc":
+      "阅片工作流已接入本页协议规则: DICOM 专业版查看器 (/dicom-viewer) 提供「挂片协议」下拉 (按当前检查模态/部位自动匹配高亮) 与「自动挂片」按钮, 应用后按协议布局 (1×1/1×2/2×1/2×2) 分屏并分配序列。",
     "hangProto.autoMatchExample": "自动匹配示例 (CT + 胸部):",
     "hangProto.openViewer": "打开专业版查看器",
     "hangProto.matchTest": "匹配测试",
@@ -1816,7 +1887,8 @@ export const translations: Translations = {
     "hangProto.form.priority": "优先级",
     "hangProto.form.layoutTemplate": "布局模板",
     "hangProto.form.seriesOrder": "序列顺序 (用 / 分隔, 每格对应一个序列)",
-    "hangProto.form.seriesOrderPh": "如: 轴位-肺窗 / 轴位-纵隔窗 / 冠状位 / 矢状位",
+    "hangProto.form.seriesOrderPh":
+      "如: 轴位-肺窗 / 轴位-纵隔窗 / 冠状位 / 矢状位",
     "hangProto.form.description": "描述",
     "hangProto.form.descriptionPh": "协议说明",
     "hangProto.form.enabled": "启用",
@@ -1963,7 +2035,8 @@ export const translations: Translations = {
     "fhirReport.attachmentsCount": "{{count}} 个附件",
     "fhirReport.empty": "暂无数据",
     "hl7Siu.patientRequired": "请输入患者ID",
-    "hl7Siu.completeRequired": "请完善必填信息（患者ID/姓名/医生/科室/排班时间）",
+    "hl7Siu.completeRequired":
+      "请完善必填信息（患者ID/姓名/医生/科室/排班时间）",
     "hl7Siu.generated": "SIU^S12 消息已生成",
     "hl7Siu.generateFirst": "请先生成消息",
     "hl7Siu.sendFail": "发送失败",
@@ -2048,7 +2121,8 @@ export const translations: Translations = {
     "mllpMon.col.retry": "重试",
     // [W-D3] HL7 消息控制台 (/hl7/console)
     "hl7Console.title": "HL7 消息控制台",
-    "hl7Console.subtitle": "ORU/ORM/DFT 消息发送 · MLLP 服务 · 白名单 · 消息日志 (真实后端 /hl7/*)",
+    "hl7Console.subtitle":
+      "ORU/ORM/DFT 消息发送 · MLLP 服务 · 白名单 · 消息日志 (真实后端 /hl7/*)",
     "hl7Console.refresh": "刷新",
     "hl7Console.loadFailed": "HL7 控制台数据加载失败",
     "hl7Console.retry": "重试",
@@ -2077,13 +2151,15 @@ export const translations: Translations = {
     "hl7Console.mllp.messages": "消息数",
     "hl7Console.mllp.uptime": "运行时长",
     "hl7Console.composer.title": "消息发送",
-    "hl7Console.composer.hint": "编辑 HL7 v2 消息 (MSH/PID/ORC/OBR/OBX/FT1 段), 发送时解析为结构化 payload 调用 /hl7/oru|orm|dft",
+    "hl7Console.composer.hint":
+      "编辑 HL7 v2 消息 (MSH/PID/ORC/OBR/OBX/FT1 段), 发送时解析为结构化 payload 调用 /hl7/oru|orm|dft",
     "hl7Console.composer.ph": "在此输入 HL7 消息...",
     "hl7Console.composer.resetTemplate": "重置模板",
     "hl7Console.composer.charCount": "{{count}} 字符",
     "hl7Console.composer.send": "发送",
     "hl7Console.composer.sending": "发送中...",
-    "hl7Console.composer.resultTitle": "{{type}} 消息发送成功 · {{controlId}} · {{bytes}} 字节",
+    "hl7Console.composer.resultTitle":
+      "{{type}} 消息发送成功 · {{controlId}} · {{bytes}} 字节",
     "hl7Console.sent": "{{type}} 消息发送成功: {{controlId}}",
     "hl7Console.sendFailed": "消息发送失败",
     "hl7Console.stats.title": "统计总览 (/hl7/overview)",
@@ -2146,9 +2222,11 @@ export const translations: Translations = {
     "aiAssist.form.bodyPart": "检查部位",
     "aiAssist.form.clinicalInfo": "临床信息",
     "aiAssist.validate.clinicalInfo": "请输入临床描述",
-    "aiAssist.ph.clinicalInfo": "例: 男性 65 岁,咳嗽 2 周,低热,否认吸烟史,CT 示右肺上叶磨玻璃结节。",
+    "aiAssist.ph.clinicalInfo":
+      "例: 男性 65 岁,咳嗽 2 周,低热,否认吸烟史,CT 示右肺上叶磨玻璃结节。",
     "aiAssist.form.findings": "影像所见关键词",
-    "aiAssist.ph.findings": "例: 右肺上叶磨玻璃结节,边界清晰,约 8mm;余肺野清晰。",
+    "aiAssist.ph.findings":
+      "例: 右肺上叶磨玻璃结节,边界清晰,约 8mm;余肺野清晰。",
     "aiAssist.form.style": "书写风格",
     "aiAssist.style.concise": "简洁",
     "aiAssist.style.standard": "标准",
@@ -2289,7 +2367,8 @@ export const translations: Translations = {
     "reportRev.revisionReason": "修订原因：",
     "reportRev.confirmAddendum": "确认补发",
     "reportRev.addendumNoteLabel": "修订说明 (必填)",
-    "reportRev.addendumPlaceholder": "例如: 补充危急值说明 / 修正诊断意见 / 增加影像补充",
+    "reportRev.addendumPlaceholder":
+      "例如: 补充危急值说明 / 修正诊断意见 / 增加影像补充",
     "reportRev.empty": "（空）",
     "docMobile.status.pending": "待报告",
     "docMobile.status.reading": "报告中",
@@ -2696,7 +2775,8 @@ export const translations: Translations = {
     "imagingCompare.stdDev": "标准差",
     "imagingCompare.realData": "后端派生",
     "imagingCompare.diffHint": "差异指标由确定性像素派生, 与视口渲染一致",
-    "imagingCompare.hint": "左键拖拽调节窗宽窗位 · Shift 拖拽平移 · 滚轮翻页 · Ctrl+滚轮缩放 · 点击视口激活",
+    "imagingCompare.hint":
+      "左键拖拽调节窗宽窗位 · Shift 拖拽平移 · 滚轮翻页 · Ctrl+滚轮缩放 · 点击视口激活",
     "nav.dicomVolume": "3D 体绘制",
     "nav.wsiViewer": "病理切片 WSI", // [v3.0.6.11-106 Wave 2B] 全切片图像浏览与标注
     "nav.filmPrint": "胶片打印",
@@ -4554,7 +4634,8 @@ export const translations: Translations = {
     "w17.sr.editMode": "编辑",
     "w17.sr.save": "保存",
     "w17.srPage.title": "结构化报告编辑器 V3",
-    "w17.srPage.subtitle": "所见即所得 · 四区结构化(所见/印象/建议/结论) · 段落锁定与解锁申请 · 宏命令与子模板",
+    "w17.srPage.subtitle":
+      "所见即所得 · 四区结构化(所见/印象/建议/结论) · 段落锁定与解锁申请 · 宏命令与子模板",
     "w17.srPage.reportIdLabel": "报告 ID",
     "w17.srPage.reportIdPlaceholder": "输入报告 ID (留空则仅本地编辑)",
     "w17.srPage.needReportId": "请先输入报告 ID",
@@ -4565,7 +4646,8 @@ export const translations: Translations = {
     "w17.srPage.unlockRequested": "已提交解锁申请",
     "w17.srPage.unlockLogTitle": "解锁申请记录",
     "w17.asr.title": "语音听写工作台 V2",
-    "w17.asr.subtitle": "开始/暂停/停止 · 实时文本流 · 标点自动插入 · 放射术语热词 · 语音命令词",
+    "w17.asr.subtitle":
+      "开始/暂停/停止 · 实时文本流 · 标点自动插入 · 放射术语热词 · 语音命令词",
     "w17.asr.dictating": "听写中... (实时文本流)",
     "w17.asr.paused": "已暂停",
     "w17.asr.idle": "就绪,点击开始听写",
@@ -4618,9 +4700,11 @@ export const translations: Translations = {
     "w17.asr.colType": "类型",
     "w17.asr.colActions": "操作",
     "w17.coding.title": "SNOMED/ICD 自动编码",
-    "w17.coding.subtitle": "报告文本 → 诊断词提取 → SNOMED CT + ICD-10 建议 → 人工确认 → 一键写入报告",
+    "w17.coding.subtitle":
+      "报告文本 → 诊断词提取 → SNOMED CT + ICD-10 建议 → 人工确认 → 一键写入报告",
     "w17.coding.input": "报告文本",
-    "w17.coding.inputPlaceholder": "粘贴报告文本,点击自动提取 (支持【所见】【印象】【结论】分段)",
+    "w17.coding.inputPlaceholder":
+      "粘贴报告文本,点击自动提取 (支持【所见】【印象】【结论】分段)",
     "w17.coding.encode": "自动提取与编码",
     "w17.coding.encoding": "提取中...",
     "w17.coding.sample": "载入示例",
@@ -4652,7 +4736,8 @@ export const translations: Translations = {
     "w17.coding.statsAvgConfidence": "平均置信度",
     "w17.coding.statsSnomed": "SNOMED 建议",
     "w17.coding.statsIcd10": "ICD-10 建议",
-    "w17.coding.note": "编码由确定性字典规则生成,仅供辅助参考,须经报告医师人工确认后生效。",
+    "w17.coding.note":
+      "编码由确定性字典规则生成,仅供辅助参考,须经报告医师人工确认后生效。",
     "snomed.title": "SNOMED CT 编码",
     "snomed.subtitle": "报告文本 → SNOMED CT 编码 · 编码搜索",
     "snomed.reportInput": "报告文本输入",
@@ -4931,15 +5016,18 @@ export const translations: Translations = {
     "techRotation.techForecastTitle": "技师级别预测 · {{label}}",
     "techRotation.allTechs": "全部技师",
     "techRotation.noForecast": "暂无预测",
-    "techRotation.forecastTitle": "工作量预测 (近 7 天实际 vs 未来 {{days}} 天预测 + 置信带)",
-    "techRotation.modelSummary": "模型: {{model}} · 7 日合计 {{total}} ({{lower}} ~ {{upper}})",
+    "techRotation.forecastTitle":
+      "工作量预测 (近 7 天实际 vs 未来 {{days}} 天预测 + 置信带)",
+    "techRotation.modelSummary":
+      "模型: {{model}} · 7 日合计 {{total}} ({{lower}} ~ {{upper}})",
     "techRotation.upperBound": "置信上界",
     "techRotation.lowerBound": "置信下界",
     "techRotation.actual": "实际",
     "techRotation.forecast": "预测",
     "techRotation.today": "今天",
     "techRotation.noForecastData": "暂无预测数据",
-    "techRotation.periodTitle": "每时段预测 · {{date}} ({{count}} 时段 × 全检查室合计)",
+    "techRotation.periodTitle":
+      "每时段预测 · {{date}} ({{count}} 时段 × 全检查室合计)",
     "techRotation.periodLoad": "预测工作量",
     "techRotation.execTitle": "轮转执行记录 ({{count}})",
     "techRotation.thDate": "日期",
@@ -4958,9 +5046,11 @@ export const translations: Translations = {
     "techRotation.cancel": "取消",
     "techRotation.execTech": "技师:",
     "techRotation.execDate": "日期:",
-    "techRotation.execConfirmHint": "确认该轮转班次已执行, 将写入轮转执行记录与历史。",
+    "techRotation.execConfirmHint":
+      "确认该轮转班次已执行, 将写入轮转执行记录与历史。",
     "techRotation.loadHint": "负载 +{{load}} (排入前 {{before}})",
-    "techRotation.generated": "轮转计划已生成: {{count}} 条排班, 均衡 {{result}}",
+    "techRotation.generated":
+      "轮转计划已生成: {{count}} 条排班, 均衡 {{result}}",
     "techRotation.balancedOk": "达标",
     "techRotation.balancedNo": "未达标",
     "techRotation.generateFailed": "生成失败",
@@ -5008,7 +5098,8 @@ export const translations: Translations = {
     "techOps.hourOccupy": "{{name}} {{hour}} 占用 {{rate}}%",
     "techOps.clickForDetail": "· 点击色块查看明细",
     "techOps.emgInsertTitle": "紧急检查插入",
-    "techOps.emgInsertDesc": "选择模态与时长 → 获取时段建议 (当前进行中 / 最近空闲 / 备用设备) → 冲突检测 → 调整方案",
+    "techOps.emgInsertDesc":
+      "选择模态与时长 → 获取时段建议 (当前进行中 / 最近空闲 / 备用设备) → 冲突检测 → 调整方案",
     "techOps.allDevices": "全部设备",
     "techOps.duration": "时长",
     "techOps.min": "分",
@@ -5046,7 +5137,8 @@ export const translations: Translations = {
     "techOps.none": "无",
     "techOps.adjustCount": "{{count}} 项方案",
     "techOps.optTitle": "跨机房排程优化",
-    "techOps.optDesc": "确定性贪心: 优先级(STAT→URGENT→ROUTINE) + 等待最小 + 设备匹配 + 技师可用",
+    "techOps.optDesc":
+      "确定性贪心: 优先级(STAT→URGENT→ROUTINE) + 等待最小 + 设备匹配 + 技师可用",
     "techOps.loadDemoQueue": "加载演示队列",
     "techOps.reloadDemoQueue": "重新加载演示队列",
     "techOps.runOptimize": "运行优化",
@@ -5067,7 +5159,8 @@ export const translations: Translations = {
     "techOps.notImproved": "未改善",
     "techOps.savedMin": "节省 {{count}} 分钟",
     "techOps.sameAsBefore": "与优化前持平",
-    "techOps.unassignedWarn": "{{count}} 项检查无匹配设备 (模态不可用), 未分配: {{list}}",
+    "techOps.unassignedWarn":
+      "{{count}} 项检查无匹配设备 (模态不可用), 未分配: {{list}}",
     "techOps.scheduleTitle": "优化后排程表",
     "techOps.assignCount": "({{count}} 项分配)",
     "techOps.thWait": "等待",
@@ -5075,8 +5168,10 @@ export const translations: Translations = {
     "techOps.confirmInsertTitle": "确认紧急插入",
     "techOps.confirmInsertOk": "确认插入",
     "techOps.cancel": "取消",
-    "techOps.confirmInfo": "设备 {{device}} · 开始 {{time}} · 持续 {{minutes}} 分钟",
-    "techOps.conflictWarn": "该时段与 {{count}} 项检查冲突, 插入后将自动应用调整方案 (顺延/启用备用设备)。",
+    "techOps.confirmInfo":
+      "设备 {{device}} · 开始 {{time}} · 持续 {{minutes}} 分钟",
+    "techOps.conflictWarn":
+      "该时段与 {{count}} 项检查冲突, 插入后将自动应用调整方案 (顺延/启用备用设备)。",
     "techOps.noConflictOk": "该时段无冲突, 可直接插入。",
     "techOps.insertResultTitle": "插入结果",
     "techOps.close": "关闭",
@@ -5090,7 +5185,8 @@ export const translations: Translations = {
     "techOps.thPlan": "方案",
     "techOps.useSpare": "启用备用设备",
     "techOps.keepUnchanged": "保持不变",
-    "techOps.footnote": "G005 v3.0.6.11-106 Wave 4B · tech-ops 孤儿模块 (DB 不可用自动回退确定性种子) · 后端: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
+    "techOps.footnote":
+      "G005 v3.0.6.11-106 Wave 4B · tech-ops 孤儿模块 (DB 不可用自动回退确定性种子) · 后端: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
     "techOps.selectModality": "请选择模态",
     "techOps.insertFailed": "插入失败: {{msg}}",
     "techOps.unknownError": "未知错误",
@@ -5120,7 +5216,8 @@ export const translations: Translations = {
     "techOverview.daysUnit": "{{days}}天",
     "techOverview.heatmapLegend": "预约量:",
     "techOverview.peakLabel": "峰值",
-    "techOverview.heatmapTotal": "· 合计 {{count}} 例 (每格 = 该时段该星期预约数)",
+    "techOverview.heatmapTotal":
+      "· 合计 {{count}} 例 (每格 = 该时段该星期预约数)",
     "techOverview.modalityDist": "检查类型分布",
     "techOverview.modalityCount": "({{count}} 类)",
     "techOverview.totalLabel": "预约总数",
@@ -5164,7 +5261,8 @@ export const translations: Translations = {
     "techOverview.idleWait": "空闲待接单",
     "techOverview.noEvents": "暂无事件",
     "techOverview.noData": "暂无数据",
-    "techOverview.periodCell": "{{weekday}} {{period}} 时段 · 预约 {{count}} 例",
+    "techOverview.periodCell":
+      "{{weekday}} {{period}} 时段 · 预约 {{count}} 例",
     "techOverview.roomState.IN_USE": "检查中",
     "techOverview.roomState.IDLE": "空闲",
     "techOverview.roomState.MAINTENANCE": "维护中",
@@ -5178,7 +5276,8 @@ export const translations: Translations = {
     "techOverview.event.MAINTENANCE": "维护",
     // [v3.0.6.11-106 Wave 6A] 报告质控规则引擎 (ReportRulesPage)
     "reportRules.title": "报告质控规则引擎",
-    "reportRules.subtitle": "F11 · 18+ 内置放射专业规则 · 自定义规则 · 规则集按检查类型绑定",
+    "reportRules.subtitle":
+      "F11 · 18+ 内置放射专业规则 · 自定义规则 · 规则集按检查类型绑定",
     "reportRules.newRule": "新建自定义规则",
     "reportRules.kpiTotal": "规则总数",
     "reportRules.kpiBuiltIn": "内置规则",
@@ -5245,8 +5344,10 @@ export const translations: Translations = {
     "reportRules.fixTitle": "修正建议稿 (逐条违规驱动)",
     "reportRules.applyToReport": "应用到报告文本",
     "reportRules.fixed": "已修正",
-    "reportRules.fixRulesDesc": "修正规则: 空结论/空所见/空诊断自动补模板 · 随访建议缺失自动补充 · 尺寸超范围回填 5mm · 数值无单位自动补 mm · 侧别缺失前置\"右\"",
-    "reportRules.evalSummary": "评估得分 {{score}} · 错误 {{error}} · 警告 {{warning}} · 提示 {{info}}",
+    "reportRules.fixRulesDesc":
+      '修正规则: 空结论/空所见/空诊断自动补模板 · 随访建议缺失自动补充 · 尺寸超范围回填 5mm · 数值无单位自动补 mm · 侧别缺失前置"右"',
+    "reportRules.evalSummary":
+      "评估得分 {{score}} · 错误 {{error}} · 警告 {{warning}} · 提示 {{info}}",
     "reportRules.evalThisRun": "本次评估",
     "reportRules.errorUnit": "错误",
     "reportRules.warningUnit": "警告",
@@ -5283,7 +5384,8 @@ export const translations: Translations = {
     "reportRules.field.recommendations": "随访建议",
     // [v3.0.6.11-106 Wave 6A] 报告水印签章 V2 (ReportWatermarkPage)
     "reportWatermark.title": "报告水印签章 V2",
-    "reportWatermark.subtitle": "F8 · 文字水印参数化 · 医院 LOGO 图像水印 · 防篡改校验码 · 电子签名审批流",
+    "reportWatermark.subtitle":
+      "F8 · 文字水印参数化 · 医院 LOGO 图像水印 · 防篡改校验码 · 电子签名审批流",
     "reportWatermark.applySign": "发起签名申请",
     "reportWatermark.tabWatermark": "报告水印",
     "reportWatermark.tabSign": "电子签名 ({{count}} 待审批)",
@@ -5354,7 +5456,8 @@ export const translations: Translations = {
     "reportWatermark.signRecordsLoadFailed": "签署记录加载失败",
     "reportWatermark.verifyMsg": "校验通过: 报告未被篡改",
     "reportWatermark.verifyMsgFail": "校验失败: 内容或参数被篡改",
-    "reportWatermark.applySubmitted": "签名申请 {{id}} 已提交, 报告哈希: {{hash}}",
+    "reportWatermark.applySubmitted":
+      "签名申请 {{id}} 已提交, 报告哈希: {{hash}}",
     "reportWatermark.applyFailed": "申请失败",
     "reportWatermark.approvedSigned": "已审批通过并完成电子签名 ({{name}})",
     "reportWatermark.approveFailed": "审批失败",
@@ -5372,7 +5475,8 @@ export const translations: Translations = {
     "reportV2.tabPeerReview": "报告互评 (F9)",
     // [v3.0.6.11-106 Wave 8B] 质控闭环与趋势分析 (QcAnalyticsPage)
     "qcAnalytics.title": "质控闭环与趋势分析",
-    "qcAnalytics.subtitle": "缺陷 → 整改 → 复查 → 关闭 PDCA 闭环 · 缺陷率周/月趋势 · 帕累托分析 · 科室排名",
+    "qcAnalytics.subtitle":
+      "缺陷 → 整改 → 复查 → 关闭 PDCA 闭环 · 缺陷率周/月趋势 · 帕累托分析 · 科室排名",
     "qcAnalytics.refresh": "刷新",
     "qcAnalytics.kpiTotalReports": "报告总数",
     "qcAnalytics.kpiQcRate": "质控率",
@@ -5401,7 +5505,8 @@ export const translations: Translations = {
     "qcAnalytics.deptRankTitle": "科室缺陷率排名",
     "qcAnalytics.deptRankSub": "缺陷率越低排名越靠前",
     "qcAnalytics.loopTitle": "质控闭环",
-    "qcAnalytics.loopSub": "缺陷 {{open}} 项在途 · 平均闭环 {{days}} 天 · 平均复查 {{rounds}} 轮",
+    "qcAnalytics.loopSub":
+      "缺陷 {{open}} 项在途 · 平均闭环 {{days}} 天 · 平均复查 {{rounds}} 轮",
     "qcAnalytics.tabDefects": "缺陷池 ({{count}})",
     "qcAnalytics.tabItems": "整改任务 ({{count}})",
     "qcAnalytics.totalDefects": "共 {{count}} 个缺陷",
@@ -5450,7 +5555,8 @@ export const translations: Translations = {
     "qcAnalytics.fldTitlePlaceholder": "如: 术语规范整改",
     "qcAnalytics.fldAssignee": "负责人",
     "qcAnalytics.fldAssigneePlaceholder": "负责人姓名",
-    "qcAnalytics.createHint": "创建后任务为「待整改」状态, 流程: 开始整改 → 提交整改 → 复查验证 → 关闭。",
+    "qcAnalytics.createHint":
+      "创建后任务为「待整改」状态, 流程: 开始整改 → 提交整改 → 复查验证 → 关闭。",
     "qcAnalytics.fixTitle": "提交整改说明",
     "qcAnalytics.submit": "提交",
     "qcAnalytics.fldFixNote": "整改说明",
@@ -5603,7 +5709,8 @@ export const translations: Translations = {
     "segmentationV2.fldNotesPlaceholder": "如: 首诊分割基线",
     "segmentationV2.selectSeriesFirst": "请先选择检查序列",
     "segmentationV2.runFailed": "分割失败",
-    "segmentationV2.runDone": "分割完成: {{algo}} · {{voxels}} 体素 · {{volume}} cm³",
+    "segmentationV2.runDone":
+      "分割完成: {{algo}} · {{voxels}} 体素 · {{volume}} cm³",
     "segmentationV2.runFallback": " (回退)",
     "segmentationV2.runError": "分割请求异常",
     "segmentationV2.deleted2": "分割结果已删除",
@@ -5633,13 +5740,15 @@ export const translations: Translations = {
     "segmentationV2.plane.coronal": "冠状位",
     // [v3.0.6.11-106 Wave 1A-3A] DICOM 压缩工作台 (DicomCompressPage)
     "compressV2.title": "DICOM 压缩工作台",
-    "compressV2.subtitle": "JPEG2000 真编解码 (OpenJPEG WASM) + RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码",
+    "compressV2.subtitle":
+      "JPEG2000 真编解码 (OpenJPEG WASM) + RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码",
     "compressV2.sourceFile": "源文件",
     "compressV2.dicomInstance": "DICOM 实例",
     "compressV2.selectInstance": "选择 DICOM 实例",
     "compressV2.uploadDcm": "上传 .dcm 文件",
     "compressV2.uploaded": "已上传: {{name}}",
-    "compressV2.uploadDesc": "将使用真实字节流执行 RLE / Predictive / JPEG2000(OpenJPEG WASM) 压缩",
+    "compressV2.uploadDesc":
+      "将使用真实字节流执行 RLE / Predictive / JPEG2000(OpenJPEG WASM) 压缩",
     "compressV2.paramsTitle": "压缩参数",
     "compressV2.transferSyntax": "传输语法",
     "compressV2.lossy": "有损",
@@ -5647,9 +5756,11 @@ export const translations: Translations = {
     "compressV2.quality": "质量:",
     "compressV2.qualityHint": "质量越低压缩比越高",
     "compressV2.htj2kTitle": "HTJ2K 高速无损",
-    "compressV2.htj2kDesc": "块级独立熵编码 + DWT 5/3 提升, 支持并行码块解码, 大体积序列首选",
+    "compressV2.htj2kDesc":
+      "块级独立熵编码 + DWT 5/3 提升, 支持并行码块解码, 大体积序列首选",
     "compressV2.jpeglsTitle": "JPEG-LS 无损 (LOCO-I)",
-    "compressV2.jpeglsDesc": "365 上下文自适应 Golomb-Rice + 游程模式, 平片/乳腺高保真",
+    "compressV2.jpeglsDesc":
+      "365 上下文自适应 Golomb-Rice + 游程模式, 平片/乳腺高保真",
     "compressV2.strategyTitle": "按模态推荐策略",
     "compressV2.nearLossless": "近无损",
     "compressV2.execTitle": "执行",
@@ -5726,7 +5837,7 @@ export const translations: Translations = {
     "compressV2.recommendTag": "推荐: {{name}}",
     "compressV2.pixelData": "{{size}} 像素数据",
     "compressV2.comparing": "对比中...",
-    "compressV2.compareEmptyHint": "点击 \"全部算法对比\" 查看各算法真实压缩比",
+    "compressV2.compareEmptyHint": '点击 "全部算法对比" 查看各算法真实压缩比',
     "compressV2.statsTitle": "压缩比统计",
     "compressV2.statsSub": "共 {{count}} 次任务, 节省 {{saved}}, 平均 {{avg}}×",
     "compressV2.noStats": "暂无统计数据，先执行一次压缩",
@@ -5751,8 +5862,10 @@ export const translations: Translations = {
     "compressV2.compareFailed": "对比失败",
     "compressV2.uploadedFile": "已上传 {{name}} ({{size}})",
     "compressV2.fileReadFailed": "文件读取失败",
-    "compressV2.realRatioMsg": "实例 {{id}} JPEG2000 真实压缩比 {{ratio}}× (OpenJPEG WASM)",
-    "compressV2.estRatioMsg": "实例 {{id}} 压缩比 {{ratio}}× (估算值: 查表回退, 非字节级编码)",
+    "compressV2.realRatioMsg":
+      "实例 {{id}} JPEG2000 真实压缩比 {{ratio}}× (OpenJPEG WASM)",
+    "compressV2.estRatioMsg":
+      "实例 {{id}} 压缩比 {{ratio}}× (估算值: 查表回退, 非字节级编码)",
     "compressV2.noRealRatio": "该实例暂无可计算的真实压缩比",
     "compressV2.realRatioFailed": "真实压缩比获取失败",
     "eye.optometry.records": "验光档案",
@@ -5807,7 +5920,7 @@ export const translations: Translations = {
     "eye.tele.consultLabel": "会诊",
     "eye.tele.patientLabel": "患者",
     "eye.tele.participantsUnit": "参与方",
-    "eye.tele.emptyLive": "点击\"建立会诊\"启动 WebRTC 会诊",
+    "eye.tele.emptyLive": '点击"建立会诊"启动 WebRTC 会诊',
     "eye.tele.settings": "设置",
     "eye.tele.expertLabel": "专家:",
     "eye.tele.requestTimeLabel": "申请时间:",
@@ -5985,7 +6098,8 @@ export const translations: Translations = {
     "w3b.devices": "设备利用率",
     "w3b.positiveRate": "阳性率",
     "dicomSr.mtLib": "测量模板库 (TID 1500/2000)",
-    "dicomSr.mtSub": "20 个完整测量模板 (SNOMED 编码 + 单位 + 正常参考范围 + 测量说明), 覆盖 CT 胸腹 / MR 脑脊柱 / DR 骨折 / MG 乳腺",
+    "dicomSr.mtSub":
+      "20 个完整测量模板 (SNOMED 编码 + 单位 + 正常参考范围 + 测量说明), 覆盖 CT 胸腹 / MR 脑脊柱 / DR 骨折 / MG 乳腺",
     "dicomSr.mtCategories": "模板分类",
     "dicomSr.mtModality": "模态",
     "dicomSr.mtCategory": "分类",
@@ -6028,7 +6142,8 @@ export const translations: Translations = {
     "worklist.detail.timelineActor": "操作人: {{actor}}",
     "worklist.detail.notesTitle": "技师备注",
     "worklist.detail.notesEmpty": "暂无技师备注",
-    "worklist.detail.notesPlaceholder": "记录扫描参数/患者配合情况等备注（追加带时间戳）",
+    "worklist.detail.notesPlaceholder":
+      "记录扫描参数/患者配合情况等备注（追加带时间戳）",
     "worklist.detail.notesSave": "保存备注",
     "worklist.detail.notesSaving": "保存中...",
     "worklist.detail.notesSaved": "技师备注已保存",
@@ -6040,7 +6155,8 @@ export const translations: Translations = {
     "followup.triggerModeHint": "仅提示",
     "followup.fromExam.button": "检查联动",
     "followup.fromExam.title": "检查联动 (from-exam)",
-    "followup.fromExam.desc": "检查完成后 → 按模板间隔自动批量创建随访计划 (POST /followups/from-exam)",
+    "followup.fromExam.desc":
+      "检查完成后 → 按模板间隔自动批量创建随访计划 (POST /followups/from-exam)",
     "followup.fromExam.examId": "检查ID *",
     "followup.fromExam.examIdPlaceholder": "例如 exam-001 或检查号",
     "followup.fromExam.template": "随访模板 (可选)",
@@ -6048,7 +6164,8 @@ export const translations: Translations = {
     "followup.fromExam.confirm": "确认联动",
     "followup.fromExam.busy": "生成中...",
     "followup.fromExam.required": "请填写检查ID",
-    "followup.fromExam.success": "检查联动成功: 为该检查生成 {{count}} 条随访计划",
+    "followup.fromExam.success":
+      "检查联动成功: 为该检查生成 {{count}} 条随访计划",
     "followup.fromExam.failed": "检查联动失败",
     "followup.edit.button": "编辑",
     "followup.edit.title": "编辑随访计划 · {{patientId}}",
@@ -6076,7 +6193,8 @@ export const translations: Translations = {
     "followup.reminderQueue.more": "还有 {{count}} 条...",
     "followup.fromReport.button": "报告转随访",
     "followup.fromReport.title": "报告→随访 (from-report)",
-    "followup.fromReport.desc": "按报告内容关键词命中规则，手动补建随访计划 (不受自动/提示模式限制)",
+    "followup.fromReport.desc":
+      "按报告内容关键词命中规则，手动补建随访计划 (不受自动/提示模式限制)",
     "followup.fromReport.reportId": "报告ID",
     "followup.fromReport.reportIdPlaceholder": "例如 rpt-001 或报告编号",
     "followup.fromReport.reason": "补建原因",
@@ -6084,7 +6202,8 @@ export const translations: Translations = {
     "followup.fromReport.confirm": "确认补建",
     "followup.fromReport.busy": "生成中...",
     "followup.fromReport.required": "请填写报告ID",
-    "followup.fromReport.success": "报告转随访完成：命中 {{matched}}，生成 {{created}} 条计划",
+    "followup.fromReport.success":
+      "报告转随访完成：命中 {{matched}}，生成 {{created}} 条计划",
     "followup.fromReport.failed": "报告转随访失败",
     "qcai.lookup.title": "AI 质控结果回读",
     "qcai.lookup.placeholder": "影像实例 ID",
@@ -6112,7 +6231,8 @@ export const translations: Translations = {
     "criticalAgg.loadFailed": "聚合列表加载失败",
     "criticalAgg.retry": "重试",
     "criticalAgg.empty": "暂无危急值告警",
-    "criticalAgg.aliasNote": "GET /critical-alert 为默认聚合端点，与 /critical-alert/alerts 共用同一处理器，返回结构一致。",
+    "criticalAgg.aliasNote":
+      "GET /critical-alert 为默认聚合端点，与 /critical-alert/alerts 共用同一处理器，返回结构一致。",
     "criticalAgg.total": "聚合总数",
     "criticalAgg.active": "待处理",
     "criticalAgg.acknowledged": "已确认",
@@ -6175,7 +6295,8 @@ export const translations: Translations = {
     "reportDetail.lifecycleTitle": "v1.0.1 报告全生命周期",
     "reportDetail.currentStatusPrefix": "本报告当前处于",
     "reportDetail.currentStatusSuffix": "状态。",
-    "reportDetail.statusMachineDesc": "系统支持 14 态状态机：待分配 → 已分配 → 书写中 → 已提交 → 初审中 → 初审通过 → 终审中 → 已审核 → 签发中 → 已签发 → 已发布 → 修订中 → 已修订 / 已撤回 / 已驳回 / 已归档。",
+    "reportDetail.statusMachineDesc":
+      "系统支持 14 态状态机：待分配 → 已分配 → 书写中 → 已提交 → 初审中 → 初审通过 → 终审中 → 已审核 → 签发中 → 已签发 → 已发布 → 修订中 → 已修订 / 已撤回 / 已驳回 / 已归档。",
     "reportDetail.archivePolicyTitleShort": "冷归档策略",
     "reportDetail.archiveDescPrefix": "已发布 {{days}} 天后自动归档至",
     "reportDetail.archiveDescSuffix": " 层级",
@@ -6208,14 +6329,17 @@ export const translations: Translations = {
     "reportDetail.reverseRefCount": "按报告反向引用 ({{count}} 条)",
     "reportDetail.criticalLoading": "危急值关联加载中…",
     "reportDetail.criticalEmpty": "该报告暂无关联危急值记录",
-    "reportDetail.criticalEmptyHint": "在报告操作中「转危急值」后, 此处将展示关联记录并支持跳转闭环跟踪。",
+    "reportDetail.criticalEmptyHint":
+      "在报告操作中「转危急值」后, 此处将展示关联记录并支持跳转闭环跟踪。",
     "reportDetail.notFilledDesc": "(未填写描述)",
     "reportDetail.severityLabel": "级别:",
     "reportDetail.stateLabel": "状态:",
     "reportDetail.viewArrow": "查看 →",
-    "reportDetail.criticalFooterHint": "点击记录跳转危急值中心, 可查看闭环流转 (电话/短信通知、确认、解决)。",
+    "reportDetail.criticalFooterHint":
+      "点击记录跳转危急值中心, 可查看闭环流转 (电话/短信通知、确认、解决)。",
     "reportDetail.lesionsLoading": "病灶列表加载中…",
-    "reportDetail.lesionsEmptyHint": "可通过「创建病灶追踪」从报告文本提取病灶关键词建档。",
+    "reportDetail.lesionsEmptyHint":
+      "可通过「创建病灶追踪」从报告文本提取病灶关键词建档。",
     "reportDetail.lesionName": "病灶 #{{index}}",
     "reportDetail.sizeLabel": "大小:",
     "reportDetail.noteLabel": "备注:",
@@ -6264,7 +6388,8 @@ export const translations: Translations = {
     "reportDetail.currentUser": "当前用户",
     "reportDetail.statusUnassigned": "待分配",
     "nationalReport.title": "国家数据上报",
-    "nationalReport.subtitle": "国家/省级监管数据上报 · FHIR标准化 · 预提交校验 · 审计追踪",
+    "nationalReport.subtitle":
+      "国家/省级监管数据上报 · FHIR标准化 · 预提交校验 · 审计追踪",
     "nationalReport.loading": "加载中…",
     "nationalReport.loadError": "数据加载失败，已回退本地演示数据",
     "nationalReport.newReport": "新建上报",
@@ -6400,7 +6525,8 @@ export const translations: Translations = {
     "nationalReport.confirmExamCount": "检查统计 {{count}} 项",
     "nationalReport.confirmDoseCount": "剂量记录 {{count}} 条",
     "nationalReport.confirmQualityCount": "质量记录 {{count}} 条",
-    "nationalReport.confirmHint": "提交后将进入监管机构审核流程，可在审计追踪中查看进度。",
+    "nationalReport.confirmHint":
+      "提交后将进入监管机构审核流程，可在审计追踪中查看进度。",
     "nationalReport.confirmSubmit": "确认提交",
     "nationalReport.submitting": "提交中…",
     "nationalReport.createdSuccess": "{{type}}创建成功",
@@ -6418,7 +6544,8 @@ export const translations: Translations = {
     "nationalReport.fhirValidation": "校验",
     "nationalReport.fhirResourceCount": "资源数",
     "nationalReport.fhirExportTitle": "导出 FHIR 数据",
-    "nationalReport.fhirExportDesc": "一键导出符合 IHE-RAD-IG 的 FHIR Bundle（DiagnosticReport + Observation）。",
+    "nationalReport.fhirExportDesc":
+      "一键导出符合 IHE-RAD-IG 的 FHIR Bundle（DiagnosticReport + Observation）。",
     "nationalReport.fhirExportBtn": "导出 FHIR Bundle",
     "nationalReport.fhirExportSuccess": "导出成功",
     "nationalReport.regConfig": "监管机构配置",
@@ -6438,7 +6565,8 @@ export const translations: Translations = {
     "nationalReport.typeCompleteness": "完整性",
     "nationalReport.typeConsistency": "一致性",
     "nationalReport.typeBusiness": "业务",
-    "nationalReport.validateWarning": "存在 {{count}} 项未通过校验，建议修正后再提交。",
+    "nationalReport.validateWarning":
+      "存在 {{count}} 项未通过校验，建议修正后再提交。",
     "nationalReport.auditHistory": "提交审计历史",
     "nationalReport.statusSuccess": "成功",
     "nationalReport.statusFailed": "失败",
@@ -6464,7 +6592,8 @@ export const translations: Translations = {
     "nationalReport.recipientCount": "{{count}} 人",
     "nationalReport.running": "运行中…",
     "nationalReport.runNow": "立即运行",
-    "nationalReport.autoRetry": "上报失败后系统将按 1h/6h/24h 自动重试，并记录审计日志。",
+    "nationalReport.autoRetry":
+      "上报失败后系统将按 1h/6h/24h 自动重试，并记录审计日志。",
     "nationalReport.planNameRequired": "计划名称 *",
     "nationalReport.placeholderPlanName": "如: 月度剂量上报",
     "nationalReport.planType": "报告类型",
@@ -6481,7 +6610,8 @@ export const translations: Translations = {
     "nationalReport.scheduleMonthly": "每月",
     "nationalReport.scheduleQuarterly": "每季度",
     "customReport.pageTitle": "自定义报表",
-    "customReport.pageSubtitle": "报表定义 · 向导式新建 · 运行/结果/历史/定时推送 · CSV 导出",
+    "customReport.pageSubtitle":
+      "报表定义 · 向导式新建 · 运行/结果/历史/定时推送 · CSV 导出",
     "customReport.periodDaily": "日",
     "customReport.periodWeekly": "周",
     "customReport.periodMonthly": "月",
@@ -6521,18 +6651,21 @@ export const translations: Translations = {
     "customReport.reportUpdated": "报表「{{name}}」已更新",
     "customReport.reportCreated": "报表「{{name}}」已创建",
     "customReport.runFailed": "执行失败",
-    "customReport.runDonePushed": "「{{name}}」执行完成, 已推送订阅通知 ({{count}} 人)",
+    "customReport.runDonePushed":
+      "「{{name}}」执行完成, 已推送订阅通知 ({{count}} 人)",
     "customReport.runDoneRows": "「{{name}}」执行完成, 生成 {{count}} 行",
     "customReport.noResultRunFirst": "暂无结果, 请先运行",
     "customReport.selectScheduleRule": "请选择定时规则",
     "customReport.selectAtLeastOneRecipient": "请至少选择一位订阅人",
     "customReport.scheduleFailed": "定时设置失败",
-    "customReport.scheduleSaved": "报表「{{name}}」定时已保存, 已推送订阅通知 {{count}} 条",
+    "customReport.scheduleSaved":
+      "报表「{{name}}」定时已保存, 已推送订阅通知 {{count}} 条",
     "customReport.noResultExport": "暂无结果可导出, 请先运行",
     "customReport.csvExportSuccess": "CSV 导出成功",
     "customReport.exportFailed": "导出失败",
     "customReport.deleteConfirmTitle": "删除报表「{{name}}」?",
-    "customReport.deleteConfirmContent": "删除后定义、结果快照与执行历史将一并清除, 该操作不可恢复。",
+    "customReport.deleteConfirmContent":
+      "删除后定义、结果快照与执行历史将一并清除, 该操作不可恢复。",
     "customReport.delete": "删除",
     "customReport.cancel": "取消",
     "customReport.defDeleted": "报表定义已删除",
@@ -6572,8 +6705,10 @@ export const translations: Translations = {
     "customReport.refresh": "刷新",
     "customReport.newReport": "新建报表",
     "customReport.dataSource": "数据源",
-    "customReport.dsLegend": "OLAP 聚合(周期粒度) · stats 快照 · BI 指标 · mixed 混合 · 执行结果缓存 + 定时订阅推送 (notifications/report-generated)",
-    "customReport.dataSourceHint": "数据源决定执行方式: OLAP 字段按周期聚合, stats/bi 字段为快照值",
+    "customReport.dsLegend":
+      "OLAP 聚合(周期粒度) · stats 快照 · BI 指标 · mixed 混合 · 执行结果缓存 + 定时订阅推送 (notifications/report-generated)",
+    "customReport.dataSourceHint":
+      "数据源决定执行方式: OLAP 字段按周期聚合, stats/bi 字段为快照值",
     "customReport.exportCsv": "导出 CSV",
     "customReport.editReportTitle": "编辑报表: {{name}}",
     "customReport.newReportTitle": "新建自定义报表",
@@ -6587,12 +6722,14 @@ export const translations: Translations = {
     "customReport.categoryPlaceholder": "如: 日常统计 / 报告质量 / 设备管理",
     "customReport.description": "说明",
     "customReport.descriptionPlaceholder": "报表用途说明 (可选)",
-    "customReport.fieldsCatalogHint": "字段目录按数据源分组加载 (fields-catalog): OLAP 指标/维度 按周期聚合, stats/bi 为快照值",
+    "customReport.fieldsCatalogHint":
+      "字段目录按数据源分组加载 (fields-catalog): OLAP 指标/维度 按周期聚合, stats/bi 为快照值",
     "customReport.selectFieldPlaceholder": "选择字段 (至少 1 个)",
     "customReport.selectedFields": "已选 {{count}} 个字段: {{names}}",
     "customReport.notSelected": "未选择",
     "customReport.statPeriod": "统计周期",
-    "customReport.lookbackWindow": "回看窗口: 日≈30天 / 周≈90天 / 月≈365天 / 季≈730天 / 年≈1825天",
+    "customReport.lookbackWindow":
+      "回看窗口: 日≈30天 / 周≈90天 / 月≈365天 / 季≈730天 / 年≈1825天",
     "customReport.sortField": "排序字段 (按结果行数值/字典序)",
     "customReport.noSort": "不排序",
     "customReport.direction": "方向",
@@ -6600,22 +6737,26 @@ export const translations: Translations = {
     "customReport.desc": "降序 ↓",
     "customReport.groupDimension": "分组维度 (仅记录设置, 结果按周期行展示)",
     "customReport.noGroup": "不分组",
-    "customReport.execPreview": "执行预览: 周期 {{period}} · 数据源 {{ds}} · {{count}} 个字段",
+    "customReport.execPreview":
+      "执行预览: 周期 {{period}} · 数据源 {{ds}} · {{count}} 个字段",
     "customReport.resultTitleNamed": "运行结果: {{name}}",
     "customReport.resultTitle": "运行结果",
     "customReport.close": "关闭",
     "customReport.resultSource": "数据源: {{source}} · {{count}} 行 · {{time}}",
-    "customReport.resultMeta": "周期: {{period}} · 数据源类型: {{dsType}} · 执行ID: {{id}}",
+    "customReport.resultMeta":
+      "周期: {{period}} · 数据源类型: {{dsType}} · 执行ID: {{id}}",
     "customReport.rerun": "重新运行",
     "customReport.historyTitleNamed": "执行历史: {{name}}",
     "customReport.historyTitle": "执行历史",
-    "customReport.historyHint": "执行历史包含 时间/行数/状态/数据源说明; 定时+订阅报表运行后自动生成推送记录",
+    "customReport.historyHint":
+      "执行历史包含 时间/行数/状态/数据源说明; 定时+订阅报表运行后自动生成推送记录",
     "customReport.emptyResult": "暂无结果, 请先点击「运行」",
     "customReport.scheduleTitleNamed": "定时设置: {{name}}",
     "customReport.scheduleTitle": "定时设置",
     "customReport.saveAndPush": "保存并推送通知",
     "customReport.scheduleRule": "定时规则",
-    "customReport.scheduleHint": "保存后将自动推送「报表已生成」通知给订阅人 (POST /notifications/report-generated)",
+    "customReport.scheduleHint":
+      "保存后将自动推送「报表已生成」通知给订阅人 (POST /notifications/report-generated)",
     "customReport.recipients": "订阅人 (推送通知对象)",
     "customReport.recipientsPlaceholder": "输入用户ID后回车, 默认 current",
     "customReport.currentSubscribers": "当前订阅: {{names}}",
@@ -6690,7 +6831,8 @@ export const translations: Translations = {
     "opLog.colBlockHash": "区块哈希",
     "opLog.colPrevHash": "前一哈希",
     "opLog.colVerify": "验证",
-    "opLog.blockchainFooter": "区块链高度: {{height}} · 最新区块: {{latest}} · 哈希算法: SHA-256",
+    "opLog.blockchainFooter":
+      "区块链高度: {{height}} · 最新区块: {{latest}} · 哈希算法: SHA-256",
     "opLog.exportingProgress": "正在导出...",
     "opLog.exportDone": "导出完成",
     "opLog.pleaseWait": "请稍候",
@@ -6812,7 +6954,8 @@ export const translations: Translations = {
     "v3cosign.detailRefresh": "刷新详情",
     "v3cosign.detailClinicalInfo": "临床信息/印象",
     "vnaOps.analyticsTitle": "VNA 存储分析",
-    "vnaOps.analyticsDesc": "归档总览 / 存储增长趋势 / 分层统计 / 完整性校验 / 重复对象分析 (backend /vna W10E-3 端点)",
+    "vnaOps.analyticsDesc":
+      "归档总览 / 存储增长趋势 / 分层统计 / 完整性校验 / 重复对象分析 (backend /vna W10E-3 端点)",
     "vnaOps.refresh": "刷新",
     "vnaOps.days7": "近 7 天",
     "vnaOps.days30": "近 30 天",
@@ -6895,7 +7038,8 @@ export const translations: Translations = {
     "vnaPage.migrate": "迁移",
     "vnaPage.verify": "校验",
     "vnaPage.pageTitle": "VNA 厂商中立归档",
-    "vnaPage.pageDesc": "对标 Agfa Enterprise Imaging / Sectra VNA / GE Datalogue · 非 DICOM 内容归档 + WORM 不可变存储",
+    "vnaPage.pageDesc":
+      "对标 Agfa Enterprise Imaging / Sectra VNA / GE Datalogue · 非 DICOM 内容归档 + WORM 不可变存储",
     "vnaPage.refresh": "刷新",
     "vnaPage.uploadArchive": "上传归档",
     "vnaPage.totalObjects": "归档对象数",
@@ -6919,11 +7063,13 @@ export const translations: Translations = {
     "vnaPage.patientArchiveView": "患者归档视图",
     "vnaPage.patientIdPlaceholder": "输入患者 ID (如 P00001)",
     "vnaPage.viewFullLifecycle": "查看全生命周期归档",
-    "vnaPage.patientArchiveEmpty": "输入患者 ID 查看其全部归档对象 (DICOM 检查 + 非 DICOM 文档/图像)",
+    "vnaPage.patientArchiveEmpty":
+      "输入患者 ID 查看其全部归档对象 (DICOM 检查 + 非 DICOM 文档/图像)",
     "vnaPage.objectList": "对象列表",
     "vnaPage.lifecycleTimeline": "全生命周期时间线",
     "vnaPage.lifecycleAlertTitle": "G-26 ILM 影像生命周期 · VNA 分层存储",
-    "vnaPage.lifecycleAlertDesc": "热层 (SSD 在线) → 温层 (近线 HDD) → 冷层 (冷归档)。策略/事件为内存 + 种子存储, 迁移操作实时生效并记录事件日志。",
+    "vnaPage.lifecycleAlertDesc":
+      "热层 (SSD 在线) → 温层 (近线 HDD) → 冷层 (冷归档)。策略/事件为内存 + 种子存储, 迁移操作实时生效并记录事件日志。",
     "vnaPage.newPolicy": "新建策略",
     "vnaPage.policyEventCount": "共 {{policies}} 条策略 · {{events}} 条事件",
     "vnaPage.tierPolicies": "分层策略",
@@ -7005,7 +7151,8 @@ export const translations: Translations = {
     "aiQcPage.confirmed": "已确认",
     "aiQcPage.pendingConfirm": "待确认",
     "aiQcPage.bannerTitle": "v1.0.4 AI 智能质控升级 · 一键自动初稿",
-    "aiQcPage.bannerDesc": "6 大临床场景模板 · AI 模型 v2.3 · 历史相似病例匹配 · 应用到报告",
+    "aiQcPage.bannerDesc":
+      "6 大临床场景模板 · AI 模型 v2.3 · 历史相似病例匹配 · 应用到报告",
     "aiQcPage.oneClickDraft": "一键 AI 初稿",
     "aiQcPage.heading": "AI智能质控",
     "aiQcPage.subtitle": "基于深度学习的影像质量智能分析与质控",
@@ -7022,7 +7169,8 @@ export const translations: Translations = {
     "aiQcPage.allTechnicians": "全部技师",
     "aiQcPage.to": "至",
     "aiQcPage.autoQc3d": "AI 三维度自动质控",
-    "aiQcPage.autoQc3dDesc": "伪影 · 曝光 · 体位（POST /qc/image-ai/assess，确定性评估）",
+    "aiQcPage.autoQc3dDesc":
+      "伪影 · 曝光 · 体位（POST /qc/image-ai/assess，确定性评估）",
     "aiQcPage.assessing": "评估中…",
     "aiQcPage.enterStudyId": "输入检查号",
     "aiQcPage.assessStudy": "评估检查",
@@ -7033,7 +7181,8 @@ export const translations: Translations = {
     "aiQcPage.inProgress": "(进行中…)",
     "aiQcPage.exportCsv": "导出 CSV",
     "aiQcPage.historyTrend": "历史趋势",
-    "aiQcPage.historyTrendDesc": "历史三维度均分趋势 (GET /qc/image-ai/assessments · 按日期聚合, 共 {{count}} 条记录)",
+    "aiQcPage.historyTrendDesc":
+      "历史三维度均分趋势 (GET /qc/image-ai/assessments · 按日期聚合, 共 {{count}} 条记录)",
     "aiQcPage.trendSyncing": "趋势数据同步中…",
     "aiQcPage.noHistory": "暂无历史评估记录",
     "aiQcPage.batchResults": "批量评估结果 ({{count}} 条)",
@@ -7101,7 +7250,8 @@ export const translations: Translations = {
     "breastSpecialty.title": "乳腺专科",
     "breastSpecialty.sourceRealtime": "breastCadApi 实时",
     "breastSpecialty.sourceDemoFallback": "演示数据(回退)",
-    "breastSpecialty.subtitle": "乳腺影像专科 · BI-RADS 评分 · 筛查管理 · 乳腺工作流",
+    "breastSpecialty.subtitle":
+      "乳腺影像专科 · BI-RADS 评分 · 筛查管理 · 乳腺工作流",
     "breastSpecialty.newScreening": "新建筛查",
     "breastSpecialty.statsTodayExams": "今日检查",
     "breastSpecialty.statsPendingRecall": "待召回",
@@ -7235,7 +7385,8 @@ export const translations: Translations = {
     "equipEfficiency.tabBooking": "预约满员率",
     "equipEfficiency.tabFailure": "故障率统计",
     "equipEfficiency.title": "设备效率分析",
-    "equipEfficiency.subtitle": "实时监控设备运行状态与效率指标，对标英飞达/锐科行业标准",
+    "equipEfficiency.subtitle":
+      "实时监控设备运行状态与效率指标，对标英飞达/锐科行业标准",
     "equipEfficiency.loading": "加载中…",
     "equipEfficiency.live": "oeeApi / biApi 实时",
     "equipEfficiency.demoFallback": "演示数据 (回退)",
@@ -7251,7 +7402,8 @@ export const translations: Translations = {
     "equipEfficiency.timeSegment": "检查量时段分析",
     "equipEfficiency.timeSegmentDesc": "白班/夜班/周末分类统计 (演示数据)",
     "equipEfficiency.loadRanking": "设备负荷排行榜",
-    "equipEfficiency.loadRankingDesc": "综合评分基于 OEE/使用率/检查量等指标 · oeeApi.list + statsApi.top-devices",
+    "equipEfficiency.loadRankingDesc":
+      "综合评分基于 OEE/使用率/检查量等指标 · oeeApi.list + statsApi.top-devices",
     "equipEfficiency.exportReport": "导出报表",
     "equipEfficiency.rank": "排名",
     "equipEfficiency.deviceId": "设备编号",
@@ -7265,11 +7417,14 @@ export const translations: Translations = {
     "equipEfficiency.demoData": "演示数据",
     "equipEfficiency.dataUpdated": "数据更新时间：",
     "equipEfficiency.heatmapTitle": "设备使用率热力图",
-    "equipEfficiency.heatmapDesc": "最近30天各设备使用率分布 (演示数据 — 确定性随机生成)",
+    "equipEfficiency.heatmapDesc":
+      "最近30天各设备使用率分布 (演示数据 — 确定性随机生成)",
     "equipEfficiency.bookingTitle": "预约满员率排名",
-    "equipEfficiency.bookingDesc": "满员定义：当天预约机时 ≥95% | 标红低于70%的设备 (演示数据)",
+    "equipEfficiency.bookingDesc":
+      "满员定义：当天预约机时 ≥95% | 标红低于70%的设备 (演示数据)",
     "equipEfficiency.failureTitle": "设备故障率统计",
-    "equipEfficiency.failureDesc": "故障类型：硬件故障/软件故障/定期保养/紧急维修 · 故障记录来自 deviceMgmtApi.faults",
+    "equipEfficiency.failureDesc":
+      "故障类型：硬件故障/软件故障/定期保养/紧急维修 · 故障记录来自 deviceMgmtApi.faults",
     // [v3.0.6.11-106 Wave 8A] ExamDetailView i18n
     "examDetail.statusScheduled": "已登记",
     "examDetail.statusArrived": "已报到",
@@ -7291,7 +7446,8 @@ export const translations: Translations = {
     "examDetail.doseSaved": "剂量记录已保存",
     "examDetail.doseSaveFailed": "剂量保存失败",
     "examDetail.selectQuality": "请选择图像是否合格",
-    "examDetail.doseRequiredWhenOk": "图像合格时必须填写剂量记录（DLP/CTDIvol）",
+    "examDetail.doseRequiredWhenOk":
+      "图像合格时必须填写剂量记录（DLP/CTDIvol）",
     "examDetail.noteRequired": "技师备注不能为空",
     "examDetail.retakeReasonRequired": "重拍必须选择原因",
     "examDetail.completeFailed": "完成失败",
@@ -7349,17 +7505,19 @@ export const translations: Translations = {
     "examDetail.assignTech": "分配技师",
     "examDetail.handover": "交接班",
     "examDetail.doseRecord": "剂量记录",
-    "examDetail.ctDoseRequired": "CT 检查完成前必须记录剂量 (完成确认弹窗强制校验)",
+    "examDetail.ctDoseRequired":
+      "CT 检查完成前必须记录剂量 (完成确认弹窗强制校验)",
     "examDetail.nonCtDoseOptional": "非 CT 检查可留空",
     "examDetail.saving": "保存中...",
     "examDetail.saveDose": "保存剂量",
     "examDetail.techNotes": "技师备注",
     "examDetail.noTechNotes": "暂无技师备注",
-    "examDetail.notesPlaceholder": "记录扫描参数/患者配合情况等备注（追加带时间戳）",
+    "examDetail.notesPlaceholder":
+      "记录扫描参数/患者配合情况等备注（追加带时间戳）",
     "examDetail.saveNotes": "保存备注",
     "examDetail.imagesAcquired": "已采集图像",
     "examDetail.imageCount": "幅图像",
-    "examDetail.viewImageHint": "点击\"查看图像\"按钮打开图像查看器",
+    "examDetail.viewImageHint": '点击"查看图像"按钮打开图像查看器',
     "examDetail.historyRecords": "历史检查记录",
     "examDetail.historyCount": "(该患者共 {{count}} 次历史检查)",
     "examDetail.loadingHistory": "正在加载历史检查...",
@@ -7399,7 +7557,8 @@ export const translations: Translations = {
     "examDetail.retake": "重拍",
     "examDetail.retakeReason": "重拍原因",
     "examDetail.selectRetakeReason": "选择重拍原因",
-    "examDetail.notesPlaceholderShort": "记录扫描参数/图像情况等备注（追加带时间戳）",
+    "examDetail.notesPlaceholderShort":
+      "记录扫描参数/图像情况等备注（追加带时间戳）",
     "pacsAdmin.detail": "详情",
     "pacsAdmin.serverDetail": "AE 服务器详情",
     "pacsAdmin.name": "名称",
@@ -7500,7 +7659,8 @@ export const translations: Translations = {
     "pacsAdmin.requiredPath": "请输入路径",
     "pacsAdmin.requiredCapacity": "请输入容量",
     "pacsAdmin.alertTitle": "PACS 管理已接入真实后端",
-    "pacsAdmin.alertDesc": "本页数据由后端 /pacs-admin (Device/Exam/AuditLog 派生 + seed 回退) 提供，接口不可用时回退 MSW 演示数据。",
+    "pacsAdmin.alertDesc":
+      "本页数据由后端 /pacs-admin (Device/Exam/AuditLog 派生 + seed 回退) 提供，接口不可用时回退 MSW 演示数据。",
     "pacsAdmin.title": "PACS 管理",
     "pacsAdmin.tagDicom": "DICOM AE 管理",
     "pacsAdmin.tabNodes": "节点列表",
@@ -7554,7 +7714,8 @@ export const translations: Translations = {
     "regionalCollab.sitesLabel": "站点",
     "regionalCollab.sitesUnit": "个",
     "regionalCollab.sharedChecksLabel": "共享检查",
-    "regionalCollab.dataSourceApi": "数据源: 后端 /regional/* (seed + 站点派生) · MSW 兜底",
+    "regionalCollab.dataSourceApi":
+      "数据源: 后端 /regional/* (seed + 站点派生) · MSW 兜底",
     "regionalCollab.dataSourceDemo": "数据源: 本地 demo 回退 (后端不可达)",
     "regionalCollab.statInstitutions": "医联体机构",
     "regionalCollab.statSharedStudies": "共享检查数",
@@ -7575,7 +7736,8 @@ export const translations: Translations = {
     "regionalCollab.queryByDescription": "检查描述",
     "regionalCollab.inputQueryValue": "输入检索值",
     "regionalCollab.search": "检索",
-    "regionalCollab.crossSearchHint": "通过 DICOM Query/Retrieve 跨机构检索检查, 命中后记录调阅并进入阅片",
+    "regionalCollab.crossSearchHint":
+      "通过 DICOM Query/Retrieve 跨机构检索检查, 命中后记录调阅并进入阅片",
     "regionalCollab.emptyCross": "选择机构/检索条件后点击「检索」",
     "regionalCollab.emptyCrossResult": "未检索到匹配的跨院检查",
     "regionalCollab.remoteConsult": "远程会诊",
@@ -7615,7 +7777,8 @@ export const translations: Translations = {
     "regionalCollab.selectInstitution": "选择机构",
     "regionalCollab.consultDiagnosis": "会诊诊断/问题",
     "regionalCollab.requiredDiagnosis": "请输入会诊问题",
-    "regionalCollab.placeholderDiagnosis": "如: 颅内占位性质待定, 申请院级专家会诊",
+    "regionalCollab.placeholderDiagnosis":
+      "如: 颅内占位性质待定, 申请院级专家会诊",
     "regionalCollab.priority": "优先级",
     "regionalCollab.priorityNormal": "普通",
     "regionalCollab.priorityUrgent": "紧急",
@@ -7634,7 +7797,8 @@ export const translations: Translations = {
     "autoCollection.createFailed": "创建失败",
     "autoCollection.saveFailed": "保存失败",
     "autoCollection.backendConnected": "后端接口已接通（真实 API）",
-    "autoCollection.sourceNote": "数据来源：后端真实接口（/auto-collection，含任务启动/停止/立即执行/日志）",
+    "autoCollection.sourceNote":
+      "数据来源：后端真实接口（/auto-collection，含任务启动/停止/立即执行/日志）",
     "autoCollection.title": "自动采集管理",
     "autoCollection.retry": "重试",
     "autoCollection.statTotalRules": "总规则",
@@ -7750,7 +7914,8 @@ export const translations: Translations = {
     "qcPdca.sourceDemo": "演示回退",
     "qcPdca.sourceOffline": "离线",
     "qcPdca.title": "PDCA 质控闭环",
-    "qcPdca.subtitle": "Plan / Do / Check / Act 阶段流转 · 报告 / 图像 / 流程 / 服务四类质控周期",
+    "qcPdca.subtitle":
+      "Plan / Do / Check / Act 阶段流转 · 报告 / 图像 / 流程 / 服务四类质控周期",
     "qcPdca.refresh": "刷新",
     "qcPdca.createCycle": "新建周期",
     "qcPdca.defectBannerPrefix": "已从缺陷中心带入缺陷",
@@ -7797,7 +7962,8 @@ export const translations: Translations = {
     "qcPdca.formSummary": "闭环总结",
     "qcPdca.requiredSummary": "请填写闭环总结",
     "qcPdca.placeholderSummary": "记录周期闭环成果与固化措施...",
-    "qcPdca.completeHint": "完成后周期状态变为「已完成」, 并记录 completedAt 与总结, 不可再推进。",
+    "qcPdca.completeHint":
+      "完成后周期状态变为「已完成」, 并记录 completedAt 与总结, 不可再推进。",
     // [v3.0.6.11-106 Wave 9A] 技师排班管理页 i18n
     "techSchedule.requiredDateTech": "请填写日期并选择技师",
     "techSchedule.createFailed": "创建失败",
@@ -7860,7 +8026,8 @@ export const translations: Translations = {
     "techSchedule.startDate": "起始日期",
     "techSchedule.endDate": "结束日期",
     "techSchedule.shiftPattern": "班次模式 (按模式循环)",
-    "techSchedule.batchHint": "示例: [白班, 夜班, 备班] 会在每个日期循环生成 3 条排班，自动轮换技师与检查室，冲突自动跳过。",
+    "techSchedule.batchHint":
+      "示例: [白班, 夜班, 备班] 会在每个日期循环生成 3 条排班，自动轮换技师与检查室，冲突自动跳过。",
     "techSchedule.targetTechLabel": "目标技师 (同日期同班次交换)",
     "techSchedule.selectTargetTech": "选择目标技师",
     "techSchedule.placeholderSwapReason": "如: 家中有事对调",
@@ -7883,7 +8050,8 @@ export const translations: Translations = {
     "caSignature.signatureHistoryLoadFailed": "签名历史加载失败",
     "caSignature.caHistoryLoadFailed": "操作历史加载失败",
     "caSignature.title": "CA 数字签名",
-    "caSignature.subtitle": "RSA-SHA256 + 国密 SM2-SM3 · 证书链 · 时间戳 · 签名验证 · 区块链对接",
+    "caSignature.subtitle":
+      "RSA-SHA256 + 国密 SM2-SM3 · 证书链 · 时间戳 · 签名验证 · 区块链对接",
     "caSignature.uploadCert": "上传证书",
     "caSignature.signatureHistory": "签名历史",
     "caSignature.caHistory": "操作历史",
@@ -7946,7 +8114,8 @@ export const translations: Translations = {
     "caSignature.holderLabel": "持有者：",
     "caSignature.currentStatus": "当前状态：",
     "caSignature.revokeReasonLabel": "吊销原因 *",
-    "caSignature.revokeReasonPlaceholder": "请输入吊销原因（如：人员离职 / 密钥泄露），该操作不可撤销",
+    "caSignature.revokeReasonPlaceholder":
+      "请输入吊销原因（如：人员离职 / 密钥泄露），该操作不可撤销",
     "caSignature.verifyTitle": "签名验证",
     "caSignature.startVerify": "开始验签",
     "caSignature.close": "关闭",
@@ -8014,8 +8183,10 @@ export const translations: Translations = {
     "dentalRadFusion.referringDoctor": "发起医生",
     "dentalRadFusion.createdAt": "发起时间",
     "dentalRadFusion.fusionParamsTitle": "融合参数 / 叠加层信息",
-    "dentalRadFusion.fusionAcceptedDesc": "已接诊: 融合查看器可加载口扫 (Scan) 与 CBCT 检查叠加, 参数 (配准方式/透明度/裁剪) 随检查数据动态生成。",
-    "dentalRadFusion.fusionCompletedDesc": "已完成后叠加层信息随影像归档, 可在「口腔-放射融合查看器」中回看 CBCT + 口扫 3D 叠加。",
+    "dentalRadFusion.fusionAcceptedDesc":
+      "已接诊: 融合查看器可加载口扫 (Scan) 与 CBCT 检查叠加, 参数 (配准方式/透明度/裁剪) 随检查数据动态生成。",
+    "dentalRadFusion.fusionCompletedDesc":
+      "已完成后叠加层信息随影像归档, 可在「口腔-放射融合查看器」中回看 CBCT + 口扫 3D 叠加。",
     "dentalRadFusion.reportLoadFailed": "报告加载失败",
     "dentalRadFusion.cbctReportLoadFailed": "CBCT 报告加载失败",
     "dentalRadFusion.fusionStudiesLoadFailed": "融合检查加载失败",
@@ -8028,11 +8199,13 @@ export const translations: Translations = {
     "dentalRadFusion.region": "区域",
     "dentalRadFusion.scanType": "扫描类型",
     "dentalRadFusion.indications": "指征",
-    "dentalRadFusion.dentalFinding": "36 位远中根根尖周低密度影; 16 位腭侧牙周膜间隙增宽",
+    "dentalRadFusion.dentalFinding":
+      "36 位远中根根尖周低密度影; 16 位腭侧牙周膜间隙增宽",
     "dentalRadFusion.chronicApicalTag": "慢性根尖周炎 (36)",
     "dentalRadFusion.qualityLabel": "质量:",
     "dentalRadFusion.radiologyReport": "放射科报告",
-    "dentalRadFusion.radiologyFinding": "CBCT 示右侧上颌窦黏膜增厚; 36 根尖区骨密度降低",
+    "dentalRadFusion.radiologyFinding":
+      "CBCT 示右侧上颌窦黏膜增厚; 36 根尖区骨密度降低",
     "dentalRadFusion.cariesDetected": "龋齿检出:",
     "dentalRadFusion.boneLoss": "骨丧失:",
     "dentalRadFusion.periapicalLesions": "根尖周病变:",
@@ -8055,7 +8228,8 @@ export const translations: Translations = {
     "dentalRadFusion.overlayTitleWebgl": "CBCT + 口扫 3D 叠加融合 (WebGL)",
     "dentalRadFusion.tabTimeline": "统一时间线",
     "dentalRadFusion.timeline1": "2026-06-20 口腔科初诊 (全景片 + 口腔检查)",
-    "dentalRadFusion.timeline2": "2026-06-21 转诊至放射科 (CBCT 下颌骨三维重建)",
+    "dentalRadFusion.timeline2":
+      "2026-06-21 转诊至放射科 (CBCT 下颌骨三维重建)",
     "dentalRadFusion.timeline3": "2026-06-22 放射科报告完成",
     "dentalRadFusion.timeline4": "2026-06-23 口腔科种植规划",
     "dentalRadFusion.timeline5": "2026-06-25 口扫取模 + 3D 融合设计",
@@ -8237,7 +8411,8 @@ export const translations: Translations = {
     "criticalCenter.channelsSaved": "通知通道配置已保存",
     "criticalCenter.saveChannelsFailed": "保存通道配置失败",
     "criticalCenter.title": "危急值中心 (R3)",
-    "criticalCenter.subtitle": "危急值全生命周期管理 · 闭环监控 · 升级通知 · 统计分析",
+    "criticalCenter.subtitle":
+      "危急值全生命周期管理 · 闭环监控 · 升级通知 · 统计分析",
     "criticalCenter.pending": "待处理",
     "criticalCenter.toManagement": "→ 危急值管理",
     "criticalCenter.notified": "已通知",
@@ -8266,7 +8441,8 @@ export const translations: Translations = {
     "criticalCenter.closedState": "已闭环",
     "criticalCenter.closeLoop": "闭环",
     "criticalCenter.centerLoading": "中心列表加载中...",
-    "criticalCenter.centerEmpty": "中心暂无危急值记录,点击\"自动检测\"触发一次检测",
+    "criticalCenter.centerEmpty":
+      '中心暂无危急值记录,点击"自动检测"触发一次检测',
     "criticalCenter.detailLoading": "详情加载中...",
     "criticalCenter.closedBy": "闭环人",
     "criticalCenter.closedAt": "闭环时间",
@@ -8276,12 +8452,14 @@ export const translations: Translations = {
     "criticalCenter.examIdLabel": "检查 ID *",
     "criticalCenter.examIdPlaceholder": "如: EXAM-20260808-001",
     "criticalCenter.reportContentLabel": "报告内容 *",
-    "criticalCenter.reportContentPlaceholder": "如: WBC 33.5 x10^9/L,提示严重感染可能",
+    "criticalCenter.reportContentPlaceholder":
+      "如: WBC 33.5 x10^9/L,提示严重感染可能",
     "criticalCenter.submitCloseLoop": "提交闭环",
     "criticalCenter.patientLabel": "患者",
     "criticalCenter.findingLabel": "发现「",
     "criticalCenter.resolutionLabel": "闭环处置说明 *",
-    "criticalCenter.resolutionPlaceholder": "如: 已电话通知临床,患者收治并完成处置",
+    "criticalCenter.resolutionPlaceholder":
+      "如: 已电话通知临床,患者收治并完成处置",
     "criticalCenter.resolvedByLabel": "处置人",
     "criticalCenter.resolvedByPlaceholder": "默认当前用户",
     "criticalCenter.trendTitle": "危急值趋势",
@@ -8290,7 +8468,8 @@ export const translations: Translations = {
     "criticalCenter.legendResolved": "已处理",
     "criticalCenter.legendEscalated": "已升级",
     "criticalCenter.navManagement": "危急值管理",
-    "criticalCenter.navManagementDesc": "发现 → 通知 → 确认 → 处理 → 升级 → 闭环",
+    "criticalCenter.navManagementDesc":
+      "发现 → 通知 → 确认 → 处理 → 升级 → 闭环",
     "criticalCenter.navRule": "危急值规则",
     "criticalCenter.navRuleDesc": "规则库配置 · 分级 · 通知链 · 升级策略",
     "criticalCenter.navStats": "危急值统计",
@@ -8306,7 +8485,8 @@ export const translations: Translations = {
     "criticalCenter.edit": "编辑",
     "criticalCenter.deleteRule": "删除规则",
     "criticalCenter.delete": "删除",
-    "criticalCenter.ruleLibraryEmpty": "规则库为空或加载中,点击\"新增规则\"创建第一条规则...",
+    "criticalCenter.ruleLibraryEmpty":
+      '规则库为空或加载中,点击"新增规则"创建第一条规则...',
     "criticalCenter.newRuleTitle": "新增危急值规则",
     "criticalCenter.save": "保存",
     "criticalCenter.ruleNameLabel": "规则名称 *",
@@ -8320,12 +8500,14 @@ export const translations: Translations = {
     "criticalCenter.channelConfigTitle": "通知通道配置",
     "criticalCenter.saving": "保存中...",
     "criticalCenter.channelsUnavailable": "通道配置加载中或不可用...",
-    "criticalCenter.channelHint": "关闭的通道将不再投递危急值通知（投递状态判定为 FAILED），配置保存至系统配置表 critical_channel_* 键。",
+    "criticalCenter.channelHint":
+      "关闭的通道将不再投递危急值通知（投递状态判定为 FAILED），配置保存至系统配置表 critical_channel_* 键。",
     // [v3.0.6.11-106 Wave 9A] 区域报告列表页 i18n
     "regionalReport.institutions": "医疗机构",
     "regionalReport.institutionsUnit": "家",
     "regionalReport.allInstitutions": "全部机构",
-    "regionalReport.institutionsLoadFailed": "机构清单加载失败, 请检查区域协同服务后重试",
+    "regionalReport.institutionsLoadFailed":
+      "机构清单加载失败, 请检查区域协同服务后重试",
     "regionalReport.allHospitals": "区域所有医院",
     "regionalReport.pendingReview": "待审",
     "regionalReport.quickFilter": "快速筛选",
@@ -8336,7 +8518,8 @@ export const translations: Translations = {
     "regionalReport.startConsult": "发起会诊",
     "regionalReport.consultRecords": "会诊记录",
     "regionalReport.applyConsult": "发起申请",
-    "regionalReport.searchConsultPlaceholder": "搜索患者姓名、病例号、检查项目...",
+    "regionalReport.searchConsultPlaceholder":
+      "搜索患者姓名、病例号、检查项目...",
     "regionalReport.noConsultRecords": "暂无会诊记录",
     "regionalReport.colCaseId": "病例号",
     "regionalReport.colPatientInfo": "患者信息",
@@ -8373,7 +8556,8 @@ export const translations: Translations = {
     "regionalReport.view": "查看",
     "regionalReport.remoteDiagnosis": "医联体远程诊断",
     "regionalReport.remoteWritingList": "远程书写列表",
-    "regionalReport.searchRemotePlaceholder": "搜索患者姓名、病例号、检查类型...",
+    "regionalReport.searchRemotePlaceholder":
+      "搜索患者姓名、病例号、检查类型...",
     "regionalReport.colExamType": "检查类型",
     "regionalReport.colRemoteExpert": "远程专家",
     "regionalReport.typing": "正在输入...",
@@ -8419,7 +8603,8 @@ export const translations: Translations = {
     "regionalReport.statusRevoked": "已撤销",
     "regionalReport.revoke": "撤销",
     "regionalReport.shareAuditLog": "分享审计日志",
-    "regionalReport.shareAuditHint": "报告分享操作已记录至审计系统，所有访问行为可追溯。",
+    "regionalReport.shareAuditHint":
+      "报告分享操作已记录至审计系统，所有访问行为可追溯。",
     "regionalReport.reportIdLabel": "报告编号",
     "regionalReport.inputReportId": "输入报告编号",
     "regionalReport.targetInstitution": "目标机构",
@@ -8471,6 +8656,7 @@ export const translations: Translations = {
     "w9.common.createSuccess": "创建成功",
     "w9.common.updateSuccess": "更新成功",
     "w9.common.deleteSuccess": "删除成功",
+    "w9.common.deleteFailed": "删除失败",
     "w9.common.deleteConfirm": "确认删除该记录？",
     "w9.common.exportSuccess": "已导出 CSV",
     "w9.common.patient": "患者",
@@ -8610,14 +8796,16 @@ export const translations: Translations = {
     "w9.exportApproval.status": "状态",
     "w9.exportApproval.actions": "操作",
     "w9.exportApproval.approveTitle": "批准导出申请",
-    "w9.exportApproval.approveContent": "确认批准该导出申请?批准后申请者可执行导出。",
+    "w9.exportApproval.approveContent":
+      "确认批准该导出申请?批准后申请者可执行导出。",
     "w9.exportApproval.rejectTitle": "拒绝导出申请",
     "w9.exportApproval.rejectReason": "拒绝原因(必填)",
     "w9.exportApproval.createTitle": "新建导出申请",
     "w9.exportApproval.resourceLabel": "资源类型",
     "w9.exportApproval.resourceIdLabel": "资源名称(报告ID / 患者号等)",
     "w9.exportApproval.reasonLabel": "申请原因",
-    "w9.exportApproval.reasonPlaceholder": "请填写导出用途与理由,如:用于院内会诊 / 科研归档",
+    "w9.exportApproval.reasonPlaceholder":
+      "请填写导出用途与理由,如:用于院内会诊 / 科研归档",
     "w9.exportApproval.approvedMsg": "已批准导出申请",
     "w9.exportApproval.rejectedMsg": "已拒绝导出申请",
     "w9.exportApproval.submittedMsg": "导出申请已提交,等待审批",
@@ -8701,7 +8889,8 @@ export const translations: Translations = {
     "w8.costOverview.liveTag": "财务接口实时",
     "w8.costOverview.costCompositionTitle": "成本构成分析",
     "w8.costOverview.demoNote": "(分类构成为演示数据)",
-    "w8.costOverview.liveNote": "实时接口 (financeApi.cost-accounting) 仅提供成本总额与科室/模态维度, 设备折旧/耗材/人力分类构成为演示数据",
+    "w8.costOverview.liveNote":
+      "实时接口 (financeApi.cost-accounting) 仅提供成本总额与科室/模态维度, 设备折旧/耗材/人力分类构成为演示数据",
     "w8.costOverview.equipmentCost": "设备折旧+维护",
     "w8.costOverview.consumableCost": "耗材成本",
     "w8.costOverview.laborCost": "人力成本",
@@ -8746,9 +8935,11 @@ export const translations: Translations = {
     "w8.forbidden.hintGuest": "请先登录后再访问该页面。",
     "w8.forbidden.back": "返回上一页",
     "w8.forbidden.home": "返回首页",
-    "w8.forbidden.needPermission": "如确需访问, 请联系系统管理员开通对应角色权限。",
+    "w8.forbidden.needPermission":
+      "如确需访问, 请联系系统管理员开通对应角色权限。",
     "w8.reportCompare.title": "报告 V2 收尾",
-    "w8.reportCompare.subtitle": "报告对比 V2 (F16) · 报告检索 V2 (自然语言 + 跨机构)",
+    "w8.reportCompare.subtitle":
+      "报告对比 V2 (F16) · 报告检索 V2 (自然语言 + 跨机构)",
     "w8.reportCompare.tabCompare": "报告对比 V2 (F16)",
     "w8.reportCompare.tabSearch": "报告检索 V2 (自然语言 + 跨机构)",
     "w8.reportCompare.waveTag": "Wave 8A",
@@ -8817,7 +9008,8 @@ export const translations: Translations = {
     "nav.volumeStudio": "多平面重建工作室",
     "nav.aiEnhanced": "AI 增强",
     "techWorkbench.title": "技师工作站 · 端到端流程",
-    "techWorkbench.subtitle": "预约→分诊→排班→叫号→检查(重拍/剂量/设备)→完成→报告待审",
+    "techWorkbench.subtitle":
+      "预约→分诊→排班→叫号→检查(重拍/剂量/设备)→完成→报告待审",
     "techWorkbench.tabToday": "今日检查",
     "techWorkbench.tabRooms": "房间状态",
     "techWorkbench.tabRetake": "重拍登记",
@@ -8864,7 +9056,8 @@ export const translations: Translations = {
     "techWorkbench.doseRequired": "图像合格时必须填写剂量记录（DLP/CTDIvol）",
     "techWorkbench.retakeReason": "重拍原因",
     "techWorkbench.retakeReasonRequired": "重拍必须选择原因",
-    "techWorkbench.retakeNote": "重拍已登记，检查自动回到「检查中」，重拍计数 +1",
+    "techWorkbench.retakeNote":
+      "重拍已登记，检查自动回到「检查中」，重拍计数 +1",
     "techWorkbench.completedMsg": "检查已完成，已自动进入报告待审列表",
     "techWorkbench.doseSaved": "剂量记录已保存",
     "techWorkbench.handoverTitle": "交接班",
@@ -8880,7 +9073,8 @@ export const translations: Translations = {
     "techWorkbench.techRequired": "请选择目标技师",
     "techWorkbench.examRequired": "请选择检查",
     "techWorkbench.emergencyTitle": "紧急检查插队",
-    "techWorkbench.emergencyDesc": "危急检查一键插入 → 时段建议 → 冲突检测 → 确认插入",
+    "techWorkbench.emergencyDesc":
+      "危急检查一键插入 → 时段建议 → 冲突检测 → 确认插入",
     "techWorkbench.emergencySuccess": "紧急检查已插入 {{device}} {{time}}",
     "techWorkbench.emergencyFailed": "插入失败：{{msg}}",
     "techWorkbench.emergencyRecords": "紧急插入记录",
@@ -8894,8 +9088,10 @@ export const translations: Translations = {
     "techWorkbench.noData": "暂无数据",
     "techWorkbench.timeoutAction": "检查前核对",
     "techWorkbench.timeoutTitle": "检查前核对（Time-Out）",
-    "techWorkbench.timeoutDesc": "开始检查前请逐项核对患者身份与安全信息，全部必填项确认后方可开始检查。",
-    "techWorkbench.timeoutRequiredHint": "需先完成检查前核对（Time-Out）才能开始检查",
+    "techWorkbench.timeoutDesc":
+      "开始检查前请逐项核对患者身份与安全信息，全部必填项确认后方可开始检查。",
+    "techWorkbench.timeoutRequiredHint":
+      "需先完成检查前核对（Time-Out）才能开始检查",
     "techWorkbench.timeoutVerifiedTag": "已核对",
     "techWorkbench.timeoutIdentity": "患者身份双标识",
     "techWorkbench.timeoutIdentityName": "姓名",
@@ -8972,7 +9168,8 @@ export const translations: Translations = {
     "qcDashboard.defectRate": "缺陷率",
     "qcDashboard.criticalValue": "危急值",
     "qcDashboard.timelyRate": "及时率",
-    "qcDashboard.imageTrendFallback": "图像质控评估接口不可用，展示派生演示趋势",
+    "qcDashboard.imageTrendFallback":
+      "图像质控评估接口不可用，展示派生演示趋势",
     "qcDashboard.defectIncomplete": "描述不完整",
     "qcDashboard.defectTypo": "错别字",
     "qcDashboard.defectInconsistent": "诊断不一致",
@@ -9071,7 +9268,8 @@ export const translations: Translations = {
     "qcDashboard.monthlyDetail": "月度明细",
     "qcDashboard.month": "月份",
     "qcDashboard.pageTitle": "放射科质控总看板",
-    "qcDashboard.pageSubtitle": "聚合 10 大子模块质控 KPI · 实时监控 · 数据驱动改进",
+    "qcDashboard.pageSubtitle":
+      "聚合 10 大子模块质控 KPI · 实时监控 · 数据驱动改进",
     "qcDashboard.exportFilename": "放射科质控总览",
     "qcDashboard.exportMonthly": "导出月报",
     "qcDashboard.exportMonthlyAria": "导出质控总览月报",
@@ -9475,7 +9673,8 @@ export const translations: Translations = {
     "statsPage.slaRate": "SLA 达成率",
     "statsPage.avgResponseTime": "平均响应时间",
     "statsPage.criticalTotal": "危急值总量",
-    "statsPage.criticalStatsNote": "统计口径: 危急值上报到医生确认闭环时长 (SLA 阈值 30min)",
+    "statsPage.criticalStatsNote":
+      "统计口径: 危急值上报到医生确认闭环时长 (SLA 阈值 30min)",
     "statsPage.unclosedCritical": "超期未闭环危急值 (",
     "statsPage.criticalResponseDist": "危急值响应时间分布",
     "statsPage.noDeptData": "暂无科室数据",
@@ -9498,7 +9697,8 @@ export const translations: Translations = {
     "statsPage.compositionShare": "构成占比",
     "statsPage.workloadCompositionDetail": "医生工作量构成明细",
     "statsPage.scopeNote": "口径说明:",
-    "statsPage.radarNote": "科室雷达 6 指标归一化 0-100 分; 设备使用率 = OEE (可用性×性能×质量); 工作量构成为初核/终核/双签三类报告流转占比;",
+    "statsPage.radarNote":
+      "科室雷达 6 指标归一化 0-100 分; 设备使用率 = OEE (可用性×性能×质量); 工作量构成为初核/终核/双签三类报告流转占比;",
     "statsPage.csvNameStats": "放射科统计报表.csv",
     "statsPage.csvExamTrend": "检查量趋势(7日)",
     "statsPage.date": "日期",
@@ -9600,7 +9800,8 @@ export const translations: Translations = {
     "statsPage.lowest": "最低:",
     "statsPage.itemUnit": "项",
     "statsPage.totalPrefix": "共",
-    "statsPage.criticalStatsNote2": "统计口径: 危急值上报 → 医生确认闭环时长 (SLA 阈值 30min)",
+    "statsPage.criticalStatsNote2":
+      "统计口径: 危急值上报 → 医生确认闭环时长 (SLA 阈值 30min)",
     "statsPage.day1": "第1天",
     "statsPage.day2": "第2天",
     "statsPage.day3": "第3天",
@@ -9608,7 +9809,8 @@ export const translations: Translations = {
     "statsPage.day5": "第5天",
     "statsPage.day6": "第6天",
     "statsPage.day7": "第7天",
-    "statsPage.radarNoteLong": "科室雷达 6 指标归一化 0-100 分; 设备使用率 = OEE (可用性×性能×质量); 工作量构成为初核/终核/双签三类报告流转占比; 危急值响应分布按上报至确认闭环时长分档 (SLA 阈值 30min)。真实接口不可用时自动回退确定性演示数据并在页面上方标注。",
+    "statsPage.radarNoteLong":
+      "科室雷达 6 指标归一化 0-100 分; 设备使用率 = OEE (可用性×性能×质量); 工作量构成为初核/终核/双签三类报告流转占比; 危急值响应分布按上报至确认闭环时长分档 (SLA 阈值 30min)。真实接口不可用时自动回退确定性演示数据并在页面上方标注。",
     "statsPage.csvExamTrend7d": "检查量趋势(近7天)",
     "statsPage.reportVolume": "报告量",
     "statsPage.estimatedVolume": "估算量",
@@ -9796,7 +9998,8 @@ export const translations: Translations = {
     "printMgmt.imageAbdCt": "腹部CT",
     "printMgmt.imageHeadMr": "头颅MR",
     "printMgmt.labelSourceQueue": "标签来源: 当前打印队列",
-    "printMgmt.labelPlaceholderNote": "标签为通用占位(队列无任务, 待接入序列数据)",
+    "printMgmt.labelPlaceholderNote":
+      "标签为通用占位(队列无任务, 待接入序列数据)",
     "printMgmt.previewExportFailed": "预览图导出失败",
     "printMgmt.previewExported": "胶片布局预览图已导出下载",
     "printMgmt.quotaSelectDeptAndCount": "请选择科室并填写申请张数",
@@ -9948,7 +10151,8 @@ export const translations: Translations = {
     "printMgmt.requestCountRequired": "申请增加张数 *",
     "printMgmt.requestPurposeRequired": "申请用途 *",
     "printMgmt.purposeExample": "如 体检旺季，胶片用量增加30%",
-    "printMgmt.quotaSubmitNote": "提交后记录到本地（标记 后端审批接口 /print/quota 待接入），状态为「待审批」。",
+    "printMgmt.quotaSubmitNote":
+      "提交后记录到本地（标记 后端审批接口 /print/quota 待接入），状态为「待审批」。",
     "printMgmt.submitting": "提交中...",
     "printMgmt.submitRequest": "提交申请",
     "printMgmt.green": "绿色",
@@ -9957,7 +10161,8 @@ export const translations: Translations = {
     "printMgmt.nearLimit": "接近上限，提醒科室控制用量",
     "printMgmt.red": "红色",
     "printMgmt.alertNow": "立即预警，自动通知主管部门",
-    "printMgmt.overQuotaNote": "超配额自动切换为审批模式，需科室主任审批后方可继续打印",
+    "printMgmt.overQuotaNote":
+      "超配额自动切换为审批模式，需科室主任审批后方可继续打印",
     "printMgmt.quotaAlertRules": "配额预警规则",
     "printMgmt.noTrendData": "暂无打印趋势数据",
     "printMgmt.printVolumeTrend": "打印量趋势",
@@ -9996,7 +10201,8 @@ export const translations: Translations = {
     "printMgmt.templatePreviewDot": "模板预览 ·",
     "printMgmt.noLogo": "无Logo",
     "printMgmt.filmLayoutNote": "胶片布局说明",
-    "printMgmt.layoutNoteBody": "预览为排版示意，实际打印以 DICOM 打印服务输出为准。",
+    "printMgmt.layoutNoteBody":
+      "预览为排版示意，实际打印以 DICOM 打印服务输出为准。",
     "printMgmt.close": "关闭",
     "printMgmt.filmPrintPreview": "胶片打印预览",
     "printMgmt.patientId": "患者ID",
@@ -10023,7 +10229,8 @@ export const translations: Translations = {
     "printMgmt.loading": "正在加载打印数据...",
     "printMgmt.realData": "真实数据",
     "printMgmt.demoData": "演示数据",
-    "printMgmt.dataSourceNote": "打印机=deviceApi(/devices) · 队列/历史/统计=printApi(/print/*)；胶片用量/费用为估算值。",
+    "printMgmt.dataSourceNote":
+      "打印机=deviceApi(/devices) · 队列/历史/统计=printApi(/print/*)；胶片用量/费用为估算值。",
     "printMgmt.todayPrints": "今日打印",
     "printMgmt.timesUnit": "次",
     "printMgmt.filmsUsed": "使用胶片",
@@ -10043,11 +10250,13 @@ export const translations: Translations = {
     "printMgmt.copiesDot": "份 ·",
     "printMgmt.selectedShort": "已选",
     "printMgmt.filmsDot": "张胶片 ·",
-    "printMgmt.quotaSubmitNote2": "提交后记录到本地（标注: 后端审批流 /print/quota 待接入），状态为「待审批」。",
+    "printMgmt.quotaSubmitNote2":
+      "提交后记录到本地（标注: 后端审批流 /print/quota 待接入），状态为「待审批」。",
     "printMgmt.usage": "使用量",
     "printMgmt.completedCount": "完成数",
     "printMgmt.templatePreviewDash": "模板预览 —",
-    "printMgmt.dataSourceNote2": "打印机=deviceApi(/devices) · 队列/历史/统计=printApi(/print/*)；胶片用量/费用为估算值",
+    "printMgmt.dataSourceNote2":
+      "打印机=deviceApi(/devices) · 队列/历史/统计=printApi(/print/*)；胶片用量/费用为估算值",
     "examPage.statusPending": "待检查",
     "examPage.statusInProgress": "检查中",
     "examPage.statusReported": "已报告",
@@ -10084,7 +10293,8 @@ export const translations: Translations = {
     "examPage.routineExam": "常规检查",
     "examPage.other": "其他",
     "examPage.unknownPatient": "未知患者",
-    "examPage.deepAnalysisFallback": "深度分析接口暂不可用 (worklistApi/statsApi)，展示本地派生数据",
+    "examPage.deepAnalysisFallback":
+      "深度分析接口暂不可用 (worklistApi/statsApi)，展示本地派生数据",
     "examPage.networkError": "网络错误",
     "examPage.qcReturned": "影像质控退回",
     "examPage.qcPassed": "影像质控通过",
@@ -10094,12 +10304,15 @@ export const translations: Translations = {
     "examPage.batchSignFailed": "批量签字失败",
     "examPage.printTaskFailed": "创建打印任务失败",
     "examPage.printFailed": "打印任务失败",
-    "examPage.csvHeaderFull": "检查ID,检查号,患者ID,患者姓名,设备,部位,状态,检查日期,检查时间",
+    "examPage.csvHeaderFull":
+      "检查ID,检查号,患者ID,患者姓名,设备,部位,状态,检查日期,检查时间",
     "examPage.batchOpFailed": "批量操作失败",
     "examPage.batchAssignFailed": "批量分配设备失败",
     "examPage.exportNoData": "导出接口无数据",
-    "examPage.csvHeaderBasic": "检查ID,检查号,患者ID,患者姓名,设备,部位,状态,检查日期",
-    "examPage.importParseFailed": "未解析到检查数据, 请检查 JSON/CSV 格式 (patientId/accessionNumber/modality/bodyPart 为必填)",
+    "examPage.csvHeaderBasic":
+      "检查ID,检查号,患者ID,患者姓名,设备,部位,状态,检查日期",
+    "examPage.importParseFailed":
+      "未解析到检查数据, 请检查 JSON/CSV 格式 (patientId/accessionNumber/modality/bodyPart 为必填)",
     "examPage.importFailed": "导入失败",
     "examPage.importFailedPrefix": "导入失败:",
     "examPage.mergeNeedTwo": "请至少选择 2 个检查进行合并",
@@ -10192,7 +10405,8 @@ export const translations: Translations = {
     "examPage.overallRetakeRate": "综合重拍率",
     "examPage.timesPer": "次 /",
     "examPage.casesSuffix": "例)",
-    "examPage.retakeNote": "重拍率 = 重拍次数 / 检查总数。重拍率 &gt; 8% 的模态建议排查设备参数与技师操作规范，&gt; 5% 需关注体位摆放一致性。",
+    "examPage.retakeNote":
+      "重拍率 = 重拍次数 / 检查总数。重拍率 &gt; 8% 的模态建议排查设备参数与技师操作规范，&gt; 5% 需关注体位摆放一致性。",
     "examPage.examTimeline": "检查时间线 (按患者)",
     "examPage.lastPrefix": "近",
     "examPage.multiExamPatients": "位多检患者 · 按检查次数排序",
@@ -10236,13 +10450,15 @@ export const translations: Translations = {
     "examPage.selectDevice": "请选择设备",
     "examPage.confirmAssign2": "确认分配",
     "examPage.selected": "已选",
-    "examPage.mergeNote": "个检查（须为同一患者）: 选择合并后保留的【目标检查】, 其余检查的报告将迁移至目标检查。",
+    "examPage.mergeNote":
+      "个检查（须为同一患者）: 选择合并后保留的【目标检查】, 其余检查的报告将迁移至目标检查。",
     "examPage.success": "成功",
     "examPage.merging": "合并中...",
     "examPage.confirmMerge": "确认合并",
     "examPage.splitExam": "拆分检查",
     "examPage.exam2": "检查",
-    "examPage.splitNote": "）: 输入该检查下的报告 ID（逗号分隔）, 每份报告将独立成新检查。",
+    "examPage.splitNote":
+      "）: 输入该检查下的报告 ID（逗号分隔）, 每份报告将独立成新检查。",
     "examPage.examplePrefix": "例如:",
     "examPage.close": "关闭",
     "examPage.splitting": "拆分中...",
@@ -10251,8 +10467,10 @@ export const translations: Translations = {
     "examPage.supports": "支持",
     "examPage.jsonArray": "JSON 数组",
     "examPage.or": "或",
-    "examPage.importHeaderNote": "(表头:\r\n                patientId/accessionNumber/modality/bodyPart/scheduledAt/deviceId)。\r\n                患者不存在将报错列出, 检查号重复自动跳过。",
-    "examPage.importExample": "[\n  { \"patientId\": \"P000001\", \"accessionNumber\": \"ACC-2026-0001\", \"modality\": \"CT\", \"bodyPart\": \"胸部\", \"scheduledAt\": \"2026-08-07T09:00:00.000Z\" }\n]",
+    "examPage.importHeaderNote":
+      "(表头:\r\n                patientId/accessionNumber/modality/bodyPart/scheduledAt/deviceId)。\r\n                患者不存在将报错列出, 检查号重复自动跳过。",
+    "examPage.importExample":
+      '[\n  { "patientId": "P000001", "accessionNumber": "ACC-2026-0001", "modality": "CT", "bodyPart": "胸部", "scheduledAt": "2026-08-07T09:00:00.000Z" }\n]',
     "examPage.uploadFiles": "上传 .csv / .json 文件",
     "examPage.importDoneSuccess": "导入完成: 成功",
     "examPage.skippedSuffix": "/ 跳过",
@@ -10492,7 +10710,8 @@ export const translations: Translations = {
     "qcPage.loading": "正在从 API 加载质控数据...",
     "qcPage.pageTitle": "质控中心",
     "qcPage.versionBadge": "v1.0.4 质量评分 + AI 增强子系统就绪",
-    "qcPage.pageSubtitle": "5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初评",
+    "qcPage.pageSubtitle":
+      "5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初评",
     "qcPage.tabKeywordScan": "关键字扫描",
     "qcPage.tabScoreRules": "评分规则",
     "qcPage.tabDefectLibrary": "缺陷字典",
@@ -10723,7 +10942,8 @@ export const translations: Translations = {
     "qcPage.reportDoctorLabel": "报告医生:",
     "qcPage.complete": "完成",
     "qcPage.formNotWiredTitle": "该功能尚未接入后端",
-    "qcPage.formNotWiredDesc": "质控记录登记/问题追踪的创建端点尚未实现, 当前无法保存。接入后本对话框将提供完整表单。",
+    "qcPage.formNotWiredDesc":
+      "质控记录登记/问题追踪的创建端点尚未实现, 当前无法保存。接入后本对话框将提供完整表单。",
     "qcPage.blindReviewDetail": "盲审评分详情 -",
     "qcPage.case": "案例",
     "qcPage.reportTimeliness": "报告及时性",
@@ -10736,7 +10956,8 @@ export const translations: Translations = {
     "qcPage.period2026Apr": "2026年4月",
     "qcPage.rulePatientInfoConsistent": "患者姓名、ID、年龄、性别与申请单一致",
     "qcPage.ruleCriticalAnnotation": "包含危急值标注",
-    "qcPage.pageSubtitle2": "5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初稿",
+    "qcPage.pageSubtitle2":
+      "5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初稿",
     "qcPage.reportUnit": "份",
     "qcPage.scoreUnit": "分",
     "qcPage.minPerCase": "分钟/例",
@@ -10760,7 +10981,8 @@ export const translations: Translations = {
     "qcPage.foundItems": "发现项",
     "qcPage.reportsPerDoctor": "份/医生",
     "qcPage.dailyReviewPerDoctor2": "每人每日审核量",
-    "reportWrite.demoComplaint": "女, 58 岁, 体检发现右肺上叶结节 1 月, 无明显症状。",
+    "reportWrite.demoComplaint":
+      "女, 58 岁, 体检发现右肺上叶结节 1 月, 无明显症状。",
     "reportWrite.aiDraftApplied": "已应用 AI 草稿到编辑器",
     "reportWrite.structuredPrefilled": "已预填结构化字段到编辑器",
     "reportWrite.historySummary": "既往病史摘要",
@@ -10782,7 +11004,8 @@ export const translations: Translations = {
     "reportWrite.fusionSearchError": "融合检索服务返回异常",
     "reportWrite.searchError": "检索服务返回异常",
     "reportWrite.similarSearchFailed": "相似病例检索失败",
-    "reportWrite.similarSearchHint": "输入报告文本后自动检索,可选关联检查启用影像特征融合",
+    "reportWrite.similarSearchHint":
+      "输入报告文本后自动检索,可选关联检查启用影像特征融合",
     "reportWrite.linkExams": "关联检查(影像特征)",
     "reportWrite.refresh": "刷新",
     "reportWrite.searching": "检索中...",
@@ -10806,7 +11029,8 @@ export const translations: Translations = {
     "reportWrite.scoring": "(评分中)",
     "reportWrite.realScore": "真实评分",
     "reportWrite.demoFallback": "演示回退",
-    "reportWrite.scoreSourceNote": "reportQualityApi.evaluate 真实评分, 失败回退本地演示",
+    "reportWrite.scoreSourceNote":
+      "reportQualityApi.evaluate 真实评分, 失败回退本地演示",
     "reportWrite.scoreDims": "评分维度",
     "reportWrite.checklist": "检查清单",
     "reportWrite.improvements": "改进建议",
@@ -10838,7 +11062,8 @@ export const translations: Translations = {
     "reportWrite.favoriteTemplates": "收藏常用模板",
     "reportWrite.structuredTemplate": "(结构化模板)",
     "reportWrite.templateLoading": "模板加载中...",
-    "reportWrite.letterheadHtml": "<div class=\"lp-letterhead\"><div class=\"lp-org\">汉东省人民医院</div><div class=\"lp-sub\">放射诊断中心</div></div>",
+    "reportWrite.letterheadHtml":
+      '<div class="lp-letterhead"><div class="lp-org">汉东省人民医院</div><div class="lp-sub">放射诊断中心</div></div>',
     "reportWrite.reportNo": "报告编号",
     "reportWrite.patient": "患者",
     "reportWrite.genderAge": "性别/年龄",
@@ -10852,8 +11077,10 @@ export const translations: Translations = {
     "reportWrite.realDicom": "真实DICOM",
     "reportWrite.synthetic": "合成",
     "reportWrite.length": "长度",
-    "reportWrite.noMeasurementsImport": "影像浏览器暂无测量数据, 可在 DICOM 查看器完成测量(长度/Cobb角/面积等)后回到本页自动带入, 或手动添加",
-    "reportWrite.noMeasurementsManual": "影像浏览器暂无测量数据, 可手动添加测量行",
+    "reportWrite.noMeasurementsImport":
+      "影像浏览器暂无测量数据, 可在 DICOM 查看器完成测量(长度/Cobb角/面积等)后回到本页自动带入, 或手动添加",
+    "reportWrite.noMeasurementsManual":
+      "影像浏览器暂无测量数据, 可手动添加测量行",
     "reportWrite.measurementsLoadFailed": "测量数据读取失败, 可手动添加测量行",
     "reportWrite.angle": "角度",
     "reportWrite.cobbAngle": "Cobb角",
@@ -10865,12 +11092,14 @@ export const translations: Translations = {
     "reportWrite.volume": "体积",
     "reportWrite.measurementsRequired": "请输入测量数据",
     "reportWrite.measurementsHtml": "<h3>影像测量数据</h3>",
-    "reportWrite.noMeasurementsHint": "暂无测量数据: 可从影像浏览器导入或手动添加后生成",
+    "reportWrite.noMeasurementsHint":
+      "暂无测量数据: 可从影像浏览器导入或手动添加后生成",
     "reportWrite.measurementsInserted": "测量表已插入报告正文 (SR 段落)",
     "reportWrite.aiRadsInserted": "已插入 AI RADS 评分段落",
     "reportWrite.aiRadsInsertedCrossPage": "已插入 AI RADS 评分段落 (跨页补插)",
     "reportWrite.mipScreenshot": "MIP 截图",
-    "reportWrite.mipCaptionIncomplete": "MIP 图注自动插入未完成, 可在报告「关键图像与影像锚定」重新插入",
+    "reportWrite.mipCaptionIncomplete":
+      "MIP 图注自动插入未完成, 可在报告「关键图像与影像锚定」重新插入",
     "reportWrite.currentUser": "当前用户",
     "reportWrite.historyNotLoaded": "既往病史摘要尚未加载, 请稍后重试",
     "reportWrite.historyHtml": "<h3>既往病史</h3>",
@@ -10887,7 +11116,8 @@ export const translations: Translations = {
     "reportWrite.autoSaving": "自动保存中...",
     "reportWrite.autoSaveFailed": "自动保存失败",
     "reportWrite.submitted": "报告已提交审核",
-    "reportWrite.submitFailedState": "提交失败:报告状态不可提交或网络异常,请先保存后重试",
+    "reportWrite.submitFailedState":
+      "提交失败:报告状态不可提交或网络异常,请先保存后重试",
     "reportWrite.submitFailedNetwork": "提交失败:网络异常,请稍后重试",
     "reportWrite.signed": "报告已签署",
     "reportWrite.signFailed": "签署失败,请稍后重试",
@@ -10903,12 +11133,14 @@ export const translations: Translations = {
     "reportWrite.pdfExported": "报告 PDF 已导出",
     "reportWrite.exportQueued": "导出任务已入队,后端生成完成后可下载 PDF",
     "reportWrite.exportQueuedShort": "导出任务已入队",
-    "reportWrite.structuredTemplateHint": "该模板为结构化模板,无自由文本,请使用下方结构化字段表单填写",
+    "reportWrite.structuredTemplateHint":
+      "该模板为结构化模板,无自由文本,请使用下方结构化字段表单填写",
     "reportWrite.templateLoadFailed": "模板加载失败,请重试",
     "reportWrite.noPatientForPrior": "当前报告缺少患者信息,无法查询既往检查",
     "reportWrite.noPriorToCopy": "该患者暂无既往检查报告,无法复制",
     "reportWrite.priorQueryFailed": "查询既往检查失败,请稍后重试",
-    "reportWrite.noPatientForPriorReport": "当前报告缺少患者信息,无法查询既往报告",
+    "reportWrite.noPatientForPriorReport":
+      "当前报告缺少患者信息,无法查询既往报告",
     "reportWrite.priorLoadedForCompare": "已加载同患者最近既往报告进行对比",
     "reportWrite.priorLoadFailed": "既往报告加载失败,请稍后重试",
     "reportWrite.selectFindingOrImpression": "请至少勾选所见或印象一项",
@@ -10940,15 +11172,18 @@ export const translations: Translations = {
     "reportWrite.pageTitle": "报告书写",
     "reportWrite.preScoreSource": "预评分数据源",
     "reportWrite.templateLibrary": "模板库",
-    "reportWrite.templateLibraryHint": "模板库: 分类浏览全文模板与短语, 点击插入光标处",
+    "reportWrite.templateLibraryHint":
+      "模板库: 分类浏览全文模板与短语, 点击插入光标处",
     "reportWrite.templateSections": "模板段落库",
-    "reportWrite.templateSectionsHint": "按当前检查模态/部位匹配段落模板, 生成段落树并一键填充编辑器",
+    "reportWrite.templateSectionsHint":
+      "按当前检查模态/部位匹配段落模板, 生成段落树并一键填充编辑器",
     "reportWrite.patientProfile": "患者画像",
     "reportWrite.noPatientProfile": "当前报告缺少患者信息,无法打开患者画像",
     "reportWrite.openPatient360": "打开该患者 360 全景画像",
     "reportWrite.copyPrior": "复制上例",
     "reportWrite.noPriorExam": "无既往检查",
-    "reportWrite.copyPriorHint": "复制该患者上一例检查(同模态优先)的所见/印象到当前报告",
+    "reportWrite.copyPriorHint":
+      "复制该患者上一例检查(同模态优先)的所见/印象到当前报告",
     "reportWrite.locked": "已锁定",
     "reportWrite.aiEnvNote": "环境: AI 生成报告草稿 (所见+结论+建议)",
     "reportWrite.save": "保存",
@@ -10960,14 +11195,17 @@ export const translations: Translations = {
     "reportWrite.phraseLibraryHint": "从短语库选择常用语插入编辑器",
     "reportWrite.slashCount": "共/",
     "reportWrite.reportUnit": "份",
-    "reportWrite.shortcuts": "Ctrl+S 保存草稿 · Ctrl+Enter 提交 · Ctrl+T 模板库 · Alt+←/→ 上一份/下一份 · F2 语音录入 · F5 AI 草稿",
+    "reportWrite.shortcuts":
+      "Ctrl+S 保存草稿 · Ctrl+Enter 提交 · Ctrl+T 模板库 · Alt+←/→ 上一份/下一份 · F2 语音录入 · F5 AI 草稿",
     "reportWrite.sign": "签署",
     "reportWrite.publish": "发布",
     "reportWrite.returnToRewrite": "退回重写",
     "reportWrite.collapseSidebar": "收起侧栏",
     "reportWrite.expandSidebar": "展开侧栏",
-    "reportWrite.rewriteHint": "请修改报告内容后点击右上角「退回重写」重新进入书写状态,再提交审核",
-    "reportWrite.concurrentEditWarn": "检测到并发修改:该报告已被其他医师更新(本地仍基于旧版本编辑),继续保存将覆盖最新内容",
+    "reportWrite.rewriteHint":
+      "请修改报告内容后点击右上角「退回重写」重新进入书写状态,再提交审核",
+    "reportWrite.concurrentEditWarn":
+      "检测到并发修改:该报告已被其他医师更新(本地仍基于旧版本编辑),继续保存将覆盖最新内容",
     "reportWrite.exampleSuffix": "（示例）",
     "reportWrite.demoClinicalDiagnosis": "右肺占位性病变",
     "reportWrite.reportStatus": "报告状态",
@@ -10979,7 +11217,8 @@ export const translations: Translations = {
     "reportWrite.demoPastHistory": "无肿瘤病史",
     "reportWrite.clinicalInfo": "临床信息",
     "reportWrite.exampleData": "示例数据",
-    "reportWrite.exampleDataNote": "患者/检查无真实数据时保留本地兜底值并标注来源",
+    "reportWrite.exampleDataNote":
+      "患者/检查无真实数据时保留本地兜底值并标注来源",
     "reportWrite.series": "序列",
     "reportWrite.ctAxialSeries": "CT 横断位",
     "reportWrite.exampleImage": "示例影像",
@@ -10994,7 +11233,8 @@ export const translations: Translations = {
     "reportWrite.measureLocation": "部位/位置",
     "reportWrite.measureValue": "数值",
     "reportWrite.add": "添加",
-    "reportWrite.noMeasurementsPrompt": "暂无测量数据 · 可在 DICOM 查看器完成测量后点击「从影像浏览器导入」自动带入, 或上方手动添加测量行",
+    "reportWrite.noMeasurementsPrompt":
+      "暂无测量数据 · 可在 DICOM 查看器完成测量后点击「从影像浏览器导入」自动带入, 或上方手动添加测量行",
     "reportWrite.imageMeasurements": "影像测量",
     "reportWrite.srSection": "SR 段落",
     "reportWrite.importFromViewer": "从影像浏览器导入",
@@ -11014,12 +11254,14 @@ export const translations: Translations = {
     "reportWrite.cancel": "取消",
     "reportWrite.confirmSubmit": "确认提交",
     "reportWrite.submitConfirmTitle": "提交审核确认",
-    "reportWrite.printLayoutNote": "打印将按所选布局注入打印容器;布局加载失败时回退系统打印",
+    "reportWrite.printLayoutNote":
+      "打印将按所选布局注入打印容器;布局加载失败时回退系统打印",
     "reportWrite.selectPrintTemplate": "选择打印模板",
     "reportWrite.noReportContext": "当前无报告上下文, 请先新建或选择报告",
     "reportWrite.overwrite": "覆盖",
     "reportWrite.append": "追加",
-    "reportWrite.templateApplyFailed": "模板应用失败 (请确认报告存在且为书写态)",
+    "reportWrite.templateApplyFailed":
+      "模板应用失败 (请确认报告存在且为书写态)",
     "reportWrite.templateApplyNetwork": "模板应用失败: 网络异常",
     "reportWrite.sectionTreeFilled": "段落树已填充编辑器, 请按实际所见修改",
     "reportWrite.sameModalityMatch": "同模态优先匹配",
@@ -11045,8 +11287,10 @@ export const translations: Translations = {
     "reportWrite.aiGenerateDraft": "AI 生成报告草稿",
     "reportWrite.generateDraft": "生成草稿",
     "reportWrite.contentIdentical": "(内容一致)",
-    "reportWrite.aiDraftNote": "AI 草稿仅供临床参考,接受前请核对所见与诊断的准确性",
-    "reportWrite.editDraftHint": "编辑草稿内容 (保存后提交 /ai/report-draft/:id/modify)",
+    "reportWrite.aiDraftNote":
+      "AI 草稿仅供临床参考,接受前请核对所见与诊断的准确性",
+    "reportWrite.editDraftHint":
+      "编辑草稿内容 (保存后提交 /ai/report-draft/:id/modify)",
     "reportWrite.currentEditorContent": "当前编辑器内容(删除高亮)",
     "reportWrite.aiDraftContent": "AI 草稿 (新增高亮)",
     "reportWrite.aiDraftConfirm": "AI 草稿确认",
@@ -11060,7 +11304,8 @@ export const translations: Translations = {
     "reportWrite.oldVersion": "旧版本",
     "reportWrite.newVersion": "新版本",
     "reportWrite.versionCompare": "版本对比:",
-    "reportWrite.searchPhrasePlaceholder": "搜索短语 / 分类 (如: 胸部、结节、随访)",
+    "reportWrite.searchPhrasePlaceholder":
+      "搜索短语 / 分类 (如: 胸部、结节、随访)",
     "reportWrite.phraseLoading": "短语加载中...",
     "reportWrite.noMatchingPhrase": "无匹配短语",
     "reportWrite.variableCount": "变量 ×",
@@ -11070,8 +11315,10 @@ export const translations: Translations = {
     "reportWrite.favoritePhrase": "收藏常用短语",
     "reportWrite.pieceUnit2": "款",
     "reportWrite.favorite": "收藏",
-    "reportWrite.snippetsFallback": "后端 /templates/snippets 不可用, 已回退演示数据",
-    "reportWrite.searchTemplatePlaceholder": "搜索模板 / 短语内容 (如: 胸部、结节、随访)",
+    "reportWrite.snippetsFallback":
+      "后端 /templates/snippets 不可用, 已回退演示数据",
+    "reportWrite.searchTemplatePlaceholder":
+      "搜索模板 / 短语内容 (如: 胸部、结节、随访)",
     "reportWrite.fullTextTemplates": "全文模板",
     "reportWrite.fullTextCount": "全文 ×",
     "reportWrite.fullTextInsertMode": "全文模板点击后插入方式",
@@ -11086,40 +11333,48 @@ export const translations: Translations = {
     "reportWrite.noMatchingTemplate": "无匹配模板",
     "reportWrite.backToWriting": "返回书写页选择",
     "reportWrite.templateDot": "模板 ·",
-    "reportWrite.snippetsPhraseFallback": "后端 /templates/snippets 不可用, 短语已回退演示数据",
+    "reportWrite.snippetsPhraseFallback":
+      "后端 /templates/snippets 不可用, 短语已回退演示数据",
     "reportWrite.serverFavorite": "服务端收藏",
-    "reportWrite.favoriteServerNote": "收藏: POST /templates/:id/favorite 同步服务端",
+    "reportWrite.favoriteServerNote":
+      "收藏: POST /templates/:id/favorite 同步服务端",
     "reportWrite.localFavoriteFallback": "本地收藏回退",
     "reportWrite.favoriteFallbackNote": "收藏接口不可用, 已回退 localStorage",
-    "reportWrite.demoComplaint2": "女性 58 岁,体检发现右肺上叶结节 1 周,无明显症状。",
+    "reportWrite.demoComplaint2":
+      "女性 58 岁,体检发现右肺上叶结节 1 周,无明显症状。",
     "reportWrite.recentImpressionLabel": "最近诊断意见:",
     "reportWrite.totalPrefix": "共",
-    "reportWrite.searchHint2": "输入报告文本后自动检索;可选关联检查启用影像特征融合",
+    "reportWrite.searchHint2":
+      "输入报告文本后自动检索;可选关联检查启用影像特征融合",
     "reportWrite.searching2": "检索中…",
     "reportWrite.yearsOld": "岁",
     "reportWrite.submittable": "可提交",
     "reportWrite.scoring2": "(评分中…)",
     "reportWrite.wordUnit": "字",
     "reportWrite.templateLoading2": "模板加载中…",
-    "reportWrite.noMeasurementsImport2": "影像浏览器暂无测量数据: 可在 DICOM 查看器完成测量(长度/Cobb角/面积等)后回到本页自动带入, 或手动添加",
+    "reportWrite.noMeasurementsImport2":
+      "影像浏览器暂无测量数据: 可在 DICOM 查看器完成测量(长度/Cobb角/面积等)后回到本页自动带入, 或手动添加",
     "reportWrite.measurementValueRequired": "请输入测量数值",
     "reportWrite.savedWithOverwrite2": "已保存 (检测到并发修改,已覆盖最新版本)",
     "reportWrite.autoSaving2": "自动保存中…",
     "reportWrite.returnedToWriting2": "报告已退回重写 (WRITING)",
-    "reportWrite.structuredTemplateHint2": "该模板为结构化模板(无自由文本),请使用下方结构化字段表单填写",
+    "reportWrite.structuredTemplateHint2":
+      "该模板为结构化模板(无自由文本),请使用下方结构化字段表单填写",
     "reportWrite.prevCase": "上一例",
     "reportWrite.nextCase": "下一例",
     "reportWrite.sectionTree": "模板段落树",
     "reportWrite.aiEnvNote2": "环境式 AI 生成报告草稿 (所见+结论+建议)",
     "reportWrite.wordsPer": "字 /",
     "reportWrite.minUnit": "分",
-    "reportWrite.shortcuts2": "Ctrl+S 保存草稿 · Ctrl+Enter 提交 · Ctrl+T 模板库 · Alt+↑/↓ 上一例/下一例 · F2 语音录入 · F5 AI 草稿",
+    "reportWrite.shortcuts2":
+      "Ctrl+S 保存草稿 · Ctrl+Enter 提交 · Ctrl+T 模板库 · Alt+↑/↓ 上一例/下一例 · F2 语音录入 · F5 AI 草稿",
     "reportWrite.genderAge2": "性别 / 年龄",
     "reportWrite.male": "男",
     "reportWrite.reportStatusLabel": "报告状态:",
     "reportWrite.demoComplaintShort2": "体检发现右肺结节 1 周",
     "reportWrite.ctAxialSeries2": "CT 横断面",
-    "reportWrite.noMeasurementsPrompt2": "暂无测量数据 — 在 DICOM 查看器完成测量后点击「从影像浏览器导入」自动带入, 或上方手动添加测量行",
+    "reportWrite.noMeasurementsPrompt2":
+      "暂无测量数据 — 在 DICOM 查看器完成测量后点击「从影像浏览器导入」自动带入, 或上方手动添加测量行",
     "reportWrite.checklistPrefix2": "检查清单 (",
     "reportWrite.examDateLabel": "检查日期:",
     "reportWrite.findingKeywords2": "发现关键词 (可选)",
@@ -11131,7 +11386,8 @@ export const translations: Translations = {
     "reportWrite.timesUnit": "次",
     "reportWrite.recordUnit": "条",
     "reportWrite.all": "全部",
-    "reportWrite.favoriteServerNote2": "收藏经 POST /templates/:id/favorite 同步服务端",
+    "reportWrite.favoriteServerNote2":
+      "收藏经 POST /templates/:id/favorite 同步服务端",
     "insuranceAudit.statusPending": "待审核",
     "insuranceAudit.auditHistory": "审核历史",
     "insuranceAudit.statistics": "统计分析",
@@ -11192,7 +11448,8 @@ export const translations: Translations = {
     "insuranceAudit.drgTumor": "肿瘤",
     "insuranceAudit.drgCerebrovascular": "脑血管疾病",
     "insuranceAudit.drgHepatobiliary": "肝胆疾病",
-    "insuranceAudit.csvHeader": "患者,患者ID,检查类型,检查项目,药品,药品类别,审核结果,审核人,审核时间,原因",
+    "insuranceAudit.csvHeader":
+      "患者,患者ID,检查类型,检查项目,药品,药品类别,审核结果,审核人,审核时间,原因",
     "insuranceAudit.approveFailed": "通过失败",
     "insuranceAudit.approveFailedReason": "不符合医保限制用药条件",
     "insuranceAudit.rejectFailed": "拒绝失败",
@@ -11253,7 +11510,8 @@ export const translations: Translations = {
     "insuranceAudit.voucherPending": "待开具",
     "insuranceAudit.voucherVoided": "已作废",
     "insuranceAudit.voucherTotalAmount": "总金额",
-    "insuranceAudit.voucherSearchPlaceholder": "搜索患者姓名、ID、凭证ID、关联审核ID...",
+    "insuranceAudit.voucherSearchPlaceholder":
+      "搜索患者姓名、ID、凭证ID、关联审核ID...",
     "insuranceAudit.voucherId": "凭证ID",
     "insuranceAudit.linkedAuditId": "关联审核ID",
     "insuranceAudit.patientName": "患者姓名",
@@ -11341,7 +11599,8 @@ export const translations: Translations = {
     "insuranceAudit.reasonLabel": "原因说明：",
     "insuranceAudit.recordNotFound": "未找到该审计记录",
     "insuranceAudit.close": "关闭",
-    "insuranceAudit.rejectReasonRequired": "请输入拒绝原因（必填，将同步至医保平台）",
+    "insuranceAudit.rejectReasonRequired":
+      "请输入拒绝原因（必填，将同步至医保平台）",
     "insuranceAudit.deleteRuleConfirm": "删除医保规则",
     "insuranceAudit.delete": "删除",
     "insuranceAudit.newRecordTitle": "新建医保审核记录",
@@ -11373,7 +11632,7 @@ export const translations: Translations = {
     "insuranceAudit.adding": "添加中...",
     "insuranceAudit.added": "已添加",
     "insuranceAudit.auditNoLabel": "审核编号：",
-  
+
     // === worklistPage + selfService i18n ===
     "worklistPage.header.title": "检查工作列表",
     "worklistPage.header.subtitle.dicom": "DICOM 检查列表",
@@ -11387,7 +11646,8 @@ export const translations: Translations = {
     "worklistPage.viewMode.kanban": "看板",
     "worklistPage.columnConfig.title": "列配置",
     "worklistPage.columnConfig.panelTitle": "列表列配置",
-    "worklistPage.columnConfig.hint": "选择列表视图要显示的列（配置自动保存到本地，刷新后保留）",
+    "worklistPage.columnConfig.hint":
+      "选择列表视图要显示的列（配置自动保存到本地，刷新后保留）",
     "worklistPage.columnConfig.alwaysShow": "恒显示",
     "worklistPage.btn.refresh": "刷新列表",
     "worklistPage.btn.prefetch": "预取",
@@ -11424,9 +11684,12 @@ export const translations: Translations = {
     "worklistPage.hourly.peak": "高峰",
     "worklistPage.batchActivity.title": "批量操作动态",
     "worklistPage.batchActivity.clear": "清空",
-    "worklistPage.batchActivity.empty": "暂无批量操作记录 · 使用上方「批量签到/开始/完成」后自动记录",
-    "worklistPage.dataSource.real": "数据源: 真实接口 (/exams + /worklist) · 列配置/视图模式已本地持久化",
-    "worklistPage.dataSource.fallback": "数据源: 本地 initialData 回退 (后端不可用) · 分析卡基于回退数据",
+    "worklistPage.batchActivity.empty":
+      "暂无批量操作记录 · 使用上方「批量签到/开始/完成」后自动记录",
+    "worklistPage.dataSource.real":
+      "数据源: 真实接口 (/exams + /worklist) · 列配置/视图模式已本地持久化",
+    "worklistPage.dataSource.fallback":
+      "数据源: 本地 initialData 回退 (后端不可用) · 分析卡基于回退数据",
     "worklistPage.serverStats.title": "服务器统计",
     "worklistPage.serverStats.total": "总量",
     "worklistPage.serverStats.noData": "暂无状态分布数据",
@@ -11465,7 +11728,8 @@ export const translations: Translations = {
     "worklistPage.doctorSelect.currentDoctor": "当前报告医生：",
     "worklistPage.doctorSelect.unassigned": "未分配",
     "worklistPage.doctorSelect.loading": "正在加载医生列表...",
-    "worklistPage.doctorSelect.empty": "未获取到医生列表，请检查后端 /users 接口",
+    "worklistPage.doctorSelect.empty":
+      "未获取到医生列表，请检查后端 /users 接口",
     "worklistPage.doctorSelect.radioDoctor": "放射科医生",
     "worklistPage.doctorSelect.assigned": " · 已分配",
     "worklistPage.checkin.failTitle": "签到失败",
@@ -11628,7 +11892,8 @@ export const translations: Translations = {
     "selfService.contacts.nurse": "放射科护士",
     "selfService.contacts.tech": "技师",
     "selfService.contacts.noContacts": "暂无",
-    "selfService.contacts.hint": "联系电话仅供就医咨询使用，工作时间 08:00-17:00。",
+    "selfService.contacts.hint":
+      "联系电话仅供就医咨询使用，工作时间 08:00-17:00。",
     "selfService.contacts.loadFailed": "医护联系方式加载失败，请稍后重试",
     "selfService.followup.title": "我的随访计划",
     "selfService.followup.planDefault": "随访计划",
@@ -11643,17 +11908,21 @@ export const translations: Translations = {
     "selfService.followup.dateLabel": "随访日期",
     "selfService.followup.typeLabel": "随访类型",
     "selfService.followup.noteLabel": "备注说明",
-    "selfService.followup.notePlaceholder": "如：乳腺 BI-RADS 3 定期复查（选填）",
+    "selfService.followup.notePlaceholder":
+      "如：乳腺 BI-RADS 3 定期复查（选填）",
     "selfService.followup.submitting": "提交中...",
     "selfService.followup.submit": "提交随访预约",
-    "selfService.followup.submitHint": "提交后将在预约日期到期时提醒，检查时请携带既往影像资料。",
+    "selfService.followup.submitHint":
+      "提交后将在预约日期到期时提醒，检查时请携带既往影像资料。",
     "selfService.followup.bookSuccess": "随访预约成功",
     "selfService.followup.bookFailed": "预约失败，请稍后重试",
-    "selfService.followup.serviceUnavailable": "随访服务暂不可用，已在本地登记（回退）",
+    "selfService.followup.serviceUnavailable":
+      "随访服务暂不可用，已在本地登记（回退）",
     "selfService.followup.dateRequired": "请选择随访日期",
     "selfService.followup.completeSuccess": "随访完成登记成功",
     "selfService.followup.completeFailed": "登记失败，请稍后重试",
-    "selfService.followup.completeLocal": "随访服务暂不可用，已本地标注完成（同步待重试）",
+    "selfService.followup.completeLocal":
+      "随访服务暂不可用，已本地标注完成（同步待重试）",
     "selfService.feedback.title": "服务满意度评价",
     "selfService.feedback.overallSatisfaction": "总体满意度",
     "selfService.feedback.category": "评价分类",
@@ -11733,8 +12002,10 @@ export const translations: Translations = {
     "selfService.status.overdue": "已逾期",
     // [v3.0.6.11-106 Wave 3D] 对比剂临床资料接入 + 重拍审批 + 随访结构化结果 + eGFR 校验
     "w3d.egfr.title": "eGFR 肾功能评估",
-    "w3d.egfr.blocked": "eGFR {{value}} mL/min < 30，对比剂肾病高风险，禁止注射碘对比剂",
-    "w3d.egfr.warning": "eGFR {{value}} mL/min (30-59)，中度肾功能不全，慎用并加强水化",
+    "w3d.egfr.blocked":
+      "eGFR {{value}} mL/min < 30，对比剂肾病高风险，禁止注射碘对比剂",
+    "w3d.egfr.warning":
+      "eGFR {{value}} mL/min (30-59)，中度肾功能不全，慎用并加强水化",
     "w3d.egfr.normal": "eGFR {{value}} mL/min，肾功能在可接受范围",
     "w3d.egfr.required": "请先录入 eGFR 数值",
     "w3d.egfr.blockedAction": "已阻断注射：请先完成肾功能评估与肾脏科会诊",
@@ -11813,8 +12084,10 @@ export const translations: Translations = {
     "w3d.followup.completeWithResult": "完成并录入结果",
     // patientPage
     "patientPage.pmiSearchTitle": "患者主索引 (PMI) 搜索",
-    "patientPage.pmiSearchSubtitle": "支持姓名、身份证、手机号、主索引ID多条件检索",
-    "patientPage.pmiSearchPlaceholder": "输入姓名、身份证、手机号或主索引ID进行搜索...",
+    "patientPage.pmiSearchSubtitle":
+      "支持姓名、身份证、手机号、主索引ID多条件检索",
+    "patientPage.pmiSearchPlaceholder":
+      "输入姓名、身份证、手机号或主索引ID进行搜索...",
     "patientPage.pmiSupportFuzzy": "支持模糊匹配",
     "patientPage.pmiFields": "姓名/身份证/手机号/主索引ID",
     "patientPage.pmiShowConfidence": "显示匹配度置信度",
@@ -11866,7 +12139,8 @@ export const translations: Translations = {
     "patientPage.edit": "编辑",
     "patientPage.noAllergy": "无",
     "patientPage.patientManagement": "患者管理",
-    "patientPage.patientSubtitle": "患者档案 · 就诊记录 · 过敏史管理 · 数据分析",
+    "patientPage.patientSubtitle":
+      "患者档案 · 就诊记录 · 过敏史管理 · 数据分析",
     "patientPage.patientList": "患者列表",
     "patientPage.patientDetailTab": "患者详情",
     "patientPage.newOrEdit": "新建/编辑",
@@ -11879,7 +12153,8 @@ export const translations: Translations = {
     "patientPage.batchImportPatients": "批量导入患者",
     "patientPage.close": "关闭",
     "patientPage.uploadFile": "上传 .csv / .json 文件",
-    "patientPage.importHint": "支持 <strong>JSON 数组</strong> 或 <strong>CSV</strong> (表头: 姓名/性别/年龄/身份证/电话/类型)。冲突判断: 身份证或 (姓名+电话) 相同则跳过。性别支持 男/女 或 MALE/FEMALE。",
+    "patientPage.importHint":
+      "支持 <strong>JSON 数组</strong> 或 <strong>CSV</strong> (表头: 姓名/性别/年龄/身份证/电话/类型)。冲突判断: 身份证或 (姓名+电话) 相同则跳过。性别支持 男/女 或 MALE/FEMALE。",
     "patientPage.importComplete": "导入完成",
     "patientPage.importSkip": "跳过",
     "patientPage.importFail": "失败",
@@ -11893,7 +12168,8 @@ export const translations: Translations = {
     "patientPage.registerSuccess": "注册成功！",
     "patientPage.success": "成功",
     "patientPage.registrationDate": "建档日期",
-    "patientPage.accessDenied": "资源级访问被拒绝 (checkAccess)：当前用户无权读取患者资源，请联系管理员。",
+    "patientPage.accessDenied":
+      "资源级访问被拒绝 (checkAccess)：当前用户无权读取患者资源，请联系管理员。",
     "patientPage.errNameRequired": "请输入患者姓名",
     "patientPage.errIdCardRequired": "请输入身份证号",
     "patientPage.errIdCardFormat": "身份证号格式不正确",
@@ -11906,7 +12182,8 @@ export const translations: Translations = {
     "costAnalysis.noEquipmentData": "暂无设备成本数据",
     "costAnalysis.checkDateRange": "请检查日期范围或导入设备台账后重试",
     "costAnalysis.dataSource": "数据源:",
-    "costAnalysis.demoData": "演示数据 — 设备/耗材/人力/DRG/盈亏平衡等区块为内置演示数据",
+    "costAnalysis.demoData":
+      "演示数据 — 设备/耗材/人力/DRG/盈亏平衡等区块为内置演示数据",
     "costAnalysis.apiLoadFailed": "financeApi/statsApi 加载失败:",
     "costAnalysis.apiFallback": "（已回退演示数据）",
     "costAnalysis.retry": "重试",
@@ -12284,14 +12561,17 @@ export const translations: Translations = {
     "aiDraft.msg.enterFindings": "请输入影像所见文本",
     "aiDraft.msg.extracted": "已提取 {{count}} 个结构化字段",
     "aiDraft.err.apiFailed": "接口失败",
-    "aiDraft.msg.extractFallback": "AI 接口不可用，已使用本地确定性引擎提取 (演示回退)",
+    "aiDraft.msg.extractFallback":
+      "AI 接口不可用，已使用本地确定性引擎提取 (演示回退)",
     "aiDraft.msg.fieldUpdated": "字段已更新",
     "aiDraft.msg.draftGenerated": "AI 报告草稿已生成",
-    "aiDraft.msg.generateFallback": "AI 接口不可用，已使用本地确定性引擎生成 (演示回退)",
+    "aiDraft.msg.generateFallback":
+      "AI 接口不可用，已使用本地确定性引擎生成 (演示回退)",
     "aiDraft.msg.selectSegment": "请至少选择一个段落",
     "aiDraft.msg.appliedSegments": "已应用 {{count}} 个段落到编辑器",
     "aiDraft.msg.suggestDone": "分析完成，共 {{count}} 条建议",
-    "aiDraft.msg.suggestFallback": "AI 接口不可用，已使用本地规则分析 (演示回退)",
+    "aiDraft.msg.suggestFallback":
+      "AI 接口不可用，已使用本地规则分析 (演示回退)",
     "aiDraft.msg.adopted": "已采纳建议",
     "aiDraft.msg.ignored": "已忽略建议",
     "aiDraft.msg.reset": "已重置 AI 报告助理",
@@ -12303,7 +12583,8 @@ export const translations: Translations = {
     "aiDraft.extract.title": "结构化字段提取",
     "aiDraft.extract.tag": "智能结构化扩展 S-1",
     "aiDraft.extract.overallConfidence": "整体置信",
-    "aiDraft.extract.placeholder": "粘贴影像所见文本，如: 右肺上叶可见大小约18mm×15mm结节影，边缘毛刺，与既往检查相比无明显变化，考虑周围型肺癌可能。",
+    "aiDraft.extract.placeholder":
+      "粘贴影像所见文本，如: 右肺上叶可见大小约18mm×15mm结节影，边缘毛刺，与既往检查相比无明显变化，考虑周围型肺癌可能。",
     "aiDraft.extract.autoExtract": "自动提取字段",
     "aiDraft.extract.categories": "命中类别:",
     "aiDraft.extract.empty": "未识别到结构化字段",
@@ -12321,7 +12602,8 @@ export const translations: Translations = {
     "aiDraft.draft.segmentConfidence": "置信度 {{value}}%",
     "aiDraft.draft.trace": "溯源",
     "aiDraft.draft.applySelected": "应用所选段落 ({{count}})",
-    "aiDraft.draft.hint": "段落选择后点击应用写入编辑器 · 悬停「溯源」查看内容来源",
+    "aiDraft.draft.hint":
+      "段落选择后点击应用写入编辑器 · 悬停「溯源」查看内容来源",
     "aiDraft.suggest.title": "修改建议",
     "aiDraft.suggest.tag": "确定性规则",
     "aiDraft.suggest.score": "完善度 {{score}} 分",
@@ -12348,11 +12630,13 @@ export const translations: Translations = {
     "aiDraft.msg.draftReady": "AI 草稿已生成",
     "aiDraft.msg.draftFailed": "AI 草稿生成失败",
     "aiDraft.msg.appliedToEditor": "已应用 AI 草稿到编辑器",
-    "aiDraft.rag.loaded": "已加载 RAG 上下文 · 既往报告 {{reports}} 份 · 术语 {{terms}} 条",
+    "aiDraft.rag.loaded":
+      "已加载 RAG 上下文 · 既往报告 {{reports}} 份 · 术语 {{terms}} 条",
     "aiDraft.rag.notFound": "未找到 RAG 上下文 (无既往报告或报告不存在)",
     "aiDraft.rag.loadFailed": "RAG 上下文加载失败",
     "aiDraft.structured.missingReportId": "缺少报告 ID",
-    "aiDraft.structured.generatedWithScore": "结构化字段已生成并预填 · 信心分 {{score}}%",
+    "aiDraft.structured.generatedWithScore":
+      "结构化字段已生成并预填 · 信心分 {{score}}%",
     "aiDraft.structured.failedNetwork": "结构化字段生成失败:网络异常",
     "aiDraft.msg.enterRefine": "请输入修改意见",
     "aiDraft.msg.refined": "已根据反馈重写",
@@ -12422,7 +12706,8 @@ export const translations: Translations = {
     "aiDraft.msg.switchedModel": "已切换至 {{model}}",
     "aiDraft.msg.switchedProvider": "已切换 LLM 提供方: {{provider}}",
     "aiDraft.notConfigured": "(未配置)",
-    "aiDraft.rag.contextLoaded": "RAG 上下文 ({{reports}} 报告 / {{terms}} 术语)",
+    "aiDraft.rag.contextLoaded":
+      "RAG 上下文 ({{reports}} 报告 / {{terms}} 术语)",
     "aiDraft.rag.loadContext": "加载 RAG 上下文",
     "aiDraft.structured.generate": "生成结构化字段",
     "aiDraft.structured.generated": "结构化字段已生成:",
@@ -12432,7 +12717,8 @@ export const translations: Translations = {
     "aiDraft.includeImages": "包含图像分析",
     "aiDraft.includePrior": "引用历史报告",
     "aiDraft.rag.enhance": "RAG 增强",
-    "aiDraft.rag.enhanceTip": "生成时检索该患者既往报告相似段落作为上下文, 输出 confidenceScore + 来源列表",
+    "aiDraft.rag.enhanceTip":
+      "生成时检索该患者既往报告相似段落作为上下文, 输出 confidenceScore + 来源列表",
     "aiDraft.clinicalInfo": "临床信息:",
     "aiDraft.exam": "检查:",
     "aiDraft.stage.analyzingText": "正在分析临床信息与影像...",
@@ -12441,7 +12727,8 @@ export const translations: Translations = {
     "aiDraft.similarCases": "相似病例 ({{count}})",
     "aiDraft.compareModal.title": "AI 草稿 vs 原片对比",
     "aiDraft.compareModal.report": "报告",
-    "aiDraft.compareModal.noImage": "原片影像数据未透出，需经 DICOM 影像通道获取（标注: 待接入）",
+    "aiDraft.compareModal.noImage":
+      "原片影像数据未透出，需经 DICOM 影像通道获取（标注: 待接入）",
     "aiDraft.compareModal.original": "原片（当前检查影像）",
     "aiDraft.compareModal.draftFindings": "AI 草稿所见",
     "aiDraft.compareModal.impression": "诊断意见：",
@@ -12465,7 +12752,8 @@ export const translations: Translations = {
     "reportQuality.splitEvenly": "等分",
     "reportQuality.save": "保存",
     "reportQuality.subRules": "子规则",
-    "reportQuality.weightSumWarn": "权重合计 {{percent}}% ≠ 100%,请调整后再保存",
+    "reportQuality.weightSumWarn":
+      "权重合计 {{percent}}% ≠ 100%,请调整后再保存",
     "reportQuality.thresholdMustPositive": "阈值必须为正数",
     "reportQuality.criticalMinutes": "危急值 (分钟)",
     "reportQuality.emergencyHours": "急诊 (小时)",
@@ -12523,7 +12811,8 @@ export const translations: Translations = {
     "reportQuality.dimensionDetail15": "维度明细 (15 维度)",
     "reportQuality.dimension": "维度",
     "reportQuality.score": "得分",
-    "reportQuality.noDetailArchive": "无完整评估明细（历史归档，仅保留汇总信息）",
+    "reportQuality.noDetailArchive":
+      "无完整评估明细（历史归档，仅保留汇总信息）",
     "reportQuality.enterScoreId": "请输入评分 ID",
     "reportQuality.reportFormat": "报告格式",
     "reportQuality.generatedCount": "已生成",
@@ -12534,7 +12823,8 @@ export const translations: Translations = {
     "reportQuality.generateReport": "生成报告",
     "reportQuality.download": "下载",
     "reportQuality.reportGenerated": "报告已生成",
-    "reportQuality.mockDataNote": "演示数据: 后端为 Mock URL，下载时生成本地模拟文件",
+    "reportQuality.mockDataNote":
+      "演示数据: 后端为 Mock URL，下载时生成本地模拟文件",
     "reportQuality.reportPreview": "报告内容预览",
     "reportQuality.preview.totalScore": "总分",
     "reportQuality.preview.totalScoreRange": "0-100",
@@ -12577,12 +12867,15 @@ export const translations: Translations = {
     "reportQuality.basePrefix": "基础",
     "reportQuality.passPrefix": "通过",
     "reportQuality.scoreUnit": "分",
-    "aiDraft.structuredForm.noMeasurementData": "当前结构化表单无测量数据,请先填写测量值后再生成测量表",
-    "aiDraft.structuredForm.noEditor": "当前环境未接入报告编辑器,无法插入测量表",
+    "aiDraft.structuredForm.noMeasurementData":
+      "当前结构化表单无测量数据,请先填写测量值后再生成测量表",
+    "aiDraft.structuredForm.noEditor":
+      "当前环境未接入报告编辑器,无法插入测量表",
     "aiDraft.structuredForm.yes": "是",
     "aiDraft.structuredForm.no": "否",
     "aiDraft.structuredForm.upload": "上传",
-    "aiDraft.structuredForm.signatureHint": "请先完成表单并提交，锁定后执行签名",
+    "aiDraft.structuredForm.signatureHint":
+      "请先完成表单并提交，锁定后执行签名",
     "aiDraft.structuredForm.signed": "已签名",
     "aiDraft.structuredForm.clickToSign": "点击签名",
     "aiDraft.structuredForm.referenceRange": "参考范围:",
@@ -12590,7 +12883,8 @@ export const translations: Translations = {
     "aiDraft.structuredForm.requiredCompletion": "必填完成度",
     "aiDraft.structuredForm.fieldQualityScore": "字段质量分",
     "aiDraft.structuredForm.filledFields": "已填字段",
-    "aiDraft.structuredForm.generateTableTip": "按当前表单值生成测量表/分级段落,插入报告正文",
+    "aiDraft.structuredForm.generateTableTip":
+      "按当前表单值生成测量表/分级段落,插入报告正文",
     "aiDraft.structuredForm.noMeasurementTip": "无测量数据,请先填写测量值",
     "aiDraft.structuredForm.generateTable": "生成测量表",
     "aiDraft.structuredForm.submit": "提交",
@@ -12647,8 +12941,8 @@ export const translations: Translations = {
     "aiDraft.voice.cmd.period": "插入句号",
     "aiDraft.voice.cmd.comma": "插入逗号",
     "aiDraft.voice.cmd.colon": "插入冒号",
-    "aiDraft.voice.cmd.leftLung": "插入\"左肺\"",
-    "aiDraft.voice.cmd.rightLung": "插入\"右肺\"",
+    "aiDraft.voice.cmd.leftLung": '插入"左肺"',
+    "aiDraft.voice.cmd.rightLung": '插入"右肺"',
     "aiDraft.voice.tblDesc.newParagraph": "在当前位置插入新段落",
     "aiDraft.voice.tblDesc.nextField": "跳转到下一个输入字段",
     "aiDraft.voice.tblDesc.saveDraft": "保存当前报告为草稿",
@@ -12664,16 +12958,20 @@ export const translations: Translations = {
     "aiDraft.voice.col.priority": "优先级",
     "aiDraft.voice.col.aliases": "同音词/别名",
     "aiDraft.voice.transcribing": "正在转写音频...",
-    "aiDraft.voice.transcribeDoneCorrected": "转写完成({{engine}}引擎,词库校正 {{count}} 处)",
-    "aiDraft.voice.transcribeDone": "转写完成({{engine}}引擎,置信度 {{confidence}}%)",
+    "aiDraft.voice.transcribeDoneCorrected":
+      "转写完成({{engine}}引擎,词库校正 {{count}} 处)",
+    "aiDraft.voice.transcribeDone":
+      "转写完成({{engine}}引擎,置信度 {{confidence}}%)",
     "aiDraft.voice.transcribeFailed": "语音转写失败,请重试",
-    "aiDraft.voice.unsupportedMock": "当前浏览器不支持语音识别,已使用 mock 模式",
+    "aiDraft.voice.unsupportedMock":
+      "当前浏览器不支持语音识别,已使用 mock 模式",
     "aiDraft.voice.recognizeError": "识别错误: {{error}}",
     "aiDraft.voice.startFailed": "启动语音识别失败",
     "aiDraft.voice.stopped": "已停止,共识别 {{words}} 词,耗时 {{seconds}} 秒",
     "aiDraft.voice.inserted": "已插入到编辑器",
     "aiDraft.voice.cleared": "已清空",
-    "aiDraft.voice.correctionsSubmitted": "已提交 {{count}} 条纠正反馈,医学词库已学习",
+    "aiDraft.voice.correctionsSubmitted":
+      "已提交 {{count}} 条纠正反馈,医学词库已学习",
     "aiDraft.voice.correctionsFailed": "纠正反馈提交失败,请重试",
     "aiDraft.voice.title": "语音听写",
     "aiDraft.voice.state.idle": "待机",
@@ -12684,15 +12982,17 @@ export const translations: Translations = {
     "aiDraft.voice.mockMode": "mock 模式",
     "aiDraft.voice.vocab": "词汇",
     "aiDraft.voice.history": "历史",
-    "aiDraft.voice.unsupportedAlert": "当前浏览器不支持 Web Speech API,使用 Mock 模拟识别过程",
+    "aiDraft.voice.unsupportedAlert":
+      "当前浏览器不支持 Web Speech API,使用 Mock 模拟识别过程",
     "aiDraft.voice.targetSection": "目标段落",
     "aiDraft.voice.autoPunct": "自动标点",
-    "aiDraft.voice.currentSpeaker": "当前说话人: {{speaker}} · 切换 {{count}} 次",
+    "aiDraft.voice.currentSpeaker":
+      "当前说话人: {{speaker}} · 切换 {{count}} 次",
     "aiDraft.voice.stat.duration": "时长",
     "aiDraft.voice.stat.words": "词数",
     "aiDraft.voice.stat.segments": "分段",
     "aiDraft.voice.stat.retries": "重试",
-    "aiDraft.voice.startHint": "点击\"开始\"按钮开始语音听写...",
+    "aiDraft.voice.startHint": '点击"开始"按钮开始语音听写...',
     "aiDraft.voice.lexiconCorrections": "医学词库校正 ({{count}} 处)",
     "aiDraft.voice.lexiconEntries": "{{count}} 词条",
     "aiDraft.voice.lexiconLoading": "词库加载中",
@@ -13021,7 +13321,8 @@ export const translations: Translations = {
     "reportIntegration.cda.author": "作者",
     "reportIntegration.cda.custodian": "保管方",
     "reportIntegration.cda.legalAuthenticator": "法律签署",
-    "reportIntegration.cda.validatePassedDetail": "CDA 验证通过(HL7 CDA R2 + 模板)",
+    "reportIntegration.cda.validatePassedDetail":
+      "CDA 验证通过(HL7 CDA R2 + 模板)",
     "reportIntegration.cda.validateFailedDetail": "CDA 验证失败",
     "reportIntegration.cda.titleEnLabel": "英文标题",
     "reportIntegration.cda.includedSections": "包含章节",
@@ -13071,13 +13372,15 @@ export const translations: Translations = {
     "reportIntegration.dicomSr.template": "模板",
     "reportIntegration.dicomSr.completionVerification": "完成/验证",
     "reportIntegration.dicomSr.generatedLabel": "生成",
-    "reportIntegration.dicomSr.itemsContinuity": "{{count}} 项 · 连续性: {{continuity}}",
+    "reportIntegration.dicomSr.itemsContinuity":
+      "{{count}} 项 · 连续性: {{continuity}}",
     "reportIntegration.dicomSr.numericValue": "数值:",
     "reportIntegration.dicomSr.codeValue": "代码:",
     "reportIntegration.dicomSr.selectDocument": "请选择 SR 文档",
     "reportIntegration.dicomSr.generateTitle": "生成 DICOM SR",
     "reportIntegration.dicomSr.findingsPlaceholder": "例:右肺上叶...",
-    "reportIntegration.dicomSr.impressionPlaceholder": "例:右肺上叶周围型肺癌...",
+    "reportIntegration.dicomSr.impressionPlaceholder":
+      "例:右肺上叶周围型肺癌...",
     "reportIntegration.dicomSr.recommendationPlaceholder": "例:建议穿刺活检...",
     "reportIntegration.dicomSr.cstoreTitle": "DICOM C-STORE 发送",
     "reportIntegration.dicomSr.sendSuccess": "发送成功",
@@ -13116,7 +13419,8 @@ export const translations: Translations = {
     "reportIntegration.fhir.bodyPart": "部位",
     "reportIntegration.fhir.sendTitle": "发送到 FHIR 服务器",
     "reportIntegration.fhir.oauthTitle": "SMART on FHIR OAuth2 认证",
-    "reportIntegration.fhir.oauthDesc": "使用 OpenID Connect + OAuth2 进行身份认证与授权",
+    "reportIntegration.fhir.oauthDesc":
+      "使用 OpenID Connect + OAuth2 进行身份认证与授权",
     "reportIntegration.fhir.authorizeEndpoint": "授权端点:",
     "reportIntegration.fhir.tokenEndpoint": "Token 端点:",
     "reportIntegration.fhir.clientId": "客户端 ID:",
@@ -13275,7 +13579,8 @@ export const translations: Translations = {
     "templateLibrary.noRecommend": "暂无推荐",
     "templateLibrary.usageOverview": "使用统计速览",
     "templateLibrary.noData": "暂无数据",
-    "templateLibrary.footer": "推荐评分 = 使用频率 ×40 + 时效衰减 ×30 + 分类匹配 (模态50/科室25/用途15/标签5/部位10) · 分类树按 检查类型/科室/用途 组织 · 内置 {{count}} 个放射模板 (seed 回退)",
+    "templateLibrary.footer":
+      "推荐评分 = 使用频率 ×40 + 时效衰减 ×30 + 分类匹配 (模态50/科室25/用途15/标签5/部位10) · 分类树按 检查类型/科室/用途 组织 · 内置 {{count}} 个放射模板 (seed 回退)",
     // [v3.0.6.11-106 Wave 6A] R3.REVIEW review components
     "reportReview.common.all": "全部",
     "reportReview.common.apply": "应用",
@@ -13321,7 +13626,8 @@ export const translations: Translations = {
     "reportReview.sla.title": "SLA 监控",
     "reportReview.sla.loadFailed": "加载 SLA 数据失败",
     "reportReview.sla.loading": "加载中...",
-    "reportReview.sla.threshold": "SLA 阈值：初审 {{initial}}h / 终审 {{final}}h / 签发 {{sign}}h / 双签 {{cosign}}h",
+    "reportReview.sla.threshold":
+      "SLA 阈值：初审 {{initial}}h / 终审 {{final}}h / 签发 {{sign}}h / 双签 {{cosign}}h",
     "reportReview.sla.onTimeRate": "按时率",
     "reportReview.sla.overdueTasks": "超时任务",
     "reportReview.sla.avgInitial": "平均初审",
@@ -13452,7 +13758,8 @@ export const translations: Translations = {
     "reportReview.initial.submitted": "提交",
     "reportReview.initial.reportId": "报告ID:",
     "reportReview.initial.viewDetail": "查看详情",
-    "reportReview.initial.taskAria": "初核任务 {{patient}} {{modality}} {{bodyPart}}",
+    "reportReview.initial.taskAria":
+      "初核任务 {{patient}} {{modality}} {{bodyPart}}",
     "reportStatus.system": "系统",
     "reportStatus.finalApproved": "终审通过",
     "reportStatus.caSigComplete": "CA 签名完成",
@@ -13471,7 +13778,8 @@ export const translations: Translations = {
     "reportStatus.totalStates": "（共 {{n}} 态）",
     "reportAnnotation.justNow": "刚刚",
     "reportAnnotation.loadFailed": "批注加载失败",
-    "reportAnnotation.noSelection": "未检测到编辑器选中文本, 请先在正文中选中文本或手动输入引用",
+    "reportAnnotation.noSelection":
+      "未检测到编辑器选中文本, 请先在正文中选中文本或手动输入引用",
     "reportAnnotation.quoteNotFound": "当前编辑器正文中未找到该引用段落",
     "reportAnnotation.contentMin": "批注内容不能少于 2 字符",
     "reportAnnotation.created": "批注已发布",
@@ -13530,7 +13838,8 @@ export const translations: Translations = {
     "reportReview.cosign.skipFailed": "跳过失败",
     "reportReview.cosign.conflictResolved": "冲突已解决",
     "reportReview.cosign.resolveFailed": "解决失败",
-    "reportReview.cosign.slaRefreshed": "已刷新:超时 {{breached}} 条,警告 {{warning}} 条",
+    "reportReview.cosign.slaRefreshed":
+      "已刷新:超时 {{breached}} 条,警告 {{warning}} 条",
     "reportReview.cosign.refreshFailed": "刷新失败",
     "reportReview.cosign.addSchedule": "新增排班",
     "reportReview.cosign.schedule": "排班",
@@ -13563,7 +13872,8 @@ export const translations: Translations = {
     "reportReview.cosign.viewHistory": "查看历史 {{reportId}}",
     "reportReview.cosign.slaMonitor": "Cosign SLA 实时监控",
     "reportReview.cosign.refreshSla": "刷新 SLA",
-    "reportReview.cosign.slaDefault": "默认 SLA: {{default}}m · 警告 {{warn}}m · 超时升级到 {{escalate}}",
+    "reportReview.cosign.slaDefault":
+      "默认 SLA: {{default}}m · 警告 {{warn}}m · 超时升级到 {{escalate}}",
     "reportReview.cosign.colRecord": "记录",
     "reportReview.cosign.colReport": "报告",
     "reportReview.cosign.colCosigner": "签人",
@@ -13597,7 +13907,8 @@ export const translations: Translations = {
     "reportReview.cosign.preferLowWorkload": "优选低负载",
     "reportReview.cosign.validCert": "证书有效",
     "reportReview.cosign.skipConfig": "跳过双签配置",
-    "reportReview.cosign.skipConfigTitle": "跳过功能 {{status}} · 需 {{roles}} 授权 · 审计等级 {{level}}",
+    "reportReview.cosign.skipConfigTitle":
+      "跳过功能 {{status}} · 需 {{roles}} 授权 · 审计等级 {{level}}",
     "reportReview.cosign.colReason": "原因",
     "reportReview.cosign.colEnabled": "启用",
     "reportReview.cosign.toggleAria": "切换 {{reason}}",
@@ -13620,7 +13931,8 @@ export const translations: Translations = {
     "reportReview.cosign.newBatch": "新建批量",
     "reportReview.cosign.approve": "通过",
     "reportReview.cosign.reject": "拒绝",
-    "reportReview.cosign.batchReports": "个报告 · 成功 {{success}} · 失败 {{fail}} · 跳过 {{skip}}",
+    "reportReview.cosign.batchReports":
+      "个报告 · 成功 {{success}} · 失败 {{fail}} · 跳过 {{skip}}",
     "reportReview.cosign.batchStart": "开始",
     "reportReview.cosign.batchComplete": "完成",
     "reportReview.cosign.batchDone": "批量签完成",
@@ -13703,11 +14015,13 @@ export const translations: Translations = {
     "reportReview.final.titleV2": "终核清单 v2",
     "reportReview.final.loadFailed": "加载终核清单失败",
     "reportReview.final.markedAs": "已标记 {{label}}",
-    "reportReview.final.completedScoring": "终核完成 · 评分 {{score}}/{{max}} ({{grade}})",
+    "reportReview.final.completedScoring":
+      "终核完成 · 评分 {{score}}/{{max}} ({{grade}})",
     "reportReview.final.rejectedAs": "已{{target}}",
     "reportReview.final.noteAdded": "已添加终审笔记",
     "reportReview.final.emergencyTriggered": "已触发急诊通道, 通知已模拟送达",
-    "reportReview.final.emergencyTriggeredLocal": "已触发急诊审核通道(通道端点不可用, 已本地记录)",
+    "reportReview.final.emergencyTriggeredLocal":
+      "已触发急诊审核通道(通道端点不可用, 已本地记录)",
     "reportReview.final.channelConfigSaved": "急诊通道配置已保存",
     "reportReview.final.multiSigStarted": "已发起多签流程",
     "reportReview.final.signed": "已签",
@@ -13853,7 +14167,8 @@ export const translations: Translations = {
     "reportReview.final.targetRole": "目标角色",
     "reportReview.final.channelTargetRoleAria": "{{type}} 目标角色",
     "reportReview.final.autoTrigger": "自动触发",
-    "reportReview.final.autoTriggerKeywordsPlaceholder": "自动触发关键词 (每行一个)",
+    "reportReview.final.autoTriggerKeywordsPlaceholder":
+      "自动触发关键词 (每行一个)",
     "reportReview.final.autoTriggerKeywords": "自动触发关键词",
     "reportReview.final.triggerRecords": "触发记录",
     "reportReview.final.searchByPatientPlaceholder": "按患者ID查历史",
@@ -13908,7 +14223,8 @@ export const translations: Translations = {
     "reportReview.final.reject.initial": "退回初审",
     "reportReview.final.reject.initialDesc": "退回到初审环节,保留初评意见",
     "reportReview.final.reject.directToDraft": "直接退回起草",
-    "reportReview.final.reject.directToDraftDesc": "直接退回报告作者起草,质量重置",
+    "reportReview.final.reject.directToDraftDesc":
+      "直接退回报告作者起草,质量重置",
     "reportReview.final.reject.previousStage": "退回上一阶段",
     "reportReview.final.reject.previousStageDesc": "退回到上一处理阶段",
     "reportReview.final.channel.sms": "短信",
@@ -13979,7 +14295,8 @@ export const translations: Translations = {
     "reportExport.role.director": "主任 (单份+批量)",
     "reportExport.role.admin": "管理员 (单份+批量)",
     "reportExport.role.tech": "技师 (无权限演示)",
-    "reportExport.roleNote": "批量导出 (≥2 份) 需主任/管理员权限; TECH 角色一律禁止。",
+    "reportExport.roleNote":
+      "批量导出 (≥2 份) 需主任/管理员权限; TECH 角色一律禁止。",
     "reportExport.createTask": "创建导出任务",
     "reportExport.batchExport": "批量导出 ({{count}})",
     "reportExport.selectAll": "全选",
@@ -13992,7 +14309,8 @@ export const translations: Translations = {
     "reportExport.close": "关闭",
     "reportExport.noContent": "任务尚未处理, 无导出内容",
     "reportExport.downloadFile": "下载 {{name}}",
-    "reportExport.footer": "导出格式: PDF/DOCX 为概念导出 (确定性占位内容) · HTML/CSV/DICOM SR 生成完整内容 · 所有格式均包含报告全文 · 任务流转 PENDING → PROCESSING → COMPLETED",
+    "reportExport.footer":
+      "导出格式: PDF/DOCX 为概念导出 (确定性占位内容) · HTML/CSV/DICOM SR 生成完整内容 · 所有格式均包含报告全文 · 任务流转 PENDING → PROCESSING → COMPLETED",
     // [v3.0.6.11-106 Wave 6C] 模板审批流 V2
     "templateApproval.state.draft": "草稿",
     "templateApproval.state.pending": "审批中",
@@ -14052,7 +14370,8 @@ export const translations: Translations = {
     "templateApproval.versionHistory": "版本历史 ({{name}})",
     "templateApproval.approvalRecords": "审批记录 ({{name}})",
     "templateApproval.noApprovalRecords": "暂无审批记录",
-    "templateApproval.footer": "状态机: 草稿 → 提交审批 → 审批中 → 通过/驳回 → 发布 · 每次修改自动生成新版本 · 非法流转由后端拒绝",
+    "templateApproval.footer":
+      "状态机: 草稿 → 提交审批 → 审批中 → 通过/驳回 → 发布 · 每次修改自动生成新版本 · 非法流转由后端拒绝",
     "templateApproval.versionHistoryTitle": "版本历史",
     "templateApproval.noVersions": "暂无版本记录",
     "templateApproval.modal.createTitle": "新建草稿模板",
@@ -14375,10 +14694,12 @@ export const translations: Translations = {
     "criticalEscalation.staircase": "阶梯图",
     "criticalEscalation.ariaLabel": "危急值升级链 V2",
     "criticalEscalation.title": "危急值升级链 V2 · 超时自动升级",
-    "criticalEscalation.stateMachine": "状态机: 通知中→待确认→已确认/已升级/已关闭",
+    "criticalEscalation.stateMachine":
+      "状态机: 通知中→待确认→已确认/已升级/已关闭",
     "criticalEscalation.collapseConfig": "收起配置",
     "criticalEscalation.chainConfig": "升级链配置",
-    "criticalEscalation.configTitle": "升级链配置 (级别 + 每级超时时间 + 升级规则)",
+    "criticalEscalation.configTitle":
+      "升级链配置 (级别 + 每级超时时间 + 升级规则)",
     "criticalEscalation.timeoutMinutes": "超时时间 (分钟)",
     "criticalEscalation.saveConfig": "保存配置",
     "criticalEscalation.totalChains": "升级链总数",
@@ -14485,7 +14806,8 @@ export const translations: Translations = {
     "criticalValueEscalation.urgentLevel": "紧急级",
     "criticalValueEscalation.monthlyTriggerEstimate": "月触发估算",
     "criticalValueEscalation.avgResponse": "平均响应",
-    "criticalValueEscalation.strategyAlert": "自动升级策略:危急值超时未通报则按规则升级至上级医务,确保 10 分钟内完成通报闭环",
+    "criticalValueEscalation.strategyAlert":
+      "自动升级策略:危急值超时未通报则按规则升级至上级医务,确保 10 分钟内完成通报闭环",
     "criticalValueEscalation.all": "全部",
     "criticalValueEscalation.noRules": "暂无升级规则",
     "criticalValueEscalation.edit": "编辑",
@@ -14741,7 +15063,8 @@ export const translations: Translations = {
     "criticalValueV2.timeline.notified": "通知",
     "criticalValueV2.timeline.confirmed": "确认",
     "criticalValueV2.timeline.rejected": "拒绝",
-    "criticalValueV2.footerNote": "危急值规则: 确定性阈值匹配 (含边界语义) · 通知渠道: 电话/短信/站内消息 · 确认流程: 接受/拒绝/备注",
+    "criticalValueV2.footerNote":
+      "危急值规则: 确定性阈值匹配 (含边界语义) · 通知渠道: 电话/短信/站内消息 · 确认流程: 接受/拒绝/备注",
     "criticalValueV2.modal.acceptTitle": "确认接收",
     "criticalValueV2.modal.rejectTitle": "拒绝并备注",
     "criticalValueV2.submit": "提交",
@@ -14755,7 +15078,8 @@ export const translations: Translations = {
     "apptMgmt.realData": "真实数据",
     "apptMgmt.demoData": "演示数据",
     "apptMgmt.loading": "加载中...",
-    "apptMgmt.subtitle": "患者影像检查预约管理 · 预约列表 · 改约/取消 · 冲突检测 · 预约统计",
+    "apptMgmt.subtitle":
+      "患者影像检查预约管理 · 预约列表 · 改约/取消 · 冲突检测 · 预约统计",
     "apptMgmt.todayAppointments": "今日预约",
     "apptMgmt.thisWeekCases": "本周 {{count}} 例",
     "apptMgmt.pending": "待确认",
@@ -14822,12 +15146,14 @@ export const translations: Translations = {
     "apptMgmt.newDate": "新预约日期 *",
     "apptMgmt.newTime": "新预约时间 *",
     "apptMgmt.selectTime": "请选择时间",
-    "apptMgmt.rescheduleHint": "改约后将检测与现有预约的冲突，请确认新时间段的可用性。",
+    "apptMgmt.rescheduleHint":
+      "改约后将检测与现有预约的冲突，请确认新时间段的可用性。",
     "apptMgmt.cancel": "取消",
     "apptMgmt.confirmReschedule": "确认改约",
     "apptMgmt.conflictTitle": "预约冲突",
     "apptMgmt.conflictsFound": "检测到 {{count}} 个冲突",
-    "apptMgmt.conflictHint": "改约后的时间与现有预约存在冲突，请选择其他时间段。",
+    "apptMgmt.conflictHint":
+      "改约后的时间与现有预约存在冲突，请选择其他时间段。",
     "apptMgmt.relatedApptId": "相关预约ID: {{id}}",
     "apptMgmt.gotIt": "知道了",
     "apptMgmt.cancelTitle": "取消预约",
@@ -14854,7 +15180,8 @@ export const translations: Translations = {
     "apptMgmt.serviceUnavailable": "预约服务暂不可用，当前展示演示数据",
     // [v3.0.6.11-106 Wave 7C] 检查预约页 i18n
     "apptPage.title": "检查预约管理",
-    "apptPage.subtitle": "预约排程 · 设备分配 · 时间段管理 · 冲突检测 · 预约提醒",
+    "apptPage.subtitle":
+      "预约排程 · 设备分配 · 时间段管理 · 冲突检测 · 预约提醒",
     "apptPage.batchImport": "批量导入",
     "apptPage.rules": "预约规则",
     "apptPage.management": "预约管理",
@@ -14904,8 +15231,10 @@ export const translations: Translations = {
     "apptPage.rulesSaved": "预约规则已保存（本地持久化，后端暂无规则保存端点）",
     "apptPage.batchImportTitle": "批量导入预约",
     "apptPage.clickUpload": "点击上传Excel文件",
-    "apptPage.uploadHint": "支持 .csv / .json 格式（.xlsx 请先另存为 CSV），每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话",
-    "apptPage.importXlsxWarn": "暂不支持 .xlsx 二进制解析，请将 Excel 导出为 CSV 或 JSON 格式后再导入（表头: 姓名/设备/日期/时段 等）",
+    "apptPage.uploadHint":
+      "支持 .csv / .json 格式（.xlsx 请先另存为 CSV），每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话",
+    "apptPage.importXlsxWarn":
+      "暂不支持 .xlsx 二进制解析，请将 Excel 导出为 CSV 或 JSON 格式后再导入（表头: 姓名/设备/日期/时段 等）",
     "apptPage.parseFailed": "文件解析失败，请检查 CSV/JSON 格式",
     "apptPage.noImportRows": "文件中没有可导入的数据行",
     "apptPage.missingFields": "缺少必填字段(姓名/设备/日期/时段)",
@@ -14964,7 +15293,8 @@ export const translations: Translations = {
     "apptPage.conflictTitle": "时间冲突检测",
     "apptPage.deviceLabel": "设备:",
     "apptPage.statusLabel": "状态:",
-    "apptPage.conflictHint": "检测到该时段存在冲突预约。建议选择其他时段或设备。",
+    "apptPage.conflictHint":
+      "检测到该时段存在冲突预约。建议选择其他时段或设备。",
     "apptPage.backToEdit": "返回修改",
     "apptPage.forceBook": "强制预约（忽略冲突）",
     "apptPage.status.pending": "待确认",
@@ -15044,7 +15374,8 @@ export const translations: Translations = {
     "templateDesigner.sectionProps": "章节属性",
     "templateDesigner.fieldLibrary": "字段库",
     "templateDesigner.dragTipTitle": "拖拽提示",
-    "templateDesigner.dragTipBody": "将左侧字段拖拽到中间画布的章节中，即可添加到模板。",
+    "templateDesigner.dragTipBody":
+      "将左侧字段拖拽到中间画布的章节中，即可添加到模板。",
     "templateDesigner.dropHere": "拖拽字段到此处添加",
     "templateDesigner.addSection": "添加章节",
     "templateDesigner.conditionalTag": "条件",
@@ -15067,7 +15398,8 @@ export const translations: Translations = {
     "templateDesigner.action.show": "显示",
     "templateDesigner.action.hide": "隐藏",
     "templateDesigner.action.require": "必填",
-    "templateDesigner.conditionalNote": "条件逻辑说明：当条件字段的值满足条件时，对目标字段执行显示/隐藏/必填操作。",
+    "templateDesigner.conditionalNote":
+      "条件逻辑说明：当条件字段的值满足条件时，对目标字段执行显示/隐藏/必填操作。",
     "templateDesigner.srMappingTitle": "IHE RR 结构化报告映射",
     "templateDesigner.complianceScore": "合规度",
     "templateDesigner.srTemplateSelect": "IHE RR 模板选择",
@@ -15079,7 +15411,8 @@ export const translations: Translations = {
     "templateDesigner.compliant": "合规",
     "templateDesigner.partial": "部分",
     "templateDesigner.addFieldFirst": "请先添加字段",
-    "templateDesigner.srMappingNote": "将模板字段映射到 DICOM SR 模板 ID，确保符合 IHE RR 规范要求。",
+    "templateDesigner.srMappingNote":
+      "将模板字段映射到 DICOM SR 模板 ID，确保符合 IHE RR 规范要求。",
     "templateDesigner.prop.displayLabel": "显示标签",
     "templateDesigner.prop.fieldKey": "字段键名",
     "templateDesigner.prop.dataType": "数据类型",
@@ -15116,11 +15449,13 @@ export const translations: Translations = {
     "templateDesigner.moveUp": "上移",
     "templateDesigner.moveDown": "下移",
     "templateDesigner.deleteBlock": "删除",
-    "templateDesigner.paragraphPlaceholder": "输入段落文本, 支持 {{变量}} 占位符...",
+    "templateDesigner.paragraphPlaceholder":
+      "输入段落文本, 支持 {{变量}} 占位符...",
     "templateDesigner.addParagraph": "添加段落",
     "templateDesigner.livePreview": "实时预览",
     "templateDesigner.previewEmpty1": "段落内容将在此实时渲染",
-    "templateDesigner.previewEmpty2": "保存时同步写入 content 纯文本与 structure JSON",
+    "templateDesigner.previewEmpty2":
+      "保存时同步写入 content 纯文本与 structure JSON",
     "templateDesigner.meta.name": "名称",
     "templateDesigner.meta.code": "编码",
     "templateDesigner.meta.modality": "设备",
@@ -15226,41 +15561,42 @@ export const translations: Translations = {
     "insuranceAudit.chartDenialRate": "拒赔率",
     "insuranceAudit.exportedRecords": "已导出 {{count}} 条审核历史记录",
     "insuranceAudit.ruleDeleted": "已删除规则: {{name}}",
-    "insuranceAudit.ruleDeletedConfirm": "确定要删除规则 \"{{name}}\" 吗?该操作不可撤销。",
-    "allTypes": "全部类型",
-    "allResults": "全部结果",
-    "passed": "通过",
-    "rejected": "拒绝",
-    "supplement": "补充资料",
-    "approve": "通过",
-    "reject": "拒绝",
-    "requestInfo": "补充资料",
-    "highUrgency": "高",
-    "mediumUrgency": "中",
-    "lowUrgency": "低",
-    "approvedMsg": "审核已通过",
-    "approveFailed": "审核通过失败",
-    "rejectDefaultReason": "审核拒绝",
-    "rejectedMsg": "审核已拒绝",
-    "rejectFailed": "审核拒绝失败",
-    "requestedMsg": "已请求补充资料",
-    "title": "医保审核",
-    "pendingCount": "待审核",
-    "passRate": "通过率",
-    "todayProcessed": "今日已处理",
-    "searchPlaceholder": "搜索患者姓名或检查项目",
-    "refreshed": "已刷新",
-    "refresh": "刷新",
-    "noPending": "暂无待审核记录",
-    "export": "导出",
+    "insuranceAudit.ruleDeletedConfirm":
+      '确定要删除规则 "{{name}}" 吗?该操作不可撤销。',
+    allTypes: "全部类型",
+    allResults: "全部结果",
+    passed: "通过",
+    rejected: "拒绝",
+    supplement: "补充资料",
+    approve: "通过",
+    reject: "拒绝",
+    requestInfo: "补充资料",
+    highUrgency: "高",
+    mediumUrgency: "中",
+    lowUrgency: "低",
+    approvedMsg: "审核已通过",
+    approveFailed: "审核通过失败",
+    rejectDefaultReason: "审核拒绝",
+    rejectedMsg: "审核已拒绝",
+    rejectFailed: "审核拒绝失败",
+    requestedMsg: "已请求补充资料",
+    title: "医保审核",
+    pendingCount: "待审核",
+    passRate: "通过率",
+    todayProcessed: "今日已处理",
+    searchPlaceholder: "搜索患者姓名或检查项目",
+    refreshed: "已刷新",
+    refresh: "刷新",
+    noPending: "暂无待审核记录",
+    export: "导出",
     "stats.monthlyTotal": "本月合计",
-    "confirmRejectTitle": "拒绝审核",
-    "confirmRejectText": "确定拒绝该审核申请吗?",
-    "cancel": "取消",
-    "confirmReject": "确认拒绝",
-    "confirmRequestTitle": "请求补充资料",
-    "confirmRequestText": "确定向申请科室请求补充资料吗?",
-    "confirmSend": "确认发送",
+    confirmRejectTitle: "拒绝审核",
+    confirmRejectText: "确定拒绝该审核申请吗?",
+    cancel: "取消",
+    confirmReject: "确认拒绝",
+    confirmRequestTitle: "请求补充资料",
+    confirmRequestText: "确定向申请科室请求补充资料吗?",
+    confirmSend: "确认发送",
     "history.auditTime": "审核时间",
     "history.patientName": "患者姓名",
     "history.patientId": "患者ID",
@@ -15346,7 +15682,8 @@ export const translations: Translations = {
     "aiStructured.calcification": "钙化描述",
     "aiStructured.placeholderCalcification": "如：未见恶性钙化",
     "aiStructured.massFeatures": "肿块特征",
-    "aiStructured.placeholderMassFeatures": "请描述肿块的位置、大小、形态等特征...",
+    "aiStructured.placeholderMassFeatures":
+      "请描述肿块的位置、大小、形态等特征...",
     "aiStructured.generateJsonPreview": "生成结构化JSON报告预览",
     "aiStructured.impressionSection": "诊断意见（Impression）",
     "aiStructured.impressionSubtitle": "诊断结论（支持多诊断）",
@@ -15379,7 +15716,8 @@ export const translations: Translations = {
     "aiStructured.requiredFields": "请填写必填字段",
     "aiStructured.reportSaved": "报告已保存 · {{id}}",
     "aiStructured.apiError": "接口返回失败",
-    "aiStructured.saveFallback": "保存接口暂不可用, 已本地生成演示报告 (待接入)",
+    "aiStructured.saveFallback":
+      "保存接口暂不可用, 已本地生成演示报告 (待接入)",
     // [v3.0.6.11-106 Wave 7A] AI 编排平台
     "aiOrch.statusRegistered": "已注册",
     "aiOrch.statusDeployed": "已部署",
@@ -15401,7 +15739,8 @@ export const translations: Translations = {
     "aiOrch.triggerSchedule": "定时",
     "aiOrch.triggerApi": "API",
     "aiOrch.viewerAriaLabel": "AI 异常区域查看器",
-    "aiOrch.viewerHint": "AI 推理结果 · 异常区域坐标 (点击查看器空白处取消高亮)",
+    "aiOrch.viewerHint":
+      "AI 推理结果 · 异常区域坐标 (点击查看器空白处取消高亮)",
     "aiOrch.unconditional": "无条件",
     "aiOrch.colName": "集成名称",
     "aiOrch.colModel": "AI 模型",
@@ -15534,7 +15873,8 @@ export const translations: Translations = {
     "aiOrch.msgEventType": "请选择事件类型",
     "aiOrch.fldModalityMatch": "设备模态（匹配条件）",
     "aiOrch.fldBodyPartMatch": "检查部位（匹配条件）",
-    "aiOrch.eventHint": "系统将根据集成触发条件自动匹配并创建对应推理任务（队列模拟）",
+    "aiOrch.eventHint":
+      "系统将根据集成触发条件自动匹配并创建对应推理任务（队列模拟）",
     "aiOrch.modalSrTitle": "生成结构化报告",
     "aiOrch.okGenerate": "生成",
     "aiOrch.phExamId5001": "如：EX-5001",
@@ -15562,7 +15902,8 @@ export const translations: Translations = {
     "aiOrch.phStepAction": "如：ai_detection",
     "aiOrch.phStepTarget": "目标（模型/模板，可选）",
     "aiOrch.addStep": "添加步骤",
-    "aiOrch.stepExamples": "步骤动作示例：ai_detection（AI 检测）、report_draft（报告起草）、human_review（医生复核）、critical_escalation（危急值升级）",
+    "aiOrch.stepExamples":
+      "步骤动作示例：ai_detection（AI 检测）、report_draft（报告起草）、human_review（医生复核）、critical_escalation（危急值升级）",
     "aiOrch.testTitle": "模型连通性测试",
     "aiOrch.close": "关闭",
     "aiOrch.reachable": "连通正常",
@@ -15584,7 +15925,8 @@ export const translations: Translations = {
     "aiOrch.reviewResultTitle": "AI 二次检出结果",
     "aiOrch.abnormalListTitle": "异常区域列表（点击可在查看器中高亮）",
     "aiOrch.coordinates": "坐标 ({{x}}, {{y}})",
-    "aiOrch.abnormalListHint": "提示：点击异常区域列表项，查看器内对应坐标框将高亮显示，便于二次核对。",
+    "aiOrch.abnormalListHint":
+      "提示：点击异常区域列表项，查看器内对应坐标框将高亮显示，便于二次核对。",
     "aiOrch.noAbnormal": "本次推理未检出异常区域",
     "aiOrch.queuedHint": "任务排队中，稍后自动开始推理...",
     "aiOrch.selectExamWithFindings": "请先选择包含 AI 检出结果的检查",
@@ -15701,7 +16043,8 @@ export const translations: Translations = {
     "templateMgmt.rejectTitle": "驳回模板审批",
     "templateMgmt.rejectPromptPrefix": "驳回「",
     "templateMgmt.rejectPromptSuffix": "」并退回创建人修改, 请填写驳回原因:",
-    "templateMgmt.rejectReasonPlaceholder": "例: 影像所见描述不规范, 请补充增强时相",
+    "templateMgmt.rejectReasonPlaceholder":
+      "例: 影像所见描述不规范, 请补充增强时相",
     "templateMgmt.processing": "处理中…",
     "templateMgmt.confirmReject": "确认驳回",
     "templateMgmt.versionMgmt": "版本管理",
@@ -15751,7 +16094,8 @@ export const translations: Translations = {
     "templateMgmt.permManage": "管理",
     "templateMgmt.permEdit": "编辑",
     "templateMgmt.permView": "查看",
-    "templateMgmt.shareFooter": "支持跨部门共享 · 权限控制（查看/编辑/管理） · 共享请求流程",
+    "templateMgmt.shareFooter":
+      "支持跨部门共享 · 权限控制（查看/编辑/管理） · 共享请求流程",
     "templateMgmt.shareToLabel": "共享给（科室/用户）",
     "templateMgmt.shareToPlaceholder": "如: 神经内科 / 王医生",
     "templateMgmt.confirmShare": "确认分享",
@@ -15864,7 +16208,8 @@ export const translations: Translations = {
     "deviceFault.actualCost": "实际费用",
     "deviceFault.confirmAccept": "确认验收",
     // [v3.0.6.11-106 Wave 7B] Page hardcoded zh i18n - TermLibraryPage
-    "termLibrary.apiBanner": "已接入真实 API：本页词库数据来自后端 /terms 接口（MSW 仅 dev 模式兜底）",
+    "termLibrary.apiBanner":
+      "已接入真实 API：本页词库数据来自后端 /terms 接口（MSW 仅 dev 模式兜底）",
     "termLibrary.loading": "正在从 API 加载术语库...",
     "termLibrary.apiUnavailable": "API 不可用,使用本地术语库",
     "termLibrary.title": "报告词库",
@@ -15907,7 +16252,8 @@ export const translations: Translations = {
     "termLibrary.totalStandardsPrefix": "共",
     "termLibrary.totalStandardsMid": "条标准，已对照",
     "termLibrary.totalStandardsSuffix": "条",
-    "termLibrary.dataSource": "数据来源：WS/T 500-2016 卫生行业标准（虚构数据，仅供演示）",
+    "termLibrary.dataSource":
+      "数据来源：WS/T 500-2016 卫生行业标准（虚构数据，仅供演示）",
     "termLibrary.libraryStats": "词库统计",
     "termLibrary.thisMonthUsage": "本月使用",
     "termLibrary.mappedStandard": "已对照标准",
@@ -15972,7 +16318,8 @@ export const translations: Translations = {
     "termLibrary.frequencyPrefix": "频率:",
     "termLibrary.use": "使用",
     "termLibrary.suggestionFooterPrefix": "基于",
-    "termLibrary.suggestionFooterSuffix": "次历史使用记录排序 · 上下文感知（检查部位/设备类型过滤）",
+    "termLibrary.suggestionFooterSuffix":
+      "次历史使用记录排序 · 上下文感知（检查部位/设备类型过滤）",
     "termLibrary.synonymNetwork": "术语关系网络",
     "termLibrary.reset": "重置",
     "termLibrary.relSynonym": "同义词",
@@ -16001,7 +16348,8 @@ export const translations: Translations = {
     "termLibrary.langEn": "英文",
     "termLibrary.langJa": "日文",
     "termLibrary.accuracy": "准确度",
-    "termLibrary.languageFooter": "支持中/英/日三种语言 · 可切换双语对照显示 · 翻译准确度通过临床术语库验证",
+    "termLibrary.languageFooter":
+      "支持中/英/日三种语言 · 可切换双语对照显示 · 翻译准确度通过临床术语库验证",
     "termLibrary.categoryBrowser": "分类树浏览器",
     "termLibrary.newCategory": "新建分类",
     "termLibrary.dragHint": "拖拽术语到分类节点进行分类",
@@ -16016,7 +16364,8 @@ export const translations: Translations = {
     "termLibrary.labelColor": "颜色",
     "termLibrary.save": "保存",
     "termLibrary.confirmDelete": "确认删除该词条？",
-    "termLibrary.importFileFormatError": "文件格式错误: 未解析到有效词条行，请使用「导入模板」CSV 格式 (词条内容,所属分类,…)",
+    "termLibrary.importFileFormatError":
+      "文件格式错误: 未解析到有效词条行，请使用「导入模板」CSV 格式 (词条内容,所属分类,…)",
     "termLibrary.templateFileName": "词库导入模板.csv",
     // [v3.0.6.11-106 Wave 7B] Page hardcoded zh i18n - ResearchPage
     "researchPage.pleaseWait": "请稍候...",
@@ -16084,13 +16433,15 @@ export const translations: Translations = {
     "researchPage.apply": "应用",
     "researchPage.extractedLabelMgmt": "已抽取数据标签管理",
     "researchPage.currentExtracted": "当前已抽取记录：50条",
-    "researchPage.labelHelp": "为已抽取的影像数据添加诊断标签、部位标签和特征标签，便于后续研究和分析。",
+    "researchPage.labelHelp":
+      "为已抽取的影像数据添加诊断标签、部位标签和特征标签，便于后续研究和分析。",
     "researchPage.annotatedPrefix": "已标注:",
     "researchPage.annotatedSuffix": "/50 条",
     "researchPage.batchAnnotate": "批量标注",
     "researchPage.viewAnnotatedCatalog": "查看已标注目录",
     "researchPage.batchAnnotateTitle": "批量标注已抽取记录",
-    "researchPage.batchAnnotateHint": "将使用所选标签为全部 50 条已抽取记录添加标注。",
+    "researchPage.batchAnnotateHint":
+      "将使用所选标签为全部 50 条已抽取记录添加标注。",
     "researchPage.selectLabel": "选择标签",
     "researchPage.selectLabelPlaceholder": "请选择标签",
     "researchPage.confirmAnnotate": "确认标注",
@@ -16102,7 +16453,8 @@ export const translations: Translations = {
     "researchPage.labelNamePlaceholder": "请输入标签名称",
     "researchPage.labelColor": "标签颜色",
     "researchPage.addLabel": "添加标签",
-    "researchPage.exportPermSaved": "导出权限设置已保存 (本地持久化 · 暂无权限管理端点)",
+    "researchPage.exportPermSaved":
+      "导出权限设置已保存 (本地持久化 · 暂无权限管理端点)",
     "researchPage.exportRecords": "导出记录",
     "researchPage.exportPermMgmt": "导出权限管理",
     "researchPage.thProject": "课题",
@@ -16112,7 +16464,8 @@ export const translations: Translations = {
     "researchPage.thOperator": "操作人",
     "researchPage.download": "下载",
     "researchPage.permHint": "权限提示",
-    "researchPage.permWarning": "科研数据导出涉及患者隐私，请严格按照医院相关规定管理和审批导出权限。",
+    "researchPage.permWarning":
+      "科研数据导出涉及患者隐私，请严格按照医院相关规定管理和审批导出权限。",
     "researchPage.allowedFormats": "允许导出的格式",
     "researchPage.fmtCsv": "CSV 格式",
     "researchPage.fmtCsvDesc": "表格数据，便于统计分析",
@@ -16137,7 +16490,8 @@ export const translations: Translations = {
     "researchPage.beforeDeid": "脱敏前",
     "researchPage.afterDeid": "脱敏后",
     "researchPage.deidProcessing": "脱敏处理中...",
-    "researchPage.deidNote": "注意: 不支持像素内烧录文字与结构化内容清洗, 导出科研数据前请人工抽查。",
+    "researchPage.deidNote":
+      "注意: 不支持像素内烧录文字与结构化内容清洗, 导出科研数据前请人工抽查。",
     "researchPage.deidSelectFiles": "选择 DICOM 文件",
     "researchPage.deidSelected": "已选择",
     "researchPage.deidSelectFirst": "请先选择要脱敏的 DICOM 文件",
@@ -16146,7 +16500,8 @@ export const translations: Translations = {
     "researchPage.deidFiles": "个文件",
     "researchPage.deidTagsCleaned": "个标签已清洗",
     "researchPage.deidStandard": "执行标准: DICOM PS3.15 Annex E 基础配置文件",
-    "researchPage.deidDisclaimer": "已清空身份标签 / 重新生成 UID / 统一日期偏移与时间; 像素数据逐字节不变, 脱敏后影像仍可用于阅片。不支持像素内烧录文字与结构化内容清洗, 导出科研数据前请人工抽查。",
+    "researchPage.deidDisclaimer":
+      "已清空身份标签 / 重新生成 UID / 统一日期偏移与时间; 像素数据逐字节不变, 脱敏后影像仍可用于阅片。不支持像素内烧录文字与结构化内容清洗, 导出科研数据前请人工抽查。",
     "researchPage.thFileName": "文件名",
     "researchPage.thNewSopUid": "新 SOP Instance UID",
     "researchPage.thPixelPreserved": "像素数据",
@@ -16246,13 +16601,17 @@ export const translations: Translations = {
     "researchPage.tabIrb": "IRB工作流",
     "researchPage.tabExportPipeline": "导出管线",
     "researchPage.tabDataQuality": "数据质量",
-    "researchPage.demoBanner": "演示数据（后端待实现）：本页为科研数据抽取演示页面，后端暂无 /research 接口",
+    "researchPage.demoBanner":
+      "演示数据（后端待实现）：本页为科研数据抽取演示页面，后端暂无 /research 接口",
     "researchPage.pageTitle": "科研数据抽取",
-    "researchPage.pageSubtitle": "课题数据脱敏管理 · 5个课题 · 50条已抽取记录 · DICOM脱敏 · 队列构建 · IRB · 导出管线 · 数据质量",
+    "researchPage.pageSubtitle":
+      "课题数据脱敏管理 · 5个课题 · 50条已抽取记录 · DICOM脱敏 · 队列构建 · IRB · 导出管线 · 数据质量",
     // [v3.0.6.11-106 Wave 7B] Page hardcoded zh i18n - StatsReportPage
     "statsReport.apiUnavailable": "statsApi 实时数据不可用, 已回退演示数据",
-    "statsReport.exportUnavailable": "导出接口不可用, 已回退当前筛选数据本地 CSV",
-    "statsReport.exportRequestFailed": "导出接口请求失败, 已回退当前筛选数据本地 CSV",
+    "statsReport.exportUnavailable":
+      "导出接口不可用, 已回退当前筛选数据本地 CSV",
+    "statsReport.exportRequestFailed":
+      "导出接口请求失败, 已回退当前筛选数据本地 CSV",
     "statsReport.totalDevices": "设备总数",
     "statsReport.totalExams": "检查总量",
     "statsReport.completedReports": "完成报告",
@@ -16332,7 +16691,8 @@ export const translations: Translations = {
     "statsReport.thDate": "日期",
     "statsReport.thWeekday": "星期",
     "statsReport.thRevenue": "收入*",
-    "statsReport.liveNote": "* 收入按 400元/例 估算; 报告/危急数值来自 statsApi 趋势聚合; 设备利用率由 DEVICE_MASTER 停机率推导 + biApi OEE 补充; 设备检查量为 stats.topDevices 近30天聚合",
+    "statsReport.liveNote":
+      "* 收入按 400元/例 估算; 报告/危急数值来自 statsApi 趋势聚合; 设备利用率由 DEVICE_MASTER 停机率推导 + biApi OEE 补充; 设备检查量为 stats.topDevices 近30天聚合",
     "statsReport.showingPrefix": "显示",
     "statsReport.showingMid": " -",
     "statsReport.showingSuffix": "条，共",
@@ -16371,7 +16731,8 @@ export const translations: Translations = {
     "cancerScreen.confirmExport": "确认导出",
     "cancerScreen.confirmRegister": "确认登记",
     "cancerScreen.confirmSubmit": "确认提交",
-    "cancerScreen.confirmSubmitText": "确认提交评估结果? 风险等级: {{risk}}, 评分: {{score}}",
+    "cancerScreen.confirmSubmitText":
+      "确认提交评估结果? 风险等级: {{risk}}, 评分: {{score}}",
     "cancerScreen.confirmSubmitTitle": "确认提交评估",
     "cancerScreen.createTask": "创建任务",
     "cancerScreen.creating": "创建中...",
@@ -16387,7 +16748,8 @@ export const translations: Translations = {
     "cancerScreen.csvValueHeader": "数值",
     "cancerScreen.currentAssess": "当前评估（基于LDCT筛查标准）",
     "cancerScreen.dataMap": "影像数据地图",
-    "cancerScreen.detectionHint": "完成筛查任务后发现早癌或高危结节将自动显示在此",
+    "cancerScreen.detectionHint":
+      "完成筛查任务后发现早癌或高危结节将自动显示在此",
     "cancerScreen.detectionTrack": "早癌/结节检出追踪",
     "cancerScreen.editTask": "编辑任务",
     "cancerScreen.errCreateService": "创建任务服务暂不可用",
@@ -16413,7 +16775,8 @@ export const translations: Translations = {
     "cancerScreen.exportStatLdct": "LDCT筛查人数: 8,642人",
     "cancerScreen.exportSuccess": "报告导出成功 ({{count}} 条队列 + 统计)",
     "cancerScreen.filter": "筛选条件",
-    "cancerScreen.filterApplied": "筛选已应用: {{type}} / {{region}} / {{status}}",
+    "cancerScreen.filterApplied":
+      "筛选已应用: {{type}} / {{region}} / {{status}}",
     "cancerScreen.filterTitle": "筛选条件",
     "cancerScreen.gender": "性别",
     "cancerScreen.historyAssess": "历史评估记录 ({{count}})",
@@ -16470,7 +16833,8 @@ export const translations: Translations = {
     "cancerScreen.statusUpdated": "已将 {{name}} 更新为「{{status}}」",
     "cancerScreen.submitAssess": "提交评估",
     "cancerScreen.submitting": "提交中...",
-    "cancerScreen.subtitle": "放射科早癌筛查平台 · 肺癌LDCT / 乳腺癌 / 消化道癌筛查 · 数据更新于 2026-05-02",
+    "cancerScreen.subtitle":
+      "放射科早癌筛查平台 · 肺癌LDCT / 乳腺癌 / 消化道癌筛查 · 数据更新于 2026-05-02",
     "cancerScreen.syncData": "同步数据",
     "cancerScreen.syncPartial": "部分数据同步成功",
     "cancerScreen.syncSuccess": "数据同步成功 · {{time}}",
@@ -16529,7 +16893,8 @@ export const translations: Translations = {
     "dataReportCenter.aiInsight": "AI 智能洞察",
     "dataReportCenter.aiInsightOff": "AI洞察已关闭，可点击开关开启。",
     "dataReportCenter.andMoreFields": " 等{{count}}个",
-    "dataReportCenter.apiSnapshot": "数据上报接口: {{reports}} 条报表 · {{trends}} 条月度趋势",
+    "dataReportCenter.apiSnapshot":
+      "数据上报接口: {{reports}} 条报表 · {{trends}} 条月度趋势",
     "dataReportCenter.cancel": "取消",
     "dataReportCenter.categoryPlaceholder": "如: 日常统计",
     "dataReportCenter.chartNotFound": "未找到图表",
@@ -16549,7 +16914,8 @@ export const translations: Translations = {
     "dataReportCenter.dataDetail": "数据明细",
     "dataReportCenter.dataRefetched": "数据已重新拉取",
     "dataReportCenter.dataSource": "数据源",
-    "dataReportCenter.dataSourceHint": "数据源将决定执行方式: OLAP 字段按周期聚合, stats/bi 字段为快照值",
+    "dataReportCenter.dataSourceHint":
+      "数据源将决定执行方式: OLAP 字段按周期聚合, stats/bi 字段为快照值",
     "dataReportCenter.dataSourceOlapDesc": "数据来源: OLAP 聚合接口",
     "dataReportCenter.dateRange": "日期区间",
     "dataReportCenter.defConfig": "报表定义配置",
@@ -16558,7 +16924,8 @@ export const translations: Translations = {
     "dataReportCenter.defLoaded": "已加载定义「{{name}}」",
     "dataReportCenter.defSaved": "报表定义「{{name}}」已保存",
     "dataReportCenter.delete": "删除",
-    "dataReportCenter.deleteConfirmContent": "删除后定义、结果快照与执行历史将一并清除, 该操作不可恢复。",
+    "dataReportCenter.deleteConfirmContent":
+      "删除后定义、结果快照与执行历史将一并清除, 该操作不可恢复。",
     "dataReportCenter.deleteConfirmTitle": "删除报表「{{name}}」?",
     "dataReportCenter.deleteFailed": "删除失败",
     "dataReportCenter.demoFallback": "演示数据（OLAP 接口回退）",
@@ -16605,7 +16972,8 @@ export const translations: Translations = {
     "dataReportCenter.noResultRunFirst": "暂无结果, 请先运行",
     "dataReportCenter.notSet": "未设置",
     "dataReportCenter.off": "关",
-    "dataReportCenter.olapUnavailableDesc": "OLAP 接口不可用, 已回退到统计/BI 快照 (单行估算数据)",
+    "dataReportCenter.olapUnavailableDesc":
+      "OLAP 接口不可用, 已回退到统计/BI 快照 (单行估算数据)",
     "dataReportCenter.on": "开",
     "dataReportCenter.pageSubtitle": "{{count}}种报表 · 三甲医院RIS系统",
     "dataReportCenter.pageTitle": "数据报表中心",
@@ -16620,7 +16988,8 @@ export const translations: Translations = {
     "dataReportCenter.pushFailed": "推送失败",
     "dataReportCenter.pushNotify": "推送通知",
     "dataReportCenter.pushSuccess": "报表「{{name}}」已推送订阅通知",
-    "dataReportCenter.pushSummary": "指标: {{fields}} · 周期: {{period}} · 区间: {{start}} ~ {{end}}",
+    "dataReportCenter.pushSummary":
+      "指标: {{fields}} · 周期: {{period}} · 区间: {{start}} ~ {{end}}",
     "dataReportCenter.pushUnavailable": "推送接口不可用",
     "dataReportCenter.pushed": "· 已推送",
     "dataReportCenter.recipientCurrent": "当前用户 (current)",
@@ -16635,8 +17004,10 @@ export const translations: Translations = {
     "dataReportCenter.reportNamePlaceholder": "如: 月度检查收入分析",
     "dataReportCenter.reportUpdated": "报表「{{name}}」已更新",
     "dataReportCenter.result": "结果",
-    "dataReportCenter.resultMeta": "周期: {{period}} · 数据源类型: {{dsType}} · 执行ID: {{id}}",
-    "dataReportCenter.resultSource": "数据源: {{source}} · {{count}} 行 · {{time}}",
+    "dataReportCenter.resultMeta":
+      "周期: {{period}} · 数据源类型: {{dsType}} · 执行ID: {{id}}",
+    "dataReportCenter.resultSource":
+      "数据源: {{source}} · {{count}} 行 · {{time}}",
     "dataReportCenter.resultTitle": "运行结果",
     "dataReportCenter.resultTitleNamed": "运行结果: {{name}}",
     "dataReportCenter.rowsCount": "{{count}} 行",
@@ -16651,11 +17022,13 @@ export const translations: Translations = {
     "dataReportCenter.schedule": "定时",
     "dataReportCenter.scheduleDaily": "每日 08:00",
     "dataReportCenter.scheduleFailed": "定时设置失败",
-    "dataReportCenter.scheduleHint": "保存后将自动推送「报表已生成」通知给订阅人 (POST /notifications/report-generated)",
+    "dataReportCenter.scheduleHint":
+      "保存后将自动推送「报表已生成」通知给订阅人 (POST /notifications/report-generated)",
     "dataReportCenter.scheduleMonthly": "每月1日 09:00",
     "dataReportCenter.scheduleQuarterly": "每季度首日 09:00",
     "dataReportCenter.scheduleRule": "定时规则",
-    "dataReportCenter.scheduleSaved": "报表「{{name}}」定时已保存, 订阅通知已推送",
+    "dataReportCenter.scheduleSaved":
+      "报表「{{name}}」定时已保存, 订阅通知已推送",
     "dataReportCenter.scheduleTitle": "定时设置",
     "dataReportCenter.scheduleTitleNamed": "定时设置: {{name}}",
     "dataReportCenter.scheduleWeekly": "每周一 08:00",
@@ -16844,7 +17217,8 @@ export const translations: Translations = {
     "devicePage.statTodayExams": "今日检查量",
     "devicePage.status": "状态",
     "devicePage.statusBoard": "设备状态看板",
-    "devicePage.subtitle": "设备总数 {{total}} 台 · 使用中 {{inUse}} 台 · 空闲 {{idle}} 台 · 维护 {{maint}} 台",
+    "devicePage.subtitle":
+      "设备总数 {{total}} 台 · 使用中 {{inUse}} 台 · 空闲 {{idle}} 台 · 维护 {{maint}} 台",
     "devicePage.successMark": "操作成功",
     "devicePage.systemRecord": "系统记录",
     "devicePage.tabAeConfig": "AE配置",
@@ -16943,7 +17317,8 @@ export const translations: Translations = {
     "dicomDimse.enableDicomTls": "启用 DICOM TLS",
     "dicomDimse.enqueueFailed": "入队失败",
     "dicomDimse.fileSelectHint": "支持多文件选择 · 逐帧进度 · 失败重试",
-    "dicomDimse.fileUploadAlert": "支持 DICOM .dcm 文件上传，系统将逐帧解析并存储至 PACS；多文件按顺序逐帧上传并实时显示每帧进度",
+    "dicomDimse.fileUploadAlert":
+      "支持 DICOM .dcm 文件上传，系统将逐帧解析并存储至 PACS；多文件按顺序逐帧上传并实时显示每帧进度",
     "dicomDimse.fileUploadTitle": "DICOM 文件上传",
     "dicomDimse.forward": "转发",
     "dicomDimse.labelAccession": "检查号",
@@ -16971,7 +17346,8 @@ export const translations: Translations = {
     "dicomDimse.offline": "离线",
     "dicomDimse.online": "在线",
     "dicomDimse.opFailed": "操作失败",
-    "dicomDimse.pageAlert": "DIMSE (DICOM Message Service Element) 设备集成管理，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 服务；v3.0.6.11-86 新增 TLS 安全 (G-03) 与 MPPS 检查进度 (G-05)",
+    "dicomDimse.pageAlert":
+      "DIMSE (DICOM Message Service Element) 设备集成管理，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 服务；v3.0.6.11-86 新增 TLS 安全 (G-03) 与 MPPS 检查进度 (G-05)",
     "dicomDimse.pageTitle": "DICOM DIMSE 管理",
     "dicomDimse.phAccession": "检查号",
     "dicomDimse.phAeTitle": "例如: CT_SCANNER_03",
@@ -17020,7 +17396,8 @@ export const translations: Translations = {
     "dicomDimse.statusPending": "待上传",
     "dicomDimse.statusSuccess": "成功",
     "dicomDimse.statusUploading": "上传中",
-    "dicomDimse.storeEmptyHint": "点击\"选择文件\"添加多个 .dcm 文件（多帧），将按顺序逐帧上传",
+    "dicomDimse.storeEmptyHint":
+      '点击"选择文件"添加多个 .dcm 文件（多帧），将按顺序逐帧上传',
     "dicomDimse.storeUploadTitle": "C-STORE 多帧上传",
     "dicomDimse.tabTls": "TLS 安全",
     "dicomDimse.tabTransfers": "传输队列",
@@ -17039,7 +17416,8 @@ export const translations: Translations = {
     "dicomDimse.transferEnqueued": "传输任务已入队: {{id}} → {{ae}}",
     "dicomDimse.transferFailed": "失败",
     "dicomDimse.transferPaused": "已暂停",
-    "dicomDimse.transferQueueTitle": "DICOM C-STORE 发送队列 (内存 + seed 回退)",
+    "dicomDimse.transferQueueTitle":
+      "DICOM C-STORE 发送队列 (内存 + seed 回退)",
     "dicomDimse.transferQueued": "排队中",
     "dicomDimse.transferSending": "发送中",
     "dicomDimse.unknown": "未知",
@@ -17205,7 +17583,8 @@ export const translations: Translations = {
     "cvModals.enabled": "已启用",
     "cvModals.escalateCV": "升级危急值",
     "cvModals.escalateDept": "升级科室",
-    "cvModals.escalateHint": "升级后原接收人超时未响应的危急值将转交升级对象处理,并记录升级时间与操作人。",
+    "cvModals.escalateHint":
+      "升级后原接收人超时未响应的危急值将转交升级对象处理,并记录升级时间与操作人。",
     "cvModals.escalateLevel": "升级层级",
     "cvModals.escalateReason": "升级原因",
     "cvModals.escalateSubtitle": "未及时响应时逐级升级通知",
@@ -17213,7 +17592,8 @@ export const translations: Translations = {
     "cvModals.escalateTargetAria": "升级对象",
     "cvModals.escalateTo": "升级至：",
     "cvModals.escalationInfo": "升级规则说明",
-    "cvModals.escalationInfoDesc": "当危急值在规定时间内未得到确认或处理时，系统将自动按照以下规则逐级升级通知，确保危急值得到及时响应。升级规则按照紧急程度分为4个层级。",
+    "cvModals.escalationInfoDesc":
+      "当危急值在规定时间内未得到确认或处理时，系统将自动按照以下规则逐级升级通知，确保危急值得到及时响应。升级规则按照紧急程度分为4个层级。",
     "cvModals.escalationTab": "升级规则",
     "cvModals.escRuleAdded": "升级规则已添加",
     "cvModals.escRuleAddedLocal": "升级规则已添加（本地）",
@@ -17259,7 +17639,8 @@ export const translations: Translations = {
     "cvModals.pendingNotify": "待通知",
     "cvModals.phoneNotify": "电话通知",
     "cvModals.phoneNotifyClinical": "电话通知临床",
-    "cvModals.phoneNotifyHint": "电话通知后，系统将自动记录通知时间及操作人，进入下一步\"临床确认\"流程。",
+    "cvModals.phoneNotifyHint":
+      '电话通知后，系统将自动记录通知时间及操作人，进入下一步"临床确认"流程。',
     "cvModals.phoneNotifyRecord": "电话通知记录",
     "cvModals.processAction": "处理措施",
     "cvModals.processDept": "处理科室",
@@ -17310,7 +17691,8 @@ export const translations: Translations = {
     "patient360.contrastExamMid": "次 / 总检查",
     "patient360.contrastExamPrefix": "增强检查",
     "patient360.contrastExamSuffix": "次",
-    "patient360.contrastHint": "CT/MR 增强检查需提前评估肾功能与过敏史；对比剂相关随访已纳入随访计划管理。",
+    "patient360.contrastHint":
+      "CT/MR 增强检查需提前评估肾功能与过敏史；对比剂相关随访已纳入随访计划管理。",
     "patient360.contrastRatio": "增强占比",
     "patient360.contrastUsage": "对比剂使用",
     "patient360.critical": "危急",
@@ -17320,9 +17702,11 @@ export const translations: Translations = {
     "patient360.days": "天",
     "patient360.deepDemo": "派生演示",
     "patient360.deepLoadFailed": "深化数据加载失败，展示派生演示数据",
-    "patient360.deepReal": "真实 (followupApi / lesionTrackingApi / financeApi / timeline)",
+    "patient360.deepReal":
+      "真实 (followupApi / lesionTrackingApi / financeApi / timeline)",
     "patient360.deepSource": "深化数据源:",
-    "patient360.deepUnavailable": "深化接口 (随访/病灶/费用/时间轴) 暂不可用，展示派生演示数据",
+    "patient360.deepUnavailable":
+      "深化接口 (随访/病灶/费用/时间轴) 暂不可用，展示派生演示数据",
     "patient360.derived": "派生",
     "patient360.device": "设备",
     "patient360.diagnosis": "诊断意见",
@@ -17359,7 +17743,8 @@ export const translations: Translations = {
     "patient360.interval": "间隔",
     "patient360.lastExam": "最近一次:",
     "patient360.latest": "最新",
-    "patient360.lesionCount": "共 {{total}} 个 · 新发 {{newCount}} · 增大 {{progressed}} · 稳定 {{stable}}",
+    "patient360.lesionCount":
+      "共 {{total}} 个 · 新发 {{newCount}} · 增大 {{progressed}} · 稳定 {{stable}}",
     "patient360.lesionSummary": "病灶追踪摘要",
     "patient360.linkedFollowup": "关联随访:",
     "patient360.loadFailed": "患者数据加载失败，请稍后重试",
@@ -17810,7 +18195,8 @@ export const translations: Translations = {
     "consultation.ratingSubmitted": "评价已提交",
     "consultation.realApiBanner": "已接入真实API：会诊全流程数据实时同步",
     "consultation.recordingControl": "录制控制",
-    "consultation.recordingDemoBanner": "录像会诊为演示数据，后端暂无录像存档接口",
+    "consultation.recordingDemoBanner":
+      "录像会诊为演示数据，后端暂无录像存档接口",
     "consultation.recordingDuration": "录制时长",
     "consultation.recordingPanel": "会诊录音录像控制面板",
     "consultation.referenceInfo": "参考资料",
@@ -18085,7 +18471,8 @@ export const translations: Translations = {
     "regionalReport.selectInstitution": "请选择机构",
     "regionalReport.cancel": "取消",
     "regionalReport.submit": "提交",
-    "regionalReport.consultationOpinionDetailPlaceholder": "请详细填写会诊意见见...",
+    "regionalReport.consultationOpinionDetailPlaceholder":
+      "请详细填写会诊意见见...",
     "regionalReport.reviewReport": "审核报告",
     "regionalReport.patient": "患者",
     "regionalReport.exam": "检查",
@@ -18095,7 +18482,8 @@ export const translations: Translations = {
     "regionalReport.confirmPassBtn": "确认通过",
     "regionalReport.rejectReport": "驳回报告",
     "regionalReport.rejectReason": "驳回原因",
-    "regionalReport.rejectReasonPlaceholder": "请详细说明驳回原因，以便下级医院修正...",
+    "regionalReport.rejectReasonPlaceholder":
+      "请详细说明驳回原因，以便下级医院修正...",
     "regionalReport.confirmReject": "确认驳回",
     "regionalReport.qualityFilter": "质控筛选",
     "regionalReport.qualityRange": "质量评分范围",
@@ -18162,8 +18550,10 @@ export const translations: Translations = {
     "dicomSrPage.imageMeasurementGroup": "影像测量组",
     "dicomSrPage.imageRegion": "影像区域",
     "dicomSrPage.linkedFound": "已找到关联 SR 文档",
-    "dicomSrPage.linkHint": "提示：SR 与报告通过 reportId 关联；报告发布 / 定稿后 SR 可推送 ORU^R01 至临床系统，闭环影像结构化结果传递。",
-    "dicomSrPage.linkNotFound": "未找到该报告关联的 SR 文档。可通过上方「生成 SR」创建。",
+    "dicomSrPage.linkHint":
+      "提示：SR 与报告通过 reportId 关联；报告发布 / 定稿后 SR 可推送 ORU^R01 至临床系统，闭环影像结构化结果传递。",
+    "dicomSrPage.linkNotFound":
+      "未找到该报告关联的 SR 文档。可通过上方「生成 SR」创建。",
     "dicomSrPage.linkQueryFailed": "关联查询失败：后端接口不可用或网络错误。",
     "dicomSrPage.linkSearchPlaceholder": "输入报告 ID 查询关联 SR 文档…",
     "dicomSrPage.measurementContext": "测量上下文",
@@ -18177,10 +18567,13 @@ export const translations: Translations = {
     "dicomSrPage.optional": "可选",
     "dicomSrPage.patient": "患者",
     "dicomSrPage.patientCharacteristics": "患者特征",
-    "dicomSrPage.pdfBase64Placeholder": "粘贴 PDF 的 base64 内容 — 不填则由报告内容生成文本流兜底",
+    "dicomSrPage.pdfBase64Placeholder":
+      "粘贴 PDF 的 base64 内容 — 不填则由报告内容生成文本流兜底",
     "dicomSrPage.pdfEncapsulation": "PDF 封装",
-    "dicomSrPage.pdfTextStream": "PDF 内容为文本流 (报告兜底), 无有效 PDF 二进制",
-    "dicomSrPage.pdfUrlPlaceholder": "https://.../report.pdf — 提供后按引用封装",
+    "dicomSrPage.pdfTextStream":
+      "PDF 内容为文本流 (报告兜底), 无有效 PDF 二进制",
+    "dicomSrPage.pdfUrlPlaceholder":
+      "https://.../report.pdf — 提供后按引用封装",
     "dicomSrPage.pushed": "已推送",
     "dicomSrPage.pushedOru": "已推送 (ORU)",
     "dicomSrPage.queryLink": "查询关联",
@@ -18189,7 +18582,8 @@ export const translations: Translations = {
     "dicomSrPage.report": "报告",
     "dicomSrPage.reportId": "报告 ID",
     "dicomSrPage.reportOrStudyId": "报告 ID / 检查 ID",
-    "dicomSrPage.reportOrStudyIdPlaceholder": "输入报告 ID 或检查 ID (studyId)...",
+    "dicomSrPage.reportOrStudyIdPlaceholder":
+      "输入报告 ID 或检查 ID (studyId)...",
     "dicomSrPage.scheme": "方案",
     "dicomSrPage.sessionHistory": "本会话生成记录",
     "dicomSrPage.size": "大小",
@@ -18204,7 +18598,8 @@ export const translations: Translations = {
     "dicomSrPage.srDocuments": "SR 文档",
     "dicomSrPage.srReportLink": "SR 与报告关联",
     "dicomSrPage.srTemplateTree": "SR 模板结构树预览",
-    "dicomSrPage.statsError": "SR 文档列表接口不可用 (GET /dicom-sr)，展示演示统计",
+    "dicomSrPage.statsError":
+      "SR 文档列表接口不可用 (GET /dicom-sr)，展示演示统计",
     "dicomSrPage.statsSource": "统计数据源",
     "dicomSrPage.status": "状态",
     "dicomSrPage.syncing": "同步中…",
@@ -18219,7 +18614,8 @@ export const translations: Translations = {
     "dicomSrPage.tid2000Tree": "CAD 文档 (CAD Document)",
     "dicomSrPage.tid2001Tree": "CAD 图像库 (Image Library)",
     "dicomSrPage.tid2002Tree": "CAD 结果 (CAD Results)",
-    "dicomSrPage.tidExplanation": "TID = Template Information Definition (DICOM PS3.16)。SR 文档按 TID 模板组织 Content Item 树，包含概念名 (Concept Name) 与数值/编码/引用关系，用于结构化传递测量值与 CAD 发现。",
+    "dicomSrPage.tidExplanation":
+      "TID = Template Information Definition (DICOM PS3.16)。SR 文档按 TID 模板组织 Content Item 树，包含概念名 (Concept Name) 与数值/编码/引用关系，用于结构化传递测量值与 CAD 发现。",
     "dicomSrPage.tidStandardStructure": "TID 1500 / 2000 标准结构",
     "dicomSrPage.title": "DICOM SR 管理平台",
     "dicomSrPage.totalPrefix": "共",
@@ -18246,9 +18642,11 @@ export const translations: Translations = {
     "reportReviewPage.msgAuditFailed": "审核操作失败,请重试",
     "reportReviewPage.loading": "加载中...",
     "reportReviewPage.emptyTitle": "暂无审核任务",
-    "reportReviewPage.emptyHint": "当前没有待审核的报告,可从报告书写页提交报告后查看",
+    "reportReviewPage.emptyHint":
+      "当前没有待审核的报告,可从报告书写页提交报告后查看",
     "reportReviewPage.title": "报告审核工作台",
-    "reportReviewPage.subtitle": "双审流程（初+终）+ 审核时效 KPI + 驳回闭环 · 已接入真实报告流转",
+    "reportReviewPage.subtitle":
+      "双审流程（初+终）+ 审核时效 KPI + 驳回闭环 · 已接入真实报告流转",
     "reportReviewPage.currentReviewer": "当前审核员",
     "reportReviewPage.kpiToday": "今日审核",
     "reportReviewPage.kpiPendingInitial": "待初审",
@@ -18301,12 +18699,15 @@ export const translations: Translations = {
     "reportReviewPage.scoreUnit": "分",
     "reportReviewPage.quickScore": "快捷评分",
     "reportReviewPage.auditOpinion": "审核意见",
-    "reportReviewPage.auditOpinionPlaceholder": "请输入审核意见（驳回必填，通过建议填写）",
+    "reportReviewPage.auditOpinionPlaceholder":
+      "请输入审核意见（驳回必填，通过建议填写）",
     "reportReviewPage.pass": "通过",
     "reportReviewPage.rejectBtn": "驳回",
     "reportReviewPage.submitting": "提交中...",
-    "reportReviewPage.quickReason1": "影像所见与诊断意见不一致, 请复核图像后修改",
-    "reportReviewPage.quickReason2": "诊断意见缺少关键所见描述, 建议补充病灶特征",
+    "reportReviewPage.quickReason1":
+      "影像所见与诊断意见不一致, 请复核图像后修改",
+    "reportReviewPage.quickReason2":
+      "诊断意见缺少关键所见描述, 建议补充病灶特征",
     "reportReviewPage.quickReason3": "检查部位与申请单不符, 请核对后重新书写",
     "reportReviewPage.quickReason4": "术语使用不规范, 建议按 ICD 标准术语修改",
     "reportReviewPage.quickReason5": "建议漏写, 请补充随访/复查建议",
@@ -18338,7 +18739,8 @@ export const translations: Translations = {
     "businessContinuity.devFault": "故障",
     "businessContinuity.deviceLoadFailed": "影像设备状态加载失败",
     "businessContinuity.title": "业务连续性 / 灾备中心",
-    "businessContinuity.subtitle": "离线同步引擎 | 冲突解决 | RPO ≤ 60s / RTO ≤ 10min | 异地多活",
+    "businessContinuity.subtitle":
+      "离线同步引擎 | 冲突解决 | RPO ≤ 60s / RTO ≤ 10min | 异地多活",
     "businessContinuity.syncQueue": "同步队列",
     "businessContinuity.avgLag": "平均延迟",
     "businessContinuity.deviceLoadFailedAlert": "设备状态加载失败",
@@ -18470,14 +18872,16 @@ export const translations: Translations = {
     "reportDelivery.noReason": "未填写原因",
     "reportDelivery.selectReportFirst": "请先选择要推送的报告",
     "reportDelivery.fromReportList": "来自报告列表:",
-    "reportDelivery.fromReportHint": "可直接选择下方推送渠道对该报告进行分发 / 推送管理",
+    "reportDelivery.fromReportHint":
+      "可直接选择下方推送渠道对该报告进行分发 / 推送管理",
     "reportDelivery.backToReportList": "返回报告列表",
     "reportDelivery.title": "报告推送中心",
     "reportDelivery.loading": "加载中...",
     "reportDelivery.apiDerived": "接口数据派生",
     "reportDelivery.items": "条",
     "reportDelivery.staticData": "静态演示数据（接口无推送端点，派生失败回退）",
-    "reportDelivery.subtitle": "v3.0.5.1 增强:多通道送达 / 送达回执 / 患者端门户 · 50 升级点",
+    "reportDelivery.subtitle":
+      "v3.0.5.1 增强:多通道送达 / 送达回执 / 患者端门户 · 50 升级点",
     "reportDelivery.recordsCount": "推送记录",
     "reportDelivery.tabV3": "R3.DIST 增强",
     "reportDelivery.tabClassic": "经典视图",
@@ -18485,7 +18889,8 @@ export const translations: Translations = {
     "reportDelivery.multiChannel": "多通道送达",
     "reportDelivery.receipt": "送达回执",
     "reportDelivery.portal": "患者端门户",
-    "reportDelivery.classicSubtitle": "8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）· 批量推送 · 失败重试 · 撤回/重发（状态本地记录）",
+    "reportDelivery.classicSubtitle":
+      "8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）· 批量推送 · 失败重试 · 撤回/重发（状态本地记录）",
     "reportDelivery.exportCenter": "导出中心",
     "reportDelivery.kpiMonth": "本月推送",
     "reportDelivery.kpiSuccessRate": "成功率",
@@ -18506,7 +18911,8 @@ export const translations: Translations = {
     "reportDelivery.resend": "重发",
     "reportDelivery.recall": "撤回",
     "reportDelivery.confirmRecallTitle": "确认撤回该推送记录?",
-    "reportDelivery.confirmRecallDesc": "撤回后状态标记为『已撤回』（本地记录），可随时重发",
+    "reportDelivery.confirmRecallDesc":
+      "撤回后状态标记为『已撤回』（本地记录），可随时重发",
     "reportDelivery.cancel": "取消",
     "reportDelivery.detail": "详情",
     "reportDelivery.noMatch": "无匹配记录",
@@ -18515,7 +18921,8 @@ export const translations: Translations = {
     "reportDelivery.recallStatePrefix": "状态将标记为",
     "reportDelivery.recallStateMid": "。后端暂无撤回端点，此状态为",
     "reportDelivery.localRecord": "本地记录",
-    "reportDelivery.recallReasonPlaceholder": "撤回原因 (如: 报告内容有误, 需重新出具)",
+    "reportDelivery.recallReasonPlaceholder":
+      "撤回原因 (如: 报告内容有误, 需重新出具)",
     "reportDelivery.detailTitle": "推送记录详情",
     "reportDelivery.close": "关闭",
     "reportDelivery.recallRecord": "撤回记录",
@@ -18545,6 +18952,7 @@ export const translations: Translations = {
     "pixPage.pdqFallback": "PDQ 服务不可用，已使用演示数据",
     "pixPage.mappingAdded": "映射已添加",
     "pixPage.mappingDeleted": "映射已删除",
+    "pixPage.mappingDeleteFailed": "删除 PIX 映射失败",
     "pixPage.assigningAuthority": "分配机构",
     "pixPage.patientId": "患者 ID",
     "pixPage.identifiers": "标识符",
@@ -18648,7 +19056,8 @@ export const translations: Translations = {
     "srReport.insertAndJump": "插入并跳转书写页",
     "srReport.backfillPrefix": "已解析",
     "srReport.backfillItems": "个测量项",
-    "srReport.backfillSuffix": "，确认后经 insertHtml 通道插入报告编辑器并跳转书写页。",
+    "srReport.backfillSuffix":
+      "，确认后经 insertHtml 通道插入报告编辑器并跳转书写页。",
     "srReport.measureName": "测量项",
     "srReport.measureValue": "数值",
     "srReport.measureUnit": "单位",
@@ -19274,13 +19683,15 @@ export const translations: Translations = {
     "dentalTele.selectedPhotos": "已选 {{count}} 张 · 本地预览, 不涉及网络传输",
     "dentalTele.noPhotos": "尚未选择照片, 请选择口内照片后预览",
     "dentalTele.remove": "移除",
-    "dentalTele.photoLocalOnly": "照片仅保存在本地会话, 如需归档请使用影像上传通道",
+    "dentalTele.photoLocalOnly":
+      "照片仅保存在本地会话, 如需归档请使用影像上传通道",
     "dentalTele.detailTitle": "会诊详情",
     "dentalTele.close": "关闭",
     "dentalTele.createdAt": "创建时间",
     "dentalTele.screeningTitle": "AI 龋齿预筛结果",
     "dentalTele.screeningPending": "AI 预筛待接入",
-    "dentalTele.screeningPendingDesc": "口腔 AI 服务暂未返回筛查结果, 可先上传口内照片后重试。",
+    "dentalTele.screeningPendingDesc":
+      "口腔 AI 服务暂未返回筛查结果, 可先上传口内照片后重试。",
     "dentalTele.model": "模型",
     "dentalTele.method": "方法",
     "dentalTele.source": "数据来源",
@@ -19292,7 +19703,8 @@ export const translations: Translations = {
     "dentalTele.severityMedium": "中",
     "dentalTele.severityLow": "低",
     "dentalTele.confidence": "置信度",
-    "dentalTele.screeningDisclaimer": "筛查结果仅供预筛参考, 需结合影像及专家复核后出具诊断",
+    "dentalTele.screeningDisclaimer":
+      "筛查结果仅供预筛参考, 需结合影像及专家复核后出具诊断",
     // [v3.0.6.11-106 Wave 9D] remoteReading.*
     "remoteReading.statusPending": "待分配",
     "remoteReading.statusInProgress": "阅片中",
@@ -19308,7 +19720,8 @@ export const translations: Translations = {
     "remoteReading.completedArchived": "阅片完成,报告已归档",
     "remoteReading.submitFailed": "提交失败",
     "remoteReading.returnTitle": "退回远程阅片任务",
-    "remoteReading.returnPlaceholder": "请输入退回原因(如图像不全、扫描序列缺失等)",
+    "remoteReading.returnPlaceholder":
+      "请输入退回原因(如图像不全、扫描序列缺失等)",
     "remoteReading.confirmReturn": "确认退回",
     "remoteReading.cancel": "取消",
     "remoteReading.returned": "任务已退回",
@@ -19386,7 +19799,8 @@ export const translations: Translations = {
     "iheManager.pdqSupplier": "PDQ 提供方",
     "iheManager.tabPix": "PIX 管理",
     "iheManager.pixCrossReference": "PIX 患者身份交叉引用",
-    "iheManager.pixCrossReferenceDesc": "跳转到 PIX 管理页面进行患者 ID 跨域映射管理。",
+    "iheManager.pixCrossReferenceDesc":
+      "跳转到 PIX 管理页面进行患者 ID 跨域映射管理。",
     "iheManager.goPix": "前往 PIX 管理",
     "iheManager.pixNotifyTitle": "PIX 更新通知 (ITI-10)",
     "iheManager.patientId": "患者 ID",
@@ -19681,7 +20095,8 @@ export const translations: Translations = {
     "aiEnhanced.studyIdPlaceholder": "检查号 studyId",
     "aiEnhanced.analyzing": "分析中...",
     "aiEnhanced.autoDetect": "自动检出",
-    "aiEnhanced.organDetectHint": "输入检查号并选择部位, 模拟 AI 多器官检出 (确定性灰度统计特征推理, 非随机)",
+    "aiEnhanced.organDetectHint":
+      "输入检查号并选择部位, 模拟 AI 多器官检出 (确定性灰度统计特征推理, 非随机)",
     "aiEnhanced.organsDetected": "检出器官",
     "aiEnhanced.avgConfidence": "平均置信度",
     "aiEnhanced.primaryOrgan": "主要器官",
@@ -19690,7 +20105,8 @@ export const translations: Translations = {
     "aiEnhanced.volumeApprox": "体积约",
     "aiEnhanced.coverage": "覆盖",
     "aiEnhanced.slices": "层",
-    "aiEnhanced.detectDisclaimer": "AI 检出结果仅供医师参考, 请结合原始图像复核",
+    "aiEnhanced.detectDisclaimer":
+      "AI 检出结果仅供医师参考, 请结合原始图像复核",
     "aiEnhanced.generateParagraph": "一键生成报告段落",
     "aiEnhanced.copiedShort": "已复制",
     "aiEnhanced.copy": "复制",
@@ -19701,7 +20117,8 @@ export const translations: Translations = {
     "aiEnhanced.draftScoreTag": "0-100 分 · 确定性规则",
     "aiEnhanced.fillGoodSample": "填入规范示例",
     "aiEnhanced.fillBadSample": "填入反例",
-    "aiEnhanced.draftPlaceholder": "粘贴报告草稿: 按 检查技术/影像所见/诊断意见 分段...",
+    "aiEnhanced.draftPlaceholder":
+      "粘贴报告草稿: 按 检查技术/影像所见/诊断意见 分段...",
     "aiEnhanced.chars": "字符",
     "aiEnhanced.scoring": "评分中...",
     "aiEnhanced.startScore": "开始评分",
@@ -19739,11 +20156,15 @@ export const translations: Translations = {
     "aiEnhanced.tagOrgan": "多器官检出",
     "aiEnhanced.tagDraft": "草稿评分",
     "aiEnhanced.tagHanging": "智能挂片",
-    "aiEnhanced.pageDescription": "多器官自动检出 (8 类器官, 灰度统计特征确定性推理) + 报告草稿质量评分 (0-100 分 + 改进建议) + 智能挂片协议 (规则表 + 医生历史偏好)",
+    "aiEnhanced.pageDescription":
+      "多器官自动检出 (8 类器官, 灰度统计特征确定性推理) + 报告草稿质量评分 (0-100 分 + 改进建议) + 智能挂片协议 (规则表 + 医生历史偏好)",
     "aiEnhanced.workbenchNotes": "工作台说明",
-    "aiEnhanced.note1": "检出基于灰度统计特征 (均值/标准差 → HU 窗拟合 + 对比度拟合), 同一输入恒定输出, 无随机",
-    "aiEnhanced.note2": "草稿评分四维度: 长度 15% / 结构 25% / 术语 30% / 数值单位 30%",
-    "aiEnhanced.note3": "挂片规则: CT 胸→肺窗+纵隔窗 2×2, MR 头→T1/T2/FLAIR 2×3, 未知类型兜底 1×1",
+    "aiEnhanced.note1":
+      "检出基于灰度统计特征 (均值/标准差 → HU 窗拟合 + 对比度拟合), 同一输入恒定输出, 无随机",
+    "aiEnhanced.note2":
+      "草稿评分四维度: 长度 15% / 结构 25% / 术语 30% / 数值单位 30%",
+    "aiEnhanced.note3":
+      "挂片规则: CT 胸→肺窗+纵隔窗 2×2, MR 头→T1/T2/FLAIR 2×3, 未知类型兜底 1×1",
     "aiEnhanced.note4": "医生对同部位应用过的布局将在下次推荐时优先 (历史偏好)",
     "aiEnhanced.note5": "孤儿模块: 无数据库依赖, 应用记录内存存储 + seed 回退",
     "aiEnhanced.endpoint": "端点",
@@ -19969,7 +20390,8 @@ export const translations: Translations = {
     "triage.confirmComplete": "确认完成",
     "triage.complete": "完成",
     "triage.title": "AI 智能分诊看板",
-    "triage.subtitle": "基于多因子评分模型的急诊分诊工作台，支持自动评分、智能分配和手动调整",
+    "triage.subtitle":
+      "基于多因子评分模型的急诊分诊工作台，支持自动评分、智能分配和手动调整",
     "triage.statPending": "待分检",
     "triage.queue": "分诊队列",
     "triage.itemsUnit": "条",
@@ -20026,7 +20448,8 @@ export const translations: Translations = {
     "dentalSchedule.quadrantLL": "左下",
     "dentalSchedule.quadrantRL": "右下",
     "dentalSchedule.probingDepth": "6点探诊深度 (mm)",
-    "dentalSchedule.probingNote": "六点探诊：DB（远中颊）、B（颊）、MB（近中颊）、ML（近中舌）、L（舌）、DL（远中舌）",
+    "dentalSchedule.probingNote":
+      "六点探诊：DB（远中颊）、B（颊）、MB（近中颊）、ML（近中舌）、L（舌）、DL（远中舌）",
     "dentalSchedule.mobility": "松动度",
     "dentalSchedule.mobility0": "0度正常",
     "dentalSchedule.mobility1": "I度小于1mm",
@@ -20131,8 +20554,10 @@ export const translations: Translations = {
     "treatmentPlan.newPlan": "新建治疗计划",
     "treatmentPlan.itemsUnit": "项",
     "treatmentPlan.emptyPlans": "暂无治疗计划, 点击新建创建",
-    "treatmentPlan.timelineSelectHint": "选择左侧列表中的计划查看时间线 (点击「详情」)",
-    "treatmentPlan.timelineEmptyHint": "请在「治疗计划」页签点击计划详情查看时间线",
+    "treatmentPlan.timelineSelectHint":
+      "选择左侧列表中的计划查看时间线 (点击「详情」)",
+    "treatmentPlan.timelineEmptyHint":
+      "请在「治疗计划」页签点击计划详情查看时间线",
     "treatmentPlan.newPlanTitle": "新建跨科室治疗计划",
     "treatmentPlan.patientLabel": "患者",
     "treatmentPlan.typeLabel": "治疗类型",
@@ -20183,7 +20608,8 @@ export const translations: Translations = {
     "treatmentPlan.status.pending": "待处理",
     // [v3.0.6.11-106 Wave 9B] LesionTrackingPage i18n
     "lesionTrack.pageTitle": "病灶追踪工作台",
-    "lesionTrack.pageSubtitle": "Lesion Tracking · 跨期对比 RECIST-like · 趋势随访",
+    "lesionTrack.pageSubtitle":
+      "Lesion Tracking · 跨期对比 RECIST-like · 趋势随访",
     "lesionTrack.dataSource": "数据源:",
     "lesionTrack.sourceDatabase": "数据库派生 (Exam)",
     "lesionTrack.sourceDemo": "演示数据 (Demo Seed)",
@@ -20240,7 +20666,8 @@ export const translations: Translations = {
     "lesionTrack.followupCard": "随访联动 (Wave 3B)",
     "lesionTrack.followupInputPlaceholder": "输入随访计划 ID (如 FU001)",
     "lesionTrack.linkBtn": "关联",
-    "lesionTrack.followupAlert": "关联后在随访计划页可按病灶回溯; 患者与随访计划患者不一致时后端拒绝。",
+    "lesionTrack.followupAlert":
+      "关联后在随访计划页可按病灶回溯; 患者与随访计划患者不一致时后端拒绝。",
     "lesionTrack.detailLoadFailed": "病灶详情加载失败",
     "lesionTrack.measurementSaved": "测量已记录",
     "lesionTrack.addMeasurementFailed": "新增测量失败",
@@ -20330,7 +20757,8 @@ export const translations: Translations = {
     "tenantConfig.statGeneratedAt": "生成时间",
     "tenantConfig.overallCompliant": "整体合规",
     "tenantConfig.nonCompliant": "存在不合规项, 建议整改",
-    "tenantConfig.assessmentSummary": "评估项 {{total}} 项 · 通过 {{passed}} 项 · 生成于 {{generatedAt}}",
+    "tenantConfig.assessmentSummary":
+      "评估项 {{total}} 项 · 通过 {{passed}} 项 · 生成于 {{generatedAt}}",
     "tenantConfig.scoreLabel": "得分",
     "tenantConfig.profileUpdated": "租户信息已更新",
     "tenantConfig.saveFailed": "保存失败",
@@ -20353,7 +20781,8 @@ export const translations: Translations = {
     "tenantConfig.feat.aiOrchestration.label": "AI 编排",
     "tenantConfig.feat.aiOrchestration.desc": "AI 工作流编排与自动化诊断调度",
     "tenantConfig.feat.biDashboard.label": "BI 仪表板",
-    "tenantConfig.feat.biDashboard.desc": "业务智能看板（时效/RVU/OEE/危急值 SLA）",
+    "tenantConfig.feat.biDashboard.desc":
+      "业务智能看板（时效/RVU/OEE/危急值 SLA）",
     "tenantConfig.feat.doseManagement.label": "剂量管理",
     "tenantConfig.feat.doseManagement.desc": "辐射剂量记录与 DRL 参考水平监控",
     "tenantConfig.feat.vna.label": "VNA 归档",
@@ -20374,7 +20803,8 @@ export const translations: Translations = {
     "committeeRoom.demoFallback": "演示回退",
     "committeeRoom.refresh": "刷新",
     "committeeRoom.startCommittee": "发起委员会会诊",
-    "committeeRoom.infoMessage": "委员会会诊: 由 ≥2 名高年资医师对疑难/危急报告独立投票合议, 全部投票后生成委员会决议, 可一键追加为报告「决议」段落。",
+    "committeeRoom.infoMessage":
+      "委员会会诊: 由 ≥2 名高年资医师对疑难/危急报告独立投票合议, 全部投票后生成委员会决议, 可一键追加为报告「决议」段落。",
     "committeeRoom.listTitle": "委员会会诊列表",
     "committeeRoom.noCommittees": "暂无委员会会诊",
     "committeeRoom.selectHint": "从左侧选择委员会会诊查看详情",
@@ -20401,7 +20831,8 @@ export const translations: Translations = {
     "committeeRoom.committeeResolution": "委员会决议",
     "committeeRoom.resolutionGeneratedLabel": "决议已生成",
     "committeeRoom.appendedReportWith": "已追加报告",
-    "committeeRoom.resolutionHintVoting": "委员全部投票后可生成委员会决议 (可追加为报告段落)",
+    "committeeRoom.resolutionHintVoting":
+      "委员全部投票后可生成委员会决议 (可追加为报告段落)",
     "committeeRoom.resolutionHintNone": "该会诊尚未生成决议",
     "committeeRoom.createdBy": "创建人",
     "committeeRoom.createdAt": "创建时间",
@@ -20421,7 +20852,8 @@ export const translations: Translations = {
     "committeeRoom.formMembers": "会诊委员 (≥1 人)",
     "committeeRoom.formMembersRequired": "请至少选择 1 名委员",
     "committeeRoom.formMembersPlaceholder": "选择高年资医师",
-    "committeeRoom.noteText": "委员将独立投票 (同意/反对 + 书面意见), 全部投票后由发起人生成委员会决议。",
+    "committeeRoom.noteText":
+      "委员将独立投票 (同意/反对 + 书面意见), 全部投票后由发起人生成委员会决议。",
     "committeeRoom.voteTitle": "委员投票",
     "committeeRoom.voteOk": "提交投票",
     "committeeRoom.consultationLabel": "会诊:",
@@ -20430,13 +20862,15 @@ export const translations: Translations = {
     "committeeRoom.agreeOption": "同意",
     "committeeRoom.disagreeOption": "反对",
     "committeeRoom.opinionRequiredLabel": "会诊意见 (必填)",
-    "committeeRoom.opinionPlaceholder": "如: CTA 见内膜片及真假腔, 支持主动脉夹层诊断。",
+    "committeeRoom.opinionPlaceholder":
+      "如: CTA 见内膜片及真假腔, 支持主动脉夹层诊断。",
     "committeeRoom.suggestionOptional": "补充建议 (选填)",
     "committeeRoom.suggestionPlaceholder": "如: 建议急诊超声进一步评估",
     "committeeRoom.resolutionTitle": "生成委员会决议",
     "committeeRoom.resolutionOk": "生成决议",
     "committeeRoom.resolutionContent": "决议内容 (综合委员意见)",
-    "committeeRoom.resolutionPlaceholder": "如: 委员会一致同意主动脉夹层诊断成立, 建议立即启动急诊手术评估。",
+    "committeeRoom.resolutionPlaceholder":
+      "如: 委员会一致同意主动脉夹层诊断成立, 建议立即启动急诊手术评估。",
     "committeeRoom.appendParagraph": "追加为报告「决议」段落",
     "committeeRoom.statusVoting": "投票中",
     "committeeRoom.statusResolved": "已决议",
@@ -20540,8 +20974,10 @@ export const translations: Translations = {
     "consentEdu.type.transfusion": "输血同意书",
     "consentEdu.type.radiotherapy": "放疗同意书",
     // [v3.0.6.11-106 Wave 9B] Hl7ManagerPage i18n
-    "hl7Page.dataSourceReal": "数据源: /hl7/archive + /hl7/mllp/status (真实接口)",
-    "hl7Page.dataSourceFallback": "数据源: 演示回退 (archive/MLLP 接口不可用, 基于消息类型派生)",
+    "hl7Page.dataSourceReal":
+      "数据源: /hl7/archive + /hl7/mllp/status (真实接口)",
+    "hl7Page.dataSourceFallback":
+      "数据源: 演示回退 (archive/MLLP 接口不可用, 基于消息类型派生)",
     "hl7Page.refresh": "刷新",
     "hl7Page.mllpChannel": "MLLP 通道",
     "hl7Page.running": "运行中",
@@ -20642,10 +21078,12 @@ export const translations: Translations = {
     "hl7Page.archiveTitle": "HL7 消息归档",
     "hl7Page.fallbackTag": "回退演示数据 (2 条硬编码)",
     "hl7Page.archiveHeader": "HL7 消息管理",
-    "hl7Page.archiveDesc": "HL7 消息构建与发送管理，支持 ORU (报告)、ORM (医嘱)、DFT (财务) 三种消息类型",
+    "hl7Page.archiveDesc":
+      "HL7 消息构建与发送管理，支持 ORU (报告)、ORM (医嘱)、DFT (财务) 三种消息类型",
     // [v3.0.6.11-106 Wave 9B] SimilarCasePage i18n
     "similarCase.pageTitle": "相似病例检索",
-    "similarCase.pageSubtitle": "文本检索 (Jaccard/SNOMED) + 影像级检索 (强度直方图/统计/纹理/形态) — 对标 Siemens 影像检索 / Infinitt Enterprise Search",
+    "similarCase.pageSubtitle":
+      "文本检索 (Jaccard/SNOMED) + 影像级检索 (强度直方图/统计/纹理/形态) — 对标 Siemens 影像检索 / Infinitt Enterprise Search",
     "similarCase.tabText": "文本检索",
     "similarCase.tabImage": "影像相似",
     "similarCase.tabHybrid": "融合检索",
@@ -20663,12 +21101,14 @@ export const translations: Translations = {
     "similarCase.realSample": "真实样本",
     "similarCase.demoShort": "演示",
     "similarCase.searchSimilarImages": "检索相似影像",
-    "similarCase.imageSearchNote": "基于 32-bin 强度直方图 + 统计特征 + 纹理 + 高/低密度占比 (余弦相似度),相似度 = 0.6×影像特征 + 0.4×模态/部位匹配",
+    "similarCase.imageSearchNote":
+      "基于 32-bin 强度直方图 + 统计特征 + 纹理 + 高/低密度占比 (余弦相似度),相似度 = 0.6×影像特征 + 0.4×模态/部位匹配",
     "similarCase.extractingFeatures": "正在提取影像特征并检索…",
     "similarCase.noSimilarImages": "未找到相似影像,请更换检查",
     "similarCase.selectExamToStart": "选择检查后开始影像级相似检索",
     "similarCase.returnedPrefix": "共返回",
-    "similarCase.similarSeriesSuffix": "个相似影像序列 (匿名, 不含患者身份信息)",
+    "similarCase.similarSeriesSuffix":
+      "个相似影像序列 (匿名, 不含患者身份信息)",
     "similarCase.demoFeatureLib": "演示特征库",
     "similarCase.featureCosine": "特征余弦",
     "similarCase.modalityPart": "模态/部位",
@@ -20688,11 +21128,13 @@ export const translations: Translations = {
     "similarCase.selectReportDemo": "选报告 (演示)",
     "similarCase.selectExamOptional": "选检查 (可选, 影像特征)",
     "similarCase.hybridSearch": "融合检索",
-    "similarCase.hybridPlaceholder": "粘贴/输入报告文本(可选): 例如 右肺上叶见磨玻璃密度结节… 结合所选检查的影像特征进行融合检索",
+    "similarCase.hybridPlaceholder":
+      "粘贴/输入报告文本(可选): 例如 右肺上叶见磨玻璃密度结节… 结合所选检查的影像特征进行融合检索",
     "similarCase.hybridSearching": "正在融合检索 (文本 + 影像特征)…",
     "similarCase.noMatchAdjust": "未找到匹配结果,请调整输入",
     "similarCase.hybridStartHint": "输入报告文本/选检查后开始融合检索",
-    "similarCase.returnedSuffix2": "个结果 · 综合 = 0.5×文本 + 0.5×影像 (文本分与影像分分别展示)",
+    "similarCase.returnedSuffix2":
+      "个结果 · 综合 = 0.5×文本 + 0.5×影像 (文本分与影像分分别展示)",
     "similarCase.demoLib": "演示库",
     "similarCase.imageSeriesSuffix": "影像序列",
     "similarCase.textScore": "文本分",
@@ -20712,11 +21154,13 @@ export const translations: Translations = {
     "similarCase.modalityPh": "模态",
     "similarCase.bodyPartPh": "部位",
     "similarCase.searchSimilarCases": "检索相似病例",
-    "similarCase.reportPlaceholder": "粘贴/输入报告文本,例如: 右肺上叶见磨玻璃密度结节,大小约 8mm,边界清晰,考虑早期肺腺癌可能…",
+    "similarCase.reportPlaceholder":
+      "粘贴/输入报告文本,例如: 右肺上叶见磨玻璃密度结节,大小约 8mm,边界清晰,考虑早期肺腺癌可能…",
     "similarCase.searchingSimilar": "正在检索相似病例…",
     "similarCase.noSimilarCases": "未找到相似病例,请调整报告文本或筛选条件",
     "similarCase.inputToStart": "输入报告文本后开始检索",
-    "similarCase.returnedCases": "个相似病例,按综合评分排序 (文本 50% + 特征 30% + SNOMED 20%)",
+    "similarCase.returnedCases":
+      "个相似病例,按综合评分排序 (文本 50% + 特征 30% + SNOMED 20%)",
     "similarCase.ageUnit": "岁",
     "similarCase.useful": "有用",
     "similarCase.useless": "无用",
@@ -20730,18 +21174,21 @@ export const translations: Translations = {
     "similarCase.reportAnonymized": "报告已匿名化处理,不包含患者姓名及身份信息",
     // [v3.0.6.11-106 Wave 9B] VoiceWorkstationPage i18n
     "voiceWs.pageTitle": "语音工作站",
-    "voiceWs.pageSubtitle": "语音听写 · 医学词库 · 听写历史 · 纠正反馈 — 转写自动执行同音词校正",
+    "voiceWs.pageSubtitle":
+      "语音听写 · 医学词库 · 听写历史 · 纠正反馈 — 转写自动执行同音词校正",
     "voiceWs.tabDictation": "语音听写",
     "voiceWs.tabLexicon": "医学词库",
     "voiceWs.tabSessions": "听写历史",
     "voiceWs.tabFeedbacks": "纠正反馈",
     "voiceWs.dataSource": "数据源",
-    "voiceWs.dataSourceDetail": "voice-workstation (医学词库内存 seed · ASR 转写会话派生 · 纠正反馈自动积累同音词) + asr (aliyun/whisper/mock 引擎)",
+    "voiceWs.dataSourceDetail":
+      "voice-workstation (医学词库内存 seed · ASR 转写会话派生 · 纠正反馈自动积累同音词) + asr (aliyun/whisper/mock 引擎)",
     "voiceWs.recording": "正在录音...",
     "voiceWs.transcribing": "转写中 (ASR + 词库校正)...",
     "voiceWs.dictation": "语音听写",
     "voiceWs.stopHint": "再次点击停止录音并自动转写",
-    "voiceWs.recordHint": "点击麦克风开始录音 (MediaRecorder), 停止后自动转写并执行医学词库同音词校正",
+    "voiceWs.recordHint":
+      "点击麦克风开始录音 (MediaRecorder), 停止后自动转写并执行医学词库同音词校正",
     "voiceWs.noMicHint": "无麦克风环境将自动使用演示音频回退",
     "voiceWs.startRecording": "开始录音",
     "voiceWs.stopRecording": "停止录音",
@@ -20771,7 +21218,8 @@ export const translations: Translations = {
     "voiceWs.lexSearchPlaceholder": "检索术语/别名/分类",
     "voiceWs.importCsv": "导入 CSV",
     "voiceWs.totalPrefix": "共",
-    "voiceWs.csvFormatHint": "CSV 格式: term,category,priority,aliases(竖线|分隔) — 例如: 磨玻璃影,影像,3,毛玻璃影|磨玻璃密度影",
+    "voiceWs.csvFormatHint":
+      "CSV 格式: term,category,priority,aliases(竖线|分隔) — 例如: 磨玻璃影,影像,3,毛玻璃影|磨玻璃密度影",
     "voiceWs.termPlaceholder": "术语 (必填)",
     "voiceWs.priorityPlaceholder": "优先级",
     "voiceWs.aliasesPlaceholder": "同音词/别名 (逗号分隔)",
@@ -20797,7 +21245,8 @@ export const translations: Translations = {
     "voiceWs.originalPlaceholder": "原词 (识别错误, 如: 结皆)",
     "voiceWs.correctedPlaceholder": "正词 (标准术语, 如: 结节)",
     "voiceWs.submit": "提交",
-    "voiceWs.correctionHint": "提交后自动沉淀进医学词库 (同音词别名), 后续转写自动校正",
+    "voiceWs.correctionHint":
+      "提交后自动沉淀进医学词库 (同音词别名), 后续转写自动校正",
     "voiceWs.correctionRecords": "纠正反馈记录",
     "voiceWs.noCorrections": "暂无纠正反馈",
     "voiceWs.autoCorrection": "自动 (转写校正)",
@@ -20822,7 +21271,8 @@ export const translations: Translations = {
     "voiceWs.submitFailed": "提交失败",
     "voiceWs.confirmFailed": "确认失败",
     "voiceWs.removedFromList": "已从列表移除",
-    "voiceWs.sessionArchived": "报告 {{reportId}} 的听写会话, 转写正文已归档; 新建会话可在「语音听写」查看实时转写结果。",
+    "voiceWs.sessionArchived":
+      "报告 {{reportId}} 的听写会话, 转写正文已归档; 新建会话可在「语音听写」查看实时转写结果。",
     "voiceWs.engine.aliyun": "阿里云 ASR",
     "voiceWs.engine.whisper": "Whisper",
     "voiceWs.engine.mock": "模拟转写",
@@ -20885,7 +21335,8 @@ export const translations: Translations = {
     "directorDash.points": "分",
     "directorDash.qcIssueMonth": "质控问题统计（本月）",
     "directorDash.qcIssueStats": "质控问题统计",
-    "directorDash.dailyRevenueChart": "每日收入折线图（近30天 · 按 400元/例 估算）",
+    "directorDash.dailyRevenueChart":
+      "每日收入折线图（近30天 · 按 400元/例 估算）",
     "directorDash.revenue": "收入",
     "directorDash.wan": "万",
     "directorDash.examRevenueDist": "检查项目收入分布",
@@ -20945,7 +21396,8 @@ export const translations: Translations = {
     "directorDash.qc.issue.MEAS001": "测量错误",
     // [v3.0.6.11-106 Wave 9B] PatientReportPortalPage i18n
     "patientPortal.pageTitle": "患者端报告门户 H5",
-    "patientPortal.pageSubtitle": "实名验证 + 二维码分享 + 报告查看 + 影像浏览 + 下载 + 分享 + 设备/IP 审计",
+    "patientPortal.pageSubtitle":
+      "实名验证 + 二维码分享 + 报告查看 + 影像浏览 + 下载 + 分享 + 设备/IP 审计",
     "patientPortal.loading": "加载中...",
     "patientPortal.apiPrefix": "patient-portal API",
     "patientPortal.accessibleReports": "份可访问报告",
@@ -21061,7 +21513,8 @@ export const translations: Translations = {
     "auditPage.query": "查询",
     "auditPage.totalItems": "共 {{total}} 条",
     "auditPage.loading": "加载中...",
-    "auditPage.trendTooltip": "{{label}} 总操作 {{total}} · 高危 {{highRisk}} · 失败 {{failed}}",
+    "auditPage.trendTooltip":
+      "{{label}} 总操作 {{total}} · 高危 {{highRisk}} · 失败 {{failed}}",
     "auditPage.timesSuffix": "{{count}} 次",
     "auditPage.lastActive": "最近 {{time}}",
     "auditPage.totalTimes": "共 {{total}} 次",
@@ -21136,7 +21589,8 @@ export const translations: Translations = {
     "criticalValueStats.completionProgress": "完成进度",
     "criticalValueStats.guidelineDescTitle": "国家卫健委2024年版质控指标说明",
     "criticalValueStats.guideline10minLabel": "10分钟通报完成率",
-    "criticalValueStats.guideline10minDesc": "：自发现危急值至通报临床时间<=10分钟的比例",
+    "criticalValueStats.guideline10minDesc":
+      "：自发现危急值至通报临床时间<=10分钟的比例",
     "criticalValueStats.guidelineStandardLabel": "达标标准",
     "criticalValueStats.guidelineStandardDesc": "：三级医院≥90%，二级医院≥85%",
     "criticalValueStats.guidelineOverdueLabel": "超时处理",
@@ -21197,7 +21651,8 @@ export const translations: Translations = {
     "smartRoute.statusEmergency": "急诊",
     "smartRoute.getRecommendedDoctors": "获取推荐医生",
     "smartRoute.oneClickAssignTop": "一键分配（推荐第一名）",
-    "smartRoute.routingInfo": "资质感知路由：按 模态/亚专科 → 医生资质匹配度 + 当日负载 + 历史报告准确率 综合打分推荐，点击医生卡片可指定分配。",
+    "smartRoute.routingInfo":
+      "资质感知路由：按 模态/亚专科 → 医生资质匹配度 + 当日负载 + 历史报告准确率 综合打分推荐，点击医生卡片可指定分配。",
     "smartRoute.qualifiedTag": "可接诊",
     "smartRoute.scoreSuffix": "{{score}}分",
     "smartRoute.matchScore": "资质匹配度",
@@ -21221,7 +21676,8 @@ export const translations: Translations = {
     "imageQualityControl.qcActionFailed": "质控操作失败",
     "imageQualityControl.qcPassedMsg": "检查 {{studyId}} 质控通过, 图像已可用",
     "imageQualityControl.qcRejectedMsg": "检查 {{studyId}} 质控驳回",
-    "imageQualityControl.retakeRegisteredMsg": "检查 {{studyId}} 已登记重拍, 状态回到检查中",
+    "imageQualityControl.retakeRegisteredMsg":
+      "检查 {{studyId}} 已登记重拍, 状态回到检查中",
     "imageQualityControl.retakeRegisterFailed": "重拍登记失败",
     "imageQualityControl.scoreListLoadFailed": "评分列表加载失败",
     "imageQualityControl.qcDataLoadFailed": "质控数据加载失败",
@@ -21251,7 +21707,8 @@ export const translations: Translations = {
     "imageQualityControl.operatorIdPlaceholder": "操作员 ID (选填)",
     "imageQualityControl.scoring": "AI 评分中...",
     "imageQualityControl.startScoring": "开始 AI 评分",
-    "imageQualityControl.scoreDimensions": "评分维度: 伪影(运动/金属/环) · 摆位(体位/旋转/偏移) · 曝光(不足/正常/过度)",
+    "imageQualityControl.scoreDimensions":
+      "评分维度: 伪影(运动/金属/环) · 摆位(体位/旋转/偏移) · 曝光(不足/正常/过度)",
     "imageQualityControl.scoreStatsCard": "评分统计",
     "imageQualityControl.artifactScore": "伪影分",
     "imageQualityControl.positioningScore": "摆位分",
@@ -21271,11 +21728,13 @@ export const translations: Translations = {
     "imageQualityControl.thMonthlyScans": "月扫描",
     "imageQualityControl.thDefectRate": "故障率",
     "imageQualityControl.gradeSuffix": "{{grade}} 级",
-    "imageQualityControl.retakeModalTitle": "重拍登记 - {{patient}} ({{studyId}})",
+    "imageQualityControl.retakeModalTitle":
+      "重拍登记 - {{patient}} ({{studyId}})",
     "imageQualityControl.registering": "登记中...",
     "imageQualityControl.confirmRetakeRegister": "确认重拍登记",
     "imageQualityControl.cancel": "取消",
-    "imageQualityControl.retakeHint": "检查将退回「检查中」状态并累计重拍次数 (QC_REJECT → IN_PROGRESS)",
+    "imageQualityControl.retakeHint":
+      "检查将退回「检查中」状态并累计重拍次数 (QC_REJECT → IN_PROGRESS)",
     "imageQualityControl.retakeReasonLabel": "重拍原因 (用于重拍率统计分析)",
     "imageQualityControl.retakeReasonPlaceholder": "请选择重拍原因",
     // [v3.0.6.11-106 Wave 10A] 口内照片管理页
@@ -21406,7 +21865,8 @@ export const translations: Translations = {
     "consultationV2.statMessages": "总发言",
     "consultationV2.statVotes": "总投票",
     "consultationV2.enter": "进入",
-    "consultationV2.roomDesc": "{{reportId}} | {{patientName}} ({{modality}}) | 成员 {{members}} | 发言 {{messages}}",
+    "consultationV2.roomDesc":
+      "{{reportId}} | {{patientName}} ({{modality}}) | 成员 {{members}} | 发言 {{messages}}",
     "consultationV2.selectRoomHint": "选择左侧会诊室进入",
     "consultationV2.signedCount": "已签名 {{count}} 人",
     "consultationV2.startConsultation": "开始会诊",
@@ -21437,13 +21897,17 @@ export const translations: Translations = {
     "consultationV2.patientNamePlaceholder": "患者姓名",
     "consultationV2.memberCountLabel": "成员数量:",
     "consultationV2.memberCountOption": "{{count}} 人",
-    "consultationV2.createInfo": "未指定成员时按报告编号确定性选取成员 (同报告恒同组合), 首位为主持。",
+    "consultationV2.createInfo":
+      "未指定成员时按报告编号确定性选取成员 (同报告恒同组合), 首位为主持。",
     "consultationV2.voteModalTitle": "委员投票",
     "consultationV2.voteCommentPlaceholder": "投票意见 (选填)",
-    "consultationV2.currentVote": "当前: 通过 {{approve}} / 驳回 {{reject}} / 修改 {{modify}}, 通过率 {{rate}}%",
+    "consultationV2.currentVote":
+      "当前: 通过 {{approve}} / 驳回 {{reject}} / 修改 {{modify}}, 通过率 {{rate}}%",
     "consultationV2.concludeModalTitle": "生成会诊结论",
-    "consultationV2.finalOpinionPlaceholder": "最终意见 (留空则按多数投票自动归纳)",
-    "consultationV2.concludeInfo": "结论将包含全部已投票成员的签名列表, 会诊状态置为已结论。",
+    "consultationV2.finalOpinionPlaceholder":
+      "最终意见 (留空则按多数投票自动归纳)",
+    "consultationV2.concludeInfo":
+      "结论将包含全部已投票成员的签名列表, 会诊状态置为已结论。",
     "consultationV2.exportModalTitle": "会诊记录导出 - {{title}}",
     "consultationV2.opinionApprove": "通过",
     "consultationV2.opinionReject": "驳回",
@@ -21662,7 +22126,8 @@ export const translations: Translations = {
     "contrastInv.colOperator": "操作人",
     "dentalEmr.title": "口腔 360° 患者视图",
     "dentalEmr.benchmark": "牙医管家 对标",
-    "dentalEmr.sourceTitle": "后端 /dental/patients/:id/overview* 7 端点真实实现 (失败回退演示数据)",
+    "dentalEmr.sourceTitle":
+      "后端 /dental/patients/:id/overview* 7 端点真实实现 (失败回退演示数据)",
     "dentalEmr.realData": "真实数据",
     "dentalEmr.mockFallback": "演示回退",
     "dentalEmr.male": "男",
@@ -21867,14 +22332,17 @@ export const translations: Translations = {
     "iheInt.close": "关闭",
     "iheInt.txnName": "事务名称",
     "iheInt.pamTitle": "PAM 就诊管理",
-    "iheInt.pamAlert": "PAM 就诊状态消息由 HL7 ADT (A01 入院 / A03 出院 / A04 登记 / A08 信息更新) 驱动",
+    "iheInt.pamAlert":
+      "PAM 就诊状态消息由 HL7 ADT (A01 入院 / A03 出院 / A04 登记 / A08 信息更新) 驱动",
     "iheInt.pamTxn": "PAM 事务",
     "iheInt.pamTxnValue": "PAM 消息 (ADT^A01/A04) · PAM 查询 (ADT^Q22)",
-    "iheInt.messageSourceValue": "HIS / EMR 通过 HL7 网关 (mllp://localhost:2575) 推送",
+    "iheInt.messageSourceValue":
+      "HIS / EMR 通过 HL7 网关 (mllp://localhost:2575) 推送",
     "iheInt.messageSource": "消息来源",
     "iheInt.pamLogEntries": "PAM 日志条目",
     "iheInt.currentConfig": "当前配置",
-    "iheInt.pamConfigDesc": "就诊状态变更实时同步至 PACS 工作列表与危急值接收端",
+    "iheInt.pamConfigDesc":
+      "就诊状态变更实时同步至 PACS 工作列表与危急值接收端",
     "iheInt.txnPixFeed": "患者标识交叉引用注册",
     "iheInt.txnPixQuery": "跨域患者标识查询",
     "iheInt.txnPdqQuery": "患者人口学数据查询",
@@ -21908,9 +22376,11 @@ export const translations: Translations = {
     "mobileApproval.comment": "备注",
     "mobileApproval.rejectReason": "驳回原因",
     "mobileApproval.title": "移动审批",
-    "mobileApproval.subtitle": "待办审批 · 报告签发 / 发布 / 危急值处置 / 费用 / 请假 — 支持通过 / 驳回 / 委派",
+    "mobileApproval.subtitle":
+      "待办审批 · 报告签发 / 发布 / 危急值处置 / 费用 / 请假 — 支持通过 / 驳回 / 委派",
     "mobileApproval.distribution": "待办分布",
-    "mobileApproval.dataSource": "数据源: mobile-approval (报告/危急值/费用/请假 派生 + seed)",
+    "mobileApproval.dataSource":
+      "数据源: mobile-approval (报告/危急值/费用/请假 派生 + seed)",
     "mobileApproval.tabPending": "待审批",
     "mobileApproval.searchPlaceholder": "检索标题 / 申请人 / 归属",
     "mobileApproval.allTypes": "全部类型",
@@ -21923,7 +22393,8 @@ export const translations: Translations = {
     "mobileApproval.reject": "驳回",
     "mobileApproval.emptyHistory": "暂无已审批记录",
     "mobileApproval.dataSourceTag": "数据源",
-    "mobileApproval.dataSourceDesc": "后端 /mobile-approval (内存 seed + 报告/危急值派生) · MSW 同步 mock · 逾期按截止时间自动红标",
+    "mobileApproval.dataSourceDesc":
+      "后端 /mobile-approval (内存 seed + 报告/危急值派生) · MSW 同步 mock · 逾期按截止时间自动红标",
     "mobileApproval.delegate": "委派",
     "mobileApproval.confirmPass": "确认通过",
     "mobileApproval.confirmReject": "确认驳回",
@@ -21934,7 +22405,8 @@ export const translations: Translations = {
     "mobileApproval.approvePlaceholder": "如: 报告完整, 同意签发",
     "mobileApproval.rejectPlaceholder": "请说明驳回原因, 将回退给申请人",
     "mobileApproval.delegateTo": "委派给",
-    "mobileApproval.delegateNote": "委派后事项保留在待办列表, 标记为「委派中」, 由受托人处理",
+    "mobileApproval.delegateNote":
+      "委派后事项保留在待办列表, 标记为「委派中」, 由受托人处理",
     "ortho.jointShoulder": "肩关节",
     "ortho.jointElbow": "肘关节",
     "ortho.jointWrist": "腕关节",
@@ -22147,10 +22619,13 @@ export const translations: Translations = {
     "peerReview.refresh": "刷新",
     "peerReview.reportIdRequired": "报告编号 (必填)",
     "peerReview.patientName": "患者姓名",
-    "peerReview.reviewerIdPlaceholder": "指定评审人 ID (选填, 留空则按科室确定性自动分配)",
-    "peerReview.assignAlert": "自动分配: 同一 (报告编号 + 科室) 恒分配同一评审人; 留空为自动, 填评审人 ID 为指定。",
+    "peerReview.reviewerIdPlaceholder":
+      "指定评审人 ID (选填, 留空则按科室确定性自动分配)",
+    "peerReview.assignAlert":
+      "自动分配: 同一 (报告编号 + 科室) 恒分配同一评审人; 留空为自动, 填评审人 ID 为指定。",
     "peerReview.commentPlaceholder": "评语 (选填)",
-    "peerReview.scoreAlert": "评分须为 1-5 整数 (后端校验), 提交后任务状态置为已评。",
+    "peerReview.scoreAlert":
+      "评分须为 1-5 整数 (后端校验), 提交后任务状态置为已评。",
     "secondRead.sevHigh": "高危",
     "secondRead.sevMedium": "中危",
     "secondRead.sevLow": "低危",
@@ -22196,7 +22671,8 @@ export const translations: Translations = {
     "secondRead.diagnosis": "诊断意见",
     "secondRead.conclusion": "诊断结论",
     "secondRead.recommendations": "随访建议",
-    "secondRead.analyzeAlert": "引擎将按确定性规则复查: 漏诊风险 / 描述缺项 / 结论不一致, 并输出 0-100 风险评分。",
+    "secondRead.analyzeAlert":
+      "引擎将按确定性规则复查: 漏诊风险 / 描述缺项 / 结论不一致, 并输出 0-100 风险评分。",
     "secondRead.detailTitle": "二次检出详情",
     "secondRead.riskLevel": "风险等级",
     "secondRead.levelHigh": "高",
@@ -22214,7 +22690,8 @@ export const translations: Translations = {
     "secondRead.handledBy": "处理人",
     "secondRead.pendingDoctor": "待医生处理",
     "secondRead.appendTitle": "建议加入报告",
-    "secondRead.appendPlaceholder": "请输入需追加到报告的文本 (如: 建议 3 个月后复查...)",
+    "secondRead.appendPlaceholder":
+      "请输入需追加到报告的文本 (如: 建议 3 个月后复查...)",
     "aiTriage.levelCritical": "危急",
     "aiTriage.levelUrgent": "紧急",
     "aiTriage.levelSemiUrgent": "半紧急",
@@ -22291,7 +22768,8 @@ export const translations: Translations = {
     "smartMwl.colStatus": "状态",
     "smartMwl.colWait": "等待时长",
     "smartMwl.colUrgency": "紧急度",
-    "smartMwl.aiTriageTooltip": "AI 分检因子得分来源：优先聚合 /triage 真实分检记录(患者最近分检得分)，无记录时回退检查优先级/危急标志",
+    "smartMwl.aiTriageTooltip":
+      "AI 分检因子得分来源：优先聚合 /triage 真实分检记录(患者最近分检得分)，无记录时回退检查优先级/危急标志",
     "smartMwl.colAiTriage": "AI 分检",
     "smartMwl.normal": "普通",
     "smartMwl.colScore": "综合评分",
@@ -22302,7 +22780,8 @@ export const translations: Translations = {
     "smartMwl.tagConfigurable": "权重可配置",
     "smartMwl.tagAiFactor": "AI 分检因子 = /triage 真实记录",
     "smartMwl.aiTriageAlertTitle": "AI 分检因子得分来源",
-    "smartMwl.aiTriageAlertDesc": "AI 分检因子优先聚合后端 /triage/score 写入的真实分检记录（患者最近分检得分 0-1 映射），无记录或 DB 不可用时回退检查 priority / criticalFinding 关键字推断；因子明细中可查看每行得分来源。",
+    "smartMwl.aiTriageAlertDesc":
+      "AI 分检因子优先聚合后端 /triage/score 写入的真实分检记录（患者最近分检得分 0-1 映射），无记录或 DB 不可用时回退检查 priority / criticalFinding 关键字推断；因子明细中可查看每行得分来源。",
     "smartMwl.retry": "重试",
     "smartMwl.statTotal": "总检查数",
     "smartMwl.listTitle": "检查列表",
@@ -22317,8 +22796,10 @@ export const translations: Translations = {
     "smartMwl.saveRecompute": "保存并重算",
     "smartMwl.runtimeOnly": "运行时生效",
     "smartMwl.persisted": "已持久化",
-    "smartMwl.runtimeOnlyDesc": "后端 system_config 不可用，权重仅本次进程运行时生效（重启恢复默认值）。",
-    "smartMwl.persistedDesc": "权重已保存至后端 system_config 表，跨进程/重启后依然生效。",
+    "smartMwl.runtimeOnlyDesc":
+      "后端 system_config 不可用，权重仅本次进程运行时生效（重启恢复默认值）。",
+    "smartMwl.persistedDesc":
+      "权重已保存至后端 system_config 表，跨进程/重启后依然生效。",
     "smartMwl.urgencyWeight": "紧急度权重",
     "smartMwl.waitWeight": "等待时长权重",
     "smartMwl.ageWeight": "年龄权重",
@@ -22538,7 +23019,8 @@ export const translations: Translations = {
     "dentalImplant3d.exportGuide": "导板导出",
     "dentalImplant3d.restorationDesign": "修复设计",
     "dentalImplant3d.guideDesigned": "手术导板已设计",
-    "dentalImplant3d.guideFileExported": "导板文件: {{file}} · 已导出，可提交 3D 打印",
+    "dentalImplant3d.guideFileExported":
+      "导板文件: {{file}} · 已导出，可提交 3D 打印",
     "dentalImplant3d.guideFile": "导板文件: {{file}}",
     // [v3.0.6.11-106 Wave 10A] DBT 乳腺断层阅片页
     "dbtPage.title": "DBT 乳腺断层阅片",
@@ -22562,7 +23044,8 @@ export const translations: Translations = {
     "dbtPage.loadingSlices": "加载断层切片...",
     "dbtPage.loadingCompare": "加载双图对比...",
     "dbtPage.noDbtData": "暂无 DBT 检查数据",
-    "dbtPage.noDbtDataDesc": "请确认后端 dicom-samples/DBT 样本已生成或存在 modality=DBT 的 DicomInstance 记录。",
+    "dbtPage.noDbtDataDesc":
+      "请确认后端 dicom-samples/DBT 样本已生成或存在 modality=DBT 的 DicomInstance 记录。",
     "dbtPage.studyList": "检查列表:",
     "dbtPage.seriesLabel": "系列:",
     "dbtPage.studyOption": "{{status}} {{date}} {{desc}} ({{count}} 系列)",
@@ -22587,7 +23070,8 @@ export const translations: Translations = {
     "dbtPage.delete": "删",
     "dbtPage.threshold": "检出阈值: {{value}} ({{count}} 处自动检出)",
     "dbtPage.reconLabel": "DBT 重建 {{proj}} | {{thickness}}mm",
-    "dbtPage.singleLabel": "DBT | {{view}} | {{angle}}° | 第 {{current}}/{{total}} 层",
+    "dbtPage.singleLabel":
+      "DBT | {{view}} | {{angle}}° | 第 {{current}}/{{total}} 层",
     "dbtPage.reconSource": "来源: {{source}}",
     "dbtPage.sourceReal": "真实像素",
     "dbtPage.sourceSimulated": "模拟",
@@ -22684,8 +23168,10 @@ export const translations: Translations = {
     "medicalAlliance.recentTrendTitle": "近期转诊趋势",
     "medicalAlliance.caseCount": "{{count}}例",
     "medicalAlliance.loadingSiteStatus": "机构状态加载中...",
-    "medicalAlliance.sourceReal": "数据源: /regional/sites (多站点真实接口) + /regional/alliance-referrals",
-    "medicalAlliance.sourceFallback": "数据源: 演示回退 (listSites 不可用, 基于联盟成员派生)",
+    "medicalAlliance.sourceReal":
+      "数据源: /regional/sites (多站点真实接口) + /regional/alliance-referrals",
+    "medicalAlliance.sourceFallback":
+      "数据源: 演示回退 (listSites 不可用, 基于联盟成员派生)",
     "medicalAlliance.refresh": "刷新",
     "medicalAlliance.onlineOrgs": "在线机构",
     "medicalAlliance.offlineOrgs": "离线机构",
@@ -22718,7 +23204,8 @@ export const translations: Translations = {
     "medicalAlliance.slaPass": "达标: 综合达成率 ≥ 90%",
     "medicalAlliance.slaWarn": "预警: 综合达成率低于 90% 阈值",
     "medicalAlliance.metricsNote": "运行指标:",
-    "medicalAlliance.metricsNoteBody": "平均在线率 {{uptime}}% · 全联盟月共享检查 {{studies}} 项 · 同步滞后机构 {{lag}} 家。状态数据来自 /regional/sites, 转诊数据来自 /regional/alliance-referrals, 接口不可用时自动回退演示数据。",
+    "medicalAlliance.metricsNoteBody":
+      "平均在线率 {{uptime}}% · 全联盟月共享检查 {{studies}} 项 · 同步滞后机构 {{lag}} 家。状态数据来自 /regional/sites, 转诊数据来自 /regional/alliance-referrals, 接口不可用时自动回退演示数据。",
     "medicalAlliance.monthlyTrendTitle": "月度转诊趋势 (近 6 月)",
     "medicalAlliance.peakLabel": "峰值",
     "medicalAlliance.monthSuffix": "{{month}}月",
@@ -22738,11 +23225,13 @@ export const translations: Translations = {
     "medicalAlliance.success": "成功",
     "medicalAlliance.failed": "失败",
     "medicalAlliance.healthScoreTitle": "机构健康度评分",
-    "medicalAlliance.healthScoreFormula": "评分 = 在线率×50% + 同步时效×30% + 延迟×20%",
+    "medicalAlliance.healthScoreFormula":
+      "评分 = 在线率×50% + 同步时效×30% + 延迟×20%",
     "medicalAlliance.uptimeInline": "在线率 {{uptime}}%",
     "medicalAlliance.syncInline": "同步 {{value}}",
     "medicalAlliance.daysAgo": "{{days}}天前",
-    "medicalAlliance.healthNote": "健康度 < 75 的机构建议检查网络链路与同步任务配置；离线机构自动进入降级模式（本地缓存优先）。",
+    "medicalAlliance.healthNote":
+      "健康度 < 75 的机构建议检查网络链路与同步任务配置；离线机构自动进入降级模式（本地缓存优先）。",
     // [v3.0.6.11-106 Wave 10A] 核医学科专项统计页
     "nuclearStats.unitCases": "例",
     "nuclearStats.loadFailed": "加载失败",
@@ -22757,7 +23246,8 @@ export const translations: Translations = {
     "nuclearStats.noDataDesc": "请选择其他月份或检查核医学设备联网状态",
     "nuclearStats.title": "核医学科专项统计",
     "nuclearStats.demoTag": "演示数据（接口回退兜底）",
-    "nuclearStats.subtitle": "检查数量 · 药物消耗 · 设备利用率 · 阳性率 · SUV统计",
+    "nuclearStats.subtitle":
+      "检查数量 · 药物消耗 · 设备利用率 · 阳性率 · SUV统计",
     "nuclearStats.period": "2025年12月",
     "nuclearStats.exportReport": "导出报告",
     "nuclearStats.refreshData": "刷新数据",
@@ -22821,7 +23311,8 @@ export const translations: Translations = {
     // [v3.0.6.11-106 Wave 10B] 15 页面 i18n 化 (A)
     "neuro.title": "神经专科",
     "neuro.subtitle": "神经影像专科 · 脑卒中 · 脑肿瘤 · 癫痫 · 动脉瘤",
-    "neuro.dataSource": "数据来源: /neuro/* API（后端真实 · Exam 派生 + seed 回退）",
+    "neuro.dataSource":
+      "数据来源: /neuro/* API（后端真实 · Exam 派生 + seed 回退）",
     "neuro.fallback": "演示回退",
     "neuro.realApi": "真实接口",
     "neuro.export": "导出",
@@ -23020,7 +23511,8 @@ export const translations: Translations = {
     "eyePixel.applyLutTip": "将 LUT 应用到灰度预览图",
     "eyePixel.pseudoColor": "伪彩",
     "eyePixel.grayscale": "灰度",
-    "eyePixel.grayscalePreview": "灰度预览 (合成眼底图) — 打开「伪彩」开关应用 LUT",
+    "eyePixel.grayscalePreview":
+      "灰度预览 (合成眼底图) — 打开「伪彩」开关应用 LUT",
     "eyePixel.sharpness": "锐度分析",
     "eyePixel.analyze": "分析",
     "eyePixel.sharpnessHint": "点击「分析」评估图像锐度",
@@ -23046,7 +23538,8 @@ export const translations: Translations = {
     "eyePixel.reconstructPreview": "重建预览",
     "eyePixel.slices": "层",
     "eyePixel.renderedAt": "重建于",
-    "eyePixel.webglNote": "WebGL 纹理数组实时渲染, 支持窗宽窗位与切片切换 (阅片器内操作)",
+    "eyePixel.webglNote":
+      "WebGL 纹理数组实时渲染, 支持窗宽窗位与切片切换 (阅片器内操作)",
     "eyePixel.dicomMeta": "DICOM 实例元数据",
     "eyePixel.metaRowsCols": "行×列",
     "eyePixel.metaBitAlloc": "位分配",
@@ -23062,7 +23555,8 @@ export const translations: Translations = {
     "aiReportWriter.needAiText": "请先有 AI 文本",
     "aiReportWriter.nlpDone": "NLP 提取完成",
     "aiReportWriter.transcribeUnavailable": "转写服务暂不可用",
-    "aiReportWriter.recordingUnsupported": "当前浏览器不支持录音，已回退模拟录音",
+    "aiReportWriter.recordingUnsupported":
+      "当前浏览器不支持录音，已回退模拟录音",
     "aiReportWriter.recordingStarted": "录音中，再次点击「停止录音」并转写",
     "aiReportWriter.micDenied": "无法访问麦克风，请检查浏览器权限设置",
     "aiReportWriter.feedbackRecorded": "反馈已记录",
@@ -23092,7 +23586,8 @@ export const translations: Translations = {
     "aiReportWriter.findingsLabel": "检查所见",
     "aiReportWriter.voice": "语音",
     "aiReportWriter.keyboard": "键盘",
-    "aiReportWriter.recordTip": "点击开始录音，再次点击停止并转写（浏览器不支持时回退模拟）",
+    "aiReportWriter.recordTip":
+      "点击开始录音，再次点击停止并转写（浏览器不支持时回退模拟）",
     "aiReportWriter.recordingClickStop": "录音中..点击停止",
     "aiReportWriter.startRecord": "开始录音",
     "aiReportWriter.vocabLibrary": "术语库",
@@ -23102,7 +23597,8 @@ export const translations: Translations = {
     "aiReportWriter.nlpExtract": "NLP 提取",
     "aiReportWriter.multiRewrite": "多轮改写",
     "aiReportWriter.saveReport": "保存报告",
-    "aiReportWriter.rewritePlaceholder": "改写指令, 如 简化语言 / 添加 OCT 描述 / 转为英文",
+    "aiReportWriter.rewritePlaceholder":
+      "改写指令, 如 简化语言 / 添加 OCT 描述 / 转为英文",
     "aiReportWriter.styleConcise": "精简",
     "aiReportWriter.styleDetailed": "详细",
     "aiReportWriter.styleAcademic": "学术",
@@ -23170,7 +23666,8 @@ export const translations: Translations = {
     "patientDetailPanel.followUp": "随访",
     "patientDetailPanel.followUpTitle": "进入随访管理",
     "patientDetailPanel.merge": "合并",
-    "patientDetailPanel.mergeTitle": "管理员: 合并重复患者 (此患者归入目标患者)",
+    "patientDetailPanel.mergeTitle":
+      "管理员: 合并重复患者 (此患者归入目标患者)",
     "patientDetailPanel.edit": "编辑",
     "patientDetailPanel.birthDate": "出生日期",
     "patientDetailPanel.idCardNo": "身份证号",
@@ -23239,18 +23736,22 @@ export const translations: Translations = {
     "patientDetailPanel.timelineTitle": "患者360°时间线",
     "patientDetailPanel.timelineSubtitle": "(检查 · 报告 · 预约 · 危急值)",
     "patientDetailPanel.imageHistoryTitle": "影像历史",
-    "patientDetailPanel.imageCount": "共 {{count}} 组影像 · 点击卡片打开 DICOM 浏览器",
+    "patientDetailPanel.imageCount":
+      "共 {{count}} 组影像 · 点击卡片打开 DICOM 浏览器",
     "patientDetailPanel.noImages": "暂无影像记录",
     "patientDetailPanel.openImageTitle": "打开 {{name}} 影像",
     "patientDetailPanel.frames": "{{count}} 帧",
     "patientDetailPanel.pendingAcquisition": "待采集",
     "patientDetailPanel.openArrow": "打开 →",
     "patientDetailPanel.mergeModalTitle": "患者合并",
-    "patientDetailPanel.mergeModalDesc": "将当前患者 {{name}} ({{id}}) 的所有关联数据归并到目标患者",
+    "patientDetailPanel.mergeModalDesc":
+      "将当前患者 {{name}} ({{id}}) 的所有关联数据归并到目标患者",
     "patientDetailPanel.mergeTargetLabel": "目标患者 ID",
     "patientDetailPanel.mergeTargetPlaceholder": "例如 P000002",
-    "patientDetailPanel.mergeWarning": "合并后 {{name}} 的检查、报告、预约、危急值将全部迁移至目标患者，源患者记录将被软删除。此操作不可撤销。",
-    "patientDetailPanel.mergeResultDetail": "合并成功: 迁移检查 {{exams}} 条 · 报告 {{reports}} 份 · 预约 {{appointments}} 条 · 危急值 {{criticals}} 条",
+    "patientDetailPanel.mergeWarning":
+      "合并后 {{name}} 的检查、报告、预约、危急值将全部迁移至目标患者，源患者记录将被软删除。此操作不可撤销。",
+    "patientDetailPanel.mergeResultDetail":
+      "合并成功: 迁移检查 {{exams}} 条 · 报告 {{reports}} 份 · 预约 {{appointments}} 条 · 危急值 {{criticals}} 条",
     "patientDetailPanel.cancel": "取消",
     "patientDetailPanel.merging": "合并中...",
     "patientDetailPanel.confirmMerge": "确认合并",
@@ -23267,7 +23768,8 @@ export const translations: Translations = {
     "mammoQc.statImageFailRate": "图像不合格率",
     "mammoQc.statTechConsistency": "技师一致性",
     "mammoQc.title": "乳腺影像质量管理",
-    "mammoQc.subtitle": "乳腺摄影质量管理 · ACR/FDA合规 · 图像质量控制 · 技师考核",
+    "mammoQc.subtitle":
+      "乳腺摄影质量管理 · ACR/FDA合规 · 图像质量控制 · 技师考核",
     "mammoQc.sourceDemo": "演示数据（MSW，后端待实现）",
     "mammoQc.sourceReal": "真实数据（数据库聚合）",
     "mammoQc.sync": "同步",
@@ -23480,8 +23982,10 @@ export const translations: Translations = {
     "reportSearch.errSaveEmpty": "请先输入检索条件再保存",
     "reportSearch.errSaveFailed": "保存失败，浏览器存储不可用",
     "reportSearch.title": "报告高级检索",
-    "reportSearch.subtitle": "全文 + 结构化 + 同义词 · 智能联想 · 7 维筛选 · 关键词高亮",
-    "reportSearch.searchPlaceholder": "输入关键字, 如: 磨玻璃结节 / GGN / 肝右叶 / 急性脑梗死",
+    "reportSearch.subtitle":
+      "全文 + 结构化 + 同义词 · 智能联想 · 7 维筛选 · 关键词高亮",
+    "reportSearch.searchPlaceholder":
+      "输入关键字, 如: 磨玻璃结节 / GGN / 肝右叶 / 急性脑梗死",
     "reportSearch.searching": "检索中...",
     "reportSearch.search": "搜索",
     "reportSearch.advancedFilter": "高级筛选",
@@ -23498,8 +24002,10 @@ export const translations: Translations = {
     "reportSearch.saveQuery": "保存查询",
     "reportSearch.history": "历史",
     "reportSearch.favorites": "收藏",
-    "reportSearch.sourceUnavailable": "数据源: 检索服务不可用 (展示空结果) · 收藏夹/历史/热门词基于本地存储",
-    "reportSearch.sourceReal": "数据源: reportApi 真实接口 · 收藏夹/检索历史/列偏好已本地持久化 (localStorage)",
+    "reportSearch.sourceUnavailable":
+      "数据源: 检索服务不可用 (展示空结果) · 收藏夹/历史/热门词基于本地存储",
+    "reportSearch.sourceReal":
+      "数据源: reportApi 真实接口 · 收藏夹/检索历史/列偏好已本地持久化 (localStorage)",
     "reportSearch.searchRecords": "检索记录",
     "reportSearch.itemsCount": "条",
     "reportSearch.favoritesLabel": "收藏",
@@ -23728,7 +24234,8 @@ export const translations: Translations = {
     "dimse.title": "DICOM DIMSE 设备集成",
     "dimse.demoData": "演示数据 · MOCK_DEVICES",
     "dimse.demoAlert": "演示数据（旧版 DIMSE 页面，功能以 /dicom/dimse 为准）",
-    "dimse.introAlert": "DIMSE (DICOM Message Service Element) 设备集成测试与管理工作台，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 四种服务",
+    "dimse.introAlert":
+      "DIMSE (DICOM Message Service Element) 设备集成测试与管理工作台，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 四种服务",
     "aiFusion.errLoadStudies": "融合研究加载失败",
     "aiFusion.errLoadData": "融合工作台数据加载失败",
     "aiFusion.fusionDone": "融合任务完成，已生成新研究",
@@ -23819,7 +24326,8 @@ export const translations: Translations = {
     "aiMedicalDevice.devicesUnit": "台设备",
     "aiMedicalDevice.prevPage": "上一页",
     "aiMedicalDevice.nextPage": "下一页",
-    "aiMedicalDevice.certSearchPlaceholder": "按设备名称/注册证编号/厂商搜索...",
+    "aiMedicalDevice.certSearchPlaceholder":
+      "按设备名称/注册证编号/厂商搜索...",
     "aiMedicalDevice.filterAll": "全部",
     "aiMedicalDevice.filterValid": "有效",
     "aiMedicalDevice.filterExpiring": "即将过期",
@@ -23844,7 +24352,8 @@ export const translations: Translations = {
     "aiMedicalDevice.casesUnit": "例",
     // [v3.0.6.11-106 Wave 10A] 多站点看板页
     "multiSiteDashboard.title": "多站点 / 多院区管理平台",
-    "multiSiteDashboard.subtitle": "{{count}} 个院区 | 实时同步 | 跨院区路由 | DICOM 互联互通",
+    "multiSiteDashboard.subtitle":
+      "{{count}} 个院区 | 实时同步 | 跨院区路由 | DICOM 互联互通",
     "multiSiteDashboard.statusActive": "在线",
     "multiSiteDashboard.statusSyncing": "同步中",
     "multiSiteDashboard.statusOffline": "离线",
@@ -23860,8 +24369,10 @@ export const translations: Translations = {
     "multiSiteDashboard.loadFailed": "加载失败",
     "multiSiteDashboard.fallbackWarning": "加载失败，已回退到本地静态数据",
     "multiSiteDashboard.retry": "重试",
-    "multiSiteDashboard.dataSourceDemo": "数据来源：演示数据（接口未返回站点，回退本地 site.ts）",
-    "multiSiteDashboard.dataSourceReal": "数据来源：/regional/sites（后端 regional.service 已实现）",
+    "multiSiteDashboard.dataSourceDemo":
+      "数据来源：演示数据（接口未返回站点，回退本地 site.ts）",
+    "multiSiteDashboard.dataSourceReal":
+      "数据来源：/regional/sites（后端 regional.service 已实现）",
     "multiSiteDashboard.statTotalSites": "总站点",
     "multiSiteDashboard.statOnline": "在线",
     "multiSiteDashboard.statTotalStudies": "总检查数",
@@ -23874,7 +24385,8 @@ export const translations: Translations = {
     "multiSiteDashboard.alertSites": "告警站点",
     "multiSiteDashboard.syncStatus": "同步状态",
     "multiSiteDashboard.lastSyncLatency": "最近同步延迟",
-    "multiSiteDashboard.avgLatencyText": "{{count}} 个站点平均延迟 {{latency}} ms",
+    "multiSiteDashboard.avgLatencyText":
+      "{{count}} 个站点平均延迟 {{latency}} ms",
     "multiSiteDashboard.highAvailability": "高可用性",
     "multiSiteDashboard.primaryDb": "主库",
     "multiSiteDashboard.normal": "正常",
@@ -23922,7 +24434,8 @@ export const translations: Translations = {
     "fhirExport.download": "下载",
     "fhirExport.title": "FHIR 批量导出详情",
     "fhirExport.demoEndpoint": "演示端点",
-    "fhirExport.demoEndpointDesc": "本页轮询 /fhir/r4/$export-status/demo-job 演示端点；轮询失败时回退本地演示数据（DEMO_NDJSON）。真实环境请配置 FHIR 服务器的 $export 异步任务端点。",
+    "fhirExport.demoEndpointDesc":
+      "本页轮询 /fhir/r4/$export-status/demo-job 演示端点；轮询失败时回退本地演示数据（DEMO_NDJSON）。真实环境请配置 FHIR 服务器的 $export 异步任务端点。",
     "fhirExport.taskStatus": "任务状态",
     "fhirExport.polling": "轮询中...",
     "fhirExport.jobId": "任务 ID",
@@ -24050,7 +24563,8 @@ export const translations: Translations = {
     "examRoom.noCurrentPatient": "当前无在检患者",
     "examRoom.idleDuration": "空闲时长 {{duration}}",
     "examRoom.overdueTip": "最早到达患者已等待超过 30 分钟",
-    "examRoom.dataSourceApi": "数据源: GET /worklist/room-status (后端房间聚合实时) · WS room-status-refresh 推送",
+    "examRoom.dataSourceApi":
+      "数据源: GET /worklist/room-status (后端房间聚合实时) · WS room-status-refresh 推送",
     "examRoom.dataSourceDemo": "数据源: 演示回退 (接口不可用, 基于本地派生)",
     // [v3.0.6.11-106 Wave 11D] critical/CriticalValueListSection
     "cvSection.catalogTitle": "国家卫健委2024年版危急值目录",
@@ -24434,7 +24948,8 @@ export const translations: Translations = {
     "timeliness.urgeUnavailable": "催办接口不可用，已记录本地催办日志",
     "timeliness.deptDirector": "科主任",
     "timeliness.title": "报告及时率监控",
-    "timeliness.subtitle": "急诊5min / 加急30min / 普通24h · 实时超时预警 · 智能调度",
+    "timeliness.subtitle":
+      "急诊5min / 加急30min / 普通24h · 实时超时预警 · 智能调度",
     "timeliness.today": "今日",
     "timeliness.last7": "近7天",
     "timeliness.thisMonth": "本月",
@@ -24476,7 +24991,8 @@ export const translations: Translations = {
     "visualField.loading": "加载中...",
     "visualField.noData": "无视野检查数据",
     "visualField.analysis": "视野分析",
-    "visualField.demoTag": "部分演示数据 · 灰度图/解读为演示，MD/PSD 为真实 API 数据",
+    "visualField.demoTag":
+      "部分演示数据 · 灰度图/解读为演示，MD/PSD 为真实 API 数据",
     "visualField.grayscaleCaption": "灰度图 (dB) — 数值越小越暗",
     "visualField.patternDeviation": "模式偏差图 (dB)",
     "visualField.tdCurve": "TD 曲线图",
@@ -24697,7 +25213,8 @@ export const translations: Translations = {
     "deptDash.patientsInExam": "{{count}}人检查中",
     "deptDash.examStats": "各类型检查统计",
     "deptDash.examProgress": "待检 {{pending}} | 已完成 {{completed}}",
-    "deptDash.footer": "放射科信息系统 (RIS) v0.7.0 | 示例数据 (设备/统计为演示数据, 未接实时接口) | 如有异常请联系: 放射科信息中心 8001",
+    "deptDash.footer":
+      "放射科信息系统 (RIS) v0.7.0 | 示例数据 (设备/统计为演示数据, 未接实时接口) | 如有异常请联系: 放射科信息中心 8001",
     // [v3.0.6.11-106 Wave 11D] regional/RegionalCollaborationPage (labels) + CollaborationPage
     "regionalCollab.instStatus.online": "在线",
     "regionalCollab.instStatus.offline": "离线",
@@ -24930,7 +25447,8 @@ export const translations: Translations = {
     "cardiacSpec.title": "心脏专科",
     "cardiacSpec.dataRealtime": "AI 接口实时",
     "cardiacSpec.dataDemo": "演示数据(回退)",
-    "cardiacSpec.subtitle": "Cardiac Imaging Specialty · 冠脉评估 · 心功能分析 · 血流动力学",
+    "cardiacSpec.subtitle":
+      "Cardiac Imaging Specialty · 冠脉评估 · 心功能分析 · 血流动力学",
     "cardiacSpec.refresh": "刷新",
     "cardiacSpec.export": "导出",
     "cardiacSpec.retry": "重试",
@@ -25034,7 +25552,7 @@ export const translations: Translations = {
     "roomOccupancy.targetStatus": "目标状态",
     "roomOccupancy.selectRoomFirst": "请先选择房间",
     // [v3.0.6.11-106 Wave 11A] dental/DentalOrthoPage
-    "dentalOrtho.noCasesHint": "暂无正畸病例，可点击\"新建病例\"创建",
+    "dentalOrtho.noCasesHint": '暂无正畸病例，可点击"新建病例"创建',
     "dentalOrtho.loadFailed": "正畸病例加载失败",
     "dentalOrtho.networkError": "网络错误，正畸病例加载失败",
     "dentalOrtho.createFailed": "创建失败",
@@ -25119,7 +25637,8 @@ export const translations: Translations = {
     "cvOps.tabInventory": "库存",
     "cvOps.timelineToday": "活动时间线 — 今日",
     "cvOps.demoData": "演示数据",
-    "cvOps.protocolsSource": "数据源: 演示数据 (后端无 /cardiac/operations 端点)",
+    "cvOps.protocolsSource":
+      "数据源: 演示数据 (后端无 /cardiac/operations 端点)",
     "cvOps.colProtocol": "协议",
     "cvOps.colModality": "设备类型",
     "cvOps.colIndication": "适应证",
@@ -25335,13 +25854,15 @@ export const translations: Translations = {
     "fhirServer.corsSmart": "CORS + SMART OAuth2 授权",
     "fhirServer.none": "无",
     "fhirServer.resourceTypes": "资源类型:",
-    "fhirServer.capabilityAlert": "能力声明依据 FHIR R4 规范静态声明（POST /fhir/metadata 尚未实现），真实能力以后端实现为准。",
+    "fhirServer.capabilityAlert":
+      "能力声明依据 FHIR R4 规范静态声明（POST /fhir/metadata 尚未实现），真实能力以后端实现为准。",
     "fhirServer.liveDeclaration": "来自后端 /metadata",
     "fhirServer.capabilityGaps": "能力缺口 (据实声明)",
     "fhirServer.colCapability": "能力项",
     "fhirServer.colGapReason": "说明",
     "fhirServer.metadataUnavailable": "未获取到 CapabilityStatement",
-    "fhirServer.metadataUnavailableDesc": "后端 /fhir/r4/metadata 端点不可用, 无法声明服务端能力。请检查 FHIR 服务是否已启动, 或稍后重试。系统不会使用静态文档替代真实能力声明。",
+    "fhirServer.metadataUnavailableDesc":
+      "后端 /fhir/r4/metadata 端点不可用, 无法声明服务端能力。请检查 FHIR 服务是否已启动, 或稍后重试。系统不会使用静态文档替代真实能力声明。",
     "fhirServer.refresh": "刷新",
     "fhirServer.colId": "编号",
     "fhirServer.colType": "类型",
@@ -25349,11 +25870,13 @@ export const translations: Translations = {
     "fhirServer.colGender": "性别",
     "fhirServer.colBirthDate": "出生日期",
     "fhirServer.query": "查询",
-    "fhirServer.querySyntax": "FHIR 查询语法: _count / _sort / name:contains / birthdate=gt2020",
+    "fhirServer.querySyntax":
+      "FHIR 查询语法: _count / _sort / name:contains / birthdate=gt2020",
     "fhirServer.queryResult": "查询结果",
     "fhirServer.sendResource": "发送资源",
     "fhirServer.newAndSend": "新建并发送 FHIR 资源",
-    "fhirServer.sendHint": "支持 POST/PUT 方式创建或更新 Patient/Observation/DiagnosticReport",
+    "fhirServer.sendHint":
+      "支持 POST/PUT 方式创建或更新 Patient/Observation/DiagnosticReport",
     "fhirServer.createResource": "创建 FHIR 资源",
     "fhirServer.resourceCreated": "FHIR 资源已创建",
     "fhirServer.jsonBody": "JSON 请求体",
@@ -25545,15 +26068,18 @@ export const translations: Translations = {
     "financeReport.colCost": "成本",
     "financeReport.colGrossProfit": "毛利",
     "financeReport.colNetIncome": "净利",
-    "financeReport.kpiNote": "前 3 项指标由 financeApi + statsApi 实时计算; 人均创收/单设备产值/应收账款周转暂无数据源，展示演示数据",
+    "financeReport.kpiNote":
+      "前 3 项指标由 financeApi + statsApi 实时计算; 人均创收/单设备产值/应收账款周转暂无数据源，展示演示数据",
     "financeReport.trendUp": "较上月提升",
     "financeReport.trendDown": "较上月下降",
     "financeReport.kpiExplain": "财务指标说明",
     // [v3.0.6.11-106 Wave 11A] patient/ServiceManagement
-    "serviceMgmt.apiUnavailable": "appointmentApi/templatesApi 暂不可用，当前展示内置演示数据",
+    "serviceMgmt.apiUnavailable":
+      "appointmentApi/templatesApi 暂不可用，当前展示内置演示数据",
     "serviceMgmt.loadFailedFallback": "数据加载失败，已回退演示数据",
     "serviceMgmt.syncing": "数据同步中...",
-    "serviceMgmt.sourceApi": "数据源: appointmentApi / templatesApi 实时（预约、推送模板）",
+    "serviceMgmt.sourceApi":
+      "数据源: appointmentApi / templatesApi 实时（预约、推送模板）",
     "serviceMgmt.sourceDemo": "数据源: 演示数据（接口不可用，已回退）",
     "serviceMgmt.tabAppointment": "预约挂号",
     "serviceMgmt.tabPush": "推送管理",
@@ -25579,7 +26105,8 @@ export const translations: Translations = {
     "serviceMgmt.templatesRealtime": "(templatesApi.snippets 实时)",
     "serviceMgmt.on": "开启",
     "serviceMgmt.off": "关闭",
-    "serviceMgmt.templatesNote": "说明：模板内容来自 templatesApi；开启/关闭状态为本地演示（无后端开关端点）。",
+    "serviceMgmt.templatesNote":
+      "说明：模板内容来自 templatesApi；开启/关闭状态为本地演示（无后端开关端点）。",
     "serviceMgmt.notifyPrefs": "通知偏好",
     "serviceMgmt.localStorage": "(本地存储)",
     "serviceMgmt.notifySms": "短信通知",
@@ -25671,8 +26198,10 @@ export const translations: Translations = {
     "retakeAnalytics.colPatient": "患者",
     "retakeAnalytics.colExam": "检查",
     "retakeAnalytics.colActions": "操作",
-    "retakeAnalytics.sourceApi": "数据源: GET /worklist/retake-stats (后端聚合) · 维度 {{dim}}",
-    "retakeAnalytics.sourceDemo": "数据源: 演示回退 (接口不可用, 基于 seed 派生)",
+    "retakeAnalytics.sourceApi":
+      "数据源: GET /worklist/retake-stats (后端聚合) · 维度 {{dim}}",
+    "retakeAnalytics.sourceDemo":
+      "数据源: 演示回退 (接口不可用, 基于 seed 派生)",
     // [v3.0.6.11-106 Wave 11A] integration/Hl7BuilderPage
     "hl7Builder.loadHistoryFailed": "发送历史加载失败",
     "hl7Builder.missingMessage": "响应中缺少 message 字段",
@@ -25690,7 +26219,8 @@ export const translations: Translations = {
     "hl7Builder.colRetry": "重试",
     "hl7Builder.colTime": "时间",
     "hl7Builder.title": "HL7 消息构造器",
-    "hl7Builder.subtitle": "ORU^R01 / ORM^O01 / DFT^P03 / SIU^S12 消息构建与发送",
+    "hl7Builder.subtitle":
+      "ORU^R01 / ORM^O01 / DFT^P03 / SIU^S12 消息构建与发送",
     "hl7Builder.builderTag": "构造器",
     "hl7Builder.form": "表单",
     "hl7Builder.patientId": "患者 ID",
@@ -25843,7 +26373,8 @@ export const translations: Translations = {
     "techMobile.completedToday": "今日完成",
     "techMobile.avgDuration": "平均时长",
     "techMobile.technician": "技师",
-    "techMobile.mockBanner": "预约接口不可用，检查队列已切换为 /mobile/worklist 演示数据",
+    "techMobile.mockBanner":
+      "预约接口不可用，检查队列已切换为 /mobile/worklist 演示数据",
     "techMobile.searchPlaceholder": "搜索患者、检查项目...",
     "techMobile.tabExams": "检查队列",
     "techMobile.tabDevices": "设备状态",
@@ -25956,7 +26487,8 @@ export const translations: Translations = {
     "doseLive.save": "保存",
     // [v3.0.6.11-106 Wave 11A] System/DicomPrintPage
     "dicomPrint.noData": "暂无数据",
-    "dicomPrint.apiUnavailable": "打印 API 不可用，已回退本地模拟队列（演示数据）",
+    "dicomPrint.apiUnavailable":
+      "打印 API 不可用，已回退本地模拟队列（演示数据）",
     "dicomPrint.patientNameRequired": "请输入患者姓名",
     "dicomPrint.studyUidRequired": "请输入检查UID",
     "dicomPrint.submitFailed": "提交失败",
@@ -26072,7 +26604,8 @@ export const translations: Translations = {
     "eyeReport.digitalSign": "数字签名",
     "eyeReport.print": "打印",
     "eyeReport.voiceInputTitle": "语音输入 (Demo)",
-    "eyeReport.voiceHint": "请说出您要录入的所见内容,系统会自动转换为文本并填入当前编辑区域。",
+    "eyeReport.voiceHint":
+      "请说出您要录入的所见内容,系统会自动转换为文本并填入当前编辑区域。",
     "eyeReport.waitingVoice": "等待语音输入...",
     "eyeReport.aiTitle": "AI 辅助所见 (Demo)",
     "eyeReport.tagIgnore": "忽略",
@@ -26166,7 +26699,7 @@ export const translations: Translations = {
     "patientForm.contactName": "联系人姓名",
     "patientForm.contactNamePlaceholder": "联系人姓名",
     "patientForm.contactPhonePlaceholder": "联系人电话",
-    "patientForm.confirmHint": "确认信息无误后，点击\"完成注册\"提交",
+    "patientForm.confirmHint": '确认信息无误后，点击"完成注册"提交',
     "patientForm.cancel": "取消",
     "patientForm.prev": "上一步",
     "patientForm.next": "下一步",
@@ -26202,7 +26735,8 @@ export const translations: Translations = {
     "cvRule.title": "危急值规则配置",
     "cvRule.sourceApi": "数据源: /critical-ext/rules",
     "cvRule.sourceDemo": "演示数据(接口不可用)",
-    "cvRule.subtitle": "{{count}} 条危急值规则 · 7 类别 · 4 通报渠道 · 自动触发 + 人工标识",
+    "cvRule.subtitle":
+      "{{count}} 条危急值规则 · 7 类别 · 4 通报渠道 · 自动触发 + 人工标识",
     "cvRule.loadingSuffix": " · 加载中...",
     "cvRule.statsScreen": "统计大屏",
     "cvRule.backToCritical": "返回危急值",
@@ -26361,12 +26895,14 @@ export const translations: Translations = {
     "ssp.text.conclusion": "【结论】",
     "ssp.text.recommendations": "【建议】",
     "ssp.text.legalFull": "电子报告与纸质报告具有同等法律效力。",
-    "ssp.voucher.localNotice": "凭证由客户端演示生成（后端 voucher 端点待实现）",
+    "ssp.voucher.localNotice":
+      "凭证由客户端演示生成（后端 voucher 端点待实现）",
     "ssp.unspecifiedPart": "未指定部位",
     "ssp.home.examSuffix": " 检查",
     "ssp.home.imageFallback": "影像",
     "ssp.home.reportPublished": " 报告已发布",
-    "ssp.booking.arrivalNotice": "请按预约时间提前 15 分钟到放射科登记台报到，检查当天请携带本人有效证件。",
+    "ssp.booking.arrivalNotice":
+      "请按预约时间提前 15 分钟到放射科登记台报到，检查当天请携带本人有效证件。",
     "ssp.reports.detailTitle": "报告详情",
     "ssp.reports.unspecified": "未指定",
     "ssp.reports.critical": "危急值",
@@ -26380,7 +26916,8 @@ export const translations: Translations = {
     "ssp.reports.conclusion": "结论",
     "ssp.reports.download": "下载报告",
     "ssp.reports.print": "打印报告",
-    "ssp.reports.legalNote": "电子报告与纸质报告具有同等法律效力；如有疑问请携带报告咨询临床医生。",
+    "ssp.reports.legalNote":
+      "电子报告与纸质报告具有同等法律效力；如有疑问请携带报告咨询临床医生。",
     "ssp.reports.downloadShort": "下载",
     "ssp.images.date": "日期",
     "ssp.images.dicomExamNo": "DICOM 检查号：",
@@ -26407,7 +26944,8 @@ export const translations: Translations = {
     "ssp.followup.reminderOn": "提醒已开启",
     "ssp.followup.reminderOff": "未开启提醒",
     "ssp.followup.completedAt": "完成于",
-    "ssp.followup.submitNotice": "提交后将在预约日期到期时提醒，检查时请携带既往影像资料。",
+    "ssp.followup.submitNotice":
+      "提交后将在预约日期到期时提醒，检查时请携带既往影像资料。",
     "ssp.feedback.intro": "您的评价将帮助我们持续改进服务品质，感谢您的参与。",
     "ssp.patientCard.patientFallback": "患",
     "ssp.patientCard.ageSuffix": "岁",
@@ -26538,6 +27076,10 @@ export const translations: Translations = {
     "srTpl.updated": "模板已更新",
     "srTpl.created": "模板已创建",
     "srTpl.deleted": "模板已删除",
+    "srTpl.createFailed": "SR 模板创建失败",
+    "srTpl.updateFailed": "SR 模板更新失败",
+    "srTpl.deleteFailed": "SR 模板删除失败",
+    "srTpl.saveFailed": "保存失败",
     "srTpl.colId": "编号",
     "srTpl.colLabel": "名称 (中文)",
     "srTpl.colLabelEn": "英文名称",
@@ -26577,7 +27119,8 @@ export const translations: Translations = {
     "dw.noInstances": "该检查暂无实例可下载",
     "dw.download": "下载",
     "dw.title": "DICOMweb 工具",
-    "dw.subtitle": "DICOMweb RESTful 影像服务:检索检查(Study) → 预览序列/实例 → 上传 DICOM 文件",
+    "dw.subtitle":
+      "DICOMweb RESTful 影像服务:检索检查(Study) → 预览序列/实例 → 上传 DICOM 文件",
     "dw.retry": "重试",
     "dw.qidoTitle": "QIDO-RS 检索",
     "dw.descKeywordPlaceholder": "检查描述关键词",
@@ -26598,7 +27141,8 @@ export const translations: Translations = {
     "dw2.title": "医生工作量统计",
     "dw2.sourceApi": "数据源: /stats/workload",
     "dw2.sourceDemo": "演示数据(接口不可用)",
-    "dw2.subtitle": "6 大维度：数量 / 质量 / 时效 / 危急值 / 会诊 / 设备 · 排行 / 趋势",
+    "dw2.subtitle":
+      "6 大维度：数量 / 质量 / 时效 / 危急值 / 会诊 / 设备 · 排行 / 趋势",
     "dw2.sort.ranking": "综合排行",
     "dw2.sort.totalReports": "报告数量",
     "dw2.sort.qualityScore": "质量分",
@@ -27048,7 +27592,8 @@ export const translations: Translations = {
     "rpb.system": "系统",
     "rpb.apiUnavailable": "templatesApi 暂不可用，当前展示内置演示短语",
     "rpb.loadFailed": "短语加载失败，已回退演示数据",
-    "rpb.noContextNote": "无报告上下文: 预览保留原 {{占位符}}, 书写页插入时自动填充患者信息",
+    "rpb.noContextNote":
+      "无报告上下文: 预览保留原 {{占位符}}, 书写页插入时自动填充患者信息",
     "rpb.copied": "已复制到剪贴板！",
     "rpb.copyFailed": "复制失败: 浏览器未授予剪贴板权限，请手动选择复制",
     "rpb.titleRequired": "请输入短语标题",
@@ -27063,7 +27608,8 @@ export const translations: Translations = {
     "rpb.syncing": "同步中...",
     "rpb.sourceApi": "数据源: templatesApi.snippets 实时",
     "rpb.sourceDemo": "演示数据(接口不可用)",
-    "rpb.subtitle": "{{count}} 短语 · 6 分类 · 占位符替换 · 一键复制 · 评分系统",
+    "rpb.subtitle":
+      "{{count}} 短语 · 6 分类 · 占位符替换 · 一键复制 · 评分系统",
     "rpb.newPhrase": "新建短语",
     "rpb.searchPlaceholder": "搜索标题/内容/标签...",
     "rpb.placeholderCount": "{{count}} 占位符",
@@ -27090,7 +27636,8 @@ export const translations: Translations = {
     "rpb.titlePlaceholder": "如：胸部 CT 增强随访建议",
     "rpb.category": "分类",
     "rpb.contentLabel": "短语内容（支持 {{占位符}}）",
-    "rpb.contentPlaceholder": "如：建议 {{timeframe}} 后复查，必要时穿刺活检明确病理。",
+    "rpb.contentPlaceholder":
+      "如：建议 {{timeframe}} 后复查，必要时穿刺活检明确病理。",
     // [v3.0.6.11-106 Wave 11B] KeywordCheckPage
     "kwc.sev.error": "错误",
     "kwc.sev.warning": "警告",
@@ -27135,7 +27682,7 @@ export const translations: Translations = {
     "kwc.fullText": "全文",
     "kwc.suggestionLabel": "建议：",
     "kwc.clickIssue": "点击左侧问题查看详情",
-    "kwc.scanPrompt": "点击\"开始扫描\"对当前报告执行关键字检查",
+    "kwc.scanPrompt": '点击"开始扫描"对当前报告执行关键字检查',
     "kwc.scanPromptHint": "系统将按 6 大类规则进行全量扫描",
     "kwc.unitCount": "条",
     // [v3.0.6.11-106 Wave 11B] TemplateInheritancePage
@@ -27190,14 +27737,16 @@ export const translations: Translations = {
     "tinh.typeChild": "继承克隆",
     "tinh.typeSibling": "同族",
     "tinh.findingsHeader": "【检查所见】",
-    "tinh.bodyPlaceholder": "（模板正文预览占位：结构化字段将由模板设计器填充）",
+    "tinh.bodyPlaceholder":
+      "（模板正文预览占位：结构化字段将由模板设计器填充）",
     "tinh.diagnosisHeader": "【诊断意见】",
     "tinh.basedOn": "（基于 {{name}} 的结构化模板）",
     "tinh.close": "关闭",
     "tinh.templateUsageCount": "本模板使用次数",
     "tinh.directChildren": "直接继承模板",
     "tinh.familyUsageSummary": "家族使用汇总（本地派生）",
-    "tinh.usageNote": "使用次数为本地派生数据（标注: 待模板用量上报接口 templatesApi.usage）。",
+    "tinh.usageNote":
+      "使用次数为本地派生数据（标注: 待模板用量上报接口 templatesApi.usage）。",
     // [v3.0.6.11-106 Wave 11B] ReportExportPage
     "rex.downloadFailed": "下载失败",
     "rex.exportFailed": "导出失败",
@@ -27205,7 +27754,8 @@ export const translations: Translations = {
     "rex.batchCreateFailed": "批量导出任务创建失败",
     "rex.batchTimeout": "批量导出任务失败或超时",
     "rex.title": "报告导出中心",
-    "rex.subtitle": "v3.0.5.1 增强:HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 升级点",
+    "rex.subtitle":
+      "v3.0.5.1 增强:HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 升级点",
     "rex.tabV2": "导出中心 V2",
     "rex.tabV3": "R3.INTEGRATION 增强",
     "rex.tabClassic": "经典视图",
@@ -27249,7 +27799,8 @@ export const translations: Translations = {
     "iheConn.live.service": "IHE 服务",
     "iheConn.live.affinity": "归属域",
     "iheConn.live.refresh": "刷新状态",
-    "iheConn.conn.loadFailed": "未能读取后端 IHE 服务状态, 下方用例结果为本地模拟。",
+    "iheConn.conn.loadFailed":
+      "未能读取后端 IHE 服务状态, 下方用例结果为本地模拟。",
     "iheConn.subtitle": "XDS.b / PIX / PDQ / ATNA / PAM 测试执行框架",
     "iheConn.mockBadge": "模拟工具 · 测试结果本地生成",
     "iheConn.viewProfile": "查看 Profile",
@@ -27277,7 +27828,8 @@ export const translations: Translations = {
     "iheConn.col.steps": "步骤",
     "iheConn.col.status": "状态",
     "iheConn.col.duration": "耗时",
-    "iheConn.msg.fillConfig": "请填写完整的会话配置信息（名称/地点/Track/Monitor 均为必填）",
+    "iheConn.msg.fillConfig":
+      "请填写完整的会话配置信息（名称/地点/Track/Monitor 均为必填）",
     "iheConn.msg.selectProfile": "请至少选择一个 IHE Profile",
     "iheConn.msg.startFirst": "请先开启会话",
     "iheConn.step.prepare": "准备测试环境",
@@ -27328,18 +27880,23 @@ export const translations: Translations = {
     "reportResult.dangerTitle": "危险操作",
     "reportResult.dangerDesc": "此操作不可撤销。已发布的报告将无法恢复。",
     "reportResult.confirmPublish": "确认发布",
-    "reportResult.confirmPublishDesc": "将选中报告中状态为\"已审核\"的报告发布为正式报告。",
+    "reportResult.confirmPublishDesc":
+      '将选中报告中状态为"已审核"的报告发布为正式报告。',
     "reportResult.confirmReview": "确认审核",
-    "reportResult.confirmReviewDesc": "将选中报告中状态为\"待审核\"的报告逐条提交初审,审核通过后进入签发环节。",
+    "reportResult.confirmReviewDesc":
+      '将选中报告中状态为"待审核"的报告逐条提交初审,审核通过后进入签发环节。',
     "reportResult.confirmSign": "确认签署",
-    "reportResult.confirmSignDesc": "将选中报告中状态为\"已审核\"的报告批量电子签署(→ 已签发)。",
+    "reportResult.confirmSignDesc":
+      '将选中报告中状态为"已审核"的报告批量电子签署(→ 已签发)。',
     "reportResult.confirmArchive": "确认冷归档",
-    "reportResult.confirmArchiveDesc": "将选中报告中状态为\"已发布\"的报告归档至长期存储层 (ARCHIVED + 归档任务记录), 非发布态自动跳过。",
+    "reportResult.confirmArchiveDesc":
+      '将选中报告中状态为"已发布"的报告归档至长期存储层 (ARCHIVED + 归档任务记录), 非发布态自动跳过。',
     "reportResult.processing": "处理中...",
     "reportResult.confirmVerb": "确认{{verb}}",
     "reportKpi.title": "报告 KPI 大盘",
     "reportKpi.demoBadge": "演示数据 · 本地合成指标",
-    "reportKpi.subtitle": "15 大核心指标 · 设备利用率 · 24h/7d 趋势 · 无纸化 / 区块链",
+    "reportKpi.subtitle":
+      "15 大核心指标 · 设备利用率 · 24h/7d 趋势 · 无纸化 / 区块链",
     "reportKpi.periodToday": "今日",
     "reportKpi.periodMonth": "本月",
     "reportKpi.periodYear": "本年",
@@ -27396,7 +27953,8 @@ export const translations: Translations = {
     "aiReviewPage.requestFailed": "审核请求失败",
     "aiReviewPage.title": "AI 报告审核",
     "aiReviewPage.qualityControl": "质量控制",
-    "aiReviewPage.description": "自动检测报告中的语法错误、术语不一致、逻辑矛盾等问题，提供修改建议",
+    "aiReviewPage.description":
+      "自动检测报告中的语法错误、术语不一致、逻辑矛盾等问题，提供修改建议",
     "aiReviewPage.reportText": "报告文本",
     "aiReviewPage.reviewing": "审核中...",
     "aiReviewPage.startReview": "开始审核",
@@ -27452,7 +28010,8 @@ export const translations: Translations = {
     "costFilter.quarterly": "季度",
     "costFilter.yearly": "年度",
     "iolCalc.apiSaveFailed": "API 保存失败",
-    "iolCalc.saveFailedLocal": "后端保存失败，计算结果已保留在本地（待接入 EMR 写回）",
+    "iolCalc.saveFailedLocal":
+      "后端保存失败，计算结果已保留在本地（待接入 EMR 写回）",
     "iolCalc.back": "返回",
     "iolCalc.submitCalc": "提交计算",
     "iolCalc.surgeon": "术者",
@@ -27515,7 +28074,8 @@ export const translations: Translations = {
     "regionalPage.tabSla": "SLA监控",
     "regionalPage.tabRegionalStats": "区域统计",
     "regionalPage.title": "区域影像报告管理",
-    "regionalPage.subtitle": "远程会诊 | 报告审核 | 危急值通报 | 医联体远程诊断 | 跨机构联合签发",
+    "regionalPage.subtitle":
+      "远程会诊 | 报告审核 | 危急值通报 | 医联体远程诊断 | 跨机构联合签发",
     "regionalPage.settings": "设置",
     "regionalPage.criticalHint": "请在下方危急值通报记录区域进行操作",
     "regionalPage.systemSettings": "系统设置",
@@ -27537,7 +28097,8 @@ export const translations: Translations = {
     "vesselAnalysis.title": "血管分析工作台",
     "vesselAnalysis.realData": "真实接口数据",
     "vesselAnalysis.demoData": "演示数据 (回退)",
-    "vesselAnalysis.subtitle": "冠脉分段图 (SVG 血管树) · 狭窄/钙化由分段数据派生",
+    "vesselAnalysis.subtitle":
+      "冠脉分段图 (SVG 血管树) · 狭窄/钙化由分段数据派生",
     "vesselAnalysis.selectCase": "选择病例",
     "vesselAnalysis.realUnavailable": "真实接口不可用, 已回退演示数据",
     "vesselAnalysis.retry": "重试",
@@ -27551,7 +28112,8 @@ export const translations: Translations = {
     "vesselAnalysis.legend": "简化示意: 颜色 = 该血管最重狭窄严重度",
     "vesselAnalysis.noLesionCase": "该病例无狭窄/钙化病灶",
     "vesselAnalysis.calcified": "钙化",
-    "vesselAnalysis.calciumNote": "钙化积分 = 钙化病灶数 × 100 (派生估算, 标注)",
+    "vesselAnalysis.calciumNote":
+      "钙化积分 = 钙化病灶数 × 100 (派生估算, 标注)",
     "vesselAnalysis.dataSource": "数据源",
     "vesselAnalysis.realResult": "真实接口结果",
     "vesselAnalysis.demoFallback": "演示回退",
@@ -27742,7 +28304,8 @@ export const translations: Translations = {
     "wadoRs.searchPlaceholder": "搜索患者名/检查 UID",
     "wadoRs.retry": "重试",
     "wadoRs.resultTitle": "检索结果 - {{patient}}",
-    "wadoRs.resultSummary": "患者 {{patient}} · 模态 {{modality}} · {{series}} 组序列 · {{instances}} 实例",
+    "wadoRs.resultSummary":
+      "患者 {{patient}} · 模态 {{modality}} · {{series}} 组序列 · {{instances}} 实例",
     "wadoRs.noSeries": "暂无序列数据（后端未返回）",
     "wadoRs.download": "下载",
     "wadoRs.seriesMeta": "实例数: {{count}} · 部位: {{bodyPart}}",
@@ -27758,11 +28321,14 @@ export const translations: Translations = {
     "offlineReports.clear": "清空",
     "offlineReports.cancel": "取消",
     "offlineReports.backToList": "返回报告列表",
-    "offlineReports.desc1": "离线副本由「报告列表 → 行操作 离线保存」生成，存储于本机浏览器 IndexedDB。",
-    "offlineReports.desc2": "断网时可在本页浏览已保存报告；在线时报告详情页也会标注「离线副本」存在。",
+    "offlineReports.desc1":
+      "离线副本由「报告列表 → 行操作 离线保存」生成，存储于本机浏览器 IndexedDB。",
+    "offlineReports.desc2":
+      "断网时可在本页浏览已保存报告；在线时报告详情页也会标注「离线副本」存在。",
     "offlineReports.loading": "加载中...",
     "offlineReports.empty": "暂无离线报告",
-    "offlineReports.emptyHint": "前往「报告列表」点击行内 保存 图标即可生成离线副本",
+    "offlineReports.emptyHint":
+      "前往「报告列表」点击行内 保存 图标即可生成离线副本",
     "offlineReports.unknownPatient": "未知患者",
     "offlineReports.offlineCopy": "离线副本",
     "offlineReports.statusLabel": "状态:",
@@ -27781,7 +28347,8 @@ export const translations: Translations = {
     "offlineReports.state.initialReview": "初审中",
     "offlineReports.state.finalReview": "终审中",
     "offlineReports.state.amended": "已修订",
-    "dentalAiOnnx.modelNotFound": "YOLOv8n-dental.onnx 未找到, 已切换至离线推理模式",
+    "dentalAiOnnx.modelNotFound":
+      "YOLOv8n-dental.onnx 未找到, 已切换至离线推理模式",
     "dentalAiOnnx.initSuccess": "ONNX Runtime Web 初始化成功",
     "dentalAiOnnx.loadModelFirst": "请先加载模型",
     "dentalAiOnnx.uploadFirst": "请先上传根尖片/咬合翼片",
@@ -27859,7 +28426,8 @@ export const translations: Translations = {
     "login.loginFailed": "登录失败",
     "login.systemName": "G005 放射信息系统",
     "login.tagline": "大型专业医学影像 · 诊断报告 · 智能辅助",
-    "login.description": "面向大型医院的放射科信息管理平台，覆盖影像检查、诊断报告、AI 智能辅助与质量管理全流程。",
+    "login.description":
+      "面向大型医院的放射科信息管理平台，覆盖影像检查、诊断报告、AI 智能辅助与质量管理全流程。",
     "login.formAria": "登录表单",
     "login.welcome": "欢迎登录",
     "login.loggedInPrefix": "当前已登录：",
@@ -27870,7 +28438,8 @@ export const translations: Translations = {
     "login.loggingIn": "登录中…",
     "login.signIn": "登录系统",
     "login.demoEnv": "演示环境",
-    "login.demoHint": "任意用户名与密码均可登录，选择角色后将以对应身份进入系统；生产环境将对接统一身份认证服务。",
+    "login.demoHint":
+      "任意用户名与密码均可登录，选择角色后将以对应身份进入系统；生产环境将对接统一身份认证服务。",
     "login.footerSuffix": "放射科信息管理系统 · 仅供院内使用",
     "opsDashboard.vsYesterday": "较昨日",
     "opsDashboard.unassigned": "未分配",
@@ -27906,7 +28475,8 @@ export const translations: Translations = {
     "termSyn.syncing": "同步中...",
     "termSyn.sourceApi": "数据源: termApi 实时",
     "termSyn.sourceDemo": "演示数据(接口不可用)",
-    "termSyn.summary": "{{count}} 词条 · 7 大分类 · 同义词图谱 · ICD-10 联动 · 拼音首字母搜索",
+    "termSyn.summary":
+      "{{count}} 词条 · 7 大分类 · 同义词图谱 · ICD-10 联动 · 拼音首字母搜索",
     "termSyn.searchPlaceholder": "搜索术语/拼音/定义...",
     "termSyn.times": "{{count}} 次",
     "termSyn.noMatching": "暂无匹配词条",
@@ -27937,7 +28507,8 @@ export const translations: Translations = {
     "caSignature.uploadSuccess": "证书 {{name}} 上传成功",
     "caSignature.certRevokedMsg": "证书 {{name}} 已吊销",
     "caSignature.signing": "签名中 {{percent}}%",
-    "caSignature.renewSubmitted": "已为 {{name}} 提交续期申请 (证书 {{certId}})",
+    "caSignature.renewSubmitted":
+      "已为 {{name}} 提交续期申请 (证书 {{certId}})",
     "caSignature.chain.rootName": "根 CA",
     "caSignature.chain.rootDesc": "国家根证书",
     "caSignature.chain.midName": "中间 CA",
@@ -28055,7 +28626,8 @@ export const translations: Translations = {
     "asrPage.noHistory": "暂无听写历史",
     "asrPage.lexiconDistribution": "词库分布",
     "asrPage.entriesUnit": "条",
-    "asrPage.dataSource": "数据源: 医学词库(内存 seed) · 听写会话(由 ASR 转写记录派生) · 纠正反馈自动积累同音词别名。转写后自动执行同音词校正,校正结果可沉淀为词库条目。",
+    "asrPage.dataSource":
+      "数据源: 医学词库(内存 seed) · 听写会话(由 ASR 转写记录派生) · 纠正反馈自动积累同音词别名。转写后自动执行同音词校正,校正结果可沉淀为词库条目。",
     "criticalValuePage.criticalEvent": "危急值事件",
     "criticalValuePage.operation": "操作",
     "criticalValuePage.phoneRecorded": "电话通知已记录",
@@ -28070,7 +28642,8 @@ export const translations: Translations = {
     "criticalValuePage.closeFailed": "闭环失败",
     "criticalValuePage.deleted": "危急值已删除",
     "criticalValuePage.deleteFailed": "删除失败",
-    "criticalValuePage.selfApproveForbidden": "禁止自审：不能处理自己报告的危急值",
+    "criticalValuePage.selfApproveForbidden":
+      "禁止自审：不能处理自己报告的危急值",
     "criticalValuePage.processed": "已处理",
     "criticalValuePage.followUpType": "系统通知",
     "criticalValuePage.followUpResult": "已回复",
@@ -28078,14 +28651,17 @@ export const translations: Translations = {
     "criticalValuePage.navCritical": "导航到危急值",
     "criticalValuePage.navReport": "导航到报告",
     "criticalValuePage.loading": "正在从 API 加载危急值数据...",
-    "criticalValuePage.bannerTitle": "v1.0.5 危急值子系统升级 · 18 条规则 + 10分钟通报率 + 8 大分类评估",
-    "criticalValuePage.bannerDesc": "国家卫健委 2024 版危急值目录 · BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/骨龄/心脏 CTA",
+    "criticalValuePage.bannerTitle":
+      "v1.0.5 危急值子系统升级 · 18 条规则 + 10分钟通报率 + 8 大分类评估",
+    "criticalValuePage.bannerDesc":
+      "国家卫健委 2024 版危急值目录 · BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/骨龄/心脏 CTA",
     "criticalValuePage.ruleConfig": "规则配置",
     "criticalValuePage.statsBoard": "统计大屏",
     "criticalValuePage.assessment8": "8 大分类评估",
     "criticalValuePage.title": "危急值管理",
     "criticalValuePage.versionBadge": "v4.0 转随访+5节点闭环",
-    "criticalValuePage.subtitle": "危急值发现 · 即时预警 · 双环闭环 · 转随访管理 · 5节点追踪 · 全生命周期管理",
+    "criticalValuePage.subtitle":
+      "危急值发现 · 即时预警 · 双环闭环 · 转随访管理 · 5节点追踪 · 全生命周期管理",
     "criticalValuePage.batchAck": "批量确认",
     "criticalValuePage.batchAckConfirm": "确认批量确认?",
     "criticalValuePage.batchProcess": "批量处理",
@@ -28118,7 +28694,8 @@ export const translations: Translations = {
     "fusionPage.demoFallback": "演示回退",
     "fusionPage.noPetData": "无 PET 数据",
     "fusionPage.noPetDesc": "该检查无 PET 模态，无法进行 SUV 定量",
-    "fusionPage.suvParams": "体重 {{weight}}kg · 注射剂量 {{dose}}MBq · 注射至扫描 {{scan}}min",
+    "fusionPage.suvParams":
+      "体重 {{weight}}kg · 注射剂量 {{dose}}MBq · 注射至扫描 {{scan}}min",
     "fusionPage.paramSource": "换算参数来源:",
     "fusionPage.examDerived": "检查数据 (Exam 派生)",
     "fusionPage.defaultFallback": "默认值 (演示回退)",
@@ -28231,7 +28808,8 @@ export const translations: Translations = {
     "clinicalConfig.localDefault": "本地默认",
     "clinicalConfig.moduleCount": "{{count}} 个模块",
     "clinicalConfig.stage3Title": "阶段 3 管理界面 - 后端持久化",
-    "clinicalConfig.stage3Desc": "编辑 JSON 后点击「保存」即写入后端 SystemConfig (key=clinical_config); 重启/刷新后仍保留。保存前请确认 JSON 结构符合模块 schema。",
+    "clinicalConfig.stage3Desc":
+      "编辑 JSON 后点击「保存」即写入后端 SystemConfig (key=clinical_config); 重启/刷新后仍保留。保存前请确认 JSON 结构符合模块 schema。",
     "clinicalConfig.noData": "无数据",
     "vr.title": "VR 体绘制",
     "vr.preset.default": "默认",
@@ -28298,7 +28876,8 @@ export const translations: Translations = {
     "patientTable.pagination.perPage": "每页",
     "patientTable.pagination.perPageAria": "每页条数",
     "patientTable.pagination.rows": "{{count}} 条",
-    "patientTable.pagination.summary": "显示 {{start}}-{{end}} 条，共 {{total}} 条记录",
+    "patientTable.pagination.summary":
+      "显示 {{start}}-{{end}} 条，共 {{total}} 条记录",
     "patientTable.pagination.prev": "上一页",
     "patientTable.pagination.next": "下一页",
     "patientTable.duplicates.detected": "检测到 {{count}} 组重复患者记录",
@@ -28416,14 +28995,16 @@ export const translations: Translations = {
     "reportPage.criticalTransferNetError": "转入失败:网络错误",
     "reportPage.deleteNetError": "删除失败:网络错误",
     "reportPage.missingPatient": "该报告缺少患者信息,无法打开患者画像",
-    "reportPage.noTrackableLesion": "报告中未检出可追踪病灶关键词 (肺结节/肝占位/淋巴结等)",
+    "reportPage.noTrackableLesion":
+      "报告中未检出可追踪病灶关键词 (肺结节/肝占位/淋巴结等)",
     "reportPage.lesionCreateFailed": "病灶创建失败",
     "reportPage.lesionCreateNetError": "病灶创建失败: 网络异常",
     "reportPage.offlineSaveFailed": "离线保存失败: IndexedDB 不可用",
     "reportPage.selfReviewForbidden": "禁止自审：不能审核自己的报告",
     "reportPage.reviewSubmitNetError": "审核提交失败:网络异常,请稍后重试",
     "reportPage.mfaSignNetError": "MFA 签署失败:网络异常,请稍后重试",
-    "reportPage.accessDenied": "资源级访问被拒绝：当前用户无权读取报告资源，请联系管理员。",
+    "reportPage.accessDenied":
+      "资源级访问被拒绝：当前用户无权读取报告资源，请联系管理员。",
     "reportPage.loading": "正在从 API 加载报告数据...",
     "reportPage.stat.todayReports": "今日报告数",
     "reportPage.stat.pendingReview": "待审核报告",
@@ -28440,8 +29021,10 @@ export const translations: Translations = {
     "reportPage.savePresetTitle": "保存当前筛选为快捷预置",
     "reportPage.save": "保存",
     "reportPage.cancel": "取消",
-    "reportPage.presetNamePlaceholder": "预置名称, 如: 本周胸片待办 / 危急值跟进",
-    "reportPage.presetHelp": "保存后可在上方 Tag 列表点击加载, 关闭小叉可删除; 数据存于本地浏览器。",
+    "reportPage.presetNamePlaceholder":
+      "预置名称, 如: 本周胸片待办 / 危急值跟进",
+    "reportPage.presetHelp":
+      "保存后可在上方 Tag 列表点击加载, 关闭小叉可删除; 数据存于本地浏览器。",
     "cdsMgmt.tab.appropriateness": "适宜性规则",
     "cdsMgmt.tab.pathway": "临床路径",
     "cdsMgmt.tab.contrast": "造影剂协议",
@@ -28476,7 +29059,8 @@ export const translations: Translations = {
     "cdsMgmt.createRule": "创建规则",
     "cdsMgmt.editRuleTitle": "编辑规则",
     "cdsMgmt.currentStatusPrefix": "当前启用状态：",
-    "cdsMgmt.editNote": "（可在列表中使用启停按钮切换）。cdsApi 暂无规则更新端点，保存为本地更新（标注: 待后端 PUT /cds/rules/:id）。",
+    "cdsMgmt.editNote":
+      "（可在列表中使用启停按钮切换）。cdsApi 暂无规则更新端点，保存为本地更新（标注: 待后端 PUT /cds/rules/:id）。",
     "cdsMgmt.enabledStatus": "已启用",
     "cdsMgmt.disabledStatus": "已停用",
     "cdsMgmt.saving": "保存中...",
@@ -28522,7 +29106,8 @@ export const translations: Translations = {
     "mobileApp.profile.settings": "设置",
     "mobileApp.profile.about": "关于",
     "mobileApp.phoneLogin": "手机号快捷登录",
-    "mobileApp.phoneLoginHint": "输入手机号获取短信验证码,验证通过后即可查看完整报告与缴费",
+    "mobileApp.phoneLoginHint":
+      "输入手机号获取短信验证码,验证通过后即可查看完整报告与缴费",
     "mobileApp.phonePlaceholder": "请输入手机号",
     "mobileApp.smsPlaceholder": "6 位短信验证码",
     "mobileApp.getSmsCode": "获取验证码",
@@ -28563,12 +29148,16 @@ export const translations: Translations = {
     "financeReport.kpi.revenuePerStaff": "人均创收",
     "financeReport.kpi.revenuePerDevice": "单设备产值",
     "financeReport.kpi.receivableTurnover": "应收账款周转",
-    "financeReport.kpiExplain.avgRevenue": "每项检查平均收入金额，反映定价水平和服务结构",
+    "financeReport.kpiExplain.avgRevenue":
+      "每项检查平均收入金额，反映定价水平和服务结构",
     "financeReport.kpiExplain.costRatio": "总成本/总收入，越低说明成本控制越好",
     "financeReport.kpiExplain.profitRate": "净利润/总收入，反映整体盈利水平",
-    "financeReport.kpiExplain.revenuePerStaff": "总收入/在职人数，衡量人力资源产出效率",
-    "financeReport.kpiExplain.revenuePerDevice": "总收入/在用设备数，评估设备利用效率",
-    "financeReport.kpiExplain.receivableTurnover": "平均回款天数，反映资金回收效率",
+    "financeReport.kpiExplain.revenuePerStaff":
+      "总收入/在职人数，衡量人力资源产出效率",
+    "financeReport.kpiExplain.revenuePerDevice":
+      "总收入/在用设备数，评估设备利用效率",
+    "financeReport.kpiExplain.receivableTurnover":
+      "平均回款天数，反映资金回收效率",
     "costAnalysis.sourceRealtime": "财务接口实时",
     "costAnalysis.loadFailed": "成本数据加载失败，已回退演示数据",
     "costAnalysis.noDrgData": "暂无DRG对比数据",
@@ -28587,7 +29176,8 @@ export const translations: Translations = {
     "costAnalysis.monthCostWan": "月成本(万)",
     "costAnalysis.monthProfitWan": "月利润(万)",
     "costAnalysis.formulaStraightLine": "公式: (原价 - 残值) / 使用年限",
-    "costAnalysis.featureStraightLine": "特点: 每期折旧额相同，设备账面值均匀下降",
+    "costAnalysis.featureStraightLine":
+      "特点: 每期折旧额相同，设备账面值均匀下降",
     "costAnalysis.annualDepreciationLabel": "年折旧总额:",
     "costAnalysis.formulaDoubleDeclining": "公式: 2 × (1/使用年限) × 账面价值",
     "costAnalysis.featureDoubleDeclining": "特点: 前期折旧高，后期转为直线法",
@@ -28604,7 +29194,8 @@ export const translations: Translations = {
     "reportDefect.sev.critical": "严重",
     "reportDefect.unknown": "未知缺陷",
     "reportDefect.title": "报告缺陷分类字典",
-    "reportDefect.summary": "{{count}} 类缺陷 · 6 大分类 · 累计触发 {{evaluated}} 次评分",
+    "reportDefect.summary":
+      "{{count}} 类缺陷 · 6 大分类 · 累计触发 {{evaluated}} 次评分",
     "reportDefect.addDefect": "新增缺陷",
     "reportDefect.categoryStat": "类 / {{count}} 次触发",
     "reportDefect.top5": "Top 5 最高频缺陷（累计触发）",
@@ -28654,7 +29245,8 @@ export const translations: Translations = {
     "reportWrite.fav": "收藏常用模板",
     "reportWrite.replaceAllTitle": "全文替换编辑器内容",
     "reportWrite.applyBackend": "后端应用",
-    "reportWrite.applyBackendTitle": "后端合并模板到报告 (append=追加 / overwrite=覆盖)",
+    "reportWrite.applyBackendTitle":
+      "后端合并模板到报告 (append=追加 / overwrite=覆盖)",
     "reportWrite.varsBadge": "变量 ×{{count}} (插入时自动填充)",
     "printMgmt.filmPrint": "胶片打印",
     "printMgmt.filmCost": "胶片成本",
@@ -28669,7 +29261,8 @@ export const translations: Translations = {
     // [G005 v3.0.6.11-106 Wave 2B] 放射影像质控国标指标 (2024 版)
     "nav.rqi2024": "国标指标(2024)",
     "rqi2024.title": "放射影像质控国标指标 (2024 版)",
-    "rqi2024.subtitle": "国卫办医政函〔2024〕150号 附件4 · 7 条国标指标采集 / 达标总览 / 明细下钻 / 趋势与目标值配置",
+    "rqi2024.subtitle":
+      "国卫办医政函〔2024〕150号 附件4 · 7 条国标指标采集 / 达标总览 / 明细下钻 / 趋势与目标值配置",
     "rqi2024.refresh": "刷新",
     "rqi2024.config": "目标值配置",
     "rqi2024.exportCsv": "导出CSV",
@@ -28769,7 +29362,8 @@ export const translations: Translations = {
     "rqi2024.computeEstimated": "管理估计",
     "rqi2024.computeEmpty": "暂无指标数据",
     "rqi2024.configTitle": "国标指标目标值配置",
-    "rqi2024.configHint": "调整目标值与预警容差后保存, 页面将按新口径重新计算达标状态。",
+    "rqi2024.configHint":
+      "调整目标值与预警容差后保存, 页面将按新口径重新计算达标状态。",
     "rqi2024.configTarget": "目标值",
     "rqi2024.configWarnMargin": "预警容差",
     "rqi2024.configSaved": "目标值配置已保存",
@@ -28779,13 +29373,15 @@ export const translations: Translations = {
     // [G005 v3.0.6.11-106 Wave 3] 放射影像质控指标国家上报中心
     "nav.rqiReportCenter": "质控上报中心",
     "rqiReport.title": "质控上报中心",
-    "rqiReport.subtitle": "国标指标按周期生成上报批次 · 提交 / 回执 / 驳回重报闭环与上报历史追踪",
+    "rqiReport.subtitle":
+      "国标指标按周期生成上报批次 · 提交 / 回执 / 驳回重报闭环与上报历史追踪",
     "rqiReport.refresh": "刷新",
     "rqiReport.createBatch": "新建上报批次",
     "rqiReport.source.memory": "实时数据",
     "rqiReport.source.seed": "种子回退",
     "rqiReport.createTitle": "新建上报批次",
-    "rqiReport.createSubtitle": "选择上报周期并生成该周期的 7 条国标指标上报数据",
+    "rqiReport.createSubtitle":
+      "选择上报周期并生成该周期的 7 条国标指标上报数据",
     "rqiReport.periodType": "周期类型",
     "rqiReport.period": "统计周期",
     "rqiReport.createdBy": "上报人",
@@ -28881,86 +29477,104 @@ export const translations: Translations = {
     "rqiReport.empty": "暂无上报批次",
     "rqiReport.loading": "加载中...",
     "rqiReport.dash": "-",
-},
-"en-US": {
+  },
+  "en-US": {
     // [v3.0.6.11-106 Wave 10D] Page i18n batch (20 pages)
     "deptStaff.role.director": "Director",
     "worklistPage.unknownPatient": "Unknown Patient",
     "worklistPage.other": "Other",
     "worklistPage.exam": "Exam",
     "worklistPage.pollingFailed": "Polling failed",
-    "worklistPage.msg.cannotCheckIn": "Exam {{exam}} is currently \"{{status}}\" and cannot be checked in",
+    "worklistPage.msg.cannotCheckIn":
+      'Exam {{exam}} is currently "{{status}}" and cannot be checked in',
     "worklistPage.msg.tip": "Notice",
-    "worklistPage.prefetchSubmitted": "Image prefetch submitted: {{queued}} newly queued, {{cached}} cached",
+    "worklistPage.prefetchSubmitted":
+      "Image prefetch submitted: {{queued}} newly queued, {{cached}} cached",
     "worklistPage.actionLabel.priority": "Change priority to: {{value}}",
     "worklistPage.actionLabel.room": "Assign room: {{name}}",
     "worklistPage.actionLabel.print": "Print barcode",
     "worklistPage.actionLabel.export": "Export Excel",
     "worklistPage.actionLabel.roomAssign": "Assign room",
     "worklistPage.actionLabel.priorityChange": "Change priority",
-    "worklistPage.batchExecuted": "Executed \"{{action}}\" on {{count}} items",
+    "worklistPage.batchExecuted": 'Executed "{{action}}" on {{count}} items',
     "worklistPage.roomAssigned": "Rooms assigned in batch",
     "worklistPage.roomAssignFailed": "Batch room assignment failed",
     "worklistPage.failed": "Failed",
     "worklistPage.batchFailed": "Batch operation failed",
-    "worklistPage.batchSuccessRefreshed": "{{ok}} succeeded{{failSuffix}}; list refreshed",
+    "worklistPage.batchSuccessRefreshed":
+      "{{ok}} succeeded{{failSuffix}}; list refreshed",
     "worklistPage.batchSuccessSimple": "{{ok}} succeeded{{failSuffix}}",
-    "worklistPage.batchFailSuffix":", {{fail}} failed",
+    "worklistPage.batchFailSuffix": ", {{fail}} failed",
     "worklistPage.batch.assign": "Batch Check-In",
     "worklistPage.batchActionFailed": "Batch {{action}} failed",
-    "worklistPage.cannotSwitchStatus": "Cannot switch to \"{{status}}\"",
+    "worklistPage.cannotSwitchStatus": 'Cannot switch to "{{status}}"',
     "worklistPage.confirmStart": "Start exam {{exam}} for {{patient}}?",
-    "worklistPage.confirmCancel": "Cancel the exam for {{patient}}? This action is irreversible.",
+    "worklistPage.confirmCancel":
+      "Cancel the exam for {{patient}}? This action is irreversible.",
     "worklistPage.techCancel": "Technician cancelled",
     "worklistPage.configureColumns": "Configure column visibility",
     "worklistPage.hiddenColumns": "{{count}} columns hidden",
     "worklistPage.refreshList": "Refresh List",
-    "worklistPage.prefetchSelectedTitle": "Prefetch images for the {{count}} selected exams",
-    "worklistPage.prefetchAllTitle": "Prefetch images for all exams in the current list",
+    "worklistPage.prefetchSelectedTitle":
+      "Prefetch images for the {{count}} selected exams",
+    "worklistPage.prefetchAllTitle":
+      "Prefetch images for all exams in the current list",
     "worklistPage.prefetchAll": "Prefetch All",
     "worklistPage.slaTrendTip": "{{day}}: {{overdue}}/{{total}} overdue",
-    "worklistPage.modalitySlaLine": "{{total}} items · {{critical}} overdue ({{rate}}%)",
+    "worklistPage.modalitySlaLine":
+      "{{total}} items · {{critical}} overdue ({{rate}}%)",
     "worklistPage.hourRange": "(7-20h)",
     "worklistPage.itemsCount": "({{count}} items)",
-    "worklistPage.noBatchRecords": "No batch operation records · auto-recorded after using Batch Check-In/Start/Complete above",
+    "worklistPage.noBatchRecords":
+      "No batch operation records · auto-recorded after using Batch Check-In/Start/Complete above",
     "worklistPage.local": "Local",
-    "worklistPage.dataSourceReal": "Source: real API (/exams + /worklist) · column config/view mode persisted locally",
-    "worklistPage.dataSourceFallback": "Source: local initialData fallback (backend unavailable) · analytics based on fallback data",
+    "worklistPage.dataSourceReal":
+      "Source: real API (/exams + /worklist) · column config/view mode persisted locally",
+    "worklistPage.dataSourceFallback":
+      "Source: local initialData fallback (backend unavailable) · analytics based on fallback data",
     "worklistPage.serverStats": "Server Statistics",
     "worklistPage.total": "Total:",
     "worklistPage.noStatusDistData": "No status distribution data",
     "worklistPage.noData": "No data",
     "worklistPage.hourCountTip": "{{hour}}: {{count}} items",
     "worklistPage.noStatusDist": "No status distribution",
-    "worklistPage.modalityLine": "{{total}} items · In Progress {{inProgress}} · Completed Today {{todayCompleted}}",
+    "worklistPage.modalityLine":
+      "{{total}} items · In Progress {{inProgress}} · Completed Today {{todayCompleted}}",
     "worklistPage.printSelectedReports": "Print selected reports",
     "worklistPage.refreshData": "Refresh data",
     "worklistPage.editPatientInfo": "Edit patient info",
     "worklistPage.assignDevice": "Assign exam device",
     "worklistPage.assignDoctor": "Assign reporting doctor",
     "worklistPage.unassigned": "Unassigned",
-    "worklistPage.noDoctorList": "No doctor list retrieved; please check the backend /users API",
+    "worklistPage.noDoctorList":
+      "No doctor list retrieved; please check the backend /users API",
     "worklistPage.report.patientInfo": " ({{gender}}, {{age}} years)",
     "worklistPage.batchResult": "Batch operation result",
     "worklistPage.printPreview": "Print preview",
     "worklistPage.columnConfig": "Column config",
     "worklistPage.close": "Close",
-    "worklistPage.columnConfigHint": "Select columns to show in the list view (config auto-saved locally and retained after refresh)",
+    "worklistPage.columnConfigHint":
+      "Select columns to show in the list view (config auto-saved locally and retained after refresh)",
     "doseTrack.unknownPatient": "Unknown Patient",
     "doseTrack.apiUnavailable": "Dose API unavailable",
     "doseTrack.cumulativeDose": "Cumulative Dose",
     "doseTrack.deltaNewPatients": "+2",
-    "doseTrack.criticalWarningDelta": "{{critical}} critical / {{warning}} warning",
+    "doseTrack.criticalWarningDelta":
+      "{{critical}} critical / {{warning}} warning",
     "doseTrack.avgCtdiDelta": "Avg CTDI: {{value}} mGy",
     "doseTrack.refTitle": "Dose Reference:",
-    "doseTrack.refText": "Head CT DLP reference ~700-800 mGy·cm; chest CT ~400-600 mGy·cm; coronary CTA ~800-1200 mGy·cm; DSA coronary angiography ~2000-4000 mGy·m²; mammography ~3-6 mGy. Per Medical Exposure Radiation Protection Standard GBZ 130-2020, exams exceeding guidance levels should undergo patient dose optimization analysis. Regulatory thresholds are marked per national standards; the system auto-triggers alerts when thresholds are exceeded. AAPM references are based on AAPM recommendations; EU references are based on European Commission guidelines.",
-    "doseTrack.footerVersion": "DoseTrackPage v0.3.0 · G005-001 progressive modification spec · Last updated: 2026-05-03",
+    "doseTrack.refText":
+      "Head CT DLP reference ~700-800 mGy·cm; chest CT ~400-600 mGy·cm; coronary CTA ~800-1200 mGy·cm; DSA coronary angiography ~2000-4000 mGy·m²; mammography ~3-6 mGy. Per Medical Exposure Radiation Protection Standard GBZ 130-2020, exams exceeding guidance levels should undergo patient dose optimization analysis. Regulatory thresholds are marked per national standards; the system auto-triggers alerts when thresholds are exceeded. AAPM references are based on AAPM recommendations; EU references are based on European Commission guidelines.",
+    "doseTrack.footerVersion":
+      "DoseTrackPage v0.3.0 · G005-001 progressive modification spec · Last updated: 2026-05-03",
     "doseTrack.secondHalf": "H2",
     "doseTrack.firstHalf": "H1",
     "doseTrack.unknownDevice": "Unknown Device",
     "doseTrack.other": "Other",
-    "doseTrack.sourceReal": "Source: /rdsr/stats + /rdsr/patients + /rdsr/alerts (real API)",
-    "doseTrack.sourceDemo": "Source: demo fallback (rdsrApi unavailable, derived from mockData)",
+    "doseTrack.sourceReal":
+      "Source: /rdsr/stats + /rdsr/patients + /rdsr/alerts (real API)",
+    "doseTrack.sourceDemo":
+      "Source: demo fallback (rdsrApi unavailable, derived from mockData)",
     "doseTrack.updatedAt": "Updated at {{time}}",
     "doseTrack.trendTitle": "Dose Trend (last 30 days)",
     "doseTrack.trendMeta": "Total {{total}} exams · Peak CTDIvol",
@@ -28969,9 +29583,12 @@ export const translations: Translations = {
     "doseTrack.maxCtdi": "Max CTDIvol:",
     "doseTrack.maxDlp": "Max DLP:",
     "doseTrack.warningCritical": "Warning {{warning}} · Critical {{critical}}",
-    "doseTrack.headCtdiReference": "Reference: adult head CT DLP ~700-800 mGy·cm",
-    "doseTrack.patientRankTitle": "Patient Cumulative Effective Dose Ranking TOP 10",
-    "doseTrack.patientRankSubtitle": "Sorted by cumulative DLP over 1 year · annual limit 20 mSv (≈1000 mGy·cm adult)",
+    "doseTrack.headCtdiReference":
+      "Reference: adult head CT DLP ~700-800 mGy·cm",
+    "doseTrack.patientRankTitle":
+      "Patient Cumulative Effective Dose Ranking TOP 10",
+    "doseTrack.patientRankSubtitle":
+      "Sorted by cumulative DLP over 1 year · annual limit 20 mSv (≈1000 mGy·cm adult)",
     "doseTrack.examCount": "{{count}} exams",
     "doseTrack.overCount": "Over {{count}}",
     "doseTrack.drlOverTitle": "DRL Exceedance List (by device)",
@@ -28979,65 +29596,85 @@ export const translations: Translations = {
     "doseTrack.overLabel": "Over",
     "doseTrack.casesUnit": "cases",
     "doseTrack.avgExceed": "Avg exceed",
-    "doseTrack.drlNote": "Per GBZ 130-2020 medical radiation protection standard: exams exceeding guidance levels (DRL) should undergo dose optimization analysis; devices with an exceedance rate > 12% should be prioritized for optimization.",
+    "doseTrack.drlNote":
+      "Per GBZ 130-2020 medical radiation protection standard: exams exceeding guidance levels (DRL) should undergo dose optimization analysis; devices with an exceedance rate > 12% should be prioritized for optimization.",
     "doseTrack.typeCompareTitle": "Exam Type Dose Comparison",
-    "doseTrack.typeCompareSubtitle": "Avg DLP comparison · red bars exceed limits",
+    "doseTrack.typeCompareSubtitle":
+      "Avg DLP comparison · red bars exceed limits",
     "doseTrack.avgDlpShort": "Avg DLP",
     "doseTrack.examVolume": "Exam Volume",
-    "doseTrack.compareRange": "Comparison range: {{count}} exam types · chest plain scan reference 400-600 mGy·cm",
+    "doseTrack.compareRange":
+      "Comparison range: {{count}} exam types · chest plain scan reference 400-600 mGy·cm",
     "doseTrack.redAboveNormal": "Red = above normal level",
     "doseTrack.monthlyTrendTitle": "DRL Exceedance Monthly Trend",
     "doseTrack.monthlyTrendSubtitle": "Exceedances in last 6 months",
     "doseTrack.quarterOnQuarter": "Quarter-on-quarter",
-    "doseTrack.optimizationTarget": "Optimization target: monthly exceedances ≤ 5",
+    "doseTrack.optimizationTarget":
+      "Optimization target: monthly exceedances ≤ 5",
     "doseTrack.alertCompositionTitle": "Alert Level Composition",
     "doseTrack.levelCritical": "Critical (≥2×DRL)",
     "doseTrack.levelWarning": "Warning (1-2×DRL)",
     "doseTrack.levelNormal": "Normal (<DRL)",
-    "doseTrack.criticalExists": "{{count}} critical dose cases found; review scanning protocols immediately",
+    "doseTrack.criticalExists":
+      "{{count}} critical dose cases found; review scanning protocols immediately",
     "doseTrack.noCriticalWarning": "No critical dose alerts currently",
     "doseTrack.optimizationTitle": "Dose Optimization Suggestions",
     "doseTrack.sug1Title": "Head CT Plain Scan Protocol Review",
-    "doseTrack.sug1Desc": "Head exams averaged DLP {{dlp}} mGy·cm over 30 days; verify scan range and kVp settings",
+    "doseTrack.sug1Desc":
+      "Head exams averaged DLP {{dlp}} mGy·cm over 30 days; verify scan range and kVp settings",
     "doseTrack.sug2Title": "Coronary CTA Heart Rate Control",
-    "doseTrack.sug2Desc": "For patients with HR >75bpm, consider β-blockers before scanning to reduce dose by ~20%",
+    "doseTrack.sug2Desc":
+      "For patients with HR >75bpm, consider β-blockers before scanning to reduce dose by ~20%",
     "doseTrack.sug3Title": "Pediatric Protocol Initiative",
-    "doseTrack.sug3Desc": "Pediatric exams should use age/weight-grouped protocols; current pediatric protocol usage rate {{rate}}%",
+    "doseTrack.sug3Desc":
+      "Pediatric exams should use age/weight-grouped protocols; current pediatric protocol usage rate {{rate}}%",
     "doseTrack.sug4Title": "DSA Fluoroscopy Time Control",
-    "doseTrack.sug4Desc": "DSA average fluoroscopy time is long; enable dose report pages and time-limit prompts",
+    "doseTrack.sug4Desc":
+      "DSA average fluoroscopy time is long; enable dose report pages and time-limit prompts",
     "doseTrack.priorityHigh": "High",
     "doseTrack.priorityMedium": "Medium",
     "doseTrack.prioritySuffix": "{{priority}} priority",
     "doseTrack.deviceLevelTitle": "Device Average Dose Levels",
-    "doseTrack.deviceLevelSubtitle": "Average DLP / CTDIvol per device over last 30 days",
+    "doseTrack.deviceLevelSubtitle":
+      "Average DLP / CTDIvol per device over last 30 days",
     "doseTrack.referenceLine": "Reference line (DRL 550)",
     "doseTrack.dashedLine": "Dashed = 550 mGy·cm (DRL reference line)",
     "doseTrack.redExceed": "Red = exceeds reference line",
     "doseTrack.reviewListTitle": "Repeat Patient Cumulative Dose Watch List",
-    "doseTrack.reviewListSubtitle": "Multiple exams within 30 days · cumulative dose approaching/exceeding annual limit (adult 20 mSv ≈ 1000 mGy·cm)",
+    "doseTrack.reviewListSubtitle":
+      "Multiple exams within 30 days · cumulative dose approaching/exceeding annual limit (adult 20 mSv ≈ 1000 mGy·cm)",
     "doseTrack.cumulativeHigh": "High 30-day cumulative",
     "doseTrack.cumulative30d": "30-day cumulative DLP",
     "doseTrack.cumulative1y": "1-year cumulative DLP",
-    "doseTrack.reviewNote": "Per GBZ 130-2020: for patients repeatedly receiving high-dose exams, the system should generate cumulative dose reminders and advise physicians to evaluate exam necessity.",
-    "doseTrack.dataSourceLine": "Source: /rdsr/today + /rdsr/patients + /rdsr/alerts (real API) · Date",
+    "doseTrack.reviewNote":
+      "Per GBZ 130-2020: for patients repeatedly receiving high-dose exams, the system should generate cumulative dose reminders and advise physicians to evaluate exam necessity.",
+    "doseTrack.dataSourceLine":
+      "Source: /rdsr/today + /rdsr/patients + /rdsr/alerts (real API) · Date",
     "doseTrack.apiErrorPrefix": "Dose API unavailable: {{error}};",
-    "doseTrack.demoDataNote": "Demo data (rdsrApi returned nothing, fell back to mockData)",
+    "doseTrack.demoDataNote":
+      "Demo data (rdsrApi returned nothing, fell back to mockData)",
     "tplCategory.levelModality": "Modality",
     "tplCategory.levelBodyPart": "Body Part",
     "tplCategory.levelDisease": "Disease",
     "tplCategory.nameRequired": "Please enter the category name",
     "tplCategory.updateFailed": "Update failed",
     "tplCategory.createFailed": "Creation failed",
-    "tplCategory.serviceUnavailableSave": "Category service unavailable, saved locally (note: pending backend sync)",
-    "tplCategory.confirmDelete": "Delete category \"{{name}}\"? Its subcategories will remain as static display.",
+    "tplCategory.serviceUnavailableSave":
+      "Category service unavailable, saved locally (note: pending backend sync)",
+    "tplCategory.confirmDelete":
+      'Delete category "{{name}}"? Its subcategories will remain as static display.',
     "tplCategory.deleteFailed": "Deletion failed",
-    "tplCategory.serviceUnavailableRemove": "Category service unavailable, removed locally (note: pending backend sync)",
-    "tplCategory.movedSuccess": "Category \"{{name}}\" moved after target category (sortOrder={{order}})",
-    "tplCategory.serviceUnavailableReorder": "Category service unavailable, reordered locally (note: pending backend sync)",
+    "tplCategory.serviceUnavailableRemove":
+      "Category service unavailable, removed locally (note: pending backend sync)",
+    "tplCategory.movedSuccess":
+      'Category "{{name}}" moved after target category (sortOrder={{order}})',
+    "tplCategory.serviceUnavailableReorder":
+      "Category service unavailable, reordered locally (note: pending backend sync)",
     "tplCategory.title": "Template Category Management",
     "tplCategory.realtimeTag": "/templates/categories live",
     "tplCategory.staticTag": "Local static (backend unavailable, fallback)",
-    "tplCategory.subtitle": "Three-level category management of standard template categories by Modality → Body Part → Disease",
+    "tplCategory.subtitle":
+      "Three-level category management of standard template categories by Modality → Body Part → Disease",
     "tplCategory.realCategories": "({{count}} real categories)",
     "tplCategory.staticData": "(static data)",
     "tplCategory.newCategory": "New Category",
@@ -29057,7 +29694,8 @@ export const translations: Translations = {
     "tplCategory.deleteCategory": "Delete Category",
     "tplCategory.move": "Move",
     "tplCategory.subCategories": "Subcategories ({{count}})",
-    "tplCategory.templateList": "Template List (own {{own}} / all descendants {{all}})",
+    "tplCategory.templateList":
+      "Template List (own {{own}} / all descendants {{all}})",
     "tplCategory.statusEnabled": "Enabled",
     "tplCategory.statusPending": "Pending Approval",
     "tplCategory.statusRejected": "Rejected",
@@ -29065,21 +29703,25 @@ export const translations: Translations = {
     "tplCategory.noTemplates": "No templates in this category",
     "tplCategory.createFirstTemplate": "Create First Template",
     "tplCategory.categoryPath": "Category Path",
-    "tplCategory.selectCategoryHint": "Please select a category on the left to view details",
+    "tplCategory.selectCategoryHint":
+      "Please select a category on the left to view details",
     "tplCategory.editCategoryWithName": "Edit Category · {{name}}",
     "tplCategory.nameLabel": "Category Name *",
     "tplCategory.namePlaceholder": "e.g. CT / MR / MG / Special Exam",
     "tplCategory.descriptionLabel": "Category Description",
-    "tplCategory.descriptionPlaceholder": "Usage description of templates in this category (optional)",
+    "tplCategory.descriptionPlaceholder":
+      "Usage description of templates in this category (optional)",
     "tplCategory.sortOrderLabel": "Sort Order",
-    "tplCategory.localFallbackHint": "Currently in local fallback mode: saves take effect locally only; re-sync when the backend /templates/categories is available.",
+    "tplCategory.localFallbackHint":
+      "Currently in local fallback mode: saves take effect locally only; re-sync when the backend /templates/categories is available.",
     "tplCategory.cancel": "Cancel",
     "tplCategory.saving": "Saving...",
     "tplCategory.saveCategory": "Save Category",
     "tplCategory.moveCategory": "Move Category",
     "tplCategory.moveTargetLabel": "Move after target category",
     "tplCategory.moveTopOption": "Top (first)",
-    "tplCategory.moveHint": "Note: the backend category DTO has no parent field; moving will adjust sortOrder and reorder locally (note: hierarchy move pending backend support).",
+    "tplCategory.moveHint":
+      "Note: the backend category DTO has no parent field; moving will adjust sortOrder and reorder locally (note: hierarchy move pending backend support).",
     "tplCategory.moving": "Moving...",
     "tplCategory.confirmMove": "Confirm Move",
     "dentalAligner.planCreated": "Aligner plan created",
@@ -29137,21 +29779,33 @@ export const translations: Translations = {
     "dentalAligner.notWorn": "To be worn",
     "dicomViewer.all": "All",
     "dicomViewer.loadStudiesFailed": "Failed to load study list",
-    "dicomViewer.noTargetReport": "No target report specified: include ?reportId= or enter from the report writing page imaging entry",
-    "dicomViewer.noAnnotations": "No annotations yet — use arrow/length/ellipse tools to annotate the image then send",
-    "dicomViewer.annotationsSent": "Sent {{count}} image annotations to the report (view under Report Image Annotations)",
+    "dicomViewer.noTargetReport":
+      "No target report specified: include ?reportId= or enter from the report writing page imaging entry",
+    "dicomViewer.noAnnotations":
+      "No annotations yet — use arrow/length/ellipse tools to annotate the image then send",
+    "dicomViewer.annotationsSent":
+      "Sent {{count}} image annotations to the report (view under Report Image Annotations)",
     "dicomViewer.annotationSendFailed": "Failed to send annotations",
-    "dicomViewer.annotationSendNetworkError": "Failed to send annotations: network error",
-    "dicomViewer.mipGenerateFailed": "Failed to generate MIP image, please retry",
-    "dicomViewer.mipCacheFailed": "Failed to write MIP cache, please retry later",
-    "dicomViewer.mipGenerated": "MIP generated and cached, redirecting to report writing page for auto-insert",
-    "dicomViewer.noAiFindings": "No AI findings for this study (possibly no matching model)",
+    "dicomViewer.annotationSendNetworkError":
+      "Failed to send annotations: network error",
+    "dicomViewer.mipGenerateFailed":
+      "Failed to generate MIP image, please retry",
+    "dicomViewer.mipCacheFailed":
+      "Failed to write MIP cache, please retry later",
+    "dicomViewer.mipGenerated":
+      "MIP generated and cached, redirecting to report writing page for auto-insert",
+    "dicomViewer.noAiFindings":
+      "No AI findings for this study (possibly no matching model)",
     "dicomViewer.aiLoadFailed": "Failed to load AI findings",
-    "dicomViewer.storageUnavailable": "Browser storage unavailable, cannot cache AI findings",
-    "dicomViewer.aiCached": "Cached {{count}} AI findings, redirecting to report writing page for auto-insert",
+    "dicomViewer.storageUnavailable":
+      "Browser storage unavailable, cannot cache AI findings",
+    "dicomViewer.aiCached":
+      "Cached {{count}} AI findings, redirecting to report writing page for auto-insert",
     "dicomViewer.noAiFindingsToInsert": "No AI findings to insert",
-    "dicomViewer.noHangingProtocol": "No matching hanging protocol for current modality",
-    "dicomViewer.hangingApplied": "Hanging protocol applied: {{name}} ({{rows}}×{{cols}})",
+    "dicomViewer.noHangingProtocol":
+      "No matching hanging protocol for current modality",
+    "dicomViewer.hangingApplied":
+      "Hanging protocol applied: {{name}} ({{rows}}×{{cols}})",
     "dicomViewer.noHanging": "No hanging (single viewport)",
     "dicomViewer.recommended": "Recommended",
     "dicomViewer.title": "DICOM Professional Viewer",
@@ -29166,7 +29820,8 @@ export const translations: Translations = {
     "dicomViewer.sendAnnotationsCount": "Send {{count}} annotations to report",
     "dicomViewer.sendAnnotations": "Send Annotations to Report",
     "dicomViewer.sendToReport": "Send to Report",
-    "dicomViewer.sendMipTitle": "Generate a MIP screenshot from the current study/series and send to report (auto-insert caption)",
+    "dicomViewer.sendMipTitle":
+      "Generate a MIP screenshot from the current study/series and send to report (auto-insert caption)",
     "dicomViewer.sendMip": "Send MIP to Report",
     "dicomViewer.lesionTracking": "Lesion Tracking",
     "dicomViewer.seriesCount": "{{count}} series",
@@ -29186,13 +29841,17 @@ export const translations: Translations = {
     "aiDraft.unknownPatient": "Unknown Patient",
     "aiDraft.chest": "Chest",
     "aiDraft.imagingExam": "Imaging Exam",
-    "aiDraft.clinicalHistoryTemplate": "{{patient}} {{modality}}-{{bodyPart}} exam; please generate a draft report based on imaging findings",
+    "aiDraft.clinicalHistoryTemplate":
+      "{{patient}} {{modality}}-{{bodyPart}} exam; please generate a draft report based on imaging findings",
     "aiDraft.demoPatient": "Demo Patient",
-    "aiDraft.enterHistory": "Please enter clinical history or select an AI scenario template",
-    "aiDraft.noExamRecord": "No exam record available for drafting; please select a patient/exam first",
+    "aiDraft.enterHistory":
+      "Please enter clinical history or select an AI scenario template",
+    "aiDraft.noExamRecord":
+      "No exam record available for drafting; please select a patient/exam first",
     "aiDraft.callingAi": "Calling AI service to generate report draft...",
     "aiDraft.stageAnalyze": "Analyzing clinical history...",
-    "aiDraft.stageMatch": "Matching similar historical cases and terminology norms...",
+    "aiDraft.stageMatch":
+      "Matching similar historical cases and terminology norms...",
     "aiDraft.stageGenerate": "AI model generating content...",
     "aiDraft.stageTemplate": "Applying department template structure...",
     "aiDraft.scenarioLlm": "LLM Generated ({{provider}})",
@@ -29200,17 +29859,23 @@ export const translations: Translations = {
     "aiDraft.smartGenerate": "Smart Generate",
     "aiDraft.aiGenerateFailed": "AI generation failed",
     "aiDraft.generationComplete": "Generation complete!",
-    "aiDraft.serviceUnavailable": "AI service unavailable, fell back to offline template: {{message}}",
-    "aiDraft.missingExamRecord": "Missing exam record, cannot create report draft",
-    "aiDraft.draftGenerated": "Report draft generated · Report No. {{reportId}}",
-    "aiDraft.createDraftFailed": "Failed to create report draft: network error, please retry later",
-    "aiDraft.jumpDraftFailed": "Jumped to report writing page · draft creation failed",
+    "aiDraft.serviceUnavailable":
+      "AI service unavailable, fell back to offline template: {{message}}",
+    "aiDraft.missingExamRecord":
+      "Missing exam record, cannot create report draft",
+    "aiDraft.draftGenerated":
+      "Report draft generated · Report No. {{reportId}}",
+    "aiDraft.createDraftFailed":
+      "Failed to create report draft: network error, please retry later",
+    "aiDraft.jumpDraftFailed":
+      "Jumped to report writing page · draft creation failed",
     "aiDraft.draftSaved": "Draft saved as real report · ID {{id}}",
     "aiDraft.saveFailed": "Save failed, please retry later",
     "aiDraft.title": "AI One-Click Auto Draft",
     "aiDraft.realDataHint": "Real data · patients/exams from API",
     "aiDraft.demoDataHint": "Demo data · patient dropdown uses demo samples",
-    "aiDraft.subtitle": "Based on clinical history + imaging features + similar historical cases · one-click standardized report draft",
+    "aiDraft.subtitle":
+      "Based on clinical history + imaging features + similar historical cases · one-click standardized report draft",
     "aiDraft.llmModel": "LLM Model",
     "aiDraft.selectPatientExam": "Select Patient / Exam",
     "aiDraft.loading": "Loading…",
@@ -29220,20 +29885,24 @@ export const translations: Translations = {
     "aiDraft.deviceLabel": "Device:",
     "aiDraft.examDateLabel": "Exam Date:",
     "aiDraft.clinicalHistory": "Clinical History",
-    "aiDraft.historyPlaceholder": "e.g. 55-year-old male, right lung nodule found on physical exam for 1 week. No cough, sputum, chest pain, or fever...",
+    "aiDraft.historyPlaceholder":
+      "e.g. 55-year-old male, right lung nodule found on physical exam for 1 week. No cough, sputum, chest pain, or fever...",
     "aiDraft.charCount": "{{count}} chars",
     "aiDraft.llmAndRag": "LLM Model & RAG",
     "aiDraft.providerMockEngine": "Deterministic Template Engine",
     "aiDraft.providerDeepseek": "DeepSeek (not configured)",
     "aiDraft.notConfiguredKey": " (API Key not configured)",
     "aiDraft.ragEnhance": "RAG enhancement (retrieve prior reports as context)",
-    "aiDraft.modelNotConfigured": "Selected model has no API Key configured; fell back to deterministic template generation",
+    "aiDraft.modelNotConfigured":
+      "Selected model has no API Key configured; fell back to deterministic template generation",
     "aiDraft.scenarioTemplate": "AI Scenario Templates",
     "aiDraft.confidence": "confidence",
     "aiDraft.generating": "Generating {{progress}}%",
     "aiDraft.generateButton": "One-Click Generate AI Report Draft",
-    "aiDraft.emptyTitle": "Enter clinical history or select an AI scenario template",
-    "aiDraft.emptyHint": "Click \"One-Click Generate\" to auto-generate a report draft",
+    "aiDraft.emptyTitle":
+      "Enter clinical history or select an AI scenario template",
+    "aiDraft.emptyHint":
+      'Click "One-Click Generate" to auto-generate a report draft',
     "aiDraft.scenarioLabel": "AI Scenario:",
     "aiDraft.sourcesCount": "referencing {{count}} sources",
     "aiDraft.ragReports": "{{count}} prior reports",
@@ -29257,13 +29926,15 @@ export const translations: Translations = {
     "blockchain.syncing": "Syncing...",
     "blockchain.sourceApi": "Source: derived from audit events",
     "blockchain.sourceDemo": "Demo data (no backend proof endpoint)",
-    "blockchain.subtitle": "State Cryptography Alliance Chain (GMCA) · SHA-256 report hash · Merkle root · 6 confirmations · block explorer",
+    "blockchain.subtitle":
+      "State Cryptography Alliance Chain (GMCA) · SHA-256 report hash · Merkle root · 6 confirmations · block explorer",
     "blockchain.caSignature": "CA Signature",
     "blockchain.statTotal": "Total Proofs",
     "blockchain.statConfirmed": "Confirmed",
     "blockchain.statPending": "Pending",
     "blockchain.statLatestBlock": "Latest Block",
-    "blockchain.searchPlaceholder": "Search report ID / tx hash / report hash...",
+    "blockchain.searchPlaceholder":
+      "Search report ID / tx hash / report hash...",
     "blockchain.filterAll": "All",
     "blockchain.filterConfirmed": "Confirmed",
     "blockchain.filterPending": "Pending",
@@ -29288,14 +29959,17 @@ export const translations: Translations = {
     "blockchain.passLine4": "• Signer identity valid",
     "blockchain.passLine5": "• On-chain time {{time}}",
     "blockchain.verifyFailed": "Verification Failed",
-    "blockchain.failLine1": "• Record status is Invalid or hash does not match local consistency recomputation",
-    "blockchain.failLine2": "• This proof may have been tampered with; do not use as judicial evidence",
+    "blockchain.failLine1":
+      "• Record status is Invalid or hash does not match local consistency recomputation",
+    "blockchain.failLine2":
+      "• This proof may have been tampered with; do not use as judicial evidence",
     "blockchain.blockStructure": "Block Structure",
     "blockchain.blockHeader": "Block Header",
     "blockchain.prevHash": "Previous Hash",
     "blockchain.timestamp": "Timestamp",
     "blockchain.difficultyNonce": "Difficulty/Nonce",
-    "blockchain.blockSummary": "Current block contains {{count}} report proof transactions · 6-node consensus completed",
+    "blockchain.blockSummary":
+      "Current block contains {{count}} report proof transactions · 6-node consensus completed",
     "blockchain.copy": "Copy",
     "worklistToolbar.ptOutpatient": "Outpatient",
     "worklistToolbar.ptInpatient": "Inpatient",
@@ -29313,7 +29987,8 @@ export const translations: Translations = {
     "worklistToolbar.stCompleted": "Completed",
     "worklistToolbar.stCancelled": "Cancelled",
     "worklistToolbar.searchFilter": "Search filters",
-    "worklistToolbar.searchPlaceholder": "Search patient name / exam no. / exam item...",
+    "worklistToolbar.searchPlaceholder":
+      "Search patient name / exam no. / exam item...",
     "worklistToolbar.date": "Date",
     "worklistToolbar.to": "to",
     "worklistToolbar.advancedFilter": "Advanced Filters",
@@ -29341,7 +30016,8 @@ export const translations: Translations = {
     "worklistToolbar.qvCompleted": "Completed",
     "worklistToolbar.qvEmergency": "Emergency First",
     "worklistToolbar.qvToday": "Today",
-    "worklistToolbar.scanPlaceholder": "Scan or enter exam barcode / exam no...",
+    "worklistToolbar.scanPlaceholder":
+      "Scan or enter exam barcode / exam no...",
     "worklistToolbar.processing": "Processing...",
     "worklistToolbar.checkIn": "Check In",
     "worklistToolbar.printLabel": "Print Label",
@@ -29399,7 +30075,8 @@ export const translations: Translations = {
     "patientFinance.claimRejected": "Rejected",
     "patientFinance.claimPaid": "Paid",
     "patientFinance.patientIdRequired": "Please enter patient ID",
-    "patientFinance.chargeItemRequired": "Please select at least one charge item",
+    "patientFinance.chargeItemRequired":
+      "Please select at least one charge item",
     "patientFinance.invoiceCreated": "Invoice issued: {{id}} (¥{{amount}})",
     "patientFinance.invoiceFailed": "Invoice failed",
     "patientFinance.title": "Patient Finance",
@@ -29423,7 +30100,8 @@ export const translations: Translations = {
     "patientFinance.billList": "Bill List",
     "patientFinance.noPaymentRecords": "No payment records",
     "patientFinance.paidOfTotal": "Paid ¥{{paid}} / Total ¥{{total}}",
-    "patientFinance.claimAmounts": "Claim: ¥{{claim}} · Approved: ¥{{approved}}",
+    "patientFinance.claimAmounts":
+      "Claim: ¥{{claim}} · Approved: ¥{{approved}}",
     "patientFinance.submitted": "Submitted:",
     "patientFinance.rejectReason": "Rejection reason:",
     "patientFinance.issueInvoice": "Issue Invoice",
@@ -29463,7 +30141,8 @@ export const translations: Translations = {
     "radPath.pathResult": "Pathology Result",
     "radPath.reportIdPlaceholder": "Enter imaging report ID",
     "radPath.pathologyIdPlaceholder": "Enter pathology report ID",
-    "reviewCenter.summaryLoadFailed": "Failed to load review todo statistics, showing demo data",
+    "reviewCenter.summaryLoadFailed":
+      "Failed to load review todo statistics, showing demo data",
     "reviewCenter.currentUser": "Current User",
     "reviewCenter.approveInitialComment": "Approve initial review",
     "reviewCenter.approveFinalComment": "Approve final review",
@@ -29495,11 +30174,15 @@ export const translations: Translations = {
     "reviewCenter.authorLabel": "Author:",
     "reviewCenter.qualityScoreLabel": "Quality Score:",
     "reviewCenter.findingsLabel": "Findings:",
-    "reviewCenter.findingsText": "Imaging findings are consistent with the patient's clinical history; please correlate with laboratory results.",
+    "reviewCenter.findingsText":
+      "Imaging findings are consistent with the patient's clinical history; please correlate with laboratory results.",
     "reviewCenter.diagnosisLabel": "Diagnosis:",
-    "reviewCenter.criticalFindingText": "Critical value requires urgent handling",
-    "reviewCenter.diagnosisText": "Consider inflammation; follow-up recommended.",
-    "reviewCenter.criticalCosignHint": "Critical value detected; cosign recommended",
+    "reviewCenter.criticalFindingText":
+      "Critical value requires urgent handling",
+    "reviewCenter.diagnosisText":
+      "Consider inflammation; follow-up recommended.",
+    "reviewCenter.criticalCosignHint":
+      "Critical value detected; cosign recommended",
     "reviewCenter.noData": "No data",
     "mfaSetup.getSecretFailed": "Failed to get TOTP secret",
     "mfaSetup.enterCode": "Please enter the 6-digit code",
@@ -29526,17 +30209,20 @@ export const translations: Translations = {
     "mfaSetup.verify": "Verify",
     "mfaSetup.done": "Done",
     "mfaSetup.chooseMethod": "Choose an MFA method to enhance account security",
-    "mfaSetup.totpAuthenticator": "TOTP Authenticator (Google / Microsoft Authenticator)",
+    "mfaSetup.totpAuthenticator":
+      "TOTP Authenticator (Google / Microsoft Authenticator)",
     "mfaSetup.smsCode": "SMS Code",
     "mfaSetup.emailCode": "Email Code",
     "mfaSetup.nextStep": "Next",
-    "mfaSetup.scanHint": "Scan or manually enter the key with a TOTP authenticator",
+    "mfaSetup.scanHint":
+      "Scan or manually enter the key with a TOTP authenticator",
     "mfaSetup.toggleSecretLabel": "{{action}} Key",
     "mfaSetup.hide": "Hide",
     "mfaSetup.show": "Show",
     "mfaSetup.keyCopied": "Key copied",
     "mfaSetup.copyKey": "Copy Key",
-    "mfaSetup.inputSecretHint": "Enter this key in your authenticator app or scan the QR code",
+    "mfaSetup.inputSecretHint":
+      "Enter this key in your authenticator app or scan the QR code",
     "mfaSetup.smsSent": "SMS code sent to the bound phone",
     "mfaSetup.emailSent": "Code sent to the bound email",
     "mfaSetup.enterCodePlaceholder": "Enter 6-digit code",
@@ -29546,15 +30232,20 @@ export const translations: Translations = {
     "mfaSetup.currentSession": "Current session",
     "mfaSetup.backupCodesTitle": "Backup Recovery Codes",
     "mfaSetup.keepSafe": "Keep them safe",
-    "mfaSetup.backupCodesHint": "Each code can be used only once; store them in a safe place",
+    "mfaSetup.backupCodesHint":
+      "Each code can be used only once; store them in a safe place",
     "mfaSetup.copyBackupCodes": "Copy Backup Codes",
     "mfaSetup.disableMfaTitle": "Disable MFA",
     "mfaSetup.confirmDisable": "Confirm Disable",
-    "mfaSetup.disableHint": "Disabling MFA requires re-authentication. Please enter the current 6-digit TOTP code.",
-    "kiosk.notFound": "No matching patient found, please confirm the last 4 digits of the ID",
-    "kiosk.lookupUnavailable": "Lookup service unavailable, please try again later",
+    "mfaSetup.disableHint":
+      "Disabling MFA requires re-authentication. Please enter the current 6-digit TOTP code.",
+    "kiosk.notFound":
+      "No matching patient found, please confirm the last 4 digits of the ID",
+    "kiosk.lookupUnavailable":
+      "Lookup service unavailable, please try again later",
     "kiosk.checkInFailed": "Check-in failed, please try again later",
-    "kiosk.checkInUnavailable": "Check-in service unavailable, please try again later",
+    "kiosk.checkInUnavailable":
+      "Check-in service unavailable, please try again later",
     "kiosk.title": "Self Check-In",
     "kiosk.subtitle": "Enter the last 4 digits of your ID to check in",
     "kiosk.todayCount": "Today's Check-ins",
@@ -29564,7 +30255,8 @@ export const translations: Translations = {
     "kiosk.activeRooms": "Open Rooms",
     "kiosk.announcementLabel": "Kiosk Settings · Announcement",
     "kiosk.processLabel": "Today's Visit Process",
-    "kiosk.processSteps": "1 Enter last 4 digits of ID  →  2 Verify patient info  →  3 Get queue number  →  4 Proceed to waiting area",
+    "kiosk.processSteps":
+      "1 Enter last 4 digits of ID  →  2 Verify patient info  →  3 Get queue number  →  4 Proceed to waiting area",
     "kiosk.idPlaceholder": "Last 4 digits",
     "kiosk.querying": "Searching...",
     "kiosk.confirmCheckIn": "Confirm Check-In",
@@ -29633,9 +30325,11 @@ export const translations: Translations = {
     "riskMgmt.mitigationPlan": "Mitigation Measures",
     "riskMgmt.owner": "Owner",
     "fundusViewer.exportSummaryTitle": "Fundus Photo Viewer - Export Summary",
-    "fundusViewer.exportPatient": "Patient: {{name}}  Eye: {{eye}}  Device: {{device}}",
+    "fundusViewer.exportPatient":
+      "Patient: {{name}}  Eye: {{eye}}  Device: {{device}}",
     "fundusViewer.exportExam": "Exam Type: {{type}}  Exam Date: {{date}}",
-    "fundusViewer.exportCounts": "Measurements: {{measure}}  Lesions: {{lesion}}  Key Images: {{key}}",
+    "fundusViewer.exportCounts":
+      "Measurements: {{measure}}  Lesions: {{lesion}}  Key Images: {{key}}",
     "fundusViewer.exportAi": "AI Diagnoses: {{count}}",
     "fundusViewer.loadingData": "Loading fundus image data...",
     "fundusViewer.noData": "No fundus image data",
@@ -29644,7 +30338,8 @@ export const translations: Translations = {
     "fundusViewer.export": "Export",
     "fundusViewer.imageArea": "Fundus Image Area ({{name}})",
     "fundusViewer.sampleLesionTag": "Sample Lesion Annotation",
-    "fundusViewer.sampleLesionHint": "Demo data · no lesion segmentation from API; local samples below",
+    "fundusViewer.sampleLesionHint":
+      "Demo data · no lesion segmentation from API; local samples below",
     "fundusViewer.lesionOpticDisc": "Optic Disc C/D 0.55",
     "fundusViewer.lesionMicroaneurysm": "Microaneurysms ×8",
     "fundusViewer.lesionHemorrhage": "Hemorrhages ×2",
@@ -29669,10 +30364,14 @@ export const translations: Translations = {
     "octViewer.fovea": "Fovea",
     "octViewer.loadFailed": "Failed to load study list",
     "octViewer.loadFailedDetail": "Failed to load OCT study list",
-    "octViewer.measureHint": "Click two points on the image in sequence to measure the distance (example scale 560px 6000μm)",
-    "octViewer.measureReset": "Two points already recorded; click Measure to restart",
-    "octViewer.measureResultMsg": "Distance: {{um}}μm ({{px}}px, example-scale conversion)",
-    "octViewer.measureSecondPoint": "First point selected; click the second point on the image",
+    "octViewer.measureHint":
+      "Click two points on the image in sequence to measure the distance (example scale 560px 6000μm)",
+    "octViewer.measureReset":
+      "Two points already recorded; click Measure to restart",
+    "octViewer.measureResultMsg":
+      "Distance: {{um}}μm ({{px}}px, example-scale conversion)",
+    "octViewer.measureSecondPoint":
+      "First point selected; click the second point on the image",
     "octViewer.title": "OCT Viewer",
     "octViewer.retry": "Retry",
     "octViewer.studyList": "OCT Study List",
@@ -29681,8 +30380,10 @@ export const translations: Translations = {
     "octViewer.frameCount": "{{count}} frames",
     "octViewer.bScan": "B-Scan Tomography",
     "octViewer.measure": "Measure",
-    "octViewer.measureResultAlert": "Result: {{um}}μm ({{px}}px) · example scale 560px 6000μm (no real scale data on page; derived from synthetic image)",
-    "octViewer.measureToolEnabled": "Measurement tool enabled: click two points on the image to measure distance (example scale 560px 6000μm; click Measure to restart)",
+    "octViewer.measureResultAlert":
+      "Result: {{um}}μm ({{px}}px) · example scale 560px 6000μm (no real scale data on page; derived from synthetic image)",
+    "octViewer.measureToolEnabled":
+      "Measurement tool enabled: click two points on the image to measure distance (example scale 560px 6000μm; click Measure to restart)",
     "octViewer.scanMode": "Scan Mode",
     "octViewer.centralThickness": "Foveal Thickness",
     "octViewer.avgRnf": "Avg RNFL Thickness",
@@ -29766,7 +30467,8 @@ export const translations: Translations = {
     "receiverPortal.networkError": "Network error",
     "receiverPortal.acknowledged": "Acknowledged: {{name}}",
     "receiverPortal.ackFailed": "Acknowledgement failed",
-    "receiverPortal.doctorRequired": "Please enter the confirming physician name",
+    "receiverPortal.doctorRequired":
+      "Please enter the confirming physician name",
     "receiverPortal.receiptSubmitted": "Clinical receipt submitted",
     "receiverPortal.receiptFailed": "Receipt failed",
     "receiverPortal.colPatient": "Patient",
@@ -29785,7 +30487,8 @@ export const translations: Translations = {
     "receiverPortal.refresh": "Refresh",
     "receiverPortal.pendingNotifications": "Pending Notifications",
     "receiverPortal.todayNotifications": "Today's Notifications",
-    "receiverPortal.sourceHint": "Receiver portal data source: GET /critical-ext/receiver (backend criticalValueNotification status=PENDING). Acknowledgement and clinical receipt are written directly to the critical value record.",
+    "receiverPortal.sourceHint":
+      "Receiver portal data source: GET /critical-ext/receiver (backend criticalValueNotification status=PENDING). Acknowledgement and clinical receipt are written directly to the critical value record.",
     "receiverPortal.listTitle": "Critical Values to Receive",
     "receiverPortal.noPending": "No critical value notifications to receive",
     "receiverPortal.submitReceipt": "Submit Receipt",
@@ -29793,7 +30496,8 @@ export const translations: Translations = {
     "receiverPortal.criticalValue": "Critical Value",
     "receiverPortal.confirmDoctor": "Confirming Physician *",
     "receiverPortal.clinicalComment": "Clinical Comment / Notes",
-    "receiverPortal.clinicalCommentPlaceholder": "Please enter clinical handling comments",
+    "receiverPortal.clinicalCommentPlaceholder":
+      "Please enter clinical handling comments",
     "dentalShared.noData": "No data",
     "dentalShared.create": "New",
     "dentalShared.followUpScheduled": "Follow-up scheduled: {{name}}",
@@ -29832,12 +30536,17 @@ export const translations: Translations = {
     "mobilePush.testBodyDefault": "This is a test push message",
     "mobilePush.notification": "Notification",
     "mobilePush.pushEnabled": "Push notifications enabled (browser push)",
-    "mobilePush.subscribeFailed": "Subscription failed: browser or backend push channel unavailable",
-    "mobilePush.pushDenied": "Push notifications denied, please allow notifications in system settings",
+    "mobilePush.subscribeFailed":
+      "Subscription failed: browser or backend push channel unavailable",
+    "mobilePush.pushDenied":
+      "Push notifications denied, please allow notifications in system settings",
     "mobilePush.pushUnsupported": "Browser does not support push notifications",
     "mobilePush.allMarkedRead": "All marked as read",
     "mobilePush.deleted": "Deleted",
     "mobilePush.allCleared": "All notifications cleared",
+    "mobilePush.markReadFailed": "Failed to mark as read",
+    "mobilePush.deleteFailed": "Failed to delete notification",
+    "mobilePush.partialCleared": "Cleared, but {n} item(s) failed to delete",
     "mobilePush.testPushSent": "Test push sent",
     "mobilePush.title": "Mobile Push Management",
     "mobilePush.subtitle": "Push config · History · Test",
@@ -29860,7 +30569,8 @@ export const translations: Translations = {
     "mobilePush.formBody": "Content",
     "mobilePush.sendTestPush": "Send Test Push",
     "mobilePush.subscriptionTypes": "Push Subscription Types",
-    "mobilePush.subscriptionHint": "Subscription settings sync with the Notification Center (GET/PUT /notifications/subscriptions); critical value notifications are always recommended.",
+    "mobilePush.subscriptionHint":
+      "Subscription settings sync with the Notification Center (GET/PUT /notifications/subscriptions); critical value notifications are always recommended.",
     "mobilePush.category": "Category:",
     "mobilePush.filterAll": "All",
     "mobilePush.totalPrefix": "Total",
@@ -29869,13 +30579,18 @@ export const translations: Translations = {
     "mobilePush.clear": "Clear",
     "mobilePush.noNotifications": "No push notifications",
     "mobilePush.configTitle": "Push Configuration Notes",
-    "mobilePush.configLine1": "- Critical value notifications: push critical exam results in real time, requiring immediate handling",
-    "mobilePush.configLine2": "- Report completed: pushed to the requesting physician after report review",
-    "mobilePush.configLine3": "- Appointment reminder: pushed 30 minutes before the scheduled exam",
-    "mobilePush.configLine4": "- System announcement: system maintenance and update notifications",
+    "mobilePush.configLine1":
+      "- Critical value notifications: push critical exam results in real time, requiring immediate handling",
+    "mobilePush.configLine2":
+      "- Report completed: pushed to the requesting physician after report review",
+    "mobilePush.configLine3":
+      "- Appointment reminder: pushed 30 minutes before the scheduled exam",
+    "mobilePush.configLine4":
+      "- System announcement: system maintenance and update notifications",
     "userCenter.loadUserInfoFailed": "Failed to load user info",
     "userCenter.passwordMismatch": "The two new passwords do not match",
-    "userCenter.passwordChanged": "Password changed successfully. Please log in again with the new password.",
+    "userCenter.passwordChanged":
+      "Password changed successfully. Please log in again with the new password.",
     "userCenter.passwordChangeFailed": "Password change failed",
     "userCenter.logoutFailed": "Logout request failed, local session cleared",
     "userCenter.defaultDepartment": "Radiology",
@@ -29892,7 +30607,8 @@ export const translations: Translations = {
     "userCenter.userId": "User ID",
     "userCenter.totpLabel": "TOTP Two-Factor Authentication",
     "userCenter.logoutConfirm": "Confirm sign out?",
-    "userCenter.logoutConfirmDesc": "You will need to log in again to continue using the system.",
+    "userCenter.logoutConfirmDesc":
+      "You will need to log in again to continue using the system.",
     "userCenter.logoutOk": "Sign Out",
     "userCenter.cancel": "Cancel",
     "userCenter.logout": "Sign Out",
@@ -29906,11 +30622,13 @@ export const translations: Translations = {
     "userCenter.newPasswordMax": "New password cannot exceed 128 characters",
     "userCenter.newPasswordPlaceholder": "At least 8 characters",
     "userCenter.confirmNewPassword": "Confirm New Password",
-    "userCenter.confirmNewPasswordRequired": "Please enter the new password again",
+    "userCenter.confirmNewPasswordRequired":
+      "Please enter the new password again",
     "userCenter.confirmNewPasswordPlaceholder": "Enter the new password again",
     "userCenter.confirmChange": "Confirm Change",
     "userCenter.securityInfo": "Security Information",
-    "userCenter.sessionInvalidated": "All logged-in sessions will be invalidated after changing the password. Please log in again.",
+    "userCenter.sessionInvalidated":
+      "All logged-in sessions will be invalidated after changing the password. Please log in again.",
     "dimseUpload.destS3": "S3-compatible Object Storage",
     "dimseUpload.destVna": "VNA Archive",
     "dimseUpload.destPacs": "Local PACS",
@@ -29925,17 +30643,21 @@ export const translations: Translations = {
     "dimseUpload.statusUploading": "Uploading",
     "dimseUpload.statusSuccess": "Success",
     "dimseUpload.statusFail": "Failed",
-    "dimseUpload.refreshRestored": "Refresh complete, restored {{count}} records from local storage",
+    "dimseUpload.refreshRestored":
+      "Refresh complete, restored {{count}} records from local storage",
     "dimseUpload.noSavedRecords": "No saved upload records locally",
-    "dimseUpload.storageReadFailed": "Failed to read local storage, list cleared",
+    "dimseUpload.storageReadFailed":
+      "Failed to read local storage, list cleared",
     "dimseUpload.readFile": "Reading file...",
     "dimseUpload.parseDicom": "Parsing DICOM header...",
     "dimseUpload.uploadingTo": "Uploading to {{dest}}...",
     "dimseUpload.uploadSuccess": "{{name}} uploaded successfully",
     "dimseUpload.uploadFailed": "Upload failed",
-    "dimseUpload.uploadFailedRetry": "Upload failed, please check network and retry",
+    "dimseUpload.uploadFailedRetry":
+      "Upload failed, please check network and retry",
     "dimseUpload.title": "DIMSE Archive Upload",
-    "dimseUpload.alert": "Upload DICOM files to archive storage: supports standard .dcm format, with real-time progress across read / parse / upload stages",
+    "dimseUpload.alert":
+      "Upload DICOM files to archive storage: supports standard .dcm format, with real-time progress across read / parse / upload stages",
     "dimseUpload.statTotal": "Total Uploads",
     "dimseUpload.statSuccess": "Success",
     "dimseUpload.statFail": "Failed",
@@ -29947,7 +30669,8 @@ export const translations: Translations = {
     "dimseUpload.refresh": "Refresh",
     "dimseUpload.recordsTitle": "Upload Records ({{count}})",
     "dimseUpload.removeConfirm": "Remove this record?",
-    "dimseUpload.emptyText": "No upload records yet, please select a .dcm file to upload",
+    "dimseUpload.emptyText":
+      "No upload records yet, please select a .dcm file to upload",
     "snomedEncoder.noMatch": "No SNOMED CT code matched",
     "snomedEncoder.encodeFailed": "Encoding failed",
     "snomedEncoder.encodeRequestFailed": "Encoding request failed",
@@ -29966,7 +30689,8 @@ export const translations: Translations = {
     "snomedEncoder.matchPartial": "Partial",
     "snomedEncoder.matchSuggested": "Suggested",
     "snomedEncoder.title": "SNOMED CT Smart Encoder",
-    "snomedEncoder.subtitle": "Automatically maps radiology report text to SNOMED CT standard terminology codes, with exact/partial matching and confidence scoring",
+    "snomedEncoder.subtitle":
+      "Automatically maps radiology report text to SNOMED CT standard terminology codes, with exact/partial matching and confidence scoring",
     "snomedEncoder.statMatched": "Matched Codes",
     "snomedEncoder.statExact": "Exact Matches",
     "snomedEncoder.statPartial": "Partial Matches",
@@ -29975,18 +30699,23 @@ export const translations: Translations = {
     "snomedEncoder.encoding": "Encoding...",
     "snomedEncoder.encode": "SNOMED Encode",
     "snomedEncoder.confirmAllCount": "Confirm All ({{count}})",
-    "snomedEncoder.textPlaceholder": "Enter radiology report text, e.g.:\nA ground-glass nodule about 8mm is seen in the upper lobe of the right lung with clear margins and uniform density. No obvious abnormality in the left lung.",
-    "snomedEncoder.charCount": "{{count}} chars | Chinese and English radiology reports supported",
+    "snomedEncoder.textPlaceholder":
+      "Enter radiology report text, e.g.:\nA ground-glass nodule about 8mm is seen in the upper lobe of the right lung with clear margins and uniform density. No obvious abnormality in the left lung.",
+    "snomedEncoder.charCount":
+      "{{count}} chars | Chinese and English radiology reports supported",
     "snomedEncoder.confirmedCountLabel": "Confirmed {{confirmed}}/{{total}}",
     "snomedEncoder.searchTitle": "SNOMED CT Term Search",
-    "snomedEncoder.searchPlaceholder": "Search SNOMED CT terms, e.g. nodule, fracture, pneumonia",
+    "snomedEncoder.searchPlaceholder":
+      "Search SNOMED CT terms, e.g. nodule, fracture, pneumonia",
     "snomedEncoder.search": "Search",
     "snomedEncoder.added": "Added: {{name}}",
     "snomedEncoder.noTermMatch": "No matching SNOMED CT term found",
     "snomedEncoder.results": "Encoding Results",
     "snomedEncoder.codeCount": "{{count}} codes",
-    "fhirObs.detailLoadFailed": "Failed to load observation details, showing list data",
-    "fhirObs.listLoadFailed": "Failed to load observation list, using demo data",
+    "fhirObs.detailLoadFailed":
+      "Failed to load observation details, showing list data",
+    "fhirObs.listLoadFailed":
+      "Failed to load observation list, using demo data",
     "fhirObs.colId": "ID",
     "fhirObs.colStatus": "Status",
     "fhirObs.colCode": "Code",
@@ -30006,7 +30735,8 @@ export const translations: Translations = {
     "fhirObs.interpretation": "Interpretation",
     "fhirObs.noData": "No data",
     "realDicom.histogramLoaded": "Histogram loaded",
-    "realDicom.histogramFallback": "Backend histogram unreachable, fell back to local computation",
+    "realDicom.histogramFallback":
+      "Backend histogram unreachable, fell back to local computation",
     "realDicom.selectStudyFirst": "Please select a study first",
     "realDicom.saved": "Saved",
     "realDicom.title": "Ophthalmic DICOM Viewer",
@@ -30061,7 +30791,8 @@ export const translations: Translations = {
     "pam.assignedLocation": "Assigned Location",
     "pam.send": "Send",
     "pam.ackResponse": "ACK Response",
-    "pam.ackHint": "The HL7 ACK response will be displayed here after sending a PAM message",
+    "pam.ackHint":
+      "The HL7 ACK response will be displayed here after sending a PAM message",
     "pam.tabAudit": "PAM Audit Log",
     "pam.refresh": "Refresh",
     "pam.messageRecords": "PAM Message Records",
@@ -30114,7 +30845,8 @@ export const translations: Translations = {
     "eyeAi.studyIdLabel": "Study ID (studyId)",
     "eyeAi.studyIdPlaceholder": "e.g. ST001",
     "eyeAi.modelPrefix": "Model:",
-    "eyeAi.inferenceResultHint": "Inference results will be written to the diagnosis list",
+    "eyeAi.inferenceResultHint":
+      "Inference results will be written to the diagnosis list",
     "eyeAi.studyIdRequired": "Please enter Study ID (studyId)",
     "eyeAi.inferenceFailed": "Inference failed",
     "eyeAi.inferenceFailedUnavailable": "Inference failed, service unavailable",
@@ -30154,7 +30886,8 @@ export const translations: Translations = {
     "deptDash.sevCritical": "Critical",
     "deptDash.sevUrgent": "Urgent",
     "deptDash.sevHigh": "High",
-    "deptDash.loadFailed": "Failed to load BI data, please check your network and retry",
+    "deptDash.loadFailed":
+      "Failed to load BI data, please check your network and retry",
     "deptDash.doctor": "Physician",
     "deptDash.reportCount": "Reports",
     "deptDash.rvuWorkload": "RVU Workload",
@@ -30223,7 +30956,8 @@ export const translations: Translations = {
     "dicomViewer.measure.area": "Area",
     "dicomViewer.measure.cobb": "Cobb Angle",
     "dicomViewer.measure.polygon": "Polygon Area",
-    "dicomViewer.selectInstitution": "Please select an external institution first",
+    "dicomViewer.selectInstitution":
+      "Please select an external institution first",
     "dicomViewer.enterSearchCriteria": "Please enter search criteria",
     "dicomViewer.noMatchingExam": "No matching exam records found",
     "dicomViewer.requesting": "Requesting...",
@@ -30324,8 +31058,10 @@ export const translations: Translations = {
     "visionExam.conversion": "4-Notation Conversion",
     "visionExam.saveRecord": "Save Record",
     "visionExam.historyTitle": "Exam History",
-    "visionExam.emptyHistory": "No exam records yet; they will appear here after saving",
-    "fhirSub.detailLoadFail": "Failed to load subscription details, showing list data",
+    "visionExam.emptyHistory":
+      "No exam records yet; they will appear here after saving",
+    "fhirSub.detailLoadFail":
+      "Failed to load subscription details, showing list data",
     "fhirSub.listLoadFail": "Failed to load subscription list, using demo data",
     "fhirSub.createSuccess": "Subscription created",
     "fhirSub.createFail": "Creation failed",
@@ -30409,7 +31145,8 @@ export const translations: Translations = {
     "sysAdmin.role.admin": "Administrator",
     "sysAdmin.editRolePerms": "Edit Role Permissions",
     "sysAdmin.okSave": "Save",
-    "sysAdmin.permsPlaceholder": "Permissions separated by commas, e.g. Report Signing, Critical Value Handling, QC Review",
+    "sysAdmin.permsPlaceholder":
+      "Permissions separated by commas, e.g. Report Signing, Critical Value Handling, QC Review",
     "auditComp.loadFail": "Load failed",
     "auditComp.colId": "ID",
     "auditComp.colUser": "User",
@@ -30555,7 +31292,8 @@ export const translations: Translations = {
     "aiRads.patientId": "Patient ID",
     "aiRads.startScoring": "Start Scoring",
     "aiRads.loadHistory": "Load History",
-    "aiRads.localFallback": "Backend scoring unavailable, fell back to local rules",
+    "aiRads.localFallback":
+      "Backend scoring unavailable, fell back to local rules",
     "aiRads.insertToReport": "Insert into Report",
     "aiRads.localTag": "Local rule fallback",
     "aiRads.backendTag": "Backend rules",
@@ -30563,9 +31301,11 @@ export const translations: Translations = {
     "aiRads.ruleSourceLocal": "Rule source: Local",
     "aiRads.insertSuccess": "RADS scoring paragraph sent to report editor",
     "aiRads.historyFail": "Failed to load history",
-    "aiRads.biradsHint": "BI-RADS breast grading: select features and submit; the system grades automatically by features (supports biradsCategory directly)",
+    "aiRads.biradsHint":
+      "BI-RADS breast grading: select features and submit; the system grades automatically by features (supports biradsCategory directly)",
     "aiRads.title": "AI Reading Assistant V3 — Multi-RADS Auto Scoring",
-    "aiRads.insertTooltip": "Scoring result generates a report paragraph, inserted into the editor via the insertHtml channel",
+    "aiRads.insertTooltip":
+      "Scoring result generates a report paragraph, inserted into the editor via the insertHtml channel",
     "aiRads.insertTitleHtml": "AI Imaging-assisted Grading",
     "aiRads.col.level": "Level",
     "aiRads.col.description": "Description",
@@ -30669,7 +31409,8 @@ export const translations: Translations = {
     "hangProto.confirmDelete": "Delete this protocol?",
     "hangProto.title": "Auto-layout Protocol Management",
     "hangProto.applyReading": "Apply to Reading",
-    "hangProto.applyDesc": "The reading workflow is wired to this page's protocol rules: the professional DICOM viewer (/dicom-viewer) provides a \"Hanging Protocol\" dropdown (auto-matching and highlighting by current exam modality/body part) and an \"Auto Hang\" button; once applied it splits the screen per protocol layout (1×1/1×2/2×1/2×2) and assigns series.",
+    "hangProto.applyDesc":
+      'The reading workflow is wired to this page\'s protocol rules: the professional DICOM viewer (/dicom-viewer) provides a "Hanging Protocol" dropdown (auto-matching and highlighting by current exam modality/body part) and an "Auto Hang" button; once applied it splits the screen per protocol layout (1×1/1×2/2×1/2×2) and assigns series.',
     "hangProto.autoMatchExample": "Auto-match example (CT + chest):",
     "hangProto.openViewer": "Open Professional Viewer",
     "hangProto.matchTest": "Match Test",
@@ -30683,7 +31424,8 @@ export const translations: Translations = {
     "hangProto.form.priority": "Priority",
     "hangProto.form.layoutTemplate": "Layout Template",
     "hangProto.form.seriesOrder": "Series Order (separated by /, one per cell)",
-    "hangProto.form.seriesOrderPh": "e.g. Axial-Lung / Axial-Mediastinum / Coronal / Sagittal",
+    "hangProto.form.seriesOrderPh":
+      "e.g. Axial-Lung / Axial-Mediastinum / Coronal / Sagittal",
     "hangProto.form.description": "Description",
     "hangProto.form.descriptionPh": "Protocol description",
     "hangProto.form.enabled": "Enabled",
@@ -30691,7 +31433,8 @@ export const translations: Translations = {
     "hangProto.match.title": "Match Test: Exam → Layout Preview",
     "hangProto.match.seriesCount": "Series Count",
     "hangProto.match.seriesDesc": "Series Description (optional, / separated)",
-    "hangProto.match.seriesDescPh": "e.g. Axial-Lung / Axial-Mediastinum / Coronal",
+    "hangProto.match.seriesDescPh":
+      "e.g. Axial-Lung / Axial-Mediastinum / Coronal",
     "hangProto.match.start": "Start Matching",
     "hangProto.match.result": "Match Result:",
     "hangProto.match.noMatch": "No matching protocol",
@@ -30755,7 +31498,8 @@ export const translations: Translations = {
     "fusionMgr.patientRequired": "Please enter patient ID",
     "fusionMgr.seriesLoadFail": "Failed to load series, using demo data",
     "fusionMgr.selectBoth": "Please select both fixed and moving series",
-    "fusionMgr.registerUnavailable": "Registration service unavailable, using demo result",
+    "fusionMgr.registerUnavailable":
+      "Registration service unavailable, using demo result",
     "fusionMgr.registerFirst": "Please complete registration first",
     "fusionMgr.renderDone": "Fusion rendering complete",
     "fusionMgr.renderUnavailable": "Fusion rendering service unavailable",
@@ -30792,8 +31536,10 @@ export const translations: Translations = {
     "fusionMgr.status.failed": "Failed",
     "fusionMgr.dice": "Dice Coefficient",
     "fusionMgr.emptyHint": "Enter a patient ID and load series",
-    "fhirReport.detailLoadFail": "Failed to load diagnostic report details, showing list data",
-    "fhirReport.listLoadFail": "Failed to load diagnostic report list, using demo data",
+    "fhirReport.detailLoadFail":
+      "Failed to load diagnostic report details, showing list data",
+    "fhirReport.listLoadFail":
+      "Failed to load diagnostic report list, using demo data",
     "fhirReport.col.id": "ID",
     "fhirReport.col.status": "Status",
     "fhirReport.col.code": "Code",
@@ -30830,7 +31576,8 @@ export const translations: Translations = {
     "fhirReport.attachmentsCount": "{{count}} attachments",
     "fhirReport.empty": "No data",
     "hl7Siu.patientRequired": "Please enter patient ID",
-    "hl7Siu.completeRequired": "Please complete required fields (patient ID/name/doctor/department/schedule time)",
+    "hl7Siu.completeRequired":
+      "Please complete required fields (patient ID/name/doctor/department/schedule time)",
     "hl7Siu.generated": "SIU^S12 message generated",
     "hl7Siu.generateFirst": "Please generate a message first",
     "hl7Siu.sendFail": "Send failed",
@@ -30915,7 +31662,8 @@ export const translations: Translations = {
     "mllpMon.col.retry": "Retries",
     // [W-D3] HL7 Message Console (/hl7/console)
     "hl7Console.title": "HL7 Message Console",
-    "hl7Console.subtitle": "ORU/ORM/DFT send · MLLP service · Whitelist · Message log (real backend /hl7/*)",
+    "hl7Console.subtitle":
+      "ORU/ORM/DFT send · MLLP service · Whitelist · Message log (real backend /hl7/*)",
     "hl7Console.refresh": "Refresh",
     "hl7Console.loadFailed": "Failed to load HL7 console data",
     "hl7Console.retry": "Retry",
@@ -30944,13 +31692,15 @@ export const translations: Translations = {
     "hl7Console.mllp.messages": "Messages",
     "hl7Console.mllp.uptime": "Uptime",
     "hl7Console.composer.title": "Message Composer",
-    "hl7Console.composer.hint": "Edit the HL7 v2 message (MSH/PID/ORC/OBR/OBX/FT1). On send it is parsed into a structured payload for /hl7/oru|orm|dft",
+    "hl7Console.composer.hint":
+      "Edit the HL7 v2 message (MSH/PID/ORC/OBR/OBX/FT1). On send it is parsed into a structured payload for /hl7/oru|orm|dft",
     "hl7Console.composer.ph": "Type HL7 message here...",
     "hl7Console.composer.resetTemplate": "Reset Template",
     "hl7Console.composer.charCount": "{{count}} chars",
     "hl7Console.composer.send": "Send",
     "hl7Console.composer.sending": "Sending...",
-    "hl7Console.composer.resultTitle": "{{type}} sent · {{controlId}} · {{bytes}} bytes",
+    "hl7Console.composer.resultTitle":
+      "{{type}} sent · {{controlId}} · {{bytes}} bytes",
     "hl7Console.sent": "{{type}} message sent: {{controlId}}",
     "hl7Console.sendFailed": "Failed to send message",
     "hl7Console.stats.title": "Stats Overview (/hl7/overview)",
@@ -30999,10 +31749,12 @@ export const translations: Translations = {
     "aiAssist.loadDraftFail": "Failed to load historical draft",
     "aiAssist.generateFail": "Generation failed, please retry later",
     "aiAssist.generated": "AI draft generated",
-    "aiAssist.generateFailNet": "Generation failed, please check your network and retry",
+    "aiAssist.generateFailNet":
+      "Generation failed, please check your network and retry",
     "aiAssist.copied": "Copied to clipboard",
     "aiAssist.copyFail": "Copy failed, please select text manually",
-    "aiAssist.acceptSuccess": "Draft accepted, you can paste it into the report editor",
+    "aiAssist.acceptSuccess":
+      "Draft accepted, you can paste it into the report editor",
     "aiAssist.acceptFail": "Accept failed",
     "aiAssist.title": "AI Assistant",
     "aiAssist.opFail": "Operation failed",
@@ -31013,9 +31765,11 @@ export const translations: Translations = {
     "aiAssist.form.bodyPart": "Body Part",
     "aiAssist.form.clinicalInfo": "Clinical Information",
     "aiAssist.validate.clinicalInfo": "Please enter clinical description",
-    "aiAssist.ph.clinicalInfo": "e.g. Male, 65y, cough for 2 weeks, low fever, denies smoking, CT shows ground-glass nodule in right upper lobe.",
+    "aiAssist.ph.clinicalInfo":
+      "e.g. Male, 65y, cough for 2 weeks, low fever, denies smoking, CT shows ground-glass nodule in right upper lobe.",
     "aiAssist.form.findings": "Imaging Findings Keywords",
-    "aiAssist.ph.findings": "e.g. Ground-glass nodule in right upper lobe, well-defined, ~8mm; remaining lung fields clear.",
+    "aiAssist.ph.findings":
+      "e.g. Ground-glass nodule in right upper lobe, well-defined, ~8mm; remaining lung fields clear.",
     "aiAssist.form.style": "Writing Style",
     "aiAssist.style.concise": "Concise",
     "aiAssist.style.standard": "Standard",
@@ -31028,8 +31782,10 @@ export const translations: Translations = {
     "aiAssist.draftTitle": "AI Generated Draft",
     "aiAssist.copyAll": "Copy All",
     "aiAssist.acceptDraft": "Accept Draft",
-    "aiAssist.analyzing": "AI is analyzing the clinical description and generating a draft...",
-    "aiAssist.emptyDraft": "Enter a clinical description and click \"Generate Suggested Draft\"",
+    "aiAssist.analyzing":
+      "AI is analyzing the clinical description and generating a draft...",
+    "aiAssist.emptyDraft":
+      'Enter a clinical description and click "Generate Suggested Draft"',
     "aiAssist.stat.confidence": "Overall Confidence",
     "aiAssist.stat.modelVersion": "Model Version",
     "aiAssist.stat.status": "Status",
@@ -31093,11 +31849,15 @@ export const translations: Translations = {
     "reportRev.change.modified": "Modified",
     "reportRev.change.added": "Added",
     "reportRev.change.deleted": "Deleted",
-    "reportRev.apiUnavailable": "reportApi unavailable, showing built-in demo revision data",
+    "reportRev.apiUnavailable":
+      "reportApi unavailable, showing built-in demo revision data",
     "reportRev.unknownUser": "Unknown User",
-    "reportRev.noTrail": "No reports with revision records found, showing demo data",
-    "reportRev.loadFail": "Failed to load revision data, fell back to demo data",
-    "reportRev.notifyUnavailable": "Notification service unavailable, marked locally (pending resend)",
+    "reportRev.noTrail":
+      "No reports with revision records found, showing demo data",
+    "reportRev.loadFail":
+      "Failed to load revision data, fell back to demo data",
+    "reportRev.notifyUnavailable":
+      "Notification service unavailable, marked locally (pending resend)",
     "reportRev.withdrawTitle": "Confirm Withdraw Report",
     "reportRev.withdrawOk": "Confirm Withdraw",
     "reportRev.cancel": "Cancel",
@@ -31111,7 +31871,8 @@ export const translations: Translations = {
     "reportRev.syncing": "Syncing...",
     "reportRev.sourceApi": "Source: reportApi.auditTrail/diff live",
     "reportRev.sourceDemo": "Demo data (API unavailable)",
-    "reportRev.subtitle": "Revision trail · Version Diff · Addendum/Erratum · Patient Notification",
+    "reportRev.subtitle":
+      "Revision trail · Version Diff · Addendum/Erratum · Patient Notification",
     "reportRev.createRevision": "Create Revision/Addendum",
     "reportRev.backToList": "Back to Report List",
     "reportRev.revisedReports": "Revised Reports ({{count}})",
@@ -31138,14 +31899,16 @@ export const translations: Translations = {
     "reportRev.rightVersion": "Right:",
     "reportRev.before": "Before",
     "reportRev.after": "After",
-    "reportRev.mergedView": "Merged View (red=deleted green=added black=unchanged)",
+    "reportRev.mergedView":
+      "Merged View (red=deleted green=added black=unchanged)",
     "reportRev.changesList": "Revision Changes ({{count}} items)",
     "reportRev.previewFinal": "Preview Final",
     "reportRev.sending": "Sending...",
     "reportRev.notifyPatient": "Notify Patient",
     "reportRev.withdrawing": "Withdrawing...",
     "reportRev.withdrawReport": "Withdraw Report",
-    "reportRev.selectReportHint": "Please select a report with revisions from the left",
+    "reportRev.selectReportHint":
+      "Please select a report with revisions from the left",
     "reportRev.finalPreview": "Final Preview",
     "reportRev.patient": "Patient:",
     "reportRev.reviser": "Reviser:",
@@ -31156,7 +31919,8 @@ export const translations: Translations = {
     "reportRev.revisionReason": "Revision Reason:",
     "reportRev.confirmAddendum": "Confirm Addendum",
     "reportRev.addendumNoteLabel": "Revision Note (required)",
-    "reportRev.addendumPlaceholder": "e.g. Supplement critical value note / correct diagnosis / add imaging supplement",
+    "reportRev.addendumPlaceholder":
+      "e.g. Supplement critical value note / correct diagnosis / add imaging supplement",
     "reportRev.empty": "(Empty)",
     "docMobile.status.pending": "Pending Report",
     "docMobile.status.reading": "Reporting",
@@ -31205,7 +31969,8 @@ export const translations: Translations = {
     "docMobile.ackReceive": "Acknowledge",
     "docMobile.noReports": "No reports",
     "docMobile.noDescription": "No description",
-    "docMobile.reviewSyncFail": "Approval sync failed ({{reason}}), retry available",
+    "docMobile.reviewSyncFail":
+      "Approval sync failed ({{reason}}), retry available",
     "docMobile.reviewAction": "Review (Approve / Reject)",
     "docMobile.noReviews": "No reports pending approval",
     "docMobile.statsTitle": "Today's Work Statistics ({{date}})",
@@ -31220,7 +31985,8 @@ export const translations: Translations = {
     "docMobile.nav.bell": "Messages",
     "docMobile.reviewModalTitle": "Report Review",
     "docMobile.rejectReasonLabel": "Rejection Reason (required when rejecting)",
-    "docMobile.rejectPlaceholder": "e.g. Imaging description incomplete, please supplement...",
+    "docMobile.rejectPlaceholder":
+      "e.g. Imaging description incomplete, please supplement...",
     "docMobile.submitting": "Submitting...",
     "docMobile.reject": "Reject",
     "docMobile.approve": "Approve",
@@ -31239,7 +32005,8 @@ export const translations: Translations = {
     "contrastSafety.blocker.NO_CONSENT": "Informed consent missing",
     "contrastSafety.blocker.ALLERGY_POSITIVE": "Allergy test positive",
     "contrastSafety.blocker.EGFR_BELOW_THRESHOLD": "eGFR below threshold",
-    "contrastSafety.blocker.PREGNANCY": "Iodinated contrast contraindicated in pregnancy",
+    "contrastSafety.blocker.PREGNANCY":
+      "Iodinated contrast contraindicated in pregnancy",
     "contrastSafety.allergyRecord": "Allergy Test Record",
     "contrastSafety.allergyRecorded": "Allergy test recorded",
     "contrastSafety.result.negative": "Negative",
@@ -31264,11 +32031,15 @@ export const translations: Translations = {
     "contrastSafety.discharged": "Discharged",
     "contrastSafety.records": "Observation Records",
     "contrastSafety.noRecords": "No observation records",
-    "contrastSafety.durationNotMet": "Observation duration not met; doctor release required",
-    "contrastSafety.injectionBlocked": "Pre-injection check failed, injection blocked",
+    "contrastSafety.durationNotMet":
+      "Observation duration not met; doctor release required",
+    "contrastSafety.injectionBlocked":
+      "Pre-injection check failed, injection blocked",
     "contrastSafety.injectSent": "Injection command sent to device",
-    "contrastSafety.observationStarted": "Observation started, 30 minutes by default",
-    "contrastSafety.observationDischarged": "Observation ended, discharge confirmed",
+    "contrastSafety.observationStarted":
+      "Observation started, 30 minutes by default",
+    "contrastSafety.observationDischarged":
+      "Observation ended, discharge confirmed",
     "contrastSafety.observationIdOptional": "Observation ID (optional)",
     "contrastSafety.observationLinked": "Linked to observation record",
     // [v3.0.6.11-106 Wave 2D] Operations dashboards / AI case library / P1 endpoint UI
@@ -31439,7 +32210,8 @@ export const translations: Translations = {
     "notifExt.channel.EMAIL": "Email",
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
-    "demoFallback.title": "Backend errors detected; {count} data source(s) may show demo data",
+    "demoFallback.title":
+      "Backend errors detected; {count} data source(s) may show demo data",
     "demoFallback.dismiss": "Got it",
     "demoFallback.detailLabel": "Show affected endpoints",
     "demoFallback.more": "… and {count} more",
@@ -31511,7 +32283,8 @@ export const translations: Translations = {
     // [G005 v3.0.6.11-106 Wave 2A] Imaging Compare
     "nav.imagingCompare": "Imaging Compare",
     "imagingCompare.title": "Imaging Compare",
-    "imagingCompare.subtitle": "Multi-timepoint / multi-series / multi-modality side-by-side",
+    "imagingCompare.subtitle":
+      "Multi-timepoint / multi-series / multi-modality side-by-side",
     "imagingCompare.patientSelect": "Patient",
     "imagingCompare.patientSearchPlaceholder": "Search patient name/ID...",
     "imagingCompare.search": "Search",
@@ -31562,8 +32335,10 @@ export const translations: Translations = {
     "imagingCompare.variance": "Variance",
     "imagingCompare.stdDev": "StdDev",
     "imagingCompare.realData": "Backend derived",
-    "imagingCompare.diffHint": "Metrics derived from deterministic pixels, consistent with viewport",
-    "imagingCompare.hint": "Drag to adjust WW/WL · Shift+drag to pan · Wheel to flip frame · Ctrl+wheel to zoom · Click viewport to activate",
+    "imagingCompare.diffHint":
+      "Metrics derived from deterministic pixels, consistent with viewport",
+    "imagingCompare.hint":
+      "Drag to adjust WW/WL · Shift+drag to pan · Wheel to flip frame · Ctrl+wheel to zoom · Click viewport to activate",
     "nav.dicomVolume": "3D Volume Rendering",
     "nav.wsiViewer": "Pathology WSI Viewer", // [v3.0.6.11-106 Wave 2B] whole-slide image browsing & annotation
     "nav.filmPrint": "Film Print",
@@ -33439,9 +34214,11 @@ export const translations: Translations = {
     "w17.sr.editMode": "Edit",
     "w17.sr.save": "Save",
     "w17.srPage.title": "Structured Report Editor V3",
-    "w17.srPage.subtitle": "WYSIWYG · 4-section structure (Findings/Impression/Recommendation/Conclusion) · Section lock & unlock request · Macros & sub-templates",
+    "w17.srPage.subtitle":
+      "WYSIWYG · 4-section structure (Findings/Impression/Recommendation/Conclusion) · Section lock & unlock request · Macros & sub-templates",
     "w17.srPage.reportIdLabel": "Report ID",
-    "w17.srPage.reportIdPlaceholder": "Enter report ID (blank = local edit only)",
+    "w17.srPage.reportIdPlaceholder":
+      "Enter report ID (blank = local edit only)",
     "w17.srPage.needReportId": "Please enter a report ID first",
     "w17.srPage.saveToReport": "Save to Report",
     "w17.srPage.saved": "Structured report saved",
@@ -33450,13 +34227,15 @@ export const translations: Translations = {
     "w17.srPage.unlockRequested": "Unlock request submitted",
     "w17.srPage.unlockLogTitle": "Unlock Request Log",
     "w17.asr.title": "Dictation Workbench V2",
-    "w17.asr.subtitle": "Start/Pause/Stop · Real-time text stream · Auto punctuation · Radiology hotwords · Voice commands",
+    "w17.asr.subtitle":
+      "Start/Pause/Stop · Real-time text stream · Auto punctuation · Radiology hotwords · Voice commands",
     "w17.asr.dictating": "Dictating... (real-time stream)",
     "w17.asr.paused": "Paused",
     "w17.asr.idle": "Ready - click Start to dictate",
     "w17.asr.session": "Session",
     "w17.asr.chars": "Chars",
-    "w17.asr.sessionHint": "Click start; a deterministic simulated stream emits text in real time",
+    "w17.asr.sessionHint":
+      "Click start; a deterministic simulated stream emits text in real time",
     "w17.asr.sessionEnded": "Dictation session ended",
     "w17.asr.reportIdPlaceholder": "Linked report ID (optional)",
     "w17.asr.start": "Start Dictation",
@@ -33465,7 +34244,8 @@ export const translations: Translations = {
     "w17.asr.resume": "Resume",
     "w17.asr.stop": "Stop",
     "w17.asr.realtimeText": "Real-time text stream",
-    "w17.asr.streamEmpty": "Waiting for speech... (mock stream appends a sentence every 1.6s)",
+    "w17.asr.streamEmpty":
+      "Waiting for speech... (mock stream appends a sentence every 1.6s)",
     "w17.asr.commandDetected": "Voice command detected",
     "w17.asr.sections": "Structured sections",
     "w17.asr.section.findings": "Findings",
@@ -33503,13 +34283,16 @@ export const translations: Translations = {
     "w17.asr.colType": "Type",
     "w17.asr.colActions": "Actions",
     "w17.coding.title": "SNOMED/ICD Auto Coding",
-    "w17.coding.subtitle": "Report text → diagnosis term extraction → SNOMED CT + ICD-10 suggestions → manual confirm → write into report",
+    "w17.coding.subtitle":
+      "Report text → diagnosis term extraction → SNOMED CT + ICD-10 suggestions → manual confirm → write into report",
     "w17.coding.input": "Report Text",
-    "w17.coding.inputPlaceholder": "Paste report text and click Extract (supports 【Findings】【Impression】【Conclusion】 sections)",
+    "w17.coding.inputPlaceholder":
+      "Paste report text and click Extract (supports 【Findings】【Impression】【Conclusion】 sections)",
     "w17.coding.encode": "Extract & Encode",
     "w17.coding.encoding": "Extracting...",
     "w17.coding.sample": "Load Sample",
-    "w17.coding.deterministic": "Deterministic rule engine · no external dependency",
+    "w17.coding.deterministic":
+      "Deterministic rule engine · no external dependency",
     "w17.coding.termList": "Extracted diagnosis terms",
     "w17.coding.confirmAll": "Confirm All",
     "w17.coding.clearAll": "Clear",
@@ -33518,10 +34301,12 @@ export const translations: Translations = {
     "w17.coding.section.impression": "Impression",
     "w17.coding.section.conclusion": "Conclusion",
     "w17.coding.section.unknown": "Unsectioned",
-    "w17.coding.noTerms": "No diagnosis terms extracted. Check text or extend the dictionary.",
+    "w17.coding.noTerms":
+      "No diagnosis terms extracted. Check text or extend the dictionary.",
     "w17.coding.writeTitle": "Write into report structured fields",
     "w17.coding.reportId": "Report ID",
-    "w17.coding.reportIdPlaceholder": "Enter report ID to write icd10/diagnosis fields",
+    "w17.coding.reportIdPlaceholder":
+      "Enter report ID to write icd10/diagnosis fields",
     "w17.coding.confirmedCount": "Confirmed codes",
     "w17.coding.writeToReport": "Write to Report",
     "w17.coding.copy": "Copy JSON",
@@ -33537,7 +34322,8 @@ export const translations: Translations = {
     "w17.coding.statsAvgConfidence": "Avg confidence",
     "w17.coding.statsSnomed": "SNOMED",
     "w17.coding.statsIcd10": "ICD-10",
-    "w17.coding.note": "Codes are generated by deterministic dictionary rules for reference only; they take effect only after manual confirmation by the reporting radiologist.",
+    "w17.coding.note":
+      "Codes are generated by deterministic dictionary rules for reference only; they take effect only after manual confirmation by the reporting radiologist.",
     "snomed.title": "SNOMED CT Coding",
     "snomed.subtitle": "Report Text → SNOMED CT Codes · Code Search",
     "snomed.reportInput": "Report Text Input",
@@ -33808,25 +34594,30 @@ export const translations: Translations = {
     "techRotation.legendTech": "Technician legend:",
     "techRotation.clickToRegister": "Click cell → register execution",
     "techRotation.noPlanEmpty": "No rotation plan",
-    "techRotation.balancePanel": "Workload Balance (cumulative load per technician)",
+    "techRotation.balancePanel":
+      "Workload Balance (cumulative load per technician)",
     "techRotation.cumulativeLoad": "Cumulative Load",
     "techRotation.planLoad": "Planned Load",
     "techRotation.noBalance": "No balance data",
-    "techRotation.diffSummary": "Max-min diff {{diff}} ≤ threshold {{threshold}}",
+    "techRotation.diffSummary":
+      "Max-min diff {{diff}} ≤ threshold {{threshold}}",
     "techRotation.judgement": "Verdict:",
     "techRotation.notBalanced": "Not balanced",
     "techRotation.techForecastTitle": "Technician-level Forecast · {{label}}",
     "techRotation.allTechs": "All technicians",
     "techRotation.noForecast": "No forecast",
-    "techRotation.forecastTitle": "Workload Forecast (last 7 days actual vs next {{days}} days + confidence band)",
-    "techRotation.modelSummary": "Model: {{model}} · 7-day total {{total}} ({{lower}} ~ {{upper}})",
+    "techRotation.forecastTitle":
+      "Workload Forecast (last 7 days actual vs next {{days}} days + confidence band)",
+    "techRotation.modelSummary":
+      "Model: {{model}} · 7-day total {{total}} ({{lower}} ~ {{upper}})",
     "techRotation.upperBound": "Upper bound",
     "techRotation.lowerBound": "Lower bound",
     "techRotation.actual": "Actual",
     "techRotation.forecast": "Forecast",
     "techRotation.today": "Today",
     "techRotation.noForecastData": "No forecast data",
-    "techRotation.periodTitle": "Per-period Forecast · {{date}} ({{count}} periods × all rooms)",
+    "techRotation.periodTitle":
+      "Per-period Forecast · {{date}} ({{count}} periods × all rooms)",
     "techRotation.periodLoad": "Forecast load",
     "techRotation.execTitle": "Rotation Execution Records ({{count}})",
     "techRotation.thDate": "Date",
@@ -33839,19 +34630,23 @@ export const translations: Translations = {
     "techRotation.executed": "Executed",
     "techRotation.skipped": "Skipped",
     "techRotation.mobile": "Floater",
-    "techRotation.noExec": "No execution records, click a Gantt cell to register",
+    "techRotation.noExec":
+      "No execution records, click a Gantt cell to register",
     "techRotation.execModalTitle": "Register Rotation Execution",
     "techRotation.execOk": "Register",
     "techRotation.cancel": "Cancel",
     "techRotation.execTech": "Technician:",
     "techRotation.execDate": "Date:",
-    "techRotation.execConfirmHint": "Confirm this shift was executed; it will be written to execution history.",
+    "techRotation.execConfirmHint":
+      "Confirm this shift was executed; it will be written to execution history.",
     "techRotation.loadHint": "load +{{load}} (before {{before}})",
-    "techRotation.generated": "Rotation plan generated: {{count}} assignments, balance {{result}}",
+    "techRotation.generated":
+      "Rotation plan generated: {{count}} assignments, balance {{result}}",
     "techRotation.balancedOk": "OK",
     "techRotation.balancedNo": "not OK",
     "techRotation.generateFailed": "Generation failed",
-    "techRotation.generateFailedDemo": "Generation failed, fell back to demo data",
+    "techRotation.generateFailedDemo":
+      "Generation failed, fell back to demo data",
     "techRotation.execRegistered": "Execution registered: {{name}} {{shift}}",
     "techRotation.execFailed": "Execution registration failed",
     "techRotation.shift.DAY": "Day",
@@ -33860,7 +34655,8 @@ export const translations: Translations = {
     "techRotation.shift.BACKUP": "Backup",
     // [v3.0.6.11-106 Wave 4B] Tech workstation V2: utilization + emergency insert + cross-room optimization (TechOpsPage)
     "techOps.title": "Tech Workstation V2 · Scheduling Optimization",
-    "techOps.subtitle": "Utilization history · Emergency insert · Cross-room scheduling",
+    "techOps.subtitle":
+      "Utilization history · Emergency insert · Cross-room scheduling",
     "techOps.refreshData": "Refresh data",
     "techOps.apiLive": "tech-ops API live",
     "techOps.demoData": "Demo data",
@@ -33876,8 +34672,10 @@ export const translations: Translations = {
     "techOps.crossDevicePeak": "Highest cross-device average",
     "techOps.dailyAvg": "Daily avg {{count}}",
     "techOps.utilTrendTitle": "Utilization Trend",
-    "techOps.trendNote1": "Daily utilization = average of hourly device utilization (0-100%)",
-    "techOps.trendNote2": "Holidays/weekends are significantly lower than weekdays",
+    "techOps.trendNote1":
+      "Daily utilization = average of hourly device utilization (0-100%)",
+    "techOps.trendNote2":
+      "Holidays/weekends are significantly lower than weekdays",
     "techOps.hourHeatmapTitle": "Hourly Utilization Heatmap (Device × 24h)",
     "techOps.thDevice": "Device",
     "techOps.thMean": "Mean",
@@ -33895,7 +34693,8 @@ export const translations: Translations = {
     "techOps.hourOccupy": "{{name}} {{hour}} occupied {{rate}}%",
     "techOps.clickForDetail": "· Click a cell for details",
     "techOps.emgInsertTitle": "Emergency Exam Insert",
-    "techOps.emgInsertDesc": "Pick modality & duration → get slot suggestions (ongoing / next free / spare device) → conflict check → adjustment plan",
+    "techOps.emgInsertDesc":
+      "Pick modality & duration → get slot suggestions (ongoing / next free / spare device) → conflict check → adjustment plan",
     "techOps.allDevices": "All devices",
     "techOps.duration": "Duration",
     "techOps.min": "min",
@@ -33903,7 +34702,8 @@ export const translations: Translations = {
     "techOps.examItem": "Exam item",
     "techOps.getSuggestions": "Get Slot Suggestions",
     "techOps.suggestionTitle": "Slot Suggestions",
-    "techOps.suggestionDesc": "(sorted by wait time; conflicts need confirmation before insert)",
+    "techOps.suggestionDesc":
+      "(sorted by wait time; conflicts need confirmation before insert)",
     "techOps.noSlot": "No available slots",
     "techOps.conflicts": "{{count}} conflicts",
     "techOps.noConflict": "No conflicts",
@@ -33933,14 +34733,15 @@ export const translations: Translations = {
     "techOps.none": "None",
     "techOps.adjustCount": "{{count}} plans",
     "techOps.optTitle": "Cross-Room Scheduling Optimization",
-    "techOps.optDesc": "Deterministic greedy: priority (STAT→URGENT→ROUTINE) + min wait + device match + technician availability",
+    "techOps.optDesc":
+      "Deterministic greedy: priority (STAT→URGENT→ROUTINE) + min wait + device match + technician availability",
     "techOps.loadDemoQueue": "Load Demo Queue",
     "techOps.reloadDemoQueue": "Reload Demo Queue",
     "techOps.runOptimize": "Run Optimization",
     "techOps.generatedAt": "Generated at {{time}}",
     "techOps.queueTitle": "Exam Queue",
     "techOps.itemCount": "({{count}} items)",
-    "techOps.loadQueueHint": "Click \"Load Demo Queue\"",
+    "techOps.loadQueueHint": 'Click "Load Demo Queue"',
     "techOps.thDuration": "Duration",
     "techOps.thArrival": "Arrival",
     "techOps.deviceMatrix": "Device/Room Matrix",
@@ -33954,7 +34755,8 @@ export const translations: Translations = {
     "techOps.notImproved": "Not improved",
     "techOps.savedMin": "Saved {{count}} minutes",
     "techOps.sameAsBefore": "Same as before",
-    "techOps.unassignedWarn": "{{count}} exams have no matching device (modality unavailable), unassigned: {{list}}",
+    "techOps.unassignedWarn":
+      "{{count}} exams have no matching device (modality unavailable), unassigned: {{list}}",
     "techOps.scheduleTitle": "Optimized Schedule",
     "techOps.assignCount": "({{count}} assignments)",
     "techOps.thWait": "Wait",
@@ -33962,8 +34764,10 @@ export const translations: Translations = {
     "techOps.confirmInsertTitle": "Confirm Emergency Insert",
     "techOps.confirmInsertOk": "Confirm Insert",
     "techOps.cancel": "Cancel",
-    "techOps.confirmInfo": "Device {{device}} · Start {{time}} · Duration {{minutes}} min",
-    "techOps.conflictWarn": "This slot conflicts with {{count}} exams; auto-adjustments will be applied after insert (defer / spare device).",
+    "techOps.confirmInfo":
+      "Device {{device}} · Start {{time}} · Duration {{minutes}} min",
+    "techOps.conflictWarn":
+      "This slot conflicts with {{count}} exams; auto-adjustments will be applied after insert (defer / spare device).",
     "techOps.noConflictOk": "No conflict in this slot, insert directly.",
     "techOps.insertResultTitle": "Insert Result",
     "techOps.close": "Close",
@@ -33977,7 +34781,8 @@ export const translations: Translations = {
     "techOps.thPlan": "Plan",
     "techOps.useSpare": "Use spare device",
     "techOps.keepUnchanged": "Unchanged",
-    "techOps.footnote": "G005 v3.0.6.11-106 Wave 4B · tech-ops module (falls back to deterministic seed when DB is unavailable) · API: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
+    "techOps.footnote":
+      "G005 v3.0.6.11-106 Wave 4B · tech-ops module (falls back to deterministic seed when DB is unavailable) · API: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
     "techOps.selectModality": "Please select a modality",
     "techOps.insertFailed": "Insert failed: {{msg}}",
     "techOps.unknownError": "Unknown error",
@@ -33987,10 +34792,12 @@ export const translations: Translations = {
     "techOps.priority.URGENT": "Urgent",
     "techOps.priority.ROUTINE": "Routine",
     // [v3.0.6.11-106 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard (TechOverviewPage)
-    "techOverview.title": "Tech Workstation V2 · Appointment Distribution & Duty Dashboard",
+    "techOverview.title":
+      "Tech Workstation V2 · Appointment Distribution & Duty Dashboard",
     "techOverview.apiLive": "tech-overview API live",
     "techOverview.demoData": "Demo data",
-    "techOverview.headerDesc": "Appointment distribution · Peak analysis · No-show rate · Duty dashboard",
+    "techOverview.headerDesc":
+      "Appointment distribution · Peak analysis · No-show rate · Duty dashboard",
     "techOverview.refreshData": "Refresh data",
     "techOverview.tabDistribution": "Appointment Distribution",
     "techOverview.tabDashboard": "Duty Dashboard",
@@ -33998,7 +34805,8 @@ export const translations: Translations = {
     "techOverview.kpiPeak": "Peak Period",
     "techOverview.kpiNoShowRate": "No-show Rate",
     "techOverview.kpiAttRate": "Attendance Rate",
-    "techOverview.daysWindow": "{{days}}-day window · deterministically derived",
+    "techOverview.daysWindow":
+      "{{days}}-day window · deterministically derived",
     "techOverview.peakSub": "Daily avg {{count}} · peak weekday {{day}}",
     "techOverview.attSub": "Attended {{count}} · no-show {{noShow}}",
     "techOverview.cancelSub": "Cancelled {{count}} · upcoming {{upcoming}}",
@@ -34007,7 +34815,8 @@ export const translations: Translations = {
     "techOverview.daysUnit": "{{days}}d",
     "techOverview.heatmapLegend": "Appointments:",
     "techOverview.peakLabel": "peak",
-    "techOverview.heatmapTotal": "· total {{count}} (each cell = appointments for that period/weekday)",
+    "techOverview.heatmapTotal":
+      "· total {{count}} (each cell = appointments for that period/weekday)",
     "techOverview.modalityDist": "Exam Type Distribution",
     "techOverview.modalityCount": "({{count}} types)",
     "techOverview.totalLabel": "Total appointments",
@@ -34016,7 +34825,8 @@ export const translations: Translations = {
     "techOverview.periodHint": "(red = peak period)",
     "techOverview.peakAnalysis": "Peak analysis:",
     "techOverview.attVsShow": "Appointments vs Attended · No-show Rate",
-    "techOverview.attHint": "(by exam type, no-show rate = no-show / (attended + no-show))",
+    "techOverview.attHint":
+      "(by exam type, no-show rate = no-show / (attended + no-show))",
     "techOverview.thExamType": "Exam Type",
     "techOverview.thApptCount": "Appointments",
     "techOverview.thAttended": "Attended",
@@ -34038,7 +34848,8 @@ export const translations: Translations = {
     "techOverview.autoRefresh": "10s auto-refresh · last sync {{time}}",
     "techOverview.refresh": "Refresh",
     "techOverview.streamTitle": "Real-Time Event Stream",
-    "techOverview.streamHint": "(room events of last 120 min · {{count}} items)",
+    "techOverview.streamHint":
+      "(room events of last 120 min · {{count}} items)",
     "techOverview.roomTech": "Technician",
     "techOverview.roomToday": "Today",
     "techOverview.roomQueue": "Queue",
@@ -34051,7 +34862,8 @@ export const translations: Translations = {
     "techOverview.idleWait": "Idle, ready for next exam",
     "techOverview.noEvents": "No events",
     "techOverview.noData": "No data",
-    "techOverview.periodCell": "{{weekday}} {{period}} · {{count}} appointments",
+    "techOverview.periodCell":
+      "{{weekday}} {{period}} · {{count}} appointments",
     "techOverview.roomState.IN_USE": "In Use",
     "techOverview.roomState.IDLE": "Idle",
     "techOverview.roomState.MAINTENANCE": "Maintenance",
@@ -34065,7 +34877,8 @@ export const translations: Translations = {
     "techOverview.event.MAINTENANCE": "Maintenance",
     // [v3.0.6.11-106 Wave 6A] Report QC rules engine (ReportRulesPage)
     "reportRules.title": "Report QC Rules Engine",
-    "reportRules.subtitle": "F11 · 18+ built-in radiology rules · custom rules · rulesets bound by exam type",
+    "reportRules.subtitle":
+      "F11 · 18+ built-in radiology rules · custom rules · rulesets bound by exam type",
     "reportRules.newRule": "New Custom Rule",
     "reportRules.kpiTotal": "Total Rules",
     "reportRules.kpiBuiltIn": "Built-in Rules",
@@ -34077,7 +34890,8 @@ export const translations: Translations = {
     "reportRules.tabEvaluate": "Violation Evaluation",
     "reportRules.runEvaluate": "Run Evaluation",
     "reportRules.oneClickFix": "One-Click Fix Suggestions",
-    "reportRules.fixHint": "Generates a revised draft per violation, apply to report text in one click",
+    "reportRules.fixHint":
+      "Generates a revised draft per violation, apply to report text in one click",
     "reportRules.reportText": "Report Text",
     "reportRules.missing": "Missing",
     "reportRules.violationResult": "Violations ({{count}})",
@@ -34111,7 +34925,8 @@ export const translations: Translations = {
     "reportRules.editRule": "Edit Rule {{code}}",
     "reportRules.createRule": "New Custom Rule",
     "reportRules.fldName": "Rule Name",
-    "reportRules.fldNamePlaceholder": "e.g. conclusion must not mention emergency",
+    "reportRules.fldNamePlaceholder":
+      "e.g. conclusion must not mention emergency",
     "reportRules.fldCode": "Code (optional)",
     "reportRules.fldType": "Rule Type",
     "reportRules.fldSeverity": "Severity",
@@ -34123,7 +34938,8 @@ export const translations: Translations = {
     "reportRules.fldWhenField": "Precondition Field (optional)",
     "reportRules.fldWhenOperator": "Precondition Operator",
     "reportRules.fldWhenValue": "Precondition Value",
-    "reportRules.fldWhenValuePlaceholder": "Rule only applies when precondition is met",
+    "reportRules.fldWhenValuePlaceholder":
+      "Rule only applies when precondition is met",
     "reportRules.fldSuggestion": "Fix Suggestion",
     "reportRules.fldExamTypes": "Applicable Exam Types (empty = all)",
     "reportRules.bindTitle": "Bind Rules · {{name}}",
@@ -34132,13 +34948,16 @@ export const translations: Translations = {
     "reportRules.fixTitle": "Fix Suggestion Draft (per violation)",
     "reportRules.applyToReport": "Apply to Report Text",
     "reportRules.fixed": "Fixed",
-    "reportRules.fixRulesDesc": "Rules: auto-fill empty conclusion/findings/diagnosis templates · auto-fill missing follow-up advice · clamp out-of-range size to 5mm · auto-append mm unit · prefix side when missing",
-    "reportRules.evalSummary": "Score {{score}} · errors {{error}} · warnings {{warning}} · info {{info}}",
+    "reportRules.fixRulesDesc":
+      "Rules: auto-fill empty conclusion/findings/diagnosis templates · auto-fill missing follow-up advice · clamp out-of-range size to 5mm · auto-append mm unit · prefix side when missing",
+    "reportRules.evalSummary":
+      "Score {{score}} · errors {{error}} · warnings {{warning}} · info {{info}}",
     "reportRules.evalThisRun": "This run",
     "reportRules.errorUnit": "errors",
     "reportRules.warningUnit": "warnings",
     "reportRules.infoUnit": "info",
-    "reportRules.evalDone": "Evaluation done: {{count}} violations, score {{score}}",
+    "reportRules.evalDone":
+      "Evaluation done: {{count}} violations, score {{score}}",
     "reportRules.evalFailed": "Evaluation failed",
     "reportRules.loadFailed": "Failed to load rules",
     "reportRules.ruleUpdated": "Rule updated",
@@ -34150,14 +34969,16 @@ export const translations: Translations = {
     "reportRules.disabled": "disabled",
     "reportRules.opFailed": "Operation failed",
     "reportRules.ruleDeleted": "Custom rule deleted",
-    "reportRules.builtInDeleteDenied": "Built-in rules cannot be deleted, disable instead",
+    "reportRules.builtInDeleteDenied":
+      "Built-in rules cannot be deleted, disable instead",
     "reportRules.setBound": "Ruleset {{name}} bound to {{count}} rules",
     "reportRules.bindFailed": "Binding failed",
     "reportRules.fixesApplied": "Revised draft applied to report text",
     "reportRules.op.empty": "Is empty",
     "reportRules.op.not_empty": "Is not empty",
     "reportRules.op.contains": "Contains (| separated multi-values)",
-    "reportRules.op.not_contains": "Does not contain (| separated multi-values)",
+    "reportRules.op.not_contains":
+      "Does not contain (| separated multi-values)",
     "reportRules.op.regex": "Regex match",
     "reportRules.op.length_lt": "Length <",
     "reportRules.op.length_gte": "Length ≥",
@@ -34170,7 +34991,8 @@ export const translations: Translations = {
     "reportRules.field.recommendations": "Recommendations",
     // [v3.0.6.11-106 Wave 6A] Report watermark & e-signature V2 (ReportWatermarkPage)
     "reportWatermark.title": "Report Watermark & Signature V2",
-    "reportWatermark.subtitle": "F8 · Parametric text watermark · hospital LOGO image watermark · tamper-proof code · e-signature approval flow",
+    "reportWatermark.subtitle":
+      "F8 · Parametric text watermark · hospital LOGO image watermark · tamper-proof code · e-signature approval flow",
     "reportWatermark.applySign": "Request Signature",
     "reportWatermark.tabWatermark": "Report Watermark",
     "reportWatermark.tabSign": "E-Signature ({{count}} pending)",
@@ -34185,19 +35007,23 @@ export const translations: Translations = {
     "reportWatermark.opacity": "Opacity: {{value}}%",
     "reportWatermark.spacing": "Tile spacing: {{value}}px",
     "reportWatermark.fontSize": "Font size: {{value}}px",
-    "reportWatermark.imageParams": "Image Watermark (hospital LOGO concept data)",
+    "reportWatermark.imageParams":
+      "Image Watermark (hospital LOGO concept data)",
     "reportWatermark.enableImage": "Enable image watermark",
     "reportWatermark.logoResource": "LOGO resource",
     "reportWatermark.scale": "Scale: {{value}}%",
     "reportWatermark.verifyTitle": "Tamper-Proof Verification",
     "reportWatermark.verifyPlaceholder": "Enter report content to verify",
-    "reportWatermark.codePlaceholder": "Verify code (defaults to preview value)",
+    "reportWatermark.codePlaceholder":
+      "Verify code (defaults to preview value)",
     "reportWatermark.verifyHash": "Verify Hash",
-    "reportWatermark.verifyOk": "Verification passed: content and params unchanged",
+    "reportWatermark.verifyOk":
+      "Verification passed: content and params unchanged",
     "reportWatermark.verifyFail": "Verification failed: {{content}}{{params}}",
     "reportWatermark.tamperedContent": "content tampered",
     "reportWatermark.tamperedParams": "watermark params tampered",
-    "reportWatermark.verifyDesc": "Computed code: {{code}} · params hash: {{hash}}",
+    "reportWatermark.verifyDesc":
+      "Computed code: {{code}} · params hash: {{hash}}",
     "reportWatermark.signTitle": "Signature Requests & Approval",
     "reportWatermark.newApply": "New Request",
     "reportWatermark.thApplyId": "Request",
@@ -34223,13 +35049,16 @@ export const translations: Translations = {
     "reportWatermark.fldSigner": "Signer",
     "reportWatermark.fldApplicant": "Applicant",
     "reportWatermark.fldReason": "Reason",
-    "reportWatermark.reasonPlaceholder": "e.g. complex case dual signature / final review",
+    "reportWatermark.reasonPlaceholder":
+      "e.g. complex case dual signature / final review",
     "reportWatermark.rejectModalTitle": "Reject Signature Request {{id}}",
     "reportWatermark.fldRejectReason": "Reject Reason",
     "reportWatermark.rejectReasonRequired": "Please enter the reject reason",
     "reportWatermark.signDetailTitle": "Signature Record · {{id}} ({{status}})",
-    "reportWatermark.reportSignerInfo": "Report: {{report}} · Signer: {{signer}}",
-    "reportWatermark.hashSignedInfo": "Report hash: {{hash}} · Signed at: {{time}}",
+    "reportWatermark.reportSignerInfo":
+      "Report: {{report}} · Signer: {{signer}}",
+    "reportWatermark.hashSignedInfo":
+      "Report hash: {{hash}} · Signed at: {{time}}",
     "reportWatermark.tlApply": "Request submitted",
     "reportWatermark.tlApprove": "Approved",
     "reportWatermark.tlSign": "Signed",
@@ -34240,8 +35069,10 @@ export const translations: Translations = {
     "reportWatermark.noRecords": "No records",
     "reportWatermark.signRecordsLoadFailed": "Failed to load signature records",
     "reportWatermark.verifyMsg": "Verification passed: report not tampered",
-    "reportWatermark.verifyMsgFail": "Verification failed: content or params tampered",
-    "reportWatermark.applySubmitted": "Signature request {{id}} submitted, report hash: {{hash}}",
+    "reportWatermark.verifyMsgFail":
+      "Verification failed: content or params tampered",
+    "reportWatermark.applySubmitted":
+      "Signature request {{id}} submitted, report hash: {{hash}}",
     "reportWatermark.applyFailed": "Request failed",
     "reportWatermark.approvedSigned": "Approved and signed ({{name}})",
     "reportWatermark.approveFailed": "Approval failed",
@@ -34253,13 +35084,15 @@ export const translations: Translations = {
     // [v3.0.6.11-106 Wave 7C] Report V2 three-panel page (ReportV2Page)
     "reportV2.title": "Report V2",
     "reportV2.wave": "Wave 7C",
-    "reportV2.subtitle": "Pre-final AI review · Committee consultation · Peer review",
+    "reportV2.subtitle":
+      "Pre-final AI review · Committee consultation · Peer review",
     "reportV2.tabSecondRead": "AI Second Read V2 (F14)",
     "reportV2.tabConsultation": "Committee Consultation V2 (F6)",
     "reportV2.tabPeerReview": "Peer Review (F9)",
     // [v3.0.6.11-106 Wave 8B] QC loop & trend analytics (QcAnalyticsPage)
     "qcAnalytics.title": "QC Loop & Trend Analytics",
-    "qcAnalytics.subtitle": "Defect → fix → recheck → close PDCA loop · weekly/monthly defect-rate trend · Pareto analysis · department ranking",
+    "qcAnalytics.subtitle":
+      "Defect → fix → recheck → close PDCA loop · weekly/monthly defect-rate trend · Pareto analysis · department ranking",
     "qcAnalytics.refresh": "Refresh",
     "qcAnalytics.kpiTotalReports": "Total Reports",
     "qcAnalytics.kpiQcRate": "QC Rate",
@@ -34277,7 +35110,8 @@ export const translations: Translations = {
     "qcAnalytics.kpiAvgScoreSub": "Avg score {{score}}",
     "qcAnalytics.kpiClosedSub": "Closed {{closed}} / {{total}} total",
     "qcAnalytics.trendTitle": "Defect Rate Trend",
-    "qcAnalytics.trendSub": "Includes QC rate / timely rate · MoM improvement in tooltip",
+    "qcAnalytics.trendSub":
+      "Includes QC rate / timely rate · MoM improvement in tooltip",
     "qcAnalytics.defectRate": "Defect Rate(%)",
     "qcAnalytics.timelyRate": "Timely Rate(%)",
     "qcAnalytics.qcRate": "QC Rate(%)",
@@ -34288,7 +35122,8 @@ export const translations: Translations = {
     "qcAnalytics.deptRankTitle": "Department Defect Rate Ranking",
     "qcAnalytics.deptRankSub": "Lower defect rate ranks higher",
     "qcAnalytics.loopTitle": "QC Loop",
-    "qcAnalytics.loopSub": "{{open}} defects in flight · avg close {{days}}d · avg recheck {{rounds}} rounds",
+    "qcAnalytics.loopSub":
+      "{{open}} defects in flight · avg close {{days}}d · avg recheck {{rounds}} rounds",
     "qcAnalytics.tabDefects": "Defect Pool ({{count}})",
     "qcAnalytics.tabItems": "Fix Tasks ({{count}})",
     "qcAnalytics.totalDefects": "{{count}} defects total",
@@ -34337,13 +35172,15 @@ export const translations: Translations = {
     "qcAnalytics.fldTitlePlaceholder": "e.g. terminology compliance fix",
     "qcAnalytics.fldAssignee": "Assignee",
     "qcAnalytics.fldAssigneePlaceholder": "Assignee name",
-    "qcAnalytics.createHint": "After creation the task is in \"pending fix\" status; flow: start fix → submit fix → recheck → close.",
+    "qcAnalytics.createHint":
+      'After creation the task is in "pending fix" status; flow: start fix → submit fix → recheck → close.',
     "qcAnalytics.fixTitle": "Submit Fix Description",
     "qcAnalytics.submit": "Submit",
     "qcAnalytics.fldFixNote": "Fix Description",
     "qcAnalytics.fldFixNoteRequired": "Please enter the fix description",
     "qcAnalytics.fldFixNotePlaceholder": "Describe fix actions and results...",
-    "qcAnalytics.fixHint": "After submission the task enters \"rechecking\", reviewed by QC staff.",
+    "qcAnalytics.fixHint":
+      'After submission the task enters "rechecking", reviewed by QC staff.',
     "qcAnalytics.recheckTitle": "Recheck",
     "qcAnalytics.recheckOk": "Confirm Recheck",
     "qcAnalytics.lastRejected": "Last recheck rejected: {{note}}",
@@ -34370,7 +35207,8 @@ export const translations: Translations = {
     "qcAnalytics.rounds": " (round {{count}})",
     "qcAnalytics.historyTitle": "Flow History",
     "qcAnalytics.noHistory": "No history",
-    "qcAnalytics.serviceDown": "QC analytics service unreachable, fell back to demo data",
+    "qcAnalytics.serviceDown":
+      "QC analytics service unreachable, fell back to demo data",
     "qcAnalytics.itemCreated": "Fix task created",
     "qcAnalytics.createFailed": "Create failed",
     "qcAnalytics.opFailed": "Operation failed",
@@ -34406,7 +35244,8 @@ export const translations: Translations = {
     "segmentationV2.otsu": "Otsu auto",
     "segmentationV2.manual": "Manual dual threshold",
     "segmentationV2.rangeLabel": "Intensity Range",
-    "segmentationV2.otsuUpper": "Intensity upper bound (Otsu keeps ≥ threshold)",
+    "segmentationV2.otsuUpper":
+      "Intensity upper bound (Otsu keeps ≥ threshold)",
     "segmentationV2.min": "Min",
     "segmentationV2.max": "Max",
     "segmentationV2.seedLabel": "Seed Point",
@@ -34414,9 +35253,11 @@ export const translations: Translations = {
     "segmentationV2.enablePick": "Enable pick mode",
     "segmentationV2.clickPick": "Pick by Click",
     "segmentationV2.seedTag": "Seed ({{x}}, {{y}}, {{z}})",
-    "segmentationV2.noSeedHint": "No seed: falls back to largest threshold-connected component",
+    "segmentationV2.noSeedHint":
+      "No seed: falls back to largest threshold-connected component",
     "segmentationV2.sigmaLabel": "Gaussian smoothing (sigma)",
-    "segmentationV2.edgeThreshold": "Edge threshold (optional, adaptive quantile by default)",
+    "segmentationV2.edgeThreshold":
+      "Edge threshold (optional, adaptive quantile by default)",
     "segmentationV2.lowThreshold": "Low",
     "segmentationV2.highThreshold": "High",
     "segmentationV2.iterations": "Iterations",
@@ -34433,7 +35274,8 @@ export const translations: Translations = {
     "segmentationV2.annotate": "Annotate",
     "segmentationV2.linkMeasure": "Link Measurement",
     "segmentationV2.deleteConfirm": "Delete this segmentation?",
-    "segmentationV2.deleteDesc": "This will delete \"{{label}}\" ({{voxels}} voxels)",
+    "segmentationV2.deleteDesc":
+      'This will delete "{{label}}" ({{voxels}} voxels)',
     "segmentationV2.delete": "Delete",
     "segmentationV2.cancel": "Cancel",
     "segmentationV2.historyTitle": "Segmentation History",
@@ -34476,7 +35318,8 @@ export const translations: Translations = {
     "segmentationV2.fldOrgan": "Organ Class",
     "segmentationV2.linkTitle": "Measurement Link (volume → lesion tracking)",
     "segmentationV2.link": "Link",
-    "segmentationV2.linkAlertDesc": "Equiv. sphere diameter ≈ {{size}} mm (overridable)",
+    "segmentationV2.linkAlertDesc":
+      "Equiv. sphere diameter ≈ {{size}} mm (overridable)",
     "segmentationV2.linkMode": "Link Mode",
     "segmentationV2.newLesion": "New lesion",
     "segmentationV2.existingLesion": "Append to existing lesion",
@@ -34490,7 +35333,8 @@ export const translations: Translations = {
     "segmentationV2.fldNotesPlaceholder": "e.g. baseline at first diagnosis",
     "segmentationV2.selectSeriesFirst": "Please select an exam series first",
     "segmentationV2.runFailed": "Segmentation failed",
-    "segmentationV2.runDone": "Segmentation done: {{algo}} · {{voxels}} voxels · {{volume}} cm³",
+    "segmentationV2.runDone":
+      "Segmentation done: {{algo}} · {{voxels}} voxels · {{volume}} cm³",
     "segmentationV2.runFallback": " (fallback)",
     "segmentationV2.runError": "Segmentation request error",
     "segmentationV2.deleted2": "Segmentation deleted",
@@ -34500,7 +35344,8 @@ export const translations: Translations = {
     "segmentationV2.updateFailed": "Update failed",
     "segmentationV2.patientIdRequired": "Please enter the patient ID",
     "segmentationV2.lesionIdRequired": "Please enter the lesion ID",
-    "segmentationV2.linkSuccess": "Measurement linked: equiv. diameter {{size}} mm",
+    "segmentationV2.linkSuccess":
+      "Measurement linked: equiv. diameter {{size}} mm",
     "segmentationV2.linkToLesionSuffix": " → lesion {{id}}",
     "segmentationV2.linkFailed": "Link failed",
     "segmentationV2.linkError": "Link request error",
@@ -34510,23 +35355,28 @@ export const translations: Translations = {
     "segmentationV2.algo.edge_canny": "Canny Edge",
     "segmentationV2.algo.kmeans": "K-means",
     "segmentationV2.algo.active_contour": "Active Contour",
-    "segmentationV2.algoDesc.region_grow": "Seed + intensity threshold + connected components",
+    "segmentationV2.algoDesc.region_grow":
+      "Seed + intensity threshold + connected components",
     "segmentationV2.algoDesc.threshold": "Otsu auto / manual dual threshold",
     "segmentationV2.algoDesc.edge_canny": "Gaussian blur + Sobel + hysteresis",
-    "segmentationV2.algoDesc.kmeans": "4-class intensity clustering, deterministic",
-    "segmentationV2.algoDesc.active_contour": "Simplified snake: closing smoothing + hole filling",
+    "segmentationV2.algoDesc.kmeans":
+      "4-class intensity clustering, deterministic",
+    "segmentationV2.algoDesc.active_contour":
+      "Simplified snake: closing smoothing + hole filling",
     "segmentationV2.plane.axial": "Axial",
     "segmentationV2.plane.sagittal": "Sagittal",
     "segmentationV2.plane.coronal": "Coronal",
     // [v3.0.6.11-106 Wave 1A-3A] DICOM compression workbench (DicomCompressPage)
     "compressV2.title": "DICOM Compression Workbench",
-    "compressV2.subtitle": "JPEG2000 real codec (OpenJPEG WASM) + RLE + LOCO-I prediction + Golomb-Rice entropy coding",
+    "compressV2.subtitle":
+      "JPEG2000 real codec (OpenJPEG WASM) + RLE + LOCO-I prediction + Golomb-Rice entropy coding",
     "compressV2.sourceFile": "Source File",
     "compressV2.dicomInstance": "DICOM Instance",
     "compressV2.selectInstance": "Select DICOM instance",
     "compressV2.uploadDcm": "Upload .dcm File",
     "compressV2.uploaded": "Uploaded: {{name}}",
-    "compressV2.uploadDesc": "Real byte stream will be used for RLE / Predictive / JPEG2000 (OpenJPEG WASM) compression",
+    "compressV2.uploadDesc":
+      "Real byte stream will be used for RLE / Predictive / JPEG2000 (OpenJPEG WASM) compression",
     "compressV2.paramsTitle": "Compression Params",
     "compressV2.transferSyntax": "Transfer Syntax",
     "compressV2.lossy": "Lossy",
@@ -34534,9 +35384,11 @@ export const translations: Translations = {
     "compressV2.quality": "Quality:",
     "compressV2.qualityHint": "Lower quality gives higher ratio",
     "compressV2.htj2kTitle": "HTJ2K high-speed lossless",
-    "compressV2.htj2kDesc": "Block-wise independent entropy coding + DWT 5/3 lifting, parallel code-block decoding, ideal for large series",
+    "compressV2.htj2kDesc":
+      "Block-wise independent entropy coding + DWT 5/3 lifting, parallel code-block decoding, ideal for large series",
     "compressV2.jpeglsTitle": "JPEG-LS lossless (LOCO-I)",
-    "compressV2.jpeglsDesc": "365-context adaptive Golomb-Rice + run mode, high fidelity for plain films/mammo",
+    "compressV2.jpeglsDesc":
+      "365-context adaptive Golomb-Rice + run mode, high fidelity for plain films/mammo",
     "compressV2.strategyTitle": "Recommended Strategy by Modality",
     "compressV2.nearLossless": "Near-lossless",
     "compressV2.execTitle": "Execute",
@@ -34594,8 +35446,10 @@ export const translations: Translations = {
     "compressV2.thRealRatio": "Real Ratio",
     "compressV2.thSavedPct": "Saved",
     "compressV2.thType": "Type",
-    "compressV2.losslessAlert": "Lossless: decompression restores 100% of original pixels",
-    "compressV2.lossyAlert": "Lossy: reconstruction error bounded by quantization step (quality={{q}})",
+    "compressV2.losslessAlert":
+      "Lossless: decompression restores 100% of original pixels",
+    "compressV2.lossyAlert":
+      "Lossy: reconstruction error bounded by quantization step (quality={{q}})",
     "compressV2.done": "Completed",
     "compressV2.failed": "Failed",
     "compressV2.decompressVerify": "Decompress & Verify",
@@ -34613,9 +35467,11 @@ export const translations: Translations = {
     "compressV2.recommendTag": "Recommended: {{name}}",
     "compressV2.pixelData": "{{size}} pixel data",
     "compressV2.comparing": "Comparing...",
-    "compressV2.compareEmptyHint": "Click \"Compare All Algorithms\" to see real ratios",
+    "compressV2.compareEmptyHint":
+      'Click "Compare All Algorithms" to see real ratios',
     "compressV2.statsTitle": "Ratio Statistics",
-    "compressV2.statsSub": "{{count}} tasks total, saved {{saved}}, avg {{avg}}×",
+    "compressV2.statsSub":
+      "{{count}} tasks total, saved {{saved}}, avg {{avg}}×",
     "compressV2.noStats": "No statistics yet, run a compression first",
     "compressV2.detailTitle": "Task Details - {{id}}",
     "compressV2.close": "Close",
@@ -34638,8 +35494,10 @@ export const translations: Translations = {
     "compressV2.compareFailed": "Comparison failed",
     "compressV2.uploadedFile": "Uploaded {{name}} ({{size}})",
     "compressV2.fileReadFailed": "File read failed",
-    "compressV2.realRatioMsg": "Instance {{id}} JPEG2000 real ratio {{ratio}}× (OpenJPEG WASM)",
-    "compressV2.estRatioMsg": "Instance {{id}} ratio {{ratio}}× (estimated: lookup fallback, not byte-level)",
+    "compressV2.realRatioMsg":
+      "Instance {{id}} JPEG2000 real ratio {{ratio}}× (OpenJPEG WASM)",
+    "compressV2.estRatioMsg":
+      "Instance {{id}} ratio {{ratio}}× (estimated: lookup fallback, not byte-level)",
     "compressV2.noRealRatio": "No computable real ratio for this instance",
     "compressV2.realRatioFailed": "Failed to fetch real compression ratio",
     "eye.optometry.records": "Optometry Records",
@@ -34694,7 +35552,8 @@ export const translations: Translations = {
     "eye.tele.consultLabel": "Consultation",
     "eye.tele.patientLabel": "Patient",
     "eye.tele.participantsUnit": "participants",
-    "eye.tele.emptyLive": "Click \"Create Consultation\" to start a WebRTC consultation",
+    "eye.tele.emptyLive":
+      'Click "Create Consultation" to start a WebRTC consultation',
     "eye.tele.settings": "Settings",
     "eye.tele.expertLabel": "Expert:",
     "eye.tele.requestTimeLabel": "Requested At:",
@@ -34702,7 +35561,8 @@ export const translations: Translations = {
     "eye.tele.statsConsults": "Opinions",
     "eye.tele.statsAvgResponse": "Avg Reply",
     "eye.tele.minutesUnit": "min",
-    "eye.tele.emptyHistory": "No consultation history (falls back locally when the backend is unreachable)",
+    "eye.tele.emptyHistory":
+      "No consultation history (falls back locally when the backend is unreachable)",
     "eye.tele.historySessions": "Session History",
     "eye.tele.pendingAnswers": "Pending Opinions",
     "eye.tele.tabOptometry": "Optometry Center",
@@ -34746,7 +35606,8 @@ export const translations: Translations = {
     "eye.tele.participantsLabel": "Participants:",
     "eye.tele.edgeLabel": "5G Edge:",
     "eye.tele.sliceLabel": "Slice",
-    "eye.tele.consultIdPlaceholder": "Consult record ID (e.g. CON-20260708-001)",
+    "eye.tele.consultIdPlaceholder":
+      "Consult record ID (e.g. CON-20260708-001)",
     "eye.tele.colConsultId": "Record ID",
     "eye.tele.colSpecialist": "Specialist",
     "eye.tele.colQuestion": "Question",
@@ -34872,7 +35733,8 @@ export const translations: Translations = {
     "w3b.devices": "Device Utilization",
     "w3b.positiveRate": "Positive Rate",
     "dicomSr.mtLib": "Measurement Template Library (TID 1500/2000)",
-    "dicomSr.mtSub": "20 complete measurement templates (SNOMED codes + units + normal ranges + descriptions), covering CT chest/abdomen, MR brain/spine, DR fracture, MG breast",
+    "dicomSr.mtSub":
+      "20 complete measurement templates (SNOMED codes + units + normal ranges + descriptions), covering CT chest/abdomen, MR brain/spine, DR fracture, MG breast",
     "dicomSr.mtCategories": "Template Categories",
     "dicomSr.mtModality": "Modality",
     "dicomSr.mtCategory": "Category",
@@ -34915,7 +35777,8 @@ export const translations: Translations = {
     "worklist.detail.timelineActor": "Actor: {{actor}}",
     "worklist.detail.notesTitle": "Technician Notes",
     "worklist.detail.notesEmpty": "No technician notes",
-    "worklist.detail.notesPlaceholder": "Record scan parameters / patient cooperation (appended with timestamp)",
+    "worklist.detail.notesPlaceholder":
+      "Record scan parameters / patient cooperation (appended with timestamp)",
     "worklist.detail.notesSave": "Save Notes",
     "worklist.detail.notesSaving": "Saving...",
     "worklist.detail.notesSaved": "Technician notes saved",
@@ -34927,7 +35790,8 @@ export const translations: Translations = {
     "followup.triggerModeHint": "Hint Only",
     "followup.fromExam.button": "From Exam",
     "followup.fromExam.title": "From Exam (from-exam)",
-    "followup.fromExam.desc": "After exam completion → auto create follow-up plans by template intervals (POST /followups/from-exam)",
+    "followup.fromExam.desc":
+      "After exam completion → auto create follow-up plans by template intervals (POST /followups/from-exam)",
     "followup.fromExam.examId": "Exam ID *",
     "followup.fromExam.examIdPlaceholder": "e.g. exam-001 or accession no.",
     "followup.fromExam.template": "Follow-up Template (optional)",
@@ -34935,7 +35799,8 @@ export const translations: Translations = {
     "followup.fromExam.confirm": "Create",
     "followup.fromExam.busy": "Generating...",
     "followup.fromExam.required": "Please enter exam ID",
-    "followup.fromExam.success": "From-exam succeeded: created {{count}} follow-up plans",
+    "followup.fromExam.success":
+      "From-exam succeeded: created {{count}} follow-up plans",
     "followup.fromExam.failed": "From-exam failed",
     "followup.edit.button": "Edit",
     "followup.edit.title": "Edit Follow-up Plan · {{patientId}}",
@@ -34963,15 +35828,18 @@ export const translations: Translations = {
     "followup.reminderQueue.more": "{{count}} more...",
     "followup.fromReport.button": "Report → Follow-up",
     "followup.fromReport.title": "Report → Follow-up (from-report)",
-    "followup.fromReport.desc": "Match report keywords to manually create follow-up plans (not limited by auto/hint mode)",
+    "followup.fromReport.desc":
+      "Match report keywords to manually create follow-up plans (not limited by auto/hint mode)",
     "followup.fromReport.reportId": "Report ID",
     "followup.fromReport.reportIdPlaceholder": "e.g. rpt-001 or report number",
     "followup.fromReport.reason": "Reason",
-    "followup.fromReport.reasonPlaceholder": "Optional: reason for manual creation",
+    "followup.fromReport.reasonPlaceholder":
+      "Optional: reason for manual creation",
     "followup.fromReport.confirm": "Create",
     "followup.fromReport.busy": "Creating...",
     "followup.fromReport.required": "Report ID is required",
-    "followup.fromReport.success": "Report → follow-up done: matched {{matched}}, created {{created}} plan(s)",
+    "followup.fromReport.success":
+      "Report → follow-up done: matched {{matched}}, created {{created}} plan(s)",
     "followup.fromReport.failed": "Report → follow-up failed",
     "qcai.lookup.title": "AI QC Result Read-back",
     "qcai.lookup.placeholder": "Imaging Instance ID",
@@ -34982,7 +35850,8 @@ export const translations: Translations = {
     "qcai.lookup.artifact": "Artifact",
     "qcai.lookup.positioning": "Positioning",
     "qcai.lookup.overall": "Overall",
-    "qcai.lookup.empty": "Enter an instance ID to query historical AI QC results",
+    "qcai.lookup.empty":
+      "Enter an instance ID to query historical AI QC results",
     "qcai.resultList.loading": "Loading V2 result list...",
     "qcai.resultList.loadFailed": "Failed to load V2 result list",
     "qcai.resultList.empty": "No V2 QC score records",
@@ -34999,7 +35868,8 @@ export const translations: Translations = {
     "criticalAgg.loadFailed": "Failed to load aggregate",
     "criticalAgg.retry": "Retry",
     "criticalAgg.empty": "No critical alerts",
-    "criticalAgg.aliasNote": "GET /critical-alert is the default aggregate endpoint, sharing the same handler as /critical-alert/alerts with identical response shape.",
+    "criticalAgg.aliasNote":
+      "GET /critical-alert is the default aggregate endpoint, sharing the same handler as /critical-alert/alerts with identical response shape.",
     "criticalAgg.total": "Total",
     "criticalAgg.active": "Active",
     "criticalAgg.acknowledged": "Acknowledged",
@@ -35029,9 +35899,11 @@ export const translations: Translations = {
     "reportDetail.tabLesions": "Lesions",
     "reportDetail.tabRelated": "Related",
     "reportDetail.lesionsTitle": "Linked Lesion Tracking",
-    "reportDetail.lesionsEmpty": "No linked lesion tracking records for this report",
+    "reportDetail.lesionsEmpty":
+      "No linked lesion tracking records for this report",
     "reportDetail.relatedTitle": "Related Info",
-    "reportDetail.relatedSub": "Exam · Patient · Prior reports · Follow-up · Critical values",
+    "reportDetail.relatedSub":
+      "Exam · Patient · Prior reports · Follow-up · Critical values",
     "reportDetail.relatedEmpty": "No related info for this report",
     "reportDetail.patientExam": "Patient & Exam",
     "reportDetail.previousReports": "Prior Reports",
@@ -35062,13 +35934,15 @@ export const translations: Translations = {
     "reportDetail.lifecycleTitle": "v1.0.1 Report Lifecycle",
     "reportDetail.currentStatusPrefix": "This report is currently in",
     "reportDetail.currentStatusSuffix": "status.",
-    "reportDetail.statusMachineDesc": " Supports a 14-state machine: Unassigned → Assigned → Writing → Submitted → Initial Review → Initial Approved → Final Review → Reviewed → Issuing → Issued → Published → Revising → Revised / Withdrawn / Rejected / Archived.",
+    "reportDetail.statusMachineDesc":
+      " Supports a 14-state machine: Unassigned → Assigned → Writing → Submitted → Initial Review → Initial Approved → Final Review → Reviewed → Issuing → Issued → Published → Revising → Revised / Withdrawn / Rejected / Archived.",
     "reportDetail.archivePolicyTitleShort": "Cold Archive Policy",
     "reportDetail.archiveDescPrefix": "Auto-archive to",
     "reportDetail.archiveDescSuffix": " tier {{days}} days after publication",
     "reportDetail.archiveDisabled": " · Currently disabled",
     "reportDetail.archiveEnabledTag": " · Enabled",
-    "reportDetail.archiveDeleteSource": " · Delete source copy {{days}} days after archiving",
+    "reportDetail.archiveDeleteSource":
+      " · Delete source copy {{days}} days after archiving",
     "reportDetail.archivablePublished": "Archivable (published)",
     "reportDetail.auditTrailLoading": "Loading audit trail…",
     "reportDetail.criticalReport": "Critical Value Report",
@@ -35094,15 +35968,19 @@ export const translations: Translations = {
     "reportDetail.linkedCritical": "Linked Critical Values",
     "reportDetail.reverseRefCount": "Reverse references ({{count}})",
     "reportDetail.criticalLoading": "Loading linked critical values…",
-    "reportDetail.criticalEmpty": "No linked critical value records for this report",
-    "reportDetail.criticalEmptyHint": "After \"Convert to Critical Value\", linked records will appear here with closed-loop tracking.",
+    "reportDetail.criticalEmpty":
+      "No linked critical value records for this report",
+    "reportDetail.criticalEmptyHint":
+      'After "Convert to Critical Value", linked records will appear here with closed-loop tracking.',
     "reportDetail.notFilledDesc": "(no description)",
     "reportDetail.severityLabel": "Severity:",
     "reportDetail.stateLabel": "Status:",
     "reportDetail.viewArrow": "View →",
-    "reportDetail.criticalFooterHint": "Click a record to open the Critical Value Center and view the closed-loop flow (call/SMS, confirm, resolve).",
+    "reportDetail.criticalFooterHint":
+      "Click a record to open the Critical Value Center and view the closed-loop flow (call/SMS, confirm, resolve).",
     "reportDetail.lesionsLoading": "Loading lesion list…",
-    "reportDetail.lesionsEmptyHint": "Use \"Create Lesion Tracking\" to extract lesion keywords from the report text.",
+    "reportDetail.lesionsEmptyHint":
+      'Use "Create Lesion Tracking" to extract lesion keywords from the report text.',
     "reportDetail.lesionName": "Lesion #{{index}}",
     "reportDetail.sizeLabel": "Size:",
     "reportDetail.noteLabel": "Note:",
@@ -35117,7 +35995,8 @@ export const translations: Translations = {
     "reportDetail.nextFollowUp": "Next follow-up:",
     "reportDetail.transferredFromReport": " · from report",
     "reportDetail.printPreview": "Print Preview",
-    "reportDetail.printHint": "Click the button below to print the current report",
+    "reportDetail.printHint":
+      "Click the button below to print the current report",
     "reportDetail.print": "Print",
     "reportDetail.continueWriting": "Continue Writing",
     "reportDetail.view": "View",
@@ -35147,13 +36026,16 @@ export const translations: Translations = {
     "reportDetail.tierCold": "cold (cold archive)",
     "reportDetail.daysAfterNoDelete": "days (0=keep)",
     "reportDetail.archiveSaveFailed": "Failed to save archive policy",
-    "reportDetail.archiveSaveNetworkError": "Failed to save archive policy: network error",
+    "reportDetail.archiveSaveNetworkError":
+      "Failed to save archive policy: network error",
     "reportDetail.currentUser": "Current User",
     "reportDetail.statusUnassigned": "Unassigned",
     "nationalReport.title": "National Data Reporting",
-    "nationalReport.subtitle": "National/provincial regulatory reporting · FHIR · Pre-submission validation · Audit trail",
+    "nationalReport.subtitle":
+      "National/provincial regulatory reporting · FHIR · Pre-submission validation · Audit trail",
     "nationalReport.loading": "Loading…",
-    "nationalReport.loadError": "Failed to load data, fell back to local demo data",
+    "nationalReport.loadError":
+      "Failed to load data, fell back to local demo data",
     "nationalReport.newReport": "New Report",
     "nationalReport.exportReport": "Export Report",
     "nationalReport.submitData": "Submit Data",
@@ -35287,7 +36169,8 @@ export const translations: Translations = {
     "nationalReport.confirmExamCount": "{{count}} exam stats",
     "nationalReport.confirmDoseCount": "{{count}} dose records",
     "nationalReport.confirmQualityCount": "{{count}} quality records",
-    "nationalReport.confirmHint": "After submission it enters the regulator review flow; track progress in the audit trail.",
+    "nationalReport.confirmHint":
+      "After submission it enters the regulator review flow; track progress in the audit trail.",
     "nationalReport.confirmSubmit": "Confirm Submit",
     "nationalReport.submitting": "Submitting…",
     "nationalReport.createdSuccess": "{{type}} created",
@@ -35305,7 +36188,8 @@ export const translations: Translations = {
     "nationalReport.fhirValidation": "Validation",
     "nationalReport.fhirResourceCount": "Resources",
     "nationalReport.fhirExportTitle": "Export FHIR Data",
-    "nationalReport.fhirExportDesc": "Export an IHE-RAD-IG compliant FHIR Bundle (DiagnosticReport + Observation).",
+    "nationalReport.fhirExportDesc":
+      "Export an IHE-RAD-IG compliant FHIR Bundle (DiagnosticReport + Observation).",
     "nationalReport.fhirExportBtn": "Export FHIR Bundle",
     "nationalReport.fhirExportSuccess": "Exported successfully",
     "nationalReport.regConfig": "Regulator Configuration",
@@ -35325,7 +36209,8 @@ export const translations: Translations = {
     "nationalReport.typeCompleteness": "Completeness",
     "nationalReport.typeConsistency": "Consistency",
     "nationalReport.typeBusiness": "Business",
-    "nationalReport.validateWarning": "{{count}} checks failed; fix before submitting.",
+    "nationalReport.validateWarning":
+      "{{count}} checks failed; fix before submitting.",
     "nationalReport.auditHistory": "Submission Audit Trail",
     "nationalReport.statusSuccess": "Success",
     "nationalReport.statusFailed": "Failed",
@@ -35351,7 +36236,8 @@ export const translations: Translations = {
     "nationalReport.recipientCount": "{{count}} recipients",
     "nationalReport.running": "Running…",
     "nationalReport.runNow": "Run Now",
-    "nationalReport.autoRetry": "Failed submissions are auto-retried at 1h/6h/24h with audit logging.",
+    "nationalReport.autoRetry":
+      "Failed submissions are auto-retried at 1h/6h/24h with audit logging.",
     "nationalReport.planNameRequired": "Plan name *",
     "nationalReport.placeholderPlanName": "e.g. Monthly Dose Report",
     "nationalReport.planType": "Report Type",
@@ -35368,7 +36254,8 @@ export const translations: Translations = {
     "nationalReport.scheduleMonthly": "Monthly",
     "nationalReport.scheduleQuarterly": "Quarterly",
     "customReport.pageTitle": "Custom Reports",
-    "customReport.pageSubtitle": "Definitions · Wizard creation · Run/Result/History/Scheduled push · CSV export",
+    "customReport.pageSubtitle":
+      "Definitions · Wizard creation · Run/Result/History/Scheduled push · CSV export",
     "customReport.periodDaily": "Day",
     "customReport.periodWeekly": "Week",
     "customReport.periodMonthly": "Month",
@@ -35405,21 +36292,26 @@ export const translations: Translations = {
     "customReport.enterReportName": "Please enter report name",
     "customReport.selectAtLeastOneField": "Please select at least one field",
     "customReport.saveFailed": "Save failed",
-    "customReport.reportUpdated": "Report \"{{name}}\" updated",
-    "customReport.reportCreated": "Report \"{{name}}\" created",
+    "customReport.reportUpdated": 'Report "{{name}}" updated',
+    "customReport.reportCreated": 'Report "{{name}}" created',
     "customReport.runFailed": "Run failed",
-    "customReport.runDonePushed": "\"{{name}}\" completed, subscription notification sent ({{count}} recipients)",
-    "customReport.runDoneRows": "\"{{name}}\" completed, {{count}} rows generated",
+    "customReport.runDonePushed":
+      '"{{name}}" completed, subscription notification sent ({{count}} recipients)',
+    "customReport.runDoneRows":
+      '"{{name}}" completed, {{count}} rows generated',
     "customReport.noResultRunFirst": "No result, please run first",
     "customReport.selectScheduleRule": "Please select a schedule rule",
-    "customReport.selectAtLeastOneRecipient": "Please select at least one recipient",
+    "customReport.selectAtLeastOneRecipient":
+      "Please select at least one recipient",
     "customReport.scheduleFailed": "Schedule setup failed",
-    "customReport.scheduleSaved": "Schedule for \"{{name}}\" saved, {{count}} notifications sent",
+    "customReport.scheduleSaved":
+      'Schedule for "{{name}}" saved, {{count}} notifications sent',
     "customReport.noResultExport": "No result to export, please run first",
     "customReport.csvExportSuccess": "CSV exported",
     "customReport.exportFailed": "Export failed",
-    "customReport.deleteConfirmTitle": "Delete report \"{{name}}\"?",
-    "customReport.deleteConfirmContent": "Definition, result snapshots and run history will be removed. This cannot be undone.",
+    "customReport.deleteConfirmTitle": 'Delete report "{{name}}"?',
+    "customReport.deleteConfirmContent":
+      "Definition, result snapshots and run history will be removed. This cannot be undone.",
     "customReport.delete": "Delete",
     "customReport.cancel": "Cancel",
     "customReport.defDeleted": "Report definition deleted",
@@ -35459,8 +36351,10 @@ export const translations: Translations = {
     "customReport.refresh": "Refresh",
     "customReport.newReport": "New Report",
     "customReport.dataSource": "Data Source",
-    "customReport.dsLegend": "OLAP aggregation (period granularity) · stats snapshot · BI metrics · mixed · result cache + scheduled subscription push (notifications/report-generated)",
-    "customReport.dataSourceHint": "Data source determines execution: OLAP fields aggregate by period; stats/bi are snapshots",
+    "customReport.dsLegend":
+      "OLAP aggregation (period granularity) · stats snapshot · BI metrics · mixed · result cache + scheduled subscription push (notifications/report-generated)",
+    "customReport.dataSourceHint":
+      "Data source determines execution: OLAP fields aggregate by period; stats/bi are snapshots",
     "customReport.exportCsv": "Export CSV",
     "customReport.editReportTitle": "Edit Report: {{name}}",
     "customReport.newReportTitle": "New Custom Report",
@@ -35471,40 +36365,50 @@ export const translations: Translations = {
     "customReport.reportName": "Report Name",
     "customReport.reportNamePlaceholder": "e.g. Monthly Exam Revenue Analysis",
     "customReport.category": "Category",
-    "customReport.categoryPlaceholder": "e.g. Daily Statistics / Report Quality / Device Management",
+    "customReport.categoryPlaceholder":
+      "e.g. Daily Statistics / Report Quality / Device Management",
     "customReport.description": "Description",
     "customReport.descriptionPlaceholder": "Report purpose (optional)",
-    "customReport.fieldsCatalogHint": "Field catalog is grouped by data source (fields-catalog): OLAP metrics/dimensions aggregate by period; stats/bi are snapshots",
+    "customReport.fieldsCatalogHint":
+      "Field catalog is grouped by data source (fields-catalog): OLAP metrics/dimensions aggregate by period; stats/bi are snapshots",
     "customReport.selectFieldPlaceholder": "Select fields (at least 1)",
     "customReport.selectedFields": "{{count}} fields selected: {{names}}",
     "customReport.notSelected": "none",
     "customReport.statPeriod": "Statistics Period",
-    "customReport.lookbackWindow": "Lookback: Day≈30d / Week≈90d / Month≈365d / Quarter≈730d / Year≈1825d",
+    "customReport.lookbackWindow":
+      "Lookback: Day≈30d / Week≈90d / Month≈365d / Quarter≈730d / Year≈1825d",
     "customReport.sortField": "Sort Field (by row value/lexicographic)",
     "customReport.noSort": "No sort",
     "customReport.direction": "Direction",
     "customReport.asc": "Asc ↑",
     "customReport.desc": "Desc ↓",
-    "customReport.groupDimension": "Group Dimension (recorded only; results shown by period)",
+    "customReport.groupDimension":
+      "Group Dimension (recorded only; results shown by period)",
     "customReport.noGroup": "No group",
-    "customReport.execPreview": "Execution preview: period {{period}} · data source {{ds}} · {{count}} fields",
+    "customReport.execPreview":
+      "Execution preview: period {{period}} · data source {{ds}} · {{count}} fields",
     "customReport.resultTitleNamed": "Run Result: {{name}}",
     "customReport.resultTitle": "Run Result",
     "customReport.close": "Close",
-    "customReport.resultSource": "Source: {{source}} · {{count}} rows · {{time}}",
-    "customReport.resultMeta": "Period: {{period}} · Data source: {{dsType}} · Run ID: {{id}}",
+    "customReport.resultSource":
+      "Source: {{source}} · {{count}} rows · {{time}}",
+    "customReport.resultMeta":
+      "Period: {{period}} · Data source: {{dsType}} · Run ID: {{id}}",
     "customReport.rerun": "Re-run",
     "customReport.historyTitleNamed": "Run History: {{name}}",
     "customReport.historyTitle": "Run History",
-    "customReport.historyHint": "Run history includes time/rows/status/data-source note; scheduled + subscription reports generate push records after running",
-    "customReport.emptyResult": "No result, please click \"Run\"",
+    "customReport.historyHint":
+      "Run history includes time/rows/status/data-source note; scheduled + subscription reports generate push records after running",
+    "customReport.emptyResult": 'No result, please click "Run"',
     "customReport.scheduleTitleNamed": "Schedule: {{name}}",
     "customReport.scheduleTitle": "Schedule",
     "customReport.saveAndPush": "Save & Push Notification",
     "customReport.scheduleRule": "Schedule Rule",
-    "customReport.scheduleHint": "Saving pushes a \"report generated\" notification to recipients (POST /notifications/report-generated)",
+    "customReport.scheduleHint":
+      'Saving pushes a "report generated" notification to recipients (POST /notifications/report-generated)',
     "customReport.recipients": "Recipients (notification targets)",
-    "customReport.recipientsPlaceholder": "Enter user ID and press Enter, default current",
+    "customReport.recipientsPlaceholder":
+      "Enter user ID and press Enter, default current",
     "customReport.currentSubscribers": "Current subscribers: {{names}}",
     "opLog.title": "Operation Audit Log",
     "opLog.recordCount": "Operation Log - {{count}} records",
@@ -35548,7 +36452,8 @@ export const translations: Translations = {
     "opLog.colAnomalyScore": "Anomaly Score",
     "opLog.colReason": "Reason",
     "opLog.colTime": "Time",
-    "opLog.highRiskWarning": "{{count}} high-risk anomalies detected, review immediately",
+    "opLog.highRiskWarning":
+      "{{count}} high-risk anomalies detected, review immediately",
     "opLog.anomalyTrend": "Anomaly Trend",
     "opLog.anomalyCount": "Anomaly Count",
     "opLog.reasonDelete": "Deletion warning",
@@ -35557,7 +36462,8 @@ export const translations: Translations = {
     "opLog.selectUser": "Select User",
     "opLog.userSessionTimeline": "{{name}} session timeline",
     "opLog.sessionOpsCount": "{{count}} operations",
-    "opLog.selectUserHint": "Select a user on the left to view the session timeline",
+    "opLog.selectUserHint":
+      "Select a user on the left to view the session timeline",
     "opLog.complianceTemplate": "Compliance Report Template",
     "opLog.daily": "Daily",
     "opLog.weekly": "Weekly",
@@ -35568,7 +36474,8 @@ export const translations: Translations = {
     "opLog.totalOps": "Total Operations",
     "opLog.compliantOps": "Compliant",
     "opLog.alertOps": "Alerted",
-    "opLog.complianceReady": "HIPAA / GDPR / MLPS compliance requirements met, report ready",
+    "opLog.complianceReady":
+      "HIPAA / GDPR / MLPS compliance requirements met, report ready",
     "opLog.sha256Chain": "SHA-256 hash chain",
     "opLog.verifyPassed": "All logs verified",
     "opLog.verifyTampered": "Tampering detected! Hash mismatch",
@@ -35577,7 +36484,8 @@ export const translations: Translations = {
     "opLog.colBlockHash": "Block Hash",
     "opLog.colPrevHash": "Prev Hash",
     "opLog.colVerify": "Verify",
-    "opLog.blockchainFooter": "Blockchain height: {{height}} · Latest block: {{latest}} · Hash: SHA-256",
+    "opLog.blockchainFooter":
+      "Blockchain height: {{height}} · Latest block: {{latest}} · Hash: SHA-256",
     "opLog.exportingProgress": "Exporting...",
     "opLog.exportDone": "Export Complete",
     "opLog.pleaseWait": "Please wait",
@@ -35609,7 +36517,8 @@ export const translations: Translations = {
     "opLog.cCompliant": "Compliant",
     "patientPage.saveSuccess": "Patient information saved!",
     "patientPage.deleteSuccess": "Patient {{name}} deleted",
-    "patientPage.registerSuccessName": "Patient {{name}} registered successfully",
+    "patientPage.registerSuccessName":
+      "Patient {{name}} registered successfully",
     "patientPage.batchImportTitle": "Batch Import Patients",
     "patientPage.ageUnit": " yrs",
     "patientPage.timesUnit": "times",
@@ -35622,7 +36531,8 @@ export const translations: Translations = {
     "patientPage.viewPatientAria": "View patient {{name}}",
     "patientPage.editPatientAria": "Edit patient {{name}}",
     "patientPage.exportedCount": "{{count}} patient records exported",
-    "patientPage.exportedCountLocal": "{{count}} patient records exported (local)",
+    "patientPage.exportedCountLocal":
+      "{{count}} patient records exported (local)",
     "patientPage.recordsCount": "records",
     "compressV2.j2kEncode": "Real JPEG2000 Encode (WASM)",
     "compressV2.j2kRespError": "Unexpected JPEG2000 encode response",
@@ -35637,7 +36547,8 @@ export const translations: Translations = {
     "measurementV2.serverCap": "V2 Server Capabilities",
     "measurementV2.metaLoaded": "GET /types loaded",
     "measurementV2.localMeta": "Frontend metadata",
-    "measurementV2.typeMetaTitle": "8 tool type metadata (unit/points/deterministic/formula)",
+    "measurementV2.typeMetaTitle":
+      "8 tool type metadata (unit/points/deterministic/formula)",
     "measurementV2.serverCompute": "Server compute",
     "measurementV2.computeBtn": "Compute",
     "measurementV2.coordConvert": "Coordinate convert",
@@ -35646,7 +36557,8 @@ export const translations: Translations = {
     "measurementV2.seedBtn": "Refresh",
     "measurementV2.seedFailed": "Seed check failed",
     "measurementV2.annUpdated": "Annotation updated (version +1)",
-    "measurementV2.annUpdateFailed": "Annotation update failed: backend unreachable",
+    "measurementV2.annUpdateFailed":
+      "Annotation update failed: backend unreachable",
     "consultation.registration.title": "Consultation Register & Query",
     "consultation.registration.create": "New Consultation",
     "consultation.registration.pending": "Pending Consultations",
@@ -35699,7 +36611,8 @@ export const translations: Translations = {
     "v3cosign.detailRefresh": "Refresh Detail",
     "v3cosign.detailClinicalInfo": "Clinical Info / Impression",
     "vnaOps.analyticsTitle": "VNA Storage Analytics",
-    "vnaOps.analyticsDesc": "Archive overview / storage growth trend / tier stats / integrity verification / duplicate analysis (backend /vna W10E-3 endpoints)",
+    "vnaOps.analyticsDesc":
+      "Archive overview / storage growth trend / tier stats / integrity verification / duplicate analysis (backend /vna W10E-3 endpoints)",
     "vnaOps.refresh": "Refresh",
     "vnaOps.days7": "Last 7 days",
     "vnaOps.days30": "Last 30 days",
@@ -35731,7 +36644,8 @@ export const translations: Translations = {
     "vnaOps.verifyTitle": "Integrity Verification",
     "vnaOps.close": "Close",
     "vnaOps.verifyOk": "Verified: SHA-256 checksum and size match",
-    "vnaOps.verifyMismatch": "Size mismatch: content size differs from metadata",
+    "vnaOps.verifyMismatch":
+      "Size mismatch: content size differs from metadata",
     "vnaOps.verifyMissing": "Content missing: cannot read object content",
     "vnaOps.object": "Object",
     "vnaOps.checksum": "SHA-256 Checksum",
@@ -35782,7 +36696,8 @@ export const translations: Translations = {
     "vnaPage.migrate": "Migrate",
     "vnaPage.verify": "Verify",
     "vnaPage.pageTitle": "VNA Vendor-Neutral Archive",
-    "vnaPage.pageDesc": "Benchmarking Agfa Enterprise Imaging / Sectra VNA / GE Datalogue · non-DICOM content archiving + WORM immutable storage",
+    "vnaPage.pageDesc":
+      "Benchmarking Agfa Enterprise Imaging / Sectra VNA / GE Datalogue · non-DICOM content archiving + WORM immutable storage",
     "vnaPage.refresh": "Refresh",
     "vnaPage.uploadArchive": "Upload Archive",
     "vnaPage.totalObjects": "Archive Objects",
@@ -35806,11 +36721,14 @@ export const translations: Translations = {
     "vnaPage.patientArchiveView": "Patient Archive View",
     "vnaPage.patientIdPlaceholder": "Enter patient ID (e.g. P00001)",
     "vnaPage.viewFullLifecycle": "View Full Lifecycle Archive",
-    "vnaPage.patientArchiveEmpty": "Enter a patient ID to view all archived objects (DICOM studies + non-DICOM documents/images)",
+    "vnaPage.patientArchiveEmpty":
+      "Enter a patient ID to view all archived objects (DICOM studies + non-DICOM documents/images)",
     "vnaPage.objectList": "Object List",
     "vnaPage.lifecycleTimeline": "Full Lifecycle Timeline",
-    "vnaPage.lifecycleAlertTitle": "G-26 ILM Imaging Lifecycle · VNA Tiered Storage",
-    "vnaPage.lifecycleAlertDesc": "Hot (SSD online) → Warm (nearline HDD) → Cold (cold archive). Policies/events use memory + seed storage; migrations take effect in real time and are logged.",
+    "vnaPage.lifecycleAlertTitle":
+      "G-26 ILM Imaging Lifecycle · VNA Tiered Storage",
+    "vnaPage.lifecycleAlertDesc":
+      "Hot (SSD online) → Warm (nearline HDD) → Cold (cold archive). Policies/events use memory + seed storage; migrations take effect in real time and are logged.",
     "vnaPage.newPolicy": "New Policy",
     "vnaPage.policyEventCount": "{{policies}} policies · {{events}} events",
     "vnaPage.tierPolicies": "Tier Policies",
@@ -35859,7 +36777,8 @@ export const translations: Translations = {
     "vnaPage.newTierPolicy": "New Tier Policy",
     "vnaPage.save": "Save",
     "vnaPage.tierRequired": "Please select a storage tier",
-    "vnaPage.retentionDaysLabel": "Retention Days (days before entering tier, 0 = immediate)",
+    "vnaPage.retentionDaysLabel":
+      "Retention Days (days before entering tier, 0 = immediate)",
     "vnaPage.retentionDaysRequired": "Please enter retention days",
     "vnaPage.policyDescription": "Policy description",
     "vnaPage.objectTierMigrate": "Object Tier Migration",
@@ -35877,10 +36796,13 @@ export const translations: Translations = {
     "aiQcPage.positioning": "Positioning",
     "aiQcPage.overallScore": "Overall",
     "aiQcPage.syncing": "Syncing…",
-    "aiQcPage.batchNoReturn": "Batch assessment returned nothing, please check study IDs",
-    "aiQcPage.noResultToExport": "No assessment results to export, please assess studies first",
+    "aiQcPage.batchNoReturn":
+      "Batch assessment returned nothing, please check study IDs",
+    "aiQcPage.noResultToExport":
+      "No assessment results to export, please assess studies first",
     "aiQcPage.assessFailed": "3D assessment failed",
-    "aiQcPage.assessNoReturn": "3D assessment API returned nothing, showing existing results",
+    "aiQcPage.assessNoReturn":
+      "3D assessment API returned nothing, showing existing results",
     "aiQcPage.assessLoadFailed": "Failed to load 3D assessment",
     "aiQcPage.dataLoadFailed": "Failed to load AI QC data",
     "aiQcPage.emptyFallbackDemo": "API returned no data, showing demo data",
@@ -35892,7 +36814,8 @@ export const translations: Translations = {
     "aiQcPage.confirmed": "Confirmed",
     "aiQcPage.pendingConfirm": "Pending",
     "aiQcPage.bannerTitle": "v1.0.4 AI QC Upgrade · One-click Auto Draft",
-    "aiQcPage.bannerDesc": "6 clinical scenario templates · AI model v2.3 · similar historical case matching · apply to report",
+    "aiQcPage.bannerDesc":
+      "6 clinical scenario templates · AI model v2.3 · similar historical case matching · apply to report",
     "aiQcPage.oneClickDraft": "One-click AI Draft",
     "aiQcPage.heading": "AI Intelligent QC",
     "aiQcPage.subtitle": "Deep-learning based imaging quality analysis and QC",
@@ -35909,7 +36832,8 @@ export const translations: Translations = {
     "aiQcPage.allTechnicians": "All Technicians",
     "aiQcPage.to": "to",
     "aiQcPage.autoQc3d": "AI 3D Auto QC",
-    "aiQcPage.autoQc3dDesc": "Artifact · Exposure · Positioning (POST /qc/image-ai/assess, deterministic)",
+    "aiQcPage.autoQc3dDesc":
+      "Artifact · Exposure · Positioning (POST /qc/image-ai/assess, deterministic)",
     "aiQcPage.assessing": "Assessing…",
     "aiQcPage.enterStudyId": "Enter study ID",
     "aiQcPage.assessStudy": "Assess Study",
@@ -35920,7 +36844,8 @@ export const translations: Translations = {
     "aiQcPage.inProgress": "(in progress…)",
     "aiQcPage.exportCsv": "Export CSV",
     "aiQcPage.historyTrend": "History Trend",
-    "aiQcPage.historyTrendDesc": "3D average score trend (GET /qc/image-ai/assessments, aggregated by date, {{count}} records)",
+    "aiQcPage.historyTrendDesc":
+      "3D average score trend (GET /qc/image-ai/assessments, aggregated by date, {{count}} records)",
     "aiQcPage.trendSyncing": "Syncing trend data…",
     "aiQcPage.noHistory": "No historical assessment records",
     "aiQcPage.batchResults": "Batch Results ({{count}})",
@@ -35931,7 +36856,8 @@ export const translations: Translations = {
     "aiQcPage.modality": "Modality",
     "aiQcPage.bodyPart": "Body Part",
     "aiQcPage.overallVerdict": "Verdict",
-    "aiQcPage.no3dResult": "No 3D assessment results. Enter a study ID and click \"Assess Study\"",
+    "aiQcPage.no3dResult":
+      'No 3D assessment results. Enter a study ID and click "Assess Study"',
     "aiQcPage.instance": "Instance",
     "aiQcPage.totalScore": "Total Score",
     "aiQcPage.artifactAssess": "Artifact Assessment",
@@ -35979,16 +36905,20 @@ export const translations: Translations = {
     "breastSpecialty.dualReader2Done": "Reader 2 done",
     "breastSpecialty.dualBothDone": "Both done",
     "breastSpecialty.dualArbitrated": "Arbitrated",
-    "breastSpecialty.cadNoData": "breastCadApi has no data, fell back to demo data",
-    "breastSpecialty.cadUnavailable": "breastCadApi unavailable, fell back to demo data",
-    "breastSpecialty.fillAssignFields": "Please fill in study ID, patient name and patient ID",
+    "breastSpecialty.cadNoData":
+      "breastCadApi has no data, fell back to demo data",
+    "breastSpecialty.cadUnavailable":
+      "breastCadApi unavailable, fell back to demo data",
+    "breastSpecialty.fillAssignFields":
+      "Please fill in study ID, patient name and patient ID",
     "breastSpecialty.fillArbitration": "Please fill in the arbitration report",
     "breastSpecialty.arbitrateFailed": "Arbitration failed",
     "breastSpecialty.fillPatientFields": "Please fill in patient ID and name",
     "breastSpecialty.title": "Breast Specialty",
     "breastSpecialty.sourceRealtime": "breastCadApi live",
     "breastSpecialty.sourceDemoFallback": "Demo data (fallback)",
-    "breastSpecialty.subtitle": "Breast imaging specialty · BI-RADS scoring · screening management · breast workflow",
+    "breastSpecialty.subtitle":
+      "Breast imaging specialty · BI-RADS scoring · screening management · breast workflow",
     "breastSpecialty.newScreening": "New Screening",
     "breastSpecialty.statsTodayExams": "Today's Exams",
     "breastSpecialty.statsPendingRecall": "Pending Recall",
@@ -36014,7 +36944,8 @@ export const translations: Translations = {
     "breastSpecialty.colActions": "Actions",
     "breastSpecialty.dbtRead": "DBT Read",
     "breastSpecialty.densityDistribution": "Density Distribution",
-    "breastSpecialty.sourceNoDensityEndpoint": "Demo data (no breast density endpoint)",
+    "breastSpecialty.sourceNoDensityEndpoint":
+      "Demo data (no breast density endpoint)",
     "breastSpecialty.caseCount": "{{count}} cases ({{pct}}%)",
     "breastSpecialty.biradsDistribution": "BI-RADS Distribution",
     "breastSpecialty.dbtStudies": "DBT Studies",
@@ -36122,7 +37053,8 @@ export const translations: Translations = {
     "equipEfficiency.tabBooking": "Booking Full Rate",
     "equipEfficiency.tabFailure": "Failure Statistics",
     "equipEfficiency.title": "Equipment Efficiency Analysis",
-    "equipEfficiency.subtitle": "Monitor equipment status and efficiency in real time, benchmarking Infinitt/Ruike industry standards",
+    "equipEfficiency.subtitle":
+      "Monitor equipment status and efficiency in real time, benchmarking Infinitt/Ruike industry standards",
     "equipEfficiency.loading": "Loading…",
     "equipEfficiency.live": "oeeApi / biApi live",
     "equipEfficiency.demoFallback": "Demo data (fallback)",
@@ -36134,11 +37066,14 @@ export const translations: Translations = {
     "equipEfficiency.realtime": "live",
     "equipEfficiency.utilizationTrend": "Device Utilization Trend",
     "equipEfficiency.trendDescPrefix": "Last",
-    "equipEfficiency.trendDescSuffix": "-day device utilization change · biApi.device-oee",
+    "equipEfficiency.trendDescSuffix":
+      "-day device utilization change · biApi.device-oee",
     "equipEfficiency.timeSegment": "Exam Volume by Time Segment",
-    "equipEfficiency.timeSegmentDesc": "Day/Night/Weekend breakdown (demo data)",
+    "equipEfficiency.timeSegmentDesc":
+      "Day/Night/Weekend breakdown (demo data)",
     "equipEfficiency.loadRanking": "Device Load Ranking",
-    "equipEfficiency.loadRankingDesc": "Composite score based on OEE/utilization/exam volume · oeeApi.list + statsApi.top-devices",
+    "equipEfficiency.loadRankingDesc":
+      "Composite score based on OEE/utilization/exam volume · oeeApi.list + statsApi.top-devices",
     "equipEfficiency.exportReport": "Export Report",
     "equipEfficiency.rank": "Rank",
     "equipEfficiency.deviceId": "Device ID",
@@ -36152,11 +37087,14 @@ export const translations: Translations = {
     "equipEfficiency.demoData": "demo data",
     "equipEfficiency.dataUpdated": "Data updated:",
     "equipEfficiency.heatmapTitle": "Device Utilization Heatmap",
-    "equipEfficiency.heatmapDesc": "Last 30-day device utilization distribution (demo data — deterministic random)",
+    "equipEfficiency.heatmapDesc":
+      "Last 30-day device utilization distribution (demo data — deterministic random)",
     "equipEfficiency.bookingTitle": "Booking Full-Rate Ranking",
-    "equipEfficiency.bookingDesc": "Full = daily booked slots ≥95% | devices below 70% highlighted in red (demo data)",
+    "equipEfficiency.bookingDesc":
+      "Full = daily booked slots ≥95% | devices below 70% highlighted in red (demo data)",
     "equipEfficiency.failureTitle": "Device Failure Statistics",
-    "equipEfficiency.failureDesc": "Fault types: hardware/software/scheduled maintenance/emergency repair · records from deviceMgmtApi.faults",
+    "equipEfficiency.failureDesc":
+      "Fault types: hardware/software/scheduled maintenance/emergency repair · records from deviceMgmtApi.faults",
     // [v3.0.6.11-106 Wave 8A] ExamDetailView i18n
     "examDetail.statusScheduled": "Scheduled",
     "examDetail.statusArrived": "Arrived",
@@ -36178,18 +37116,21 @@ export const translations: Translations = {
     "examDetail.doseSaved": "Dose record saved",
     "examDetail.doseSaveFailed": "Failed to save dose",
     "examDetail.selectQuality": "Please select whether the image is qualified",
-    "examDetail.doseRequiredWhenOk": "Dose record (DLP/CTDIvol) is required when the image is qualified",
+    "examDetail.doseRequiredWhenOk":
+      "Dose record (DLP/CTDIvol) is required when the image is qualified",
     "examDetail.noteRequired": "Technician note cannot be empty",
     "examDetail.retakeReasonRequired": "A reason is required for retake",
     "examDetail.completeFailed": "Complete failed",
-    "examDetail.examCompleted": "Exam completed and moved to pending report list",
+    "examDetail.examCompleted":
+      "Exam completed and moved to pending report list",
     "examDetail.qcRejectFailed": "QC rejection failed",
     "examDetail.retakeRequestFailed": "Failed to submit retake request",
     "examDetail.retakeRequested": "Retake request submitted, awaiting approval",
     "examDetail.operationFailed": "Operation failed",
     "examDetail.examPaused": "Exam paused",
     "examDetail.examResumed": "Exam resumed",
-    "examDetail.retakeRequestedPending": "Retake request submitted, awaiting approval",
+    "examDetail.retakeRequestedPending":
+      "Retake request submitted, awaiting approval",
     "examDetail.statusUpdated": "Status updated",
     "examDetail.historyLoadFailed": "Failed to load history exams",
     "examDetail.statusChange": "Status change",
@@ -36198,7 +37139,8 @@ export const translations: Translations = {
     "examDetail.enterNote": "Please enter note content first",
     "examDetail.notesSaved": "Technician note saved",
     "examDetail.notesSaveFailed": "Failed to save note",
-    "examDetail.barcodeGenerated": "Exam barcode generated and downloaded (pending in-hospital barcode printing)",
+    "examDetail.barcodeGenerated":
+      "Exam barcode generated and downloaded (pending in-hospital barcode printing)",
     "examDetail.enteredRetake": "Entered retake acquisition",
     "examDetail.retakeCollectFailed": "Retake acquisition failed",
     "examDetail.years": " yrs",
@@ -36236,17 +37178,19 @@ export const translations: Translations = {
     "examDetail.assignTech": "Assign Tech",
     "examDetail.handover": "Handover",
     "examDetail.doseRecord": "Dose Record",
-    "examDetail.ctDoseRequired": "CT exams require a dose record before completion (enforced in completion dialog)",
+    "examDetail.ctDoseRequired":
+      "CT exams require a dose record before completion (enforced in completion dialog)",
     "examDetail.nonCtDoseOptional": "Optional for non-CT exams",
     "examDetail.saving": "Saving...",
     "examDetail.saveDose": "Save Dose",
     "examDetail.techNotes": "Technician Notes",
     "examDetail.noTechNotes": "No technician notes",
-    "examDetail.notesPlaceholder": "Record scan parameters / patient cooperation notes (timestamped)",
+    "examDetail.notesPlaceholder":
+      "Record scan parameters / patient cooperation notes (timestamped)",
     "examDetail.saveNotes": "Save Note",
     "examDetail.imagesAcquired": "Acquired Images",
     "examDetail.imageCount": "images",
-    "examDetail.viewImageHint": "Click \"View Images\" to open the image viewer",
+    "examDetail.viewImageHint": 'Click "View Images" to open the image viewer',
     "examDetail.historyRecords": "History Exams",
     "examDetail.historyCount": "({{count}} history exams for this patient)",
     "examDetail.loadingHistory": "Loading history exams...",
@@ -36265,7 +37209,8 @@ export const translations: Translations = {
     "examDetail.cancel": "Cancel",
     "examDetail.pause": "Pause",
     "examDetail.resume": "Resume",
-    "examDetail.retakeRequestPending": "Retake request submitted, awaiting approval",
+    "examDetail.retakeRequestPending":
+      "Retake request submitted, awaiting approval",
     "examDetail.executeRetake": "Execute Retake",
     "examDetail.resubmitRetake": "Resubmit Retake Request",
     "examDetail.submitRetake": "Submit Retake Request",
@@ -36280,13 +37225,15 @@ export const translations: Translations = {
     "examDetail.printBarcode": "Print Barcode",
     "examDetail.createFollowUp": "Create Follow-up Plan",
     "examDetail.completeConfirmTitle": "Complete Exam Confirmation",
-    "examDetail.completeChecklist": "Please confirm the following mandatory checks before completing",
+    "examDetail.completeChecklist":
+      "Please confirm the following mandatory checks before completing",
     "examDetail.imageQualified": "Is the image qualified",
     "examDetail.qualified": "Qualified",
     "examDetail.retake": "Retake",
     "examDetail.retakeReason": "Retake Reason",
     "examDetail.selectRetakeReason": "Select retake reason",
-    "examDetail.notesPlaceholderShort": "Record scan parameters / image notes (timestamped)",
+    "examDetail.notesPlaceholderShort":
+      "Record scan parameters / image notes (timestamped)",
     "pacsAdmin.detail": "Detail",
     "pacsAdmin.serverDetail": "AE Server Detail",
     "pacsAdmin.name": "Name",
@@ -36387,7 +37334,8 @@ export const translations: Translations = {
     "pacsAdmin.requiredPath": "Please enter a path",
     "pacsAdmin.requiredCapacity": "Please enter a capacity",
     "pacsAdmin.alertTitle": "PACS admin is connected to the real backend",
-    "pacsAdmin.alertDesc": "This page is served by the backend /pacs-admin (derived from Device/Exam/AuditLog + seed fallback); falls back to MSW demo data when the API is unavailable.",
+    "pacsAdmin.alertDesc":
+      "This page is served by the backend /pacs-admin (derived from Device/Exam/AuditLog + seed fallback); falls back to MSW demo data when the API is unavailable.",
     "pacsAdmin.title": "PACS Admin",
     "pacsAdmin.tagDicom": "DICOM AE Management",
     "pacsAdmin.tabNodes": "Node List",
@@ -36412,9 +37360,12 @@ export const translations: Translations = {
     "pacsAdmin.placeholderHotStorage": "e.g. Hot Storage",
     // [v3.0.6.11-106 Wave 9A] Regional collaboration page i18n
     "regionalCollab.crossQueryFailed": "Cross-institution search failed",
-    "regionalCollab.accessRecordOffline": "Access-record API unreachable; logged in this session",
-    "regionalCollab.consultSubmitted": "Consultation request submitted, waiting for an expert",
-    "regionalCollab.acceptOffline": "Accept API unreachable, please retry later",
+    "regionalCollab.accessRecordOffline":
+      "Access-record API unreachable; logged in this session",
+    "regionalCollab.consultSubmitted":
+      "Consultation request submitted, waiting for an expert",
+    "regionalCollab.acceptOffline":
+      "Accept API unreachable, please retry later",
     "regionalCollab.acceptFailed": "Failed to join consultation",
     "regionalCollab.instName": "Institution Name",
     "regionalCollab.address": "Address",
@@ -36435,14 +37386,17 @@ export const translations: Translations = {
     "regionalCollab.inProgress": "In Progress",
     "regionalCollab.itemsUnit": "items",
     "regionalCollab.title": "Regional Collaboration Center",
-    "regionalCollab.tagScope": "Regional Alliance · Cross-site Access · Remote Consultation",
+    "regionalCollab.tagScope":
+      "Regional Alliance · Cross-site Access · Remote Consultation",
     "regionalCollab.membersSummary": "Alliance members",
     "regionalCollab.membersUnit": "",
     "regionalCollab.sitesLabel": "Sites",
     "regionalCollab.sitesUnit": "",
     "regionalCollab.sharedChecksLabel": "Shared studies",
-    "regionalCollab.dataSourceApi": "Data source: backend /regional/* (seed + site-derived) · MSW fallback",
-    "regionalCollab.dataSourceDemo": "Data source: local demo fallback (backend unreachable)",
+    "regionalCollab.dataSourceApi":
+      "Data source: backend /regional/* (seed + site-derived) · MSW fallback",
+    "regionalCollab.dataSourceDemo":
+      "Data source: local demo fallback (backend unreachable)",
     "regionalCollab.statInstitutions": "Alliance Institutions",
     "regionalCollab.statSharedStudies": "Shared Studies",
     "regionalCollab.statTotalAccess": "Total Access",
@@ -36462,8 +37416,10 @@ export const translations: Translations = {
     "regionalCollab.queryByDescription": "Study Description",
     "regionalCollab.inputQueryValue": "Enter search value",
     "regionalCollab.search": "Search",
-    "regionalCollab.crossSearchHint": "Search studies across institutions via DICOM Query/Retrieve; hits are logged as access and opened in the viewer",
-    "regionalCollab.emptyCross": "Select an institution/criteria and click \"Search\"",
+    "regionalCollab.crossSearchHint":
+      "Search studies across institutions via DICOM Query/Retrieve; hits are logged as access and opened in the viewer",
+    "regionalCollab.emptyCross":
+      'Select an institution/criteria and click "Search"',
     "regionalCollab.emptyCrossResult": "No matching cross-site studies found",
     "regionalCollab.remoteConsult": "Remote Consultation",
     "regionalCollab.startConsult": "Start Consultation",
@@ -36473,7 +37429,8 @@ export const translations: Translations = {
     "regionalCollab.diagnosisLabel": "Diagnosis:",
     "regionalCollab.expertLabel": "Expert:",
     "regionalCollab.shareStats": "Sharing Statistics",
-    "regionalCollab.shareStatsHint": "Derived from access records and document registry",
+    "regionalCollab.shareStatsHint":
+      "Derived from access records and document registry",
     "regionalCollab.emptyStats": "No statistics",
     "regionalCollab.totalSharedLabel": "Total shared",
     "regionalCollab.totalAccessLabel": "Total access",
@@ -36498,11 +37455,14 @@ export const translations: Translations = {
     "regionalCollab.requiredPatientName": "Please enter patient name",
     "regionalCollab.placeholderPatientName": "e.g. Zhang Wei",
     "regionalCollab.applyInstitution": "Requesting Institution",
-    "regionalCollab.requiredInstitution": "Please select a requesting institution",
+    "regionalCollab.requiredInstitution":
+      "Please select a requesting institution",
     "regionalCollab.selectInstitution": "Select institution",
     "regionalCollab.consultDiagnosis": "Consultation Diagnosis/Question",
-    "regionalCollab.requiredDiagnosis": "Please enter the consultation question",
-    "regionalCollab.placeholderDiagnosis": "e.g. Intracranial mass of undetermined nature, request expert consultation",
+    "regionalCollab.requiredDiagnosis":
+      "Please enter the consultation question",
+    "regionalCollab.placeholderDiagnosis":
+      "e.g. Intracranial mass of undetermined nature, request expert consultation",
     "regionalCollab.priority": "Priority",
     "regionalCollab.priorityNormal": "Normal",
     "regionalCollab.priorityUrgent": "Urgent",
@@ -36521,7 +37481,8 @@ export const translations: Translations = {
     "autoCollection.createFailed": "Failed to create",
     "autoCollection.saveFailed": "Failed to save",
     "autoCollection.backendConnected": "Backend connected (real API)",
-    "autoCollection.sourceNote": "Data source: real backend API (/auto-collection, includes task start/stop/run/logs)",
+    "autoCollection.sourceNote":
+      "Data source: real backend API (/auto-collection, includes task start/stop/run/logs)",
     "autoCollection.title": "Auto Collection Management",
     "autoCollection.retry": "Retry",
     "autoCollection.statTotalRules": "Total Rules",
@@ -36585,7 +37546,8 @@ export const translations: Translations = {
     "autoCollection.relatedRule": "Related Rule (optional)",
     "autoCollection.selectRule": "Select a collection rule",
     "autoCollection.sourceConfig": "Source Config (optional)",
-    "autoCollection.placeholderSourceConfig": "e.g. target path /mnt/pacs/inbox",
+    "autoCollection.placeholderSourceConfig":
+      "e.g. target path /mnt/pacs/inbox",
     "autoCollection.close": "Close",
     "autoCollection.errorInfo": "Error Info",
     "autoCollection.result": "Result",
@@ -36637,11 +37599,13 @@ export const translations: Translations = {
     "qcPdca.sourceDemo": "Demo Fallback",
     "qcPdca.sourceOffline": "Offline",
     "qcPdca.title": "PDCA Quality Control Loop",
-    "qcPdca.subtitle": "Plan / Do / Check / Act stage flow · Report / Image / Process / Service quality cycles",
+    "qcPdca.subtitle":
+      "Plan / Do / Check / Act stage flow · Report / Image / Process / Service quality cycles",
     "qcPdca.refresh": "Refresh",
     "qcPdca.createCycle": "New Cycle",
     "qcPdca.defectBannerPrefix": "Defect passed in from defect center:",
-    "qcPdca.defectBannerSuffix": "— will be linked automatically after creating a cycle",
+    "qcPdca.defectBannerSuffix":
+      "— will be linked automatically after creating a cycle",
     "qcPdca.emptyCycles": "No PDCA cycles; click New in the top right",
     "qcPdca.editCycle": "Edit Cycle",
     "qcPdca.newCycle": "New PDCA Cycle",
@@ -36679,22 +37643,27 @@ export const translations: Translations = {
     "qcPdca.formPhase": "Phase",
     "qcPdca.formContent": "Content (measures/results/metrics/issues)",
     "qcPdca.requiredContent": "Please enter content",
-    "qcPdca.placeholderContent": "Enter measures, results, metrics or issues for this phase",
+    "qcPdca.placeholderContent":
+      "Enter measures, results, metrics or issues for this phase",
     "qcPdca.confirmComplete": "Confirm Complete",
     "qcPdca.formSummary": "Closure Summary",
     "qcPdca.requiredSummary": "Please enter a closure summary",
-    "qcPdca.placeholderSummary": "Record closure outcome and standardized measures...",
-    "qcPdca.completeHint": "After completion the cycle becomes \"Completed\", records completedAt and summary, and can no longer be advanced.",
+    "qcPdca.placeholderSummary":
+      "Record closure outcome and standardized measures...",
+    "qcPdca.completeHint":
+      'After completion the cycle becomes "Completed", records completedAt and summary, and can no longer be advanced.',
     // [v3.0.6.11-106 Wave 9A] Technician schedule page i18n
     "techSchedule.requiredDateTech": "Please select a date and a technician",
     "techSchedule.createFailed": "Create failed",
-    "techSchedule.requiredBatch": "Please enter start/end dates and select a shift pattern",
+    "techSchedule.requiredBatch":
+      "Please enter start/end dates and select a shift pattern",
     "techSchedule.batchFailed": "Batch generation failed",
     "techSchedule.confirmed": "Schedule confirmed",
     "techSchedule.confirmFailed": "Confirm failed",
     "techSchedule.requiredTargetTech": "Please select a target technician",
     "techSchedule.swapFailed": "Shift swap failed",
-    "techSchedule.requiredLeaveReason": "Please enter the leave reason (used for backfill)",
+    "techSchedule.requiredLeaveReason":
+      "Please enter the leave reason (used for backfill)",
     "techSchedule.leaveFailed": "Leave registration failed",
     "techSchedule.scheduleUpdated": "Schedule updated",
     "techSchedule.updateFailed": "Update failed",
@@ -36718,7 +37687,8 @@ export const translations: Translations = {
     "techSchedule.noTechnicianData": "No technician data",
     "techSchedule.noCalendarData": "No calendar data",
     "techSchedule.shiftLegend": "Shift legend:",
-    "techSchedule.cellHint": "Click a cell: details/actions; empty cell: quick create",
+    "techSchedule.cellHint":
+      "Click a cell: details/actions; empty cell: quick create",
     "techSchedule.techShiftDistribution": "Technician Shift Distribution",
     "techSchedule.noMonthlySchedule": "No schedules this month",
     "techSchedule.shiftCount": "Shifts",
@@ -36747,13 +37717,15 @@ export const translations: Translations = {
     "techSchedule.startDate": "Start Date",
     "techSchedule.endDate": "End Date",
     "techSchedule.shiftPattern": "Shift Pattern (cycles by pattern)",
-    "techSchedule.batchHint": "Example: [Day, Night, Backup] generates 3 schedules per date, rotating technicians and exam rooms, skipping conflicts.",
+    "techSchedule.batchHint":
+      "Example: [Day, Night, Backup] generates 3 schedules per date, rotating technicians and exam rooms, skipping conflicts.",
     "techSchedule.targetTechLabel": "Target Technician (same date and shift)",
     "techSchedule.selectTargetTech": "Select target technician",
     "techSchedule.placeholderSwapReason": "e.g. Personal matter, swapping",
     "techSchedule.leaveRegister": "Leave Registration",
     "techSchedule.leaveReasonLabel": "Leave Reason (will prompt backfill)",
-    "techSchedule.placeholderLeaveReason": "e.g. Sudden illness, please arrange backfill",
+    "techSchedule.placeholderLeaveReason":
+      "e.g. Sudden illness, please arrange backfill",
     "techSchedule.editScheduleTitle": "Edit Schedule",
     // [v3.0.6.11-106 Wave 9A] CA digital signature page i18n
     "caSignature.certsLoadFailed": "Failed to load certificate list",
@@ -36765,12 +37737,15 @@ export const translations: Translations = {
     "caSignature.uploadFailed": "Upload failed",
     "caSignature.enterRevokeReason": "Please enter the revocation reason",
     "caSignature.revokeFailed": "Revocation failed",
-    "caSignature.enterReportIdAndCode": "Please enter the report ID and verification code",
+    "caSignature.enterReportIdAndCode":
+      "Please enter the report ID and verification code",
     "caSignature.verifyFailed": "Verification failed",
-    "caSignature.signatureHistoryLoadFailed": "Failed to load signature history",
+    "caSignature.signatureHistoryLoadFailed":
+      "Failed to load signature history",
     "caSignature.caHistoryLoadFailed": "Failed to load operation history",
     "caSignature.title": "CA Digital Signature",
-    "caSignature.subtitle": "RSA-SHA256 + SM2-SM3 (Chinese) · Certificate chain · Timestamp · Signature verification · Blockchain integration",
+    "caSignature.subtitle":
+      "RSA-SHA256 + SM2-SM3 (Chinese) · Certificate chain · Timestamp · Signature verification · Blockchain integration",
     "caSignature.uploadCert": "Upload Certificate",
     "caSignature.signatureHistory": "Signature History",
     "caSignature.caHistory": "Operation History",
@@ -36800,7 +37775,8 @@ export const translations: Translations = {
     "caSignature.certRevoked": "This certificate is revoked",
     "caSignature.revokeCert": "Revoke Certificate",
     "caSignature.revoke": "Revoke",
-    "caSignature.expiredCannotRenew": "Expired or revoked certificates cannot be renewed",
+    "caSignature.expiredCannotRenew":
+      "Expired or revoked certificates cannot be renewed",
     "caSignature.renewFailed": "Renewal failed",
     "caSignature.renew": "Renew",
     "caSignature.signingWithPrefix": "Signing with",
@@ -36810,7 +37786,8 @@ export const translations: Translations = {
     "caSignature.signTime": "Sign Time:",
     "caSignature.verificationCode": "Verification Code:",
     "caSignature.reportIdLabel": "Report ID:",
-    "caSignature.certChainValue": "Certificate chain: Root CA → Intermediate CA → User Certificate",
+    "caSignature.certChainValue":
+      "Certificate chain: Root CA → Intermediate CA → User Certificate",
     "caSignature.certChainVerify": "Certificate Chain Verification",
     "caSignature.verified": "Verified",
     "caSignature.uploadCertTitle": "Upload Certificate (file + metadata)",
@@ -36828,12 +37805,14 @@ export const translations: Translations = {
     "caSignature.gmSmFull": "SM2-SM3 (Chinese)",
     "caSignature.validToLabel": "Valid Until",
     "caSignature.issuerLabel": "Issuer",
-    "caSignature.placeholderIssuer": "e.g. CFCA China Financial Certification Authority",
+    "caSignature.placeholderIssuer":
+      "e.g. CFCA China Financial Certification Authority",
     "caSignature.confirmRevoke": "Confirm Revocation",
     "caSignature.holderLabel": "Holder:",
     "caSignature.currentStatus": "Current Status:",
     "caSignature.revokeReasonLabel": "Revocation Reason *",
-    "caSignature.revokeReasonPlaceholder": "Enter the revocation reason (e.g. staff departure / key leak); this action cannot be undone",
+    "caSignature.revokeReasonPlaceholder":
+      "Enter the revocation reason (e.g. staff departure / key leak); this action cannot be undone",
     "caSignature.verifyTitle": "Signature Verification",
     "caSignature.startVerify": "Start Verification",
     "caSignature.close": "Close",
@@ -36841,8 +37820,10 @@ export const translations: Translations = {
     "caSignature.placeholderReportId": "e.g. RPT-2026-0801-001",
     "caSignature.verifyCodeLabel": "Verification Code *",
     "caSignature.placeholderVerifyCode": "e.g. V8F3K2Q9W4M7X1",
-    "caSignature.verifyPassed": "Verification passed: signature is authentic and valid",
-    "caSignature.verifyFailedMsg": "Verification failed: no matching valid signature",
+    "caSignature.verifyPassed":
+      "Verification passed: signature is authentic and valid",
+    "caSignature.verifyFailedMsg":
+      "Verification failed: no matching valid signature",
     "caSignature.signerLabel": "Signer:",
     "caSignature.certStatusLabel": "Certificate Status:",
     "caSignature.loadingSignatures": "Loading signature history...",
@@ -36896,13 +37877,16 @@ export const translations: Translations = {
     "dentalRadFusion.requiredTargetDept": "Please select a target department",
     "dentalRadFusion.referralReason": "Referral Reason",
     "dentalRadFusion.requiredReason": "Please enter the referral reason",
-    "dentalRadFusion.reasonPlaceholder": "e.g. Pre-implant CBCT 3D assessment for tooth 36",
+    "dentalRadFusion.reasonPlaceholder":
+      "e.g. Pre-implant CBCT 3D assessment for tooth 36",
     "dentalRadFusion.close": "Close",
     "dentalRadFusion.referringDoctor": "Referring Doctor",
     "dentalRadFusion.createdAt": "Created At",
     "dentalRadFusion.fusionParamsTitle": "Fusion Parameters / Overlay Info",
-    "dentalRadFusion.fusionAcceptedDesc": "Accepted: the fusion viewer can load intraoral scan and CBCT overlays; parameters (registration/opacity/cropping) are generated dynamically with the study data.",
-    "dentalRadFusion.fusionCompletedDesc": "After completion the overlay info is archived with the images; review the CBCT + intraoral scan 3D overlay in the Dental-Radiology Fusion Viewer.",
+    "dentalRadFusion.fusionAcceptedDesc":
+      "Accepted: the fusion viewer can load intraoral scan and CBCT overlays; parameters (registration/opacity/cropping) are generated dynamically with the study data.",
+    "dentalRadFusion.fusionCompletedDesc":
+      "After completion the overlay info is archived with the images; review the CBCT + intraoral scan 3D overlay in the Dental-Radiology Fusion Viewer.",
     "dentalRadFusion.reportLoadFailed": "Failed to load report",
     "dentalRadFusion.cbctReportLoadFailed": "Failed to load CBCT report",
     "dentalRadFusion.fusionStudiesLoadFailed": "Failed to load fusion studies",
@@ -36915,15 +37899,18 @@ export const translations: Translations = {
     "dentalRadFusion.region": "Region",
     "dentalRadFusion.scanType": "Scan Type",
     "dentalRadFusion.indications": "Indications",
-    "dentalRadFusion.dentalFinding": "Low-density periapical lesion at the distal root of tooth 36; widened PDL space on the palatal side of tooth 16",
+    "dentalRadFusion.dentalFinding":
+      "Low-density periapical lesion at the distal root of tooth 36; widened PDL space on the palatal side of tooth 16",
     "dentalRadFusion.chronicApicalTag": "Chronic apical periodontitis (36)",
     "dentalRadFusion.qualityLabel": "Quality:",
     "dentalRadFusion.radiologyReport": "Radiology Report",
-    "dentalRadFusion.radiologyFinding": "CBCT shows right maxillary sinus mucosal thickening; decreased bone density in the apical region of tooth 36",
+    "dentalRadFusion.radiologyFinding":
+      "CBCT shows right maxillary sinus mucosal thickening; decreased bone density in the apical region of tooth 36",
     "dentalRadFusion.cariesDetected": "Caries detected:",
     "dentalRadFusion.boneLoss": "Bone loss:",
     "dentalRadFusion.periapicalLesions": "Periapical lesions:",
-    "dentalRadFusion.chronicApicalWithResorption": "Chronic apical periodontitis with bone resorption",
+    "dentalRadFusion.chronicApicalWithResorption":
+      "Chronic apical periodontitis with bone resorption",
     "dentalRadFusion.rightMaxillarySinusitis": "Right maxillary sinusitis",
     "dentalRadFusion.aiConfidence": "AI confidence:",
     "dentalRadFusion.modelLabel": "Model:",
@@ -36939,13 +37926,17 @@ export const translations: Translations = {
     "dentalRadFusion.ceph": "Ceph",
     "dentalRadFusion.cephSim": "Ceph (simulated)",
     "dentalRadFusion.tabOverlay": "Overlay Fusion",
-    "dentalRadFusion.overlayTitleWebgl": "CBCT + Intraoral Scan 3D Overlay Fusion (WebGL)",
+    "dentalRadFusion.overlayTitleWebgl":
+      "CBCT + Intraoral Scan 3D Overlay Fusion (WebGL)",
     "dentalRadFusion.tabTimeline": "Unified Timeline",
-    "dentalRadFusion.timeline1": "2026-06-20 Dental initial visit (panoramic + oral exam)",
-    "dentalRadFusion.timeline2": "2026-06-21 Referred to radiology (CBCT mandibular 3D reconstruction)",
+    "dentalRadFusion.timeline1":
+      "2026-06-20 Dental initial visit (panoramic + oral exam)",
+    "dentalRadFusion.timeline2":
+      "2026-06-21 Referred to radiology (CBCT mandibular 3D reconstruction)",
     "dentalRadFusion.timeline3": "2026-06-22 Radiology report completed",
     "dentalRadFusion.timeline4": "2026-06-23 Dental implant planning",
-    "dentalRadFusion.timeline5": "2026-06-25 Intraoral scan impression + 3D fusion design",
+    "dentalRadFusion.timeline5":
+      "2026-06-25 Intraoral scan impression + 3D fusion design",
     // [v3.0.6.11-106 Wave 9A] CA signature + amendment page i18n
     "signAmend.applySuccess": "Application submitted",
     "signAmend.revokeSuccess": "Revoked successfully",
@@ -36954,7 +37945,8 @@ export const translations: Translations = {
     "signAmend.signatureInvalidMsg": "Signature invalid",
     "signAmend.signatureValid": "Signature Valid",
     "signAmend.signatureInvalid": "Signature Invalid",
-    "signAmend.requiredReportIdAndReason": "Please enter the report ID and reason",
+    "signAmend.requiredReportIdAndReason":
+      "Please enter the report ID and reason",
     "signAmend.amendStarted": "Amendment started",
     "signAmend.amendCompleted": "Amendment completed",
     "signAmend.approved": "Approved",
@@ -37039,7 +38031,8 @@ export const translations: Translations = {
     "signAmend.query": "Query",
     // [v3.0.6.11-106 Wave 9A] Smart routing page i18n
     "smartRouting.rulesLoadFailed": "Failed to load rules",
-    "smartRouting.dataLoadFailed": "Failed to load data, please check the network and retry",
+    "smartRouting.dataLoadFailed":
+      "Failed to load data, please check the network and retry",
     "smartRouting.saveFailed": "Save failed",
     "smartRouting.enabled": "Enabled",
     "smartRouting.disabled": "Disabled",
@@ -37109,11 +38102,13 @@ export const translations: Translations = {
     "smartRouting.priorityHint": "Priority (lower is higher priority)",
     // [v3.0.6.11-106 Wave 9A] Critical value center page i18n
     "criticalCenter.centerLoadFailed": "Failed to load center list",
-    "criticalCenter.examIdAndContentRequired": "Exam ID and report content cannot be empty",
+    "criticalCenter.examIdAndContentRequired":
+      "Exam ID and report content cannot be empty",
     "criticalCenter.autoDetectFailed": "Auto-detection failed",
     "criticalCenter.resolutionRequired": "Please enter the closure resolution",
     "criticalCenter.closeLoopFailed": "Close loop failed",
-    "criticalCenter.ruleNameAndConditionRequired": "Rule name and trigger condition cannot be empty",
+    "criticalCenter.ruleNameAndConditionRequired":
+      "Rule name and trigger condition cannot be empty",
     "criticalCenter.ruleUpdated": "Rule updated",
     "criticalCenter.ruleCreated": "Rule created",
     "criticalCenter.saveFailed": "Save failed",
@@ -37124,7 +38119,8 @@ export const translations: Translations = {
     "criticalCenter.channelsSaved": "Notification channel config saved",
     "criticalCenter.saveChannelsFailed": "Failed to save channel config",
     "criticalCenter.title": "Critical Value Center (R3)",
-    "criticalCenter.subtitle": "Full lifecycle management · Loop monitoring · Escalation notification · Statistics",
+    "criticalCenter.subtitle":
+      "Full lifecycle management · Loop monitoring · Escalation notification · Statistics",
     "criticalCenter.pending": "Pending",
     "criticalCenter.toManagement": "→ Critical Value Management",
     "criticalCenter.notified": "Notified",
@@ -37153,7 +38149,8 @@ export const translations: Translations = {
     "criticalCenter.closedState": "Closed",
     "criticalCenter.closeLoop": "Close Loop",
     "criticalCenter.centerLoading": "Loading center list...",
-    "criticalCenter.centerEmpty": "No critical value records; click \"Auto Detect\" to trigger a detection",
+    "criticalCenter.centerEmpty":
+      'No critical value records; click "Auto Detect" to trigger a detection',
     "criticalCenter.detailLoading": "Loading detail...",
     "criticalCenter.closedBy": "Closed By",
     "criticalCenter.closedAt": "Closed At",
@@ -37163,12 +38160,14 @@ export const translations: Translations = {
     "criticalCenter.examIdLabel": "Exam ID *",
     "criticalCenter.examIdPlaceholder": "e.g. EXAM-20260808-001",
     "criticalCenter.reportContentLabel": "Report Content *",
-    "criticalCenter.reportContentPlaceholder": "e.g. WBC 33.5 x10^9/L, suggesting severe infection",
+    "criticalCenter.reportContentPlaceholder":
+      "e.g. WBC 33.5 x10^9/L, suggesting severe infection",
     "criticalCenter.submitCloseLoop": "Submit Closure",
     "criticalCenter.patientLabel": "Patient",
-    "criticalCenter.findingLabel": "Finding \"",
+    "criticalCenter.findingLabel": 'Finding "',
     "criticalCenter.resolutionLabel": "Closure Resolution *",
-    "criticalCenter.resolutionPlaceholder": "e.g. Clinician notified by phone, patient admitted and treated",
+    "criticalCenter.resolutionPlaceholder":
+      "e.g. Clinician notified by phone, patient admitted and treated",
     "criticalCenter.resolvedByLabel": "Resolved By",
     "criticalCenter.resolvedByPlaceholder": "Defaults to current user",
     "criticalCenter.trendTitle": "Critical Value Trend",
@@ -37177,11 +38176,14 @@ export const translations: Translations = {
     "criticalCenter.legendResolved": "Resolved",
     "criticalCenter.legendEscalated": "Escalated",
     "criticalCenter.navManagement": "Critical Value Management",
-    "criticalCenter.navManagementDesc": "Discover → Notify → Acknowledge → Handle → Escalate → Close",
+    "criticalCenter.navManagementDesc":
+      "Discover → Notify → Acknowledge → Handle → Escalate → Close",
     "criticalCenter.navRule": "Critical Value Rules",
-    "criticalCenter.navRuleDesc": "Rule library config · Grading · Notification chain · Escalation policy",
+    "criticalCenter.navRuleDesc":
+      "Rule library config · Grading · Notification chain · Escalation policy",
     "criticalCenter.navStats": "Critical Value Statistics",
-    "criticalCenter.navStatsDesc": "Response time · Closure rate · Department comparison · Trend",
+    "criticalCenter.navStatsDesc":
+      "Response time · Closure rate · Department comparison · Trend",
     "criticalCenter.ruleLibraryTitle": "Critical Value Rule Library",
     "criticalCenter.itemsUnit": "items",
     "criticalCenter.addRule": "Add Rule",
@@ -37193,7 +38195,8 @@ export const translations: Translations = {
     "criticalCenter.edit": "Edit",
     "criticalCenter.deleteRule": "Delete Rule",
     "criticalCenter.delete": "Delete",
-    "criticalCenter.ruleLibraryEmpty": "Rule library is empty or loading; click \"Add Rule\" to create the first rule...",
+    "criticalCenter.ruleLibraryEmpty":
+      'Rule library is empty or loading; click "Add Rule" to create the first rule...',
     "criticalCenter.newRuleTitle": "New Critical Value Rule",
     "criticalCenter.save": "Save",
     "criticalCenter.ruleNameLabel": "Rule Name *",
@@ -37201,29 +38204,35 @@ export const translations: Translations = {
     "criticalCenter.conditionLabel": "Trigger Condition *",
     "criticalCenter.conditionPlaceholder": "e.g. WBC > 30 x10^9/L",
     "criticalCenter.actionLabel": "Action",
-    "criticalCenter.actionPlaceholder": "e.g. Immediately notify clinician by phone",
+    "criticalCenter.actionPlaceholder":
+      "e.g. Immediately notify clinician by phone",
     "criticalCenter.severityLabel": "Severity",
     "criticalCenter.enabledLabel": "Enabled Status",
     "criticalCenter.channelConfigTitle": "Notification Channel Config",
     "criticalCenter.saving": "Saving...",
-    "criticalCenter.channelsUnavailable": "Channel config loading or unavailable...",
-    "criticalCenter.channelHint": "Disabled channels will no longer deliver critical value notifications (delivery status marked FAILED); config is saved to the system config table under critical_channel_* keys.",
+    "criticalCenter.channelsUnavailable":
+      "Channel config loading or unavailable...",
+    "criticalCenter.channelHint":
+      "Disabled channels will no longer deliver critical value notifications (delivery status marked FAILED); config is saved to the system config table under critical_channel_* keys.",
     // [v3.0.6.11-106 Wave 9A] Regional report list page i18n
     "regionalReport.institutions": "Medical Institutions",
     "regionalReport.institutionsUnit": "",
     "regionalReport.allInstitutions": "All Institutions",
-    "regionalReport.institutionsLoadFailed": "Failed to load institutions; check regional collaboration service and retry",
+    "regionalReport.institutionsLoadFailed":
+      "Failed to load institutions; check regional collaboration service and retry",
     "regionalReport.allHospitals": "All hospitals in the region",
     "regionalReport.pendingReview": "Pending review",
     "regionalReport.quickFilter": "Quick Filter",
     "regionalReport.requiredPatientName": "Please enter the patient name",
     "regionalReport.requiredApplyReason": "Please enter the application reason",
-    "regionalReport.applySubmittedLocal": "Consultation request submitted (local simulation)",
+    "regionalReport.applySubmittedLocal":
+      "Consultation request submitted (local simulation)",
     "regionalReport.remoteConsultation": "Remote Consultation",
     "regionalReport.startConsult": "Start Consultation",
     "regionalReport.consultRecords": "Consultation Records",
     "regionalReport.applyConsult": "New Request",
-    "regionalReport.searchConsultPlaceholder": "Search patient name, case no., exam item...",
+    "regionalReport.searchConsultPlaceholder":
+      "Search patient name, case no., exam item...",
     "regionalReport.noConsultRecords": "No consultation records",
     "regionalReport.colCaseId": "Case No.",
     "regionalReport.colPatientInfo": "Patient Info",
@@ -37245,14 +38254,16 @@ export const translations: Translations = {
     "regionalReport.selectApplyInstitution": "Select requesting institution",
     "regionalReport.priority": "Priority",
     "regionalReport.applyReasonStar": "Application Reason *",
-    "regionalReport.applyReasonPlaceholder": "Describe the consultation purpose and clinical information in detail...",
+    "regionalReport.applyReasonPlaceholder":
+      "Describe the consultation purpose and clinical information in detail...",
     "regionalReportList.cancel": "Cancel",
     "regionalReport.submitting": "Submitting...",
     "regionalReport.submitApply": "Submit Request",
     "regionalReport.reportReview": "Regional Report Review",
     "regionalReportList.qualityFilter": "Quality Filter",
     "regionalReport.reportList": "Report List",
-    "regionalReport.searchReportPlaceholder": "Search report no., patient name...",
+    "regionalReport.searchReportPlaceholder":
+      "Search report no., patient name...",
     "regionalReport.colReportId": "Report No.",
     "regionalReport.colReportInstitution": "Reporting Institution",
     "regionalReport.colQualityScore": "Quality Score",
@@ -37260,7 +38271,8 @@ export const translations: Translations = {
     "regionalReport.view": "View",
     "regionalReport.remoteDiagnosis": "Alliance Remote Diagnosis",
     "regionalReport.remoteWritingList": "Remote Writing List",
-    "regionalReport.searchRemotePlaceholder": "Search patient name, case no., exam type...",
+    "regionalReport.searchRemotePlaceholder":
+      "Search patient name, case no., exam type...",
     "regionalReport.colExamType": "Exam Type",
     "regionalReport.colRemoteExpert": "Remote Expert",
     "regionalReport.typing": " is typing...",
@@ -37268,7 +38280,8 @@ export const translations: Translations = {
     "regionalReport.coSign": "Cross-Institution Report Co-Signing",
     "regionalReport.addNew": "Add",
     "regionalReport.coSignRecords": "Co-Signing Records",
-    "regionalReport.searchCoSignPlaceholder": "Search report number, patient name...",
+    "regionalReport.searchCoSignPlaceholder":
+      "Search report number, patient name...",
     "regionalReport.colParticipatingInstitutions": "Participating Institutions",
     "regionalReport.colSignStatus": "Signing Status",
     "regionalReport.colSignTime": "Signing Time",
@@ -37290,7 +38303,8 @@ export const translations: Translations = {
     "regionalReport.recordsUnit": "records",
     "regionalReport.prevPage": "Previous",
     "regionalReport.nextPage": "Next",
-    "regionalReport.crossInstitutionSharing": "Cross-Institution Report Sharing",
+    "regionalReport.crossInstitutionSharing":
+      "Cross-Institution Report Sharing",
     "regionalReport.mswDemoData": "MSW Demo Data",
     "regionalReport.shareReport": "Share Report",
     "regionalReport.colPatient": "Patient",
@@ -37306,7 +38320,8 @@ export const translations: Translations = {
     "regionalReport.statusRevoked": "Revoked",
     "regionalReport.revoke": "Revoke",
     "regionalReport.shareAuditLog": "Sharing Audit Log",
-    "regionalReport.shareAuditHint": "Report sharing operations are recorded in the audit system; all access behavior is traceable.",
+    "regionalReport.shareAuditHint":
+      "Report sharing operations are recorded in the audit system; all access behavior is traceable.",
     "regionalReport.reportIdLabel": "Report Number",
     "regionalReport.inputReportId": "Enter report number",
     "regionalReport.targetInstitution": "Target Institution",
@@ -37337,7 +38352,8 @@ export const translations: Translations = {
     "regionalReport.regionalAvgQuality": "Regional Average Quality Score",
     "regionalReport.institutionExamCompare": "Exam Volume by Institution",
     "regionalReport.institutionAvgTat": "Average Turnaround by Institution",
-    "regionalReport.qualityMonitorMetrics": "Regional Quality Monitoring Metrics",
+    "regionalReport.qualityMonitorMetrics":
+      "Regional Quality Monitoring Metrics",
     "regionalReport.reportCompleteRate": "Report Completeness",
     "regionalReport.diagnosisMatchRate": "Diagnosis Match Rate",
     "regionalReport.criticalCloseRate": "Critical Value Closure Rate",
@@ -37358,6 +38374,7 @@ export const translations: Translations = {
     "w9.common.createSuccess": "Created successfully",
     "w9.common.updateSuccess": "Updated successfully",
     "w9.common.deleteSuccess": "Deleted successfully",
+    "w9.common.deleteFailed": "Delete failed",
     "w9.common.deleteConfirm": "Delete this record?",
     "w9.common.exportSuccess": "CSV exported",
     "w9.common.patient": "Patient",
@@ -37446,7 +38463,8 @@ export const translations: Translations = {
     "w9.snomed.addedToReport": "Copied to report text",
     "w9.snomed.statRow": "Hits",
     "w9.routing.title": "Routing Rule Engine",
-    "w9.routing.subtitle": "Visual condition orchestration on json-rules-engine",
+    "w9.routing.subtitle":
+      "Visual condition orchestration on json-rules-engine",
     "w9.routing.simulate": "Simulate",
     "w9.routing.save": "Save",
     "w9.routing.saved": "All rules saved",
@@ -37497,22 +38515,27 @@ export const translations: Translations = {
     "w9.exportApproval.status": "Status",
     "w9.exportApproval.actions": "Actions",
     "w9.exportApproval.approveTitle": "Approve Export Request",
-    "w9.exportApproval.approveContent": "Approve this export request? The requester may then export.",
+    "w9.exportApproval.approveContent":
+      "Approve this export request? The requester may then export.",
     "w9.exportApproval.rejectTitle": "Reject Export Request",
     "w9.exportApproval.rejectReason": "Reject reason (required)",
     "w9.exportApproval.createTitle": "New Export Request",
     "w9.exportApproval.resourceLabel": "Resource Type",
     "w9.exportApproval.resourceIdLabel": "Resource (report ID / patient no.)",
     "w9.exportApproval.reasonLabel": "Reason",
-    "w9.exportApproval.reasonPlaceholder": "Purpose of export, e.g. consultation / research archive",
+    "w9.exportApproval.reasonPlaceholder":
+      "Purpose of export, e.g. consultation / research archive",
     "w9.exportApproval.approvedMsg": "Export request approved",
     "w9.exportApproval.rejectedMsg": "Export request rejected",
-    "w9.exportApproval.submittedMsg": "Export request submitted, awaiting approval",
+    "w9.exportApproval.submittedMsg":
+      "Export request submitted, awaiting approval",
     "w9.exportApproval.empty": "No export requests",
     "w9.exportApproval.loading": "Loading approval list...",
     "w9.exportApproval.waiting": "Awaiting approval",
-    "w9.exportApproval.approverHint": "Approve/Reject visible to admins & directors only",
-    "w9.exportApproval.autoHint": "Export actions automatically create approval requests",
+    "w9.exportApproval.approverHint":
+      "Approve/Reject visible to admins & directors only",
+    "w9.exportApproval.autoHint":
+      "Export actions automatically create approval requests",
     "w8.aiMarketplace.title": "AI Model Marketplace",
     "w8.aiMarketplace.subtitle": "Deploy, manage and monitor imaging AI models",
     "w8.aiMarketplace.kpiTotal": "Total Models",
@@ -37588,14 +38611,16 @@ export const translations: Translations = {
     "w8.costOverview.liveTag": "Finance API live",
     "w8.costOverview.costCompositionTitle": "Cost Composition",
     "w8.costOverview.demoNote": "(composition is demo data)",
-    "w8.costOverview.liveNote": "Live API (financeApi.cost-accounting) provides totals by dept/modality only; equipment/consumables/labor breakdown is demo data",
+    "w8.costOverview.liveNote":
+      "Live API (financeApi.cost-accounting) provides totals by dept/modality only; equipment/consumables/labor breakdown is demo data",
     "w8.costOverview.equipmentCost": "Equipment Depreciation + Maintenance",
     "w8.costOverview.consumableCost": "Consumables",
     "w8.costOverview.laborCost": "Labor",
     "w8.costOverview.costTrendTitle": "Monthly Cost Trend",
     "w8.costOverview.profitTrendTitle": "Monthly Profit Trend",
     "w8.costOverview.realtime": "Live",
-    "w8.costOverview.equipmentRankingTitle": "Equipment Cost Efficiency Ranking",
+    "w8.costOverview.equipmentRankingTitle":
+      "Equipment Cost Efficiency Ranking",
     "w8.costOverview.demoData": "(demo data)",
     "w8.costOverview.colRank": "#",
     "w8.costOverview.colDeviceName": "Device Name",
@@ -37629,13 +38654,16 @@ export const translations: Translations = {
     "w8.patientPortal.emptyAppointments": "No appointments",
     "w8.forbidden.code": "403",
     "w8.forbidden.title": "Access Denied",
-    "w8.forbidden.hintLogged": "Current user {{name}} ({{role}}) has no permission to access this page.",
+    "w8.forbidden.hintLogged":
+      "Current user {{name}} ({{role}}) has no permission to access this page.",
     "w8.forbidden.hintGuest": "Please sign in before accessing this page.",
     "w8.forbidden.back": "Go Back",
     "w8.forbidden.home": "Go Home",
-    "w8.forbidden.needPermission": "Contact the system administrator to grant the required role permission.",
+    "w8.forbidden.needPermission":
+      "Contact the system administrator to grant the required role permission.",
     "w8.reportCompare.title": "Report V2 Wrap-up",
-    "w8.reportCompare.subtitle": "Report Compare V2 (F16) · Report Search V2 (NLP + cross-org)",
+    "w8.reportCompare.subtitle":
+      "Report Compare V2 (F16) · Report Search V2 (NLP + cross-org)",
     "w8.reportCompare.tabCompare": "Report Compare V2 (F16)",
     "w8.reportCompare.tabSearch": "Report Search V2 (NLP + cross-org)",
     "w8.reportCompare.waveTag": "Wave 8A",
@@ -37662,7 +38690,8 @@ export const translations: Translations = {
     "w12.reportFlow.fail": "State transition failed",
     "w12.write.templatesTab": "Templates",
     "w12.write.smartTemplate": "Smart Template Match",
-    "w12.write.smartTemplateDesc": "Auto-recommend templates by current exam modality/body part, apply in one click",
+    "w12.write.smartTemplateDesc":
+      "Auto-recommend templates by current exam modality/body part, apply in one click",
     "w12.write.applyTemplate": "Apply",
     "w12.write.noMatchTemplate": "No matching templates",
     "w12.write.matchExact": "Exact match",
@@ -37675,7 +38704,8 @@ export const translations: Translations = {
     "w12.write.priorCompare": "Prior Compare",
     "w12.write.priorCompareEmpty": "No prior report for this patient",
     "w12.write.insertRow": "Insert",
-    "w12.write.insertRowHint": "Insert a single measurement into the report at cursor",
+    "w12.write.insertRowHint":
+      "Insert a single measurement into the report at cursor",
     "w12.write.favPhrases": "Favorite Phrases",
     "w12.write.favPhrasesOnly": "Favorites only",
     "w12.write.shortcutTemplateHint": "Open template library",
@@ -37690,7 +38720,8 @@ export const translations: Translations = {
     "w12.review.diffNoChange": "Both versions are identical, no changes",
     "w12.review.postPublish": "Post-Publish Handling",
     "w12.review.criticalDetected": "Suspected critical finding detected",
-    "w12.review.criticalDetectedHint": "Recommend immediately transferring to critical value handling and notifying clinical",
+    "w12.review.criticalDetectedHint":
+      "Recommend immediately transferring to critical value handling and notifying clinical",
     "w12.review.criticalNone": "No critical keywords detected",
     "w12.review.toCritical": "Transfer to Critical Handling",
     "w12.review.criticalCreated": "Critical alert created",
@@ -37704,7 +38735,8 @@ export const translations: Translations = {
     "nav.volumeStudio": "Volume Studio (MPR/VR/CPR)",
     "nav.aiEnhanced": "AI Enhanced",
     "techWorkbench.title": "Technologist Workbench · End-to-End Flow",
-    "techWorkbench.subtitle": "Appointment → Triage → Schedule → Queue Call → Exam (Retake/Dose/Device) → Complete → Report Pending",
+    "techWorkbench.subtitle":
+      "Appointment → Triage → Schedule → Queue Call → Exam (Retake/Dose/Device) → Complete → Report Pending",
     "techWorkbench.tabToday": "Today's Exams",
     "techWorkbench.tabRooms": "Room Status",
     "techWorkbench.tabRetake": "Retake",
@@ -37740,7 +38772,8 @@ export const translations: Translations = {
     "techWorkbench.emergencyAlert": "Critical exams pinned to top",
     "techWorkbench.flowTitle": "Exam Flow Status",
     "techWorkbench.completeTitle": "Confirm Exam Completion",
-    "techWorkbench.completeDesc": "Please confirm the following mandatory checks before completion",
+    "techWorkbench.completeDesc":
+      "Please confirm the following mandatory checks before completion",
     "techWorkbench.qualityLabel": "Image Quality",
     "techWorkbench.qualityOk": "Pass",
     "techWorkbench.qualityRetake": "Retake",
@@ -37748,14 +38781,18 @@ export const translations: Translations = {
     "techWorkbench.doseSection": "Dose Record",
     "techWorkbench.dlp": "DLP (mGy·cm)",
     "techWorkbench.ctdivol": "CTDIvol (mGy)",
-    "techWorkbench.doseRequired": "Dose record (DLP/CTDIvol) is required when images pass",
+    "techWorkbench.doseRequired":
+      "Dose record (DLP/CTDIvol) is required when images pass",
     "techWorkbench.retakeReason": "Retake Reason",
     "techWorkbench.retakeReasonRequired": "Retake reason is required",
-    "techWorkbench.retakeNote": "Retake registered, exam back to In Progress, retake count +1",
-    "techWorkbench.completedMsg": "Exam completed, auto-queued to pending report list",
+    "techWorkbench.retakeNote":
+      "Retake registered, exam back to In Progress, retake count +1",
+    "techWorkbench.completedMsg":
+      "Exam completed, auto-queued to pending report list",
     "techWorkbench.doseSaved": "Dose record saved",
     "techWorkbench.handoverTitle": "Shift Handover",
-    "techWorkbench.handoverDesc": "Hand over in-progress exams to another technologist",
+    "techWorkbench.handoverDesc":
+      "Hand over in-progress exams to another technologist",
     "techWorkbench.handoverTo": "Hand over to",
     "techWorkbench.handoverNote": "Handover note",
     "techWorkbench.handoverBtn": "Execute Handover",
@@ -37767,8 +38804,10 @@ export const translations: Translations = {
     "techWorkbench.techRequired": "Please select a target technician",
     "techWorkbench.examRequired": "Please select an exam",
     "techWorkbench.emergencyTitle": "Emergency Exam Insert",
-    "techWorkbench.emergencyDesc": "Insert critical exam → slot suggestions → conflict detection → confirm",
-    "techWorkbench.emergencySuccess": "Emergency exam inserted at {{device}} {{time}}",
+    "techWorkbench.emergencyDesc":
+      "Insert critical exam → slot suggestions → conflict detection → confirm",
+    "techWorkbench.emergencySuccess":
+      "Emergency exam inserted at {{device}} {{time}}",
     "techWorkbench.emergencyFailed": "Insert failed: {{msg}}",
     "techWorkbench.emergencyRecords": "Emergency Insert Records",
     "techWorkbench.emergencyEmpty": "No insert records",
@@ -37781,8 +38820,10 @@ export const translations: Translations = {
     "techWorkbench.noData": "No data",
     "techWorkbench.timeoutAction": "Pre-Exam Time-Out",
     "techWorkbench.timeoutTitle": "Pre-Exam Time-Out Verification",
-    "techWorkbench.timeoutDesc": "Before starting, verify patient identity and safety items. All required items must be confirmed.",
-    "techWorkbench.timeoutRequiredHint": "Complete the pre-exam Time-Out before starting the exam",
+    "techWorkbench.timeoutDesc":
+      "Before starting, verify patient identity and safety items. All required items must be confirmed.",
+    "techWorkbench.timeoutRequiredHint":
+      "Complete the pre-exam Time-Out before starting the exam",
     "techWorkbench.timeoutVerifiedTag": "Verified",
     "techWorkbench.timeoutIdentity": "Patient dual identity",
     "techWorkbench.timeoutIdentityName": "Name",
@@ -37791,7 +38832,8 @@ export const translations: Translations = {
     "techWorkbench.timeoutAllergy": "Allergy history",
     "techWorkbench.timeoutNoAllergy": "No known allergies",
     "techWorkbench.timeoutPregnancy": "Pregnancy status",
-    "techWorkbench.timeoutPregnancyRequired": "Required for women of childbearing age",
+    "techWorkbench.timeoutPregnancyRequired":
+      "Required for women of childbearing age",
     "techWorkbench.timeoutPregnancy_none": "Not pregnant",
     "techWorkbench.timeoutPregnancy_pregnant": "Pregnant",
     "techWorkbench.timeoutPregnancy_unknown": "Unknown",
@@ -37841,11 +38883,15 @@ export const translations: Translations = {
     "critical.flowActionTreat": "Start Treating",
     "critical.flowActionClose": "Close Loop",
     "critical.flowDone": "Closed",
-    "critical.flowNotifyDesc": "Choose channel and notify the clinical department (Phone/SMS)",
+    "critical.flowNotifyDesc":
+      "Choose channel and notify the clinical department (Phone/SMS)",
     "critical.flowConfirmPlaceholder": "Receiver name (optional)",
-    "critical.flowTreatPlaceholder": "Treatment, e.g. orders/measures (optional)",
-    "critical.flowClosePlaceholder": "Closing record, e.g. patient outcome (optional)",
-    "critical.flowClosed": "This critical value has completed the 5-step closed loop (triggered→notified→confirmed→treating→recorded)",
+    "critical.flowTreatPlaceholder":
+      "Treatment, e.g. orders/measures (optional)",
+    "critical.flowClosePlaceholder":
+      "Closing record, e.g. patient outcome (optional)",
+    "critical.flowClosed":
+      "This critical value has completed the 5-step closed loop (triggered→notified→confirmed→treating→recorded)",
     // [v3.0.6.11-106 Wave 5B] critical value multi-entry convergence tab labels
     "critical.tabWorkbench": "Workbench",
     "critical.tabCenter": "Critical Value Center",
@@ -37859,7 +38905,8 @@ export const translations: Translations = {
     "qcDashboard.defectRate": "Defect Rate",
     "qcDashboard.criticalValue": "Critical Values",
     "qcDashboard.timelyRate": "Timely Rate",
-    "qcDashboard.imageTrendFallback": "Image QC assessment API unavailable, showing derived demo trend",
+    "qcDashboard.imageTrendFallback":
+      "Image QC assessment API unavailable, showing derived demo trend",
     "qcDashboard.defectIncomplete": "Incomplete description",
     "qcDashboard.defectTypo": "Typos",
     "qcDashboard.defectInconsistent": "Inconsistent diagnosis",
@@ -37875,22 +38922,27 @@ export const translations: Translations = {
     "qcDashboard.passRate": "· Pass rate",
     "qcDashboard.refresh": "Refresh",
     "qcDashboard.monthlyScoreClosure": "Monthly Quality Score / Closure Rate",
-    "qcDashboard.monthlyDefectDist": "Monthly Defect Rate / Defect Distribution",
+    "qcDashboard.monthlyDefectDist":
+      "Monthly Defect Rate / Defect Distribution",
     "qcDashboard.monthlyTrend": "Monthly Exam / Report Trend",
     "qcDashboard.avgTatMin": "Avg Report TAT (min)",
     "qcDashboard.peak": "Peak",
     "qcDashboard.minAvg": "min · avg",
     "qcDashboard.minutes": "min",
     "qcDashboard.deptCompare": "Department Comparison",
-    "qcDashboard.deptCompareSub": "Aggregated by subspecialty (DOCTOR_MASTER.subspecialty)",
-    "qcDashboard.deptRadarSub": "Quality radar (reports/QC score/timely rate normalized)",
+    "qcDashboard.deptCompareSub":
+      "Aggregated by subspecialty (DOCTOR_MASTER.subspecialty)",
+    "qcDashboard.deptRadarSub":
+      "Quality radar (reports/QC score/timely rate normalized)",
     "qcDashboard.noDeptData": "No department data",
     "qcDashboard.deptDefectBars": "Defect rate by department",
     "qcDashboard.dept": "Department",
     "qcDashboard.doctorCount": "Doctors",
     "qcDashboard.defectRatePct": "Defect Rate (%)",
-    "qcDashboard.doctorRankTitle": "Report Quality Doctor Ranking (TOP / BOTTOM)",
-    "qcDashboard.doctorRankSub": "Sorted by QC score (DOCTOR_PERFORMANCE_PRE aggregation)",
+    "qcDashboard.doctorRankTitle":
+      "Report Quality Doctor Ranking (TOP / BOTTOM)",
+    "qcDashboard.doctorRankSub":
+      "Sorted by QC score (DOCTOR_PERFORMANCE_PRE aggregation)",
     "qcDashboard.top5": "Top 5 by QC",
     "qcDashboard.dashReports": "· reports",
     "qcDashboard.dashDefectRate": "· defect rate",
@@ -37908,14 +38960,18 @@ export const translations: Translations = {
     "qcDashboard.aiQcDemoSub": "Demo data (qcImageAiApi statistics reference)",
     "qcDashboard.deviceScanTop6": "Top 6 Devices by Monthly Scans",
     "qcDashboard.deviceLocal": "DEVICE_MASTER local",
-    "qcDashboard.reportDimBreakdown": "Report Quality Dimension Breakdown (dept avg)",
+    "qcDashboard.reportDimBreakdown":
+      "Report Quality Dimension Breakdown (dept avg)",
     "qcDashboard.reportDimSub": "Derived from QC score and defect distribution",
     "qcDashboard.dimFormat": "Format compliance",
-    "qcDashboard.dimFormatDesc": "Template completeness / terminology / signature fields",
+    "qcDashboard.dimFormatDesc":
+      "Template completeness / terminology / signature fields",
     "qcDashboard.dimAccuracy": "Diagnostic accuracy",
-    "qcDashboard.dimAccuracyDesc": "Description-conclusion consistency / key lesion detection",
+    "qcDashboard.dimAccuracyDesc":
+      "Description-conclusion consistency / key lesion detection",
     "qcDashboard.dimTimely": "Timeliness",
-    "qcDashboard.dimTimelyDesc": "TAT compliance / critical value response time",
+    "qcDashboard.dimTimelyDesc":
+      "TAT compliance / critical value response time",
     "qcDashboard.points": "pts",
     "qcDashboard.mom": "MoM",
     "qcDashboard.statusRunning": "Running",
@@ -37958,7 +39014,8 @@ export const translations: Translations = {
     "qcDashboard.monthlyDetail": "Monthly Detail",
     "qcDashboard.month": "Month",
     "qcDashboard.pageTitle": "Radiology QC Dashboard",
-    "qcDashboard.pageSubtitle": "Aggregates QC KPIs from 10 submodules · real-time monitoring · data-driven improvement",
+    "qcDashboard.pageSubtitle":
+      "Aggregates QC KPIs from 10 submodules · real-time monitoring · data-driven improvement",
     "qcDashboard.exportFilename": "Radiology-QC-Overview",
     "qcDashboard.exportMonthly": "Export Monthly Report",
     "qcDashboard.exportMonthlyAria": "Export QC overview monthly report",
@@ -37990,7 +39047,8 @@ export const translations: Translations = {
     "qcDashboard.momDown5": "↓ 5% MoM",
     "qcDashboard.gradeARate76": "Grade-A rate 76%",
     "qcDashboard.drillScoreAria": "Drill-down: avg QC score",
-    "qcDashboard.localDerived": "Local data (derived from local performance data)",
+    "qcDashboard.localDerived":
+      "Local data (derived from local performance data)",
     "qcDashboard.dimDoctor": "By Doctor",
     "qcDashboard.dimDept": "By Department",
     "qcDashboard.timelyRatePct": "Timely Rate (%)",
@@ -38025,14 +39083,16 @@ export const translations: Translations = {
     "qcDashboard.dailyAvg": "Daily avg",
     "qcDashboard.casesPeak": " cases · peak",
     "qcDashboard.casesPerDay": " cases/day",
-    "qcDashboard.imageDeviceGrade": "Image QC - Device Grade Distribution (ACR standard)",
+    "qcDashboard.imageDeviceGrade":
+      "Image QC - Device Grade Distribution (ACR standard)",
     "qcDashboard.device": "Device",
     "qcDashboard.model": "Model",
     "qcDashboard.manufacturer": "Manufacturer",
     "qcDashboard.doseComplianceRate": "Dose Compliance Rate",
     "qcDashboard.monthlyScans": "Monthly Scans",
     "qcDashboard.status": "Status",
-    "qcDashboard.reportDoctorPerf": "Report QC - Doctor Performance (this month)",
+    "qcDashboard.reportDoctorPerf":
+      "Report QC - Doctor Performance (this month)",
     "qcDashboard.cqiImprovement": "CQI Continuous Improvement",
     "qcDashboard.hardcodedDemo": "Demo data (hardcoded sample)",
     "qcDashboard.detailLoaded": "Detailed data loaded (total",
@@ -38310,7 +39370,8 @@ export const translations: Translations = {
     "statsPage.perCapitaOutput": "Per-capita output",
     "statsPage.perCapitaProfit875": "Per-capita profit ¥87.5k",
     "statsPage.noMonthlyProfit": "No monthly profit data",
-    "statsPage.monthlyProfitTrend": "Monthly revenue/cost/profit trend (10k CNY)",
+    "statsPage.monthlyProfitTrend":
+      "Monthly revenue/cost/profit trend (10k CNY)",
     "statsPage.noCostComposition": "No cost composition data",
     "statsPage.costStructure": "Cost structure analysis",
     "statsPage.noPerCapitaCost": "No per-capita cost data",
@@ -38337,7 +39398,8 @@ export const translations: Translations = {
     "statsPage.confirmed": "Confirmed",
     "statsPage.doctor": "Doctor",
     "statsPage.sourceRealApi": "Data source: real API",
-    "statsPage.sourceDemoFallback": "Data source: demo fallback (API unavailable)",
+    "statsPage.sourceDemoFallback":
+      "Data source: demo fallback (API unavailable)",
     "statsPage.updatedAt": "Updated at",
     "statsPage.noDeptMetrics": "No department metrics data",
     "statsPage.bestMetric": "Best metric",
@@ -38357,14 +39419,17 @@ export const translations: Translations = {
     "statsPage.cosignLabel": "Co-sign:",
     "statsPage.reportsUnit2": "reports",
     "statsPage.doctorCountUnit": "doctors",
-    "statsPage.workloadComposition": "Doctor workload composition (initial/final/co-sign)",
+    "statsPage.workloadComposition":
+      "Doctor workload composition (initial/final/co-sign)",
     "statsPage.caseCount": "Cases",
     "statsPage.slaRate": "SLA compliance",
     "statsPage.avgResponseTime": "Avg response time",
     "statsPage.criticalTotal": "Total critical values",
-    "statsPage.criticalStatsNote": "Scope: alert report to doctor confirmation closure time (SLA threshold 30min)",
+    "statsPage.criticalStatsNote":
+      "Scope: alert report to doctor confirmation closure time (SLA threshold 30min)",
     "statsPage.unclosedCritical": "Unclosed critical values (",
-    "statsPage.criticalResponseDist": "Critical value response time distribution",
+    "statsPage.criticalResponseDist":
+      "Critical value response time distribution",
     "statsPage.noDeptData": "No department data",
     "statsPage.compositeScore": "Composite score",
     "statsPage.dept6MetricsDetail": "Department 6-metric detail",
@@ -38385,7 +39450,8 @@ export const translations: Translations = {
     "statsPage.compositionShare": "Share of composition",
     "statsPage.workloadCompositionDetail": "Doctor workload composition detail",
     "statsPage.scopeNote": "Scope note:",
-    "statsPage.radarNote": "Dept radar: 6 metrics normalized 0-100; device usage = OEE (availability×performance×quality); workload = share of initial/final/co-sign report flow;",
+    "statsPage.radarNote":
+      "Dept radar: 6 metrics normalized 0-100; device usage = OEE (availability×performance×quality); workload = share of initial/final/co-sign report flow;",
     "statsPage.csvNameStats": "Radiology-statistics-report.csv",
     "statsPage.csvExamTrend": "Exam volume trend (7d)",
     "statsPage.date": "Date",
@@ -38440,7 +39506,8 @@ export const translations: Translations = {
     "statsPage.jsonName": "Radiology-statistics-data.json",
     "statsPage.deepAnalysis": "Deep analysis",
     "statsPage.pageTitle": "Statistics Analysis",
-    "statsPage.pageSubtitle": "Multi-dimensional charts · positive rate stats · business reports",
+    "statsPage.pageSubtitle":
+      "Multi-dimensional charts · positive rate stats · business reports",
     "statsPage.statsReports": "Statistics reports",
     "statsPage.exportStatsAria": "Export statistics report",
     "statsPage.refreshData": "Refresh data",
@@ -38487,7 +39554,8 @@ export const translations: Translations = {
     "statsPage.lowest": "Lowest:",
     "statsPage.itemUnit": "items",
     "statsPage.totalPrefix": "Total",
-    "statsPage.criticalStatsNote2": "Scope: alert report → doctor confirmation closure time (SLA threshold 30min)",
+    "statsPage.criticalStatsNote2":
+      "Scope: alert report → doctor confirmation closure time (SLA threshold 30min)",
     "statsPage.day1": "Day 1",
     "statsPage.day2": "Day 2",
     "statsPage.day3": "Day 3",
@@ -38495,7 +39563,8 @@ export const translations: Translations = {
     "statsPage.day5": "Day 5",
     "statsPage.day6": "Day 6",
     "statsPage.day7": "Day 7",
-    "statsPage.radarNoteLong": "Dept radar: 6 metrics normalized 0-100; device usage = OEE (availability×performance×quality); workload = share of initial/final/co-sign report flow; critical response binned by alert-to-confirmation closure time (SLA 30min). Falls back to deterministic demo data with a banner when the real API is unavailable.",
+    "statsPage.radarNoteLong":
+      "Dept radar: 6 metrics normalized 0-100; device usage = OEE (availability×performance×quality); workload = share of initial/final/co-sign report flow; critical response binned by alert-to-confirmation closure time (SLA 30min). Falls back to deterministic demo data with a banner when the real API is unavailable.",
     "statsPage.csvExamTrend7d": "Exam volume trend (last 7 days)",
     "statsPage.reportVolume": "Reports",
     "statsPage.estimatedVolume": "Estimated volume",
@@ -38636,7 +39705,8 @@ export const translations: Translations = {
     "printMgmt.general": "General",
     "printMgmt.printLayout": "Print Layout",
     "printMgmt.templateSaveFailed": "Template save failed",
-    "printMgmt.templateSaveFailedRetry": "Template save failed, please retry later",
+    "printMgmt.templateSaveFailedRetry":
+      "Template save failed, please retry later",
     "printMgmt.printer": "Printer",
     "printMgmt.apiUnavailable": "Print API unavailable, showing demo data",
     "printMgmt.loadFailedDemo": "Print data load failed, showing demo data",
@@ -38644,9 +39714,11 @@ export const translations: Translations = {
     "printMgmt.reprintFailedRetry": "Reprint failed, please retry later",
     "printMgmt.printerNameRequired": "Please enter printer name",
     "printMgmt.printerSaveFailed": "Printer save failed",
-    "printMgmt.printerSaveFailedRetry": "Printer save failed, please retry later",
+    "printMgmt.printerSaveFailedRetry":
+      "Printer save failed, please retry later",
     "printMgmt.printerDeleteFailed": "Printer delete failed",
-    "printMgmt.printerDeleteFailedRetry": "Printer delete failed, please retry later",
+    "printMgmt.printerDeleteFailedRetry":
+      "Printer delete failed, please retry later",
     "printMgmt.presetNameRequired": "Preset name is required",
     "printMgmt.confirmPrint": "Confirm Print",
     "printMgmt.confirmPrintMsg": "Print this report now?",
@@ -38661,7 +39733,8 @@ export const translations: Translations = {
     "printMgmt.queuePaused": "Print queue paused",
     "printMgmt.confirmPrintNow": "Confirm immediate print",
     "printMgmt.taskCreateFailed": "Print task creation failed",
-    "printMgmt.taskCreateFailedRetry": "Print task creation failed, please retry later",
+    "printMgmt.taskCreateFailedRetry":
+      "Print task creation failed, please retry later",
     "printMgmt.confirmReprint": "Confirm reprint",
     "printMgmt.reprint": "Reprint",
     "printMgmt.confirmCancelTask": "Confirm cancel task",
@@ -38683,10 +39756,12 @@ export const translations: Translations = {
     "printMgmt.imageAbdCt": "Abdomen CT",
     "printMgmt.imageHeadMr": "Head MR",
     "printMgmt.labelSourceQueue": "Label source: current print queue",
-    "printMgmt.labelPlaceholderNote": "Label is a generic placeholder (queue empty, awaiting series data)",
+    "printMgmt.labelPlaceholderNote":
+      "Label is a generic placeholder (queue empty, awaiting series data)",
     "printMgmt.previewExportFailed": "Preview export failed",
     "printMgmt.previewExported": "Film layout preview exported",
-    "printMgmt.quotaSelectDeptAndCount": "Please select department and enter requested count",
+    "printMgmt.quotaSelectDeptAndCount":
+      "Please select department and enter requested count",
     "printMgmt.quotaPurposeRequired": "Please enter the purpose",
     "printMgmt.searchPrinterPlaceholder": "Search printers...",
     "printMgmt.defaultLabel": "Default:",
@@ -38714,7 +39789,8 @@ export const translations: Translations = {
     "printMgmt.newTemplate": "New Template",
     "printMgmt.reportPrintTemplate": "Report Print Template",
     "printMgmt.selectReportToPreview": "Select a report to preview",
-    "printMgmt.previewHint": "Live preview of report layout and image arrangement",
+    "printMgmt.previewHint":
+      "Live preview of report layout and image arrangement",
     "printMgmt.printNow": "Print Now",
     "printMgmt.downloadPdf": "Download PDF",
     "printMgmt.printPreview": "Print Preview",
@@ -38818,7 +39894,8 @@ export const translations: Translations = {
     "printMgmt.exportPreview": "Export Preview",
     "printMgmt.budgetYuan": "Budget: ¥",
     "printMgmt.spentYuan": "Spent: ¥",
-    "printMgmt.quotaAlmostExhausted": "Quota nearly exhausted, request more or reduce usage",
+    "printMgmt.quotaAlmostExhausted":
+      "Quota nearly exhausted, request more or reduce usage",
     "printMgmt.deptQuotaStatus": "Department Quota Status",
     "printMgmt.monthlyBudgetTrack": "Monthly Budget Tracking",
     "printMgmt.approved": "Approved",
@@ -38835,7 +39912,8 @@ export const translations: Translations = {
     "printMgmt.requestCountRequired": "Additional Sheets Requested *",
     "printMgmt.requestPurposeRequired": "Purpose *",
     "printMgmt.purposeExample": "e.g. Checkup season, film usage up 30%",
-    "printMgmt.quotaSubmitNote": "Saved locally after submission (backend approval API /print/quota pending), status becomes pending approval.",
+    "printMgmt.quotaSubmitNote":
+      "Saved locally after submission (backend approval API /print/quota pending), status becomes pending approval.",
     "printMgmt.submitting": "Submitting...",
     "printMgmt.submitRequest": "Submit Request",
     "printMgmt.green": "Green",
@@ -38844,7 +39922,8 @@ export const translations: Translations = {
     "printMgmt.nearLimit": "Near limit, remind dept to control usage",
     "printMgmt.red": "Red",
     "printMgmt.alertNow": "Alert immediately, notify authority automatically",
-    "printMgmt.overQuotaNote": "Over-quota auto-switches to approval mode; printing requires dept head approval",
+    "printMgmt.overQuotaNote":
+      "Over-quota auto-switches to approval mode; printing requires dept head approval",
     "printMgmt.quotaAlertRules": "Quota Alert Rules",
     "printMgmt.noTrendData": "No print trend data",
     "printMgmt.printVolumeTrend": "Print Volume Trend",
@@ -38883,7 +39962,8 @@ export const translations: Translations = {
     "printMgmt.templatePreviewDot": "Template Preview ·",
     "printMgmt.noLogo": "No Logo",
     "printMgmt.filmLayoutNote": "Film Layout Note",
-    "printMgmt.layoutNoteBody": "Preview is illustrative; actual output is determined by the DICOM print service.",
+    "printMgmt.layoutNoteBody":
+      "Preview is illustrative; actual output is determined by the DICOM print service.",
     "printMgmt.close": "Close",
     "printMgmt.filmPrintPreview": "Film Print Preview",
     "printMgmt.patientId": "Patient ID",
@@ -38906,11 +39986,13 @@ export const translations: Translations = {
     "printMgmt.quotaManagement": "Quota Management",
     "printMgmt.printStats": "Print Statistics",
     "printMgmt.pageTitle": "Film Print Management",
-    "printMgmt.pageSubtitle": "Manage print devices, film specs, print queues and statistics",
+    "printMgmt.pageSubtitle":
+      "Manage print devices, film specs, print queues and statistics",
     "printMgmt.loading": "Loading print data...",
     "printMgmt.realData": "Real data",
     "printMgmt.demoData": "Demo data",
-    "printMgmt.dataSourceNote": "Printers=deviceApi(/devices) · queue/history/stats=printApi(/print/*); film usage/cost are estimates.",
+    "printMgmt.dataSourceNote":
+      "Printers=deviceApi(/devices) · queue/history/stats=printApi(/print/*); film usage/cost are estimates.",
     "printMgmt.todayPrints": "Prints Today",
     "printMgmt.timesUnit": "times",
     "printMgmt.filmsUsed": "Films Used",
@@ -38930,11 +40012,13 @@ export const translations: Translations = {
     "printMgmt.copiesDot": "copies ·",
     "printMgmt.selectedShort": "Selected",
     "printMgmt.filmsDot": "films ·",
-    "printMgmt.quotaSubmitNote2": "Saved locally after submission (backend approval flow /print/quota pending), status becomes pending approval.",
+    "printMgmt.quotaSubmitNote2":
+      "Saved locally after submission (backend approval flow /print/quota pending), status becomes pending approval.",
     "printMgmt.usage": "Usage",
     "printMgmt.completedCount": "Completed",
     "printMgmt.templatePreviewDash": "Template Preview —",
-    "printMgmt.dataSourceNote2": "Printers=deviceApi(/devices) · queue/history/stats=printApi(/print/*); film usage/cost are estimates",
+    "printMgmt.dataSourceNote2":
+      "Printers=deviceApi(/devices) · queue/history/stats=printApi(/print/*); film usage/cost are estimates",
     "examPage.statusPending": "Pending",
     "examPage.statusInProgress": "In Progress",
     "examPage.statusReported": "Reported",
@@ -38971,7 +40055,8 @@ export const translations: Translations = {
     "examPage.routineExam": "Routine Exam",
     "examPage.other": "Other",
     "examPage.unknownPatient": "Unknown Patient",
-    "examPage.deepAnalysisFallback": "Deep analysis API unavailable (worklistApi/statsApi), showing local derived data",
+    "examPage.deepAnalysisFallback":
+      "Deep analysis API unavailable (worklistApi/statsApi), showing local derived data",
     "examPage.networkError": "Network error",
     "examPage.qcReturned": "Image QC returned",
     "examPage.qcPassed": "Image QC passed",
@@ -38981,12 +40066,15 @@ export const translations: Translations = {
     "examPage.batchSignFailed": "Batch sign failed",
     "examPage.printTaskFailed": "Failed to create print task",
     "examPage.printFailed": "Print task failed",
-    "examPage.csvHeaderFull": "Exam ID,Accession No,Patient ID,Patient Name,Device,Body Part,Status,Exam Date,Exam Time",
+    "examPage.csvHeaderFull":
+      "Exam ID,Accession No,Patient ID,Patient Name,Device,Body Part,Status,Exam Date,Exam Time",
     "examPage.batchOpFailed": "Batch operation failed",
     "examPage.batchAssignFailed": "Batch device assignment failed",
     "examPage.exportNoData": "Export API returned no data",
-    "examPage.csvHeaderBasic": "Exam ID,Accession No,Patient ID,Patient Name,Device,Body Part,Status,Exam Date",
-    "examPage.importParseFailed": "No exam data parsed, please check JSON/CSV format (patientId/accessionNumber/modality/bodyPart required)",
+    "examPage.csvHeaderBasic":
+      "Exam ID,Accession No,Patient ID,Patient Name,Device,Body Part,Status,Exam Date",
+    "examPage.importParseFailed":
+      "No exam data parsed, please check JSON/CSV format (patientId/accessionNumber/modality/bodyPart required)",
     "examPage.importFailed": "Import failed",
     "examPage.importFailedPrefix": "Import failed:",
     "examPage.mergeNeedTwo": "Select at least 2 exams to merge",
@@ -39069,7 +40157,8 @@ export const translations: Translations = {
     "examPage.examCases": "exams",
     "examPage.totalExams": "Total Exams",
     "examPage.durationAnalysis": "Exam Duration Analysis (avg by modality)",
-    "examPage.durationDerivedFrom": "Derived from worklistApi.getStats.avgDurationMin",
+    "examPage.durationDerivedFrom":
+      "Derived from worklistApi.getStats.avgDurationMin",
     "examPage.localEstimate": "Local estimate",
     "examPage.minUnit": "min",
     "examPage.durationFast": "≤15 min (fast)",
@@ -39079,10 +40168,12 @@ export const translations: Translations = {
     "examPage.overallRetakeRate": "Overall Retake Rate",
     "examPage.timesPer": "times /",
     "examPage.casesSuffix": " cases)",
-    "examPage.retakeNote": "Retake rate = retakes / total exams. Modalities above 8% need device parameter & operator standard review; above 5% needs positioning consistency attention.",
+    "examPage.retakeNote":
+      "Retake rate = retakes / total exams. Modalities above 8% need device parameter & operator standard review; above 5% needs positioning consistency attention.",
     "examPage.examTimeline": "Exam Timeline (by patient)",
     "examPage.lastPrefix": "Last",
-    "examPage.multiExamPatients": "patients with multiple exams · sorted by exam count",
+    "examPage.multiExamPatients":
+      "patients with multiple exams · sorted by exam count",
     "examPage.noExamData": "No exam data",
     "examPage.examTimes": "exams",
     "examPage.viewImages": "View Images",
@@ -39123,13 +40214,15 @@ export const translations: Translations = {
     "examPage.selectDevice": "Select device",
     "examPage.confirmAssign2": "Confirm Assign",
     "examPage.selected": "Selected",
-    "examPage.mergeNote": "exams (must be same patient): pick the target exam to keep; other reports migrate to it.",
+    "examPage.mergeNote":
+      "exams (must be same patient): pick the target exam to keep; other reports migrate to it.",
     "examPage.success": "Success",
     "examPage.merging": "Merging...",
     "examPage.confirmMerge": "Confirm Merge",
     "examPage.splitExam": "Split Exam",
     "examPage.exam2": "Exam",
-    "examPage.splitNote": "): enter report IDs of this exam (comma-separated); each report becomes a new exam.",
+    "examPage.splitNote":
+      "): enter report IDs of this exam (comma-separated); each report becomes a new exam.",
     "examPage.examplePrefix": "e.g.",
     "examPage.close": "Close",
     "examPage.splitting": "Splitting...",
@@ -39138,8 +40231,10 @@ export const translations: Translations = {
     "examPage.supports": "Supports",
     "examPage.jsonArray": "JSON array",
     "examPage.or": "or",
-    "examPage.importHeaderNote": "(Header:\r\n                patientId/accessionNumber/modality/bodyPart/scheduledAt/deviceId).\r\n                Missing patients are listed as errors; duplicate accession numbers are skipped.",
-    "examPage.importExample": "[\n  { \"patientId\": \"P000001\", \"accessionNumber\": \"ACC-2026-0001\", \"modality\": \"CT\", \"bodyPart\": \"Chest\", \"scheduledAt\": \"2026-08-07T09:00:00.000Z\" }\n]",
+    "examPage.importHeaderNote":
+      "(Header:\r\n                patientId/accessionNumber/modality/bodyPart/scheduledAt/deviceId).\r\n                Missing patients are listed as errors; duplicate accession numbers are skipped.",
+    "examPage.importExample":
+      '[\n  { "patientId": "P000001", "accessionNumber": "ACC-2026-0001", "modality": "CT", "bodyPart": "Chest", "scheduledAt": "2026-08-07T09:00:00.000Z" }\n]',
     "examPage.uploadFiles": "Upload .csv / .json file",
     "examPage.importDoneSuccess": "Import complete: success",
     "examPage.skippedSuffix": "/ skipped",
@@ -39236,9 +40331,11 @@ export const translations: Translations = {
     "qcPage.issueDoctorMeeting": "Reporting doctor ad-hoc meeting",
     "qcPage.medium": "Medium",
     "qcPage.dimFormat": "Format compliance",
-    "qcPage.dimFormatDesc": "Report completeness / template usage / description standards",
+    "qcPage.dimFormatDesc":
+      "Report completeness / template usage / description standards",
     "qcPage.dimAccuracy": "Diagnostic accuracy",
-    "qcPage.dimAccuracyDesc": "Misdiagnosis rate / missed diagnosis / revision count",
+    "qcPage.dimAccuracyDesc":
+      "Misdiagnosis rate / missed diagnosis / revision count",
     "qcPage.dimTimeliness": "Timeliness",
     "qcPage.dimTimelinessDesc": "Timely rate / overdue rate",
     "qcPage.defectFormat": "Format error",
@@ -39265,8 +40362,10 @@ export const translations: Translations = {
     "qcPage.hospitalTownship": "Township Health Center",
     "qcPage.gradePrimary": "Primary",
     "qcPage.imageGradeADesc": "Clear image, proper contrast, no artifacts",
-    "qcPage.imageGradeBDesc": "Clear image, minor artifacts do not affect diagnosis",
-    "qcPage.imageGradeCDesc": "Average quality, artifacts present but diagnosable",
+    "qcPage.imageGradeBDesc":
+      "Clear image, minor artifacts do not affect diagnosis",
+    "qcPage.imageGradeCDesc":
+      "Average quality, artifacts present but diagnosable",
     "qcPage.imageGradeDDesc": "Poor image quality, not diagnosable",
     "qcPage.reportGradeADesc": "Complete, standard, accurate report",
     "qcPage.reportGradeBDesc": "Complete report, slightly non-standard",
@@ -39275,9 +40374,12 @@ export const translations: Translations = {
     "qcPage.ruleEmergency30": "Emergency report ≤30 min",
     "qcPage.ruleRoutine2h": "Routine report ≤2 hours",
     "qcPage.ruleSpecial4h": "Special exam ≤4 hours",
-    "qcPage.ruleCriticalNotify30": "Critical value notified to clinical within 30 min",
-    "qcPage.ruleCriticalRegister95": "Critical value registration completeness ≥95%",
-    "qcPage.ruleCriticalFollowup90": "Critical value follow-up confirmation ≥90%",
+    "qcPage.ruleCriticalNotify30":
+      "Critical value notified to clinical within 30 min",
+    "qcPage.ruleCriticalRegister95":
+      "Critical value registration completeness ≥95%",
+    "qcPage.ruleCriticalFollowup90":
+      "Critical value follow-up confirmation ≥90%",
     "qcPage.issueSomeOverdue": "Some reports exceed the time limit",
     "qcPage.itemUnit": "items",
     "qcPage.correcting": "Under correction",
@@ -39304,15 +40406,19 @@ export const translations: Translations = {
     "qcPage.scored": "Scored",
     "qcPage.system": "System",
     "qcPage.ruleAllSections": "Report contains all required sections",
-    "qcPage.ruleSectionsDesc": "Findings, diagnosis, suggestions sections complete",
+    "qcPage.ruleSectionsDesc":
+      "Findings, diagnosis, suggestions sections complete",
     "qcPage.rulePatientInfo": "Patient info complete",
-    "qcPage.rulePatientInfoDesc": "Name, ID, age, gender consistent with application",
+    "qcPage.rulePatientInfoDesc":
+      "Name, ID, age, gender consistent with application",
     "qcPage.ruleStandardTerms": "Use standard radiology terminology",
     "qcPage.ruleTermsDesc": "No colloquial or non-standard abbreviations",
     "qcPage.ruleStructuredDesc": "Structured imaging description",
-    "qcPage.ruleStructuredDescNote": "Layered description by anatomy, clear logic",
+    "qcPage.ruleStructuredDescNote":
+      "Layered description by anatomy, clear logic",
     "qcPage.ruleCriticalMark": "Include critical value mark",
-    "qcPage.ruleCriticalMarkDesc": "Critical values must be marked and notified",
+    "qcPage.ruleCriticalMarkDesc":
+      "Critical values must be marked and notified",
     "qcPage.ruleEvidenceBased": "Diagnosis supported by evidence",
     "qcPage.ruleEvidenceDesc": "Conclusion consistent with imaging findings",
     "qcPage.ruleBiRads": "BI-RADS/LU-RADS grading standard",
@@ -39362,7 +40468,8 @@ export const translations: Translations = {
     "qcPage.issueCriticalFlow": "Incomplete critical value reporting flow",
     "qcPage.issueInternalQc": "In-house QC",
     "qcPage.issueTerminology": "Non-standard report terminology",
-    "qcPage.alertScoreAboveUcl": "Hospital-wide score above control limit (84.2 > 89.5?)",
+    "qcPage.alertScoreAboveUcl":
+      "Hospital-wide score above control limit (84.2 > 89.5?)",
     "qcPage.alertScoreNearUcl": "Hospital-wide score near upper warning limit",
     "qcPage.rulesSaved": "QC rules saved",
     "qcPage.reportGeneration": "Report Generation",
@@ -39379,8 +40486,10 @@ export const translations: Translations = {
     "qcPage.issueTracking": "Issue Tracking",
     "qcPage.loading": "Loading QC data from API...",
     "qcPage.pageTitle": "QC Center",
-    "qcPage.versionBadge": "v1.0.4 quality scoring + AI enhancement subsystem ready",
-    "qcPage.pageSubtitle": "5-dimension scoring · 17 defect types · 6 AI scenarios · full keyword scan · one-click auto review",
+    "qcPage.versionBadge":
+      "v1.0.4 quality scoring + AI enhancement subsystem ready",
+    "qcPage.pageSubtitle":
+      "5-dimension scoring · 17 defect types · 6 AI scenarios · full keyword scan · one-click auto review",
     "qcPage.tabKeywordScan": "Keyword Scan",
     "qcPage.tabScoreRules": "Scoring Rules",
     "qcPage.tabDefectLibrary": "Defect Library",
@@ -39388,7 +40497,8 @@ export const translations: Translations = {
     "qcPage.scoreMatrixTitle": "Report Quality 3-Dimension Scoring Matrix",
     "qcPage.scorePerfLink": "Score linked to performance",
     "qcPage.scoreFormula": "Scoring Formula",
-    "qcPage.scoreFormulaBody": "Total = Format×0.3 + Accuracy×0.5 + Timeliness×0.2",
+    "qcPage.scoreFormulaBody":
+      "Total = Format×0.3 + Accuracy×0.5 + Timeliness×0.2",
     "qcPage.doctorRanking": "Doctor Report Quality Ranking",
     "qcPage.monthlyStats": "Monthly Statistics",
     "qcPage.avgTotal": "Avg Total",
@@ -39443,10 +40553,13 @@ export const translations: Translations = {
     "qcPage.reasonDoctorMeeting": "Reporting doctor ad-hoc meeting/training",
     "qcPage.reasonEmergencyBacklog": "Emergency priority backlog",
     "qcPage.reasonCheckupBacklog": "Checkup peak backlog",
-    "qcPage.actionDeviceMaintenance": "Establish preventive maintenance to reduce sudden faults",
-    "qcPage.actionMeetingScheduling": "Schedule meetings/training away from report peaks",
+    "qcPage.actionDeviceMaintenance":
+      "Establish preventive maintenance to reduce sudden faults",
+    "qcPage.actionMeetingScheduling":
+      "Schedule meetings/training away from report peaks",
     "qcPage.actionCheckupFastTrack": "Add fast track for checkup reports",
-    "qcPage.actionEmergencyScheduler": "Optimize emergency report priority scheduling",
+    "qcPage.actionEmergencyScheduler":
+      "Optimize emergency report priority scheduling",
     "qcPage.samplingTotal": "Total Samples This Month",
     "qcPage.samplingPassRate": "Sample Pass Rate",
     "qcPage.samplingGradeARate": "Sample Grade-A Rate",
@@ -39459,10 +40572,14 @@ export const translations: Translations = {
     "qcPage.score": "Score",
     "qcPage.defect": "Defect",
     "qcPage.reviewComment": "Review Comment",
-    "qcPage.actionWritingTraining": "Organize report writing training for incomplete descriptions",
-    "qcPage.actionTerminologyLibrary": "Build medical terminology library to reduce non-standard terms",
-    "qcPage.actionCriticalFlow": "Improve critical value reporting system and supervision",
-    "qcPage.actionGradeAExamples": "Publish Grade-A report examples for learning",
+    "qcPage.actionWritingTraining":
+      "Organize report writing training for incomplete descriptions",
+    "qcPage.actionTerminologyLibrary":
+      "Build medical terminology library to reduce non-standard terms",
+    "qcPage.actionCriticalFlow":
+      "Improve critical value reporting system and supervision",
+    "qcPage.actionGradeAExamples":
+      "Publish Grade-A report examples for learning",
     "qcPage.totalReviews": "Total Reviews",
     "qcPage.compositeScore": "Composite Score",
     "qcPage.complianceExcellentRate": "Compliance / excellent-good rate",
@@ -39532,7 +40649,8 @@ export const translations: Translations = {
     "qcPage.accuracyMetric": "Accuracy",
     "qcPage.accuracyDesc": "Consistency between diagnosis and imaging findings",
     "qcPage.completenessMetric": "Completeness",
-    "qcPage.completenessDesc": "Report covers all required description elements",
+    "qcPage.completenessDesc":
+      "Report covers all required description elements",
     "qcPage.timelinessMetric": "Timeliness",
     "qcPage.timelinessDesc": "Report completed within standard time",
     "qcPage.weight": "Weight",
@@ -39598,32 +40716,40 @@ export const translations: Translations = {
     "qcPage.excellentThreshold": "≥ this score is excellent",
     "qcPage.goodThreshold": "≥ this score is good",
     "qcPage.alertOverdueReminder": "Report Overdue Reminder",
-    "qcPage.alertOverdueDesc": "Auto-remind when a report is not reviewed within the set time",
+    "qcPage.alertOverdueDesc":
+      "Auto-remind when a report is not reviewed within the set time",
     "qcPage.alertCriticalTracking": "Critical Value Tracking Reminder",
-    "qcPage.alertCriticalDesc": "Keep reminding until critical value report is confirmed",
+    "qcPage.alertCriticalDesc":
+      "Keep reminding until critical value report is confirmed",
     "qcPage.alertScoreWarning": "Quality Score Warning",
-    "qcPage.alertScoreDesc": "Alert supervisor when score falls below threshold",
+    "qcPage.alertScoreDesc":
+      "Alert supervisor when score falls below threshold",
     "qcPage.alertRejectAuto": "Auto Reject Registration",
-    "qcPage.alertRejectDesc": "Auto-register as reject when image score is below 70",
+    "qcPage.alertRejectDesc":
+      "Auto-register as reject when image score is below 70",
     "qcPage.alertPeerAssign": "Peer Review Assignment",
     "qcPage.alertPeerDesc": "Auto-assign peer review tasks by configured ratio",
     "qcPage.reportDoctorLabel": "Reporting doctor:",
     "qcPage.complete": "Complete",
     "qcPage.formNotWiredTitle": "Not wired to backend yet",
-    "qcPage.formNotWiredDesc": "The create endpoint for QC records / issue tracking is not implemented yet, so nothing can be saved. A full form will be provided once it is wired.",
+    "qcPage.formNotWiredDesc":
+      "The create endpoint for QC records / issue tracking is not implemented yet, so nothing can be saved. A full form will be provided once it is wired.",
     "qcPage.blindReviewDetail": "Blind Review Scoring Details -",
     "qcPage.case": "Case",
     "qcPage.reportTimeliness": "Report Timeliness",
     "qcPage.gradeTertiaryA1": "Tertiary A",
     "qcPage.ruleEmergency60": "Emergency report ≤60 min",
-    "qcPage.ruleCriticalNotify10": "Critical value notified to clinical within 10 min",
+    "qcPage.ruleCriticalNotify10":
+      "Critical value notified to clinical within 10 min",
     "qcPage.medium2": "Medium",
     "qcPage.high": "High",
     "qcPage.low": "Low",
     "qcPage.period2026Apr": "Apr 2026",
-    "qcPage.rulePatientInfoConsistent": "Name, ID, age, gender consistent with application",
+    "qcPage.rulePatientInfoConsistent":
+      "Name, ID, age, gender consistent with application",
     "qcPage.ruleCriticalAnnotation": "Include critical value annotation",
-    "qcPage.pageSubtitle2": "5-dimension scoring · 17 defect types · 6 AI scenarios · full keyword scan · one-click auto draft",
+    "qcPage.pageSubtitle2":
+      "5-dimension scoring · 17 defect types · 6 AI scenarios · full keyword scan · one-click auto draft",
     "qcPage.reportUnit": "reports",
     "qcPage.scoreUnit": "pts",
     "qcPage.minPerCase": "min/case",
@@ -39647,13 +40773,15 @@ export const translations: Translations = {
     "qcPage.foundItems": "found items",
     "qcPage.reportsPerDoctor": "reports/doctor",
     "qcPage.dailyReviewPerDoctor2": "Daily review volume per doctor",
-    "reportWrite.demoComplaint": "Female, 58, right upper lobe nodule found on checkup 1 month ago, no obvious symptoms.",
+    "reportWrite.demoComplaint":
+      "Female, 58, right upper lobe nodule found on checkup 1 month ago, no obvious symptoms.",
     "reportWrite.aiDraftApplied": "AI draft applied to editor",
     "reportWrite.structuredPrefilled": "Structured fields prefilled in editor",
     "reportWrite.historySummary": "Prior History Summary",
     "reportWrite.realData": "Real data",
     "reportWrite.demoData": "Demo data",
-    "reportWrite.noRealPriorDemo": "No real prior reports; summary is demo data",
+    "reportWrite.noRealPriorDemo":
+      "No real prior reports; summary is demo data",
     "reportWrite.fillHistory": "Fill Basic History",
     "reportWrite.lastReportDate": "Last report date:",
     "reportWrite.priorReports": "Prior Reports",
@@ -39669,11 +40797,13 @@ export const translations: Translations = {
     "reportWrite.fusionSearchError": "Fusion search service error",
     "reportWrite.searchError": "Search service error",
     "reportWrite.similarSearchFailed": "Similar case search failed",
-    "reportWrite.similarSearchHint": "Auto-search after entering report text; optionally link exams for image feature fusion",
+    "reportWrite.similarSearchHint":
+      "Auto-search after entering report text; optionally link exams for image feature fusion",
     "reportWrite.linkExams": "Link exams (image features)",
     "reportWrite.refresh": "Refresh",
     "reportWrite.searching": "Searching...",
-    "reportWrite.searchHint": "Auto-search similar cases after entering report text",
+    "reportWrite.searchHint":
+      "Auto-search similar cases after entering report text",
     "reportWrite.pieceUnit": "items",
     "reportWrite.text": "Text",
     "reportWrite.image": "Image",
@@ -39693,7 +40823,8 @@ export const translations: Translations = {
     "reportWrite.scoring": "(scoring)",
     "reportWrite.realScore": "Real score",
     "reportWrite.demoFallback": "Demo fallback",
-    "reportWrite.scoreSourceNote": "Real score from reportQualityApi.evaluate, falls back to local demo on failure",
+    "reportWrite.scoreSourceNote":
+      "Real score from reportQualityApi.evaluate, falls back to local demo on failure",
     "reportWrite.scoreDims": "Scoring Dimensions",
     "reportWrite.checklist": "Checklist",
     "reportWrite.improvements": "Improvement Suggestions",
@@ -39701,17 +40832,22 @@ export const translations: Translations = {
     "reportWrite.autoSave": "Auto Save",
     "reportWrite.keywordCount": "keywords",
     "reportWrite.realHighlight": "Real highlight",
-    "reportWrite.highlightFallback": "No backend keyword highlight API, falls back to demo data",
+    "reportWrite.highlightFallback":
+      "No backend keyword highlight API, falls back to demo data",
     "reportWrite.checkPatientMatch": "Patient name matches accession",
     "reportWrite.checkBodyPart": "Body part consistent with application",
-    "reportWrite.checkFindingsCoverage": "Findings cover all examined body parts",
-    "reportWrite.checkImpressionConsistent": "Impression logically consistent with findings",
-    "reportWrite.checkCriticalNotified": "Critical value marked and clinical notified",
+    "reportWrite.checkFindingsCoverage":
+      "Findings cover all examined body parts",
+    "reportWrite.checkImpressionConsistent":
+      "Impression logically consistent with findings",
+    "reportWrite.checkCriticalNotified":
+      "Critical value marked and clinical notified",
     "reportWrite.checkIcdTerms": "Terminology follows ICD coding standards",
     "reportWrite.checkMeasurements": "Measurements consistent with images",
     "reportWrite.qcRuleCount": "QC rules",
     "reportWrite.realRules": "Real rules",
-    "reportWrite.qcFallbackNote": "Falls back when reportQualityApi.evaluate is unavailable",
+    "reportWrite.qcFallbackNote":
+      "Falls back when reportQualityApi.evaluate is unavailable",
     "reportWrite.reportDoctor": "Reporting Doctor",
     "reportWrite.currentlyEditing": "Currently Editing",
     "reportWrite.reviewDoctor": "Reviewing Doctor",
@@ -39719,13 +40855,15 @@ export const translations: Translations = {
     "reportWrite.finalReviewDoctor": "Final Reviewing Doctor",
     "reportWrite.twoHoursAgo": "2 hours ago",
     "reportWrite.collabDemoNote": "Demo data (collaboration list example)",
-    "reportWrite.collabLocalNote": "Collaboration doctor list is local sample, no real API",
+    "reportWrite.collabLocalNote":
+      "Collaboration doctor list is local sample, no real API",
     "reportWrite.fullText": "Full Text",
     "reportWrite.unfavorite": "Unfavorite",
     "reportWrite.favoriteTemplates": "Favorite Common Templates",
     "reportWrite.structuredTemplate": "(structured template)",
     "reportWrite.templateLoading": "Loading templates...",
-    "reportWrite.letterheadHtml": "<div class=\"lp-letterhead\"><div class=\"lp-org\">Handong Provincial People's Hospital</div><div class=\"lp-sub\">Radiology Diagnostic Center</div></div>",
+    "reportWrite.letterheadHtml":
+      '<div class="lp-letterhead"><div class="lp-org">Handong Provincial People\'s Hospital</div><div class="lp-sub">Radiology Diagnostic Center</div></div>',
     "reportWrite.reportNo": "Report No",
     "reportWrite.patient": "Patient",
     "reportWrite.genderAge": "Gender/Age",
@@ -39739,9 +40877,12 @@ export const translations: Translations = {
     "reportWrite.realDicom": "Real DICOM",
     "reportWrite.synthetic": "Synthetic",
     "reportWrite.length": "Length",
-    "reportWrite.noMeasurementsImport": "No measurements in image viewer; complete them in the DICOM viewer (length/Cobb angle/area) and return to auto-import, or add manually",
-    "reportWrite.noMeasurementsManual": "No measurements in image viewer; add measurement rows manually",
-    "reportWrite.measurementsLoadFailed": "Failed to read measurements; add rows manually",
+    "reportWrite.noMeasurementsImport":
+      "No measurements in image viewer; complete them in the DICOM viewer (length/Cobb angle/area) and return to auto-import, or add manually",
+    "reportWrite.noMeasurementsManual":
+      "No measurements in image viewer; add measurement rows manually",
+    "reportWrite.measurementsLoadFailed":
+      "Failed to read measurements; add rows manually",
     "reportWrite.angle": "Angle",
     "reportWrite.cobbAngle": "Cobb Angle",
     "reportWrite.ellipseArea": "Ellipse Area",
@@ -39752,18 +40893,24 @@ export const translations: Translations = {
     "reportWrite.volume": "Volume",
     "reportWrite.measurementsRequired": "Please enter measurement data",
     "reportWrite.measurementsHtml": "<h3>Image Measurement Data</h3>",
-    "reportWrite.noMeasurementsHint": "No measurements: import from image viewer or add manually to generate",
-    "reportWrite.measurementsInserted": "Measurement table inserted into report (SR section)",
+    "reportWrite.noMeasurementsHint":
+      "No measurements: import from image viewer or add manually to generate",
+    "reportWrite.measurementsInserted":
+      "Measurement table inserted into report (SR section)",
     "reportWrite.aiRadsInserted": "AI RADS scoring section inserted",
-    "reportWrite.aiRadsInsertedCrossPage": "AI RADS scoring section inserted (cross-page)",
+    "reportWrite.aiRadsInsertedCrossPage":
+      "AI RADS scoring section inserted (cross-page)",
     "reportWrite.mipScreenshot": "MIP Screenshot",
-    "reportWrite.mipCaptionIncomplete": "MIP caption auto-insert incomplete; re-insert via Report > Key Images & Anchors",
+    "reportWrite.mipCaptionIncomplete":
+      "MIP caption auto-insert incomplete; re-insert via Report > Key Images & Anchors",
     "reportWrite.currentUser": "Current User",
-    "reportWrite.historyNotLoaded": "History summary not loaded yet, please retry",
+    "reportWrite.historyNotLoaded":
+      "History summary not loaded yet, please retry",
     "reportWrite.historyHtml": "<h3>Prior History</h3>",
     "reportWrite.historyInserted": "History summary inserted into report",
     "reportWrite.general": "General",
-    "reportWrite.savedWithOverwrite": "Saved (concurrent edit detected, latest version overwritten)",
+    "reportWrite.savedWithOverwrite":
+      "Saved (concurrent edit detected, latest version overwritten)",
     "reportWrite.reportSaved": "Report saved",
     "reportWrite.saveFailed": "Save failed, please retry",
     "reportWrite.saveFailedNetwork": "Save failed, check network and retry",
@@ -39774,47 +40921,62 @@ export const translations: Translations = {
     "reportWrite.autoSaving": "Auto-saving...",
     "reportWrite.autoSaveFailed": "Auto-save failed",
     "reportWrite.submitted": "Report submitted for review",
-    "reportWrite.submitFailedState": "Submit failed: report state not submittable or network error; save first and retry",
-    "reportWrite.submitFailedNetwork": "Submit failed: network error, retry later",
+    "reportWrite.submitFailedState":
+      "Submit failed: report state not submittable or network error; save first and retry",
+    "reportWrite.submitFailedNetwork":
+      "Submit failed: network error, retry later",
     "reportWrite.signed": "Report signed",
     "reportWrite.signFailed": "Sign failed, retry later",
     "reportWrite.signFailedNetwork": "Sign failed: network error, retry later",
     "reportWrite.published": "Report published",
     "reportWrite.publishFailed": "Publish failed, retry later",
-    "reportWrite.publishFailedNetwork": "Publish failed: network error, retry later",
+    "reportWrite.publishFailedNetwork":
+      "Publish failed: network error, retry later",
     "reportWrite.reviewRejected": "Review Rejected",
     "reportWrite.returnedToWriting": "Report returned to rewriting (WRITING)",
     "reportWrite.returnFailed": "Return to rewrite failed, retry later",
-    "reportWrite.returnFailedNetwork": "Return to rewrite failed: network error, retry later",
+    "reportWrite.returnFailedNetwork":
+      "Return to rewrite failed: network error, retry later",
     "reportWrite.exportFailed": "Export failed, retry later",
     "reportWrite.pdfExported": "Report PDF exported",
-    "reportWrite.exportQueued": "Export task queued; PDF downloadable after backend generation",
+    "reportWrite.exportQueued":
+      "Export task queued; PDF downloadable after backend generation",
     "reportWrite.exportQueuedShort": "Export task queued",
-    "reportWrite.structuredTemplateHint": "This is a structured template without free text; use the structured field form below",
+    "reportWrite.structuredTemplateHint":
+      "This is a structured template without free text; use the structured field form below",
     "reportWrite.templateLoadFailed": "Template load failed, retry",
-    "reportWrite.noPatientForPrior": "Current report lacks patient info, cannot query prior exams",
-    "reportWrite.noPriorToCopy": "No prior exam reports for this patient, cannot copy",
+    "reportWrite.noPatientForPrior":
+      "Current report lacks patient info, cannot query prior exams",
+    "reportWrite.noPriorToCopy":
+      "No prior exam reports for this patient, cannot copy",
     "reportWrite.priorQueryFailed": "Prior exam query failed, retry later",
-    "reportWrite.noPatientForPriorReport": "Current report lacks patient info, cannot query prior reports",
-    "reportWrite.priorLoadedForCompare": "Latest prior report loaded for comparison",
+    "reportWrite.noPatientForPriorReport":
+      "Current report lacks patient info, cannot query prior reports",
+    "reportWrite.priorLoadedForCompare":
+      "Latest prior report loaded for comparison",
     "reportWrite.priorLoadFailed": "Prior report load failed, retry later",
-    "reportWrite.selectFindingOrImpression": "Check at least one of findings or impression",
+    "reportWrite.selectFindingOrImpression":
+      "Check at least one of findings or impression",
     "reportWrite.saveDraft": "Save Draft",
     "reportWrite.submitReview": "Submit for Review",
     "reportWrite.prevReport": "Previous",
     "reportWrite.nextReport": "Next",
-    "reportWrite.voiceOpened": "F2 Voice input: voice panel opened on the right",
+    "reportWrite.voiceOpened":
+      "F2 Voice input: voice panel opened on the right",
     "reportWrite.voiceInput": "Voice Input",
     "reportWrite.aiDraft": "AI Draft",
     "reportWrite.phraseInserted": "Phrase inserted into editor",
     "reportWrite.aiDraftFailed": "AI draft generation failed",
-    "reportWrite.aiDraftFailedNetwork": "AI draft generation failed: network error, retry later",
+    "reportWrite.aiDraftFailedNetwork":
+      "AI draft generation failed: network error, retry later",
     "reportWrite.aiDraftAccepted": "AI draft accepted and applied to editor",
     "reportWrite.acceptFailed": "Failed to accept draft",
-    "reportWrite.acceptFailedNetwork": "Failed to accept draft: network error, retry later",
+    "reportWrite.acceptFailedNetwork":
+      "Failed to accept draft: network error, retry later",
     "reportWrite.modifySaved": "Changes saved and applied to editor",
     "reportWrite.modifyFailed": "Failed to save changes",
-    "reportWrite.modifyFailedNetwork": "Failed to save changes: network error, retry later",
+    "reportWrite.modifyFailedNetwork":
+      "Failed to save changes: network error, retry later",
     "reportWrite.voice": "Voice",
     "reportWrite.historyTab": "History Reports",
     "reportWrite.similarCases": "Similar Cases",
@@ -39827,46 +40989,58 @@ export const translations: Translations = {
     "reportWrite.pageTitle": "Report Writing",
     "reportWrite.preScoreSource": "Pre-score Data Source",
     "reportWrite.templateLibrary": "Template Library",
-    "reportWrite.templateLibraryHint": "Template library: browse full-text templates and phrases by category; click to insert at cursor",
+    "reportWrite.templateLibraryHint":
+      "Template library: browse full-text templates and phrases by category; click to insert at cursor",
     "reportWrite.templateSections": "Template Section Library",
-    "reportWrite.templateSectionsHint": "Match section templates by current exam modality/body part; generate a section tree and fill the editor in one click",
+    "reportWrite.templateSectionsHint":
+      "Match section templates by current exam modality/body part; generate a section tree and fill the editor in one click",
     "reportWrite.patientProfile": "Patient Profile",
-    "reportWrite.noPatientProfile": "Current report lacks patient info, cannot open profile",
+    "reportWrite.noPatientProfile":
+      "Current report lacks patient info, cannot open profile",
     "reportWrite.openPatient360": "Open 360 patient profile",
     "reportWrite.copyPrior": "Copy Prior",
     "reportWrite.noPriorExam": "No prior exam",
-    "reportWrite.copyPriorHint": "Copy findings/impression from the patient's latest exam (same modality preferred)",
+    "reportWrite.copyPriorHint":
+      "Copy findings/impression from the patient's latest exam (same modality preferred)",
     "reportWrite.locked": "Locked",
-    "reportWrite.aiEnvNote": "Environment: AI generates report draft (findings + conclusion + suggestions)",
+    "reportWrite.aiEnvNote":
+      "Environment: AI generates report draft (findings + conclusion + suggestions)",
     "reportWrite.save": "Save",
     "reportWrite.print": "Print",
     "reportWrite.printHint": "Print current report content",
     "reportWrite.export": "Export",
     "reportWrite.exportPdf": "Export as PDF",
     "reportWrite.phraseLibrary": "Phrase Library",
-    "reportWrite.phraseLibraryHint": "Pick common phrases from the library to insert into editor",
+    "reportWrite.phraseLibraryHint":
+      "Pick common phrases from the library to insert into editor",
     "reportWrite.slashCount": "of",
     "reportWrite.reportUnit": "reports",
-    "reportWrite.shortcuts": "Ctrl+S save draft · Ctrl+Enter submit · Ctrl+T template library · Alt+←/→ prev/next report · F2 voice input · F5 AI draft",
+    "reportWrite.shortcuts":
+      "Ctrl+S save draft · Ctrl+Enter submit · Ctrl+T template library · Alt+←/→ prev/next report · F2 voice input · F5 AI draft",
     "reportWrite.sign": "Sign",
     "reportWrite.publish": "Publish",
     "reportWrite.returnToRewrite": "Return to Rewrite",
     "reportWrite.collapseSidebar": "Collapse Sidebar",
     "reportWrite.expandSidebar": "Expand Sidebar",
-    "reportWrite.rewriteHint": "Modify the report and click Return to Rewrite at top-right to re-enter writing state, then submit for review",
-    "reportWrite.concurrentEditWarn": "Concurrent edit detected: another doctor updated this report (you are editing an old version); saving will overwrite the latest content",
+    "reportWrite.rewriteHint":
+      "Modify the report and click Return to Rewrite at top-right to re-enter writing state, then submit for review",
+    "reportWrite.concurrentEditWarn":
+      "Concurrent edit detected: another doctor updated this report (you are editing an old version); saving will overwrite the latest content",
     "reportWrite.exampleSuffix": " (example)",
     "reportWrite.demoClinicalDiagnosis": "Right lung space-occupying lesion",
     "reportWrite.reportStatus": "Report Status",
     "reportWrite.complaintLabel": "Chief complaint:",
-    "reportWrite.demoComplaintShort": "Right lung nodule found on checkup 1 month ago",
+    "reportWrite.demoComplaintShort":
+      "Right lung nodule found on checkup 1 month ago",
     "reportWrite.presentIllness": "Present illness:",
-    "reportWrite.demoPresentIllness": "Right upper lobe nodule found on checkup 1 week ago",
+    "reportWrite.demoPresentIllness":
+      "Right upper lobe nodule found on checkup 1 week ago",
     "reportWrite.pastHistory": "Past history:",
     "reportWrite.demoPastHistory": "No tumor history",
     "reportWrite.clinicalInfo": "Clinical Info",
     "reportWrite.exampleData": "Example Data",
-    "reportWrite.exampleDataNote": "Local fallback values kept and sourced when no real patient/exam data exists",
+    "reportWrite.exampleDataNote":
+      "Local fallback values kept and sourced when no real patient/exam data exists",
     "reportWrite.series": "Series",
     "reportWrite.ctAxialSeries": "CT Axial",
     "reportWrite.exampleImage": "Example Image",
@@ -39881,12 +41055,14 @@ export const translations: Translations = {
     "reportWrite.measureLocation": "Location",
     "reportWrite.measureValue": "Value",
     "reportWrite.add": "Add",
-    "reportWrite.noMeasurementsPrompt": "No measurements · complete them in the DICOM viewer and click Import from Viewer to auto-fill, or add rows above",
+    "reportWrite.noMeasurementsPrompt":
+      "No measurements · complete them in the DICOM viewer and click Import from Viewer to auto-fill, or add rows above",
     "reportWrite.imageMeasurements": "Image Measurements",
     "reportWrite.srSection": "SR Section",
     "reportWrite.importFromViewer": "Import from Image Viewer",
     "reportWrite.insertMeasurements": "Insert Measurement Table",
-    "reportWrite.measurementsInsertedShort": "Measurement table inserted into report",
+    "reportWrite.measurementsInsertedShort":
+      "Measurement table inserted into report",
     "reportWrite.structuredFields": "Structured Fields",
     "reportWrite.sectionsLabel": "Findings / Diagnosis / Suggestions",
     "reportWrite.keyImagesAnchors": "Key Images & Anchors",
@@ -39901,19 +41077,25 @@ export const translations: Translations = {
     "reportWrite.cancel": "Cancel",
     "reportWrite.confirmSubmit": "Confirm Submit",
     "reportWrite.submitConfirmTitle": "Confirm Submission for Review",
-    "reportWrite.printLayoutNote": "Printing injects the selected layout into the print container; falls back to system printing if layout fails",
+    "reportWrite.printLayoutNote":
+      "Printing injects the selected layout into the print container; falls back to system printing if layout fails",
     "reportWrite.selectPrintTemplate": "Select Print Template",
-    "reportWrite.noReportContext": "No report context; create or select a report first",
+    "reportWrite.noReportContext":
+      "No report context; create or select a report first",
     "reportWrite.overwrite": "Overwrite",
     "reportWrite.append": "Append",
-    "reportWrite.templateApplyFailed": "Template apply failed (ensure report exists and is in writing state)",
+    "reportWrite.templateApplyFailed":
+      "Template apply failed (ensure report exists and is in writing state)",
     "reportWrite.templateApplyNetwork": "Template apply failed: network error",
-    "reportWrite.sectionTreeFilled": "Section tree filled in editor; adjust per actual findings",
+    "reportWrite.sectionTreeFilled":
+      "Section tree filled in editor; adjust per actual findings",
     "reportWrite.sameModalityMatch": "Same-modality preferred match",
     "reportWrite.latestFallback": "No same-modality match; used latest report",
-    "reportWrite.noSameModalityReport": "No written same-modality report for this patient",
+    "reportWrite.noSameModalityReport":
+      "No written same-modality report for this patient",
     "reportWrite.examDate": "Exam Date",
-    "reportWrite.insertToSectionHint": "Checked items insert into the corresponding editor section",
+    "reportWrite.insertToSectionHint":
+      "Checked items insert into the corresponding editor section",
     "reportWrite.none": "(none)",
     "reportWrite.insertFindingsImpression": "Insert Findings/Impression",
     "reportWrite.concise": "Concise",
@@ -39922,19 +41104,26 @@ export const translations: Translations = {
     "reportWrite.standardHint": "Complete structured template",
     "reportWrite.detailed": "Detailed",
     "reportWrite.detailedHint": "Template plus supplementary description",
-    "reportWrite.aiDisclaimer": "AI draft is for clinical reference only; final diagnosis requires licensed physician confirmation",
-    "reportWrite.clinicalInfoRequired": "Enter clinical info: complaint, present illness, past history",
+    "reportWrite.aiDisclaimer":
+      "AI draft is for clinical reference only; final diagnosis requires licensed physician confirmation",
+    "reportWrite.clinicalInfoRequired":
+      "Enter clinical info: complaint, present illness, past history",
     "reportWrite.findingKeywords": "Finding keywords (optional)",
-    "reportWrite.keywordsExample": "e.g. right upper lobe nodule, lumbar degeneration",
+    "reportWrite.keywordsExample":
+      "e.g. right upper lobe nodule, lumbar degeneration",
     "reportWrite.detailHint": "Detail hint:",
     "reportWrite.generating": "Generating",
-    "reportWrite.generatingFromTemplate": "Generating report draft from template library...",
+    "reportWrite.generatingFromTemplate":
+      "Generating report draft from template library...",
     "reportWrite.aiGenerateDraft": "AI Generate Report Draft",
     "reportWrite.generateDraft": "Generate Draft",
     "reportWrite.contentIdentical": "(content identical)",
-    "reportWrite.aiDraftNote": "AI draft for reference only; verify findings and diagnosis accuracy before accepting",
-    "reportWrite.editDraftHint": "Edit draft content (saved then submitted to /ai/report-draft/:id/modify)",
-    "reportWrite.currentEditorContent": "Current editor content (deleted highlights)",
+    "reportWrite.aiDraftNote":
+      "AI draft for reference only; verify findings and diagnosis accuracy before accepting",
+    "reportWrite.editDraftHint":
+      "Edit draft content (saved then submitted to /ai/report-draft/:id/modify)",
+    "reportWrite.currentEditorContent":
+      "Current editor content (deleted highlights)",
     "reportWrite.aiDraftContent": "AI draft (added highlights)",
     "reportWrite.aiDraftConfirm": "AI Draft Confirmation",
     "reportWrite.confidence": "Confidence",
@@ -39947,7 +41136,8 @@ export const translations: Translations = {
     "reportWrite.oldVersion": "Old Version",
     "reportWrite.newVersion": "New Version",
     "reportWrite.versionCompare": "Version comparison:",
-    "reportWrite.searchPhrasePlaceholder": "Search phrases / categories (e.g. chest, nodule, follow-up)",
+    "reportWrite.searchPhrasePlaceholder":
+      "Search phrases / categories (e.g. chest, nodule, follow-up)",
     "reportWrite.phraseLoading": "Loading phrases...",
     "reportWrite.noMatchingPhrase": "No matching phrases",
     "reportWrite.variableCount": "variables ×",
@@ -39957,8 +41147,10 @@ export const translations: Translations = {
     "reportWrite.favoritePhrase": "Favorite Common Phrase",
     "reportWrite.pieceUnit2": "items",
     "reportWrite.favorite": "Favorite",
-    "reportWrite.snippetsFallback": "Backend /templates/snippets unavailable; fell back to demo data",
-    "reportWrite.searchTemplatePlaceholder": "Search templates / phrases (e.g. chest, nodule, follow-up)",
+    "reportWrite.snippetsFallback":
+      "Backend /templates/snippets unavailable; fell back to demo data",
+    "reportWrite.searchTemplatePlaceholder":
+      "Search templates / phrases (e.g. chest, nodule, follow-up)",
     "reportWrite.fullTextTemplates": "Full-text Templates",
     "reportWrite.fullTextCount": "Full-text ×",
     "reportWrite.fullTextInsertMode": "Full-text template insertion mode",
@@ -39973,52 +41165,67 @@ export const translations: Translations = {
     "reportWrite.noMatchingTemplate": "No matching templates",
     "reportWrite.backToWriting": "Back to writing page to select",
     "reportWrite.templateDot": "Templates ·",
-    "reportWrite.snippetsPhraseFallback": "Backend /templates/snippets unavailable; phrases fell back to demo data",
+    "reportWrite.snippetsPhraseFallback":
+      "Backend /templates/snippets unavailable; phrases fell back to demo data",
     "reportWrite.serverFavorite": "Server Favorite",
-    "reportWrite.favoriteServerNote": "Favorite: POST /templates/:id/favorite syncs to server",
+    "reportWrite.favoriteServerNote":
+      "Favorite: POST /templates/:id/favorite syncs to server",
     "reportWrite.localFavoriteFallback": "Local Favorite Fallback",
-    "reportWrite.favoriteFallbackNote": "Favorite API unavailable; fell back to localStorage",
-    "reportWrite.demoComplaint2": "Female, 58, right upper lobe nodule found on checkup 1 week ago, no obvious symptoms.",
+    "reportWrite.favoriteFallbackNote":
+      "Favorite API unavailable; fell back to localStorage",
+    "reportWrite.demoComplaint2":
+      "Female, 58, right upper lobe nodule found on checkup 1 week ago, no obvious symptoms.",
     "reportWrite.recentImpressionLabel": "Recent impression:",
     "reportWrite.totalPrefix": "Total",
-    "reportWrite.searchHint2": "Auto-search after entering report text; optionally link exams for image feature fusion",
+    "reportWrite.searchHint2":
+      "Auto-search after entering report text; optionally link exams for image feature fusion",
     "reportWrite.searching2": "Searching...",
     "reportWrite.yearsOld": "yrs",
     "reportWrite.submittable": "Submittable",
     "reportWrite.scoring2": "(scoring...)",
     "reportWrite.wordUnit": "words",
     "reportWrite.templateLoading2": "Loading templates...",
-    "reportWrite.noMeasurementsImport2": "No measurements in image viewer: complete them in the DICOM viewer (length/Cobb angle/area) and return to auto-import, or add manually",
+    "reportWrite.noMeasurementsImport2":
+      "No measurements in image viewer: complete them in the DICOM viewer (length/Cobb angle/area) and return to auto-import, or add manually",
     "reportWrite.measurementValueRequired": "Please enter measurement value",
-    "reportWrite.savedWithOverwrite2": "Saved (concurrent edit detected, latest version overwritten)",
+    "reportWrite.savedWithOverwrite2":
+      "Saved (concurrent edit detected, latest version overwritten)",
     "reportWrite.autoSaving2": "Auto-saving...",
     "reportWrite.returnedToWriting2": "Report returned to rewriting (WRITING)",
-    "reportWrite.structuredTemplateHint2": "This is a structured template (no free text); use the structured field form below",
+    "reportWrite.structuredTemplateHint2":
+      "This is a structured template (no free text); use the structured field form below",
     "reportWrite.prevCase": "Previous",
     "reportWrite.nextCase": "Next",
     "reportWrite.sectionTree": "Template Section Tree",
-    "reportWrite.aiEnvNote2": "Contextual AI generates report draft (findings + conclusion + suggestions)",
+    "reportWrite.aiEnvNote2":
+      "Contextual AI generates report draft (findings + conclusion + suggestions)",
     "reportWrite.wordsPer": "words /",
     "reportWrite.minUnit": "min",
-    "reportWrite.shortcuts2": "Ctrl+S save draft · Ctrl+Enter submit · Ctrl+T template library · Alt+↑/↓ prev/next case · F2 voice input · F5 AI draft",
+    "reportWrite.shortcuts2":
+      "Ctrl+S save draft · Ctrl+Enter submit · Ctrl+T template library · Alt+↑/↓ prev/next case · F2 voice input · F5 AI draft",
     "reportWrite.genderAge2": "Gender / Age",
     "reportWrite.male": "Male",
     "reportWrite.reportStatusLabel": "Report status:",
-    "reportWrite.demoComplaintShort2": "Right lung nodule found on checkup 1 week ago",
+    "reportWrite.demoComplaintShort2":
+      "Right lung nodule found on checkup 1 week ago",
     "reportWrite.ctAxialSeries2": "CT Axial",
-    "reportWrite.noMeasurementsPrompt2": "No measurements — complete them in the DICOM viewer and click Import from Viewer to auto-fill, or add rows above",
+    "reportWrite.noMeasurementsPrompt2":
+      "No measurements — complete them in the DICOM viewer and click Import from Viewer to auto-fill, or add rows above",
     "reportWrite.checklistPrefix2": "Checklist (",
     "reportWrite.examDateLabel": "Exam date:",
     "reportWrite.findingKeywords2": "Finding keywords (optional)",
-    "reportWrite.keywordsExample2": "e.g. right upper lobe nodule / lumbar degeneration",
+    "reportWrite.keywordsExample2":
+      "e.g. right upper lobe nodule / lumbar degeneration",
     "reportWrite.detailLevel": "Detail Level",
     "reportWrite.generatingBy": "Generating by",
-    "reportWrite.currentEditorContent2": "Current editor content (deleted highlights)",
+    "reportWrite.currentEditorContent2":
+      "Current editor content (deleted highlights)",
     "reportWrite.phraseLoading2": "Loading phrases...",
     "reportWrite.timesUnit": "times",
     "reportWrite.recordUnit": "records",
     "reportWrite.all": "All",
-    "reportWrite.favoriteServerNote2": "Favorite syncs to server via POST /templates/:id/favorite",
+    "reportWrite.favoriteServerNote2":
+      "Favorite syncs to server via POST /templates/:id/favorite",
     "insuranceAudit.statusPending": "Pending Review",
     "insuranceAudit.auditHistory": "Audit History",
     "insuranceAudit.statistics": "Statistics",
@@ -40054,11 +41261,13 @@ export const translations: Translations = {
     "insuranceAudit.statusPendingAppeal": "Pending Appeal",
     "insuranceAudit.denialNoPreAuth": "No pre-authorization obtained",
     "insuranceAudit.statusAppealing": "Appealing",
-    "insuranceAudit.denialNotMedicallyNecessary": "Determined not medically necessary",
+    "insuranceAudit.denialNotMedicallyNecessary":
+      "Determined not medically necessary",
     "insuranceAudit.statusApproved": "Approved",
     "insuranceAudit.denialDuplicateClaim": "Duplicate claim for same item",
     "insuranceAudit.statusRejected": "Rejected",
-    "insuranceAudit.denialIcdGenderMismatch": "ICD-10 code inconsistent with gender",
+    "insuranceAudit.denialIcdGenderMismatch":
+      "ICD-10 code inconsistent with gender",
     "insuranceAudit.denialCodingError": "Coding error",
     "insuranceAudit.denialMissingAuthorization": "Missing authorization",
     "insuranceAudit.medicalNecessity": "Medical Necessity",
@@ -40071,20 +41280,25 @@ export const translations: Translations = {
     "insuranceAudit.pathologyReport": "Pathology Report",
     "insuranceAudit.ctReport": "CT Report",
     "insuranceAudit.liverFunctionReport": "Liver Function Report",
-    "insuranceAudit.drgCerebrovascularWithCc": "Cerebrovascular disease with CC",
+    "insuranceAudit.drgCerebrovascularWithCc":
+      "Cerebrovascular disease with CC",
     "insuranceAudit.drgNeuroTumorWithCc": "Nervous system tumor with CC",
-    "insuranceAudit.drgCerebrovascularNoCc": "Cerebrovascular disease without CC",
+    "insuranceAudit.drgCerebrovascularNoCc":
+      "Cerebrovascular disease without CC",
     "insuranceAudit.drgHepatobiliaryTumorWithCc": "Hepatobiliary tumor with CC",
     "insuranceAudit.drgInfectious": "Infectious disease",
     "insuranceAudit.drgTumor": "Tumor",
     "insuranceAudit.drgCerebrovascular": "Cerebrovascular disease",
     "insuranceAudit.drgHepatobiliary": "Hepatobiliary disease",
-    "insuranceAudit.csvHeader": "Patient,Patient ID,Exam Type,Exam Item,Drug,Drug Category,Audit Result,Auditor,Audit Time,Reason",
+    "insuranceAudit.csvHeader":
+      "Patient,Patient ID,Exam Type,Exam Item,Drug,Drug Category,Audit Result,Auditor,Audit Time,Reason",
     "insuranceAudit.approveFailed": "Approve failed",
-    "insuranceAudit.approveFailedReason": "Does not meet restricted drug conditions",
+    "insuranceAudit.approveFailedReason":
+      "Does not meet restricted drug conditions",
     "insuranceAudit.rejectFailed": "Reject failed",
     "insuranceAudit.patientRequired": "Please enter patient ID and name",
-    "insuranceAudit.drugRequired": "Please enter contrast agent or anticoagulant",
+    "insuranceAudit.drugRequired":
+      "Please enter contrast agent or anticoagulant",
     "insuranceAudit.newRecordAdded": "New pending record added",
     "insuranceAudit.createFailed": "Create failed",
     "insuranceAudit.partialDemoData": "Partial demo data",
@@ -40134,13 +41348,15 @@ export const translations: Translations = {
     "insuranceAudit.supplementRate": "Supplement Rate",
     "insuranceAudit.drugTop5": "Top 5 Drugs Used",
     "insuranceAudit.voucherTitle": "E-voucher Management",
-    "insuranceAudit.voucherSubtitle": "Insurance audit e-voucher records and search",
+    "insuranceAudit.voucherSubtitle":
+      "Insurance audit e-voucher records and search",
     "insuranceAudit.voucherTotal": "Total Vouchers",
     "insuranceAudit.voucherIssued": "Issued",
     "insuranceAudit.voucherPending": "Pending",
     "insuranceAudit.voucherVoided": "Voided",
     "insuranceAudit.voucherTotalAmount": "Total Amount",
-    "insuranceAudit.voucherSearchPlaceholder": "Search patient name, ID, voucher ID, linked audit ID...",
+    "insuranceAudit.voucherSearchPlaceholder":
+      "Search patient name, ID, voucher ID, linked audit ID...",
     "insuranceAudit.voucherId": "Voucher ID",
     "insuranceAudit.linkedAuditId": "Linked Audit ID",
     "insuranceAudit.patientName": "Patient Name",
@@ -40154,7 +41370,8 @@ export const translations: Translations = {
     "insuranceAudit.cancelBatch": "Cancel Batch",
     "insuranceAudit.batchSubmit": "Batch Submit",
     "insuranceAudit.submitClaim": "Submit Claim",
-    "insuranceAudit.claimSubmitted": "Simulated submission succeeded, sent to insurer",
+    "insuranceAudit.claimSubmitted":
+      "Simulated submission succeeded, sent to insurer",
     "insuranceAudit.claimId": "Claim ID",
     "insuranceAudit.patient": "Patient",
     "insuranceAudit.examItem": "Exam Item",
@@ -40228,7 +41445,8 @@ export const translations: Translations = {
     "insuranceAudit.reasonLabel": "Reason:",
     "insuranceAudit.recordNotFound": "Audit record not found",
     "insuranceAudit.close": "Close",
-    "insuranceAudit.rejectReasonRequired": "Enter rejection reason (required, synced to insurance platform)",
+    "insuranceAudit.rejectReasonRequired":
+      "Enter rejection reason (required, synced to insurance platform)",
     "insuranceAudit.deleteRuleConfirm": "Delete insurance rule",
     "insuranceAudit.delete": "Delete",
     "insuranceAudit.newRecordTitle": "New Insurance Audit Record",
@@ -40246,21 +41464,24 @@ export const translations: Translations = {
     "insuranceAudit.applyReasonPlaceholder": "Reason for application",
     "insuranceAudit.submitting": "Submitting...",
     "insuranceAudit.submitAudit": "Submit for Review",
-    "insuranceAudit.denialNotMedicallyNecessary2": "Determined not medically necessary",
+    "insuranceAudit.denialNotMedicallyNecessary2":
+      "Determined not medically necessary",
     "insuranceAudit.applicationForm": "Application Form",
     "insuranceAudit.fundTrendRecent30d": "Fund Usage Trend (Last 30 Days)",
     "insuranceAudit.tenThousand": "10k",
     "insuranceAudit.fundTrendRecent12m": "Fund Usage Trend (Last 12 Months)",
     "insuranceAudit.totalPrefix": "Total",
-    "insuranceAudit.approvalTrendRecent30d": "Approval Rate Trend (Last 30 Days)",
+    "insuranceAudit.approvalTrendRecent30d":
+      "Approval Rate Trend (Last 30 Days)",
     "insuranceAudit.voucherIssued2": "Issued",
     "insuranceAudit.voucherPending2": "Pending",
-    "insuranceAudit.claimSubmitted2": "Simulated submission succeeded, sent to insurer",
+    "insuranceAudit.claimSubmitted2":
+      "Simulated submission succeeded, sent to insurer",
     "insuranceAudit.insurer2": "Insurer",
     "insuranceAudit.adding": "Adding...",
     "insuranceAudit.added": "Added",
     "insuranceAudit.auditNoLabel": "Audit ID:",
-  
+
     // === worklistPage + selfService i18n ===
     "worklistPage.header.title": "Exam Worklist",
     "worklistPage.header.subtitle.dicom": "DICOM Exam List",
@@ -40274,7 +41495,8 @@ export const translations: Translations = {
     "worklistPage.viewMode.kanban": "Kanban",
     "worklistPage.columnConfig.title": "Column Config",
     "worklistPage.columnConfig.panelTitle": "List Column Configuration",
-    "worklistPage.columnConfig.hint": "Select columns to display (saved locally, persists after refresh)",
+    "worklistPage.columnConfig.hint":
+      "Select columns to display (saved locally, persists after refresh)",
     "worklistPage.columnConfig.alwaysShow": "Always",
     "worklistPage.btn.refresh": "Refresh List",
     "worklistPage.btn.prefetch": "Prefetch",
@@ -40311,7 +41533,8 @@ export const translations: Translations = {
     "worklistPage.hourly.peak": "Peak",
     "worklistPage.batchActivity.title": "Batch Activity",
     "worklistPage.batchActivity.clear": "Clear",
-    "worklistPage.batchActivity.empty": "No batch activity yet. Use the batch actions above to auto-record.",
+    "worklistPage.batchActivity.empty":
+      "No batch activity yet. Use the batch actions above to auto-record.",
     "worklistPage.dataSource.real": "Data Source: Real API",
     "worklistPage.dataSource.fallback": "Data Source: Local fallback",
     "worklistPage.serverStats.title": "Server Statistics",
@@ -40369,7 +41592,8 @@ export const translations: Translations = {
     "worklistPage.msg.selectPrintItems": "Please select items to print labels",
     "worklistPage.msg.selectPrintReports": "Please select reports to print",
     "worklistPage.msg.hint": "Notice",
-    "worklistPage.msg.selectForBatch": "Please select items for batch operation first",
+    "worklistPage.msg.selectForBatch":
+      "Please select items for batch operation first",
     "worklistPage.batch.signin": "Batch Check-in",
     "worklistPage.batch.start": "Batch Start",
     "worklistPage.batch.complete": "Batch Complete",
@@ -40417,8 +41641,10 @@ export const translations: Translations = {
     "selfService.login.search": "Search",
     "selfService.login.demo": "Demo: enter 13800138000 or P001",
     "selfService.login.inputRequired": "Please enter phone or ID number",
-    "selfService.login.notFound": "No matching patient found. Please check your input.",
-    "selfService.login.serviceUnavailable": "Search service unavailable. Please try again later.",
+    "selfService.login.notFound":
+      "No matching patient found. Please check your input.",
+    "selfService.login.serviceUnavailable":
+      "Search service unavailable. Please try again later.",
     "selfService.loading": "Loading patient service data...",
     "selfService.tab.home": "Home",
     "selfService.tab.booking": "Exam Booking",
@@ -40450,10 +41676,12 @@ export const translations: Translations = {
     "selfService.booking.selectPart": "Select Body Part",
     "selfService.booking.selectDate": "Select Exam Date",
     "selfService.booking.selectSlot": "Select Time Slot",
-    "selfService.booking.confirmHint": "Appointment will be created after confirmation.",
+    "selfService.booking.confirmHint":
+      "Appointment will be created after confirmation.",
     "selfService.booking.submitting": "Submitting...",
     "selfService.booking.confirm": "Confirm Booking",
-    "selfService.booking.fillAll": "Please select exam type, body part, date, and time slot",
+    "selfService.booking.fillAll":
+      "Please select exam type, body part, date, and time slot",
     "selfService.booking.bookFailed": "Booking failed. Please try again later.",
     "selfService.booking.serviceUnavailable": "Booking service unavailable.",
     "selfService.booking.prevMonth": "Prev",
@@ -40479,7 +41707,8 @@ export const translations: Translations = {
     "selfService.reports.recommendationsLabel": "Recommendations",
     "selfService.reports.downloaded": "Report downloaded",
     "selfService.reports.downloadFailed": "Report download failed",
-    "selfService.reports.downloadRetry": "Report download failed. Please try again later.",
+    "selfService.reports.downloadRetry":
+      "Report download failed. Please try again later.",
     "selfService.reports.detailTitle": "Report Detail",
     "selfService.reports.criticalValue": "Critical",
     "selfService.images.viewableTitle": "Viewable Exams",
@@ -40510,13 +41739,16 @@ export const translations: Translations = {
     "selfService.contacts.refresh": "Refresh",
     "selfService.contacts.loading": "Loading...",
     "selfService.contacts.loadContacts": "Loading contacts...",
-    "selfService.contacts.emptyHint": "Click \"Refresh\" above to load staff contacts",
+    "selfService.contacts.emptyHint":
+      'Click "Refresh" above to load staff contacts',
     "selfService.contacts.doctor": "Radiologist",
     "selfService.contacts.nurse": "Radiology Nurse",
     "selfService.contacts.tech": "Technician",
     "selfService.contacts.noContacts": "None",
-    "selfService.contacts.hint": "Phone for medical consultation only. 08:00-17:00.",
-    "selfService.contacts.loadFailed": "Failed to load contacts. Please try again later.",
+    "selfService.contacts.hint":
+      "Phone for medical consultation only. 08:00-17:00.",
+    "selfService.contacts.loadFailed":
+      "Failed to load contacts. Please try again later.",
     "selfService.followup.title": "My Follow-up Plans",
     "selfService.followup.planDefault": "Follow-up Plan",
     "selfService.followup.planDate": "Planned",
@@ -40530,17 +41762,23 @@ export const translations: Translations = {
     "selfService.followup.dateLabel": "Follow-up Date",
     "selfService.followup.typeLabel": "Follow-up Type",
     "selfService.followup.noteLabel": "Notes",
-    "selfService.followup.notePlaceholder": "e.g., Breast BI-RADS 3 follow-up (optional)",
+    "selfService.followup.notePlaceholder":
+      "e.g., Breast BI-RADS 3 follow-up (optional)",
     "selfService.followup.submitting": "Submitting...",
     "selfService.followup.submit": "Submit Follow-up Booking",
-    "selfService.followup.submitHint": "You will be reminded on the appointment date.",
+    "selfService.followup.submitHint":
+      "You will be reminded on the appointment date.",
     "selfService.followup.bookSuccess": "Follow-up booked successfully",
-    "selfService.followup.bookFailed": "Booking failed. Please try again later.",
-    "selfService.followup.serviceUnavailable": "Follow-up service unavailable. Registered locally.",
+    "selfService.followup.bookFailed":
+      "Booking failed. Please try again later.",
+    "selfService.followup.serviceUnavailable":
+      "Follow-up service unavailable. Registered locally.",
     "selfService.followup.dateRequired": "Please select a follow-up date",
     "selfService.followup.completeSuccess": "Follow-up completion registered",
-    "selfService.followup.completeFailed": "Registration failed. Please try again later.",
-    "selfService.followup.completeLocal": "Follow-up service unavailable. Marked locally.",
+    "selfService.followup.completeFailed":
+      "Registration failed. Please try again later.",
+    "selfService.followup.completeLocal":
+      "Follow-up service unavailable. Marked locally.",
     "selfService.feedback.title": "Service Satisfaction Rating",
     "selfService.feedback.overallSatisfaction": "Overall Satisfaction",
     "selfService.feedback.category": "Feedback Category",
@@ -40562,7 +41800,8 @@ export const translations: Translations = {
     "selfService.patientCard.registerDate": "Registration Date",
     "selfService.clinicalDrawer.title": "Clinical Data Detail",
     "selfService.clinicalDrawer.loadFailed": "Clinical data load failed",
-    "selfService.clinicalDrawer.loadRetry": "Clinical data load failed. Please try again later.",
+    "selfService.clinicalDrawer.loadRetry":
+      "Clinical data load failed. Please try again later.",
     "selfService.clinicalDrawer.labValues": "Lab Values / Vital Signs",
     "selfService.modality.ct": "CT Computed Tomography",
     "selfService.modality.mr": "MR Magnetic Resonance",
@@ -40658,7 +41897,8 @@ export const translations: Translations = {
     "patientPage.patientDetailTab": "Patient Detail",
     "patientPage.newOrEdit": "New / Edit",
     "patientPage.patientAnalytics": "Patient Analytics",
-    "patientPage.patientSubtitle": "Patient Records · Visit History · Allergy Management · Data Analysis",
+    "patientPage.patientSubtitle":
+      "Patient Records · Visit History · Allergy Management · Data Analysis",
     "patientPage.patientDetail": "Patient Details",
     "patientPage.clickToViewDetail": "Click to view details",
     "patientPage.patientId": "Patient ID",
@@ -40980,13 +42220,16 @@ export const translations: Translations = {
     "examPage.seriesCreated": "Created",
     "examPage.seriesCompleted": "Completed",
     "examPage.last30Days": "Last 30 Days",
-    "examPage.statisticsLoadFailed": "Failed to load exam statistics, please retry",
-    "examPage.statisticsFallback": "Statistics API unavailable, showing demo data",
+    "examPage.statisticsLoadFailed":
+      "Failed to load exam statistics, please retry",
+    "examPage.statisticsFallback":
+      "Statistics API unavailable, showing demo data",
     "examPage.timelineTitle": "Exam Timeline",
     "examPage.timelineEmpty": "No timeline records",
     "examPage.timelineEvents": "{{count}} events",
     "examPage.techNotesTitle": "Technician Notes",
-    "examPage.techNotesPlaceholder": "Enter technician notes (max 2000 chars)...",
+    "examPage.techNotesPlaceholder":
+      "Enter technician notes (max 2000 chars)...",
     "examPage.saveNotes": "Save Notes",
     "examPage.savingNotes": "Saving...",
     "examPage.notesSaved": "Notes saved",
@@ -41085,13 +42328,17 @@ export const translations: Translations = {
     "deviceMgmtBoard.stateOffline": "Offline",
     // [v3.0.6.11-106 Wave 3D] Contrast clinical data + retake approval + follow-up result + eGFR gate
     "w3d.egfr.title": "eGFR Renal Assessment",
-    "w3d.egfr.blocked": "eGFR {{value}} mL/min < 30, high risk of contrast-induced nephropathy. Injection blocked.",
-    "w3d.egfr.warning": "eGFR {{value}} mL/min (30-59), moderate renal impairment. Use with caution and hydrate.",
+    "w3d.egfr.blocked":
+      "eGFR {{value}} mL/min < 30, high risk of contrast-induced nephropathy. Injection blocked.",
+    "w3d.egfr.warning":
+      "eGFR {{value}} mL/min (30-59), moderate renal impairment. Use with caution and hydrate.",
     "w3d.egfr.normal": "eGFR {{value}} mL/min, renal function acceptable",
     "w3d.egfr.required": "Please enter eGFR value first",
-    "w3d.egfr.blockedAction": "Injection blocked: complete renal assessment and nephrology consult first",
+    "w3d.egfr.blockedAction":
+      "Injection blocked: complete renal assessment and nephrology consult first",
     "w3d.screening.title": "Pre-injection Safety Checklist",
-    "w3d.screening.subtitle": "Pregnancy / allergy / renal function / informed consent",
+    "w3d.screening.subtitle":
+      "Pregnancy / allergy / renal function / informed consent",
     "w3d.screening.type.ask": "Ask",
     "w3d.screening.type.check": "Check",
     "w3d.screening.type.tell": "Inform",
@@ -41147,7 +42394,8 @@ export const translations: Translations = {
     "w3d.retake.queueEmpty": "No pending retake requests",
     "w3d.retake.approvedAt": "Approved at",
     "w3d.retake.execute": "Execute retake",
-    "w3d.retake.notApproved": "Retake request not approved; cannot move to IN_PROGRESS",
+    "w3d.retake.notApproved":
+      "Retake request not approved; cannot move to IN_PROGRESS",
     "w3d.retake.dimensionApprover": "By approver",
     "w3d.retake.dimensionStatus": "By approval status",
     "w3d.retake.approvalSummary": "Approval status distribution",
@@ -41181,7 +42429,8 @@ export const translations: Translations = {
     "reportQuality.splitEvenly": "Split Evenly",
     "reportQuality.save": "Save",
     "reportQuality.subRules": "Sub-rules",
-    "reportQuality.weightSumWarn": "Total weight {{percent}}% ≠ 100%; adjust before saving",
+    "reportQuality.weightSumWarn":
+      "Total weight {{percent}}% ≠ 100%; adjust before saving",
     "reportQuality.thresholdMustPositive": "Thresholds must be positive",
     "reportQuality.criticalMinutes": "Critical (minutes)",
     "reportQuality.emergencyHours": "Emergency (hours)",
@@ -41239,7 +42488,8 @@ export const translations: Translations = {
     "reportQuality.dimensionDetail15": "Dimension Details (15 dimensions)",
     "reportQuality.dimension": "Dimension",
     "reportQuality.score": "Score",
-    "reportQuality.noDetailArchive": "No full evaluation detail (archived; summary only)",
+    "reportQuality.noDetailArchive":
+      "No full evaluation detail (archived; summary only)",
     "reportQuality.enterScoreId": "Please enter a score ID",
     "reportQuality.reportFormat": "Report Format",
     "reportQuality.generatedCount": "Generated",
@@ -41250,7 +42500,8 @@ export const translations: Translations = {
     "reportQuality.generateReport": "Generate Report",
     "reportQuality.download": "Download",
     "reportQuality.reportGenerated": "Report Generated",
-    "reportQuality.mockDataNote": "Demo data: backend returns a Mock URL; a local mock file is generated on download",
+    "reportQuality.mockDataNote":
+      "Demo data: backend returns a Mock URL; a local mock file is generated on download",
     "reportQuality.reportPreview": "Report Content Preview",
     "reportQuality.preview.totalScore": "Total Score",
     "reportQuality.preview.totalScoreRange": "0-100",
@@ -41316,13 +42567,15 @@ export const translations: Translations = {
     "criticalValue.ackReceived": "Acknowledged",
     "criticalValue.resolveArchived": "Resolved and archived",
     "criticalValue.opFailed": "Operation failed",
-    "criticalValue.escalateReasonTitle": "Enter escalation reason (at least 5 characters)",
+    "criticalValue.escalateReasonTitle":
+      "Enter escalation reason (at least 5 characters)",
     "criticalValue.escalate": "Escalate",
     "criticalValue.cancel": "Cancel",
     "criticalValue.reasonTooShort": "Escalation reason too short",
     "criticalValue.escalatedToDirector": "Escalated to department director",
     "criticalValue.enterRecipient": "Please enter the receiving doctor",
-    "criticalValue.selectChannel": "Please select at least one notification channel",
+    "criticalValue.selectChannel":
+      "Please select at least one notification channel",
     "criticalValue.notifyFailed": "Notification failed",
     "criticalValue.centerTitle": "Critical Value Alert Center",
     "criticalValue.autoDetect": "Auto Detect",
@@ -41384,7 +42637,8 @@ export const translations: Translations = {
     "criticalValue.escalationLevel": "Escalation Level:",
     "criticalValue.send": "Send",
     "criticalValue.recipientDoctor": "Receiving Doctor",
-    "criticalValue.recipientPlaceholder": "e.g. Chen Yazhi (Emergency Neurology)",
+    "criticalValue.recipientPlaceholder":
+      "e.g. Chen Yazhi (Emergency Neurology)",
     "criticalValue.notifyChannels": "Notification Channels (multi-select)",
     "criticalValue.channelOption.phone": "Phone",
     "criticalValue.channelOption.sms": "SMS",
@@ -41424,8 +42678,10 @@ export const translations: Translations = {
     "reportQcV2.scoreAndCreateTask": "Score & Create Task",
     "reportQcV2.scoreResult": "Score Result",
     "reportQcV2.gradeSuffix": " Grade",
-    "reportQcV2.emptyHint": "Fill in the report on the left and click \"Start Scoring\"",
-    "reportQcV2.taskFlow": "QC Task Flow (Create/Assign/1st Review/2nd Review/Close)",
+    "reportQcV2.emptyHint":
+      'Fill in the report on the left and click "Start Scoring"',
+    "reportQcV2.taskFlow":
+      "QC Task Flow (Create/Assign/1st Review/2nd Review/Close)",
     "reportQcV2.dualReview": "Dual Review",
     "reportQcV2.stats": "QC Statistics",
     "reportQcV2.tasksSuffix": "tasks",
@@ -41461,7 +42717,8 @@ export const translations: Translations = {
     "reportQcV2.close": "Close",
     "reportQcV2.history": "History",
     "reportQcV2.currentScore": "Current Score",
-    "reportQcV2.dualReviewHint": "The first reviewer has passed; a second reviewer must confirm independently",
+    "reportQcV2.dualReviewHint":
+      "The first reviewer has passed; a second reviewer must confirm independently",
     "reportQcV2.reviewer": "Reviewer",
     "reportQcV2.reviewOpinion": "Review Opinion",
     "reportQcV2.reviewCommentPlaceholder": "Enter review opinion (optional)",
@@ -41473,7 +42730,8 @@ export const translations: Translations = {
     "reportQcV2.passRate": "Pass Rate",
     "reportQcV2.totalDefects": "Total Defects",
     "reportQcV2.closedLoop": "Closed Loop",
-    "reportQcV2.defectDistribution": "Defect Distribution (by dimension × severity)",
+    "reportQcV2.defectDistribution":
+      "Defect Distribution (by dimension × severity)",
     "reportQcV2.monthlyTrend": "Monthly Trend",
     "reportQcV2.recentRecords": "Recent records:",
     // [v3.0.6.11-106 Wave 6B] Defect library - DefectLibrary
@@ -41580,23 +42838,28 @@ export const translations: Translations = {
     "criticalEscalation.tickCheck": "Timeout Check",
     "criticalEscalation.confirm": "Confirm",
     "criticalEscalation.atMaxLevel": "Already at the highest escalation level",
-    "criticalEscalation.escalateNextHint": "Escalate to the next level manually",
+    "criticalEscalation.escalateNextHint":
+      "Escalate to the next level manually",
     "criticalEscalation.escalate": "Escalate",
     "criticalEscalation.close": "Close",
     "criticalEscalation.staircase": "Staircase",
     "criticalEscalation.ariaLabel": "Critical value escalation chain V2",
-    "criticalEscalation.title": "Critical Value Escalation Chain V2 · Auto-escalate on timeout",
-    "criticalEscalation.stateMachine": "State machine: Notifying→Pending→Confirmed/Escalated/Closed",
+    "criticalEscalation.title":
+      "Critical Value Escalation Chain V2 · Auto-escalate on timeout",
+    "criticalEscalation.stateMachine":
+      "State machine: Notifying→Pending→Confirmed/Escalated/Closed",
     "criticalEscalation.collapseConfig": "Collapse Config",
     "criticalEscalation.chainConfig": "Escalation Chain Config",
-    "criticalEscalation.configTitle": "Escalation Chain Config (levels + per-level timeout + rules)",
+    "criticalEscalation.configTitle":
+      "Escalation Chain Config (levels + per-level timeout + rules)",
     "criticalEscalation.timeoutMinutes": "Timeout (minutes)",
     "criticalEscalation.saveConfig": "Save Config",
     "criticalEscalation.totalChains": "Total Chains",
     "criticalEscalation.avgConfirmTime": "Avg Confirmation Time",
     "criticalEscalation.escalationRate": "Escalation Rate",
     "criticalEscalation.avgEscalationCount": "Avg Escalation Count",
-    "criticalEscalation.chainList": "Escalation Chains (countdown + manual escalation)",
+    "criticalEscalation.chainList":
+      "Escalation Chains (countdown + manual escalation)",
     "criticalEscalation.noChains": "No escalation chains",
     "criticalEscalation.byLevelStats": "Response Time by Level",
     "criticalEscalation.times": "times",
@@ -41612,7 +42875,8 @@ export const translations: Translations = {
     "criticalEscalation.countdownLabel": "Timeout countdown:",
     "criticalEscalation.confirmedAt": "confirmed at",
     "criticalEscalation.confirmedVerb": "",
-    "criticalEscalation.autoEscalated": "Not confirmed before timeout; auto-escalated",
+    "criticalEscalation.autoEscalated":
+      "Not confirmed before timeout; auto-escalated",
     "criticalEscalation.escalationRecords": "Escalation Records",
     // [v3.0.6.11-106 Wave 6B] Defect remediation tracker - DefectRemediationTracker
     "defectRemediation.status.pending": "Pending",
@@ -41629,7 +42893,8 @@ export const translations: Translations = {
     "defectRemediation.pdca.act": "A Act",
     "defectRemediation.justNow": "Just now",
     "defectRemediation.loadFailed": "Failed to load remediation list",
-    "defectRemediation.noteTooShort": "Remediation note must be at least 5 characters",
+    "defectRemediation.noteTooShort":
+      "Remediation note must be at least 5 characters",
     "defectRemediation.rectifySubmitted": "Remediation submitted",
     "defectRemediation.submitFailed": "Submission failed",
     "defectRemediation.reminderSent": "Reminder sent",
@@ -41661,7 +42926,8 @@ export const translations: Translations = {
     "defectRemediation.reportId": "Report ID",
     "defectRemediation.suggestedFix": "Suggested Fix",
     "defectRemediation.rectifyNoteRequired": "Remediation Note *",
-    "defectRemediation.notePlaceholder": "Describe the remediation in detail...",
+    "defectRemediation.notePlaceholder":
+      "Describe the remediation in detail...",
     "defectRemediation.defect": "Defect",
     "defectRemediation.description": "Description",
     "defectRemediation.rectifyNote": "Remediation Note",
@@ -41678,8 +42944,10 @@ export const translations: Translations = {
     "criticalValueEscalation.enabled": "Enabled",
     "criticalValueEscalation.disabled": "Disabled",
     "criticalValueEscalation.opFailed": "Operation failed",
-    "criticalValueEscalation.durationMin": "Trigger duration must be ≥ 1 minute",
-    "criticalValueEscalation.templateMin": "Message template must be at least 5 characters",
+    "criticalValueEscalation.durationMin":
+      "Trigger duration must be ≥ 1 minute",
+    "criticalValueEscalation.templateMin":
+      "Message template must be at least 5 characters",
     "criticalValueEscalation.ruleAdded": "Rule added (local mode)",
     "criticalValueEscalation.saved": "Saved",
     "criticalValueEscalation.saveFailed": "Save failed",
@@ -41696,7 +42964,8 @@ export const translations: Translations = {
     "criticalValueEscalation.urgentLevel": "Urgent Level",
     "criticalValueEscalation.monthlyTriggerEstimate": "Est. Monthly Triggers",
     "criticalValueEscalation.avgResponse": "Avg Response",
-    "criticalValueEscalation.strategyAlert": "Auto-escalation strategy: critical values not notified before timeout are escalated to superior medical staff per rules, ensuring notification closes the loop within 10 minutes",
+    "criticalValueEscalation.strategyAlert":
+      "Auto-escalation strategy: critical values not notified before timeout are escalated to superior medical staff per rules, ensuring notification closes the loop within 10 minutes",
     "criticalValueEscalation.all": "All",
     "criticalValueEscalation.noRules": "No escalation rules",
     "criticalValueEscalation.edit": "Edit",
@@ -41744,7 +43013,8 @@ export const translations: Translations = {
     "qualityScore.yes": "Yes",
     "qualityScore.no": "No",
     "qualityScore.hardFailTriggered": "Hard fail triggered:",
-    "qualityScore.hardFailDescription": "Total score has been zeroed or is below the publish threshold; rectify immediately",
+    "qualityScore.hardFailDescription":
+      "Total score has been zeroed or is below the publish threshold; rectify immediately",
     "qualityScore.tab.radar": "Dimension Radar",
     "qualityScore.radarTitle": "15-Dimension Score Radar",
     "qualityScore.series.score": "Score",
@@ -41810,7 +43080,8 @@ export const translations: Translations = {
     "criticalValueCard.callNetworkError": "Call failed: network error",
     "criticalValueCard.enterPhone": "Please enter the receiving phone number",
     "criticalValueCard.smsNetworkError": "SMS sending failed: network error",
-    "criticalValueCard.notifiedRecorded": "Notification recorded; critical value marked as acknowledged",
+    "criticalValueCard.notifiedRecorded":
+      "Notification recorded; critical value marked as acknowledged",
     "criticalValueCard.recordNetworkError": "Record failed: network error",
     "criticalValueCard.ariaLabel": "Critical value notification card",
     "criticalValueCard.alertTitle": "Critical Value Alert",
@@ -41825,7 +43096,8 @@ export const translations: Translations = {
     "criticalValueCard.cancel": "Cancel",
     "criticalValueCard.receivingPhone": "Receiving Phone",
     "criticalValueCard.phonePlaceholder": "e.g. 13800000001",
-    "criticalValueCard.smsContentLabel": "SMS content (leave blank for the default template)",
+    "criticalValueCard.smsContentLabel":
+      "SMS content (leave blank for the default template)",
     // [v3.0.6.11-106 Wave 6B] Quality realtime dashboard - QualityDashboard
     "qualityDashboard.loadFailed": "Failed to load dashboard",
     "qualityDashboard.loadingLabel": "Loading quality dashboard",
@@ -41875,8 +43147,8 @@ export const translations: Translations = {
     "criticalValueV2.col.examType": "Exam Type",
     "criticalValueV2.col.item": "Item",
     "criticalValueV2.col.threshold": "Threshold",
-    "criticalValueV2.containsPrefix": "contains \"",
-    "criticalValueV2.containsSuffix": "\"",
+    "criticalValueV2.containsPrefix": 'contains "',
+    "criticalValueV2.containsSuffix": '"',
     "criticalValueV2.col.deadlineMin": "Deadline(min)",
     "criticalValueV2.col.suggestion": "Suggested Action",
     "criticalValueV2.col.enabled": "Enabled",
@@ -41934,11 +43206,13 @@ export const translations: Translations = {
     "criticalValueV2.value": "Value",
     "criticalValueV2.valuePlaceholder": "e.g. 82",
     "criticalValueV2.description": "Findings Description",
-    "criticalValueV2.descriptionPlaceholder": "e.g. intimal flap with true/false lumen in the ascending aorta",
+    "criticalValueV2.descriptionPlaceholder":
+      "e.g. intimal flap with true/false lumen in the ascending aorta",
     "criticalValueV2.previewMatch": "Rule Match Preview",
     "criticalValueV2.confirmTriggerNotify": "Confirm Trigger + Auto Notify",
     "criticalValueV2.judgeResult": "Judgment Result",
-    "criticalValueV2.judgeResultEmpty": "Fill in the exam result and click \"Rule Match Preview\"",
+    "criticalValueV2.judgeResultEmpty":
+      'Fill in the exam result and click "Rule Match Preview"',
     "criticalValueV2.suggestedAction": "Suggested Action:",
     "criticalValueV2.triggerRecords": "Trigger Records",
     "criticalValueV2.noTriggerRecords": "No trigger records",
@@ -41952,7 +43226,8 @@ export const translations: Translations = {
     "criticalValueV2.timeline.notified": "Notified",
     "criticalValueV2.timeline.confirmed": "Confirmed",
     "criticalValueV2.timeline.rejected": "Rejected",
-    "criticalValueV2.footerNote": "Critical value rules: deterministic threshold matching (inclusive semantics) · Channels: phone/SMS/in-app message · Confirm flow: accept/reject/remark",
+    "criticalValueV2.footerNote":
+      "Critical value rules: deterministic threshold matching (inclusive semantics) · Channels: phone/SMS/in-app message · Confirm flow: accept/reject/remark",
     "criticalValueV2.modal.acceptTitle": "Confirm Receipt",
     "criticalValueV2.modal.rejectTitle": "Reject with Remark",
     "criticalValueV2.submit": "Submit",
@@ -41969,14 +43244,17 @@ export const translations: Translations = {
     "aiDraft.msg.enterFindings": "Please enter the findings text",
     "aiDraft.msg.extracted": "Extracted {{count}} structured field(s)",
     "aiDraft.err.apiFailed": "API request failed",
-    "aiDraft.msg.extractFallback": "AI API unavailable; extracted with local deterministic engine (demo fallback)",
+    "aiDraft.msg.extractFallback":
+      "AI API unavailable; extracted with local deterministic engine (demo fallback)",
     "aiDraft.msg.fieldUpdated": "Field updated",
     "aiDraft.msg.draftGenerated": "AI report draft generated",
-    "aiDraft.msg.generateFallback": "AI API unavailable; generated with local deterministic engine (demo fallback)",
+    "aiDraft.msg.generateFallback":
+      "AI API unavailable; generated with local deterministic engine (demo fallback)",
     "aiDraft.msg.selectSegment": "Please select at least one segment",
     "aiDraft.msg.appliedSegments": "Applied {{count}} segment(s) to the editor",
     "aiDraft.msg.suggestDone": "Analysis complete, {{count}} suggestion(s)",
-    "aiDraft.msg.suggestFallback": "AI API unavailable; analyzed with local rules (demo fallback)",
+    "aiDraft.msg.suggestFallback":
+      "AI API unavailable; analyzed with local rules (demo fallback)",
     "aiDraft.msg.adopted": "Suggestion adopted",
     "aiDraft.msg.ignored": "Suggestion ignored",
     "aiDraft.msg.reset": "AI report assistant reset",
@@ -41988,7 +43266,8 @@ export const translations: Translations = {
     "aiDraft.extract.title": "Structured field extraction",
     "aiDraft.extract.tag": "Smart structured extension S-1",
     "aiDraft.extract.overallConfidence": "Overall confidence",
-    "aiDraft.extract.placeholder": "Paste findings text, e.g.: A nodule measuring about 18mm×15mm is seen in the right upper lobe, with spiculated margins, unchanged compared with prior exams; consider peripheral lung cancer.",
+    "aiDraft.extract.placeholder":
+      "Paste findings text, e.g.: A nodule measuring about 18mm×15mm is seen in the right upper lobe, with spiculated margins, unchanged compared with prior exams; consider peripheral lung cancer.",
     "aiDraft.extract.autoExtract": "Auto-extract fields",
     "aiDraft.extract.categories": "Matched categories:",
     "aiDraft.extract.empty": "No structured fields recognized",
@@ -42000,13 +43279,15 @@ export const translations: Translations = {
     "aiDraft.draft.tag": "Multimodal generation V2",
     "aiDraft.draft.confidence": "Confidence",
     "aiDraft.draft.generate": "Generate draft",
-    "aiDraft.draft.fallbackTip": "API unavailable, local deterministic fallback",
+    "aiDraft.draft.fallbackTip":
+      "API unavailable, local deterministic fallback",
     "aiDraft.demoFallback": "Demo fallback",
     "aiDraft.draft.noSegments": "No segments",
     "aiDraft.draft.segmentConfidence": "Confidence {{value}}%",
     "aiDraft.draft.trace": "Trace",
     "aiDraft.draft.applySelected": "Apply selected segments ({{count}})",
-    "aiDraft.draft.hint": "Select segments and click apply to write into the editor · hover \"Trace\" to view content sources",
+    "aiDraft.draft.hint":
+      'Select segments and click apply to write into the editor · hover "Trace" to view content sources',
     "aiDraft.suggest.title": "Editing suggestions",
     "aiDraft.suggest.tag": "Deterministic rules",
     "aiDraft.suggest.score": "Completeness {{score}} pts",
@@ -42022,7 +43303,8 @@ export const translations: Translations = {
     "aiDraft.panel.engineTip": "Backend deterministic engine",
     "aiDraft.panel.engine": "Deterministic engine",
     "aiDraft.reset": "Reset",
-    "aiDraft.disclaimer": "AI drafts and fields are for clinical reference only; final diagnosis must be confirmed by a licensed physician",
+    "aiDraft.disclaimer":
+      "AI drafts and fields are for clinical reference only; final diagnosis must be confirmed by a licensed physician",
     "aiDraft.style.concise": "Concise",
     "aiDraft.style.detailed": "Detailed",
     "aiDraft.style.structured": "Structured",
@@ -42033,12 +43315,16 @@ export const translations: Translations = {
     "aiDraft.msg.draftReady": "AI draft generated",
     "aiDraft.msg.draftFailed": "Failed to generate AI draft",
     "aiDraft.msg.appliedToEditor": "AI draft applied to editor",
-    "aiDraft.rag.loaded": "RAG context loaded · {{reports}} prior report(s) · {{terms}} term(s)",
-    "aiDraft.rag.notFound": "RAG context not found (no prior reports or report does not exist)",
+    "aiDraft.rag.loaded":
+      "RAG context loaded · {{reports}} prior report(s) · {{terms}} term(s)",
+    "aiDraft.rag.notFound":
+      "RAG context not found (no prior reports or report does not exist)",
     "aiDraft.rag.loadFailed": "Failed to load RAG context",
     "aiDraft.structured.missingReportId": "Report ID missing",
-    "aiDraft.structured.generatedWithScore": "Structured fields generated and prefilled · confidence {{score}}%",
-    "aiDraft.structured.failedNetwork": "Failed to generate structured fields: network error",
+    "aiDraft.structured.generatedWithScore":
+      "Structured fields generated and prefilled · confidence {{score}}%",
+    "aiDraft.structured.failedNetwork":
+      "Failed to generate structured fields: network error",
     "aiDraft.msg.enterRefine": "Please enter revision comments",
     "aiDraft.msg.refined": "Rewritten based on feedback",
     "aiDraft.msg.copied": "Copied to clipboard",
@@ -42056,7 +43342,8 @@ export const translations: Translations = {
     "aiDraft.sentence.accept": "Accept",
     "aiDraft.sentence.edit": "Edit",
     "aiDraft.sentence.reject": "Reject",
-    "aiDraft.ddx.disclaimer": "AI differential diagnosis suggestions, for reference only",
+    "aiDraft.ddx.disclaimer":
+      "AI differential diagnosis suggestions, for reference only",
     "aiDraft.risk.overallScore": "Overall risk score",
     "aiDraft.risk.high": "High risk",
     "aiDraft.risk.medium": "Medium risk",
@@ -42064,7 +43351,8 @@ export const translations: Translations = {
     "aiDraft.level.high": "High",
     "aiDraft.level.medium": "Medium",
     "aiDraft.level.low": "Low",
-    "aiDraft.preread.disclaimer": "AI pre-read annotations; suspicious regions highlighted for physician review",
+    "aiDraft.preread.disclaimer":
+      "AI pre-read annotations; suspicious regions highlighted for physician review",
     "aiDraft.preread.risk": "Risk",
     "aiDraft.compare.title": "Multi-version comparison ({{count}} versions)",
     "aiDraft.compare.version": "Version {{version}}",
@@ -42075,7 +43363,8 @@ export const translations: Translations = {
     "aiDraft.tab.risk": "Risk",
     "aiDraft.tab.preread": "Pre-read",
     "aiDraft.generateFirst": "Please generate a draft first",
-    "aiDraft.draftDisclaimer": "AI draft is for clinical reference only; final diagnosis must be confirmed by a licensed physician",
+    "aiDraft.draftDisclaimer":
+      "AI draft is for clinical reference only; final diagnosis must be confirmed by a licensed physician",
     "aiDraft.stat.words": "Characters",
     "aiDraft.stat.tokens": "Token usage",
     "aiDraft.stat.cost": "Cost",
@@ -42092,7 +43381,8 @@ export const translations: Translations = {
     "aiDraft.rag.segment": " snippet",
     "aiDraft.rag.matchedTerms": "Matched terms:",
     "aiDraft.refine.title": "Revision comments (will rewrite based on this)",
-    "aiDraft.refine.placeholder": "e.g.: add pleural retraction sign; remove 'cannot exclude...'",
+    "aiDraft.refine.placeholder":
+      "e.g.: add pleural retraction sign; remove 'cannot exclude...'",
     "aiDraft.apply": "Apply",
     "aiDraft.applyToEditor": "Apply to editor",
     "aiDraft.feedback": "Refine",
@@ -42107,7 +43397,8 @@ export const translations: Translations = {
     "aiDraft.msg.switchedModel": "Switched to {{model}}",
     "aiDraft.msg.switchedProvider": "Switched LLM provider: {{provider}}",
     "aiDraft.notConfigured": "(not configured)",
-    "aiDraft.rag.contextLoaded": "RAG context ({{reports}} reports / {{terms}} terms)",
+    "aiDraft.rag.contextLoaded":
+      "RAG context ({{reports}} reports / {{terms}} terms)",
     "aiDraft.rag.loadContext": "Load RAG context",
     "aiDraft.structured.generate": "Generate structured fields",
     "aiDraft.structured.generated": "Structured fields generated:",
@@ -42117,27 +43408,33 @@ export const translations: Translations = {
     "aiDraft.includeImages": "Include image analysis",
     "aiDraft.includePrior": "Reference prior reports",
     "aiDraft.rag.enhance": "RAG enhancement",
-    "aiDraft.rag.enhanceTip": "Retrieve similar paragraphs from the patient's prior reports as context during generation, output confidenceScore + source list",
+    "aiDraft.rag.enhanceTip":
+      "Retrieve similar paragraphs from the patient's prior reports as context during generation, output confidenceScore + source list",
     "aiDraft.clinicalInfo": "Clinical info:",
     "aiDraft.exam": "Exam:",
-    "aiDraft.stage.analyzingText": "Analyzing clinical information and images...",
+    "aiDraft.stage.analyzingText":
+      "Analyzing clinical information and images...",
     "aiDraft.stage.draftingText": "Writing report content...",
     "aiDraft.priorReports": "Referenced prior reports ({{count}})",
     "aiDraft.similarCases": "Similar cases ({{count}})",
     "aiDraft.compareModal.title": "AI draft vs original comparison",
     "aiDraft.compareModal.report": "Report",
-    "aiDraft.compareModal.noImage": "Original image data not exposed; requires DICOM image channel (marked: pending integration)",
+    "aiDraft.compareModal.noImage":
+      "Original image data not exposed; requires DICOM image channel (marked: pending integration)",
     "aiDraft.compareModal.original": "Original (current exam images)",
     "aiDraft.compareModal.draftFindings": "AI draft findings",
     "aiDraft.compareModal.impression": "Impression:",
     "aiDraft.close": "Close",
     "aiDraft.none": "(none)",
-    "aiDraft.structuredForm.noMeasurementData": "No measurement data in the current structured form; please fill in measurement values before generating the measurement table",
-    "aiDraft.structuredForm.noEditor": "Report editor not connected in the current environment; cannot insert measurement table",
+    "aiDraft.structuredForm.noMeasurementData":
+      "No measurement data in the current structured form; please fill in measurement values before generating the measurement table",
+    "aiDraft.structuredForm.noEditor":
+      "Report editor not connected in the current environment; cannot insert measurement table",
     "aiDraft.structuredForm.yes": "Yes",
     "aiDraft.structuredForm.no": "No",
     "aiDraft.structuredForm.upload": "Upload",
-    "aiDraft.structuredForm.signatureHint": "Please complete and submit the form first; sign after it is locked",
+    "aiDraft.structuredForm.signatureHint":
+      "Please complete and submit the form first; sign after it is locked",
     "aiDraft.structuredForm.signed": "Signed",
     "aiDraft.structuredForm.clickToSign": "Click to sign",
     "aiDraft.structuredForm.referenceRange": "Reference range:",
@@ -42145,8 +43442,10 @@ export const translations: Translations = {
     "aiDraft.structuredForm.requiredCompletion": "Required completion",
     "aiDraft.structuredForm.fieldQualityScore": "Field quality score",
     "aiDraft.structuredForm.filledFields": "Filled fields",
-    "aiDraft.structuredForm.generateTableTip": "Generate measurement/grading section from current form values and insert into the report body",
-    "aiDraft.structuredForm.noMeasurementTip": "No measurement data; please fill in measurement values first",
+    "aiDraft.structuredForm.generateTableTip":
+      "Generate measurement/grading section from current form values and insert into the report body",
+    "aiDraft.structuredForm.noMeasurementTip":
+      "No measurement data; please fill in measurement values first",
     "aiDraft.structuredForm.generateTable": "Generate measurement table",
     "aiDraft.structuredForm.submit": "Submit",
     "aiDraft.structuredForm.clear": "Clear",
@@ -42202,9 +43501,10 @@ export const translations: Translations = {
     "aiDraft.voice.cmd.period": "Insert period",
     "aiDraft.voice.cmd.comma": "Insert comma",
     "aiDraft.voice.cmd.colon": "Insert colon",
-    "aiDraft.voice.cmd.leftLung": "Insert \"left lung\"",
-    "aiDraft.voice.cmd.rightLung": "Insert \"right lung\"",
-    "aiDraft.voice.tblDesc.newParagraph": "Insert a new paragraph at the current position",
+    "aiDraft.voice.cmd.leftLung": 'Insert "left lung"',
+    "aiDraft.voice.cmd.rightLung": 'Insert "right lung"',
+    "aiDraft.voice.tblDesc.newParagraph":
+      "Insert a new paragraph at the current position",
     "aiDraft.voice.tblDesc.nextField": "Jump to the next input field",
     "aiDraft.voice.tblDesc.saveDraft": "Save the current report as a draft",
     "aiDraft.voice.tblDesc.normalTemplate": "Insert the normal template",
@@ -42219,17 +43519,24 @@ export const translations: Translations = {
     "aiDraft.voice.col.priority": "Priority",
     "aiDraft.voice.col.aliases": "Homophones/Aliases",
     "aiDraft.voice.transcribing": "Transcribing audio...",
-    "aiDraft.voice.transcribeDoneCorrected": "Transcription complete ({{engine}} engine, {{count}} lexicon correction(s))",
-    "aiDraft.voice.transcribeDone": "Transcription complete ({{engine}} engine, confidence {{confidence}}%)",
-    "aiDraft.voice.transcribeFailed": "Speech transcription failed, please retry",
-    "aiDraft.voice.unsupportedMock": "The current browser does not support speech recognition; mock mode enabled",
+    "aiDraft.voice.transcribeDoneCorrected":
+      "Transcription complete ({{engine}} engine, {{count}} lexicon correction(s))",
+    "aiDraft.voice.transcribeDone":
+      "Transcription complete ({{engine}} engine, confidence {{confidence}}%)",
+    "aiDraft.voice.transcribeFailed":
+      "Speech transcription failed, please retry",
+    "aiDraft.voice.unsupportedMock":
+      "The current browser does not support speech recognition; mock mode enabled",
     "aiDraft.voice.recognizeError": "Recognition error: {{error}}",
     "aiDraft.voice.startFailed": "Failed to start speech recognition",
-    "aiDraft.voice.stopped": "Stopped, {{words}} word(s) recognized in {{seconds}}s",
+    "aiDraft.voice.stopped":
+      "Stopped, {{words}} word(s) recognized in {{seconds}}s",
     "aiDraft.voice.inserted": "Inserted into editor",
     "aiDraft.voice.cleared": "Cleared",
-    "aiDraft.voice.correctionsSubmitted": "Submitted {{count}} correction(s); medical lexicon updated",
-    "aiDraft.voice.correctionsFailed": "Failed to submit correction feedback, please retry",
+    "aiDraft.voice.correctionsSubmitted":
+      "Submitted {{count}} correction(s); medical lexicon updated",
+    "aiDraft.voice.correctionsFailed":
+      "Failed to submit correction feedback, please retry",
     "aiDraft.voice.title": "Voice dictation",
     "aiDraft.voice.state.idle": "Idle",
     "aiDraft.voice.state.listening": "Listening",
@@ -42239,19 +43546,23 @@ export const translations: Translations = {
     "aiDraft.voice.mockMode": "mock mode",
     "aiDraft.voice.vocab": "Vocabulary",
     "aiDraft.voice.history": "History",
-    "aiDraft.voice.unsupportedAlert": "The current browser does not support Web Speech API; using Mock to simulate recognition",
+    "aiDraft.voice.unsupportedAlert":
+      "The current browser does not support Web Speech API; using Mock to simulate recognition",
     "aiDraft.voice.targetSection": "Target section",
     "aiDraft.voice.autoPunct": "Auto punctuation",
-    "aiDraft.voice.currentSpeaker": "Current speaker: {{speaker}} · switched {{count}} time(s)",
+    "aiDraft.voice.currentSpeaker":
+      "Current speaker: {{speaker}} · switched {{count}} time(s)",
     "aiDraft.voice.stat.duration": "Duration",
     "aiDraft.voice.stat.words": "Words",
     "aiDraft.voice.stat.segments": "Segments",
     "aiDraft.voice.stat.retries": "Retries",
-    "aiDraft.voice.startHint": "Click \"Start\" to begin voice dictation...",
-    "aiDraft.voice.lexiconCorrections": "Medical lexicon corrections ({{count}})",
+    "aiDraft.voice.startHint": 'Click "Start" to begin voice dictation...',
+    "aiDraft.voice.lexiconCorrections":
+      "Medical lexicon corrections ({{count}})",
     "aiDraft.voice.lexiconEntries": "{{count}} entries",
     "aiDraft.voice.lexiconLoading": "Loading lexicon",
-    "aiDraft.voice.submitCorrections": "Submit correction feedback (lexicon learning)",
+    "aiDraft.voice.submitCorrections":
+      "Submit correction feedback (lexicon learning)",
     "aiDraft.voice.correctionsUpdated": "Submitted, lexicon updated",
     "aiDraft.voice.ignore": "Ignore",
     "aiDraft.voice.start": "Start dictation",
@@ -42279,13 +43590,15 @@ export const translations: Translations = {
     "reportDist.status.cancelled": "Cancelled",
     "reportDist.status.expired": "Expired",
     "reportDist.msg.selectChannel": "Please select at least one channel",
-    "reportDist.msg.selectReportPatient": "Please select a report and patient first",
+    "reportDist.msg.selectReportPatient":
+      "Please select a report and patient first",
     "reportDist.msg.sentToChannels": "Sent to {{count}} channel(s)",
     "reportDist.msg.sendFailed": "Send failed: {{message}}",
     "reportDist.msg.retried": "Retried",
     "reportDist.msg.cancelled": "Cancelled",
     "reportDist.confirmCancelTitle": "Confirm cancellation",
-    "reportDist.confirmCancelContent": "This task will not be sent after cancellation",
+    "reportDist.confirmCancelContent":
+      "This task will not be sent after cancellation",
     "reportDist.col.channel": "Channel",
     "reportDist.col.recipient": "Recipient",
     "reportDist.col.status": "Status",
@@ -42328,7 +43641,8 @@ export const translations: Translations = {
     "reportDist.priority.normal": "Normal",
     "reportDist.priority.high": "High",
     "reportDist.priority.urgent": "Urgent",
-    "reportDist.estimate": "Estimated cost: ¥{{cost}} | Estimated duration: {{duration}}s",
+    "reportDist.estimate":
+      "Estimated cost: ¥{{cost}} | Estimated duration: {{duration}}s",
     "reportDist.confirmSend": "Confirm send",
     "reportDist.edit": "Edit",
     "reportDist.configured": "Configured",
@@ -42366,7 +43680,8 @@ export const translations: Translations = {
     "reportDist.portal.status.viewed": "Viewed",
     "reportDist.portal.linkCreated": "Link created",
     "reportDist.portal.confirmRevokeTitle": "Confirm revocation",
-    "reportDist.portal.confirmRevokeContent": "This link will no longer be accessible after revocation",
+    "reportDist.portal.confirmRevokeContent":
+      "This link will no longer be accessible after revocation",
     "reportDist.portal.revoked": "Revoked",
     "reportDist.portal.urlCopied": "Short link copied",
     "reportDist.portal.stat.total": "Total links",
@@ -42475,15 +43790,18 @@ export const translations: Translations = {
     "reportIntegration.cda.author": "Author",
     "reportIntegration.cda.custodian": "Custodian",
     "reportIntegration.cda.legalAuthenticator": "Legal authenticator",
-    "reportIntegration.cda.validatePassedDetail": "CDA validation passed (HL7 CDA R2 + template)",
+    "reportIntegration.cda.validatePassedDetail":
+      "CDA validation passed (HL7 CDA R2 + template)",
     "reportIntegration.cda.validateFailedDetail": "CDA validation failed",
     "reportIntegration.cda.titleEnLabel": "English title",
     "reportIntegration.cda.includedSections": "Included sections",
     "reportIntegration.cda.generateTitle": "Generate CDA document",
     "reportIntegration.cda.clickParse": "Click 'Parse' to view",
     "reportIntegration.cda.selectDocument": "Please select a CDA document",
-    "reportIntegration.xds.validatePassed": "XDS.b registration validation passed",
-    "reportIntegration.xds.validateFailed": "XDS.b registration validation failed",
+    "reportIntegration.xds.validatePassed":
+      "XDS.b registration validation passed",
+    "reportIntegration.xds.validateFailed":
+      "XDS.b registration validation failed",
     "reportIntegration.xds.registered": "Registered to XDS.b Registry",
     "reportIntegration.xds.queryFound": "Found {{count}} document(s)",
     "reportIntegration.xds.ebxmlCopied": "ebXML copied",
@@ -42523,16 +43841,21 @@ export const translations: Translations = {
     "reportIntegration.dicomSr.dataElements": "Data Elements ({{count}})",
     "reportIntegration.dicomSr.datasetText": "Dataset text",
     "reportIntegration.dicomSr.template": "Template",
-    "reportIntegration.dicomSr.completionVerification": "Completion/Verification",
+    "reportIntegration.dicomSr.completionVerification":
+      "Completion/Verification",
     "reportIntegration.dicomSr.generatedLabel": "Generated",
-    "reportIntegration.dicomSr.itemsContinuity": "{{count}} item(s) · continuity: {{continuity}}",
+    "reportIntegration.dicomSr.itemsContinuity":
+      "{{count}} item(s) · continuity: {{continuity}}",
     "reportIntegration.dicomSr.numericValue": "Numeric value:",
     "reportIntegration.dicomSr.codeValue": "Code:",
     "reportIntegration.dicomSr.selectDocument": "Please select an SR document",
     "reportIntegration.dicomSr.generateTitle": "Generate DICOM SR",
-    "reportIntegration.dicomSr.findingsPlaceholder": "e.g.: right upper lobe...",
-    "reportIntegration.dicomSr.impressionPlaceholder": "e.g.: peripheral lung cancer in right upper lobe...",
-    "reportIntegration.dicomSr.recommendationPlaceholder": "e.g.: recommend needle biopsy...",
+    "reportIntegration.dicomSr.findingsPlaceholder":
+      "e.g.: right upper lobe...",
+    "reportIntegration.dicomSr.impressionPlaceholder":
+      "e.g.: peripheral lung cancer in right upper lobe...",
+    "reportIntegration.dicomSr.recommendationPlaceholder":
+      "e.g.: recommend needle biopsy...",
     "reportIntegration.dicomSr.cstoreTitle": "DICOM C-STORE send",
     "reportIntegration.dicomSr.sendSuccess": "Sent successfully",
     "reportIntegration.dicomSr.statusCode": "Status code:",
@@ -42554,7 +43877,8 @@ export const translations: Translations = {
     "reportIntegration.fhir.downloaded": "Downloaded {{filename}}",
     "reportIntegration.fhir.generated": "FHIR DiagnosticReport generated",
     "reportIntegration.fhir.serverReceived": "FHIR server accepted the report",
-    "reportIntegration.fhir.bundleDownloaded": "Bundle downloaded ({{count}} resources)",
+    "reportIntegration.fhir.bundleDownloaded":
+      "Bundle downloaded ({{count}} resources)",
     "reportIntegration.fhir.jsonCopied": "JSON copied",
     "reportIntegration.fhir.stat.bundles": "Bundles",
     "reportIntegration.fhir.resources": "resources",
@@ -42570,7 +43894,8 @@ export const translations: Translations = {
     "reportIntegration.fhir.bodyPart": "Body part",
     "reportIntegration.fhir.sendTitle": "Send to FHIR server",
     "reportIntegration.fhir.oauthTitle": "SMART on FHIR OAuth2 authentication",
-    "reportIntegration.fhir.oauthDesc": "Use OpenID Connect + OAuth2 for authentication and authorization",
+    "reportIntegration.fhir.oauthDesc":
+      "Use OpenID Connect + OAuth2 for authentication and authorization",
     "reportIntegration.fhir.authorizeEndpoint": "Authorization endpoint:",
     "reportIntegration.fhir.tokenEndpoint": "Token endpoint:",
     "reportIntegration.fhir.clientId": "Client ID:",
@@ -42636,15 +43961,18 @@ export const translations: Translations = {
     "templateLibrary.showTotal": "{{count}} template(s) total",
     "templateLibrary.noTemplates": "No templates",
     "templateLibrary.myFavorites": "My favorites ({{count}})",
-    "templateLibrary.noFavorites": "No favorites yet; click the favorite button on a template row to add",
-    "templateLibrary.smartRecommend": "Smart recommendations (deterministic scoring)",
+    "templateLibrary.noFavorites":
+      "No favorites yet; click the favorite button on a template row to add",
+    "templateLibrary.smartRecommend":
+      "Smart recommendations (deterministic scoring)",
     "templateLibrary.recommendBasis": "Frequency × recency × category match",
     "templateLibrary.score": "Score {{score}}",
     "templateLibrary.reason": "Reason:",
     "templateLibrary.noRecommend": "No recommendations",
     "templateLibrary.usageOverview": "Usage stats overview",
     "templateLibrary.noData": "No data",
-    "templateLibrary.footer": "Recommendation score = usage frequency ×40 + recency decay ×30 + category match (modality 50/dept 25/purpose 15/tag 5/body part 10) · category tree organized by exam type/department/purpose · {{count}} built-in radiology templates (seed fallback)",
+    "templateLibrary.footer":
+      "Recommendation score = usage frequency ×40 + recency decay ×30 + category match (modality 50/dept 25/purpose 15/tag 5/body part 10) · category tree organized by exam type/department/purpose · {{count}} built-in radiology templates (seed fallback)",
     // [v3.0.6.11-106 Wave 6A] R3.REVIEW review components
     "reportReview.common.all": "All",
     "reportReview.common.apply": "Apply",
@@ -42690,14 +44018,16 @@ export const translations: Translations = {
     "reportReview.sla.title": "SLA Monitoring",
     "reportReview.sla.loadFailed": "Failed to load SLA data",
     "reportReview.sla.loading": "Loading...",
-    "reportReview.sla.threshold": "SLA thresholds: Initial {{initial}}h / Final {{final}}h / Sign-off {{sign}}h / Co-sign {{cosign}}h",
+    "reportReview.sla.threshold":
+      "SLA thresholds: Initial {{initial}}h / Final {{final}}h / Sign-off {{sign}}h / Co-sign {{cosign}}h",
     "reportReview.sla.onTimeRate": "On-time Rate",
     "reportReview.sla.overdueTasks": "Overdue Tasks",
     "reportReview.sla.avgInitial": "Avg. Initial Review",
     "reportReview.sla.avgFinal": "Avg. Final Review",
     "reportReview.sla.minutes": "min",
     "reportReview.sla.good": "SLA on track",
-    "reportReview.sla.nearThreshold": "SLA approaching threshold, please monitor",
+    "reportReview.sla.nearThreshold":
+      "SLA approaching threshold, please monitor",
     "reportReview.sla.critical": "SLA seriously exceeded, act immediately",
     "reportReview.sla.p95Initial": "Current P95 initial review duration",
     "reportReview.sla.p95Final": "P95 final review",
@@ -42707,7 +44037,8 @@ export const translations: Translations = {
     "reportReview.sla.overdueCountLabel": "Overdue count",
     "reportReview.sla.hourly": "24h Review Duration Distribution",
     "reportReview.sla.achieved": "SLA Achieved",
-    "reportReview.sla.achievedDesc": "Proportion of reviews completed on time this period",
+    "reportReview.sla.achievedDesc":
+      "Proportion of reviews completed on time this period",
     "reportReview.sla.avgDuration": "Average Duration",
     "reportReview.sla.p95Duration": "P95 Duration",
     "reportReview.sla.p95InitialTag": "P95 Initial",
@@ -42783,7 +44114,8 @@ export const translations: Translations = {
     "reportReview.aiHint.riskLevel": "Risk Level",
     "reportReview.aiHint.defectCount": "Defect Count",
     "reportReview.aiHint.criticalDetected": "AI detected a critical value",
-    "reportReview.aiHint.criticalAdvice": "Verify immediately and notify the clinician",
+    "reportReview.aiHint.criticalAdvice":
+      "Verify immediately and notify the clinician",
     "reportReview.aiHint.dimensionScores": "Dimension Scores",
     "reportReview.aiHint.consistency": "Consistency",
     "reportReview.aiHint.completeness": "Completeness",
@@ -42821,13 +44153,17 @@ export const translations: Translations = {
     "reportReview.initial.submitted": "Submitted",
     "reportReview.initial.reportId": "Report ID:",
     "reportReview.initial.viewDetail": "View Details",
-    "reportReview.initial.taskAria": "Initial check task {{patient}} {{modality}} {{bodyPart}}",
+    "reportReview.initial.taskAria":
+      "Initial check task {{patient}} {{modality}} {{bodyPart}}",
     "reportStatus.system": "System",
     "reportStatus.finalApproved": "Final review passed",
     "reportStatus.caSigComplete": "CA signature complete",
-    "reportStatus.publishedComment": "Report published to clinician and patient",
-    "reportStatus.rejectedComment": "Report rejected, awaiting doctor's revision",
-    "reportStatus.revisingComment": "Report under revision (pathology feedback/supplementary findings)",
+    "reportStatus.publishedComment":
+      "Report published to clinician and patient",
+    "reportStatus.rejectedComment":
+      "Report rejected, awaiting doctor's revision",
+    "reportStatus.revisingComment":
+      "Report under revision (pathology feedback/supplementary findings)",
     "reportStatus.revisedComment": "Report revision completed",
     "reportStatus.recalledComment": "Published report recalled",
     "reportStatus.archivedComment": "Report archived to long-term storage",
@@ -42840,7 +44176,8 @@ export const translations: Translations = {
     "reportStatus.totalStates": "({{n}} states total)",
     "reportAnnotation.justNow": "Just now",
     "reportAnnotation.loadFailed": "Failed to load annotations",
-    "reportAnnotation.noSelection": "No selected text detected; select text in the editor or enter a quote manually",
+    "reportAnnotation.noSelection":
+      "No selected text detected; select text in the editor or enter a quote manually",
     "reportAnnotation.quoteNotFound": "Quote not found in the editor content",
     "reportAnnotation.contentMin": "Annotation must be at least 2 characters",
     "reportAnnotation.created": "Annotation posted",
@@ -42860,8 +44197,10 @@ export const translations: Translations = {
     "reportAnnotation.filterAll": "All",
     "reportAnnotation.items": "items",
     "reportAnnotation.byAuthor": "By author",
-    "reportAnnotation.newPlaceholder": "New annotation / collaborative discussion…",
-    "reportAnnotation.quoteTooltip": "Quoted passage (click to take from editor selection)",
+    "reportAnnotation.newPlaceholder":
+      "New annotation / collaborative discussion…",
+    "reportAnnotation.quoteTooltip":
+      "Quoted passage (click to take from editor selection)",
     "reportAnnotation.clearQuote": "Clear quote",
     "reportAnnotation.quoteSelection": "Quote selected text",
     "reportAnnotation.quotePlaceholder": "Quoted passage (optional)",
@@ -42885,7 +44224,8 @@ export const translations: Translations = {
     "reportAnnotation.replyPlaceholder": "Reply to {{name}}…",
     "reportAnnotation.send": "Send",
     "reportReview.cosign.title": "Cosign Scheduling",
-    "reportReview.cosign.headerTitle": "Cosign Scheduling & Advanced Management",
+    "reportReview.cosign.headerTitle":
+      "Cosign Scheduling & Advanced Management",
     "reportReview.cosign.loadFailed": "Load failed",
     "reportReview.cosign.scheduleAdded": "Schedule added",
     "reportReview.cosign.addFailed": "Add failed",
@@ -42899,7 +44239,8 @@ export const translations: Translations = {
     "reportReview.cosign.skipFailed": "Skip failed",
     "reportReview.cosign.conflictResolved": "Conflict resolved",
     "reportReview.cosign.resolveFailed": "Resolve failed",
-    "reportReview.cosign.slaRefreshed": "Refreshed: {{breached}} breached, {{warning}} warning",
+    "reportReview.cosign.slaRefreshed":
+      "Refreshed: {{breached}} breached, {{warning}} warning",
     "reportReview.cosign.refreshFailed": "Refresh failed",
     "reportReview.cosign.addSchedule": "Add Schedule",
     "reportReview.cosign.schedule": "Schedule",
@@ -42932,7 +44273,8 @@ export const translations: Translations = {
     "reportReview.cosign.viewHistory": "View history {{reportId}}",
     "reportReview.cosign.slaMonitor": "Cosign SLA Real-time Monitoring",
     "reportReview.cosign.refreshSla": "Refresh SLA",
-    "reportReview.cosign.slaDefault": "Default SLA: {{default}}m · Warning {{warn}}m · Escalate to {{escalate}}",
+    "reportReview.cosign.slaDefault":
+      "Default SLA: {{default}}m · Warning {{warn}}m · Escalate to {{escalate}}",
     "reportReview.cosign.colRecord": "Record",
     "reportReview.cosign.colReport": "Report",
     "reportReview.cosign.colCosigner": "Cosigner",
@@ -42966,7 +44308,8 @@ export const translations: Translations = {
     "reportReview.cosign.preferLowWorkload": "Prefer low load",
     "reportReview.cosign.validCert": "Valid certificate",
     "reportReview.cosign.skipConfig": "Skip Co-sign Configuration",
-    "reportReview.cosign.skipConfigTitle": "Skip feature {{status}} · Requires {{roles}} authorization · Audit level {{level}}",
+    "reportReview.cosign.skipConfigTitle":
+      "Skip feature {{status}} · Requires {{roles}} authorization · Audit level {{level}}",
     "reportReview.cosign.colReason": "Reason",
     "reportReview.cosign.colEnabled": "Enabled",
     "reportReview.cosign.toggleAria": "Toggle {{reason}}",
@@ -42989,7 +44332,8 @@ export const translations: Translations = {
     "reportReview.cosign.newBatch": "New Batch",
     "reportReview.cosign.approve": "Approve",
     "reportReview.cosign.reject": "Reject",
-    "reportReview.cosign.batchReports": "reports · Success {{success}} · Failed {{fail}} · Skipped {{skip}}",
+    "reportReview.cosign.batchReports":
+      "reports · Success {{success}} · Failed {{fail}} · Skipped {{skip}}",
     "reportReview.cosign.batchStart": "Started",
     "reportReview.cosign.batchComplete": "Completed",
     "reportReview.cosign.batchDone": "Batch co-sign completed",
@@ -43031,7 +44375,8 @@ export const translations: Translations = {
     "reportReview.cosign.resolution.extendWindow": "Extend Time Window",
     "reportReview.cosign.resolution.rejectRestart": "Reject & Restart",
     "reportReview.cosign.resolution.escalateDean": "Escalate to Dean",
-    "reportReview.cosign.historyTitle": "Co-sign history for report {{reportId}}",
+    "reportReview.cosign.historyTitle":
+      "Co-sign history for report {{reportId}}",
     "reportReview.cosign.shift.morning": "Morning (08-12)",
     "reportReview.cosign.shift.afternoon": "Afternoon (14-18)",
     "reportReview.cosign.shift.evening": "Evening (18-22)",
@@ -43072,12 +44417,16 @@ export const translations: Translations = {
     "reportReview.final.titleV2": "Final Check List v2",
     "reportReview.final.loadFailed": "Failed to load final check list",
     "reportReview.final.markedAs": "Marked as {{label}}",
-    "reportReview.final.completedScoring": "Final check completed · Score {{score}}/{{max}} ({{grade}})",
+    "reportReview.final.completedScoring":
+      "Final check completed · Score {{score}}/{{max}} ({{grade}})",
     "reportReview.final.rejectedAs": "{{target}}",
     "reportReview.final.noteAdded": "Final review note added",
-    "reportReview.final.emergencyTriggered": "Emergency channel triggered, notification simulated",
-    "reportReview.final.emergencyTriggeredLocal": "Emergency review channel triggered (endpoint unavailable, recorded locally)",
-    "reportReview.final.channelConfigSaved": "Emergency channel configuration saved",
+    "reportReview.final.emergencyTriggered":
+      "Emergency channel triggered, notification simulated",
+    "reportReview.final.emergencyTriggeredLocal":
+      "Emergency review channel triggered (endpoint unavailable, recorded locally)",
+    "reportReview.final.channelConfigSaved":
+      "Emergency channel configuration saved",
     "reportReview.final.multiSigStarted": "Multi-sign process initiated",
     "reportReview.final.signed": "Signed",
     "reportReview.final.searchPlaceholder": "Search reports/tasks",
@@ -43093,7 +44442,8 @@ export const translations: Translations = {
     "reportReview.final.submitted": "Submitted",
     "reportReview.final.selectTaskHint": "Select a task on the left",
     "reportReview.final.confirmRejectReport": "Reject this report",
-    "reportReview.final.rejectReasonPlaceholder": "Enter reason for {{target}} (≥5 chars)",
+    "reportReview.final.rejectReasonPlaceholder":
+      "Enter reason for {{target}} (≥5 chars)",
     "reportReview.final.confirmReject": "Confirm Reject",
     "reportReview.final.reject": "Reject",
     "reportReview.final.rejectDirect": "Direct Return",
@@ -43114,7 +44464,8 @@ export const translations: Translations = {
     "reportReview.final.fieldType": "Type",
     "reportReview.final.fieldContent": "Content",
     "reportReview.final.contentMin": "At least 5 characters",
-    "reportReview.final.noteContentPlaceholder": "Enter final review note content",
+    "reportReview.final.noteContentPlaceholder":
+      "Enter final review note content",
     "reportReview.final.fieldVisibility": "Visibility",
     "reportReview.final.pinned": "Pinned",
     "reportReview.final.noteType.comment": "Comment",
@@ -43126,7 +44477,8 @@ export const translations: Translations = {
     "reportReview.final.visibility.team": "Team",
     "reportReview.final.visibility.department": "Department",
     "reportReview.final.visibility.all": "All",
-    "reportReview.final.triggerEmergencyTitle": "Trigger Emergency Review Channel",
+    "reportReview.final.triggerEmergencyTitle":
+      "Trigger Emergency Review Channel",
     "reportReview.final.trigger": "Trigger",
     "reportReview.final.fieldTriggerReason": "Trigger Reason",
     "reportReview.final.triggerReason.criticalFinding": "Critical Value",
@@ -43139,7 +44491,8 @@ export const translations: Translations = {
     "reportReview.final.lifeThreatening": "Life-threatening",
     "reportReview.final.fieldChannels": "Notification Channels",
     "reportReview.final.fieldDescription": "Description",
-    "reportReview.final.emergencyDescPlaceholder": "Describe the emergency review context",
+    "reportReview.final.emergencyDescPlaceholder":
+      "Describe the emergency review context",
     "reportReview.final.startMultiSig": "Start Multi-sign",
     "reportReview.final.start": "Start",
     "reportReview.final.fieldReason": "Reason",
@@ -43159,7 +44512,8 @@ export const translations: Translations = {
     "reportReview.final.consistencyScore": "Consistency Score",
     "reportReview.final.aiConfidence": "AI Confidence",
     "reportReview.final.consistencyLevel": "Consistency Level",
-    "reportReview.final.contradictionsDetected": "{{n}} contradictions detected",
+    "reportReview.final.contradictionsDetected":
+      "{{n}} contradictions detected",
     "reportReview.final.reported": "Reported",
     "reportReview.final.expected": "Expected",
     "reportReview.final.autoDetected": "Auto-detected",
@@ -43173,7 +44527,8 @@ export const translations: Translations = {
     "reportReview.final.weighted": "Weighted",
     "reportReview.final.hardFailures": "Hard Failures",
     "reportReview.final.softWarnings": "Soft Warnings",
-    "reportReview.final.noScoring": "No score yet; scoring is automatic after check items complete",
+    "reportReview.final.noScoring":
+      "No score yet; scoring is automatic after check items complete",
     "reportReview.final.rubricVersion": "Scoring Rubric {{version}}",
     "reportReview.final.notes": "Final Review Notes",
     "reportReview.final.addNote": "Add Note",
@@ -43214,7 +44569,8 @@ export const translations: Translations = {
     "reportReview.final.pending": "Pending",
     "reportReview.final.emergencyChannel": "Emergency Review Channel",
     "reportReview.final.triggerEmergency": "Trigger Emergency Channel",
-    "reportReview.final.emergencyHint": "Triggering uses the real emergency channel endpoint and simulates notification",
+    "reportReview.final.emergencyHint":
+      "Triggering uses the real emergency channel endpoint and simulates notification",
     "reportReview.final.channelConfig": "Emergency Channel Configuration",
     "reportReview.final.saveConfig": "Save Configuration",
     "reportReview.final.priorityN": "Priority {{p}}",
@@ -43222,10 +44578,12 @@ export const translations: Translations = {
     "reportReview.final.targetRole": "Target Role",
     "reportReview.final.channelTargetRoleAria": "{{type}} target role",
     "reportReview.final.autoTrigger": "Auto Trigger",
-    "reportReview.final.autoTriggerKeywordsPlaceholder": "Auto-trigger keywords (one per line)",
+    "reportReview.final.autoTriggerKeywordsPlaceholder":
+      "Auto-trigger keywords (one per line)",
     "reportReview.final.autoTriggerKeywords": "Auto-trigger keywords",
     "reportReview.final.triggerRecords": "Trigger Records",
-    "reportReview.final.searchByPatientPlaceholder": "Search history by patient ID",
+    "reportReview.final.searchByPatientPlaceholder":
+      "Search history by patient ID",
     "reportReview.final.search": "Search",
     "reportReview.final.noTriggerRecords": "No trigger records",
     "reportReview.final.acknowledged": "Acknowledged",
@@ -43275,11 +44633,14 @@ export const translations: Translations = {
     "reportReview.final.cat.qualityScore": "Quality Score",
     "reportReview.final.cat.auditTrail": "Audit Trail",
     "reportReview.final.reject.initial": "Return to Initial",
-    "reportReview.final.reject.initialDesc": "Return to the initial review stage, keeping initial comments",
+    "reportReview.final.reject.initialDesc":
+      "Return to the initial review stage, keeping initial comments",
     "reportReview.final.reject.directToDraft": "Return Directly to Draft",
-    "reportReview.final.reject.directToDraftDesc": "Return directly to the author's draft, quality reset",
+    "reportReview.final.reject.directToDraftDesc":
+      "Return directly to the author's draft, quality reset",
     "reportReview.final.reject.previousStage": "Return to Previous Stage",
-    "reportReview.final.reject.previousStageDesc": "Return to the previous processing stage",
+    "reportReview.final.reject.previousStageDesc":
+      "Return to the previous processing stage",
     "reportReview.final.channel.sms": "SMS",
     "reportReview.final.channel.phone": "Phone",
     "reportReview.final.channel.inApp": "In-app",
@@ -43293,10 +44654,12 @@ export const translations: Translations = {
     "reportExport.state.canceled": "Canceled",
     "reportExport.loadFailed": "Failed to load export center data",
     "reportExport.selectAtLeastOne": "Please select at least one report",
-    "reportExport.batchDone": "Batch export complete: {{count}} report(s) ({{format}})",
+    "reportExport.batchDone":
+      "Batch export complete: {{count}} report(s) ({{format}})",
     "reportExport.taskCreated": "Task created: {{id}} (pending)",
     "reportExport.batchFailed": "Batch export failed (possibly no permission)",
-    "reportExport.createFailed": "Failed to create task (possibly no permission)",
+    "reportExport.createFailed":
+      "Failed to create task (possibly no permission)",
     "reportExport.taskDone": "Task completed: {{name}}",
     "reportExport.processFailed": "Processing failed",
     "reportExport.taskCanceled": "Task canceled",
@@ -43347,7 +44710,8 @@ export const translations: Translations = {
     "reportExport.role.director": "Director (single + batch)",
     "reportExport.role.admin": "Admin (single + batch)",
     "reportExport.role.tech": "Technician (no-permission demo)",
-    "reportExport.roleNote": "Batch export (≥2 reports) requires director/admin permission; the TECH role is always forbidden.",
+    "reportExport.roleNote":
+      "Batch export (≥2 reports) requires director/admin permission; the TECH role is always forbidden.",
     "reportExport.createTask": "Create export task",
     "reportExport.batchExport": "Batch export ({{count}})",
     "reportExport.selectAll": "Select all",
@@ -43360,7 +44724,8 @@ export const translations: Translations = {
     "reportExport.close": "Close",
     "reportExport.noContent": "Task not yet processed; no export content",
     "reportExport.downloadFile": "Download {{name}}",
-    "reportExport.footer": "Export formats: PDF/DOCX are conceptual exports (deterministic placeholder content) · HTML/CSV/DICOM SR generate full content · all formats include the full report text · task flow PENDING → PROCESSING → COMPLETED",
+    "reportExport.footer":
+      "Export formats: PDF/DOCX are conceptual exports (deterministic placeholder content) · HTML/CSV/DICOM SR generate full content · all formats include the full report text · task flow PENDING → PROCESSING → COMPLETED",
     "templateApproval.state.draft": "Draft",
     "templateApproval.state.pending": "Pending approval",
     "templateApproval.state.approved": "Approved",
@@ -43380,7 +44745,8 @@ export const translations: Translations = {
     "templateApproval.unfavorited": "Removed from favorites",
     "templateApproval.rejectReasonRequired": "Please enter a rejection reason",
     "templateApproval.actionSuccess": "{{action}} succeeded (v{{version}})",
-    "templateApproval.actionRejected": "Operation failed (state machine rejected invalid transition)",
+    "templateApproval.actionRejected":
+      "Operation failed (state machine rejected invalid transition)",
     "templateApproval.actionFailed": "Operation failed",
     "templateApproval.nameRequired": "Please enter a template name",
     "templateApproval.contentRequired": "Please enter template content",
@@ -43419,7 +44785,8 @@ export const translations: Translations = {
     "templateApproval.versionHistory": "Version history ({{name}})",
     "templateApproval.approvalRecords": "Approval records ({{name}})",
     "templateApproval.noApprovalRecords": "No approval records",
-    "templateApproval.footer": "State machine: draft → submit → pending → approved/rejected → published · each change automatically creates a new version · invalid transitions rejected by the backend",
+    "templateApproval.footer":
+      "State machine: draft → submit → pending → approved/rejected → published · each change automatically creates a new version · invalid transitions rejected by the backend",
     "templateApproval.versionHistoryTitle": "Version history",
     "templateApproval.noVersions": "No version records",
     "templateApproval.modal.createTitle": "New draft template",
@@ -43433,7 +44800,8 @@ export const translations: Translations = {
     "templateApproval.confirm": "Confirm",
     "templateApproval.cancel": "Cancel",
     "templateApproval.form.name": "Template name",
-    "templateApproval.form.namePlaceholder": "e.g.: Head CT plain scan report template",
+    "templateApproval.form.namePlaceholder":
+      "e.g.: Head CT plain scan report template",
     "templateApproval.form.category": "Category",
     "templateApproval.form.bodyPart": "Exam body part",
     "templateApproval.form.bodyPartPlaceholder": "e.g.: Chest",
@@ -43481,7 +44849,8 @@ export const translations: Translations = {
     "userMgmt.edit": "Edit",
     "userMgmt.permissions": "Permissions",
     "userMgmt.resetConfirmTitle": "Reset this user's password?",
-    "userMgmt.resetConfirmDesc": "A one-time temporary password will be generated and must be delivered to the user",
+    "userMgmt.resetConfirmDesc":
+      "A one-time temporary password will be generated and must be delivered to the user",
     "userMgmt.reset": "Reset",
     "userMgmt.cancel": "Cancel",
     "userMgmt.resetPassword": "Reset password",
@@ -43636,7 +45005,8 @@ export const translations: Translations = {
     "apptMgmt.realData": "Live data",
     "apptMgmt.demoData": "Demo data",
     "apptMgmt.loading": "Loading...",
-    "apptMgmt.subtitle": "Patient imaging appointment management · Appointment list · Reschedule/Cancel · Conflict detection · Appointment stats",
+    "apptMgmt.subtitle":
+      "Patient imaging appointment management · Appointment list · Reschedule/Cancel · Conflict detection · Appointment stats",
     "apptMgmt.todayAppointments": "Today's appointments",
     "apptMgmt.thisWeekCases": "{{count}} this week",
     "apptMgmt.pending": "Pending",
@@ -43649,7 +45019,8 @@ export const translations: Translations = {
     "apptMgmt.allStatus": "All statuses",
     "apptMgmt.completed": "Completed",
     "apptMgmt.cumulativeCompleted": "Cumulative completed",
-    "apptMgmt.searchPlaceholder": "Search patient name / appointment ID / phone / exam item...",
+    "apptMgmt.searchPlaceholder":
+      "Search patient name / appointment ID / phone / exam item...",
     "apptMgmt.checkedIn": "Checked in",
     "apptMgmt.cancelled": "Cancelled",
     "apptMgmt.clearFilter": "Clear filters",
@@ -43703,12 +45074,14 @@ export const translations: Translations = {
     "apptMgmt.newDate": "New date *",
     "apptMgmt.newTime": "New time *",
     "apptMgmt.selectTime": "Select time",
-    "apptMgmt.rescheduleHint": "Conflicts with existing appointments will be checked after rescheduling. Please verify the new slot availability.",
+    "apptMgmt.rescheduleHint":
+      "Conflicts with existing appointments will be checked after rescheduling. Please verify the new slot availability.",
     "apptMgmt.cancel": "Cancel",
     "apptMgmt.confirmReschedule": "Confirm reschedule",
     "apptMgmt.conflictTitle": "Appointment Conflict",
     "apptMgmt.conflictsFound": "{{count}} conflict(s) detected",
-    "apptMgmt.conflictHint": "The rescheduled time conflicts with existing appointments. Please choose another slot.",
+    "apptMgmt.conflictHint":
+      "The rescheduled time conflicts with existing appointments. Please choose another slot.",
     "apptMgmt.relatedApptId": "Related appointment ID: {{id}}",
     "apptMgmt.gotIt": "Got it",
     "apptMgmt.cancelTitle": "Cancel Appointment",
@@ -43732,17 +45105,20 @@ export const translations: Translations = {
     "apptMgmt.priority.critical": "Critical",
     "apptMgmt.creating": "Creating...",
     "apptMgmt.confirmCreate": "Confirm create",
-    "apptMgmt.serviceUnavailable": "Appointment service unavailable; showing demo data",
+    "apptMgmt.serviceUnavailable":
+      "Appointment service unavailable; showing demo data",
     // [v3.0.6.11-106 Wave 7C] Appointment page i18n
     "apptPage.title": "Appointment Management",
-    "apptPage.subtitle": "Scheduling · Device assignment · Time slots · Conflict detection · Reminders",
+    "apptPage.subtitle":
+      "Scheduling · Device assignment · Time slots · Conflict detection · Reminders",
     "apptPage.batchImport": "Batch Import",
     "apptPage.rules": "Appointment Rules",
     "apptPage.management": "Appointment Management",
     "apptPage.newAppointment": "New Appointment",
     "apptPage.cancelNew": "Cancel New",
     "apptPage.presetPrefix": "Entered from patient details:",
-    "apptPage.presetSuffix": ". The form is prefilled; just pick an exam item and submit.",
+    "apptPage.presetSuffix":
+      ". The form is prefilled; just pick an exam item and submit.",
     "apptPage.close": "Close",
     "apptPage.todayAppointments": "Today's Appointments",
     "apptPage.pendingConfirm": "Pending",
@@ -43772,7 +45148,8 @@ export const translations: Translations = {
     "apptPage.noReschedules": "No reschedule records",
     "apptPage.noCancellations": "No cancellation records",
     "apptPage.rulesTitle": "Appointment Rules",
-    "apptPage.rulesNote": "Rules are set per device and take effect immediately.",
+    "apptPage.rulesNote":
+      "Rules are set per device and take effect immediately.",
     "apptPage.searchDevice": "Search device…",
     "apptPage.enabled": "Enabled",
     "apptPage.disabled": "Disabled",
@@ -43782,11 +45159,14 @@ export const translations: Translations = {
     "apptPage.maxAdvance": "Max advance days",
     "apptPage.noShowPenalty": "No-show penalty (CNY/each)",
     "apptPage.saveRules": "Save Rules",
-    "apptPage.rulesSaved": "Appointment rules saved (local persistence; no backend endpoint yet)",
+    "apptPage.rulesSaved":
+      "Appointment rules saved (local persistence; no backend endpoint yet)",
     "apptPage.batchImportTitle": "Batch Import Appointments",
     "apptPage.clickUpload": "Click to upload Excel file",
-    "apptPage.uploadHint": "Supports .csv / .json (.xlsx please save as CSV first). Each row: name/gender/age/exam item/device/date/slot/phone",
-    "apptPage.importXlsxWarn": ".xlsx binary parsing is not supported. Please export Excel as CSV or JSON (headers: name/device/date/slot etc.)",
+    "apptPage.uploadHint":
+      "Supports .csv / .json (.xlsx please save as CSV first). Each row: name/gender/age/exam item/device/date/slot/phone",
+    "apptPage.importXlsxWarn":
+      ".xlsx binary parsing is not supported. Please export Excel as CSV or JSON (headers: name/device/date/slot etc.)",
     "apptPage.parseFailed": "File parse failed, please check CSV/JSON format",
     "apptPage.noImportRows": "No importable rows in the file",
     "apptPage.missingFields": "Missing required fields (name/device/date/slot)",
@@ -43795,11 +45175,14 @@ export const translations: Translations = {
     "apptPage.importDone": "Import complete: {{ok}} succeeded, {{fail}} failed",
     "apptPage.selectFile": "Select File",
     "apptPage.importGuide": "Import Guide",
-    "apptPage.importStep1": "1. Download the template file and fill in appointment info",
+    "apptPage.importStep1":
+      "1. Download the template file and fill in appointment info",
     "apptPage.importStep2": "2. Name, device, date and slot are required",
     "apptPage.importStep3": "3. Exam item must match an existing system item",
-    "apptPage.importStep4": "4. Ensure the device has available capacity in that slot",
-    "apptPage.importStep5": "5. Duplicate appointments are skipped and logged as errors",
+    "apptPage.importStep4":
+      "4. Ensure the device has available capacity in that slot",
+    "apptPage.importStep5":
+      "5. Duplicate appointments are skipped and logged as errors",
     "apptPage.generating": "Generating...",
     "apptPage.templateFilename": "appointment-import-template.csv",
     "apptPage.downloaded": "Downloaded",
@@ -43809,7 +45192,8 @@ export const translations: Translations = {
     "apptPage.expect": "Expected:",
     "apptPage.notify": "Notify",
     "apptPage.autoAssign": "Auto Assign",
-    "apptPage.waitlistHint": "The system will notify waiting patients automatically when a slot frees up",
+    "apptPage.waitlistHint":
+      "The system will notify waiting patients automatically when a slot frees up",
     "apptPage.overview": "Today's Overview",
     "apptPage.deviceToday": "Today's Appointments by Device",
     "apptPage.personTimes": "visits",
@@ -43845,7 +45229,8 @@ export const translations: Translations = {
     "apptPage.conflictTitle": "Time Conflict Detection",
     "apptPage.deviceLabel": "Device:",
     "apptPage.statusLabel": "Status:",
-    "apptPage.conflictHint": "Conflicting appointments found in this slot. Please choose another slot or device.",
+    "apptPage.conflictHint":
+      "Conflicting appointments found in this slot. Please choose another slot or device.",
     "apptPage.backToEdit": "Back to Edit",
     "apptPage.forceBook": "Force Book (ignore conflict)",
     "apptPage.status.pending": "Pending",
@@ -43875,7 +45260,8 @@ export const translations: Translations = {
     "apptPage.rescheduleReason.device": "Device failure",
     "apptPage.rescheduleReason.other": "Other",
     "apptPage.notifySent": "Waitlist notification sent to",
-    "apptPage.notifyUnavailable": "Notification service unavailable; marked locally (pending resend)",
+    "apptPage.notifyUnavailable":
+      "Notification service unavailable; marked locally (pending resend)",
     "apptPage.waitlistSorted": "Waitlist sorted by priority/registration time",
     "apptPage.waitlistNotifyTitle": "Waitlist notice: a slot is available",
     "apptPage.loadingData": "Loading appointment data from API...",
@@ -43891,7 +45277,8 @@ export const translations: Translations = {
     "apptPage.errInvalidTime": "Invalid appointment time",
     "apptPage.createFailed": "Failed to create appointment, please retry",
     "apptPage.errCancelReason": "Please select a cancellation reason",
-    "apptPage.errCancelNotAllowed": "Current status does not allow cancellation",
+    "apptPage.errCancelNotAllowed":
+      "Current status does not allow cancellation",
     // [v3.0.6.11-106 Wave 7C] Template designer i18n
     "templateDesigner.headerTitle": "Template Designer v1.0.2 (R2)",
     "templateDesigner.fieldsUnit": "fields",
@@ -43913,30 +45300,34 @@ export const translations: Translations = {
     "templateDesigner.general": "General",
     "templateDesigner.toEdit": "To edit",
     "templateDesigner.needOneSection": "At least 1 section must be kept",
-    "templateDesigner.needTwoFields": "At least 2 fields are required to create a conditional rule",
+    "templateDesigner.needTwoFields":
+      "At least 2 fields are required to create a conditional rule",
     "templateDesigner.newTemplate": "New Template",
     "templateDesigner.defaultBodyPart": "Chest",
     "templateDesigner.currentDoctor": "Current Doctor",
     "templateDesigner.applyFailed": "Apply failed",
     "templateDesigner.applyProps": "Apply Properties",
-    "templateDesigner.confirmDeleteField": "Delete the currently selected field?",
+    "templateDesigner.confirmDeleteField":
+      "Delete the currently selected field?",
     "templateDesigner.deleteField": "Delete Field",
     "templateDesigner.fieldProps": "Field Properties",
     "templateDesigner.sectionProps": "Section Properties",
     "templateDesigner.fieldLibrary": "Field Library",
     "templateDesigner.dragTipTitle": "Drag Tip",
-    "templateDesigner.dragTipBody": "Drag a field from the left into a section on the canvas to add it to the template.",
+    "templateDesigner.dragTipBody":
+      "Drag a field from the left into a section on the canvas to add it to the template.",
     "templateDesigner.dropHere": "Drag fields here to add",
     "templateDesigner.addSection": "Add Section",
     "templateDesigner.conditionalTag": "Conditional",
     "templateDesigner.tab.properties": "Properties",
     "templateDesigner.tab.conditional": "Conditions",
     "templateDesigner.tab.srMapping": "SR Mapping",
-    "templateDesigner.clickToEdit": "Click a field or section on the canvas to edit its properties",
+    "templateDesigner.clickToEdit":
+      "Click a field or section on the canvas to edit its properties",
     "templateDesigner.conditionalLogic": "Conditional Logic",
     "templateDesigner.addRule": "Add Rule",
     "templateDesigner.noConditionalRules": "No conditional rules",
-    "templateDesigner.clickAddRule": "Click \"Add Rule\" to create one",
+    "templateDesigner.clickAddRule": 'Click "Add Rule" to create one',
     "templateDesigner.conditionalRule": "Conditional Rule",
     "templateDesigner.if": "If",
     "templateDesigner.op.equals": "equals",
@@ -43948,7 +45339,8 @@ export const translations: Translations = {
     "templateDesigner.action.show": "show",
     "templateDesigner.action.hide": "hide",
     "templateDesigner.action.require": "require",
-    "templateDesigner.conditionalNote": "Logic: when the condition field's value meets the condition, perform show/hide/require on the target field.",
+    "templateDesigner.conditionalNote":
+      "Logic: when the condition field's value meets the condition, perform show/hide/require on the target field.",
     "templateDesigner.srMappingTitle": "IHE RR Structured Report Mapping",
     "templateDesigner.complianceScore": "Compliance Score",
     "templateDesigner.srTemplateSelect": "IHE RR Template Selection",
@@ -43960,7 +45352,8 @@ export const translations: Translations = {
     "templateDesigner.compliant": "Compliant",
     "templateDesigner.partial": "Partial",
     "templateDesigner.addFieldFirst": "Please add a field first",
-    "templateDesigner.srMappingNote": "Map template fields to DICOM SR template IDs to ensure IHE RR compliance.",
+    "templateDesigner.srMappingNote":
+      "Map template fields to DICOM SR template IDs to ensure IHE RR compliance.",
     "templateDesigner.prop.displayLabel": "Display Label",
     "templateDesigner.prop.fieldKey": "Field Key",
     "templateDesigner.prop.dataType": "Data Type",
@@ -43987,7 +45380,8 @@ export const translations: Translations = {
     "templateDesigner.manualFill": "Manual entry",
     "templateDesigner.structuredFields": "Structured Fields (RECIST / RADS)",
     "templateDesigner.blockCanvas": "Paragraph Block Canvas",
-    "templateDesigner.insertHint": "Click a variable/field → insert after the selected block",
+    "templateDesigner.insertHint":
+      "Click a variable/field → insert after the selected block",
     "templateDesigner.variablePlaceholders": "variable placeholders",
     "templateDesigner.loadingStructured": "Loading saved structured content...",
     "templateDesigner.blockText": "Text",
@@ -43997,11 +45391,14 @@ export const translations: Translations = {
     "templateDesigner.moveUp": "Move up",
     "templateDesigner.moveDown": "Move down",
     "templateDesigner.deleteBlock": "Delete",
-    "templateDesigner.paragraphPlaceholder": "Enter paragraph text, supports {{variable}} placeholders...",
+    "templateDesigner.paragraphPlaceholder":
+      "Enter paragraph text, supports {{variable}} placeholders...",
     "templateDesigner.addParagraph": "Add Paragraph",
     "templateDesigner.livePreview": "Live Preview",
-    "templateDesigner.previewEmpty1": "Paragraph content renders here in real time",
-    "templateDesigner.previewEmpty2": "Saves both plain-text content and structure JSON",
+    "templateDesigner.previewEmpty1":
+      "Paragraph content renders here in real time",
+    "templateDesigner.previewEmpty2":
+      "Saves both plain-text content and structure JSON",
     "templateDesigner.meta.name": "Name",
     "templateDesigner.meta.code": "Code",
     "templateDesigner.meta.modality": "Modality",
@@ -44069,9 +45466,11 @@ export const translations: Translations = {
     "templateDesigner.structured.tiRadsDesc": "Thyroid 1-5",
     "templateDesigner.structured.cadRadsDesc": "Coronary 0-5",
     "templateDesigner.structured.lesionSize": "Lesion Size",
-    "templateDesigner.structured.lesionSizeDesc": "Multi-lesion measurement summary",
+    "templateDesigner.structured.lesionSizeDesc":
+      "Multi-lesion measurement summary",
     "templateDesigner.structured.lymphNodes": "Lymph Nodes",
-    "templateDesigner.structured.lymphNodesDesc": "Regional lymph node description",
+    "templateDesigner.structured.lymphNodesDesc":
+      "Regional lymph node description",
     "templateDesigner.structured.effusion": "Pleural Effusion",
     "templateDesigner.structured.effusionDesc": "Small/Moderate/Large",
     "templateDesigner.sr.tid1500": "TID 1500 - Report Body",
@@ -44105,43 +45504,45 @@ export const translations: Translations = {
     "insuranceAudit.chartMonthlyBudget": "Monthly Budget",
     "insuranceAudit.chartApprovalRate": "Approval Rate",
     "insuranceAudit.chartDenialRate": "Denial Rate",
-    "insuranceAudit.exportedRecords": "Exported {{count}} audit history records",
+    "insuranceAudit.exportedRecords":
+      "Exported {{count}} audit history records",
     "insuranceAudit.ruleDeleted": "Rule deleted: {{name}}",
-    "insuranceAudit.ruleDeletedConfirm": "Delete rule \"{{name}}\"? This action cannot be undone.",
-    "allTypes": "All Types",
-    "allResults": "All Results",
-    "passed": "Passed",
-    "rejected": "Rejected",
-    "supplement": "Supplemental",
-    "approve": "Approve",
-    "reject": "Reject",
-    "requestInfo": "Request Info",
-    "highUrgency": "High",
-    "mediumUrgency": "Medium",
-    "lowUrgency": "Low",
-    "approvedMsg": "Review approved",
-    "approveFailed": "Approval failed",
-    "rejectDefaultReason": "Review rejected",
-    "rejectedMsg": "Review rejected",
-    "rejectFailed": "Rejection failed",
-    "requestedMsg": "Supplemental info requested",
-    "title": "Insurance Audit",
-    "pendingCount": "Pending",
-    "passRate": "Approval Rate",
-    "todayProcessed": "Processed Today",
-    "searchPlaceholder": "Search patient or exam",
-    "refreshed": "Refreshed",
-    "refresh": "Refresh",
-    "noPending": "No pending records",
-    "export": "Export",
+    "insuranceAudit.ruleDeletedConfirm":
+      'Delete rule "{{name}}"? This action cannot be undone.',
+    allTypes: "All Types",
+    allResults: "All Results",
+    passed: "Passed",
+    rejected: "Rejected",
+    supplement: "Supplemental",
+    approve: "Approve",
+    reject: "Reject",
+    requestInfo: "Request Info",
+    highUrgency: "High",
+    mediumUrgency: "Medium",
+    lowUrgency: "Low",
+    approvedMsg: "Review approved",
+    approveFailed: "Approval failed",
+    rejectDefaultReason: "Review rejected",
+    rejectedMsg: "Review rejected",
+    rejectFailed: "Rejection failed",
+    requestedMsg: "Supplemental info requested",
+    title: "Insurance Audit",
+    pendingCount: "Pending",
+    passRate: "Approval Rate",
+    todayProcessed: "Processed Today",
+    searchPlaceholder: "Search patient or exam",
+    refreshed: "Refreshed",
+    refresh: "Refresh",
+    noPending: "No pending records",
+    export: "Export",
     "stats.monthlyTotal": "Monthly Total",
-    "confirmRejectTitle": "Reject Review",
-    "confirmRejectText": "Are you sure you want to reject this review?",
-    "cancel": "Cancel",
-    "confirmReject": "Confirm Reject",
-    "confirmRequestTitle": "Request Supplemental Info",
-    "confirmRequestText": "Request supplemental info from the department?",
-    "confirmSend": "Confirm Send",
+    confirmRejectTitle: "Reject Review",
+    confirmRejectText: "Are you sure you want to reject this review?",
+    cancel: "Cancel",
+    confirmReject: "Confirm Reject",
+    confirmRequestTitle: "Request Supplemental Info",
+    confirmRequestText: "Request supplemental info from the department?",
+    confirmSend: "Confirm Send",
     "history.auditTime": "Audit Time",
     "history.patientName": "Patient Name",
     "history.patientId": "Patient ID",
@@ -44183,7 +45584,8 @@ export const translations: Translations = {
     "aiStructured.mainFindings": "Main Findings",
     "aiStructured.placeholderMainFindings": "Enter findings description...",
     "aiStructured.reconstructionSequence": "Reconstruction Sequence",
-    "aiStructured.placeholderReconstruction": "e.g. Axial 1mm thin-slice reconstruction",
+    "aiStructured.placeholderReconstruction":
+      "e.g. Axial 1mm thin-slice reconstruction",
     "aiStructured.specCtFields": "CT Specialty Fields",
     "aiStructured.specMrFields": "MR Specialty Fields",
     "aiStructured.specDxrFields": "DXR Specialty Fields",
@@ -44200,11 +45602,13 @@ export const translations: Translations = {
     "aiStructured.scanOrientation": "Scan Orientation",
     "aiStructured.placeholderOrientation": "e.g. Axial/Coronal",
     "aiStructured.t1t2Signal": "T1/T2 Signal",
-    "aiStructured.placeholderT1t2": "e.g. Isointense on T1WI / hyperintense on T2WI",
+    "aiStructured.placeholderT1t2":
+      "e.g. Isointense on T1WI / hyperintense on T2WI",
     "aiStructured.diffusionDwi": "Diffusion DWI",
     "aiStructured.placeholderDwi": "e.g. No restricted diffusion on DWI",
     "aiStructured.contrastEnhanced": "Contrast Enhanced",
-    "aiStructured.placeholderContrastEnhanced": "e.g. Homogeneous enhancement after Gd-DTPA",
+    "aiStructured.placeholderContrastEnhanced":
+      "e.g. Homogeneous enhancement after Gd-DTPA",
     "aiStructured.projectionPosition": "Projection Position",
     "aiStructured.placeholderProjection": "e.g. AP + Lateral",
     "aiStructured.exposureParams": "Exposure Parameters",
@@ -44227,8 +45631,10 @@ export const translations: Translations = {
     "aiStructured.calcification": "Calcification Description",
     "aiStructured.placeholderCalcification": "e.g. No suspicious calcification",
     "aiStructured.massFeatures": "Mass Features",
-    "aiStructured.placeholderMassFeatures": "Describe the location, size, and shape of the mass...",
-    "aiStructured.generateJsonPreview": "Generate structured JSON report preview",
+    "aiStructured.placeholderMassFeatures":
+      "Describe the location, size, and shape of the mass...",
+    "aiStructured.generateJsonPreview":
+      "Generate structured JSON report preview",
     "aiStructured.impressionSection": "Impression",
     "aiStructured.impressionSubtitle": "Diagnosis (multiple supported)",
     "aiStructured.diagnosisN": "Diagnosis {{n}}",
@@ -44242,7 +45648,8 @@ export const translations: Translations = {
     "aiStructured.placeholderDifferential": "Enter differential diagnosis...",
     "aiStructured.recommendationSection": "Recommendations",
     "aiStructured.furtherExam": "Further Exam Recommendation",
-    "aiStructured.placeholderFurtherExam": "e.g. Recommend contrast-enhanced MRI",
+    "aiStructured.placeholderFurtherExam":
+      "e.g. Recommend contrast-enhanced MRI",
     "aiStructured.followup": "Follow-up Recommendation",
     "aiStructured.placeholderFollowup": "e.g. Re-examine in 6 months",
     "aiStructured.treatment": "Treatment Recommendation",
@@ -44260,7 +45667,8 @@ export const translations: Translations = {
     "aiStructured.requiredFields": "Please fill in required fields",
     "aiStructured.reportSaved": "Report saved · {{id}}",
     "aiStructured.apiError": "API returned an error",
-    "aiStructured.saveFallback": "Save API unavailable, generated local demo report (pending integration)",
+    "aiStructured.saveFallback":
+      "Save API unavailable, generated local demo report (pending integration)",
     // [v3.0.6.11-106 Wave 7A] AI Orchestration Platform
     "aiOrch.statusRegistered": "Registered",
     "aiOrch.statusDeployed": "Deployed",
@@ -44282,7 +45690,8 @@ export const translations: Translations = {
     "aiOrch.triggerSchedule": "Scheduled",
     "aiOrch.triggerApi": "API",
     "aiOrch.viewerAriaLabel": "AI abnormal region viewer",
-    "aiOrch.viewerHint": "AI inference result · abnormal region coordinates (click empty area to clear highlight)",
+    "aiOrch.viewerHint":
+      "AI inference result · abnormal region coordinates (click empty area to clear highlight)",
     "aiOrch.unconditional": "Unconditional",
     "aiOrch.colName": "Integration Name",
     "aiOrch.colModel": "AI Model",
@@ -44328,7 +45737,8 @@ export const translations: Translations = {
     "aiOrch.deploy": "Deploy",
     "aiOrch.undeploy": "Undeploy",
     "aiOrch.pageTitle": "AI Orchestration Platform",
-    "aiOrch.pageSubtitle": "Model Registration → Deployment → Workflow Integration → Inference Jobs → Review Findings",
+    "aiOrch.pageSubtitle":
+      "Model Registration → Deployment → Workflow Integration → Inference Jobs → Review Findings",
     "aiOrch.deployedModels": "Deployed Models",
     "aiOrch.activeIntegrations": "Active Integrations",
     "aiOrch.completedTasks": "Completed Tasks",
@@ -44340,7 +45750,8 @@ export const translations: Translations = {
     "aiOrch.integrationTitle": "AI → Workflow Integrations",
     "aiOrch.simulateEvent": "Simulate Event",
     "aiOrch.newIntegration": "New Integration",
-    "aiOrch.emptyIntegrations": "No integrations yet, click New at the top right",
+    "aiOrch.emptyIntegrations":
+      "No integrations yet, click New at the top right",
     "aiOrch.orchPipeline": "AI Orchestration Pipeline",
     "aiOrch.newOrch": "New Orchestration",
     "aiOrch.emptyOrch": "No orchestration pipelines",
@@ -44354,7 +45765,8 @@ export const translations: Translations = {
     "aiOrch.emptySr": "No structured reports, click Generate at the top right",
     "aiOrch.tabFusion": "Fusion Workspace",
     "aiOrch.fusionTasks": "Multimodal fusion tasks (FusionJob)",
-    "aiOrch.fusionSupport": "Supports sequence fusion such as PET/CT, MR/PET, CT/CTA",
+    "aiOrch.fusionSupport":
+      "Supports sequence fusion such as PET/CT, MR/PET, CT/CTA",
     "aiOrch.emptyFusion": "No fusion tasks",
     "aiOrch.tabAssist": "AI Assistance",
     "aiOrch.assistTemplates": "Report writing assistance templates",
@@ -44415,7 +45827,8 @@ export const translations: Translations = {
     "aiOrch.msgEventType": "Please select event type",
     "aiOrch.fldModalityMatch": "Modality (match condition)",
     "aiOrch.fldBodyPartMatch": "Body Part (match condition)",
-    "aiOrch.eventHint": "The system will match integration trigger conditions and create corresponding inference jobs (queue simulation)",
+    "aiOrch.eventHint":
+      "The system will match integration trigger conditions and create corresponding inference jobs (queue simulation)",
     "aiOrch.modalSrTitle": "Generate Structured Report",
     "aiOrch.okGenerate": "Generate",
     "aiOrch.phExamId5001": "e.g. EX-5001",
@@ -44426,8 +45839,10 @@ export const translations: Translations = {
     "aiOrch.tplDrFracture": "DR fracture template (TPL-DR-FRACTURE)",
     "aiOrch.tplBrainMr": "Brain MR template (TPL-BRAIN-MR)",
     "aiOrch.tplMgScreen": "Mammography screening template (TPL-MG-SCREEN)",
-    "aiOrch.fldFindingsMulti": "Findings (multi-select, AI generates structured content)",
-    "aiOrch.phFindingsInput": "Enter findings and press Enter, e.g. right upper lobe GGO",
+    "aiOrch.fldFindingsMulti":
+      "Findings (multi-select, AI generates structured content)",
+    "aiOrch.phFindingsInput":
+      "Enter findings and press Enter, e.g. right upper lobe GGO",
     "aiOrch.fldModalityContext": "Modality (additional context)",
     "aiOrch.phOptional": "Optional",
     "aiOrch.fldPriorityContext": "Priority (additional context)",
@@ -44443,7 +45858,8 @@ export const translations: Translations = {
     "aiOrch.phStepAction": "e.g. ai_detection",
     "aiOrch.phStepTarget": "Target (model/template, optional)",
     "aiOrch.addStep": "Add Step",
-    "aiOrch.stepExamples": "Step action examples: ai_detection, report_draft, human_review, critical_escalation",
+    "aiOrch.stepExamples":
+      "Step action examples: ai_detection, report_draft, human_review, critical_escalation",
     "aiOrch.testTitle": "Model Connectivity Test",
     "aiOrch.close": "Close",
     "aiOrch.reachable": "Reachable",
@@ -44461,14 +45877,18 @@ export const translations: Translations = {
     "aiOrch.labelDuration": "Duration",
     "aiOrch.labelCreatedAt": "Created At",
     "aiOrch.labelError": "Error Message",
-    "aiOrch.runningHint": "Inference in progress, abnormal regions will be shown automatically...",
+    "aiOrch.runningHint":
+      "Inference in progress, abnormal regions will be shown automatically...",
     "aiOrch.reviewResultTitle": "AI Review Findings",
-    "aiOrch.abnormalListTitle": "Abnormal region list (click to highlight in viewer)",
+    "aiOrch.abnormalListTitle":
+      "Abnormal region list (click to highlight in viewer)",
     "aiOrch.coordinates": "Coordinates ({{x}}, {{y}})",
-    "aiOrch.abnormalListHint": "Tip: click a region to highlight it in the viewer for secondary verification.",
+    "aiOrch.abnormalListHint":
+      "Tip: click a region to highlight it in the viewer for secondary verification.",
     "aiOrch.noAbnormal": "No abnormal regions detected in this inference",
     "aiOrch.queuedHint": "Job queued, inference will start automatically...",
-    "aiOrch.selectExamWithFindings": "Please select an exam containing AI findings",
+    "aiOrch.selectExamWithFindings":
+      "Please select an exam containing AI findings",
     "aiOrch.noValidFindings": "No valid AI findings found",
     "aiOrch.encapsulateFailed": "Encapsulation failed",
     "aiOrch.createFailed": "Creation failed",
@@ -44580,9 +46000,11 @@ export const translations: Translations = {
     "templateMgmt.copyContent": "Copy Content",
     "templateMgmt.close": "Close",
     "templateMgmt.rejectTitle": "Reject Template Approval",
-    "templateMgmt.rejectPromptPrefix": "Reject \"",
-    "templateMgmt.rejectPromptSuffix": "\" and return to creator, please provide a reason:",
-    "templateMgmt.rejectReasonPlaceholder": "e.g. Image findings not standardized, please add enhancement phase",
+    "templateMgmt.rejectPromptPrefix": 'Reject "',
+    "templateMgmt.rejectPromptSuffix":
+      '" and return to creator, please provide a reason:',
+    "templateMgmt.rejectReasonPlaceholder":
+      "e.g. Image findings not standardized, please add enhancement phase",
     "templateMgmt.processing": "Processing…",
     "templateMgmt.confirmReject": "Confirm Reject",
     "templateMgmt.versionMgmt": "Version Management",
@@ -44632,7 +46054,8 @@ export const translations: Translations = {
     "templateMgmt.permManage": "Manage",
     "templateMgmt.permEdit": "Edit",
     "templateMgmt.permView": "View",
-    "templateMgmt.shareFooter": "Cross-department sharing · Permission control (view/edit/manage) · Share request workflow",
+    "templateMgmt.shareFooter":
+      "Cross-department sharing · Permission control (view/edit/manage) · Share request workflow",
     "templateMgmt.shareToLabel": "Shared with (department/user)",
     "templateMgmt.shareToPlaceholder": "e.g. Neurology / Dr. Wang",
     "templateMgmt.confirmShare": "Confirm Share",
@@ -44643,17 +46066,22 @@ export const translations: Translations = {
     "templateMgmt.rejectReasonRequired": "Please provide a rejection reason",
     "templateMgmt.rejectFailed": "Rejection failed",
     "templateMgmt.rejectFailedNetwork": "Rejection failed: network error",
-    "templateMgmt.exportFailed": "Batch export failed: please check template data",
+    "templateMgmt.exportFailed":
+      "Batch export failed: please check template data",
     "templateMgmt.invalidJson": "File is not valid JSON",
-    "templateMgmt.noTemplateData": "No template data parsed (please confirm the file is a JSON array)",
-    "templateMgmt.requiredFields": "Please fill required fields (template code, name, content)",
-    "templateMgmt.confirmDelete": "Are you sure you want to delete this template?",
+    "templateMgmt.noTemplateData":
+      "No template data parsed (please confirm the file is a JSON array)",
+    "templateMgmt.requiredFields":
+      "Please fill required fields (template code, name, content)",
+    "templateMgmt.confirmDelete":
+      "Are you sure you want to delete this template?",
     "templateMgmt.copied": "Copied to clipboard",
     // [v3.0.6.11-106 Wave 7B] Page hardcoded en i18n - DeviceFaultPage
     "deviceFault.title": "Device Fault Management",
     "deviceFault.fallbackBadge": "Demo Data (API Fallback)",
     "deviceFault.liveBadge": "Live API Data",
-    "deviceFault.subtitle": "Device fault reporting → repair handling → acceptance archive, full closed-loop management",
+    "deviceFault.subtitle":
+      "Device fault reporting → repair handling → acceptance archive, full closed-loop management",
     "deviceFault.statTotal": "Total Faults",
     "deviceFault.statTotalSub": "New This Month",
     "deviceFault.statPending": "Pending/Repairing",
@@ -44665,7 +46093,8 @@ export const translations: Translations = {
     "deviceFault.tabList": "Fault Registration",
     "deviceFault.tabProgress": "Repair Progress",
     "deviceFault.tabStats": "Statistics",
-    "deviceFault.searchPlaceholder": "Search device name, fault description, reporter...",
+    "deviceFault.searchPlaceholder":
+      "Search device name, fault description, reporter...",
     "deviceFault.filterStatusAll": "All Statuses",
     "deviceFault.filterPriorityAll": "All Priorities",
     "deviceFault.statusPending": "Pending",
@@ -44719,7 +46148,8 @@ export const translations: Translations = {
     "deviceFault.labelFaultType": "Fault Type",
     "deviceFault.labelPriority": "Priority",
     "deviceFault.labelDescription": "Fault Description *",
-    "deviceFault.descriptionPlaceholder": "Please describe the fault in detail...",
+    "deviceFault.descriptionPlaceholder":
+      "Please describe the fault in detail...",
     "deviceFault.labelSymptoms": "Fault Symptoms",
     "deviceFault.symptomsPlaceholder": "e.g. error code, abnormal noise",
     "deviceFault.labelEstimatedCost": "Estimated Cost (yuan)",
@@ -44745,7 +46175,8 @@ export const translations: Translations = {
     "deviceFault.actualCost": "Actual Cost",
     "deviceFault.confirmAccept": "Confirm Acceptance",
     // [v3.0.6.11-106 Wave 7B] Page hardcoded en i18n - TermLibraryPage
-    "termLibrary.apiBanner": "Real API connected: term library data comes from the backend /terms endpoint (MSW fallback only in dev mode)",
+    "termLibrary.apiBanner":
+      "Real API connected: term library data comes from the backend /terms endpoint (MSW fallback only in dev mode)",
     "termLibrary.loading": "Loading term library from API...",
     "termLibrary.apiUnavailable": "API unavailable, using local term library",
     "termLibrary.title": "Report Term Library",
@@ -44767,13 +46198,15 @@ export const translations: Translations = {
     "termLibrary.importedPrefix": "Successfully imported",
     "termLibrary.importedSuffix": " standard mappings!",
     "termLibrary.wsTableTitle": "WS/T 500-2016 Standard Mapping Table",
-    "termLibrary.wsTableSubtitle": "Health industry standard · Radiology exam item classification and coding",
+    "termLibrary.wsTableSubtitle":
+      "Health industry standard · Radiology exam item classification and coding",
     "termLibrary.wsTotal": "Total Standards",
     "termLibrary.wsCT": "CT",
     "termLibrary.wsMR": "MR",
     "termLibrary.wsDR": "DR/X-ray",
     "termLibrary.wsUS": "US/DSA",
-    "termLibrary.searchStandardPlaceholder": "Search standard name, code or alias...",
+    "termLibrary.searchStandardPlaceholder":
+      "Search standard name, code or alias...",
     "termLibrary.allDepartments": "All Departments",
     "termLibrary.thCode": "Code",
     "termLibrary.thStandardName": "Standard Exam Name",
@@ -44788,7 +46221,8 @@ export const translations: Translations = {
     "termLibrary.totalStandardsPrefix": "Total",
     "termLibrary.totalStandardsMid": " standards,",
     "termLibrary.totalStandardsSuffix": " mapped",
-    "termLibrary.dataSource": "Source: WS/T 500-2016 health industry standard (fictional data, for demonstration only)",
+    "termLibrary.dataSource":
+      "Source: WS/T 500-2016 health industry standard (fictional data, for demonstration only)",
     "termLibrary.libraryStats": "Term Library Statistics",
     "termLibrary.thisMonthUsage": "Used This Month",
     "termLibrary.mappedStandard": "Mapped Standards",
@@ -44798,7 +46232,8 @@ export const translations: Translations = {
     "termLibrary.rankingTop20": "Usage Ranking TOP20",
     "termLibrary.timesSuffix": "",
     "termLibrary.clickToCopy": "Click a term to copy",
-    "termLibrary.emptyQuick": "No terms yet, try another modality or add to the library",
+    "termLibrary.emptyQuick":
+      "No terms yet, try another modality or add to the library",
     "termLibrary.tabAll": "All",
     "termLibrary.tabActive": "Enabled",
     "termLibrary.tabInactive": "Disabled",
@@ -44828,7 +46263,8 @@ export const translations: Translations = {
     "termLibrary.modalAdd": "New Term",
     "termLibrary.modalEdit": "Edit Term",
     "termLibrary.labelTermContent": "Term Content",
-    "termLibrary.termContentPlaceholder": "Enter term content, e.g. no abnormal density",
+    "termLibrary.termContentPlaceholder":
+      "Enter term content, e.g. no abnormal density",
     "termLibrary.labelCategory": "Category",
     "termLibrary.labelTermType": "Term Type",
     "termLibrary.labelApplicableModality": "Applicable Exam Type",
@@ -44836,7 +46272,8 @@ export const translations: Translations = {
     "termLibrary.labelWsStandard": "WS/T 500-2016 Standard Mapping",
     "termLibrary.noStandardLink": "No standard link",
     "termLibrary.labelStandardReport": "Standard Report Template",
-    "termLibrary.standardReportPlaceholder": "Enter standard report template content",
+    "termLibrary.standardReportPlaceholder":
+      "Enter standard report template content",
     "termLibrary.labelUsageNotes": "Usage Notes / Remarks",
     "termLibrary.optional": "Optional",
     "termLibrary.cancel": "Cancel",
@@ -44853,7 +46290,8 @@ export const translations: Translations = {
     "termLibrary.frequencyPrefix": "Frequency:",
     "termLibrary.use": "Use",
     "termLibrary.suggestionFooterPrefix": "Ranked by",
-    "termLibrary.suggestionFooterSuffix": " historical uses · Context-aware (filter by body part/modality)",
+    "termLibrary.suggestionFooterSuffix":
+      " historical uses · Context-aware (filter by body part/modality)",
     "termLibrary.synonymNetwork": "Term Relationship Network",
     "termLibrary.reset": "Reset",
     "termLibrary.relSynonym": "Synonym",
@@ -44882,7 +46320,8 @@ export const translations: Translations = {
     "termLibrary.langEn": "English",
     "termLibrary.langJa": "Japanese",
     "termLibrary.accuracy": "Accuracy",
-    "termLibrary.languageFooter": "Supports Chinese/English/Japanese · Toggle bilingual comparison · Translation accuracy verified against clinical term library",
+    "termLibrary.languageFooter":
+      "Supports Chinese/English/Japanese · Toggle bilingual comparison · Translation accuracy verified against clinical term library",
     "termLibrary.categoryBrowser": "Category Tree Browser",
     "termLibrary.newCategory": "New Category",
     "termLibrary.dragHint": "Drag terms onto category nodes to classify",
@@ -44897,7 +46336,8 @@ export const translations: Translations = {
     "termLibrary.labelColor": "Color",
     "termLibrary.save": "Save",
     "termLibrary.confirmDelete": "Delete this term?",
-    "termLibrary.importFileFormatError": "Invalid file format: no valid term rows parsed, please use the CSV format from \"Import Template\" (term content, category, ...)",
+    "termLibrary.importFileFormatError":
+      'Invalid file format: no valid term rows parsed, please use the CSV format from "Import Template" (term content, category, ...)',
     "termLibrary.templateFileName": "term_library_template.csv",
     // [v3.0.6.11-106 Wave 7B] Page hardcoded en i18n - ResearchPage
     "researchPage.pleaseWait": "Please wait...",
@@ -44965,25 +46405,29 @@ export const translations: Translations = {
     "researchPage.apply": "Apply",
     "researchPage.extractedLabelMgmt": "Extracted Data Label Management",
     "researchPage.currentExtracted": "Current extracted records: 50",
-    "researchPage.labelHelp": "Add diagnosis, body part and feature labels to extracted imaging data for research and analysis.",
+    "researchPage.labelHelp":
+      "Add diagnosis, body part and feature labels to extracted imaging data for research and analysis.",
     "researchPage.annotatedPrefix": "Annotated:",
     "researchPage.annotatedSuffix": "/50",
     "researchPage.batchAnnotate": "Batch Annotate",
     "researchPage.viewAnnotatedCatalog": "View Annotated Catalog",
     "researchPage.batchAnnotateTitle": "Batch Annotate Extracted Records",
-    "researchPage.batchAnnotateHint": "The selected label will be applied to all 50 extracted records.",
+    "researchPage.batchAnnotateHint":
+      "The selected label will be applied to all 50 extracted records.",
     "researchPage.selectLabel": "Select Label",
     "researchPage.selectLabelPlaceholder": "Select a label",
     "researchPage.confirmAnnotate": "Confirm Annotation",
     "researchPage.annotatedCatalog": "Annotated Catalog",
-    "researchPage.noCatalog": "No catalog to annotate, please run \"Batch Annotate\" first",
+    "researchPage.noCatalog":
+      'No catalog to annotate, please run "Batch Annotate" first',
     "researchPage.recordsSuffix": "records",
     "researchPage.addCustomLabel": "Add Custom Label",
     "researchPage.labelName": "Label Name",
     "researchPage.labelNamePlaceholder": "Enter label name",
     "researchPage.labelColor": "Label Color",
     "researchPage.addLabel": "Add Label",
-    "researchPage.exportPermSaved": "Export permission settings saved (locally persisted · no permission endpoint)",
+    "researchPage.exportPermSaved":
+      "Export permission settings saved (locally persisted · no permission endpoint)",
     "researchPage.exportRecords": "Export Records",
     "researchPage.exportPermMgmt": "Export Permission Management",
     "researchPage.thProject": "Project",
@@ -44993,7 +46437,8 @@ export const translations: Translations = {
     "researchPage.thOperator": "Operator",
     "researchPage.download": "Download",
     "researchPage.permHint": "Permission Notice",
-    "researchPage.permWarning": "Research data export involves patient privacy; please manage and approve export permissions strictly per hospital regulations.",
+    "researchPage.permWarning":
+      "Research data export involves patient privacy; please manage and approve export permissions strictly per hospital regulations.",
     "researchPage.allowedFormats": "Allowed Export Formats",
     "researchPage.fmtCsv": "CSV Format",
     "researchPage.fmtCsvDesc": "Tabular data, easy for statistical analysis",
@@ -45018,7 +46463,8 @@ export const translations: Translations = {
     "researchPage.beforeDeid": "Before",
     "researchPage.afterDeid": "After",
     "researchPage.deidProcessing": "De-identifying...",
-    "researchPage.deidNote": "Note: burned-in pixel text and structured content are NOT cleaned - review before research release.",
+    "researchPage.deidNote":
+      "Note: burned-in pixel text and structured content are NOT cleaned - review before research release.",
     "researchPage.deidSelectFiles": "Select DICOM files",
     "researchPage.deidSelected": "Selected",
     "researchPage.deidSelectFirst": "Please select DICOM files to de-identify",
@@ -45026,8 +46472,10 @@ export const translations: Translations = {
     "researchPage.deidFailed": "De-identification failed",
     "researchPage.deidFiles": "file(s)",
     "researchPage.deidTagsCleaned": "tag(s) cleaned",
-    "researchPage.deidStandard": "Standard: DICOM PS3.15 Annex E Basic Application Level Confidentiality Profile",
-    "researchPage.deidDisclaimer": "Identity tags cleared / UIDs regenerated / dates shifted and times normalized; pixel data is byte-identical so images remain readable. Burned-in pixel text and structured-content cleaning are NOT supported - review output before research release.",
+    "researchPage.deidStandard":
+      "Standard: DICOM PS3.15 Annex E Basic Application Level Confidentiality Profile",
+    "researchPage.deidDisclaimer":
+      "Identity tags cleared / UIDs regenerated / dates shifted and times normalized; pixel data is byte-identical so images remain readable. Burned-in pixel text and structured-content cleaning are NOT supported - review output before research release.",
     "researchPage.thFileName": "File",
     "researchPage.thNewSopUid": "New SOP Instance UID",
     "researchPage.thPixelPreserved": "Pixel data",
@@ -45110,7 +46558,8 @@ export const translations: Translations = {
     "researchPage.good": "Good",
     "researchPage.qualitySuggestions": "Quality Improvement Suggestions",
     "researchPage.sugIdcard": "Auto-fill missing ID numbers",
-    "researchPage.sugIdcardDesc": "Fetch missing fields automatically via EMR interface",
+    "researchPage.sugIdcardDesc":
+      "Fetch missing fields automatically via EMR interface",
     "researchPage.sugIcd": "Build automatic ICD code mapping rules",
     "researchPage.sugIcdDesc": "Auto-generate diagnosis codes based on NLP",
     "researchPage.sugFollowup": "Configure automatic follow-up reminders",
@@ -45127,13 +46576,18 @@ export const translations: Translations = {
     "researchPage.tabIrb": "IRB Workflow",
     "researchPage.tabExportPipeline": "Export Pipeline",
     "researchPage.tabDataQuality": "Data Quality",
-    "researchPage.demoBanner": "Demo data (backend pending): this page is a research data extraction demo; the backend has no /research endpoint yet",
+    "researchPage.demoBanner":
+      "Demo data (backend pending): this page is a research data extraction demo; the backend has no /research endpoint yet",
     "researchPage.pageTitle": "Research Data Extraction",
-    "researchPage.pageSubtitle": "Subject data de-identification management · 5 projects · 50 extracted records · DICOM de-identification · cohort builder · IRB · export pipeline · data quality",
+    "researchPage.pageSubtitle":
+      "Subject data de-identification management · 5 projects · 50 extracted records · DICOM de-identification · cohort builder · IRB · export pipeline · data quality",
     // [v3.0.6.11-106 Wave 7B] Page hardcoded en i18n - StatsReportPage
-    "statsReport.apiUnavailable": "statsApi live data unavailable, fell back to demo data",
-    "statsReport.exportUnavailable": "Export endpoint unavailable, fell back to local CSV of current filtered data",
-    "statsReport.exportRequestFailed": "Export endpoint request failed, fell back to local CSV of current filtered data",
+    "statsReport.apiUnavailable":
+      "statsApi live data unavailable, fell back to demo data",
+    "statsReport.exportUnavailable":
+      "Export endpoint unavailable, fell back to local CSV of current filtered data",
+    "statsReport.exportRequestFailed":
+      "Export endpoint request failed, fell back to local CSV of current filtered data",
     "statsReport.totalDevices": "Total Devices",
     "statsReport.totalExams": "Total Exams",
     "statsReport.completedReports": "Completed Reports",
@@ -45150,7 +46604,8 @@ export const translations: Translations = {
     "statsReport.unitWan": "0k",
     "statsReport.minutes": "min",
     "statsReport.pageTitle": "Statistics Report",
-    "statsReport.pageSubtitle": "Multi-dimensional statistics · Flexible queries · Data export",
+    "statsReport.pageSubtitle":
+      "Multi-dimensional statistics · Flexible queries · Data export",
     "statsReport.exportReport": "Export Report",
     "statsReport.loadingStats": "Loading statistics…",
     "statsReport.liveData": "statsApi / biApi live data",
@@ -45213,7 +46668,8 @@ export const translations: Translations = {
     "statsReport.thDate": "Date",
     "statsReport.thWeekday": "Weekday",
     "statsReport.thRevenue": "Revenue*",
-    "statsReport.liveNote": "* Revenue estimated at 400 yuan/exam; report/critical values from statsApi trend aggregation; device utilization derived from DEVICE_MASTER downtime + biApi OEE; device exam volume from stats.topDevices last 30 days",
+    "statsReport.liveNote":
+      "* Revenue estimated at 400 yuan/exam; report/critical values from statsApi trend aggregation; device utilization derived from DEVICE_MASTER downtime + biApi OEE; device exam volume from stats.topDevices last 30 days",
     "statsReport.showingPrefix": "Showing",
     "statsReport.showingMid": " -",
     "statsReport.showingSuffix": " of",
@@ -45245,14 +46701,16 @@ export const translations: Translations = {
     "cancerScreen.applyFilter": "Apply Filter",
     "cancerScreen.assessHint": "History appears after completing an assessment",
     "cancerScreen.assessResult": "Assessment Result",
-    "cancerScreen.assessSubmitted": "Assessment submitted: {{risk}} ({{score}} pts)",
+    "cancerScreen.assessSubmitted":
+      "Assessment submitted: {{risk}} ({{score}} pts)",
     "cancerScreen.cancel": "Cancel",
     "cancerScreen.close": "Close",
     "cancerScreen.complete": "Mark Complete",
     "cancerScreen.confirmExport": "Confirm Export",
     "cancerScreen.confirmRegister": "Confirm Registration",
     "cancerScreen.confirmSubmit": "Confirm Submit",
-    "cancerScreen.confirmSubmitText": "Confirm submit? Risk: {{risk}}, Score: {{score}}",
+    "cancerScreen.confirmSubmitText":
+      "Confirm submit? Risk: {{risk}}, Score: {{score}}",
     "cancerScreen.confirmSubmitTitle": "Confirm Submit Assessment",
     "cancerScreen.createTask": "Create Task",
     "cancerScreen.creating": "Creating...",
@@ -45268,7 +46726,8 @@ export const translations: Translations = {
     "cancerScreen.csvValueHeader": "Value",
     "cancerScreen.currentAssess": "Current Assessment (LDCT criteria)",
     "cancerScreen.dataMap": "Data Map",
-    "cancerScreen.detectionHint": "Detections appear here after screening tasks complete",
+    "cancerScreen.detectionHint":
+      "Detections appear here after screening tasks complete",
     "cancerScreen.detectionTrack": "Early Cancer / Nodule Tracking",
     "cancerScreen.editTask": "Edit Task",
     "cancerScreen.errCreateService": "Create task service unavailable",
@@ -45276,14 +46735,16 @@ export const translations: Translations = {
     "cancerScreen.errMark": "Mark failed",
     "cancerScreen.errMarkService": "Mark service unavailable",
     "cancerScreen.errQueueLoad": "Failed to load screening queue",
-    "cancerScreen.errQueueRetry": "Failed to load screening queue, please retry",
+    "cancerScreen.errQueueRetry":
+      "Failed to load screening queue, please retry",
     "cancerScreen.errRegister": "Registration failed",
     "cancerScreen.errRegisterService": "Registration service unavailable",
     "cancerScreen.errSubmit": "Submit failed",
     "cancerScreen.errSubmitService": "Submit service unavailable",
     "cancerScreen.errSync": "Data sync failed, please retry",
     "cancerScreen.errTrendLoad": "Failed to load screening trend",
-    "cancerScreen.errTrendRetry": "Failed to load screening trend, please retry",
+    "cancerScreen.errTrendRetry":
+      "Failed to load screening trend, please retry",
     "cancerScreen.errUpdate": "Update failed",
     "cancerScreen.errUpdateService": "Update service unavailable",
     "cancerScreen.exportPreview": "Export Preview",
@@ -45292,9 +46753,11 @@ export const translations: Translations = {
     "cancerScreen.exportStatEarly": "Early/suspected cancer: 326",
     "cancerScreen.exportStatHighRisk": "High-risk nodules: 1,284",
     "cancerScreen.exportStatLdct": "LDCT screenings: 8,642",
-    "cancerScreen.exportSuccess": "Report exported ({{count}} queue rows + stats)",
+    "cancerScreen.exportSuccess":
+      "Report exported ({{count}} queue rows + stats)",
     "cancerScreen.filter": "Filter",
-    "cancerScreen.filterApplied": "Filter applied: {{type}} / {{region}} / {{status}}",
+    "cancerScreen.filterApplied":
+      "Filter applied: {{type}} / {{region}} / {{status}}",
     "cancerScreen.filterTitle": "Filter",
     "cancerScreen.gender": "Gender",
     "cancerScreen.historyAssess": "Assessment History ({{count}})",
@@ -45337,7 +46800,8 @@ export const translations: Translations = {
     "cancerScreen.scorePoints": "{{score}} pts",
     "cancerScreen.screenDate": "Screening Date",
     "cancerScreen.screenType": "Screening Type",
-    "cancerScreen.searchQueuePlaceholder": "Search patient name / exam ID / reg no...",
+    "cancerScreen.searchQueuePlaceholder":
+      "Search patient name / exam ID / reg no...",
     "cancerScreen.searchTaskPlaceholder": "Search task name, region or type...",
     "cancerScreen.sharePercent": "Share {{pct}}%",
     "cancerScreen.showingTasks": "{{count}} tasks",
@@ -45348,10 +46812,11 @@ export const translations: Translations = {
     "cancerScreen.statLdct": "LDCT Screenings",
     "cancerScreen.statMonthlyNew": "New This Month",
     "cancerScreen.status": "Status",
-    "cancerScreen.statusUpdated": "Updated {{name}} to \"{{status}}\"",
+    "cancerScreen.statusUpdated": 'Updated {{name}} to "{{status}}"',
     "cancerScreen.submitAssess": "Submit Assessment",
     "cancerScreen.submitting": "Submitting...",
-    "cancerScreen.subtitle": "Cancer Screening Platform · Lung LDCT / Breast / GI cancer screening · Updated 2026-05-02",
+    "cancerScreen.subtitle":
+      "Cancer Screening Platform · Lung LDCT / Breast / GI cancer screening · Updated 2026-05-02",
     "cancerScreen.syncData": "Sync Data",
     "cancerScreen.syncPartial": "Partial data sync succeeded",
     "cancerScreen.syncSuccess": "Data synced successfully · {{time}}",
@@ -45410,7 +46875,8 @@ export const translations: Translations = {
     "dataReportCenter.aiInsight": "AI Insight",
     "dataReportCenter.aiInsightOff": "AI insight is off, toggle to enable.",
     "dataReportCenter.andMoreFields": " +{{count}} more",
-    "dataReportCenter.apiSnapshot": "Reporting API: {{reports}} reports · {{trends}} monthly trends",
+    "dataReportCenter.apiSnapshot":
+      "Reporting API: {{reports}} reports · {{trends}} monthly trends",
     "dataReportCenter.cancel": "Cancel",
     "dataReportCenter.categoryPlaceholder": "e.g. Daily Statistics",
     "dataReportCenter.chartNotFound": "Chart not found",
@@ -45430,17 +46896,19 @@ export const translations: Translations = {
     "dataReportCenter.dataDetail": "Data Detail",
     "dataReportCenter.dataRefetched": "Data refetched",
     "dataReportCenter.dataSource": "Data Source",
-    "dataReportCenter.dataSourceHint": "Data source determines execution: OLAP aggregates by period; stats/bi are snapshots",
+    "dataReportCenter.dataSourceHint":
+      "Data source determines execution: OLAP aggregates by period; stats/bi are snapshots",
     "dataReportCenter.dataSourceOlapDesc": "Source: OLAP aggregation",
     "dataReportCenter.dateRange": "Date Range",
     "dataReportCenter.defConfig": "Report Definition",
     "dataReportCenter.defConfigHint": "Fields · Period · Date Range",
     "dataReportCenter.defDeleted": "Report definition deleted",
-    "dataReportCenter.defLoaded": "Definition \"{{name}}\" loaded",
-    "dataReportCenter.defSaved": "Report definition \"{{name}}\" saved",
+    "dataReportCenter.defLoaded": 'Definition "{{name}}" loaded',
+    "dataReportCenter.defSaved": 'Report definition "{{name}}" saved',
     "dataReportCenter.delete": "Delete",
-    "dataReportCenter.deleteConfirmContent": "Definition, result snapshots and run history will be removed. This cannot be undone.",
-    "dataReportCenter.deleteConfirmTitle": "Delete report \"{{name}}\"?",
+    "dataReportCenter.deleteConfirmContent":
+      "Definition, result snapshots and run history will be removed. This cannot be undone.",
+    "dataReportCenter.deleteConfirmTitle": 'Delete report "{{name}}"?',
     "dataReportCenter.deleteFailed": "Delete failed",
     "dataReportCenter.demoFallback": "Demo data (OLAP fallback)",
     "dataReportCenter.description": "Description",
@@ -45452,7 +46920,7 @@ export const translations: Translations = {
     "dataReportCenter.edit": "Edit",
     "dataReportCenter.editReportTitle": "Edit Report: {{name}}",
     "dataReportCenter.emptyPreview": "Preview appears after selecting fields",
-    "dataReportCenter.emptyResult": "No result, please click \"Run\"",
+    "dataReportCenter.emptyResult": 'No result, please click "Run"',
     "dataReportCenter.enterReportName": "Please enter report name",
     "dataReportCenter.exitFullscreen": "Exit Fullscreen",
     "dataReportCenter.export": "Export",
@@ -45475,7 +46943,8 @@ export const translations: Translations = {
     "dataReportCenter.kindOlap": "OLAP Metrics",
     "dataReportCenter.loading": "Loading...",
     "dataReportCenter.metricFields": "Metric Fields (multi-select)",
-    "dataReportCenter.metricFieldsCatalog": "Metric Fields (multi-select from catalog)",
+    "dataReportCenter.metricFieldsCatalog":
+      "Metric Fields (multi-select from catalog)",
     "dataReportCenter.metrics": "Metrics",
     "dataReportCenter.mixed": "Mixed",
     "dataReportCenter.newReport": "New Report",
@@ -45486,7 +46955,8 @@ export const translations: Translations = {
     "dataReportCenter.noResultRunFirst": "No result, please run first",
     "dataReportCenter.notSet": "Not set",
     "dataReportCenter.off": "Off",
-    "dataReportCenter.olapUnavailableDesc": "OLAP unavailable; fell back to stats/BI snapshot (single-row estimate)",
+    "dataReportCenter.olapUnavailableDesc":
+      "OLAP unavailable; fell back to stats/BI snapshot (single-row estimate)",
     "dataReportCenter.on": "On",
     "dataReportCenter.pageSubtitle": "{{count}} reports · Tertiary RIS",
     "dataReportCenter.pageTitle": "Data Report Center",
@@ -45500,24 +46970,29 @@ export const translations: Translations = {
     "dataReportCenter.preview": "Preview",
     "dataReportCenter.pushFailed": "Push failed",
     "dataReportCenter.pushNotify": "Push Notification",
-    "dataReportCenter.pushSuccess": "Report \"{{name}}\" push notification sent",
-    "dataReportCenter.pushSummary": "Metrics: {{fields}} · Period: {{period}} · Range: {{start}} ~ {{end}}",
+    "dataReportCenter.pushSuccess": 'Report "{{name}}" push notification sent',
+    "dataReportCenter.pushSummary":
+      "Metrics: {{fields}} · Period: {{period}} · Range: {{start}} ~ {{end}}",
     "dataReportCenter.pushUnavailable": "Push API unavailable",
     "dataReportCenter.pushed": "· Pushed",
     "dataReportCenter.recipientCurrent": "Current User (current)",
     "dataReportCenter.recipientDirector": "Director (D002)",
     "dataReportCenter.recipientQcLead": "QC Lead (D003)",
     "dataReportCenter.recipients": "Recipients",
-    "dataReportCenter.recipientsPlaceholder": "Enter user ID and press Enter, default current",
+    "dataReportCenter.recipientsPlaceholder":
+      "Enter user ID and press Enter, default current",
     "dataReportCenter.refresh": "Refresh",
     "dataReportCenter.refreshData": "Refresh Data",
-    "dataReportCenter.reportCreated": "Report \"{{name}}\" created",
+    "dataReportCenter.reportCreated": 'Report "{{name}}" created',
     "dataReportCenter.reportName": "Report Name",
-    "dataReportCenter.reportNamePlaceholder": "e.g. Monthly Exam Revenue Analysis",
-    "dataReportCenter.reportUpdated": "Report \"{{name}}\" updated",
+    "dataReportCenter.reportNamePlaceholder":
+      "e.g. Monthly Exam Revenue Analysis",
+    "dataReportCenter.reportUpdated": 'Report "{{name}}" updated',
     "dataReportCenter.result": "Result",
-    "dataReportCenter.resultMeta": "Period: {{period}} · Data source: {{dsType}} · Run ID: {{id}}",
-    "dataReportCenter.resultSource": "Source: {{source}} · {{count}} rows · {{time}}",
+    "dataReportCenter.resultMeta":
+      "Period: {{period}} · Data source: {{dsType}} · Run ID: {{id}}",
+    "dataReportCenter.resultSource":
+      "Source: {{source}} · {{count}} rows · {{time}}",
     "dataReportCenter.resultTitle": "Run Result",
     "dataReportCenter.resultTitleNamed": "Run Result: {{name}}",
     "dataReportCenter.rowsCount": "{{count}} rows",
@@ -45532,18 +47007,22 @@ export const translations: Translations = {
     "dataReportCenter.schedule": "Schedule",
     "dataReportCenter.scheduleDaily": "Daily 08:00",
     "dataReportCenter.scheduleFailed": "Schedule setup failed",
-    "dataReportCenter.scheduleHint": "Saving pushes a \"report generated\" notification to recipients (POST /notifications/report-generated)",
+    "dataReportCenter.scheduleHint":
+      'Saving pushes a "report generated" notification to recipients (POST /notifications/report-generated)',
     "dataReportCenter.scheduleMonthly": "Monthly 1st 09:00",
     "dataReportCenter.scheduleQuarterly": "Quarterly 1st day 09:00",
     "dataReportCenter.scheduleRule": "Schedule Rule",
-    "dataReportCenter.scheduleSaved": "Schedule for \"{{name}}\" saved, notification sent",
+    "dataReportCenter.scheduleSaved":
+      'Schedule for "{{name}}" saved, notification sent',
     "dataReportCenter.scheduleTitle": "Schedule",
     "dataReportCenter.scheduleTitleNamed": "Schedule: {{name}}",
     "dataReportCenter.scheduleWeekly": "Weekly Mon 08:00",
     "dataReportCenter.scheduleYearly": "Yearly Jan 1 09:00",
     "dataReportCenter.searchReportPlaceholder": "Search report name...",
-    "dataReportCenter.selectAtLeastOneField": "Please select at least one metric field",
-    "dataReportCenter.selectAtLeastOneRecipient": "Please select at least one recipient",
+    "dataReportCenter.selectAtLeastOneField":
+      "Please select at least one metric field",
+    "dataReportCenter.selectAtLeastOneRecipient":
+      "Please select at least one recipient",
     "dataReportCenter.selectField": "Select fields",
     "dataReportCenter.selectReportFromLeft": "Select a report from the left",
     "dataReportCenter.selectScheduleRule": "Please select a schedule rule",
@@ -45644,7 +47123,8 @@ export const translations: Translations = {
     "devicePage.maintContent": "Maintenance Content",
     "devicePage.maintCostMonthly": "Monthly Maintenance Cost",
     "devicePage.maintCreateFail": "Create failed",
-    "devicePage.maintCreated": "Maintenance plan created: {{device}}, date {{date}}",
+    "devicePage.maintCreated":
+      "Maintenance plan created: {{device}}, date {{date}}",
     "devicePage.maintDueReminder": "Maintenance Due Reminder",
     "devicePage.maintPending": "Pending Plans",
     "devicePage.maintPeriodic": "Scheduled Maintenance",
@@ -45725,7 +47205,8 @@ export const translations: Translations = {
     "devicePage.statTodayExams": "Today Exams",
     "devicePage.status": "Status",
     "devicePage.statusBoard": "Device Status Board",
-    "devicePage.subtitle": "Total {{total}} · In use {{inUse}} · Idle {{idle}} · Maintenance {{maint}}",
+    "devicePage.subtitle":
+      "Total {{total}} · In use {{inUse}} · Idle {{idle}} · Maintenance {{maint}}",
     "devicePage.successMark": "Operation succeeded",
     "devicePage.systemRecord": "System",
     "devicePage.tabAeConfig": "AE Config",
@@ -45823,8 +47304,10 @@ export const translations: Translations = {
     "dicomDimse.echoTest": "ECHO Test",
     "dicomDimse.enableDicomTls": "Enable DICOM TLS",
     "dicomDimse.enqueueFailed": "Enqueue failed",
-    "dicomDimse.fileSelectHint": "Multi-file · per-frame progress · retry on failure",
-    "dicomDimse.fileUploadAlert": "DICOM .dcm upload supported; files are parsed frame-by-frame and stored to PACS with live progress.",
+    "dicomDimse.fileSelectHint":
+      "Multi-file · per-frame progress · retry on failure",
+    "dicomDimse.fileUploadAlert":
+      "DICOM .dcm upload supported; files are parsed frame-by-frame and stored to PACS with live progress.",
     "dicomDimse.fileUploadTitle": "DICOM File Upload",
     "dicomDimse.forward": "Forward",
     "dicomDimse.labelAccession": "Accession No.",
@@ -45852,7 +47335,8 @@ export const translations: Translations = {
     "dicomDimse.offline": "Offline",
     "dicomDimse.online": "Online",
     "dicomDimse.opFailed": "Operation failed",
-    "dicomDimse.pageAlert": "DIMSE device integration: C-ECHO, C-FIND (MWL), C-STORE, C-MOVE; TLS security (G-03) and MPPS progress (G-05) added.",
+    "dicomDimse.pageAlert":
+      "DIMSE device integration: C-ECHO, C-FIND (MWL), C-STORE, C-MOVE; TLS security (G-03) and MPPS progress (G-05) added.",
     "dicomDimse.pageTitle": "DICOM DIMSE Management",
     "dicomDimse.phAccession": "Accession No.",
     "dicomDimse.phAeTitle": "e.g. CT_SCANNER_03",
@@ -45901,14 +47385,17 @@ export const translations: Translations = {
     "dicomDimse.statusPending": "Pending",
     "dicomDimse.statusSuccess": "Success",
     "dicomDimse.statusUploading": "Uploading",
-    "dicomDimse.storeEmptyHint": "Click \"Select Files\" to add .dcm files; they upload frame-by-frame in order.",
+    "dicomDimse.storeEmptyHint":
+      'Click "Select Files" to add .dcm files; they upload frame-by-frame in order.',
     "dicomDimse.storeUploadTitle": "C-STORE Multi-frame Upload",
     "dicomDimse.tabTls": "TLS Security",
     "dicomDimse.tabTransfers": "Transfer Queue",
     "dicomDimse.tlsDisabled": "Disabled",
     "dicomDimse.tlsEnabled": "Enabled",
-    "dicomDimse.tlsGlobalConfig": "Global TLS Config (memory + env seed fallback)",
-    "dicomDimse.tlsHint": "Aligned with HL7 MLLP TLS; config saved even without certificate",
+    "dicomDimse.tlsGlobalConfig":
+      "Global TLS Config (memory + env seed fallback)",
+    "dicomDimse.tlsHint":
+      "Aligned with HL7 MLLP TLS; config saved even without certificate",
     "dicomDimse.tlsNodeTitle": "Node-level TLS Switch (AE Nodes)",
     "dicomDimse.tlsPort": "TLS Port",
     "dicomDimse.tlsSaveFailed": "Failed to save TLS configuration",
@@ -45920,11 +47407,13 @@ export const translations: Translations = {
     "dicomDimse.transferEnqueued": "Transfer enqueued: {{id}} → {{ae}}",
     "dicomDimse.transferFailed": "Failed",
     "dicomDimse.transferPaused": "Paused",
-    "dicomDimse.transferQueueTitle": "DICOM C-STORE Send Queue (memory + seed fallback)",
+    "dicomDimse.transferQueueTitle":
+      "DICOM C-STORE Send Queue (memory + seed fallback)",
     "dicomDimse.transferQueued": "Queued",
     "dicomDimse.transferSending": "Sending",
     "dicomDimse.unknown": "Unknown",
-    "dicomDimse.uploadComplete": "Upload complete: {{ok}} succeeded, {{fail}} failed",
+    "dicomDimse.uploadComplete":
+      "Upload complete: {{ok}} succeeded, {{fail}} failed",
     "dicomDimse.verifyCert": "Verify Certificate Chain",
     "dicomDimse.worklistTitle": "Worklist Entries",
     "eyeSub.aid": "Aid",
@@ -46086,30 +47575,37 @@ export const translations: Translations = {
     "cvModals.enabled": "Enabled",
     "cvModals.escalateCV": "Escalate Critical Value",
     "cvModals.escalateDept": "Escalation Department",
-    "cvModals.escalateHint": "After escalation, critical values that the original recipient fails to respond to in time will be transferred to the escalation target, and the escalation time and operator will be recorded.",
+    "cvModals.escalateHint":
+      "After escalation, critical values that the original recipient fails to respond to in time will be transferred to the escalation target, and the escalation time and operator will be recorded.",
     "cvModals.escalateLevel": "Escalation Level",
     "cvModals.escalateReason": "Escalation Reason",
-    "cvModals.escalateSubtitle": "Escalate notification level by level when not responded in time",
+    "cvModals.escalateSubtitle":
+      "Escalate notification level by level when not responded in time",
     "cvModals.escalateTarget": "Escalation Target *",
     "cvModals.escalateTargetAria": "Escalation Target",
     "cvModals.escalateTo": "Escalate to:",
     "cvModals.escalationInfo": "Escalation Rule Description",
-    "cvModals.escalationInfoDesc": "When a critical value is not confirmed or handled within the specified time, the system will automatically escalate notifications level by level according to the following rules to ensure timely response. Escalation rules are divided into 4 levels by urgency.",
+    "cvModals.escalationInfoDesc":
+      "When a critical value is not confirmed or handled within the specified time, the system will automatically escalate notifications level by level according to the following rules to ensure timely response. Escalation rules are divided into 4 levels by urgency.",
     "cvModals.escalationTab": "Escalation Rules",
     "cvModals.escRuleAdded": "Escalation rule added",
     "cvModals.escRuleAddedLocal": "Escalation rule added (local)",
     "cvModals.escRuleUpdated": "Escalation rule updated",
     "cvModals.escRuleUpdatedLocal": "Escalation rule updated (local)",
-    "cvModals.fillDeviceItemIndicator": "Please fill in device, exam item and indicator name",
+    "cvModals.fillDeviceItemIndicator":
+      "Please fill in device, exam item and indicator name",
     "cvModals.fillEscalateTarget": "Please fill in escalation target",
     "cvModals.inputClinicalComment": "Enter clinical handling opinion or notes",
     "cvModals.inputClinicalPhone": "Enter clinical contact phone",
     "cvModals.inputConfirmDoctor": "Enter confirming doctor name",
     "cvModals.inputContactPhone": "Enter contact phone",
     "cvModals.inputEscalateDept": "e.g. Medical Affairs Office",
-    "cvModals.inputEscalateReason": "e.g. Not confirmed after phone notification timeout",
-    "cvModals.inputEscalateTarget": "e.g. Department Director / Medical Affairs Duty",
-    "cvModals.inputEscalateTargetPlain": "e.g. Department Director / Medical Affairs Office",
+    "cvModals.inputEscalateReason":
+      "e.g. Not confirmed after phone notification timeout",
+    "cvModals.inputEscalateTarget":
+      "e.g. Department Director / Medical Affairs Duty",
+    "cvModals.inputEscalateTargetPlain":
+      "e.g. Department Director / Medical Affairs Office",
     "cvModals.inputNotifyNotes": "Enter notification notes",
     "cvModals.inputPrefix": "Please enter",
     "cvModals.inputProcessAction": "Enter handling measures...",
@@ -46140,7 +47636,8 @@ export const translations: Translations = {
     "cvModals.pendingNotify": "Pending Notify",
     "cvModals.phoneNotify": "Phone Notification",
     "cvModals.phoneNotifyClinical": "Phone Notify Clinician",
-    "cvModals.phoneNotifyHint": "After phone notification, the system will automatically record the notification time and operator, and proceed to the next step \"Clinical Confirmation\".",
+    "cvModals.phoneNotifyHint":
+      'After phone notification, the system will automatically record the notification time and operator, and proceed to the next step "Clinical Confirmation".',
     "cvModals.phoneNotifyRecord": "Phone Notification Record",
     "cvModals.processAction": "Handling Measures",
     "cvModals.processDept": "Handling Department",
@@ -46152,7 +47649,8 @@ export const translations: Translations = {
     "cvModals.ruleAddedLocal": "Rule added (local)",
     "cvModals.ruleCategories": "Rule setting categories",
     "cvModals.ruleSettings": "Critical Value Rule Settings",
-    "cvModals.ruleSettingsSubtitle": "Configure critical value ranges and notification rules for various exam results",
+    "cvModals.ruleSettingsSubtitle":
+      "Configure critical value ranges and notification rules for various exam results",
     "cvModals.ruleUpdated": "Rule updated",
     "cvModals.ruleUpdatedLocal": "Rule updated (local)",
     "cvModals.save": "Save",
@@ -46177,7 +47675,8 @@ export const translations: Translations = {
     "cvModals.timeoutTriggerMinutes": "Timeout trigger (minutes)",
     "cvModals.triggerCondition": "Trigger Condition:",
     "cvModals.triggerConditionLabel": "Trigger Condition",
-    "cvModals.triggerPlaceholder": "e.g. Not confirmed after phone notification timeout",
+    "cvModals.triggerPlaceholder":
+      "e.g. Not confirmed after phone notification timeout",
     "cvModals.urgentReminder": "Urgent Reminder",
     // [v3.0.6.11-106 Wave 8B] Patient 360 (Patient360Page)
     "patient360.action": "Action",
@@ -46191,7 +47690,8 @@ export const translations: Translations = {
     "patient360.contrastExamMid": " / total exams",
     "patient360.contrastExamPrefix": "Contrast exams",
     "patient360.contrastExamSuffix": " exams",
-    "patient360.contrastHint": "CT/MR contrast exams require prior assessment of renal function and allergy history; contrast-related follow-ups are managed in the follow-up plan.",
+    "patient360.contrastHint":
+      "CT/MR contrast exams require prior assessment of renal function and allergy history; contrast-related follow-ups are managed in the follow-up plan.",
     "patient360.contrastRatio": "Contrast Ratio",
     "patient360.contrastUsage": "Contrast Usage",
     "patient360.critical": "Critical",
@@ -46200,10 +47700,13 @@ export const translations: Translations = {
     "patient360.criticalValue": "Critical Value",
     "patient360.days": "d",
     "patient360.deepDemo": "Derived Demo",
-    "patient360.deepLoadFailed": "Failed to load deep data; showing derived demo data",
-    "patient360.deepReal": "Real (followupApi / lesionTrackingApi / financeApi / timeline)",
+    "patient360.deepLoadFailed":
+      "Failed to load deep data; showing derived demo data",
+    "patient360.deepReal":
+      "Real (followupApi / lesionTrackingApi / financeApi / timeline)",
     "patient360.deepSource": "Deep Data Source:",
-    "patient360.deepUnavailable": "Deep APIs (follow-up/lesion/finance/timeline) unavailable; showing derived demo data",
+    "patient360.deepUnavailable":
+      "Deep APIs (follow-up/lesion/finance/timeline) unavailable; showing derived demo data",
     "patient360.derived": "Derived",
     "patient360.device": "Device",
     "patient360.diagnosis": "Diagnosis",
@@ -46240,10 +47743,12 @@ export const translations: Translations = {
     "patient360.interval": "Interval",
     "patient360.lastExam": "Last Exam:",
     "patient360.latest": "Latest",
-    "patient360.lesionCount": "{{total}} total · {{newCount}} new · {{progressed}} progressed · {{stable}} stable",
+    "patient360.lesionCount":
+      "{{total}} total · {{newCount}} new · {{progressed}} progressed · {{stable}} stable",
     "patient360.lesionSummary": "Lesion Tracking Summary",
     "patient360.linkedFollowup": "Linked Follow-up:",
-    "patient360.loadFailed": "Failed to load patient data, please try again later",
+    "patient360.loadFailed":
+      "Failed to load patient data, please try again later",
     "patient360.loading": "Loading…",
     "patient360.loadingTip": "Loading patient 360 data...",
     "patient360.nextDate": "Next Date",
@@ -46323,7 +47828,8 @@ export const translations: Translations = {
     "homePage.examCases": "{{count}} exam(s)",
     "homePage.excellentRate": "Excellent Rate",
     "homePage.excellentRateBadge": "Excellent",
-    "homePage.footer": "Handong Provincial People's Hospital · Radiology Information System",
+    "homePage.footer":
+      "Handong Provincial People's Hospital · Radiology Information System",
     "homePage.greeting": "Hello, {{name}}{{title}}",
     "homePage.idleCount": "Idle",
     "homePage.imageQuality": "Image Quality",
@@ -46459,7 +47965,8 @@ export const translations: Translations = {
     "clinicalData.catStandardization": "Data Standardization",
     "clinicalData.catTimeliness": "Data Timeliness",
     "clinicalData.cdrSearch": "CDR Search",
-    "clinicalData.cdrSearchDesc": "Cross-system clinical data repository search",
+    "clinicalData.cdrSearchDesc":
+      "Cross-system clinical data repository search",
     "clinicalData.clear": "Clear",
     "clinicalData.clinicalTimeline": "Clinical Timeline",
     "clinicalData.criticalCases": "Critical Cases",
@@ -46551,7 +48058,8 @@ export const translations: Translations = {
     "clinicalData.statusDegraded": "Degraded",
     "clinicalData.statusOffline": "Offline",
     "clinicalData.statusOnline": "Online",
-    "clinicalData.subtitle": "Patient 360 · Cross-system Sync · Data Quality Monitoring",
+    "clinicalData.subtitle":
+      "Patient 360 · Cross-system Sync · Data Quality Monitoring",
     "clinicalData.synced": "Synced",
     "clinicalData.syncFailed": "Sync Failed",
     "clinicalData.syncing": "Syncing",
@@ -46631,7 +48139,8 @@ export const translations: Translations = {
     "consultation.currentExpert": "Current Expert",
     "consultation.currentStatus": "Current Status",
     "consultation.delete": "Delete",
-    "consultation.deleteArchiveMsg": "Delete archive {{id}}? This action cannot be undone.",
+    "consultation.deleteArchiveMsg":
+      "Delete archive {{id}}? This action cannot be undone.",
     "consultation.demoData": "Demo Data",
     "consultation.detailedRating": "Detailed Rating",
     "consultation.detailRatingTitle": "Consultation Quality Detailed Rating",
@@ -46689,9 +48198,11 @@ export const translations: Translations = {
     "consultation.purposeDesc": "Consultation Purpose",
     "consultation.qualityScore": "Quality Score",
     "consultation.ratingSubmitted": "Rating submitted",
-    "consultation.realApiBanner": "Connected to live API: full consultation flow synced in real time",
+    "consultation.realApiBanner":
+      "Connected to live API: full consultation flow synced in real time",
     "consultation.recordingControl": "Recording Control",
-    "consultation.recordingDemoBanner": "Recording consultations are demo data; no backend archive API yet",
+    "consultation.recordingDemoBanner":
+      "Recording consultations are demo data; no backend archive API yet",
     "consultation.recordingDuration": "Recording Duration",
     "consultation.recordingPanel": "Consultation Recording Panel",
     "consultation.referenceInfo": "Reference Info",
@@ -46718,7 +48229,8 @@ export const translations: Translations = {
     "consultation.searchPlaceholder": "Search patient name / consultation no.",
     "consultation.selectedFiles": "{{count}} file(s) selected",
     "consultation.selectFilesFirst": "Please select files first",
-    "consultation.selectHint": "Select a consultation on the left to view details",
+    "consultation.selectHint":
+      "Select a consultation on the left to view details",
     "consultation.sendInvite": "Send Invite",
     "consultation.snapshot": "Snapshot",
     "consultation.starting": "Starting...",
@@ -46737,7 +48249,8 @@ export const translations: Translations = {
     "consultation.submitFailed": "Submit failed",
     "consultation.submitting": "Submitting...",
     "consultation.submitUnavailable": "Submit API unavailable",
-    "consultation.subtitle": "Remote Consultation · Multi-disciplinary Collaboration · Recording Archive",
+    "consultation.subtitle":
+      "Remote Consultation · Multi-disciplinary Collaboration · Recording Archive",
     "consultation.supportedFormats": "Supports DCM / PDF / JPG / PNG / ZIP",
     "consultation.systemAuto": "System Auto",
     "consultation.tabList": "Consultation List",
@@ -46825,9 +48338,11 @@ export const translations: Translations = {
     "materialsPage.currentLocation": "Current Location",
     "materialsPage.targetLocation": "Target Location",
     "materialsPage.targetLocationPlaceholder": "e.g. B-03",
-    "materialsPage.adjustQty": "Adjust Quantity (positive surplus / negative loss)",
+    "materialsPage.adjustQty":
+      "Adjust Quantity (positive surplus / negative loss)",
     "materialsPage.adjustReason": "Adjust Reason",
-    "materialsPage.adjustReasonPlaceholder": "Stocktake / Write-off / Calibration",
+    "materialsPage.adjustReasonPlaceholder":
+      "Stocktake / Write-off / Calibration",
     "materialsPage.outReason": "Stock-out Reason",
     "materialsPage.outReasonPlaceholder": "Implantation / Write-off / Transfer",
     "materialsPage.patientIdOptional": "Patient ID (optional)",
@@ -46853,7 +48368,8 @@ export const translations: Translations = {
     "materialsPage.msgOutStockSuccess": "Stocked out successfully",
     "materialsPage.msgTargetLocationRequired": "Please enter target location",
     "materialsPage.msgTransferSuccess": "Transferred successfully",
-    "materialsPage.msgAdjustQtyRequired": "Please enter adjust quantity (positive surplus/negative loss)",
+    "materialsPage.msgAdjustQtyRequired":
+      "Please enter adjust quantity (positive surplus/negative loss)",
     "materialsPage.msgAdjustSuccess": "Stock adjusted successfully",
     "materialsPage.msgOkDesignFail": "OK lens design failed",
     "materialsPage.msgBrandBcRequired": "Please enter brand and base curve",
@@ -46878,7 +48394,8 @@ export const translations: Translations = {
     "regionalReport.applyReason": "Consultation Request Reason",
     "regionalReport.consultationOpinion": "Consultation Opinion",
     "regionalReport.fillConsultationOpinion": "Fill Consultation Opinion",
-    "regionalReport.consultationOpinionPlaceholder": "Please enter consultation opinion...",
+    "regionalReport.consultationOpinionPlaceholder":
+      "Please enter consultation opinion...",
     "regionalReport.submitOpinion": "Submit Opinion",
     "regionalReport.selectReport": "Please select a report to view details",
     "regionalReport.reportDetail": "Report Detail",
@@ -46889,20 +48406,23 @@ export const translations: Translations = {
     "regionalReport.reportTime": "Report Time",
     "regionalReport.reviewDoctor": "Reviewing Doctor",
     "regionalReport.qualityScore": "Quality Score",
-    "regionalReport.qualityDimensions": "Format / Completeness / Diagnostic Accuracy",
+    "regionalReport.qualityDimensions":
+      "Format / Completeness / Diagnostic Accuracy",
     "regionalReport.issuesFound": "Issues Found",
     "regionalReport.noQualityScore": "No quality score yet",
     "regionalReport.reviewOpinion": "Review Opinion",
     "regionalReport.reviewActions": "Review Actions",
     "regionalReport.pass": "Pass",
     "regionalReport.reject": "Reject",
-    "regionalReport.selectRemoteDiagnosis": "Please select a remote diagnosis record",
+    "regionalReport.selectRemoteDiagnosis":
+      "Please select a remote diagnosis record",
     "regionalReport.remoteWriting": "Remote Writing",
     "regionalReport.typingReport": "is typing the report...",
     "regionalReport.dicomViewerSim": "DICOM Image Viewer (Simulated)",
     "regionalReport.zoomIn": "Zoom In",
     "regionalReport.zoom": "Zoom",
-    "regionalReport.windowPreset": "Increase window width / fine-tune window level",
+    "regionalReport.windowPreset":
+      "Increase window width / fine-tune window level",
     "regionalReport.windowWidth": "W",
     "regionalReport.measure": "Measure",
     "regionalReport.measurePoints": "Point Measurement",
@@ -46966,7 +48486,8 @@ export const translations: Translations = {
     "regionalReport.selectInstitution": "Please select institution",
     "regionalReport.cancel": "Cancel",
     "regionalReport.submit": "Submit",
-    "regionalReport.consultationOpinionDetailPlaceholder": "Please fill in the consultation opinion in detail...",
+    "regionalReport.consultationOpinionDetailPlaceholder":
+      "Please fill in the consultation opinion in detail...",
     "regionalReport.reviewReport": "Review Report",
     "regionalReport.patient": "Patient",
     "regionalReport.exam": "Exam",
@@ -46976,7 +48497,8 @@ export const translations: Translations = {
     "regionalReport.confirmPassBtn": "Confirm Pass",
     "regionalReport.rejectReport": "Reject Report",
     "regionalReport.rejectReason": "Rejection Reason",
-    "regionalReport.rejectReasonPlaceholder": "Please explain the rejection reason in detail so the lower-level hospital can correct it...",
+    "regionalReport.rejectReasonPlaceholder":
+      "Please explain the rejection reason in detail so the lower-level hospital can correct it...",
     "regionalReport.confirmReject": "Confirm Reject",
     "regionalReport.qualityFilter": "Quality Filter",
     "regionalReport.qualityRange": "Quality Score Range",
@@ -47043,10 +48565,14 @@ export const translations: Translations = {
     "dicomSrPage.imageMeasurementGroup": "Image Measurement Group",
     "dicomSrPage.imageRegion": "Image Region",
     "dicomSrPage.linkedFound": "Linked SR document found",
-    "dicomSrPage.linkHint": "Note: SR and reports are linked by reportId; after the report is published/finalized, the SR can push ORU^R01 to clinical systems, closing the loop for structured imaging results.",
-    "dicomSrPage.linkNotFound": "No SR document linked to this report was found. You can create one via \"Generate SR\" above.",
-    "dicomSrPage.linkQueryFailed": "Link query failed: backend unavailable or network error.",
-    "dicomSrPage.linkSearchPlaceholder": "Enter report ID to query linked SR document…",
+    "dicomSrPage.linkHint":
+      "Note: SR and reports are linked by reportId; after the report is published/finalized, the SR can push ORU^R01 to clinical systems, closing the loop for structured imaging results.",
+    "dicomSrPage.linkNotFound":
+      'No SR document linked to this report was found. You can create one via "Generate SR" above.',
+    "dicomSrPage.linkQueryFailed":
+      "Link query failed: backend unavailable or network error.",
+    "dicomSrPage.linkSearchPlaceholder":
+      "Enter report ID to query linked SR document…",
     "dicomSrPage.measurementContext": "Measurement Context",
     "dicomSrPage.measurementDirection": "Measurement Direction",
     "dicomSrPage.measurementGroupLabel": "Measurement Group",
@@ -47058,10 +48584,13 @@ export const translations: Translations = {
     "dicomSrPage.optional": "optional",
     "dicomSrPage.patient": "Patient",
     "dicomSrPage.patientCharacteristics": "Patient Characteristics",
-    "dicomSrPage.pdfBase64Placeholder": "Paste the PDF base64 content — if left blank, a text-stream fallback is generated from report content",
+    "dicomSrPage.pdfBase64Placeholder":
+      "Paste the PDF base64 content — if left blank, a text-stream fallback is generated from report content",
     "dicomSrPage.pdfEncapsulation": "PDF Encapsulation",
-    "dicomSrPage.pdfTextStream": "PDF content is a text stream (report fallback), no valid PDF binary",
-    "dicomSrPage.pdfUrlPlaceholder": "https://.../report.pdf — encapsulated by reference if provided",
+    "dicomSrPage.pdfTextStream":
+      "PDF content is a text stream (report fallback), no valid PDF binary",
+    "dicomSrPage.pdfUrlPlaceholder":
+      "https://.../report.pdf — encapsulated by reference if provided",
     "dicomSrPage.pushed": "Pushed",
     "dicomSrPage.pushedOru": "Pushed (ORU)",
     "dicomSrPage.queryLink": "Query Link",
@@ -47070,7 +48599,8 @@ export const translations: Translations = {
     "dicomSrPage.report": "Report",
     "dicomSrPage.reportId": "Report ID",
     "dicomSrPage.reportOrStudyId": "Report ID / Study ID",
-    "dicomSrPage.reportOrStudyIdPlaceholder": "Enter report ID or study ID (studyId)...",
+    "dicomSrPage.reportOrStudyIdPlaceholder":
+      "Enter report ID or study ID (studyId)...",
     "dicomSrPage.scheme": "Scheme",
     "dicomSrPage.sessionHistory": "Session Generation History",
     "dicomSrPage.size": "Size",
@@ -47085,7 +48615,8 @@ export const translations: Translations = {
     "dicomSrPage.srDocuments": "SR Documents",
     "dicomSrPage.srReportLink": "SR & Report Linking",
     "dicomSrPage.srTemplateTree": "SR Template Structure Tree Preview",
-    "dicomSrPage.statsError": "SR document list API unavailable (GET /dicom-sr), showing demo statistics",
+    "dicomSrPage.statsError":
+      "SR document list API unavailable (GET /dicom-sr), showing demo statistics",
     "dicomSrPage.statsSource": "Stats Data Source",
     "dicomSrPage.status": "Status",
     "dicomSrPage.syncing": "Syncing…",
@@ -47100,7 +48631,8 @@ export const translations: Translations = {
     "dicomSrPage.tid2000Tree": "CAD Document (CAD Document)",
     "dicomSrPage.tid2001Tree": "CAD Image Library (Image Library)",
     "dicomSrPage.tid2002Tree": "CAD Results (CAD Results)",
-    "dicomSrPage.tidExplanation": "TID = Template Information Definition (DICOM PS3.16). SR documents organize a Content Item tree according to TID templates, including Concept Names and value/code/reference relationships, used to structurally convey measurement values and CAD findings.",
+    "dicomSrPage.tidExplanation":
+      "TID = Template Information Definition (DICOM PS3.16). SR documents organize a Content Item tree according to TID templates, including Concept Names and value/code/reference relationships, used to structurally convey measurement values and CAD findings.",
     "dicomSrPage.tidStandardStructure": "TID 1500 / 2000 Standard Structure",
     "dicomSrPage.title": "DICOM SR Management Platform",
     "dicomSrPage.totalPrefix": "Total",
@@ -47111,7 +48643,8 @@ export const translations: Translations = {
     "qcPage.individualAvgScore": "Individual Average Score",
     // [v3.0.6.11-106 Wave 8C] ReportReviewPage
     "reportReviewPage.stageInitial": "Initial Review",
-    "reportReviewPage.stageInitialDesc": "Senior attending / deputy chief review",
+    "reportReviewPage.stageInitialDesc":
+      "Senior attending / deputy chief review",
     "reportReviewPage.stageFinal": "Final Review",
     "reportReviewPage.stageFinalDesc": "Deputy chief or above final review",
     "reportReviewPage.stageSign": "Sign-off",
@@ -47122,14 +48655,18 @@ export const translations: Translations = {
     "reportReviewPage.statusRejected": "Rejected",
     "reportReviewPage.statusOverdue": "Overdue",
     "reportReviewPage.msgLoadFailed": "Failed to load review tasks",
-    "reportReviewPage.msgRejectReasonRequired": "Rejection requires review comments",
-    "reportReviewPage.msgRejectedBack": "Rejected and returned to the reporting doctor",
+    "reportReviewPage.msgRejectReasonRequired":
+      "Rejection requires review comments",
+    "reportReviewPage.msgRejectedBack":
+      "Rejected and returned to the reporting doctor",
     "reportReviewPage.msgAuditFailed": "Review operation failed, please retry",
     "reportReviewPage.loading": "Loading...",
     "reportReviewPage.emptyTitle": "No review tasks",
-    "reportReviewPage.emptyHint": "There are no reports pending review; submit a report from the writing page to view it here",
+    "reportReviewPage.emptyHint":
+      "There are no reports pending review; submit a report from the writing page to view it here",
     "reportReviewPage.title": "Report Review Workbench",
-    "reportReviewPage.subtitle": "Dual review (initial + final) + review turnaround KPI + rejection loop · Integrated with real report workflow",
+    "reportReviewPage.subtitle":
+      "Dual review (initial + final) + review turnaround KPI + rejection loop · Integrated with real report workflow",
     "reportReviewPage.currentReviewer": "Current reviewer",
     "reportReviewPage.kpiToday": "Today's Reviews",
     "reportReviewPage.kpiPendingInitial": "Pending Initial",
@@ -47148,9 +48685,12 @@ export const translations: Translations = {
     "reportReviewPage.reportLabel": "Report:",
     "reportReviewPage.quality": "Quality",
     "reportReviewPage.noMatchingTask": "No matching tasks",
-    "reportReviewPage.selectTaskHint": "Please select a review task from the left",
-    "reportReviewPage.impressionMalignant": "Malignancy possible; further examination recommended.",
-    "reportReviewPage.impressionBenign": "Benign possible; follow-up recommended.",
+    "reportReviewPage.selectTaskHint":
+      "Please select a review task from the left",
+    "reportReviewPage.impressionMalignant":
+      "Malignancy possible; further examination recommended.",
+    "reportReviewPage.impressionBenign":
+      "Benign possible; follow-up recommended.",
     "reportReviewPage.diffRemoved": "Removed (before)",
     "reportReviewPage.diffAdded": "Added (after)",
     "reportReviewPage.reportIdLabel": "Report ID",
@@ -47182,15 +48722,21 @@ export const translations: Translations = {
     "reportReviewPage.scoreUnit": "pts",
     "reportReviewPage.quickScore": "Quick Score",
     "reportReviewPage.auditOpinion": "Review Comments",
-    "reportReviewPage.auditOpinionPlaceholder": "Enter review comments (required for rejection, recommended for approval)",
+    "reportReviewPage.auditOpinionPlaceholder":
+      "Enter review comments (required for rejection, recommended for approval)",
     "reportReviewPage.pass": "Pass",
     "reportReviewPage.rejectBtn": "Reject",
     "reportReviewPage.submitting": "Submitting...",
-    "reportReviewPage.quickReason1": "Findings inconsistent with impression; revise after reviewing images",
-    "reportReviewPage.quickReason2": "Impression lacks key findings; add lesion characteristics",
-    "reportReviewPage.quickReason3": "Exam site does not match the requisition; verify and rewrite",
-    "reportReviewPage.quickReason4": "Non-standard terminology; revise per ICD standard terms",
-    "reportReviewPage.quickReason5": "Missing recommendations; add follow-up/re-examination advice",
+    "reportReviewPage.quickReason1":
+      "Findings inconsistent with impression; revise after reviewing images",
+    "reportReviewPage.quickReason2":
+      "Impression lacks key findings; add lesion characteristics",
+    "reportReviewPage.quickReason3":
+      "Exam site does not match the requisition; verify and rewrite",
+    "reportReviewPage.quickReason4":
+      "Non-standard terminology; revise per ICD standard terms",
+    "reportReviewPage.quickReason5":
+      "Missing recommendations; add follow-up/re-examination advice",
     // [v3.0.6.11-106 Wave 9C] BusinessContinuityPage i18n
     "businessContinuity.typeStudy": "Exam",
     "businessContinuity.typeReport": "Report",
@@ -47217,9 +48763,11 @@ export const translations: Translations = {
     "businessContinuity.devIdle": "Idle",
     "businessContinuity.devMaintenance": "Maintenance",
     "businessContinuity.devFault": "Fault",
-    "businessContinuity.deviceLoadFailed": "Failed to load imaging device status",
+    "businessContinuity.deviceLoadFailed":
+      "Failed to load imaging device status",
     "businessContinuity.title": "Business Continuity / Disaster Recovery",
-    "businessContinuity.subtitle": "Offline sync engine | Conflict resolution | RPO ≤ 60s / RTO ≤ 10min | Multi-site active-active",
+    "businessContinuity.subtitle":
+      "Offline sync engine | Conflict resolution | RPO ≤ 60s / RTO ≤ 10min | Multi-site active-active",
     "businessContinuity.syncQueue": "Sync Queue",
     "businessContinuity.avgLag": "Avg Latency",
     "businessContinuity.deviceLoadFailedAlert": "Device status load failed",
@@ -47276,7 +48824,8 @@ export const translations: Translations = {
     "defectMgmt.primarySource": "DEFECT_LIBRARY primary source",
     "defectMgmt.reportSource": "qcextApi /qc-ext/defect report",
     "defectMgmt.reportDefect": "Report Defect",
-    "defectMgmt.subtitle": "Report quality defect classification · Rectification tracking · Trend analysis · Closed-loop management",
+    "defectMgmt.subtitle":
+      "Report quality defect classification · Rectification tracking · Trend analysis · Closed-loop management",
     "defectMgmt.statsTotal": "Total Defects",
     "defectMgmt.statsCategories": "Categories",
     "defectMgmt.statsHigh": "High Risk",
@@ -47326,7 +48875,8 @@ export const translations: Translations = {
     // [v3.0.6.11-106 Wave 9C] ReportDeliveryPage i18n
     "reportDelivery.patient": "Patient",
     "reportDelivery.channelWechat": "WeChat",
-    "reportDelivery.channelWechatDesc": "WeChat official account / mini program push",
+    "reportDelivery.channelWechatDesc":
+      "WeChat official account / mini program push",
     "reportDelivery.channelSms": "SMS",
     "reportDelivery.channelSmsDesc": "SMS push (with link)",
     "reportDelivery.channelEmail": "Email",
@@ -47351,14 +48901,17 @@ export const translations: Translations = {
     "reportDelivery.noReason": "No reason provided",
     "reportDelivery.selectReportFirst": "Please select reports to push first",
     "reportDelivery.fromReportList": "From report list:",
-    "reportDelivery.fromReportHint": "You can select a push channel below to distribute / manage this report",
+    "reportDelivery.fromReportHint":
+      "You can select a push channel below to distribute / manage this report",
     "reportDelivery.backToReportList": "Back to report list",
     "reportDelivery.title": "Report Delivery Center",
     "reportDelivery.loading": "Loading...",
     "reportDelivery.apiDerived": "Derived from API data",
     "reportDelivery.items": "items",
-    "reportDelivery.staticData": "Static demo data (no delivery endpoint; fallback after derive failure)",
-    "reportDelivery.subtitle": "v3.0.5.1 enhancements: multi-channel delivery / delivery receipt / patient portal · 50 upgrade points",
+    "reportDelivery.staticData":
+      "Static demo data (no delivery endpoint; fallback after derive failure)",
+    "reportDelivery.subtitle":
+      "v3.0.5.1 enhancements: multi-channel delivery / delivery receipt / patient portal · 50 upgrade points",
     "reportDelivery.recordsCount": "Delivery records",
     "reportDelivery.tabV3": "R3.DIST Enhanced",
     "reportDelivery.tabClassic": "Classic View",
@@ -47366,7 +48919,8 @@ export const translations: Translations = {
     "reportDelivery.multiChannel": "Multi-channel Delivery",
     "reportDelivery.receipt": "Delivery Receipt",
     "reportDelivery.portal": "Patient Portal",
-    "reportDelivery.classicSubtitle": "8 channels (WeChat/SMS/Email/In-App/DICOM/Cloud/Film/Paper) · Batch push · Retry on failure · Recall/Resend (state stored locally)",
+    "reportDelivery.classicSubtitle":
+      "8 channels (WeChat/SMS/Email/In-App/DICOM/Cloud/Film/Paper) · Batch push · Retry on failure · Recall/Resend (state stored locally)",
     "reportDelivery.exportCenter": "Export Center",
     "reportDelivery.kpiMonth": "Pushes This Month",
     "reportDelivery.kpiSuccessRate": "Success Rate",
@@ -47387,16 +48941,19 @@ export const translations: Translations = {
     "reportDelivery.resend": "Resend",
     "reportDelivery.recall": "Recall",
     "reportDelivery.confirmRecallTitle": "Recall this delivery record?",
-    "reportDelivery.confirmRecallDesc": "After recall the status is marked \"Recalled\" (local record); you can resend anytime",
+    "reportDelivery.confirmRecallDesc":
+      'After recall the status is marked "Recalled" (local record); you can resend anytime',
     "reportDelivery.cancel": "Cancel",
     "reportDelivery.detail": "Details",
     "reportDelivery.noMatch": "No matching records",
     "reportDelivery.recallTitle": "Recall Delivery Record",
     "reportDelivery.confirmRecall": "Confirm Recall",
     "reportDelivery.recallStatePrefix": "The status will be marked as",
-    "reportDelivery.recallStateMid": ". There is no recall endpoint on the backend; this state is a",
+    "reportDelivery.recallStateMid":
+      ". There is no recall endpoint on the backend; this state is a",
     "reportDelivery.localRecord": "local record",
-    "reportDelivery.recallReasonPlaceholder": "Recall reason (e.g. report error, needs re-issue)",
+    "reportDelivery.recallReasonPlaceholder":
+      "Recall reason (e.g. report error, needs re-issue)",
     "reportDelivery.detailTitle": "Delivery Record Details",
     "reportDelivery.close": "Close",
     "reportDelivery.recallRecord": "Recall record",
@@ -47426,6 +48983,7 @@ export const translations: Translations = {
     "pixPage.pdqFallback": "PDQ service unavailable; using demo data",
     "pixPage.mappingAdded": "Mapping added",
     "pixPage.mappingDeleted": "Mapping deleted",
+    "pixPage.mappingDeleteFailed": "Failed to delete PIX mapping",
     "pixPage.assigningAuthority": "Assigning Authority",
     "pixPage.patientId": "Patient ID",
     "pixPage.identifiers": "Identifiers",
@@ -47481,7 +49039,8 @@ export const translations: Translations = {
     "srReport.dicomDownloadFailed": "DICOM download failed",
     "srReport.downloadedDicom": "Downloaded DICOM SR",
     "srReport.parseFailed": "Failed to parse SR measurements",
-    "srReport.parseNetworkFailed": "Failed to parse SR measurements: network error",
+    "srReport.parseNetworkFailed":
+      "Failed to parse SR measurements: network error",
     "srReport.sentToEditor": "SR measurement summary sent to report editor",
     "srReport.generated": "SR document generated",
     "srReport.colId": "ID",
@@ -47529,7 +49088,8 @@ export const translations: Translations = {
     "srReport.insertAndJump": "Insert and go to editor",
     "srReport.backfillPrefix": "Parsed",
     "srReport.backfillItems": "measurements",
-    "srReport.backfillSuffix": "; after confirming, they are inserted into the report editor via the insertHtml channel and the editor opens.",
+    "srReport.backfillSuffix":
+      "; after confirming, they are inserted into the report editor via the insertHtml channel and the editor opens.",
     "srReport.measureName": "Measurement",
     "srReport.measureValue": "Value",
     "srReport.measureUnit": "Unit",
@@ -47548,11 +49108,14 @@ export const translations: Translations = {
     "srReport.srTemplate": "SR Template",
     "srReport.tid1500": "TID 1500 (Measurement Report)",
     "srReport.tid2000": "TID 2000 (CAD SR)",
-    "srReport.findingsOverride": "Findings Override (optional; leave blank to use report content)",
+    "srReport.findingsOverride":
+      "Findings Override (optional; leave blank to use report content)",
     "srReport.findingsOverridePlaceholder": "Override findings content",
-    "srReport.impressionOverride": "Impression Override (optional; leave blank to use report content)",
+    "srReport.impressionOverride":
+      "Impression Override (optional; leave blank to use report content)",
     "srReport.impressionOverridePlaceholder": "Override impression content",
-    "srReport.generateHint": "After generation the SR is written to the library; you can finalize and push ORU^R01",
+    "srReport.generateHint":
+      "After generation the SR is written to the library; you can finalize and push ORU^R01",
     // [v3.0.6.11-106 Wave 9C] DentalBillingPage i18n
     "dentalBilling.defaultItem": "Dental Service",
     "dentalBilling.chargeSuccess": "Charge successful",
@@ -47561,7 +49124,8 @@ export const translations: Translations = {
     "dentalBilling.wechatOrderFailed": "WeChat order failed",
     "dentalBilling.invoiceCreated": "Invoice created",
     "dentalBilling.invoiceCreateFailed": "Invoice creation failed",
-    "dentalBilling.popupBlocked": "The browser blocked the print window; please allow pop-ups",
+    "dentalBilling.popupBlocked":
+      "The browser blocked the print window; please allow pop-ups",
     "dentalBilling.title": "Billing / Pricing / Insurance",
     "dentalBilling.benchmark": "Dental practice benchmark",
     "dentalBilling.offlineFallback": "Offline fallback (backend unavailable)",
@@ -47618,7 +49182,8 @@ export const translations: Translations = {
     "dentalBilling.feeDetail": "Fee Details",
     "dentalBilling.confirmCharge": "Confirm Charge",
     "dentalBilling.cashAmount": "Cash Amount",
-    "dentalBilling.createInvoiceTitle": "Create Invoice (dentalApi.createInvoice)",
+    "dentalBilling.createInvoiceTitle":
+      "Create Invoice (dentalApi.createInvoice)",
     "dentalBilling.patient": "Patient",
     "dentalBilling.selectPatientRequired": "Please select a patient",
     "dentalBilling.itemName": "Item Name",
@@ -47642,7 +49207,8 @@ export const translations: Translations = {
     "deptFinance.invoice": "Invoice",
     "deptFinance.paySuccess": "paid successfully",
     "deptFinance.payFailed": "Payment failed",
-    "deptFinance.noDataToExport": "No financial data to export; load invoices/financial records first",
+    "deptFinance.noDataToExport":
+      "No financial data to export; load invoices/financial records first",
     "deptFinance.exported": "Exported",
     "deptFinance.records": "records",
     "deptFinance.flowRecords": "records",
@@ -47773,7 +49339,8 @@ export const translations: Translations = {
     "kpiWall.noOccupancy": "No occupancy data",
     "kpiWall.headerOee": "Overall Equipment Effectiveness (OEE)",
     "kpiWall.last7DaysAvg": "7-day average",
-    "kpiWall.oeeMeanCaption": "Mean device OEE (availability × performance × quality)",
+    "kpiWall.oeeMeanCaption":
+      "Mean device OEE (availability × performance × quality)",
     "kpiWall.deviceStatusDist": "Device Status Distribution",
     "kpiWall.headerQuality": "Report Quality Metrics",
     "kpiWall.qualityTag": "On-time / Accuracy",
@@ -47807,7 +49374,8 @@ export const translations: Translations = {
     "kpiWall.sourceLocal": "Local",
     "kpiWall.sourceBuiltin": "Built-in",
     "kpiWall.loadingTip": "Loading KPI data...",
-    "kpiWall.loadFailedEmpty": "Data failed to load or is empty (fallback empty state)",
+    "kpiWall.loadFailedEmpty":
+      "Data failed to load or is empty (fallback empty state)",
     "kpiWall.retry": "Retry",
     // [v3.0.6.11-106 Wave 9C] EyeRisPage i18n
     "eyeRis.modalityFundusPhoto": "Fundus Photo",
@@ -47829,7 +49397,8 @@ export const translations: Translations = {
     "eyeRis.surgeryPreChecked": "Pre-op",
     "eyeRis.surgeryCompleted": "Completed",
     "eyeRis.surgeryCancelled": "Cancelled",
-    "eyeRis.checkinUnavailable": "Check-in API unavailable; state updated locally",
+    "eyeRis.checkinUnavailable":
+      "Check-in API unavailable; state updated locally",
     "eyeRis.callUnavailable": "Call API unavailable; state updated locally",
     "eyeRis.acceptReferralUnavailable": "Accept referral API unavailable",
     "eyeRis.scheduleFailed": "Scheduling failed",
@@ -47890,7 +49459,8 @@ export const translations: Translations = {
     "eyeRis.cancel": "Cancel",
     "eyeRis.criticalValueLoop": "Critical Value Closed Loop",
     "eyeRis.demoProcessTag": "Demo data (sample process)",
-    "eyeRis.timeline1": "AI detects active CNV (95% confidence) → auto-flagged urgent",
+    "eyeRis.timeline1":
+      "AI detects active CNV (95% confidence) → auto-flagged urgent",
     "eyeRis.timeline2": "Notify Dr. Wang Jianguo (confirmed)",
     "eyeRis.timeline3": "Start anti-VEGF treatment workflow",
     "eyeRis.timeline4": "Handling record pending",
@@ -47900,7 +49470,8 @@ export const translations: Translations = {
     "eyeRis.fPatientNamePlaceholder": "e.g. Zhang Wei",
     "eyeRis.fProcedure": "Procedure",
     "eyeRis.fProcedureRequired": "Please enter procedure",
-    "eyeRis.fProcedurePlaceholder": "e.g. Phacoemulsification + IOL implantation",
+    "eyeRis.fProcedurePlaceholder":
+      "e.g. Phacoemulsification + IOL implantation",
     "eyeRis.fSurgeryDate": "Surgery Date",
     "eyeRis.fDateRequired": "Please select a date",
     "eyeRis.fEyeSide": "Operative Eye",
@@ -47998,13 +49569,15 @@ export const translations: Translations = {
     "eye.optometry.colOdAstigmatism": "OD Astigmatism",
     "eye.optometry.colOsAstigmatism": "OS Astigmatism",
     // [v3.0.6.11-106 Wave 9C] FhirPatientPage i18n
-    "fhirPatient.listLoadFallback": "Failed to load patient list; using demo data",
+    "fhirPatient.listLoadFallback":
+      "Failed to load patient list; using demo data",
     "fhirPatient.updated": "Patient updated",
     "fhirPatient.created": "Patient created",
     "fhirPatient.operationFailed": "Operation failed",
     "fhirPatient.deleted": "Patient deleted",
     "fhirPatient.deleteFailed": "Delete failed",
-    "fhirPatient.detailLoadFallback": "Failed to load patient details; showing list data",
+    "fhirPatient.detailLoadFallback":
+      "Failed to load patient details; showing list data",
     "fhirPatient.everythingLoadFailed": "Failed to load 360 view",
     "fhirPatient.colId": "ID",
     "fhirPatient.colName": "Name",
@@ -48119,7 +49692,8 @@ export const translations: Translations = {
     "dentalTele.photoReadFailed": "Failed to read photo",
     "dentalTele.emptyResult": "Empty result returned by API",
     "dentalTele.aiUnavailable": "AI service unavailable",
-    "dentalTele.pendingService": "Pending integration: dental AI service returned no result",
+    "dentalTele.pendingService":
+      "Pending integration: dental AI service returned no result",
     "dentalTele.retry": "Retry",
     "dentalTele.total": "Total Consultations",
     "dentalTele.inProgress": "In Progress",
@@ -48129,7 +49703,8 @@ export const translations: Translations = {
     "dentalTele.uploadPhotos": "Upload Intraoral Photos",
     "dentalTele.aiPrescreen": "AI Pre-screen",
     "dentalTele.refresh": "Refresh List",
-    "dentalTele.empty": "No consultation records. Click \"New Consultation\" to start",
+    "dentalTele.empty":
+      'No consultation records. Click "New Consultation" to start',
     "dentalTele.unknown": "Unknown",
     "dentalTele.join": "Join",
     "dentalTele.endConfirm": "End this consultation?",
@@ -48143,25 +49718,31 @@ export const translations: Translations = {
     "dentalTele.createModal": "New Remote Consultation",
     "dentalTele.formTitle": "Consultation Title",
     "dentalTele.formTitleRequired": "Please enter consultation title",
-    "dentalTele.formTitlePlaceholder": "e.g. Consultation for complex implant case",
+    "dentalTele.formTitlePlaceholder":
+      "e.g. Consultation for complex implant case",
     "dentalTele.selectPatient": "Select patient",
     "dentalTele.patientRequired": "Please select patient",
     "dentalTele.inviteExpert": "Invite Expert",
     "dentalTele.expertRequired": "Please select expert",
     "dentalTele.formReason": "Consultation Topic",
-    "dentalTele.formReasonPlaceholder": "e.g. Insufficient bone at site 36, need bone augmentation plan",
+    "dentalTele.formReasonPlaceholder":
+      "e.g. Insufficient bone at site 36, need bone augmentation plan",
     "dentalTele.done": "Done",
     "dentalTele.selectPhotos": "Select Photos",
-    "dentalTele.selectedPhotos": "{{count}} selected · local preview, no network transfer",
-    "dentalTele.noPhotos": "No photos selected yet. Please choose intraoral photos to preview",
+    "dentalTele.selectedPhotos":
+      "{{count}} selected · local preview, no network transfer",
+    "dentalTele.noPhotos":
+      "No photos selected yet. Please choose intraoral photos to preview",
     "dentalTele.remove": "Remove",
-    "dentalTele.photoLocalOnly": "Photos are kept in the local session only. Use the imaging upload channel for archiving",
+    "dentalTele.photoLocalOnly":
+      "Photos are kept in the local session only. Use the imaging upload channel for archiving",
     "dentalTele.detailTitle": "Consultation Details",
     "dentalTele.close": "Close",
     "dentalTele.createdAt": "Created At",
     "dentalTele.screeningTitle": "AI Caries Pre-screen Result",
     "dentalTele.screeningPending": "AI Pre-screen Pending",
-    "dentalTele.screeningPendingDesc": "The dental AI service has not returned results yet. Upload intraoral photos and retry.",
+    "dentalTele.screeningPendingDesc":
+      "The dental AI service has not returned results yet. Upload intraoral photos and retry.",
     "dentalTele.model": "Model",
     "dentalTele.method": "Method",
     "dentalTele.source": "Source",
@@ -48173,7 +49754,8 @@ export const translations: Translations = {
     "dentalTele.severityMedium": "Medium",
     "dentalTele.severityLow": "Low",
     "dentalTele.confidence": "Confidence",
-    "dentalTele.screeningDisclaimer": "Screening results are for pre-screening reference only; diagnosis requires imaging and expert review",
+    "dentalTele.screeningDisclaimer":
+      "Screening results are for pre-screening reference only; diagnosis requires imaging and expert review",
     // [v3.0.6.11-106 Wave 9D] remoteReading.*
     "remoteReading.statusPending": "Pending",
     "remoteReading.statusInProgress": "Reading",
@@ -48189,7 +49771,8 @@ export const translations: Translations = {
     "remoteReading.completedArchived": "Reading completed, report archived",
     "remoteReading.submitFailed": "Submission failed",
     "remoteReading.returnTitle": "Return Remote Reading Task",
-    "remoteReading.returnPlaceholder": "Enter return reason (e.g. incomplete images, missing series)",
+    "remoteReading.returnPlaceholder":
+      "Enter return reason (e.g. incomplete images, missing series)",
     "remoteReading.confirmReturn": "Confirm Return",
     "remoteReading.cancel": "Cancel",
     "remoteReading.returned": "Task returned",
@@ -48230,10 +49813,12 @@ export const translations: Translations = {
     "remoteReading.commentPlaceholder": "Additional notes (optional)",
     "remoteReading.completeTitle": "Complete Reading",
     "remoteReading.submitReport": "Submit Report",
-    "remoteReading.reportPlaceholder": "Enter reading findings and impression...",
+    "remoteReading.reportPlaceholder":
+      "Enter reading findings and impression...",
     // [v3.0.6.11-106 Wave 9D] iheManager.*
     "iheManager.statusLoadFailed": "Failed to load status",
-    "iheManager.serviceLoadFailed": "Failed to load IHE service status; showing demo data",
+    "iheManager.serviceLoadFailed":
+      "Failed to load IHE service status; showing demo data",
     "iheManager.domainSaved": "Affinity domain config saved",
     "iheManager.saveFailed": "Save failed",
     "iheManager.domainReset": "Affinity domain reset to default",
@@ -48267,7 +49852,8 @@ export const translations: Translations = {
     "iheManager.pdqSupplier": "PDQ Supplier",
     "iheManager.tabPix": "PIX Management",
     "iheManager.pixCrossReference": "PIX Patient Identity Cross Reference",
-    "iheManager.pixCrossReferenceDesc": "Go to the PIX management page to manage cross-domain patient ID mapping.",
+    "iheManager.pixCrossReferenceDesc":
+      "Go to the PIX management page to manage cross-domain patient ID mapping.",
     "iheManager.goPix": "Go to PIX Management",
     "iheManager.pixNotifyTitle": "PIX Update Notification (ITI-10)",
     "iheManager.patientId": "Patient ID",
@@ -48278,7 +49864,8 @@ export const translations: Translations = {
     "iheManager.messageId": "Message ID",
     "iheManager.tabPam": "PAM Management",
     "iheManager.pamTitle": "Patient Administration (PAM)",
-    "iheManager.pamDesc": "Go to the PAM management page to manage patient encounter information.",
+    "iheManager.pamDesc":
+      "Go to the PAM management page to manage patient encounter information.",
     "iheManager.goPam": "Go to PAM Management",
     "iheManager.title": "IHE Integration Management",
     "iheManager.editDomainConfig": "Edit Affinity Domain Config",
@@ -48445,7 +50032,8 @@ export const translations: Translations = {
     "patientDevice.colDate": "Date",
     "patientDevice.reports": "Reports",
     "patientDevice.timeline": "Timeline",
-    "patientDevice.selectPatient": "Select a patient on the left to view details",
+    "patientDevice.selectPatient":
+      "Select a patient on the left to view details",
     "patientDevice.deviceMgmt": "Device Management",
     "patientDevice.deviceList": "Device List",
     "patientDevice.maintain": "Maintain",
@@ -48466,7 +50054,8 @@ export const translations: Translations = {
     "patientDevice.name": "Name",
     "patientDevice.diagnosis": "Diagnosis",
     "patientDevice.triggerMaintenance": "Trigger Device Maintenance",
-    "patientDevice.maintenanceAlert": "A maintenance order will be created for this device",
+    "patientDevice.maintenanceAlert":
+      "A maintenance order will be created for this device",
     "patientDevice.device": "Device",
     // [v3.0.6.11-106 Wave 9D] aiCad.*
     "aiCad.lungNoduleDetect": "Lung Nodule Detection",
@@ -48536,7 +50125,7 @@ export const translations: Translations = {
     "aiCad.viewDetail": "View Details",
     "aiCad.detail": "Details",
     "aiCad.detectedAt": "Detected at",
-    "aiCad.detailHint": "Click \"View Details\" above to load real results",
+    "aiCad.detailHint": 'Click "View Details" above to load real results',
     "aiCad.heatmap": "Heatmap",
     // [v3.0.6.11-106 Wave 9D] aiEnhanced.*
     "aiEnhanced.bodyChest": "Chest",
@@ -48562,7 +50151,8 @@ export const translations: Translations = {
     "aiEnhanced.studyIdPlaceholder": "Study ID",
     "aiEnhanced.analyzing": "Analyzing...",
     "aiEnhanced.autoDetect": "Auto Detect",
-    "aiEnhanced.organDetectHint": "Enter study ID and select body part to simulate AI multi-organ detection (deterministic grayscale statistical inference, non-random)",
+    "aiEnhanced.organDetectHint":
+      "Enter study ID and select body part to simulate AI multi-organ detection (deterministic grayscale statistical inference, non-random)",
     "aiEnhanced.organsDetected": "Organs Detected",
     "aiEnhanced.avgConfidence": "Avg. Confidence",
     "aiEnhanced.primaryOrgan": "Primary Organ",
@@ -48571,7 +50161,8 @@ export const translations: Translations = {
     "aiEnhanced.volumeApprox": "Volume approx.",
     "aiEnhanced.coverage": "covering",
     "aiEnhanced.slices": "slices",
-    "aiEnhanced.detectDisclaimer": "AI detection results are for physician reference only; verify against original images",
+    "aiEnhanced.detectDisclaimer":
+      "AI detection results are for physician reference only; verify against original images",
     "aiEnhanced.generateParagraph": "Generate Report Paragraph",
     "aiEnhanced.copiedShort": "Copied",
     "aiEnhanced.copy": "Copy",
@@ -48582,7 +50173,8 @@ export const translations: Translations = {
     "aiEnhanced.draftScoreTag": "0-100 · deterministic rules",
     "aiEnhanced.fillGoodSample": "Fill Good Sample",
     "aiEnhanced.fillBadSample": "Fill Bad Sample",
-    "aiEnhanced.draftPlaceholder": "Paste report draft: sections by Technique/Findings/Impression...",
+    "aiEnhanced.draftPlaceholder":
+      "Paste report draft: sections by Technique/Findings/Impression...",
     "aiEnhanced.chars": "chars",
     "aiEnhanced.scoring": "Scoring...",
     "aiEnhanced.startScore": "Start Scoring",
@@ -48602,8 +50194,10 @@ export const translations: Translations = {
     "aiEnhanced.hangingTitle": "Smart Hanging Protocol",
     "aiEnhanced.hangingTag": "Rule table · history preference",
     "aiEnhanced.examId": "Study ID",
-    "aiEnhanced.doctorIdPlaceholder": "Doctor ID (history preference, optional)",
-    "aiEnhanced.seriesPlaceholder": "Series descriptions, comma separated (e.g. Lung, Mediastinum)",
+    "aiEnhanced.doctorIdPlaceholder":
+      "Doctor ID (history preference, optional)",
+    "aiEnhanced.seriesPlaceholder":
+      "Series descriptions, comma separated (e.g. Lung, Mediastinum)",
     "aiEnhanced.recommending": "Recommending...",
     "aiEnhanced.recommendLayout": "Recommend Layout",
     "aiEnhanced.historyPreference": "History Preference",
@@ -48620,13 +50214,19 @@ export const translations: Translations = {
     "aiEnhanced.tagOrgan": "Multi-organ Detection",
     "aiEnhanced.tagDraft": "Draft Scoring",
     "aiEnhanced.tagHanging": "Smart Hanging",
-    "aiEnhanced.pageDescription": "Multi-organ auto detection (8 organ types, deterministic grayscale statistical inference) + report draft quality scoring (0-100 + suggestions) + smart hanging protocol (rule table + doctor history preference)",
+    "aiEnhanced.pageDescription":
+      "Multi-organ auto detection (8 organ types, deterministic grayscale statistical inference) + report draft quality scoring (0-100 + suggestions) + smart hanging protocol (rule table + doctor history preference)",
     "aiEnhanced.workbenchNotes": "Workbench Notes",
-    "aiEnhanced.note1": "Detection is based on grayscale statistical features (mean/SD to HU window fitting + contrast fitting); same input always yields same output, no randomness",
-    "aiEnhanced.note2": "Draft scoring has four dimensions: length 15% / structure 25% / terminology 30% / numeric units 30%",
-    "aiEnhanced.note3": "Hanging rules: CT chest to lung+mediastinum 2x2, MR head to T1/T2/FLAIR 2x3, unknown fallback 1x1",
-    "aiEnhanced.note4": "Layouts previously applied by a doctor for the same body part are prioritized in the next recommendation (history preference)",
-    "aiEnhanced.note5": "Orphan module: no database dependency; application records stored in memory + seed fallback",
+    "aiEnhanced.note1":
+      "Detection is based on grayscale statistical features (mean/SD to HU window fitting + contrast fitting); same input always yields same output, no randomness",
+    "aiEnhanced.note2":
+      "Draft scoring has four dimensions: length 15% / structure 25% / terminology 30% / numeric units 30%",
+    "aiEnhanced.note3":
+      "Hanging rules: CT chest to lung+mediastinum 2x2, MR head to T1/T2/FLAIR 2x3, unknown fallback 1x1",
+    "aiEnhanced.note4":
+      "Layouts previously applied by a doctor for the same body part are prioritized in the next recommendation (history preference)",
+    "aiEnhanced.note5":
+      "Orphan module: no database dependency; application records stored in memory + seed fallback",
     "aiEnhanced.endpoint": "Endpoint",
     // [v3.0.6.11-106 Wave 9D] terminology.*
     "terminology.mappingLoadFailed": "Failed to load mappings",
@@ -48650,7 +50250,8 @@ export const translations: Translations = {
     "terminology.statOnlineSystems": "Online Systems",
     "terminology.statResults": "Search Results",
     "terminology.searchCardTitle": "Concept Search / Encoding",
-    "terminology.searchPlaceholder": "Enter code, term or concept ID to search...",
+    "terminology.searchPlaceholder":
+      "Enter code, term or concept ID to search...",
     "terminology.search": "Search",
     "terminology.encodeSnomed": "Encode (SNOMED)",
     "terminology.clear": "Clear",
@@ -48664,7 +50265,8 @@ export const translations: Translations = {
     "terminology.matchPartial": "Partial",
     "terminology.colConfidence": "Confidence",
     "terminology.localDictTitle": "Local Sign Dictionary (Offline)",
-    "terminology.localDictEmpty": "No match in local dictionary; continue searching SNOMED-CT",
+    "terminology.localDictEmpty":
+      "No match in local dictionary; continue searching SNOMED-CT",
     "terminology.colSign": "Sign",
     "terminology.colEnglish": "English",
     "terminology.colDefinition": "Definition",
@@ -48692,14 +50294,16 @@ export const translations: Translations = {
     "terminology.systemDegraded": "Degraded",
     "terminology.systemOffline": "Offline",
     "terminology.syncDelayTitle": "RIDICOM Sync Delay",
-    "terminology.syncDelayDesc": "Last sync: 2026-07-28. Check the data source connection.",
+    "terminology.syncDelayDesc":
+      "Last sync: 2026-07-28. Check the data source connection.",
     "terminology.mappingModalTitle": "New Cross-system Mapping",
     "terminology.create": "Create",
     "terminology.sourceSystem": "Source System",
     "terminology.sourceCode": "Source Code",
     "terminology.targetSystem": "Target System",
     "terminology.targetCode": "Target Code",
-    "terminology.mapTypePlaceholder": "Equivalent / Broader / Narrower / Related",
+    "terminology.mapTypePlaceholder":
+      "Equivalent / Broader / Narrower / Related",
     // [v3.0.6.11-106 Wave 9D] wl.*
     "wl.statusRegistered": "Registered",
     "wl.statusArrived": "Arrived",
@@ -48850,7 +50454,8 @@ export const translations: Translations = {
     "triage.confirmComplete": "Confirm Complete",
     "triage.complete": "Complete",
     "triage.title": "AI Intelligent Triage Dashboard",
-    "triage.subtitle": "Emergency triage workbench based on a multi-factor scoring model, supporting auto scoring, intelligent assignment and manual adjustment",
+    "triage.subtitle":
+      "Emergency triage workbench based on a multi-factor scoring model, supporting auto scoring, intelligent assignment and manual adjustment",
     "triage.statPending": "Pending",
     "triage.queue": "Triage Queue",
     "triage.itemsUnit": "items",
@@ -48907,7 +50512,8 @@ export const translations: Translations = {
     "dentalSchedule.quadrantLL": "Lower Left",
     "dentalSchedule.quadrantRL": "Lower Right",
     "dentalSchedule.probingDepth": "6-point Probing Depth (mm)",
-    "dentalSchedule.probingNote": "Six-point probing: DB (distobuccal), B (buccal), MB (mesiobuccal), ML (mesiolingual), L (lingual), DL (distolingual)",
+    "dentalSchedule.probingNote":
+      "Six-point probing: DB (distobuccal), B (buccal), MB (mesiobuccal), ML (mesiolingual), L (lingual), DL (distolingual)",
     "dentalSchedule.mobility": "Mobility",
     "dentalSchedule.mobility0": "Grade 0 Normal",
     "dentalSchedule.mobility1": "Grade I <1mm",
@@ -48992,7 +50598,8 @@ export const translations: Translations = {
     "dicomShare.protocolWado": "WADO (Web)",
     "dicomShare.validity": "Validity",
     "dicomShare.passwordLabel": "Access Password (optional)",
-    "dicomShare.passwordPlaceholder": "A password will be required to access the link",
+    "dicomShare.passwordPlaceholder":
+      "A password will be required to access the link",
     "dicomShare.detailTitle": "Share Detail",
     "dicomShare.close": "Close",
     "dicomShare.fromDept": "Source Department",
@@ -49012,8 +50619,10 @@ export const translations: Translations = {
     "treatmentPlan.newPlan": "New Treatment Plan",
     "treatmentPlan.itemsUnit": "items",
     "treatmentPlan.emptyPlans": "No treatment plans; click New to create",
-    "treatmentPlan.timelineSelectHint": "Select a plan from the left list to view the timeline (click Details)",
-    "treatmentPlan.timelineEmptyHint": "Open a plan's details in the Treatment Plans tab to view the timeline",
+    "treatmentPlan.timelineSelectHint":
+      "Select a plan from the left list to view the timeline (click Details)",
+    "treatmentPlan.timelineEmptyHint":
+      "Open a plan's details in the Treatment Plans tab to view the timeline",
     "treatmentPlan.newPlanTitle": "New Cross-department Treatment Plan",
     "treatmentPlan.patientLabel": "Patient",
     "treatmentPlan.typeLabel": "Treatment Type",
@@ -49052,7 +50661,8 @@ export const translations: Translations = {
     "treatmentPlan.updated": "Treatment plan updated",
     "treatmentPlan.updateFailed": "Update failed",
     "treatmentPlan.loadFailed": "Failed to load treatment plans",
-    "treatmentPlan.loadFailedRetry": "Failed to load treatment plans, please retry later",
+    "treatmentPlan.loadFailedRetry":
+      "Failed to load treatment plans, please retry later",
     "treatmentPlan.created": "Treatment plan created",
     "treatmentPlan.createFailed": "Create failed",
     "treatmentPlan.transitionFailed": "Status transition failed",
@@ -49064,7 +50674,8 @@ export const translations: Translations = {
     "treatmentPlan.status.pending": "Pending",
     // [v3.0.6.11-106 Wave 9B] LesionTrackingPage i18n
     "lesionTrack.pageTitle": "Lesion Tracking Workbench",
-    "lesionTrack.pageSubtitle": "Lesion Tracking · longitudinal comparison RECIST-like · trend follow-up",
+    "lesionTrack.pageSubtitle":
+      "Lesion Tracking · longitudinal comparison RECIST-like · trend follow-up",
     "lesionTrack.dataSource": "Data source:",
     "lesionTrack.sourceDatabase": "Database derived (Exam)",
     "lesionTrack.sourceDemo": "Demo data (Demo Seed)",
@@ -49119,9 +50730,11 @@ export const translations: Translations = {
     "lesionTrack.responseLabel": "Response:",
     "lesionTrack.deterministic": "Deterministic",
     "lesionTrack.followupCard": "Follow-up Linkage (Wave 3B)",
-    "lesionTrack.followupInputPlaceholder": "Enter follow-up plan ID (e.g. FU001)",
+    "lesionTrack.followupInputPlaceholder":
+      "Enter follow-up plan ID (e.g. FU001)",
     "lesionTrack.linkBtn": "Link",
-    "lesionTrack.followupAlert": "After linking, lesions are traceable from the follow-up plan page; the backend rejects mismatched patients.",
+    "lesionTrack.followupAlert":
+      "After linking, lesions are traceable from the follow-up plan page; the backend rejects mismatched patients.",
     "lesionTrack.detailLoadFailed": "Failed to load lesion details",
     "lesionTrack.measurementSaved": "Measurement recorded",
     "lesionTrack.addMeasurementFailed": "Failed to add measurement",
@@ -49201,7 +50814,8 @@ export const translations: Translations = {
     "tenantConfig.createTenant": "New Tenant",
     "tenantConfig.tenantCode": "Tenant Code",
     "tenantConfig.tenantCodeRequired": "Enter tenant code",
-    "tenantConfig.tenantCodePattern": "Letters/digits/._:- only, must start with a letter or digit",
+    "tenantConfig.tenantCodePattern":
+      "Letters/digits/._:- only, must start with a letter or digit",
     "tenantConfig.tenantCodePlaceholder": "e.g. zhongshan",
     "tenantConfig.enterprise": "Enterprise",
     "tenantConfig.complianceReportTitle": "Compliance Report",
@@ -49210,8 +50824,10 @@ export const translations: Translations = {
     "tenantConfig.statPassed": "Passed",
     "tenantConfig.statGeneratedAt": "Generated At",
     "tenantConfig.overallCompliant": "Fully Compliant",
-    "tenantConfig.nonCompliant": "Non-compliant items found; remediation recommended",
-    "tenantConfig.assessmentSummary": "Assessment items {{total}} · passed {{passed}} · generated at {{generatedAt}}",
+    "tenantConfig.nonCompliant":
+      "Non-compliant items found; remediation recommended",
+    "tenantConfig.assessmentSummary":
+      "Assessment items {{total}} · passed {{passed}} · generated at {{generatedAt}}",
     "tenantConfig.scoreLabel": "Score",
     "tenantConfig.profileUpdated": "Tenant profile updated",
     "tenantConfig.saveFailed": "Save failed",
@@ -49232,21 +50848,28 @@ export const translations: Translations = {
     "tenantConfig.colCreatedAt": "Created At",
     "tenantConfig.colActions": "Actions",
     "tenantConfig.feat.aiOrchestration.label": "AI Orchestration",
-    "tenantConfig.feat.aiOrchestration.desc": "AI workflow orchestration and automated diagnostic scheduling",
+    "tenantConfig.feat.aiOrchestration.desc":
+      "AI workflow orchestration and automated diagnostic scheduling",
     "tenantConfig.feat.biDashboard.label": "BI Dashboard",
-    "tenantConfig.feat.biDashboard.desc": "Business intelligence dashboard (TAT/RVU/OEE/critical value SLA)",
+    "tenantConfig.feat.biDashboard.desc":
+      "Business intelligence dashboard (TAT/RVU/OEE/critical value SLA)",
     "tenantConfig.feat.doseManagement.label": "Dose Management",
-    "tenantConfig.feat.doseManagement.desc": "Radiation dose records and DRL reference level monitoring",
+    "tenantConfig.feat.doseManagement.desc":
+      "Radiation dose records and DRL reference level monitoring",
     "tenantConfig.feat.vna.label": "VNA Archive",
-    "tenantConfig.feat.vna.desc": "Vendor-neutral archive (WORM immutable storage)",
+    "tenantConfig.feat.vna.desc":
+      "Vendor-neutral archive (WORM immutable storage)",
     "tenantConfig.feat.similarCases.label": "Similar Cases",
-    "tenantConfig.feat.similarCases.desc": "Similar case search based on clinical finding lexicon",
+    "tenantConfig.feat.similarCases.desc":
+      "Similar case search based on clinical finding lexicon",
     "tenantConfig.feat.environmentReport.label": "Ambient Reporting",
-    "tenantConfig.feat.environmentReport.desc": "Immersive report writing workstation",
+    "tenantConfig.feat.environmentReport.desc":
+      "Immersive report writing workstation",
     "tenantConfig.feat.mobileApp.label": "Mobile App",
     "tenantConfig.feat.mobileApp.desc": "Mobile / mini-program access",
     "tenantConfig.feat.teleRadiology.label": "Tele-radiology",
-    "tenantConfig.feat.teleRadiology.desc": "Cross-campus remote reading and consultation",
+    "tenantConfig.feat.teleRadiology.desc":
+      "Cross-campus remote reading and consultation",
     // [v3.0.6.11-106 Wave 9B] CommitteeRoomPage i18n
     "committeeRoom.pageTitle": "Committee Consultation Room",
     "committeeRoom.multiDoctor": "Multi-doctor panel",
@@ -49255,10 +50878,12 @@ export const translations: Translations = {
     "committeeRoom.demoFallback": "Demo fallback",
     "committeeRoom.refresh": "Refresh",
     "committeeRoom.startCommittee": "Start Committee Consultation",
-    "committeeRoom.infoMessage": "Committee consultation: ≥2 senior physicians independently vote on difficult/critical reports; once all votes are in, a committee resolution is generated and can be appended to the report as a Resolution section with one click.",
+    "committeeRoom.infoMessage":
+      "Committee consultation: ≥2 senior physicians independently vote on difficult/critical reports; once all votes are in, a committee resolution is generated and can be appended to the report as a Resolution section with one click.",
     "committeeRoom.listTitle": "Committee Consultation List",
     "committeeRoom.noCommittees": "No committee consultations",
-    "committeeRoom.selectHint": "Select a committee consultation from the left to view details",
+    "committeeRoom.selectHint":
+      "Select a committee consultation from the left to view details",
     "committeeRoom.carryReport": "Current report",
     "committeeRoom.canStart": "You can",
     "committeeRoom.loadingDetail": "Loading consultation details…",
@@ -49282,14 +50907,17 @@ export const translations: Translations = {
     "committeeRoom.committeeResolution": "Committee Resolution",
     "committeeRoom.resolutionGeneratedLabel": "Resolution Generated",
     "committeeRoom.appendedReportWith": "Appended to report",
-    "committeeRoom.resolutionHintVoting": "After all members vote, a committee resolution can be generated (appendable to report)",
-    "committeeRoom.resolutionHintNone": "No resolution generated for this consultation yet",
+    "committeeRoom.resolutionHintVoting":
+      "After all members vote, a committee resolution can be generated (appendable to report)",
+    "committeeRoom.resolutionHintNone":
+      "No resolution generated for this consultation yet",
     "committeeRoom.createdBy": "Created by",
     "committeeRoom.createdAt": "Created at",
     "committeeRoom.consultationId": "Consultation ID",
     "committeeRoom.reportId": "Report ID",
     "committeeRoom.detailLoadFailed": "Failed to load consultation details",
-    "committeeRoom.detailLoadFailedDesc": "Backend/MSW may not be ready; refresh and retry",
+    "committeeRoom.detailLoadFailedDesc":
+      "Backend/MSW may not be ready; refresh and retry",
     "committeeRoom.createTitle": "Start Committee Consultation",
     "committeeRoom.createOk": "Create and enter",
     "committeeRoom.cancel": "Cancel",
@@ -49298,11 +50926,13 @@ export const translations: Translations = {
     "committeeRoom.formReportIdPlaceholder": "e.g. RPT-038 / rpt-038",
     "committeeRoom.formTitle": "Committee Title",
     "committeeRoom.formTitleRequired": "Please enter consultation title",
-    "committeeRoom.formTitlePlaceholder": "e.g. Aortic dissection imaging diagnosis committee",
+    "committeeRoom.formTitlePlaceholder":
+      "e.g. Aortic dissection imaging diagnosis committee",
     "committeeRoom.formMembers": "Committee Members (≥1)",
     "committeeRoom.formMembersRequired": "Select at least 1 member",
     "committeeRoom.formMembersPlaceholder": "Select senior physicians",
-    "committeeRoom.noteText": "Members vote independently (agree/disagree + written opinion); after all votes, the initiator generates the resolution.",
+    "committeeRoom.noteText":
+      "Members vote independently (agree/disagree + written opinion); after all votes, the initiator generates the resolution.",
     "committeeRoom.voteTitle": "Member Vote",
     "committeeRoom.voteOk": "Submit Vote",
     "committeeRoom.consultationLabel": "Consultation:",
@@ -49311,13 +50941,17 @@ export const translations: Translations = {
     "committeeRoom.agreeOption": "Agree",
     "committeeRoom.disagreeOption": "Disagree",
     "committeeRoom.opinionRequiredLabel": "Consultation Opinion (required)",
-    "committeeRoom.opinionPlaceholder": "e.g. CTA shows intimal flap and true/false lumen, consistent with aortic dissection.",
+    "committeeRoom.opinionPlaceholder":
+      "e.g. CTA shows intimal flap and true/false lumen, consistent with aortic dissection.",
     "committeeRoom.suggestionOptional": "Additional Suggestion (optional)",
-    "committeeRoom.suggestionPlaceholder": "e.g. Recommend emergency ultrasound for further evaluation",
+    "committeeRoom.suggestionPlaceholder":
+      "e.g. Recommend emergency ultrasound for further evaluation",
     "committeeRoom.resolutionTitle": "Generate Committee Resolution",
     "committeeRoom.resolutionOk": "Generate Resolution",
-    "committeeRoom.resolutionContent": "Resolution Content (synthesized from member opinions)",
-    "committeeRoom.resolutionPlaceholder": "e.g. The committee unanimously agrees on aortic dissection and recommends immediate emergency surgical evaluation.",
+    "committeeRoom.resolutionContent":
+      "Resolution Content (synthesized from member opinions)",
+    "committeeRoom.resolutionPlaceholder":
+      "e.g. The committee unanimously agrees on aortic dissection and recommends immediate emergency surgical evaluation.",
     "committeeRoom.appendParagraph": "Append to report as Resolution section",
     "committeeRoom.statusVoting": "Voting",
     "committeeRoom.statusResolved": "Resolved",
@@ -49335,7 +50969,8 @@ export const translations: Translations = {
     "committeeRoom.resolutionFailedNet": "Generation failed: network error",
     "committeeRoom.opinionRequired": "Please enter consultation opinion",
     "committeeRoom.resolutionRequired": "Please enter resolution content",
-    "committeeRoom.resolutionAppended": "Resolution generated and appended to report",
+    "committeeRoom.resolutionAppended":
+      "Resolution generated and appended to report",
     "committeeRoom.resolutionGenerated": "Resolution generated",
     // [v3.0.6.11-106 Wave 9B] ConsentEducationPage i18n
     "consentEdu.title": "Consent & Education Center",
@@ -49391,7 +51026,8 @@ export const translations: Translations = {
     "consentEdu.noConsent": "No consent records",
     "consentEdu.consentDetail": "Consent Detail",
     "consentEdu.procedure": "Procedure",
-    "consentEdu.pdfHint": "PDF snapshot can be generated and downloaded via the PDF button in the list",
+    "consentEdu.pdfHint":
+      "PDF snapshot can be generated and downloaded via the PDF button in the list",
     "consentEdu.langZh": "中文",
     "consentEdu.examId": "Exam ID (linked exam)",
     "consentEdu.type": "Consent Type",
@@ -49421,8 +51057,10 @@ export const translations: Translations = {
     "consentEdu.type.transfusion": "Transfusion Consent",
     "consentEdu.type.radiotherapy": "Radiotherapy Consent",
     // [v3.0.6.11-106 Wave 9B] Hl7ManagerPage i18n
-    "hl7Page.dataSourceReal": "Data source: /hl7/archive + /hl7/mllp/status (live)",
-    "hl7Page.dataSourceFallback": "Data source: demo fallback (archive/MLLP unavailable, derived by message type)",
+    "hl7Page.dataSourceReal":
+      "Data source: /hl7/archive + /hl7/mllp/status (live)",
+    "hl7Page.dataSourceFallback":
+      "Data source: demo fallback (archive/MLLP unavailable, derived by message type)",
     "hl7Page.refresh": "Refresh",
     "hl7Page.mllpChannel": "MLLP Channel",
     "hl7Page.running": "Running",
@@ -49523,10 +51161,12 @@ export const translations: Translations = {
     "hl7Page.archiveTitle": "HL7 Message Archive",
     "hl7Page.fallbackTag": "Fallback demo data (2 hardcoded)",
     "hl7Page.archiveHeader": "HL7 Message Management",
-    "hl7Page.archiveDesc": "Build and send HL7 messages: ORU (report), ORM (order), DFT (finance)",
+    "hl7Page.archiveDesc":
+      "Build and send HL7 messages: ORU (report), ORM (order), DFT (finance)",
     // [v3.0.6.11-106 Wave 9B] SimilarCasePage i18n
     "similarCase.pageTitle": "Similar Case Search",
-    "similarCase.pageSubtitle": "Text search (Jaccard/SNOMED) + image-level search (intensity histogram/statistics/texture/morphology) — benchmarked against Siemens image search / Infinitt Enterprise Search",
+    "similarCase.pageSubtitle":
+      "Text search (Jaccard/SNOMED) + image-level search (intensity histogram/statistics/texture/morphology) — benchmarked against Siemens image search / Infinitt Enterprise Search",
     "similarCase.tabText": "Text Search",
     "similarCase.tabImage": "Image Similarity",
     "similarCase.tabHybrid": "Hybrid Search",
@@ -49539,17 +51179,22 @@ export const translations: Translations = {
     "similarCase.featLowDensity": "Low-density Ratio",
     "similarCase.selectExam": "Please select an exam",
     "similarCase.imageSearchError": "Image search service returned an error",
-    "similarCase.imageSearchFailed": "Image-level similarity search failed, please retry later",
+    "similarCase.imageSearchFailed":
+      "Image-level similarity search failed, please retry later",
     "similarCase.selectExamPh": "Select exam",
     "similarCase.realSample": "Real sample",
     "similarCase.demoShort": "Demo",
     "similarCase.searchSimilarImages": "Search Similar Images",
-    "similarCase.imageSearchNote": "Based on 32-bin intensity histogram + statistics + texture + high/low density ratio (cosine similarity); similarity = 0.6×image features + 0.4×modality/body part match",
-    "similarCase.extractingFeatures": "Extracting image features and searching…",
+    "similarCase.imageSearchNote":
+      "Based on 32-bin intensity histogram + statistics + texture + high/low density ratio (cosine similarity); similarity = 0.6×image features + 0.4×modality/body part match",
+    "similarCase.extractingFeatures":
+      "Extracting image features and searching…",
     "similarCase.noSimilarImages": "No similar images found; try another exam",
-    "similarCase.selectExamToStart": "Select an exam to start image-level similarity search",
+    "similarCase.selectExamToStart":
+      "Select an exam to start image-level similarity search",
     "similarCase.returnedPrefix": "Returned",
-    "similarCase.similarSeriesSuffix": "similar image series (anonymized, no patient identity)",
+    "similarCase.similarSeriesSuffix":
+      "similar image series (anonymized, no patient identity)",
     "similarCase.demoFeatureLib": "Demo feature library",
     "similarCase.featureCosine": "Feature cosine",
     "similarCase.modalityPart": "Modality/Part",
@@ -49562,18 +51207,23 @@ export const translations: Translations = {
     "similarCase.descrModalityPartMatch": "Modality/Part Match",
     "similarCase.descrSeries": "Series",
     "similarCase.featureSummary": "Image Feature Summary (intensity histogram)",
-    "similarCase.anonymizedNote": "Results are anonymized and contain no patient names or identity",
+    "similarCase.anonymizedNote":
+      "Results are anonymized and contain no patient names or identity",
     "similarCase.hybridInputRequired": "Enter report text or select an exam",
     "similarCase.hybridSearchError": "Hybrid search service returned an error",
-    "similarCase.hybridSearchFailed": "Hybrid search failed, please retry later",
+    "similarCase.hybridSearchFailed":
+      "Hybrid search failed, please retry later",
     "similarCase.selectReportDemo": "Select report (demo)",
     "similarCase.selectExamOptional": "Select exam (optional, image features)",
     "similarCase.hybridSearch": "Hybrid Search",
-    "similarCase.hybridPlaceholder": "Paste/enter report text (optional): e.g. ground-glass nodule in right upper lobe… combine with selected exam image features",
+    "similarCase.hybridPlaceholder":
+      "Paste/enter report text (optional): e.g. ground-glass nodule in right upper lobe… combine with selected exam image features",
     "similarCase.hybridSearching": "Hybrid searching (text + image features)…",
     "similarCase.noMatchAdjust": "No matches found; adjust your input",
-    "similarCase.hybridStartHint": "Enter report text or select an exam to start hybrid search",
-    "similarCase.returnedSuffix2": "results · combined = 0.5×text + 0.5×image (text and image scores shown separately)",
+    "similarCase.hybridStartHint":
+      "Enter report text or select an exam to start hybrid search",
+    "similarCase.returnedSuffix2":
+      "results · combined = 0.5×text + 0.5×image (text and image scores shown separately)",
     "similarCase.demoLib": "Demo library",
     "similarCase.imageSeriesSuffix": "image series",
     "similarCase.textScore": "Text Score",
@@ -49584,20 +51234,25 @@ export const translations: Translations = {
     "similarCase.descrDemoLib": "Demo library",
     "similarCase.findingsDivider": "Findings",
     "similarCase.impressionDivider": "Impression",
-    "similarCase.anonymizedNote2": "Results are anonymized and contain no patient names or identity",
+    "similarCase.anonymizedNote2":
+      "Results are anonymized and contain no patient names or identity",
     "similarCase.reportRequired": "Enter report text or select a report",
     "similarCase.searchServiceError": "Search service returned an error",
-    "similarCase.similarSearchFailed": "Similar case search failed, please retry later",
+    "similarCase.similarSearchFailed":
+      "Similar case search failed, please retry later",
     "similarCase.thanksFeedback": "Thanks for your feedback",
     "similarCase.feedbackFailed": "Feedback submission failed",
     "similarCase.modalityPh": "Modality",
     "similarCase.bodyPartPh": "Body Part",
     "similarCase.searchSimilarCases": "Search Similar Cases",
-    "similarCase.reportPlaceholder": "Paste/enter report text, e.g. ground-glass nodule in right upper lobe, ~8mm, well-defined, possible early lung adenocarcinoma…",
+    "similarCase.reportPlaceholder":
+      "Paste/enter report text, e.g. ground-glass nodule in right upper lobe, ~8mm, well-defined, possible early lung adenocarcinoma…",
     "similarCase.searchingSimilar": "Searching similar cases…",
-    "similarCase.noSimilarCases": "No similar cases found; adjust report text or filters",
+    "similarCase.noSimilarCases":
+      "No similar cases found; adjust report text or filters",
     "similarCase.inputToStart": "Enter report text to start searching",
-    "similarCase.returnedCases": "similar cases, ranked by combined score (text 50% + features 30% + SNOMED 20%)",
+    "similarCase.returnedCases":
+      "similar cases, ranked by combined score (text 50% + features 30% + SNOMED 20%)",
     "similarCase.ageUnit": "yrs",
     "similarCase.useful": "Useful",
     "similarCase.useless": "Not useful",
@@ -49608,29 +51263,36 @@ export const translations: Translations = {
     "similarCase.descrExamDate": "Exam Date",
     "similarCase.descrMatchKeywords": "Matched Keywords",
     "similarCase.conclusionDivider": "Conclusion",
-    "similarCase.reportAnonymized": "Report is anonymized and contains no patient names or identity",
+    "similarCase.reportAnonymized":
+      "Report is anonymized and contains no patient names or identity",
     // [v3.0.6.11-106 Wave 9B] VoiceWorkstationPage i18n
     "voiceWs.pageTitle": "Voice Workstation",
-    "voiceWs.pageSubtitle": "Voice dictation · medical lexicon · dictation history · correction feedback — automatic homophone correction",
+    "voiceWs.pageSubtitle":
+      "Voice dictation · medical lexicon · dictation history · correction feedback — automatic homophone correction",
     "voiceWs.tabDictation": "Voice Dictation",
     "voiceWs.tabLexicon": "Medical Lexicon",
     "voiceWs.tabSessions": "Dictation History",
     "voiceWs.tabFeedbacks": "Correction Feedback",
     "voiceWs.dataSource": "Data Source",
-    "voiceWs.dataSourceDetail": "voice-workstation (in-memory lexicon seed · ASR session derivation · automatic homophone accumulation) + asr (aliyun/whisper/mock engines)",
+    "voiceWs.dataSourceDetail":
+      "voice-workstation (in-memory lexicon seed · ASR session derivation · automatic homophone accumulation) + asr (aliyun/whisper/mock engines)",
     "voiceWs.recording": "Recording...",
     "voiceWs.transcribing": "Transcribing (ASR + lexicon correction)...",
     "voiceWs.dictation": "Voice Dictation",
-    "voiceWs.stopHint": "Click again to stop recording and transcribe automatically",
-    "voiceWs.recordHint": "Click the mic to start recording (MediaRecorder); it transcribes automatically and applies lexicon correction",
+    "voiceWs.stopHint":
+      "Click again to stop recording and transcribe automatically",
+    "voiceWs.recordHint":
+      "Click the mic to start recording (MediaRecorder); it transcribes automatically and applies lexicon correction",
     "voiceWs.noMicHint": "Without a microphone, demo audio fallback is used",
     "voiceWs.startRecording": "Start Recording",
     "voiceWs.stopRecording": "Stop Recording",
     "voiceWs.clear": "Clear",
     "voiceWs.insertReport": "Insert Report",
-    "voiceWs.reportIdPlaceholder": "Report ID (e.g. rpt-038; leave blank for text only)",
+    "voiceWs.reportIdPlaceholder":
+      "Report ID (e.g. rpt-038; leave blank for text only)",
     "voiceWs.inserted": "Inserted",
-    "voiceWs.transcribingLex": "Transcribing and applying lexicon correction...",
+    "voiceWs.transcribingLex":
+      "Transcribing and applying lexicon correction...",
     "voiceWs.transcriptResult": "Transcript Result",
     "voiceWs.lexCorrection": "Lexicon corrections",
     "voiceWs.timesUnit": "places",
@@ -49652,7 +51314,8 @@ export const translations: Translations = {
     "voiceWs.lexSearchPlaceholder": "Search term/alias/category",
     "voiceWs.importCsv": "Import CSV",
     "voiceWs.totalPrefix": "Total",
-    "voiceWs.csvFormatHint": "CSV format: term,category,priority,aliases(pipe-separated) — e.g. 磨玻璃影,影像,3,毛玻璃影|磨玻璃密度影",
+    "voiceWs.csvFormatHint":
+      "CSV format: term,category,priority,aliases(pipe-separated) — e.g. 磨玻璃影,影像,3,毛玻璃影|磨玻璃密度影",
     "voiceWs.termPlaceholder": "Term (required)",
     "voiceWs.priorityPlaceholder": "Priority",
     "voiceWs.aliasesPlaceholder": "Homophones/aliases (comma separated)",
@@ -49678,7 +51341,8 @@ export const translations: Translations = {
     "voiceWs.originalPlaceholder": "Original term (misrecognized, e.g. 结皆)",
     "voiceWs.correctedPlaceholder": "Corrected term (standard, e.g. nodule)",
     "voiceWs.submit": "Submit",
-    "voiceWs.correctionHint": "After submission it is saved into the medical lexicon (homophone aliases) and applied automatically",
+    "voiceWs.correctionHint":
+      "After submission it is saved into the medical lexicon (homophone aliases) and applied automatically",
     "voiceWs.correctionRecords": "Correction Records",
     "voiceWs.noCorrections": "No correction feedback",
     "voiceWs.autoCorrection": "Auto (transcription correction)",
@@ -49691,7 +51355,8 @@ export const translations: Translations = {
     "voiceWs.insertTranscriptTitle": "Insert Transcript into Report",
     "voiceWs.reportIdRequired": "Enter report ID",
     "voiceWs.confirmInsert": "Confirm Insert",
-    "voiceWs.insertTranscriptHint": "The transcript will be written as the report draft body:",
+    "voiceWs.insertTranscriptHint":
+      "The transcript will be written as the report draft body:",
     "voiceWs.reportIdPlaceholderShort": "Report ID (e.g. rpt-038)",
     "voiceWs.willInsertTo": "Will insert into report",
     "voiceWs.recordReadFailed": "Failed to read recording",
@@ -49703,7 +51368,8 @@ export const translations: Translations = {
     "voiceWs.submitFailed": "Submission failed",
     "voiceWs.confirmFailed": "Confirmation failed",
     "voiceWs.removedFromList": "Removed from list",
-    "voiceWs.sessionArchived": "Dictation session for report {{reportId}}; the transcript is archived. Start a new session in Voice Dictation to see real-time results.",
+    "voiceWs.sessionArchived":
+      "Dictation session for report {{reportId}}; the transcript is archived. Start a new session in Voice Dictation to see real-time results.",
     "voiceWs.engine.aliyun": "Aliyun ASR",
     "voiceWs.engine.whisper": "Whisper",
     "voiceWs.engine.mock": "Mock transcription",
@@ -49714,14 +51380,16 @@ export const translations: Translations = {
     "voiceWs.sessionStatus.error": "Error",
     // [v3.0.6.11-106 Wave 9B] DirectorDashboardPage i18n
     "directorDash.pageTitle": "Director Management Cockpit",
-    "directorDash.hospitalLine": "Handong Provincial People's Hospital · Radiology | Data updated:",
+    "directorDash.hospitalLine":
+      "Handong Provincial People's Hospital · Radiology | Data updated:",
     "directorDash.liveData": "statsApi / biApi live",
     "directorDash.demoData": "Demo data",
     "directorDash.refresh": "Refresh",
     "directorDash.retry": "Retry",
     "directorDash.demoBlocks": "The following blocks use demo data:",
     "directorDash.noData": "No director dashboard data",
-    "directorDash.noDataHint": "Wait for today's exam and review data to aggregate, then refresh",
+    "directorDash.noDataHint":
+      "Wait for today's exam and review data to aggregate, then refresh",
     "directorDash.tabWorkload": "Workload Ranking",
     "directorDash.tabEquipment": "Equipment Efficiency Board",
     "directorDash.tabQuality": "Quality Score Ranking",
@@ -49766,7 +51434,8 @@ export const translations: Translations = {
     "directorDash.points": "pts",
     "directorDash.qcIssueMonth": "QC Issue Statistics (this month)",
     "directorDash.qcIssueStats": "QC Issue Statistics",
-    "directorDash.dailyRevenueChart": "Daily Revenue Line Chart (last 30 days · estimated at ¥400/exam)",
+    "directorDash.dailyRevenueChart":
+      "Daily Revenue Line Chart (last 30 days · estimated at ¥400/exam)",
     "directorDash.revenue": "Revenue",
     "directorDash.wan": "0k",
     "directorDash.examRevenueDist": "Exam Revenue Distribution",
@@ -49826,7 +51495,8 @@ export const translations: Translations = {
     "directorDash.qc.issue.MEAS001": "Measurement error",
     // [v3.0.6.11-106 Wave 9B] PatientReportPortalPage i18n
     "patientPortal.pageTitle": "Patient Report Portal H5",
-    "patientPortal.pageSubtitle": "Identity verification + QR sharing + report view + image browsing + download + share + device/IP audit",
+    "patientPortal.pageSubtitle":
+      "Identity verification + QR sharing + report view + image browsing + download + share + device/IP audit",
     "patientPortal.loading": "Loading...",
     "patientPortal.apiPrefix": "patient-portal API",
     "patientPortal.accessibleReports": "accessible reports",
@@ -49875,7 +51545,8 @@ export const translations: Translations = {
     "patientPortal.cancel": "Cancel",
     "patientPortal.satisfaction": "Satisfaction Rating",
     "patientPortal.suggestions": "Comments",
-    "patientPortal.feedbackPlaceholder": "Enter your comments or suggestions (optional)",
+    "patientPortal.feedbackPlaceholder":
+      "Enter your comments or suggestions (optional)",
     "patientPortal.pdfDownloadStarted": "Report PDF download started",
     "patientPortal.hello": "Hello,",
     "patientPortal.reportReady": "Your imaging report is ready",
@@ -49942,7 +51613,8 @@ export const translations: Translations = {
     "auditPage.query": "Search",
     "auditPage.totalItems": "{{total}} total",
     "auditPage.loading": "Loading...",
-    "auditPage.trendTooltip": "{{label}}: {{total}} total operations · {{highRisk}} high-risk · {{failed}} failed",
+    "auditPage.trendTooltip":
+      "{{label}}: {{total}} total operations · {{highRisk}} high-risk · {{failed}} failed",
     "auditPage.timesSuffix": "{{count}} times",
     "auditPage.lastActive": "Last active {{time}}",
     "auditPage.totalTimes": "{{total}} total",
@@ -49987,7 +51659,8 @@ export const translations: Translations = {
     "criticalValueStats.target85": "Target ≥85%",
     "criticalValueStats.needsAttention": "Needs Attention",
     "criticalValueStats.allNormal": "All Normal",
-    "criticalValueStats.trendTitle": "Critical Value Trend This Month (Last 7 Days)",
+    "criticalValueStats.trendTitle":
+      "Critical Value Trend This Month (Last 7 Days)",
     "criticalValueStats.total": "Total",
     "criticalValueStats.timeDistTitle": "Processing Time Distribution",
     "criticalValueStats.within30m": "Within 30 min",
@@ -50004,9 +51677,11 @@ export const translations: Translations = {
     "criticalValueStats.missedReasonTitle": "Missed Reason Analysis",
     "criticalValueStats.countTimes": "{{count}} times",
     "criticalValueStats.loading": "Loading...",
-    "criticalValueStats.notificationTitle": "10-minute Notification Completion Rate",
+    "criticalValueStats.notificationTitle":
+      "10-minute Notification Completion Rate",
     "criticalValueStats.guidelineTag": "NHC 2024 Quality Control Metrics",
-    "criticalValueStats.totalNotificationsMonth": "Total Notifications This Month",
+    "criticalValueStats.totalNotificationsMonth":
+      "Total Notifications This Month",
     "criticalValueStats.completedWithin10Min": "Completed Within 10 min",
     "criticalValueStats.completionRate": "Completion Rate",
     "criticalValueStats.target90": "Target ≥90%",
@@ -50015,13 +51690,18 @@ export const translations: Translations = {
     "criticalValueStats.todayNotificationTitle": "Today's Notifications",
     "criticalValueStats.todayNotifications": "Today's Notifications",
     "criticalValueStats.completionProgress": "Completion Progress",
-    "criticalValueStats.guidelineDescTitle": "NHC 2024 Quality Control Metrics Description",
-    "criticalValueStats.guideline10minLabel": "10-minute Notification Completion Rate",
-    "criticalValueStats.guideline10minDesc": ": proportion of critical values notified to clinicians within 10 minutes",
+    "criticalValueStats.guidelineDescTitle":
+      "NHC 2024 Quality Control Metrics Description",
+    "criticalValueStats.guideline10minLabel":
+      "10-minute Notification Completion Rate",
+    "criticalValueStats.guideline10minDesc":
+      ": proportion of critical values notified to clinicians within 10 minutes",
     "criticalValueStats.guidelineStandardLabel": "Compliance Standard",
-    "criticalValueStats.guidelineStandardDesc": ": tertiary hospitals ≥90%, secondary hospitals ≥85%",
+    "criticalValueStats.guidelineStandardDesc":
+      ": tertiary hospitals ≥90%, secondary hospitals ≥85%",
     "criticalValueStats.guidelineOverdueLabel": "Overdue Handling",
-    "criticalValueStats.guidelineOverdueDesc": ": escalation mechanism required if not notified within 30 minutes",
+    "criticalValueStats.guidelineOverdueDesc":
+      ": escalation mechanism required if not notified within 30 minutes",
     // [v3.0.6.11-106 Wave 10A] Smart routing page
     "smartRoute.title": "Smart Routing",
     "smartRoute.ruleLoadFailed": "Failed to load routing rules",
@@ -50078,7 +51758,8 @@ export const translations: Translations = {
     "smartRoute.statusEmergency": "Emergency",
     "smartRoute.getRecommendedDoctors": "Get Recommended Doctors",
     "smartRoute.oneClickAssignTop": "One-click Assign (Top Recommendation)",
-    "smartRoute.routingInfo": "Qualification-aware routing: composite score based on modality/subspecialty → doctor qualification match + daily load + historical report accuracy. Click a doctor card to assign.",
+    "smartRoute.routingInfo":
+      "Qualification-aware routing: composite score based on modality/subspecialty → doctor qualification match + daily load + historical report accuracy. Click a doctor card to assign.",
     "smartRoute.qualifiedTag": "Available",
     "smartRoute.scoreSuffix": "{{score}} pts",
     "smartRoute.matchScore": "Qualification Match",
@@ -50086,11 +51767,13 @@ export const translations: Translations = {
     "smartRoute.accuracy": "Historical Accuracy",
     "smartRoute.accuracyScore": "{{score}} pts",
     "smartRoute.oneClickAssign": "One-click Assign",
-    "smartRoute.emptyRecommend": "Enter study info to get qualification-aware recommended doctors",
+    "smartRoute.emptyRecommend":
+      "Enter study info to get qualification-aware recommended doctors",
     "smartRoute.editRuleTitle": "Edit Routing Rule",
     // [v3.0.6.11-106 Wave 10A] Image QC specialty page
     "imageQualityControl.title": "Image Quality Control",
-    "imageQualityControl.subtitle": "ACR Phantom / AI Scoring / Dose Compliance",
+    "imageQualityControl.subtitle":
+      "ACR Phantom / AI Scoring / Dose Compliance",
     "imageQualityControl.refresh": "Refresh",
     "imageQualityControl.retry": "Retry",
     "imageQualityControl.loadFailed": "Loading failed",
@@ -50100,9 +51783,11 @@ export const translations: Translations = {
     "imageQualityControl.statusAccepted": "Accepted",
     "imageQualityControl.statusRejected": "Rejected",
     "imageQualityControl.qcActionFailed": "QC operation failed",
-    "imageQualityControl.qcPassedMsg": "Study {{studyId}} passed QC, images available",
+    "imageQualityControl.qcPassedMsg":
+      "Study {{studyId}} passed QC, images available",
     "imageQualityControl.qcRejectedMsg": "Study {{studyId}} rejected by QC",
-    "imageQualityControl.retakeRegisteredMsg": "Study {{studyId}} retake registered, status back to In Progress",
+    "imageQualityControl.retakeRegisteredMsg":
+      "Study {{studyId}} retake registered, status back to In Progress",
     "imageQualityControl.retakeRegisterFailed": "Failed to register retake",
     "imageQualityControl.scoreListLoadFailed": "Failed to load score list",
     "imageQualityControl.qcDataLoadFailed": "Failed to load QC data",
@@ -50132,7 +51817,8 @@ export const translations: Translations = {
     "imageQualityControl.operatorIdPlaceholder": "Operator ID (optional)",
     "imageQualityControl.scoring": "AI scoring...",
     "imageQualityControl.startScoring": "Start AI Scoring",
-    "imageQualityControl.scoreDimensions": "Scoring dimensions: artifact (motion/metal/ring) · positioning (setup/rotation/offset) · exposure (under/normal/over)",
+    "imageQualityControl.scoreDimensions":
+      "Scoring dimensions: artifact (motion/metal/ring) · positioning (setup/rotation/offset) · exposure (under/normal/over)",
     "imageQualityControl.scoreStatsCard": "Score Statistics",
     "imageQualityControl.artifactScore": "Artifact Score",
     "imageQualityControl.positioningScore": "Positioning Score",
@@ -50152,13 +51838,17 @@ export const translations: Translations = {
     "imageQualityControl.thMonthlyScans": "Monthly Scans",
     "imageQualityControl.thDefectRate": "Defect Rate",
     "imageQualityControl.gradeSuffix": "Grade {{grade}}",
-    "imageQualityControl.retakeModalTitle": "Register Retake - {{patient}} ({{studyId}})",
+    "imageQualityControl.retakeModalTitle":
+      "Register Retake - {{patient}} ({{studyId}})",
     "imageQualityControl.registering": "Registering...",
     "imageQualityControl.confirmRetakeRegister": "Confirm Retake Registration",
     "imageQualityControl.cancel": "Cancel",
-    "imageQualityControl.retakeHint": "The exam will be set back to In Progress and the retake count will increase (QC_REJECT → IN_PROGRESS)",
-    "imageQualityControl.retakeReasonLabel": "Retake Reason (for retake rate analysis)",
-    "imageQualityControl.retakeReasonPlaceholder": "Please select a retake reason",
+    "imageQualityControl.retakeHint":
+      "The exam will be set back to In Progress and the retake count will increase (QC_REJECT → IN_PROGRESS)",
+    "imageQualityControl.retakeReasonLabel":
+      "Retake Reason (for retake rate analysis)",
+    "imageQualityControl.retakeReasonPlaceholder":
+      "Please select a retake reason",
     // [v3.0.6.11-106 Wave 10A] Dental photo management page
     "dentalPhoto.title": "Patient Photos & Communication",
     "dentalPhoto.catIntraoral": "Intraoral",
@@ -50175,7 +51865,8 @@ export const translations: Translations = {
     "dentalPhoto.statTotal": "Total Photos",
     "dentalPhoto.statCategories": "Categories",
     "dentalPhoto.gallery": "Photo Gallery",
-    "dentalPhoto.noPhotosHint": "No photos yet. Click 'Upload Photo' in the top right to add the first one",
+    "dentalPhoto.noPhotosHint":
+      "No photos yet. Click 'Upload Photo' in the top right to add the first one",
     "dentalPhoto.beforeAfter": "Before / After Treatment",
     "dentalPhoto.beforeTreatment": "Before Treatment",
     "dentalPhoto.afterTreatment": "After Treatment",
@@ -50191,7 +51882,8 @@ export const translations: Translations = {
     "dentalPhoto.passwordTag": "Password: {{password}}",
     "dentalPhoto.copyLink": "Copy Link",
     "dentalPhoto.copied": "Copied",
-    "dentalPhoto.generateShareHint": "Click the \"Generate Share Link\" button to create a share link",
+    "dentalPhoto.generateShareHint":
+      'Click the "Generate Share Link" button to create a share link',
     "dentalPhoto.upload": "Upload",
     "dentalPhoto.cancel": "Cancel",
     "dentalPhoto.categoryLabel": "Category",
@@ -50219,7 +51911,8 @@ export const translations: Translations = {
     "notificationTemplateDict.markedRead": "Marked as read",
     "notificationTemplateDict.saveSuccess": "Saved successfully",
     "notificationTemplateDict.saveFailed": "Save failed",
-    "notificationTemplateDict.templateCardTitle": "Report Templates ({{count}})",
+    "notificationTemplateDict.templateCardTitle":
+      "Report Templates ({{count}})",
     "notificationTemplateDict.dictCardTitle": "Data Dictionary ({{count}})",
     "notificationTemplateDict.modality": "Modality",
     "notificationTemplateDict.category": "Category",
@@ -50269,7 +51962,8 @@ export const translations: Translations = {
     "consultationV2.currentUser": "Current User",
     "consultationV2.started": "Consultation started",
     "consultationV2.startFailed": "Failed to start",
-    "consultationV2.selectSpeaker": "Please select a speaker on the right first",
+    "consultationV2.selectSpeaker":
+      "Please select a speaker on the right first",
     "consultationV2.enterContent": "Please enter message content",
     "consultationV2.sendFailed": "Failed to send message",
     "consultationV2.enterReportId": "Please enter report ID",
@@ -50277,7 +51971,8 @@ export const translations: Translations = {
     "consultationV2.createFailed": "Creation failed",
     "consultationV2.voteSuccess": "Voted: {{opinion}}",
     "consultationV2.voteFailed": "Voting failed",
-    "consultationV2.concludeSuccess": "Consultation conclusion generated (with signature list)",
+    "consultationV2.concludeSuccess":
+      "Consultation conclusion generated (with signature list)",
     "consultationV2.concludeFailed": "Failed to generate conclusion",
     "consultationV2.exportFailed": "Export failed",
     "consultationV2.panelTitle": "Committee Consultation V2",
@@ -50287,7 +51982,8 @@ export const translations: Translations = {
     "consultationV2.statMessages": "Total Messages",
     "consultationV2.statVotes": "Total Votes",
     "consultationV2.enter": "Enter",
-    "consultationV2.roomDesc": "{{reportId}} | {{patientName}} ({{modality}}) | Members {{members}} | Messages {{messages}}",
+    "consultationV2.roomDesc":
+      "{{reportId}} | {{patientName}} ({{modality}}) | Members {{members}} | Messages {{messages}}",
     "consultationV2.selectRoomHint": "Select a room on the left to enter",
     "consultationV2.signedCount": "Signed by {{count}}",
     "consultationV2.startConsultation": "Start Consultation",
@@ -50318,13 +52014,17 @@ export const translations: Translations = {
     "consultationV2.patientNamePlaceholder": "Patient Name",
     "consultationV2.memberCountLabel": "Member Count:",
     "consultationV2.memberCountOption": "{{count}} members",
-    "consultationV2.createInfo": "If members are not specified, they are deterministically selected by report ID (same report always yields the same group), with the first as chair.",
+    "consultationV2.createInfo":
+      "If members are not specified, they are deterministically selected by report ID (same report always yields the same group), with the first as chair.",
     "consultationV2.voteModalTitle": "Member Voting",
     "consultationV2.voteCommentPlaceholder": "Vote comment (optional)",
-    "consultationV2.currentVote": "Current: Approve {{approve}} / Reject {{reject}} / Modify {{modify}}, approval rate {{rate}}%",
+    "consultationV2.currentVote":
+      "Current: Approve {{approve}} / Reject {{reject}} / Modify {{modify}}, approval rate {{rate}}%",
     "consultationV2.concludeModalTitle": "Generate Consultation Conclusion",
-    "consultationV2.finalOpinionPlaceholder": "Final opinion (leave blank to auto-summarize by majority vote)",
-    "consultationV2.concludeInfo": "The conclusion will include a signature list of all members who voted, and the room status will be set to Concluded.",
+    "consultationV2.finalOpinionPlaceholder":
+      "Final opinion (leave blank to auto-summarize by majority vote)",
+    "consultationV2.concludeInfo":
+      "The conclusion will include a signature list of all members who voted, and the room status will be set to Concluded.",
     "consultationV2.exportModalTitle": "Consultation Record Export - {{title}}",
     "consultationV2.opinionApprove": "Approve",
     "consultationV2.opinionReject": "Reject",
@@ -50393,12 +52093,14 @@ export const translations: Translations = {
     "cv5.confirmClinical": "Clinical Confirmation",
     "cv5.contactPhone": "Contact Phone",
     "cv5.contactPhonePlaceholder": "Enter contact phone",
-    "cv5.notifyAlert": "Notification time and operator will be recorded automatically",
+    "cv5.notifyAlert":
+      "Notification time and operator will be recorded automatically",
     "cv5.confirmDoctor": "Confirming Doctor",
     "cv5.confirmDoctorPlaceholder": "Enter confirming doctor name",
     "cv5.clinicalNote": "Clinical Opinion / Note",
     "cv5.clinicalNotePlaceholder": "Enter clinical opinion",
-    "cv5.closeAlert": "After closing, this critical value will be marked completed (CLOSED_LOOP)",
+    "cv5.closeAlert":
+      "After closing, this critical value will be marked completed (CLOSED_LOOP)",
     "criticalAlert.sevInfo": "Info",
     "criticalAlert.sevWarning": "Warning",
     "criticalAlert.sevCritical": "Critical",
@@ -50466,10 +52168,12 @@ export const translations: Translations = {
     "workflowDesigner.enabled": "Enabled",
     "workflowDesigner.disabled": "Disabled",
     "workflowDesigner.title": "Workflow Designer",
-    "workflowDesigner.subtitle": "Drag to arrange · Step management · Version control",
+    "workflowDesigner.subtitle":
+      "Drag to arrange · Step management · Version control",
     "workflowDesigner.saving": "Saving…",
     "workflowDesigner.history": "Version History",
-    "workflowDesigner.noSelfApprove": "Self-approval prohibited: cannot activate your own workflow",
+    "workflowDesigner.noSelfApprove":
+      "Self-approval prohibited: cannot activate your own workflow",
     "workflowDesigner.createFirst": "Create and save a workflow first",
     "workflowDesigner.activated": "Workflow activated",
     "workflowDesigner.activateFailed": "Activation failed",
@@ -50484,7 +52188,8 @@ export const translations: Translations = {
     "workflowDesigner.name": "Name",
     "workflowDesigner.type": "Type",
     "workflowDesigner.coords": "Coordinates",
-    "workflowDesigner.clickNodeHint": "Click a node on the canvas to edit properties",
+    "workflowDesigner.clickNodeHint":
+      "Click a node on the canvas to edit properties",
     "workflowDesigner.stepList": "Step List",
     "workflowDesigner.newStep": "New Step",
     "workflowDesigner.colVersion": "Version",
@@ -50507,7 +52212,8 @@ export const translations: Translations = {
     "contrastInv.in": "Stock In",
     "contrastInv.out": "Stock Out",
     "contrastInv.title": "Contrast Inventory Management",
-    "contrastInv.subtitle": "device-mgmt/contrast/inventory · Real-time inventory",
+    "contrastInv.subtitle":
+      "device-mgmt/contrast/inventory · Real-time inventory",
     "contrastInv.stockLog": "Stock Logs",
     "contrastInv.receive": "Stock-In Registration",
     "contrastInv.refresh": "Refresh",
@@ -50543,7 +52249,8 @@ export const translations: Translations = {
     "contrastInv.colOperator": "Operator",
     "dentalEmr.title": "Dental 360° Patient View",
     "dentalEmr.benchmark": "Dentist Butler Benchmark",
-    "dentalEmr.sourceTitle": "Real implementation of 7 backend /dental/patients/:id/overview* endpoints (fallback to demo data on failure)",
+    "dentalEmr.sourceTitle":
+      "Real implementation of 7 backend /dental/patients/:id/overview* endpoints (fallback to demo data on failure)",
     "dentalEmr.realData": "Real Data",
     "dentalEmr.mockFallback": "Demo Fallback",
     "dentalEmr.male": "Male",
@@ -50704,7 +52411,8 @@ export const translations: Translations = {
     "drl.addInstance": "+ Add Instance",
     "drl.startCheck": "Start DRL Check",
     "drl.noOverLimit": "No over-limit instances",
-    "drl.alertHistoryTitle": "Over-Limit Alert History (Acknowledge = alert acknowledgement)",
+    "drl.alertHistoryTitle":
+      "Over-Limit Alert History (Acknowledge = alert acknowledgement)",
     "drl.noAlerts": "No over-limit alerts",
     "iheInt.title": "IHE Integration Engine",
     "iheInt.statusFailed": "Failed to get IHE status",
@@ -50748,14 +52456,17 @@ export const translations: Translations = {
     "iheInt.close": "Close",
     "iheInt.txnName": "Transaction Name",
     "iheInt.pamTitle": "PAM Encounter Management",
-    "iheInt.pamAlert": "PAM encounter status messages are driven by HL7 ADT (A01 admit / A03 discharge / A04 register / A08 update)",
+    "iheInt.pamAlert":
+      "PAM encounter status messages are driven by HL7 ADT (A01 admit / A03 discharge / A04 register / A08 update)",
     "iheInt.pamTxn": "PAM Transaction",
     "iheInt.pamTxnValue": "PAM message (ADT^A01/A04) · PAM query (ADT^Q22)",
-    "iheInt.messageSourceValue": "HIS / EMR pushed via HL7 gateway (mllp://localhost:2575)",
+    "iheInt.messageSourceValue":
+      "HIS / EMR pushed via HL7 gateway (mllp://localhost:2575)",
     "iheInt.messageSource": "Message Source",
     "iheInt.pamLogEntries": "PAM Log Entries",
     "iheInt.currentConfig": "Current Configuration",
-    "iheInt.pamConfigDesc": "Encounter status changes sync in real time to the PACS worklist and critical value receivers",
+    "iheInt.pamConfigDesc":
+      "Encounter status changes sync in real time to the PACS worklist and critical value receivers",
     "iheInt.txnPixFeed": "Patient identifier cross-reference registration",
     "iheInt.txnPixQuery": "Cross-domain patient identifier query",
     "iheInt.txnPdqQuery": "Patient demographics data query",
@@ -50783,15 +52494,17 @@ export const translations: Translations = {
     "mobileApproval.due": "Due",
     "mobileApproval.overdue": "Overdue",
     "mobileApproval.delegatedTo": "Delegated to",
-    "mobileApproval.delegatedHint":", awaiting delegate action",
+    "mobileApproval.delegatedHint": ", awaiting delegate action",
     "mobileApproval.processedBy": "Processed By",
     "mobileApproval.processedAt": "Processed At",
     "mobileApproval.comment": "Comment",
     "mobileApproval.rejectReason": "Rejection Reason",
     "mobileApproval.title": "Mobile Approval",
-    "mobileApproval.subtitle": "Pending approvals · Report signing / Publishing / Critical value handling / Expenses / Leave — supports Approve / Reject / Delegate",
+    "mobileApproval.subtitle":
+      "Pending approvals · Report signing / Publishing / Critical value handling / Expenses / Leave — supports Approve / Reject / Delegate",
     "mobileApproval.distribution": "Pending Distribution",
-    "mobileApproval.dataSource": "Data source: mobile-approval (derived from reports/critical values/expenses/leave + seed)",
+    "mobileApproval.dataSource":
+      "Data source: mobile-approval (derived from reports/critical values/expenses/leave + seed)",
     "mobileApproval.tabPending": "Pending",
     "mobileApproval.searchPlaceholder": "Search title / applicant / owner",
     "mobileApproval.allTypes": "All Types",
@@ -50804,7 +52517,8 @@ export const translations: Translations = {
     "mobileApproval.reject": "Reject",
     "mobileApproval.emptyHistory": "No processed records",
     "mobileApproval.dataSourceTag": "Data Source",
-    "mobileApproval.dataSourceDesc": "Backend /mobile-approval (in-memory seed + report/critical value derivation) · MSW sync mock · overdue auto-highlighted by due time",
+    "mobileApproval.dataSourceDesc":
+      "Backend /mobile-approval (in-memory seed + report/critical value derivation) · MSW sync mock · overdue auto-highlighted by due time",
     "mobileApproval.delegate": "Delegate",
     "mobileApproval.confirmPass": "Confirm Approve",
     "mobileApproval.confirmReject": "Confirm Reject",
@@ -50812,10 +52526,13 @@ export const translations: Translations = {
     "mobileApproval.cancel": "Cancel",
     "mobileApproval.submittedAt": "Submitted at",
     "mobileApproval.approveComment": "Approval Comment (optional)",
-    "mobileApproval.approvePlaceholder": "e.g. Report complete, approve signing",
-    "mobileApproval.rejectPlaceholder": "Explain the rejection reason; it will be returned to the applicant",
+    "mobileApproval.approvePlaceholder":
+      "e.g. Report complete, approve signing",
+    "mobileApproval.rejectPlaceholder":
+      "Explain the rejection reason; it will be returned to the applicant",
     "mobileApproval.delegateTo": "Delegate To",
-    "mobileApproval.delegateNote": "After delegation the item stays in the pending list, marked \"Delegated\", handled by the delegate",
+    "mobileApproval.delegateNote":
+      'After delegation the item stays in the pending list, marked "Delegated", handled by the delegate',
     "ortho.jointShoulder": "Shoulder",
     "ortho.jointElbow": "Elbow",
     "ortho.jointWrist": "Wrist",
@@ -50826,7 +52543,8 @@ export const translations: Translations = {
     "ortho.jointLumbar": "Lumbar Spine",
     "ortho.title": "Orthopedics Specialty",
     "ortho.demoData": "Demo Data",
-    "ortho.subtitle": "Orthopedic imaging specialty · Joint analysis · Spine assessment · Bone density · Trauma",
+    "ortho.subtitle":
+      "Orthopedic imaging specialty · Joint analysis · Spine assessment · Bone density · Trauma",
     "ortho.demoNoBackend": "Demo data (no backend orthopedic API)",
     "ortho.newAnalysis": "New Analysis",
     "ortho.newAnalysisTitle": "New Orthopedic Analysis",
@@ -50905,7 +52623,8 @@ export const translations: Translations = {
     "measPanel.annFreehand": "Freehand",
     "measPanel.pointsTaken": "Points taken",
     "measPanel.points": "points",
-    "measPanel.canvasHint": "Select a V2 tool then click the canvas to place points",
+    "measPanel.canvasHint":
+      "Select a V2 tool then click the canvas to place points",
     "measPanel.drawingAnnotation": "Drawing annotation",
     "measPanel.annotationFallback": "Annotation",
     "measPanel.toolLength": "Length",
@@ -50946,7 +52665,8 @@ export const translations: Translations = {
     "measPanel.annTextPlaceholder": "Annotation text...",
     "measPanel.finishAnnotation": "Finish Annotation",
     "measPanel.annotationObjects": "Annotation Objects",
-    "measPanel.noAnnotations": "No annotation objects (select an annotation type on the canvas then draw)",
+    "measPanel.noAnnotations":
+      "No annotation objects (select an annotation type on the canvas then draw)",
     "measPanel.editAnnTitle": "Edit annotation text (PUT /annotations/:id)",
     "measPanel.linkAnnTitle": "Link to selected measurement",
     "measPanel.annVersions": "Annotation Versions",
@@ -50958,7 +52678,8 @@ export const translations: Translations = {
     "measPanel.show": "Show",
     "measPanel.hide": "Hide",
     "measPanel.noMeasureData": "No measurement data",
-    "measPanel.selectRoiHint": "Select an ROI tool then click the image to start measuring",
+    "measPanel.selectRoiHint":
+      "Select an ROI tool then click the image to start measuring",
     "measPanel.historyMeasureData": "Historical Measurement Data",
     "measPanel.lengthMeasurement": "Length Measurements",
     "measPanel.noLengthData": "No length measurement data",
@@ -50969,7 +52690,8 @@ export const translations: Translations = {
     "measPanel.reportCopied": "Measurement report copied to clipboard",
     "measPanel.unit": "Unit",
     "measPanel.clickCanvasToPoint": "click canvas to place points",
-    "measPanel.selectToolHint": "Select a tool then click the canvas to measure",
+    "measPanel.selectToolHint":
+      "Select a tool then click the canvas to measure",
     "measPanel.measureSynced": "Measurement synced",
     "measPanel.measureSavedOffline": "Measurement saved (offline)",
     "measPanel.labelUpdated": "Label updated",
@@ -51028,10 +52750,13 @@ export const translations: Translations = {
     "peerReview.refresh": "Refresh",
     "peerReview.reportIdRequired": "Report ID (required)",
     "peerReview.patientName": "Patient Name",
-    "peerReview.reviewerIdPlaceholder": "Reviewer ID (optional; blank = deterministic auto-assign by department)",
-    "peerReview.assignAlert": "Auto-assign: the same (report ID + department) always maps to the same reviewer; blank = auto, filled reviewer ID = manual.",
+    "peerReview.reviewerIdPlaceholder":
+      "Reviewer ID (optional; blank = deterministic auto-assign by department)",
+    "peerReview.assignAlert":
+      "Auto-assign: the same (report ID + department) always maps to the same reviewer; blank = auto, filled reviewer ID = manual.",
     "peerReview.commentPlaceholder": "Comment (optional)",
-    "peerReview.scoreAlert": "Scores must be integers 1-5 (backend validated); task status becomes reviewed after submission.",
+    "peerReview.scoreAlert":
+      "Scores must be integers 1-5 (backend validated); task status becomes reviewed after submission.",
     "secondRead.sevHigh": "High Risk",
     "secondRead.sevMedium": "Medium Risk",
     "secondRead.sevLow": "Low Risk",
@@ -51077,7 +52802,8 @@ export const translations: Translations = {
     "secondRead.diagnosis": "Diagnosis",
     "secondRead.conclusion": "Conclusion",
     "secondRead.recommendations": "Follow-up Recommendations",
-    "secondRead.analyzeAlert": "The engine rechecks by deterministic rules: missed diagnosis risk / missing description / inconsistent conclusion, and outputs a 0-100 risk score.",
+    "secondRead.analyzeAlert":
+      "The engine rechecks by deterministic rules: missed diagnosis risk / missing description / inconsistent conclusion, and outputs a 0-100 risk score.",
     "secondRead.detailTitle": "Second Read Details",
     "secondRead.riskLevel": "Risk Level",
     "secondRead.levelHigh": "High",
@@ -51095,7 +52821,8 @@ export const translations: Translations = {
     "secondRead.handledBy": "Handled By",
     "secondRead.pendingDoctor": "Pending doctor handling",
     "secondRead.appendTitle": "Add Suggestion to Report",
-    "secondRead.appendPlaceholder": "Enter text to append to the report (e.g. Recommend follow-up in 3 months...)",
+    "secondRead.appendPlaceholder":
+      "Enter text to append to the report (e.g. Recommend follow-up in 3 months...)",
     "aiTriage.levelCritical": "Critical",
     "aiTriage.levelUrgent": "Urgent",
     "aiTriage.levelSemiUrgent": "Semi-Urgent",
@@ -51104,7 +52831,8 @@ export const translations: Translations = {
     "aiTriage.points": "pts",
     "aiTriage.colLevel": "Priority",
     "aiTriage.loadFailed": "Load failed",
-    "aiTriage.loadFailedNetwork": "Failed to load triage tasks; check the network and retry",
+    "aiTriage.loadFailedNetwork":
+      "Failed to load triage tasks; check the network and retry",
     "aiTriage.currentPatient": "Current Patient",
     "aiTriage.scoreFailed": "Scoring failed",
     "aiTriage.scoreFailedRetry": "Scoring failed, please retry later",
@@ -51172,7 +52900,8 @@ export const translations: Translations = {
     "smartMwl.colStatus": "Status",
     "smartMwl.colWait": "Wait Time",
     "smartMwl.colUrgency": "Urgency",
-    "smartMwl.aiTriageTooltip": "AI triage factor source: prioritizes aggregating real /triage records (patient's most recent triage score); falls back to study priority/critical flag when absent",
+    "smartMwl.aiTriageTooltip":
+      "AI triage factor source: prioritizes aggregating real /triage records (patient's most recent triage score); falls back to study priority/critical flag when absent",
     "smartMwl.colAiTriage": "AI Triage",
     "smartMwl.normal": "Normal",
     "smartMwl.colScore": "Overall Score",
@@ -51183,7 +52912,8 @@ export const translations: Translations = {
     "smartMwl.tagConfigurable": "Configurable Weights",
     "smartMwl.tagAiFactor": "AI triage factor = real /triage records",
     "smartMwl.aiTriageAlertTitle": "AI Triage Factor Source",
-    "smartMwl.aiTriageAlertDesc": "The AI triage factor prioritizes aggregating real triage records written by the backend /triage/score (patient's most recent triage score mapped 0-1); when no records exist or the DB is unavailable it falls back to inferring from the study priority / criticalFinding keywords; the factor detail shows each row's score source.",
+    "smartMwl.aiTriageAlertDesc":
+      "The AI triage factor prioritizes aggregating real triage records written by the backend /triage/score (patient's most recent triage score mapped 0-1); when no records exist or the DB is unavailable it falls back to inferring from the study priority / criticalFinding keywords; the factor detail shows each row's score source.",
     "smartMwl.retry": "Retry",
     "smartMwl.statTotal": "Total Studies",
     "smartMwl.listTitle": "Study List",
@@ -51198,8 +52928,10 @@ export const translations: Translations = {
     "smartMwl.saveRecompute": "Save & Recompute",
     "smartMwl.runtimeOnly": "Runtime Only",
     "smartMwl.persisted": "Persisted",
-    "smartMwl.runtimeOnlyDesc": "Backend system_config unavailable; weights take effect only for this process run (restart restores defaults).",
-    "smartMwl.persistedDesc": "Weights saved to the backend system_config table and take effect across processes/restarts.",
+    "smartMwl.runtimeOnlyDesc":
+      "Backend system_config unavailable; weights take effect only for this process run (restart restores defaults).",
+    "smartMwl.persistedDesc":
+      "Weights saved to the backend system_config table and take effect across processes/restarts.",
     "smartMwl.urgencyWeight": "Urgency Weight",
     "smartMwl.waitWeight": "Wait Time Weight",
     "smartMwl.ageWeight": "Age Weight",
@@ -51250,7 +52982,8 @@ export const translations: Translations = {
     "eyeToric.predictPostop": "Predict Post-op",
     "eyeToric.predictedSE": "Predicted Spherical Equivalent",
     "eyeToric.predictedUCVA": "Predicted UCVA",
-    "eyeToric.postopAlert": "Target power: {{power}} D · Confidence: {{confidence}}%",
+    "eyeToric.postopAlert":
+      "Target power: {{power}} D · Confidence: {{confidence}}%",
     "eyeToric.clickPostopPredict": "Click Post-op Prediction",
     // [v3.0.6.11-106 Wave 10A] Ophthalmology teaching case library page
     "eyeCaseLibrary.title": "Ophthalmology Teaching Case Library",
@@ -51293,7 +53026,8 @@ export const translations: Translations = {
     "eyeCaseLibrary.annoText": "Text",
     "eyeCaseLibrary.annoArrow": "Arrow",
     "eyeCaseLibrary.label": "Label",
-    "eyeCaseLibrary.annotateSrHint": "Annotations will be exported using the DICOM-SR TID 1500 standard",
+    "eyeCaseLibrary.annotateSrHint":
+      "Annotations will be exported using the DICOM-SR TID 1500 standard",
     "eyeCaseLibrary.tabExportSr": "Export SR",
     "eyeCaseLibrary.exportSrBtn": "Export DICOM-SR TID 1500",
     "eyeCaseLibrary.sopInstanceUid": "SOP Instance UID:",
@@ -51302,7 +53036,8 @@ export const translations: Translations = {
     "eyeCaseLibrary.tabDeid": "De-identify (PS 3.15)",
     "eyeCaseLibrary.deidBtn": "De-identify (basic level)",
     "eyeCaseLibrary.actionsExecuted": "Actions Performed:",
-    "eyeCaseLibrary.annotationsProgress": "{{completed}} / {{total}} annotations",
+    "eyeCaseLibrary.annotationsProgress":
+      "{{completed}} / {{total}} annotations",
     "eyeCaseLibrary.completed": "Completed",
     "eyeCaseLibrary.inProgress": "In Progress",
     "eyeCaseLibrary.addCaseTitle": "Add Teaching Case",
@@ -51313,12 +53048,15 @@ export const translations: Translations = {
     "eyeCaseLibrary.patientIdPlaceholder": "e.g. p-1009",
     "eyeCaseLibrary.examModality": "Exam Modality",
     "eyeCaseLibrary.examDate": "Exam Date",
-    "eyeCaseLibrary.chiefComplaintPlaceholder": "e.g. Blurred vision for 2 weeks",
+    "eyeCaseLibrary.chiefComplaintPlaceholder":
+      "e.g. Blurred vision for 2 weeks",
     "eyeCaseLibrary.diagnosisPlaceholder": "e.g. Diabetic retinopathy",
     "eyeCaseLibrary.projectNamePlaceholder": "e.g. DR microaneurysm annotation",
-    "eyeCaseLibrary.enterPatientInfo": "Please enter patient name and patient ID",
+    "eyeCaseLibrary.enterPatientInfo":
+      "Please enter patient name and patient ID",
     "eyeCaseLibrary.caseCreated": "Teaching case created",
-    "eyeCaseLibrary.createUnavailableLocal": "Create API unavailable, added to local list",
+    "eyeCaseLibrary.createUnavailableLocal":
+      "Create API unavailable, added to local list",
     "eyeCaseLibrary.annotationAdded": "Annotation added",
     "eyeCaseLibrary.srExported": "DICOM-SR exported",
     "eyeCaseLibrary.deidDone": "De-identification complete",
@@ -51359,8 +53097,10 @@ export const translations: Translations = {
     "dentalImplant3d.markFailed": "Marking failed",
     "dentalImplant3d.nerveMarked": "Nerve marked ({{count}} points)",
     "dentalImplant3d.selectPlanFirst": "Please select an implant plan first",
-    "dentalImplant3d.designGuideFirst": "Please complete the guide design first",
-    "dentalImplant3d.guideExported": "Surgical guide exported, ready for 3D printing",
+    "dentalImplant3d.designGuideFirst":
+      "Please complete the guide design first",
+    "dentalImplant3d.guideExported":
+      "Surgical guide exported, ready for 3D printing",
     "dentalImplant3d.guideExportFailed": "Guide export failed",
     "dentalImplant3d.selectPatientFirst": "Please select a patient first",
     "dentalImplant3d.planCreated": "3D plan created",
@@ -51386,7 +53126,8 @@ export const translations: Translations = {
     "dentalImplant3d.planList": "Plan List",
     "dentalImplant3d.nerveDistance": "Nerve dist:",
     "dentalImplant3d.boneDensity": "Bone density:",
-    "dentalImplant3d.updateImplantTitle": "Update Implant Registration - {{id}}",
+    "dentalImplant3d.updateImplantTitle":
+      "Update Implant Registration - {{id}}",
     "dentalImplant3d.status": "Status",
     "dentalImplant3d.diameter": "Diameter (mm)",
     "dentalImplant3d.length": "Length (mm)",
@@ -51402,7 +53143,8 @@ export const translations: Translations = {
     "dentalImplant3d.entryX": "Entry X",
     "dentalImplant3d.entryY": "Entry Y",
     "dentalImplant3d.angleMd": "Angle MD °",
-    "dentalImplant3d.savePlanParams": "Save Planning Parameters (Model/Position)",
+    "dentalImplant3d.savePlanParams":
+      "Save Planning Parameters (Model/Position)",
     "dentalImplant3d.safetyAnalysis": "Safety Analysis",
     "dentalImplant3d.distanceToNerve": "Distance to Nerve Canal",
     "dentalImplant3d.safetyThreshold": "Safety threshold: ≥2mm",
@@ -51419,7 +53161,8 @@ export const translations: Translations = {
     "dentalImplant3d.exportGuide": "Export Guide",
     "dentalImplant3d.restorationDesign": "Restoration Design",
     "dentalImplant3d.guideDesigned": "Surgical guide designed",
-    "dentalImplant3d.guideFileExported": "Guide file: {{file}} · exported, ready for 3D printing",
+    "dentalImplant3d.guideFileExported":
+      "Guide file: {{file}} · exported, ready for 3D printing",
     "dentalImplant3d.guideFile": "Guide file: {{file}}",
     // [v3.0.6.11-106 Wave 10A] DBT mammography tomosynthesis page
     "dbtPage.title": "DBT Mammography Tomosynthesis Reading",
@@ -51430,7 +53173,8 @@ export const translations: Translations = {
     "dbtPage.priorBracket": "[Prior]",
     "dbtPage.left": "Left",
     "dbtPage.right": "Right",
-    "dbtPage.markerModeHint": "Microcalcification marker mode: click image to add/remove markers",
+    "dbtPage.markerModeHint":
+      "Microcalcification marker mode: click image to add/remove markers",
     "dbtPage.studiesLoadFailed": "Failed to load DBT study list",
     "dbtPage.slicesLoadFailed": "Failed to load tomosynthesis slices",
     "dbtPage.reconstructFailed": "Tomosynthesis reconstruction failed",
@@ -51438,12 +53182,14 @@ export const translations: Translations = {
     "dbtPage.compareLoadFailed": "Failed to load comparison data",
     "dbtPage.selectDbtStudy": "Please select a DBT study first",
     "dbtPage.biradsScoreFailed": "BI-RADS scoring failed",
-    "dbtPage.biradsInserted": "BI-RADS scoring section sent to the report editor",
+    "dbtPage.biradsInserted":
+      "BI-RADS scoring section sent to the report editor",
     "dbtPage.loadingStudies": "Loading DBT study list...",
     "dbtPage.loadingSlices": "Loading tomosynthesis slices...",
     "dbtPage.loadingCompare": "Loading image comparison...",
     "dbtPage.noDbtData": "No DBT study data",
-    "dbtPage.noDbtDataDesc": "Please confirm that the backend dicom-samples/DBT samples have been generated or that a DicomInstance record with modality=DBT exists.",
+    "dbtPage.noDbtDataDesc":
+      "Please confirm that the backend dicom-samples/DBT samples have been generated or that a DicomInstance record with modality=DBT exists.",
     "dbtPage.studyList": "Study List:",
     "dbtPage.seriesLabel": "Series:",
     "dbtPage.studyOption": "{{status}} {{date}} {{desc}} ({{count}} series)",
@@ -51466,21 +53212,26 @@ export const translations: Translations = {
     "dbtPage.auto": "Auto",
     "dbtPage.manual": "Manual",
     "dbtPage.delete": "Del",
-    "dbtPage.threshold": "Detection threshold: {{value}} ({{count}} auto-detected)",
+    "dbtPage.threshold":
+      "Detection threshold: {{value}} ({{count}} auto-detected)",
     "dbtPage.reconLabel": "DBT Reconstruction {{proj}} | {{thickness}}mm",
-    "dbtPage.singleLabel": "DBT | {{view}} | {{angle}}° | Slice {{current}}/{{total}}",
+    "dbtPage.singleLabel":
+      "DBT | {{view}} | {{angle}}° | Slice {{current}}/{{total}}",
     "dbtPage.reconSource": "Source: {{source}}",
     "dbtPage.sourceReal": "Real pixels",
     "dbtPage.sourceSimulated": "Simulated",
     "dbtPage.compareCurrent": "Current: {{date}} {{name}} ({{accession}})",
     "dbtPage.comparePrior": "Prior: {{date}} {{name}} ({{accession}})",
     "dbtPage.syncScrollOn": "Sync scroll: On",
-    "dbtPage.compareCanvasCurrent": "Current | {{view}} | {{current}}/15 slices",
+    "dbtPage.compareCanvasCurrent":
+      "Current | {{view}} | {{current}}/15 slices",
     "dbtPage.compareCanvasPrior": "Prior | {{view}} | {{current}}/15 slices",
     "dbtPage.syncSliceLabel": "Sync Slice:",
     "dbtPage.biradsModalTitle": "DBT Microcalcification BI-RADS Auto Score",
-    "dbtPage.featureConfirm": "Feature Confirmation (microcalcification detection results + additional features)",
-    "dbtPage.calcCount": "Microcalcification count ({{count}} auto-detected on current slice)",
+    "dbtPage.featureConfirm":
+      "Feature Confirmation (microcalcification detection results + additional features)",
+    "dbtPage.calcCount":
+      "Microcalcification count ({{count}} auto-detected on current slice)",
     "dbtPage.distribution": "Distribution",
     "dbtPage.distClustered": "Clustered",
     "dbtPage.distLinear": "Linear",
@@ -51516,7 +53267,8 @@ export const translations: Translations = {
     "dbtPage.basis": "Scoring Basis ({{count}})",
     // [v3.0.6.11-106 Wave 10A] Medical alliance management page
     "medicalAlliance.title": "Medical Alliance Management",
-    "medicalAlliance.subtitle": "Alliance member management, resource sharing and referral collaboration",
+    "medicalAlliance.subtitle":
+      "Alliance member management, resource sharing and referral collaboration",
     "medicalAlliance.mswDemoTag": "Referral data: MSW demo",
     "medicalAlliance.unknownInstitution": "Unknown Institution",
     "medicalAlliance.membersTab": "Members",
@@ -51537,7 +53289,8 @@ export const translations: Translations = {
     "medicalAlliance.sharedResources": "Shared Resources",
     "medicalAlliance.sharedResourcesValue": "CT, MR, PET-CT, Ultrasound, X-ray",
     "medicalAlliance.coverageArea": "Coverage Area",
-    "medicalAlliance.coverageAreaValue": "Yuexiu District, Tianhe District, Guangzhou",
+    "medicalAlliance.coverageAreaValue":
+      "Yuexiu District, Tianhe District, Guangzhou",
     "medicalAlliance.newReferral": "New Referral",
     "medicalAlliance.patient": "Patient",
     "medicalAlliance.fromOrg": "From Institution",
@@ -51558,15 +53311,18 @@ export const translations: Translations = {
     "medicalAlliance.monthReferrals": "Referrals This Month",
     "medicalAlliance.resourceShared": "Resources Shared",
     "medicalAlliance.referralCompletion": "Referral Completion Rate",
-    "medicalAlliance.resourceDistributionTitle": "Resource Contribution Distribution",
+    "medicalAlliance.resourceDistributionTitle":
+      "Resource Contribution Distribution",
     "medicalAlliance.ultrasound": "Ultrasound",
     "medicalAlliance.xray": "X-ray",
     "medicalAlliance.orgCount": "{{count}} orgs",
     "medicalAlliance.recentTrendTitle": "Recent Referral Trend",
     "medicalAlliance.caseCount": "{{count}} cases",
     "medicalAlliance.loadingSiteStatus": "Loading institution status...",
-    "medicalAlliance.sourceReal": "Data source: /regional/sites (real multi-site API) + /regional/alliance-referrals",
-    "medicalAlliance.sourceFallback": "Data source: demo fallback (listSites unavailable, derived from alliance members)",
+    "medicalAlliance.sourceReal":
+      "Data source: /regional/sites (real multi-site API) + /regional/alliance-referrals",
+    "medicalAlliance.sourceFallback":
+      "Data source: demo fallback (listSites unavailable, derived from alliance members)",
     "medicalAlliance.refresh": "Refresh",
     "medicalAlliance.onlineOrgs": "Online Institutions",
     "medicalAlliance.offlineOrgs": "Offline Institutions",
@@ -51583,13 +53339,16 @@ export const translations: Translations = {
     "medicalAlliance.lastSyncLabel": "Last Sync:",
     "medicalAlliance.unknown": "Unknown",
     "medicalAlliance.lagSuffix": "(lagged {{hours}}h)",
-    "medicalAlliance.referralFlowTitle": "Referral Flow (Top Inter-institution)",
-    "medicalAlliance.noFlowData": "No referral flow data · auto-aggregated after creating referrals",
+    "medicalAlliance.referralFlowTitle":
+      "Referral Flow (Top Inter-institution)",
+    "medicalAlliance.noFlowData":
+      "No referral flow data · auto-aggregated after creating referrals",
     "medicalAlliance.closureRate": "Closure {{rate}}%",
     "medicalAlliance.moreFlows": "…and {{count}} more flows",
     "medicalAlliance.sharedStatsTitle": "Shared Study Statistics (Monthly)",
     "medicalAlliance.sharedTotalLabel": "Total Shared Studies:",
-    "medicalAlliance.coverageOrgs": "Covered institutions: {{count}} · MoM +12.4%",
+    "medicalAlliance.coverageOrgs":
+      "Covered institutions: {{count}} · MoM +12.4%",
     "medicalAlliance.slaTitle": "SLA Achievement Rate",
     "medicalAlliance.overallCompliance": "Overall Achievement Rate",
     "medicalAlliance.referralClosure": "Referral Closure Rate",
@@ -51597,10 +53356,13 @@ export const translations: Translations = {
     "medicalAlliance.urgentCompliance": "Urgent Referral Compliance",
     "medicalAlliance.avgSyncLatency": "Average Sync Latency",
     "medicalAlliance.slaPass": "Met: overall achievement rate ≥ 90%",
-    "medicalAlliance.slaWarn": "Warning: overall achievement rate below the 90% threshold",
+    "medicalAlliance.slaWarn":
+      "Warning: overall achievement rate below the 90% threshold",
     "medicalAlliance.metricsNote": "Operational Metrics:",
-    "medicalAlliance.metricsNoteBody": "Average online rate {{uptime}}% · alliance-wide monthly shared studies {{studies}} · institutions with sync lag {{lag}}. Status data comes from /regional/sites, referral data from /regional/alliance-referrals, automatically falling back to demo data when the API is unavailable.",
-    "medicalAlliance.monthlyTrendTitle": "Monthly Referral Trend (Last 6 Months)",
+    "medicalAlliance.metricsNoteBody":
+      "Average online rate {{uptime}}% · alliance-wide monthly shared studies {{studies}} · institutions with sync lag {{lag}}. Status data comes from /regional/sites, referral data from /regional/alliance-referrals, automatically falling back to demo data when the API is unavailable.",
+    "medicalAlliance.monthlyTrendTitle":
+      "Monthly Referral Trend (Last 6 Months)",
     "medicalAlliance.peakLabel": "Peak",
     "medicalAlliance.monthSuffix": "Month {{month}}",
     "medicalAlliance.totalReferrals": "Total Referrals: {{count}}",
@@ -51619,11 +53381,13 @@ export const translations: Translations = {
     "medicalAlliance.success": "Success",
     "medicalAlliance.failed": "Failed",
     "medicalAlliance.healthScoreTitle": "Institution Health Score",
-    "medicalAlliance.healthScoreFormula": "Score = Online Rate×50% + Sync Timeliness×30% + Latency×20%",
+    "medicalAlliance.healthScoreFormula":
+      "Score = Online Rate×50% + Sync Timeliness×30% + Latency×20%",
     "medicalAlliance.uptimeInline": "Online rate {{uptime}}%",
     "medicalAlliance.syncInline": "Sync {{value}}",
     "medicalAlliance.daysAgo": "{{days}} days ago",
-    "medicalAlliance.healthNote": "Institutions with a health score < 75 should have their network links and sync task configuration checked; offline institutions automatically enter degraded mode (local cache first).",
+    "medicalAlliance.healthNote":
+      "Institutions with a health score < 75 should have their network links and sync task configuration checked; offline institutions automatically enter degraded mode (local cache first).",
     // [v3.0.6.11-106 Wave 10A] Nuclear medicine specialty statistics page
     "nuclearStats.unitCases": "cases",
     "nuclearStats.loadFailed": "Loading failed",
@@ -51635,10 +53399,12 @@ export const translations: Translations = {
     "nuclearStats.tabPositive": "Positive Rate",
     "nuclearStats.tabSuv": "SUV Statistics",
     "nuclearStats.noDataTitle": "No nuclear medicine statistics data",
-    "nuclearStats.noDataDesc": "Please select another month or check the network status of nuclear medicine equipment",
+    "nuclearStats.noDataDesc":
+      "Please select another month or check the network status of nuclear medicine equipment",
     "nuclearStats.title": "Nuclear Medicine Specialty Statistics",
     "nuclearStats.demoTag": "Demo data (API fallback)",
-    "nuclearStats.subtitle": "Exam Volume · Drug Consumption · Equipment Utilization · Positive Rate · SUV Statistics",
+    "nuclearStats.subtitle":
+      "Exam Volume · Drug Consumption · Equipment Utilization · Positive Rate · SUV Statistics",
     "nuclearStats.period": "December 2025",
     "nuclearStats.exportReport": "Export Report",
     "nuclearStats.refreshData": "Refresh Data",
@@ -51667,7 +53433,8 @@ export const translations: Translations = {
     "nuclearStats.usageThyroid": "Thyroid",
     "nuclearStats.usageLabel": "Usage:",
     "nuclearStats.drugShareTitle": "Drug Consumption Share",
-    "nuclearStats.dailyDrugTrendTitle": "December Daily Drug Consumption Trend (mCi)",
+    "nuclearStats.dailyDrugTrendTitle":
+      "December Daily Drug Consumption Trend (mCi)",
     "nuclearStats.petCtSystem": "PET-CT System",
     "nuclearStats.spectSystem": "SPECT System",
     "nuclearStats.cyclotron": "Cyclotron",
@@ -51675,13 +53442,15 @@ export const translations: Translations = {
     "nuclearStats.maintenance": "Maintenance",
     "nuclearStats.examVolume": "Exam Volume",
     "nuclearStats.utilizationLabel": "Utilization",
-    "nuclearStats.dailyUtilTrendTitle": "December Daily Equipment Utilization Trend",
+    "nuclearStats.dailyUtilTrendTitle":
+      "December Daily Equipment Utilization Trend",
     "nuclearStats.positiveOverviewTitle": "Positive Rate Overview",
     "nuclearStats.avgPositiveRate": "Average Positive Rate",
     "nuclearStats.maxPositiveRate": "Highest Positive Rate",
     "nuclearStats.minPositiveRate": "Lowest Positive Rate",
     "nuclearStats.positiveCaseCount": "Positive Cases",
-    "nuclearStats.dailyPositiveTrendTitle": "December Daily Positive Rate Trend",
+    "nuclearStats.dailyPositiveTrendTitle":
+      "December Daily Positive Rate Trend",
     "nuclearStats.byTypePositiveTitle": "Positive Rate by Exam Type",
     "nuclearStats.typePetCtWholeBody": "PET-CT Whole Body",
     "nuclearStats.typePetCtHeart": "PET-CT Heart",
@@ -51697,7 +53466,8 @@ export const translations: Translations = {
     "nuclearStats.tumorUptakeAvg": "Tumor Uptake Average",
     "nuclearStats.inflammationUptakeAvg": "Inflammation Uptake Average",
     "nuclearStats.thresholdLabel": "Differentiation Threshold",
-    "nuclearStats.thresholdDesc": "SUVmax to differentiate benign from malignant",
+    "nuclearStats.thresholdDesc":
+      "SUVmax to differentiate benign from malignant",
     "nuclearStats.dailySuvTrendTitle": "December Daily Average SUVmax Trend",
     // [v3.0.6.11-106 Wave 10A] Patient detail panel
     "patientDetailPanel.statusDraft": "Draft",
@@ -51719,22 +53489,27 @@ export const translations: Translations = {
     "patientDetailPanel.reportTitle": "{{modality}} {{bodyPart}} Report",
     "patientDetailPanel.noContent": "No content",
     "patientDetailPanel.clickViewReport": "Click to view report",
-    "patientDetailPanel.appointmentTitle": "Appointment {{modality}} {{bodyPart}}",
+    "patientDetailPanel.appointmentTitle":
+      "Appointment {{modality}} {{bodyPart}}",
     "patientDetailPanel.appointmentDesc": "{{device}} · Priority {{priority}}",
     "patientDetailPanel.noDevice": "No device scheduled",
     "patientDetailPanel.clickGoAppointment": "Click to go to appointment",
     "patientDetailPanel.criticalTitle": "Critical Value: {{finding}}",
-    "patientDetailPanel.criticalDesc": "Severity {{severity}} · Status {{status}}",
+    "patientDetailPanel.criticalDesc":
+      "Severity {{severity}} · Status {{status}}",
     "patientDetailPanel.closedLoop": "Closed Loop",
     "patientDetailPanel.processing": "Processing",
     "patientDetailPanel.clickGoCritical": "Click to go to critical value",
     "patientDetailPanel.mergeSuccess": "Merge successful: {{from}} → {{to}}",
     "patientDetailPanel.mergeFailed": "Merge failed",
-    "patientDetailPanel.exportQueued": "Report {{id}} added to the export queue{{format}}",
+    "patientDetailPanel.exportQueued":
+      "Report {{id}} added to the export queue{{format}}",
     "patientDetailPanel.exportFailedDetail": "Export failed: {{error}}",
     "patientDetailPanel.unknownError": "Unknown error",
-    "patientDetailPanel.exportRequestFailed": "Export request failed, please try again later",
-    "patientDetailPanel.selectPatientHint": "Please select a patient from the list to view details",
+    "patientDetailPanel.exportRequestFailed":
+      "Export request failed, please try again later",
+    "patientDetailPanel.selectPatientHint":
+      "Please select a patient from the list to view details",
     "patientDetailPanel.backToPatientList": "Back to Patient List",
     "patientDetailPanel.backToList": "Back to List",
     "patientDetailPanel.open360View": "Open 360° View",
@@ -51743,11 +53518,13 @@ export const translations: Translations = {
     "patientDetailPanel.refresh": "Refresh",
     "patientDetailPanel.ageSuffix": " yrs",
     "patientDetailPanel.newAppointment": "New Appointment",
-    "patientDetailPanel.newAppointmentTitle": "Create a new exam appointment for the patient",
+    "patientDetailPanel.newAppointmentTitle":
+      "Create a new exam appointment for the patient",
     "patientDetailPanel.followUp": "Follow-up",
     "patientDetailPanel.followUpTitle": "Go to follow-up management",
     "patientDetailPanel.merge": "Merge",
-    "patientDetailPanel.mergeTitle": "Admin: merge duplicate patients (this patient is merged into the target)",
+    "patientDetailPanel.mergeTitle":
+      "Admin: merge duplicate patients (this patient is merged into the target)",
     "patientDetailPanel.edit": "Edit",
     "patientDetailPanel.birthDate": "Date of Birth",
     "patientDetailPanel.idCardNo": "ID Card No.",
@@ -51786,12 +53563,14 @@ export const translations: Translations = {
     "patientDetailPanel.normalResult": "Normal",
     "patientDetailPanel.viewImagesArrow": "View Images →",
     "patientDetailPanel.criticalHistoryTitle": "Critical Value History",
-    "patientDetailPanel.noCriticalRecords": "No critical value records for this patient",
+    "patientDetailPanel.noCriticalRecords":
+      "No critical value records for this patient",
     "patientDetailPanel.colTriggeredAt": "Triggered At",
     "patientDetailPanel.colType": "Type",
     "patientDetailPanel.colSeverity": "Severity",
     "patientDetailPanel.colClosedState": "Loop State",
-    "patientDetailPanel.clickViewCriticalDetail": "Click to view critical value details",
+    "patientDetailPanel.clickViewCriticalDetail":
+      "Click to view critical value details",
     "patientDetailPanel.detailArrow": "Details →",
     "patientDetailPanel.reportSectionTitle": "Exam Reports",
     "patientDetailPanel.reportsCount": "{{count}} reports",
@@ -51814,27 +53593,34 @@ export const translations: Translations = {
     "patientDetailPanel.partialPaid": "Partially Paid",
     "patientDetailPanel.unpaid": "Unpaid",
     "patientDetailPanel.timelineTitle": "Patient 360° Timeline",
-    "patientDetailPanel.timelineSubtitle": "(Exam · Report · Appointment · Critical Value)",
+    "patientDetailPanel.timelineSubtitle":
+      "(Exam · Report · Appointment · Critical Value)",
     "patientDetailPanel.imageHistoryTitle": "Image History",
-    "patientDetailPanel.imageCount": "{{count}} image series · click a card to open the DICOM viewer",
+    "patientDetailPanel.imageCount":
+      "{{count}} image series · click a card to open the DICOM viewer",
     "patientDetailPanel.noImages": "No image records",
     "patientDetailPanel.openImageTitle": "Open {{name}} images",
     "patientDetailPanel.frames": "{{count}} frames",
     "patientDetailPanel.pendingAcquisition": "Pending Acquisition",
     "patientDetailPanel.openArrow": "Open →",
     "patientDetailPanel.mergeModalTitle": "Patient Merge",
-    "patientDetailPanel.mergeModalDesc": "Merge all associated data of the current patient {{name}} ({{id}}) into the target patient",
+    "patientDetailPanel.mergeModalDesc":
+      "Merge all associated data of the current patient {{name}} ({{id}}) into the target patient",
     "patientDetailPanel.mergeTargetLabel": "Target Patient ID",
     "patientDetailPanel.mergeTargetPlaceholder": "e.g. P000002",
-    "patientDetailPanel.mergeWarning": "After merging, {{name}}'s exams, reports, appointments, and critical values will all be migrated to the target patient, and the source patient record will be soft-deleted. This action cannot be undone.",
-    "patientDetailPanel.mergeResultDetail": "Merge successful: {{exams}} exams · {{reports}} reports · {{appointments}} appointments · {{criticals}} critical values migrated",
+    "patientDetailPanel.mergeWarning":
+      "After merging, {{name}}'s exams, reports, appointments, and critical values will all be migrated to the target patient, and the source patient record will be soft-deleted. This action cannot be undone.",
+    "patientDetailPanel.mergeResultDetail":
+      "Merge successful: {{exams}} exams · {{reports}} reports · {{appointments}} appointments · {{criticals}} critical values migrated",
     "patientDetailPanel.cancel": "Cancel",
     "patientDetailPanel.merging": "Merging...",
     "patientDetailPanel.confirmMerge": "Confirm Merge",
     // [v3.0.6.11-106 Wave 10B] 15-page i18n (A)
     "neuro.title": "Neuro Specialty",
-    "neuro.subtitle": "Neuroimaging specialty · Stroke · Brain tumor · Epilepsy · Aneurysm",
-    "neuro.dataSource": "Data source: /neuro/* API (real backend · Exam-derived + seed fallback)",
+    "neuro.subtitle":
+      "Neuroimaging specialty · Stroke · Brain tumor · Epilepsy · Aneurysm",
+    "neuro.dataSource":
+      "Data source: /neuro/* API (real backend · Exam-derived + seed fallback)",
     "neuro.fallback": "Demo fallback",
     "neuro.realApi": "Live API",
     "neuro.export": "Export",
@@ -51899,7 +53685,8 @@ export const translations: Translations = {
     "neuro.infoFocus": "Focus",
     "neuro.noFindings": "No findings",
     "neuro.errLoadStudies": "Failed to load neuro cases",
-    "neuro.errLoadData": "Failed to load neuro specialty data, please retry later",
+    "neuro.errLoadData":
+      "Failed to load neuro specialty data, please retry later",
     "neuro.errAnalyze": "Emergency analysis failed",
     "neuro.errAnalyzeRetry": "Emergency analysis failed, please retry later",
     "v3Hub.title": "v3 Report Full Stack",
@@ -51999,12 +53786,17 @@ export const translations: Translations = {
     "eyeEmr.abnormal": "Abnormal",
     "eyeEmr.medicationAdjustments": "Medication Adjustments",
     "eyeEmr.anesthesiaNote": "Anesthesia Note",
-    "eyePixel.errColormapFallback": "Colormap table unreachable, using local linear LUT",
+    "eyePixel.errColormapFallback":
+      "Colormap table unreachable, using local linear LUT",
     "eyePixel.histogramLoaded": "Pixel histogram loaded",
-    "eyePixel.errHistogramFallback": "Histogram API unreachable, using local deterministic histogram",
-    "eyePixel.errSharpnessFallback": "Sharpness API unreachable, using local estimate",
-    "eyePixel.errArtifactFallback": "Artifact API unreachable, using local estimate",
-    "eyePixel.errMprFallback": "MPR API unreachable, using local reconstruction params",
+    "eyePixel.errHistogramFallback":
+      "Histogram API unreachable, using local deterministic histogram",
+    "eyePixel.errSharpnessFallback":
+      "Sharpness API unreachable, using local estimate",
+    "eyePixel.errArtifactFallback":
+      "Artifact API unreachable, using local estimate",
+    "eyePixel.errMprFallback":
+      "MPR API unreachable, using local reconstruction params",
     "eyePixel.statMean": "Mean",
     "eyePixel.statStd": "Std",
     "eyePixel.statMin": "Min",
@@ -52016,8 +53808,10 @@ export const translations: Translations = {
     "eyePixel.tagBenchmark": "Benchmark ZEISS FORUM / HEYEX 2",
     "eyePixel.instance": "Instance",
     "eyePixel.loadingMeta": "Loading metadata…",
-    "eyePixel.sourceApi": "Source: backend /eye/pixel/* (deterministic) · MSW fallback",
-    "eyePixel.sourceDemo": "Source: local demo fallback (some APIs unreachable)",
+    "eyePixel.sourceApi":
+      "Source: backend /eye/pixel/* (deterministic) · MSW fallback",
+    "eyePixel.sourceDemo":
+      "Source: local demo fallback (some APIs unreachable)",
     "eyePixel.studyInstanceSelect": "Study & Instance Selection",
     "eyePixel.studyLabel": "Study:",
     "eyePixel.instanceLabel": "Instance:",
@@ -52025,7 +53819,7 @@ export const translations: Translations = {
     "eyePixel.loading": "Loading…",
     "eyePixel.histogram": "Pixel Histogram",
     "eyePixel.loadHistogram": "Load Histogram",
-    "eyePixel.histogramHint": "Select an instance then click \"Load Histogram\"",
+    "eyePixel.histogramHint": 'Select an instance then click "Load Histogram"',
     "eyePixel.meanLine": "— Mean line",
     "eyePixel.localFallback": "Local fallback",
     "eyePixel.colormap": "Pseudocolor Mapping",
@@ -52033,17 +53827,18 @@ export const translations: Translations = {
     "eyePixel.applyLutTip": "Apply LUT to grayscale preview",
     "eyePixel.pseudoColor": "Pseudo",
     "eyePixel.grayscale": "Gray",
-    "eyePixel.grayscalePreview": "Grayscale preview (synthetic fundus) — turn on \"Pseudo\" to apply LUT",
+    "eyePixel.grayscalePreview":
+      'Grayscale preview (synthetic fundus) — turn on "Pseudo" to apply LUT',
     "eyePixel.sharpness": "Sharpness Analysis",
     "eyePixel.analyze": "Analyze",
-    "eyePixel.sharpnessHint": "Click \"Analyze\" to evaluate image sharpness",
+    "eyePixel.sharpnessHint": 'Click "Analyze" to evaluate image sharpness',
     "eyePixel.qualityPass": "Quality Pass",
     "eyePixel.rescanSuggested": "Rescan Suggested",
     "eyePixel.measuredAt": "Measured at",
     "eyePixel.fallback": "Fallback",
     "eyePixel.artifactDetection": "Artifact Detection",
     "eyePixel.detect": "Detect",
-    "eyePixel.artifactHint": "Click \"Detect\" to run AI artifact analysis",
+    "eyePixel.artifactHint": 'Click "Detect" to run AI artifact analysis',
     "eyePixel.imageQualityScore": "Image Quality Score",
     "eyePixel.passed": "Passed",
     "eyePixel.needsAttention": "Needs Attention",
@@ -52055,11 +53850,12 @@ export const translations: Translations = {
     "eyePixel.axisAxial": "Axial",
     "eyePixel.axisSagittal": "Sagittal",
     "eyePixel.axisCoronal": "Coronal",
-    "eyePixel.mprHint": "Select a reconstruction axis then click \"Reconstruct\"",
+    "eyePixel.mprHint": 'Select a reconstruction axis then click "Reconstruct"',
     "eyePixel.reconstructPreview": "Reconstruction Preview",
     "eyePixel.slices": "slices",
     "eyePixel.renderedAt": "Rendered at",
-    "eyePixel.webglNote": "Real-time WebGL texture array rendering, supports window width/level and slice switching (in viewer)",
+    "eyePixel.webglNote":
+      "Real-time WebGL texture array rendering, supports window width/level and slice switching (in viewer)",
     "eyePixel.dicomMeta": "DICOM Instance Metadata",
     "eyePixel.metaRowsCols": "Rows×Cols",
     "eyePixel.metaBitAlloc": "Bits Allocated",
@@ -52070,14 +53866,19 @@ export const translations: Translations = {
     "eyePixel.metaSamples": "Samples/Pixel",
     "eyePixel.metaPixelData": "Pixel Data",
     "eyePixel.metaSize": "Data Size",
-    "aiReportWriter.needAiTextAndInstruction": "Please generate AI text and enter a rewrite instruction first",
+    "aiReportWriter.needAiTextAndInstruction":
+      "Please generate AI text and enter a rewrite instruction first",
     "aiReportWriter.rewritten": "Rewritten",
     "aiReportWriter.needAiText": "Please generate AI text first",
     "aiReportWriter.nlpDone": "NLP extraction complete",
-    "aiReportWriter.transcribeUnavailable": "Transcription service temporarily unavailable",
-    "aiReportWriter.recordingUnsupported": "Recording not supported by this browser, reverted to simulated recording",
-    "aiReportWriter.recordingStarted": "Recording, click again to stop and transcribe",
-    "aiReportWriter.micDenied": "Cannot access microphone, please check browser permissions",
+    "aiReportWriter.transcribeUnavailable":
+      "Transcription service temporarily unavailable",
+    "aiReportWriter.recordingUnsupported":
+      "Recording not supported by this browser, reverted to simulated recording",
+    "aiReportWriter.recordingStarted":
+      "Recording, click again to stop and transcribe",
+    "aiReportWriter.micDenied":
+      "Cannot access microphone, please check browser permissions",
     "aiReportWriter.feedbackRecorded": "Feedback recorded",
     "aiReportWriter.title": "Ophthalmic AI Report Writing",
     "aiReportWriter.demoData": "Demo Data (MSW)",
@@ -52105,17 +53906,20 @@ export const translations: Translations = {
     "aiReportWriter.findingsLabel": "Findings",
     "aiReportWriter.voice": "Voice",
     "aiReportWriter.keyboard": "Keyboard",
-    "aiReportWriter.recordTip": "Click to start recording, click again to stop and transcribe (fallback to simulation if unsupported)",
+    "aiReportWriter.recordTip":
+      "Click to start recording, click again to stop and transcribe (fallback to simulation if unsupported)",
     "aiReportWriter.recordingClickStop": "Recording.. click to stop",
     "aiReportWriter.startRecord": "Start Recording",
     "aiReportWriter.vocabLibrary": "Vocabulary",
-    "aiReportWriter.findingsPlaceholder": "Enter findings or use speech recognition",
+    "aiReportWriter.findingsPlaceholder":
+      "Enter findings or use speech recognition",
     "aiReportWriter.aiOps": "AI Operations",
     "aiReportWriter.aiContinue": "AI Continue",
     "aiReportWriter.nlpExtract": "NLP Extract",
     "aiReportWriter.multiRewrite": "Multi-round Rewrite",
     "aiReportWriter.saveReport": "Save Report",
-    "aiReportWriter.rewritePlaceholder": "Rewrite instruction, e.g. simplify language / add OCT description / translate to English",
+    "aiReportWriter.rewritePlaceholder":
+      "Rewrite instruction, e.g. simplify language / add OCT description / translate to English",
     "aiReportWriter.styleConcise": "Concise",
     "aiReportWriter.styleDetailed": "Detailed",
     "aiReportWriter.styleAcademic": "Academic",
@@ -52148,7 +53952,8 @@ export const translations: Translations = {
     "mammoQc.statImageFailRate": "Image Fail Rate",
     "mammoQc.statTechConsistency": "Technologist Consistency",
     "mammoQc.title": "Breast Imaging Quality Management",
-    "mammoQc.subtitle": "Mammography quality management · ACR/FDA compliance · Image quality control · Technologist assessment",
+    "mammoQc.subtitle":
+      "Mammography quality management · ACR/FDA compliance · Image quality control · Technologist assessment",
     "mammoQc.sourceDemo": "Demo data (MSW, backend pending)",
     "mammoQc.sourceReal": "Real data (database aggregation)",
     "mammoQc.sync": "Sync",
@@ -52253,8 +54058,10 @@ export const translations: Translations = {
     "dentalImplantPlan.errLoad": "Failed to load implant plans",
     "dentalImplantPlan.created": "Implant plan created",
     "dentalImplantPlan.createFailed": "Create failed",
-    "dentalImplantPlan.validatePass": "Validation passed: no collision, safe from nerve canal",
-    "dentalImplantPlan.validateFail": "Validation failed, please adjust the plan",
+    "dentalImplantPlan.validatePass":
+      "Validation passed: no collision, safe from nerve canal",
+    "dentalImplantPlan.validateFail":
+      "Validation failed, please adjust the plan",
     "dentalImplantPlan.errValidate": "Validation failed",
     "dentalImplantPlan.approved": "Plan approved, ready for surgery",
     "dentalImplantPlan.errApprove": "Approval failed",
@@ -52280,7 +54087,8 @@ export const translations: Translations = {
     "dentalImplantPlan.boneTypeA": "Type A Bone (D1/D2)",
     "dentalImplantPlan.boneTypeB": "Type B Bone (D3)",
     "dentalImplantPlan.boneTypeC": "Type C Bone (D4)",
-    "dentalImplantPlan.boneNote": "Based on postoperative follow-up · 1-year success rate 98.5%",
+    "dentalImplantPlan.boneNote":
+      "Based on postoperative follow-up · 1-year success rate 98.5%",
     "dentalImplantPlan.newPlanModal": "New Implant Plan",
     "dentalImplantPlan.patientName": "Patient Name",
     "dentalImplantPlan.enterPatientName": "Please enter patient name",
@@ -52313,7 +54121,8 @@ export const translations: Translations = {
     "dentalTreatment.createFailed": "Create failed",
     "dentalTreatment.started": "Treatment started",
     "dentalTreatment.opFailed": "Operation failed",
-    "dentalTreatment.detailFallback": "Failed to load detail, showing list data",
+    "dentalTreatment.detailFallback":
+      "Failed to load detail, showing list data",
     "dentalTreatment.completed": "Treatment completed",
     "dentalTreatment.colPatient": "Patient",
     "dentalTreatment.colToothNo": "Tooth No.",
@@ -52345,7 +54154,8 @@ export const translations: Translations = {
     "dentalTreatment.treatmentType": "Treatment Type",
     "dentalTreatment.diagnosis": "Diagnosis",
     "dentalTreatment.enterDiagnosis": "Please enter diagnosis",
-    "dentalTreatment.diagnosisPlaceholder": "e.g. Deep caries / periapical periodontitis",
+    "dentalTreatment.diagnosisPlaceholder":
+      "e.g. Deep caries / periapical periodontitis",
     "dentalTreatment.treatmentPlan": "Treatment Plan",
     "dentalTreatment.planPlaceholder": "Treatment plan description",
     "dentalTreatment.estimatedCost": "Estimated Cost (¥)",
@@ -52356,13 +54166,17 @@ export const translations: Translations = {
     "dentalTreatment.completedAt": "Completed At",
     "reportSearch.noExportData": "No results to export",
     "reportSearch.errSearch": "Report search failed",
-    "reportSearch.errService": "Report search service temporarily unavailable, please retry later",
-    "reportSearch.errEmptyQuery": "Please enter a keyword or select filter criteria",
+    "reportSearch.errService":
+      "Report search service temporarily unavailable, please retry later",
+    "reportSearch.errEmptyQuery":
+      "Please enter a keyword or select filter criteria",
     "reportSearch.errSaveEmpty": "Please enter search criteria before saving",
     "reportSearch.errSaveFailed": "Save failed, browser storage unavailable",
     "reportSearch.title": "Advanced Report Search",
-    "reportSearch.subtitle": "Full-text + structured + synonyms · Smart suggestions · 7-dimension filters · Keyword highlight",
-    "reportSearch.searchPlaceholder": "Enter keyword, e.g. ground-glass nodule / GGN / right lobe of liver / acute cerebral infarction",
+    "reportSearch.subtitle":
+      "Full-text + structured + synonyms · Smart suggestions · 7-dimension filters · Keyword highlight",
+    "reportSearch.searchPlaceholder":
+      "Enter keyword, e.g. ground-glass nodule / GGN / right lobe of liver / acute cerebral infarction",
     "reportSearch.searching": "Searching...",
     "reportSearch.search": "Search",
     "reportSearch.advancedFilter": "Advanced Filter",
@@ -52379,8 +54193,10 @@ export const translations: Translations = {
     "reportSearch.saveQuery": "Save Query",
     "reportSearch.history": "History",
     "reportSearch.favorites": "Favorites",
-    "reportSearch.sourceUnavailable": "Source: search service unavailable (empty results) · Favorites/History/Hot words from local storage",
-    "reportSearch.sourceReal": "Source: reportApi live API · Favorites/Search history/Column preferences persisted locally (localStorage)",
+    "reportSearch.sourceUnavailable":
+      "Source: search service unavailable (empty results) · Favorites/History/Hot words from local storage",
+    "reportSearch.sourceReal":
+      "Source: reportApi live API · Favorites/Search history/Column preferences persisted locally (localStorage)",
     "reportSearch.searchRecords": "Search records",
     "reportSearch.itemsCount": "",
     "reportSearch.favoritesLabel": "Favorites",
@@ -52393,7 +54209,8 @@ export const translations: Translations = {
     "reportSearch.elapsed": "Search time",
     "reportSearch.dataSourceReportApi": "Source: reportApi",
     "reportSearch.favoritesPanel": "Favorites",
-    "reportSearch.noFavorites": "No favorites · click \"Favorite\" after searching to add",
+    "reportSearch.noFavorites":
+      'No favorites · click "Favorite" after searching to add',
     "reportSearch.removeFavorite": "Remove favorite",
     "reportSearch.searchHistoryPanel": "Search History",
     "reportSearch.clear": "Clear",
@@ -52410,10 +54227,12 @@ export const translations: Translations = {
     "reportSearch.noData": "No data",
     "reportSearch.hotKeywords": "Hot Keywords",
     "reportSearch.noSearchStats": "No search statistics",
-    "reportSearch.hotNote": "Aggregated by term frequency from the last 30 search records · click a term to search directly",
+    "reportSearch.hotNote":
+      "Aggregated by term frequency from the last 30 search records · click a term to search directly",
     "reportSearch.favoritedReports": "Favorited Reports",
     "reportSearch.clearAll": "Clear All",
-    "reportSearch.favHint": "Click \"Favorite\" on a result card to save a single report",
+    "reportSearch.favHint":
+      'Click "Favorite" on a result card to save a single report',
     "reportSearch.unfavorite": "Unfavorite",
     "reportSearch.searchResults": "Search Results",
     "reportSearch.sortByScore": "By Quality Score",
@@ -52423,7 +54242,8 @@ export const translations: Translations = {
     "reportSearch.exportCsv": "Export CSV",
     "reportSearch.searchingReports": "Searching reports...",
     "reportSearch.searchHint": "Enter a keyword to start searching",
-    "reportSearch.noResults": "No matching reports, please adjust the search term or filters",
+    "reportSearch.noResults":
+      "No matching reports, please adjust the search term or filters",
     "reportSearch.unassigned": "Unassigned",
     "reportSearch.scoreUnit": "Score",
     "reportSearch.criticalValue": "Critical",
@@ -52449,7 +54269,8 @@ export const translations: Translations = {
     "reportSearch.historySearch": "Search history:",
     "reportSearch.queriesUnit": "queries",
     "reportSearch.reportsUnit": "reports",
-    "reportSearch.footerText": "G005 Advanced Report Search · Full-text + structured + synonyms ·",
+    "reportSearch.footerText":
+      "G005 Advanced Report Search · Full-text + structured + synonyms ·",
     "reportSearch.doctorIdPlaceholder": "e.g. D001",
     // [v3.0.6.11-106 Wave 10B] 15-page i18n (C)
     "clinicalPathway.errLoadPathways": "Failed to load pathways",
@@ -52508,7 +54329,8 @@ export const translations: Translations = {
     "clinicalPathway.enterPatientName": "Please enter patient name",
     "clinicalPathway.clinicalPathway": "Clinical Pathway",
     "clinicalPathway.selectPathway": "Please select a pathway",
-    "clinicalPathway.pathwayPlaceholder": "e.g. Cataract surgery clinical pathway",
+    "clinicalPathway.pathwayPlaceholder":
+      "e.g. Cataract surgery clinical pathway",
     "dentalCad.designCreated": "Restoration design created",
     "dentalCad.minMarginPoints": "At least 3 margin points required",
     "dentalCad.marginSaved": "Margin line saved",
@@ -52540,7 +54362,8 @@ export const translations: Translations = {
     "dentalCad.clear": "Clear",
     "dentalCad.saveMargin": "Save Margin",
     "dentalCad.saveAnatomy": "Save Anatomy",
-    "dentalCad.marginHint": "Click along the tooth margin to add control points",
+    "dentalCad.marginHint":
+      "Click along the tooth margin to add control points",
     "dentalCad.controlPoints": "control points",
     "dentalCad.designParams": "Design Parameters",
     "dentalCad.occlusalAnatomy": "Occlusal Anatomy",
@@ -52598,7 +54421,8 @@ export const translations: Translations = {
     "dimse.worklistEntries": "Worklist Entries",
     "dimse.fileUpload": "DICOM File Upload",
     "dimse.selectDcm": "Select .dcm File",
-    "dimse.uploadHint": "Supports DICOM .dcm file upload; the system will parse and store it to PACS",
+    "dimse.uploadHint":
+      "Supports DICOM .dcm file upload; the system will parse and store it to PACS",
     "dimse.labelStudyUid": "Study UID",
     "dimse.enterStudyUid": "Please enter Study UID",
     "dimse.labelDestAe": "Dest AE",
@@ -52608,8 +54432,10 @@ export const translations: Translations = {
     "dimse.transferRecords": "Transfer Records",
     "dimse.title": "DICOM DIMSE Device Integration",
     "dimse.demoData": "Demo data · MOCK_DEVICES",
-    "dimse.demoAlert": "Demo data (legacy DIMSE page; use /dicom/dimse for full functionality)",
-    "dimse.introAlert": "DIMSE (DICOM Message Service Element) device integration test and management workbench, supporting C-ECHO, C-FIND (MWL), C-STORE, and C-MOVE",
+    "dimse.demoAlert":
+      "Demo data (legacy DIMSE page; use /dicom/dimse for full functionality)",
+    "dimse.introAlert":
+      "DIMSE (DICOM Message Service Element) device integration test and management workbench, supporting C-ECHO, C-FIND (MWL), C-STORE, and C-MOVE",
     "aiFusion.errLoadStudies": "Failed to load fusion studies",
     "aiFusion.errLoadData": "Failed to load fusion workbench data",
     "aiFusion.fusionDone": "Fusion task complete, new study generated",
@@ -52632,7 +54458,8 @@ export const translations: Translations = {
     "aiFusion.visible": "Visible",
     "aiFusion.hidden": "Hidden",
     "aiFusion.canvasArea": "Multimodal fusion canvas area ·",
-    "aiFusion.canvasSubtitle": "CBCT + OPG + intraoral scan multimodal fusion rendering",
+    "aiFusion.canvasSubtitle":
+      "CBCT + OPG + intraoral scan multimodal fusion rendering",
     "aiFusion.overlayLayer": "Overlay layer:",
     "aiFusion.modeUnit": "mode",
     "aiFusion.insights": "AI Insights",
@@ -52679,7 +54506,8 @@ export const translations: Translations = {
     "aiMedicalDevice.tabDevices": "Device List",
     "aiMedicalDevice.tabCerts": "Certificate Management",
     "aiMedicalDevice.retry": "Retry",
-    "aiMedicalDevice.deviceSearchPlaceholder": "Search by device code/name/manufacturer...",
+    "aiMedicalDevice.deviceSearchPlaceholder":
+      "Search by device code/name/manufacturer...",
     "aiMedicalDevice.allStatus": "All Status",
     "aiMedicalDevice.colDeviceCode": "Device Code",
     "aiMedicalDevice.colDeviceName": "Device Name",
@@ -52700,7 +54528,8 @@ export const translations: Translations = {
     "aiMedicalDevice.devicesUnit": "devices",
     "aiMedicalDevice.prevPage": "Previous",
     "aiMedicalDevice.nextPage": "Next",
-    "aiMedicalDevice.certSearchPlaceholder": "Search by device name/certificate No./manufacturer...",
+    "aiMedicalDevice.certSearchPlaceholder":
+      "Search by device name/certificate No./manufacturer...",
     "aiMedicalDevice.filterAll": "All",
     "aiMedicalDevice.filterValid": "Valid",
     "aiMedicalDevice.filterExpiring": "Expiring",
@@ -52725,7 +54554,8 @@ export const translations: Translations = {
     "aiMedicalDevice.casesUnit": "cases",
     // [v3.0.6.11-106 Wave 10A] Multi-site dashboard page
     "multiSiteDashboard.title": "Multi-Site / Multi-Campus Management Platform",
-    "multiSiteDashboard.subtitle": "{{count}} campuses | Real-time sync | Cross-campus routing | DICOM interoperability",
+    "multiSiteDashboard.subtitle":
+      "{{count}} campuses | Real-time sync | Cross-campus routing | DICOM interoperability",
     "multiSiteDashboard.statusActive": "Online",
     "multiSiteDashboard.statusSyncing": "Syncing",
     "multiSiteDashboard.statusOffline": "Offline",
@@ -52739,10 +54569,13 @@ export const translations: Translations = {
     "multiSiteDashboard.routingRuleLoadFailed": "Failed to load routing rules",
     "multiSiteDashboard.emptySiteList": "API returned an empty site list",
     "multiSiteDashboard.loadFailed": "Loading failed",
-    "multiSiteDashboard.fallbackWarning": "Loading failed, fell back to local static data",
+    "multiSiteDashboard.fallbackWarning":
+      "Loading failed, fell back to local static data",
     "multiSiteDashboard.retry": "Retry",
-    "multiSiteDashboard.dataSourceDemo": "Data source: demo data (API returned no sites, fell back to local local site.ts)",
-    "multiSiteDashboard.dataSourceReal": "Data source: /regional/sites (backend regional.service implemented)",
+    "multiSiteDashboard.dataSourceDemo":
+      "Data source: demo data (API returned no sites, fell back to local local site.ts)",
+    "multiSiteDashboard.dataSourceReal":
+      "Data source: /regional/sites (backend regional.service implemented)",
     "multiSiteDashboard.statTotalSites": "Total Sites",
     "multiSiteDashboard.statOnline": "Online",
     "multiSiteDashboard.statTotalStudies": "Total Studies",
@@ -52755,7 +54588,8 @@ export const translations: Translations = {
     "multiSiteDashboard.alertSites": "Alerting sites",
     "multiSiteDashboard.syncStatus": "Sync Status",
     "multiSiteDashboard.lastSyncLatency": "Last Sync Latency",
-    "multiSiteDashboard.avgLatencyText": "Average latency of {{count}} sites {{latency}} ms",
+    "multiSiteDashboard.avgLatencyText":
+      "Average latency of {{count}} sites {{latency}} ms",
     "multiSiteDashboard.highAvailability": "High Availability",
     "multiSiteDashboard.primaryDb": "Primary DB",
     "multiSiteDashboard.normal": "Normal",
@@ -52794,7 +54628,8 @@ export const translations: Translations = {
     "multiSiteDashboard.eventFailed": "Failed",
     "multiSiteDashboard.eventWaiting": "Waiting",
     // [v3.0.6.11-106 Wave 11D] integration/FhirBulkExportDetailPage
-    "fhirExport.loadRemoteFailed": "Failed to load remote data, using local demo data",
+    "fhirExport.loadRemoteFailed":
+      "Failed to load remote data, using local demo data",
     "fhirExport.colResourceType": "Resource Type",
     "fhirExport.colFile": "File",
     "fhirExport.colSize": "Size",
@@ -52803,7 +54638,8 @@ export const translations: Translations = {
     "fhirExport.download": "Download",
     "fhirExport.title": "FHIR Bulk Export Details",
     "fhirExport.demoEndpoint": "Demo Endpoint",
-    "fhirExport.demoEndpointDesc": "This page polls the /fhir/r4/$export-status/demo-job demo endpoint and falls back to local demo data (DEMO_NDJSON) when polling fails. Configure the FHIR server's $export async task endpoint in production.",
+    "fhirExport.demoEndpointDesc":
+      "This page polls the /fhir/r4/$export-status/demo-job demo endpoint and falls back to local demo data (DEMO_NDJSON) when polling fails. Configure the FHIR server's $export async task endpoint in production.",
     "fhirExport.taskStatus": "Task Status",
     "fhirExport.polling": "Polling...",
     "fhirExport.jobId": "Job ID",
@@ -52892,7 +54728,8 @@ export const translations: Translations = {
     "radpath.kpi.discordant": "Discordant",
     "radpath.kpi.pending": "Pending Review",
     "radpath.kpi.overallRate": "Overall Consistency Rate",
-    "radpath.searchPlaceholder": "Enter imaging report ID to query linked pathology...",
+    "radpath.searchPlaceholder":
+      "Enter imaging report ID to query linked pathology...",
     "radpath.searching": "Searching...",
     "radpath.search": "Search",
     "radpath.colReportId": "Report ID",
@@ -52903,7 +54740,8 @@ export const translations: Translations = {
     "radpath.colPathResult": "Pathology Result",
     "radpath.colConsistency": "Consistency",
     "radpath.colNotes": "Notes",
-    "radpath.emptyHint": "Enter an imaging report ID to query linked pathology comparison records",
+    "radpath.emptyHint":
+      "Enter an imaging report ID to query linked pathology comparison records",
     "radpath.trendTitle": "Consistency Trend",
     "radpath.distributionTitle": "Consistency Distribution",
     // [v3.0.6.11-106 Wave 11D] tech/ExamRoomStatusBoard
@@ -52930,15 +54768,20 @@ export const translations: Translations = {
     "examRoom.start": "Started",
     "examRoom.noCurrentPatient": "No patient currently being examined",
     "examRoom.idleDuration": "Idle for {{duration}}",
-    "examRoom.overdueTip": "Earliest arrived patient has waited over 30 minutes",
-    "examRoom.dataSourceApi": "Data source: GET /worklist/room-status (backend room aggregation, real-time) · WS room-status-refresh push",
-    "examRoom.dataSourceDemo": "Data source: demo fallback (API unavailable, locally derived)",
+    "examRoom.overdueTip":
+      "Earliest arrived patient has waited over 30 minutes",
+    "examRoom.dataSourceApi":
+      "Data source: GET /worklist/room-status (backend room aggregation, real-time) · WS room-status-refresh push",
+    "examRoom.dataSourceDemo":
+      "Data source: demo fallback (API unavailable, locally derived)",
     // [v3.0.6.11-106 Wave 11D] critical/CriticalValueListSection
     "cvSection.catalogTitle": "NHC 2024 Edition Critical Value Directory",
     "cvSection.fullCatalog": "Full Directory",
     "cvSection.itemCount": "{{count}} items",
-    "cvSection.modalAria": "NHC 2024 Edition Radiology Critical Value Directory",
-    "cvSection.modalTitle": "NHC 2024 Edition Radiology Critical Value Directory",
+    "cvSection.modalAria":
+      "NHC 2024 Edition Radiology Critical Value Directory",
+    "cvSection.modalTitle":
+      "NHC 2024 Edition Radiology Critical Value Directory",
     "cvSection.modalSubtitle": "{{count}} critical value entries in total",
     "cvSection.close": "Close",
     "cvSection.exportCatalog": "Export Directory",
@@ -52952,7 +54795,8 @@ export const translations: Translations = {
     "ar.loading": "Loading...",
     "ar.fallbackSuffix": "— fell back to demo data",
     "ar.retry": "Retry",
-    "ar.fallbackSource": "Data source: demo data (API returned no receivable entries)",
+    "ar.fallbackSource":
+      "Data source: demo data (API returned no receivable entries)",
     "ar.realSource": "Data source: /finance/invoices (real API)",
     "ar.totalReceivable": "Total Receivable",
     "ar.overdueAmount": "Overdue Amount",
@@ -53128,7 +54972,8 @@ export const translations: Translations = {
     "deptSched.approve": "Approve",
     "deptSched.reject": "Reject",
     "deptSched.staffFallback": "Staff",
-    "deptSched.scheduleUnavailable": "Schedule API unavailable, showing local sample data",
+    "deptSched.scheduleUnavailable":
+      "Schedule API unavailable, showing local sample data",
     "deptSched.fillRequired": "Please fill in name and leave dates",
     "deptSched.attendanceRecords": "Attendance Records",
     "deptSched.demoBadge": "Demo data · locally generated attendance",
@@ -53165,10 +55010,12 @@ export const translations: Translations = {
     "deptSched.earlyCount": "Early Leave Count",
     // [v3.0.6.11-106 Wave 11D] QualityControlPage
     "qcPage.scoresLoadFailed": "Failed to load score list, showing demo data",
-    "qcPage.rescoreSuccess": "Rescoring complete (reportQualityApi scoring engine)",
+    "qcPage.rescoreSuccess":
+      "Rescoring complete (reportQualityApi scoring engine)",
     "qcPage.rescoreFailed": "Rescoring failed",
     "qcPage.title": "Quality Control Management",
-    "qcPage.subtitle": "Scoring / Critical Values / Defects / Monthly Report / Realtime Dashboard",
+    "qcPage.subtitle":
+      "Scoring / Critical Values / Defects / Monthly Report / Realtime Dashboard",
     "qcPage.dataSourceApi": "Score data: reportApi/reportQualityApi",
     "qcPage.dataSourceFallback": "Score data: demo data (API failed, fallback)",
     "qcPage.moduleCount": "Quality control modules: 6",
@@ -53200,13 +55047,15 @@ export const translations: Translations = {
     "annualQc.unit.points": "pts",
     "annualQc.unit.cases": "cases",
     "annualQc.title": "Radiologist Annual QC Profile",
-    "annualQc.subtitle": "Yearly QC KPI trend / score history / performance analysis per radiologist",
+    "annualQc.subtitle":
+      "Yearly QC KPI trend / score history / performance analysis per radiologist",
     "annualQc.exportProfile": "Export Profile",
     "annualQc.exportProfileAria": "Export radiologist profile",
     "annualQc.closeCompare": "Close Comparison",
     "annualQc.compare": "Compare",
     "annualQc.compareAria": "Compare analysis",
-    "annualQc.compareTitle": "Comparison: {{name}} vs department average (6 months)",
+    "annualQc.compareTitle":
+      "Comparison: {{name}} vs department average (6 months)",
     "annualQc.demoData": "Demo data (local generator)",
     "annualQc.colMetric": "Metric",
     "annualQc.colDeptAvg": "Dept Average",
@@ -53224,7 +55073,8 @@ export const translations: Translations = {
     "annualQc.timelyRate": "Timeliness Rate",
     "annualQc.monthlyTrend": "Monthly QC Trend",
     "annualQc.sixMonthCumulative": "6-month cumulative:",
-    "annualQc.summary": "{{months}} months · avg score {{avg}} · trend {{trend}}",
+    "annualQc.summary":
+      "{{months}} months · avg score {{avg}} · trend {{trend}}",
     "annualQc.trendUp": "↑ Up",
     "annualQc.trendDown": "↓ Down",
     "annualQc.noHistory": "No historical score data",
@@ -53238,10 +55088,12 @@ export const translations: Translations = {
     "hrOps.apiRealtime": "userApi realtime",
     "hrOps.demoData": "Demo data",
     "hrOps.syncing": "Syncing...",
-    "hrOps.dataSourceApi": "Data source: userApi realtime (staff/workload/credentials)",
+    "hrOps.dataSourceApi":
+      "Data source: userApi realtime (staff/workload/credentials)",
     "hrOps.dataSourceDemo": "Data source: demo data",
     "hrOps.retry": "Retry",
-    "hrOps.builtinDemoNote": "Shift table / satisfaction trend are built-in demo data",
+    "hrOps.builtinDemoNote":
+      "Shift table / satisfaction trend are built-in demo data",
     "hrOps.tabRoster": "Staff Roster",
     "hrOps.tabShift": "Shift Management",
     "hrOps.tabCerts": "Credentials",
@@ -53310,12 +55162,14 @@ export const translations: Translations = {
     "lungCad.colMalignancyRisk": "Malignancy Risk",
     "lungCad.recommendationLabel": "Recommendation:",
     // [v3.0.6.11-106 Wave 11D] ReportTimelinessPage
-    "timeliness.apiUnavailable": "biApi unavailable, showing built-in demo data",
+    "timeliness.apiUnavailable":
+      "biApi unavailable, showing built-in demo data",
     "timeliness.loadFailed": "Failed to load data, fell back to demo data",
     "timeliness.urgeUnavailable": "Urge API unavailable, logged locally",
     "timeliness.deptDirector": "Department Director",
     "timeliness.title": "Report Timeliness Monitoring",
-    "timeliness.subtitle": "Emergency 5min / Urgent 30min / Routine 24h · Realtime overdue alerts · Smart scheduling",
+    "timeliness.subtitle":
+      "Emergency 5min / Urgent 30min / Routine 24h · Realtime overdue alerts · Smart scheduling",
     "timeliness.today": "Today",
     "timeliness.last7": "Last 7 Days",
     "timeliness.thisMonth": "This Month",
@@ -53342,7 +55196,8 @@ export const translations: Translations = {
     "timeliness.trend7d": "7-Day On-time Rate Trend",
     "timeliness.overallUp": "Overall up 2.3%",
     "timeliness.overdueList": "Realtime Overdue Ticket List",
-    "timeliness.overdueDemoNote": "Demo data (biApi has no overdue ticket detail endpoint)",
+    "timeliness.overdueDemoNote":
+      "Demo data (biApi has no overdue ticket detail endpoint)",
     "timeliness.urging": "Urging...",
     "timeliness.urgeAll": "Urge All",
     "timeliness.colReportId": "Report ID",
@@ -53357,8 +55212,10 @@ export const translations: Translations = {
     "visualField.loading": "Loading...",
     "visualField.noData": "No visual field exam data",
     "visualField.analysis": "Visual Field Analysis",
-    "visualField.demoTag": "Partial demo data · grayscale/interpretation are demo, MD/PSD are real API data",
-    "visualField.grayscaleCaption": "Grayscale (dB) — darker means smaller value",
+    "visualField.demoTag":
+      "Partial demo data · grayscale/interpretation are demo, MD/PSD are real API data",
+    "visualField.grayscaleCaption":
+      "Grayscale (dB) — darker means smaller value",
     "visualField.patternDeviation": "Pattern Deviation (dB)",
     "visualField.tdCurve": "TD Curve",
     "visualField.tdCurveDesc": "Superior nasal step scotoma",
@@ -53380,7 +55237,8 @@ export const translations: Translations = {
     "visualField.outsideNormal": "Outside Normal Limits",
     "visualField.defectPattern": "Defect Pattern: Superior nasal step scotoma",
     "visualField.defectDepth": "Defect Depth:",
-    "visualField.note1": "Significant sensitivity reduction in superotemporal sector (-12.5dB)",
+    "visualField.note1":
+      "Significant sensitivity reduction in superotemporal sector (-12.5dB)",
     "visualField.note2": "Consistent with superotemporal RNFL thinning",
     "visualField.note3": "Functional damage has reached severe stage",
     // [v3.0.6.11-106 Wave 11D] critical/CriticalValueList
@@ -53404,7 +55262,8 @@ export const translations: Translations = {
     "cvList.time.1h": "Within 1 hour",
     "cvList.time.2h": "Within 2 hours",
     "cvList.time.overdue": "Overdue",
-    "cvList.searchPlaceholder": "Search patient name/study ID/critical value ID...",
+    "cvList.searchPlaceholder":
+      "Search patient name/study ID/critical value ID...",
     "cvList.rulesSettings": "Rule Settings",
     "cvList.statusLabel": "Status:",
     "cvList.modalityLabel": "Modality:",
@@ -53425,7 +55284,8 @@ export const translations: Translations = {
     "cvList.fiveStepWorkflow": "5-step closed-loop workflow",
     "cvList.fiveStep": "5 Steps",
     "cvList.deleteTitle": "Delete Critical Value",
-    "cvList.deleteDesc": "Are you sure you want to delete this critical value record? This action cannot be undone.",
+    "cvList.deleteDesc":
+      "Are you sure you want to delete this critical value record? This action cannot be undone.",
     "cvList.deleteOk": "Delete",
     "cvList.deleteCancel": "Cancel",
     "cvList.delete": "Delete",
@@ -53443,7 +55303,8 @@ export const translations: Translations = {
     "cvList.colActions": "Actions",
     "cvList.colTransfer": "Follow-up",
     "cvList.emptyTitle": "No critical value records",
-    "cvList.emptyDesc": "No matching critical values found for the filter criteria",
+    "cvList.emptyDesc":
+      "No matching critical values found for the filter criteria",
     "cvList.totalRecordsPrefix": "Total",
     "cvList.totalRecordsMid": "records,",
     "cvList.selectedPrefix": "selected",
@@ -53535,11 +55396,14 @@ export const translations: Translations = {
     "deviceDetail.event.procurement": "Procurement",
     "deviceDetail.event.installation": "Installation & Commissioning",
     "deviceDetail.event.commissioning": "In Service",
-    "deviceDetail.event.commissioningDesc": "Accepted and put into clinical use",
+    "deviceDetail.event.commissioningDesc":
+      "Accepted and put into clinical use",
     "deviceDetail.event.warrantyExpiry": "Warranty Expiry",
-    "deviceDetail.event.warrantyExpiryDesc": "OEM warranty ended, maintenance contract renewed",
+    "deviceDetail.event.warrantyExpiryDesc":
+      "OEM warranty ended, maintenance contract renewed",
     "deviceDetail.event.retirement": "Planned Retirement",
-    "deviceDetail.event.retirementDesc": "Expected service life ended, renewal plan initiated",
+    "deviceDetail.event.retirementDesc":
+      "Expected service life ended, renewal plan initiated",
     "deviceDetail.performanceMetrics": "Performance Metrics",
     "deviceDetail.avgExamTime": "Average Exam Time",
     "deviceDetail.maxExamTime": "Max Exam Time",
@@ -53578,7 +55442,8 @@ export const translations: Translations = {
     "deptDash.patientsInExam": "{{count}} being examined",
     "deptDash.examStats": "Exam Statistics by Type",
     "deptDash.examProgress": "Pending {{pending}} | Completed {{completed}}",
-    "deptDash.footer": "Radiology Information System (RIS) v0.7.0 | Sample data (devices/statistics are demo data, realtime API not connected) | For issues contact: Radiology IT Center 8001",
+    "deptDash.footer":
+      "Radiology Information System (RIS) v0.7.0 | Sample data (devices/statistics are demo data, realtime API not connected) | For issues contact: Radiology IT Center 8001",
     // [v3.0.6.11-106 Wave 11D] regional/RegionalCollaborationPage (labels) + CollaborationPage
     "regionalCollab.instStatus.online": "Online",
     "regionalCollab.instStatus.offline": "Offline",
@@ -53615,10 +55480,13 @@ export const translations: Translations = {
     "collab.loadFailed": "Failed to load consultations, fell back to demo data",
     "collab.loading": "Loading...",
     "collab.noOnlineUsers": "No online users",
-    "collab.wsConnecting": "Connecting to WebSocket... please wait or check your network",
+    "collab.wsConnecting":
+      "Connecting to WebSocket... please wait or check your network",
     "collab.title": "Multi-user Collaborative Editing",
-    "collab.subtitle": "Realtime sync · Cursor position · Selection highlight · @mentions · Comments",
-    "collab.dataSourceApi": "Data source: consultation API realtime (list/comments)",
+    "collab.subtitle":
+      "Realtime sync · Cursor position · Selection highlight · @mentions · Comments",
+    "collab.dataSourceApi":
+      "Data source: consultation API realtime (list/comments)",
     "collab.dataSourceDemo": "Demo data (comments API unavailable)",
     "collab.wsConnected": "WebSocket connected",
     "collab.onlineCount": "{{count}} online:",
@@ -53644,7 +55512,8 @@ export const translations: Translations = {
     "collab.sending": "Sending...",
     "collab.send": "Send",
     "collab.noComments": "No comments",
-    "collab.addCommentPlaceholder": "Add a comment... (use @ to mention others)",
+    "collab.addCommentPlaceholder":
+      "Add a comment... (use @ to mention others)",
     "collab.realtimeActivity": "Realtime Activity",
     "collab.noActivity": "No activity",
     "collab.autoScroll": "Auto-scroll",
@@ -53703,7 +55572,8 @@ export const translations: Translations = {
     "dcmView.modeLabel": "{{mode}} Mode",
     "dcmView.scrollHint": "Scroll to adjust WW/WL",
     "dcmView.invertShort": "Invert",
-    "dcmView.brightnessContrast": "Brightness:{{brightness}}% Contrast:{{contrast}}%",
+    "dcmView.brightnessContrast":
+      "Brightness:{{brightness}}% Contrast:{{contrast}}%",
     "dcmView.measureMode": "Measure Mode:",
     "dcmView.measure.length": "Length (2 points)",
     "dcmView.measure.angle": "Angle (vertex+2 points)",
@@ -53767,7 +55637,8 @@ export const translations: Translations = {
     "reportWf.reason": "Reason",
     "reportWf.selectReportHint": "Select a report on the left to view details",
     "reportWf.stateMachine": "State Machine",
-    "reportWf.stateDesc.PENDING_ASSIGNMENT": "Report created, pending assignment",
+    "reportWf.stateDesc.PENDING_ASSIGNMENT":
+      "Report created, pending assignment",
     "reportWf.stateDesc.ASSIGNED": "Assigned to doctor for writing",
     "reportWf.stateDesc.WRITING": "Doctor editing report content",
     "reportWf.stateDesc.SUBMITTED": "Submitted for review",
@@ -53781,15 +55652,18 @@ export const translations: Translations = {
     "reportWf.stateDesc.AMENDING": "Amending",
     "reportWf.stateDesc.AMENDED": "Amended, re-signed",
     "reportWf.stateDesc.REJECTED": "Rejected, rewrite and resubmit",
-    "reportWf.stateDesc.RECTIFYING": "Rectifying, review directly after completion",
+    "reportWf.stateDesc.RECTIFYING":
+      "Rectifying, review directly after completion",
     "reportWf.stateDesc.SUPPLEMENTING": "Supplementing",
     "reportWf.stateDesc.SUPPLEMENTED": "Supplemented, ready to publish",
     "reportWf.stateDesc.WITHDRAWN": "Withdrawn (final state)",
     "reportWf.stateDesc.ARCHIVED": "Archived (final state)",
     "reportWf.stateDesc.ESCALATED": "Escalated",
     "reportWf.stateDesc.REDISTRIBUTING": "Cross-site redistribution",
-    "reportWf.rejectReasonTitle": "Please fill in the rejection reason (at least 5 characters)",
-    "reportWf.rejectReasonPlaceholder": "e.g. Incomplete description of imaging findings",
+    "reportWf.rejectReasonTitle":
+      "Please fill in the rejection reason (at least 5 characters)",
+    "reportWf.rejectReasonPlaceholder":
+      "e.g. Incomplete description of imaging findings",
     "reportWf.qualityScoreTitle": "Please confirm quality score (0-100)",
     "reportWf.selectCosignerTitle": "Select co-sign expert",
     // [v3.0.6.11-106 Wave 11D] cardiac/CardiacSpecialtyPage
@@ -53811,7 +55685,8 @@ export const translations: Translations = {
     "cardiacSpec.title": "Cardiac Specialty",
     "cardiacSpec.dataRealtime": "AI API realtime",
     "cardiacSpec.dataDemo": "Demo data (fallback)",
-    "cardiacSpec.subtitle": "Cardiac Imaging Specialty · Coronary Assessment · Cardiac Function · Hemodynamics",
+    "cardiacSpec.subtitle":
+      "Cardiac Imaging Specialty · Coronary Assessment · Cardiac Function · Hemodynamics",
     "cardiacSpec.refresh": "Refresh",
     "cardiacSpec.export": "Export",
     "cardiacSpec.retry": "Retry",
@@ -53847,10 +55722,12 @@ export const translations: Translations = {
     // [v3.0.6.11-106 Wave 11A] radiomics/RadiomicsFeaturePage
     "radiomics.enterInstanceId": "Please enter instance ID",
     "radiomics.loadFailedDemo": "Failed to load features, using demo data",
-    "radiomics.roiCoordInvalid": "Invalid ROI coordinates, expected: x,y,width,height",
+    "radiomics.roiCoordInvalid":
+      "Invalid ROI coordinates, expected: x,y,width,height",
     "radiomics.extractDone": "Feature extraction complete",
     "radiomics.extractUnavailable": "Feature extraction service unavailable",
-    "radiomics.compareMinIds": "Please enter at least 2 instance IDs (comma-separated)",
+    "radiomics.compareMinIds":
+      "Please enter at least 2 instance IDs (comma-separated)",
     "radiomics.compareUnavailable": "Comparison service unavailable",
     "radiomics.colCategory": "Category",
     "radiomics.colName": "Feature Name",
@@ -53915,9 +55792,11 @@ export const translations: Translations = {
     "roomOccupancy.targetStatus": "Target Status",
     "roomOccupancy.selectRoomFirst": "Please select a room first",
     // [v3.0.6.11-106 Wave 11A] dental/DentalOrthoPage
-    "dentalOrtho.noCasesHint": "No orthodontic cases yet; click \"New Case\" to create one",
+    "dentalOrtho.noCasesHint":
+      'No orthodontic cases yet; click "New Case" to create one',
     "dentalOrtho.loadFailed": "Failed to load orthodontic cases",
-    "dentalOrtho.networkError": "Network error, failed to load orthodontic cases",
+    "dentalOrtho.networkError":
+      "Network error, failed to load orthodontic cases",
     "dentalOrtho.createFailed": "Create failed",
     "dentalOrtho.updateFailed": "Update failed",
     "dentalOrtho.title": "Orthodontic Management",
@@ -53945,7 +55824,8 @@ export const translations: Translations = {
     "dentalOrtho.patientId": "Patient ID",
     "dentalOrtho.optional": "Optional",
     "dentalOrtho.diagnosisRequired": "Please enter diagnosis",
-    "dentalOrtho.diagnosisPlaceholder": "e.g., Angle Class II Division 1 malocclusion",
+    "dentalOrtho.diagnosisPlaceholder":
+      "e.g., Angle Class II Division 1 malocclusion",
     "dentalOrtho.treatmentPlan": "Treatment Plan",
     "dentalOrtho.planPlaceholder": "e.g., fixed appliance + extraction plan",
     "dentalOrtho.toothNoLabel": "Tooth Positions",
@@ -54000,7 +55880,8 @@ export const translations: Translations = {
     "cvOps.tabInventory": "Inventory",
     "cvOps.timelineToday": "Activity Timeline — Today",
     "cvOps.demoData": "Demo data",
-    "cvOps.protocolsSource": "Data source: demo data (no /cardiac/operations endpoint)",
+    "cvOps.protocolsSource":
+      "Data source: demo data (no /cardiac/operations endpoint)",
     "cvOps.colProtocol": "Protocol",
     "cvOps.colModality": "Modality",
     "cvOps.colIndication": "Indication",
@@ -54049,7 +55930,8 @@ export const translations: Translations = {
     "safetyGoals.colOwner": "Owner",
     "safetyGoals.newGoalTitle": "New Safety Goal",
     "safetyGoals.goalName": "Goal Name *",
-    "safetyGoals.goalNamePlaceholder": "e.g., Inpatient identity verification rate",
+    "safetyGoals.goalNamePlaceholder":
+      "e.g., Inpatient identity verification rate",
     "safetyGoals.category": "Category",
     "safetyGoals.baseline": "Baseline",
     "safetyGoals.current": "Current",
@@ -54081,7 +55963,8 @@ export const translations: Translations = {
     "guideline.colUpdatedAt": "Updated At",
     "guideline.colActions": "Actions",
     "guideline.loadingList": "Loading guideline list...",
-    "guideline.emptyList": "No guidelines. Click \"New Guideline\" in the top right to create one.",
+    "guideline.emptyList":
+      'No guidelines. Click "New Guideline" in the top right to create one.',
     "guideline.detail": "Details",
     "guideline.labelName": "Guideline Name *",
     "guideline.namePlaceholder": "Enter guideline name",
@@ -54134,7 +56017,8 @@ export const translations: Translations = {
     "iop.deleteConfirm": "Delete this record?",
     // [v3.0.6.11-106 Wave 11A] analytics/TatDashboardPage
     "tatDashboard.selectCube": "Please select a data cube",
-    "tatDashboard.enterDrillValue": "Please enter a drill-down dimension value (e.g., CT)",
+    "tatDashboard.enterDrillValue":
+      "Please enter a drill-down dimension value (e.g., CT)",
     "tatDashboard.drillFailed": "Drill-down failed",
     "tatDashboard.summaryLoadFailed": "Failed to load TAT summary data",
     "tatDashboard.doctorLoadFailed": "Failed to load doctor TAT data",
@@ -54172,7 +56056,8 @@ export const translations: Translations = {
     "tatDashboard.selectCubePlaceholder": "Select Data Cube",
     "tatDashboard.dimensionValuePlaceholder": "Dimension value (e.g., CT)",
     "tatDashboard.measures": "Measures",
-    "tatDashboard.drillHint": "Select a cube and dimension value, then click \"Drill Down\" to view results",
+    "tatDashboard.drillHint":
+      'Select a cube and dimension value, then click "Drill Down" to view results',
     "tatDashboard.barChart": "Bar Chart",
     "tatDashboard.dimension": "Dimension",
     // [v3.0.6.11-106 Wave 11A] ihe/VisitPage
@@ -54194,11 +56079,13 @@ export const translations: Translations = {
     "iheVisit.dischargeTime": "Discharge Time",
     "iheVisit.manualAdt": "Manual ADT Trigger",
     "iheVisit.sending": "Sending...",
-    "iheVisit.hint": "Current state is {{status}}; only active state transition buttons are enabled",
+    "iheVisit.hint":
+      "Current state is {{status}}; only active state transition buttons are enabled",
     "iheVisit.timeline": "Timeline",
     // [v3.0.6.11-106 Wave 11A] integration/FhirServerPage
     "fhirServer.queryDone": "FHIR query complete",
-    "fhirServer.queryNotConfigured": "FHIR query endpoint not configured (using demo data)",
+    "fhirServer.queryNotConfigured":
+      "FHIR query endpoint not configured (using demo data)",
     "fhirServer.title": "FHIR Server Integration",
     "fhirServer.capability": "Capability Statement",
     "fhirServer.resourceType": "Resource Types",
@@ -54209,20 +56096,23 @@ export const translations: Translations = {
     "fhirServer.tabBrowse": "Resource Browser",
     "fhirServer.tabQuery": "FHIR Query",
     "fhirServer.tabSend": "Send FHIR",
-    "fhirServer.capabilityTitle": "FHIR {{version}} Server Capability Statement",
+    "fhirServer.capabilityTitle":
+      "FHIR {{version}} Server Capability Statement",
     "fhirServer.status": "Status",
     "fhirServer.publisher": "Publisher",
     "fhirServer.security": "Security",
     "fhirServer.corsSmart": "CORS + SMART OAuth2 authorization",
     "fhirServer.none": "None",
     "fhirServer.resourceTypes": "Resource Types:",
-    "fhirServer.capabilityAlert": "The capability statement is declared statically per FHIR R4 (POST /fhir/metadata not yet implemented); actual capability depends on the backend.",
+    "fhirServer.capabilityAlert":
+      "The capability statement is declared statically per FHIR R4 (POST /fhir/metadata not yet implemented); actual capability depends on the backend.",
     "fhirServer.liveDeclaration": "from backend /metadata",
     "fhirServer.capabilityGaps": "Capability gaps (declared honestly)",
     "fhirServer.colCapability": "Capability",
     "fhirServer.colGapReason": "Reason",
     "fhirServer.metadataUnavailable": "CapabilityStatement unavailable",
-    "fhirServer.metadataUnavailableDesc": "The backend /fhir/r4/metadata endpoint is unreachable, so server capabilities cannot be declared. Check whether the FHIR service is running, or retry later. The system does not substitute a static document for a real capability statement.",
+    "fhirServer.metadataUnavailableDesc":
+      "The backend /fhir/r4/metadata endpoint is unreachable, so server capabilities cannot be declared. Check whether the FHIR service is running, or retry later. The system does not substitute a static document for a real capability statement.",
     "fhirServer.refresh": "Refresh",
     "fhirServer.colId": "ID",
     "fhirServer.colType": "Type",
@@ -54230,11 +56120,13 @@ export const translations: Translations = {
     "fhirServer.colGender": "Gender",
     "fhirServer.colBirthDate": "Birth Date",
     "fhirServer.query": "Query",
-    "fhirServer.querySyntax": "FHIR query syntax: _count / _sort / name:contains / birthdate=gt2020",
+    "fhirServer.querySyntax":
+      "FHIR query syntax: _count / _sort / name:contains / birthdate=gt2020",
     "fhirServer.queryResult": "Query Result",
     "fhirServer.sendResource": "Send Resource",
     "fhirServer.newAndSend": "Create and Send FHIR Resource",
-    "fhirServer.sendHint": "Supports POST/PUT to create or update Patient/Observation/DiagnosticReport",
+    "fhirServer.sendHint":
+      "Supports POST/PUT to create or update Patient/Observation/DiagnosticReport",
     "fhirServer.createResource": "Create FHIR Resource",
     "fhirServer.resourceCreated": "FHIR resource created",
     "fhirServer.jsonBody": "JSON Request Body",
@@ -54270,7 +56162,8 @@ export const translations: Translations = {
     "chargeItem.colPrice": "Unit Price (CNY)",
     "chargeItem.colActions": "Actions",
     "chargeItem.loading": "Loading charge items...",
-    "chargeItem.empty": "No charge items. Click \"New Item\" in the top right to create one.",
+    "chargeItem.empty":
+      'No charge items. Click "New Item" in the top right to create one.',
     "chargeItem.reimbursable": "Reimbursable",
     "chargeItem.selfPay": "Self-pay",
     "chargeItem.edit": "Edit",
@@ -54290,7 +56183,8 @@ export const translations: Translations = {
     "aiDraft.enterContinuePrompt": "Please enter a continuation prompt",
     "aiDraft.continueFailed": "Continuation failed",
     "aiDraft.continueRequestFailed": "Continuation request failed",
-    "aiDraft.selectRewrite": "Please select a paragraph to rewrite and enter an instruction",
+    "aiDraft.selectRewrite":
+      "Please select a paragraph to rewrite and enter an instruction",
     "aiDraft.rewriteFailed": "Rewrite failed",
     "aiDraft.rewriteRequestFailed": "Rewrite request failed",
     "aiDraft.rejected": "Paragraph rejected",
@@ -54308,22 +56202,26 @@ export const translations: Translations = {
     "aiDraft.edit": "Edit",
     "aiDraft.reject": "Reject",
     "aiDraft.continue": "Continue",
-    "aiDraft.continuePlaceholder": "Enter a continuation prompt, e.g., add comparison with prior",
+    "aiDraft.continuePlaceholder":
+      "Enter a continuation prompt, e.g., add comparison with prior",
     "aiDraft.rewrite": "Rewrite",
     "aiDraft.selectRewritePlaceholder": "Select a paragraph to rewrite",
-    "aiDraft.rewritePlaceholder": "Rewrite instruction, e.g., use more professional wording",
+    "aiDraft.rewritePlaceholder":
+      "Rewrite instruction, e.g., use more professional wording",
     "aiDraft.acceptAll": "Accept All and Submit",
     "aiDraft.rejectAll": "Reject All",
     "aiDraft.cleared": "Cleared",
     // [v3.0.6.11-106 Wave 11A] review/DualReadPage
     "dualRead.listLoadFailed": "Failed to load dual-read list",
     "dualRead.networkError": "Network error",
-    "dualRead.linkedExistingReport": "Linked to existing report and wrote dual-read conclusion",
+    "dualRead.linkedExistingReport":
+      "Linked to existing report and wrote dual-read conclusion",
     "dualRead.completeFailed": "Failed to complete dual read",
     "dualRead.arbitrateReportRequired": "Please enter the arbitration report",
     "dualRead.arbitrateDone": "Arbitration complete",
     "dualRead.arbitrateFailed": "Arbitration failed",
-    "dualRead.fillAssignFields": "Please enter study ID / patient name / patient ID",
+    "dualRead.fillAssignFields":
+      "Please enter study ID / patient name / patient ID",
     "dualRead.assignSuccess": "Dual-read assignment created",
     "dualRead.assignFailed": "Assignment failed",
     "dualRead.fillReaderReport": "Please enter the reading report",
@@ -54355,12 +56253,14 @@ export const translations: Translations = {
     "dualRead.assignDualRead": "Assign Dual Read",
     "dualRead.none": "N/A",
     "dualRead.arbitrationReport": "Arbitration Report",
-    "dualRead.readerFindingsPlaceholder": "Enter reading findings and diagnostic opinion",
+    "dualRead.readerFindingsPlaceholder":
+      "Enter reading findings and diagnostic opinion",
     "dualRead.assignModal": "Assign Dual Read",
     "dualRead.studyIdPlaceholder": "Study ID",
     "dualRead.patientNamePlaceholder": "Patient Name",
     "dualRead.patientIdPlaceholder": "Patient ID",
-    "dualRead.conclusionAlert": "Dual-read conclusion (written to report impression)",
+    "dualRead.conclusionAlert":
+      "Dual-read conclusion (written to report impression)",
     // [v3.0.6.11-106 Wave 11A] eye/pacs/PacsStudyListPage
     "eyePacs.studyCreated": "Study created",
     "eyePacs.createFailed": "Create failed",
@@ -54398,11 +56298,14 @@ export const translations: Translations = {
     "eyePacs.optional": "(Optional)",
     "eyePacs.impressions": "Impression",
     // [v3.0.6.11-106 Wave 11A] rcm/FinancialReportsPage
-    "financeReport.apiUnavailable": "financeApi is temporarily unavailable; showing built-in demo data",
-    "financeReport.loadFailedFallback": "Failed to load data; fell back to demo data",
+    "financeReport.apiUnavailable":
+      "financeApi is temporarily unavailable; showing built-in demo data",
+    "financeReport.loadFailedFallback":
+      "Failed to load data; fell back to demo data",
     "financeReport.title": "Financial Reports",
     "financeReport.print": "Print",
-    "financeReport.exportDisabledTitle": "No financeApi report data; cannot export",
+    "financeReport.exportDisabledTitle":
+      "No financeApi report data; cannot export",
     "financeReport.exportEnabledTitle": "Export based on real financeApi data",
     "financeReport.exportCsv": "Export CSV",
     "financeReport.pl": "P&L",
@@ -54412,7 +56315,8 @@ export const translations: Translations = {
     "financeReport.sourceDemo": "Data source: demo data",
     "financeReport.retry": "Retry",
     "financeReport.plTitle": "Income Statement",
-    "financeReport.realtimeNote": "(financeApi live · costs allocated by structure)",
+    "financeReport.realtimeNote":
+      "(financeApi live · costs allocated by structure)",
     "financeReport.unitYuan": "Unit: CNY",
     "financeReport.netIncome": "Net Income",
     "financeReport.grossMargin": "Gross Margin",
@@ -54426,16 +56330,21 @@ export const translations: Translations = {
     "financeReport.colCost": "Cost",
     "financeReport.colGrossProfit": "Gross Profit",
     "financeReport.colNetIncome": "Net Income",
-    "financeReport.kpiNote": "The first 3 metrics are computed live by financeApi + statsApi; revenue per capita / output per device / receivable turnover have no data source yet, showing demo data",
+    "financeReport.kpiNote":
+      "The first 3 metrics are computed live by financeApi + statsApi; revenue per capita / output per device / receivable turnover have no data source yet, showing demo data",
     "financeReport.trendUp": "Up from last month",
     "financeReport.trendDown": "Down from last month",
     "financeReport.kpiExplain": "KPI Descriptions",
     // [v3.0.6.11-106 Wave 11A] patient/ServiceManagement
-    "serviceMgmt.apiUnavailable": "appointmentApi/templatesApi temporarily unavailable; showing built-in demo data",
-    "serviceMgmt.loadFailedFallback": "Failed to load data; fell back to demo data",
+    "serviceMgmt.apiUnavailable":
+      "appointmentApi/templatesApi temporarily unavailable; showing built-in demo data",
+    "serviceMgmt.loadFailedFallback":
+      "Failed to load data; fell back to demo data",
     "serviceMgmt.syncing": "Syncing data...",
-    "serviceMgmt.sourceApi": "Data source: appointmentApi / templatesApi live (appointments, push templates)",
-    "serviceMgmt.sourceDemo": "Data source: demo data (API unavailable, fell back)",
+    "serviceMgmt.sourceApi":
+      "Data source: appointmentApi / templatesApi live (appointments, push templates)",
+    "serviceMgmt.sourceDemo":
+      "Data source: demo data (API unavailable, fell back)",
     "serviceMgmt.tabAppointment": "Booking",
     "serviceMgmt.tabPush": "Push Management",
     "serviceMgmt.tabPreference": "Preferences",
@@ -54460,7 +56369,8 @@ export const translations: Translations = {
     "serviceMgmt.templatesRealtime": "(templatesApi.snippets live)",
     "serviceMgmt.on": "On",
     "serviceMgmt.off": "Off",
-    "serviceMgmt.templatesNote": "Note: template content comes from templatesApi; on/off state is local demo (no backend toggle endpoint).",
+    "serviceMgmt.templatesNote":
+      "Note: template content comes from templatesApi; on/off state is local demo (no backend toggle endpoint).",
     "serviceMgmt.notifyPrefs": "Notification Preferences",
     "serviceMgmt.localStorage": "(Local storage)",
     "serviceMgmt.notifySms": "SMS Notification",
@@ -54486,7 +56396,8 @@ export const translations: Translations = {
     "crossModal.indexPrefix": "Indexed",
     "crossModal.docUnit": "documents",
     "crossModal.searchConditions": "Search Conditions",
-    "crossModal.keywordPlaceholder": "Keyword: pulmonary nodule / white matter / pneumonia...",
+    "crossModal.keywordPlaceholder":
+      "Keyword: pulmonary nodule / white matter / pneumonia...",
     "crossModal.patientPlaceholder": "Patient name / ID",
     "crossModal.modalityFilter": "Modality filter",
     "crossModal.search": "Search",
@@ -54512,7 +56423,8 @@ export const translations: Translations = {
     "retakeAnalytics.reviewFailed": "Review failed",
     "retakeAnalytics.loadFailed": "Failed to load retake statistics",
     "retakeAnalytics.title": "Retake Rate Statistics & Analysis",
-    "retakeAnalytics.subtitle": "Trend / Reason Categories / Technician & Modality Heatmap",
+    "retakeAnalytics.subtitle":
+      "Trend / Reason Categories / Technician & Modality Heatmap",
     "retakeAnalytics.refresh": "Refresh",
     "retakeAnalytics.rangePrefix": "Period",
     "retakeAnalytics.statsLoadFailed": "Failed to load statistics",
@@ -54552,8 +56464,10 @@ export const translations: Translations = {
     "retakeAnalytics.colPatient": "Patient",
     "retakeAnalytics.colExam": "Exam",
     "retakeAnalytics.colActions": "Actions",
-    "retakeAnalytics.sourceApi": "Data source: GET /worklist/retake-stats (backend aggregation) · dimension {{dim}}",
-    "retakeAnalytics.sourceDemo": "Data source: demo fallback (API unavailable, derived from seed)",
+    "retakeAnalytics.sourceApi":
+      "Data source: GET /worklist/retake-stats (backend aggregation) · dimension {{dim}}",
+    "retakeAnalytics.sourceDemo":
+      "Data source: demo fallback (API unavailable, derived from seed)",
     // [v3.0.6.11-106 Wave 11A] integration/Hl7BuilderPage
     "hl7Builder.loadHistoryFailed": "Failed to load send history",
     "hl7Builder.missingMessage": "Response is missing the message field",
@@ -54571,7 +56485,8 @@ export const translations: Translations = {
     "hl7Builder.colRetry": "Retry",
     "hl7Builder.colTime": "Time",
     "hl7Builder.title": "HL7 Message Builder",
-    "hl7Builder.subtitle": "Build and send ORU^R01 / ORM^O01 / DFT^P03 / SIU^S12 messages",
+    "hl7Builder.subtitle":
+      "Build and send ORU^R01 / ORM^O01 / DFT^P03 / SIU^S12 messages",
     "hl7Builder.builderTag": "Builder",
     "hl7Builder.form": "Form",
     "hl7Builder.patientId": "Patient ID",
@@ -54591,7 +56506,8 @@ export const translations: Translations = {
     "hl7Builder.note": "Note (NTE)",
     "hl7Builder.notePlaceholder": "Optional note",
     "hl7Builder.reportFinding": "Report Findings (Finding)",
-    "hl7Builder.findingPlaceholder": "Clear bilateral lung markings, no consolidation...",
+    "hl7Builder.findingPlaceholder":
+      "Clear bilateral lung markings, no consolidation...",
     "hl7Builder.reportImpression": "Report Impression (Impression)",
     "hl7Builder.impressionPlaceholder": "No obvious abnormality",
     "hl7Builder.generatePreview": "Generate Preview",
@@ -54602,13 +56518,16 @@ export const translations: Translations = {
     "hl7Builder.sendHistory": "Send History",
     "hl7Builder.refresh": "Refresh",
     // [v3.0.6.11-106 Wave 11A] ops/DeviceOpsPage
-    "deviceOps.doseLoadFailed": "Failed to load dose records, showing empty list",
+    "deviceOps.doseLoadFailed":
+      "Failed to load dose records, showing empty list",
     "deviceOps.fillPatientDevice": "Please enter patient ID and device ID",
     "deviceOps.dosePositive": "Dose value must be positive",
     "deviceOps.doseSubmitFailed": "Failed to submit dose record",
     "deviceOps.statusUpdateFailed": "Status update failed",
-    "deviceOps.apiUnavailable": "deviceMgmtApi temporarily unavailable; showing built-in demo data",
-    "deviceOps.loadFailedFallback": "Failed to load data; fell back to demo data",
+    "deviceOps.apiUnavailable":
+      "deviceMgmtApi temporarily unavailable; showing built-in demo data",
+    "deviceOps.loadFailedFallback":
+      "Failed to load data; fell back to demo data",
     "deviceOps.title": "Device Operations Management",
     "deviceOps.summary": "{{count}} devices · {{source}}",
     "deviceOps.realtime": "deviceMgmtApi live",
@@ -54658,7 +56577,8 @@ export const translations: Translations = {
     "deviceOps.submitting": "Submitting...",
     "deviceOps.registerDoseBtn": "Register Dose",
     // [v3.0.6.11-106 Wave 11A] education/PatientEducationPage
-    "patientEdu.loadFailedRetry": "Failed to load education materials, please retry later",
+    "patientEdu.loadFailedRetry":
+      "Failed to load education materials, please retry later",
     "patientEdu.titleContentRequired": "Title and content are required",
     "patientEdu.createFailed": "Failed to create education material",
     "patientEdu.deleteFailedRes": "Delete failed",
@@ -54706,7 +56626,8 @@ export const translations: Translations = {
     "techMobile.startFailed": "Failed to start exam",
     "techMobile.startFailedNetwork": "Failed to start exam: network error",
     "techMobile.completeFailed": "Failed to complete exam",
-    "techMobile.completeFailedNetwork": "Failed to complete exam: network error",
+    "techMobile.completeFailedNetwork":
+      "Failed to complete exam: network error",
     "techMobile.checkInFailed": "Check-in failed",
     "techMobile.checkInFailedNetwork": "Check-in failed: network error",
     "techMobile.cancelExamTitle": "Cancel Exam",
@@ -54714,7 +56635,8 @@ export const translations: Translations = {
     "techMobile.back": "Back",
     "techMobile.cancelFailed": "Failed to cancel exam",
     "techMobile.cancelFailedNetwork": "Failed to cancel exam: network error",
-    "techMobile.scanHint": "Aim at the barcode on the exam request to scan (barcode scanning supported)",
+    "techMobile.scanHint":
+      "Aim at the barcode on the exam request to scan (barcode scanning supported)",
     "techMobile.title": "Technician Mobile Workstation",
     "techMobile.subtitle": "Radiology · Exam Workstation",
     "techMobile.todayExams": "Today's Exams",
@@ -54724,7 +56646,8 @@ export const translations: Translations = {
     "techMobile.completedToday": "Completed Today",
     "techMobile.avgDuration": "Avg. Duration",
     "techMobile.technician": "Technicians",
-    "techMobile.mockBanner": "Appointment API unavailable; queue switched to /mobile/worklist demo data",
+    "techMobile.mockBanner":
+      "Appointment API unavailable; queue switched to /mobile/worklist demo data",
     "techMobile.searchPlaceholder": "Search patient, exam item...",
     "techMobile.tabExams": "Exam Queue",
     "techMobile.tabDevices": "Device Status",
@@ -54827,7 +56750,8 @@ export const translations: Translations = {
     "doseLive.noRecordsInRange": "No exams in the selected range",
     "doseLive.noStatsData": "No statistics data",
     "doseLive.drlConfigTitle": "DRL Threshold Configuration",
-    "doseLive.drlConfigHint": "Click save after editing; based on national standards / custom",
+    "doseLive.drlConfigHint":
+      "Click save after editing; based on national standards / custom",
     "doseLive.colModality": "Modality",
     "doseLive.colExamBodyPart": "Exam Body Part",
     "doseLive.colCtdiThreshold": "CTDIvol Threshold (mGy)",
@@ -54837,7 +56761,8 @@ export const translations: Translations = {
     "doseLive.save": "Save",
     // [v3.0.6.11-106 Wave 11A] System/DicomPrintPage
     "dicomPrint.noData": "No data",
-    "dicomPrint.apiUnavailable": "Print API unavailable; fell back to local simulated queue (demo data)",
+    "dicomPrint.apiUnavailable":
+      "Print API unavailable; fell back to local simulated queue (demo data)",
     "dicomPrint.patientNameRequired": "Please enter patient name",
     "dicomPrint.studyUidRequired": "Please enter study UID",
     "dicomPrint.submitFailed": "Submit failed",
@@ -54944,8 +56869,10 @@ export const translations: Translations = {
     "eyeReport.draftSaved": "Draft saved",
     "eyeReport.draftApiUnavailable": "Draft API unavailable; saved locally",
     "eyeReport.submittedReview": "Report submitted for review",
-    "eyeReport.submitApiUnavailable": "Submit API unavailable; status updated locally",
-    "eyeReport.submittedReviewLocal": "Report submitted for review (local status update)",
+    "eyeReport.submitApiUnavailable":
+      "Submit API unavailable; status updated locally",
+    "eyeReport.submittedReviewLocal":
+      "Report submitted for review (local status update)",
     "eyeReport.voice": "Voice",
     "eyeReport.aiContinue": "AI Continue",
     "eyeReport.saveDraft": "Save Draft",
@@ -54953,7 +56880,8 @@ export const translations: Translations = {
     "eyeReport.digitalSign": "Digital Signature",
     "eyeReport.print": "Print",
     "eyeReport.voiceInputTitle": "Voice Input (Demo)",
-    "eyeReport.voiceHint": "Please speak the findings you want to enter; the system will automatically convert to text and fill the current editing area.",
+    "eyeReport.voiceHint":
+      "Please speak the findings you want to enter; the system will automatically convert to text and fill the current editing area.",
     "eyeReport.waitingVoice": "Waiting for voice input...",
     "eyeReport.aiTitle": "AI-Assisted Findings (Demo)",
     "eyeReport.tagIgnore": "Ignore",
@@ -54962,7 +56890,8 @@ export const translations: Translations = {
     "eyeReport.aiBasedOn": "Based on current imaging data, AI suggests:",
     "eyeReport.aiItem1": "Optic disc margins clear, color normal",
     "eyeReport.aiItem2": "Macular foveal reflex visible",
-    "eyeReport.aiItem3": "Retinal vessels run naturally, no obvious hemorrhage or exudation",
+    "eyeReport.aiItem3":
+      "Retinal vessels run naturally, no obvious hemorrhage or exudation",
     "eyeReport.signTitle": "Digital Signature (Demo)",
     "eyeReport.confirmSign": "Confirm Signature",
     "eyeReport.signDoctor": "Signing Doctor:",
@@ -55013,7 +56942,8 @@ export const translations: Translations = {
     "patientForm.idCard18": "ID card number must be 18 digits",
     "patientForm.enterPhone": "Please enter mobile number",
     "patientForm.phoneInvalid": "Invalid mobile number format",
-    "patientForm.allergyRequired": "Please enter allergy history (enter 'None' if none)",
+    "patientForm.allergyRequired":
+      "Please enter allergy history (enter 'None' if none)",
     "patientForm.enterContact": "Please enter contact",
     "patientForm.enterContactPhone": "Please enter contact phone",
     "patientForm.newRecord": "New Patient Record",
@@ -55038,7 +56968,8 @@ export const translations: Translations = {
     "patientForm.insuranceType": "Insurance Type",
     "patientForm.bedNumber": "Bed No.",
     "patientForm.attendingDoctor": "Attending Physician",
-    "patientForm.allergyPlaceholder": "Drug/food allergy history (enter 'None' if none)",
+    "patientForm.allergyPlaceholder":
+      "Drug/food allergy history (enter 'None' if none)",
     "patientForm.medicalHistoryPlaceholder": "Past medical history",
     "patientForm.bedPlaceholder": "e.g., Bed 3",
     "patientForm.doctorPlaceholder": "Attending physician name",
@@ -55047,7 +56978,8 @@ export const translations: Translations = {
     "patientForm.contactName": "Contact Name",
     "patientForm.contactNamePlaceholder": "Contact name",
     "patientForm.contactPhonePlaceholder": "Contact phone",
-    "patientForm.confirmHint": "Confirm the information is correct, then click \"Complete Registration\" to submit",
+    "patientForm.confirmHint":
+      'Confirm the information is correct, then click "Complete Registration" to submit',
     "patientForm.cancel": "Cancel",
     "patientForm.prev": "Previous",
     "patientForm.next": "Next",
@@ -55060,7 +56992,8 @@ export const translations: Translations = {
     "patientForm.enterIdCard18": "Please enter 18-digit ID card number",
     "patientForm.enterAddress": "Please enter detailed address",
     "patientForm.enterContactName": "Please enter contact name",
-    "patientForm.enterAllergy": "Please enter allergy history (enter 'None' if none)",
+    "patientForm.enterAllergy":
+      "Please enter allergy history (enter 'None' if none)",
     "patientForm.enterMedicalHistory": "Please enter past medical history",
     "patientForm.enterDoctor": "Please enter attending physician name",
     "patientForm.saveInfo": "Save Patient Info",
@@ -55083,7 +57016,8 @@ export const translations: Translations = {
     "cvRule.title": "Critical Value Rules",
     "cvRule.sourceApi": "Source: /critical-ext/rules",
     "cvRule.sourceDemo": "Demo data (API unavailable)",
-    "cvRule.subtitle": "{{count}} critical value rules · 7 categories · 4 notify channels · auto trigger + manual marking",
+    "cvRule.subtitle":
+      "{{count}} critical value rules · 7 categories · 4 notify channels · auto trigger + manual marking",
     "cvRule.loadingSuffix": " · Loading...",
     "cvRule.statsScreen": "Stats Dashboard",
     "cvRule.backToCritical": "Back to Critical Values",
@@ -55126,7 +57060,8 @@ export const translations: Translations = {
     "cvRule.deviceInline": " · Device:",
     "cvRule.saveSuccess": "Saved",
     "cvRule.gotIt": "Got it",
-    "cvRule.savedNote": "Rule configuration saved. Changes take effect immediately.",
+    "cvRule.savedNote":
+      "Rule configuration saved. Changes take effect immediately.",
     "cvRule.disableRule": "Disable Rule",
     // [v3.0.6.11-106 Wave 11B] DentalCephPage
     "ceph.analysis.steiner": "Steiner Analysis (SNA/SNB/ANB)",
@@ -55157,7 +57092,8 @@ export const translations: Translations = {
     "ceph.back": "Back",
     "ceph.shortTitle": "Cephalometric",
     "ceph.landmarkMarking": "Anatomical Landmark Marking",
-    "ceph.canvasHint": "Click to add a landmark, drag to move an existing landmark",
+    "ceph.canvasHint":
+      "Click to add a landmark, drag to move an existing landmark",
     "ceph.clickDrag": "Click/Drag",
     "ceph.run": "Run",
     "ceph.analysis": "Analysis",
@@ -55172,7 +57108,7 @@ export const translations: Translations = {
     "ceph.colNorm": "Normal Range",
     "ceph.colStatus": "Status",
     "ceph.analysisResult": "Analysis Results",
-    "ceph.emptyAnalysis": "Click \"Run Analysis\" to generate measurements",
+    "ceph.emptyAnalysis": 'Click "Run Analysis" to generate measurements',
     "ceph.maxillaArch": "Maxillary Arch Length",
     "ceph.mandibleArch": "Mandibular Arch Length",
     "ceph.maxillaCrowding": "Maxillary Crowding",
@@ -55235,19 +57171,23 @@ export const translations: Translations = {
     "ssp.reportState.signed": "Signed",
     "ssp.reportState.submitted": "Under Review",
     "ssp.text.examReportHeader": "========== Imaging Exam Report ==========",
-    "ssp.text.historyReportHeader": "========== Historical Exam Report ==========",
+    "ssp.text.historyReportHeader":
+      "========== Historical Exam Report ==========",
     "ssp.text.findings": "[Findings]",
     "ssp.text.diagnosis": "[Diagnosis]",
     "ssp.text.impression": "[Imaging Impression]",
     "ssp.text.conclusion": "[Conclusion]",
     "ssp.text.recommendations": "[Recommendations]",
-    "ssp.text.legalFull": "Electronic reports have the same legal effect as paper reports.",
-    "ssp.voucher.localNotice": "Voucher generated client-side for demo (backend voucher endpoint pending)",
+    "ssp.text.legalFull":
+      "Electronic reports have the same legal effect as paper reports.",
+    "ssp.voucher.localNotice":
+      "Voucher generated client-side for demo (backend voucher endpoint pending)",
     "ssp.unspecifiedPart": "Unspecified part",
     "ssp.home.examSuffix": " exam",
     "ssp.home.imageFallback": "Imaging",
     "ssp.home.reportPublished": " report published",
-    "ssp.booking.arrivalNotice": "Please arrive at the radiology reception 15 minutes before your appointment and bring valid ID.",
+    "ssp.booking.arrivalNotice":
+      "Please arrive at the radiology reception 15 minutes before your appointment and bring valid ID.",
     "ssp.reports.detailTitle": "Report Details",
     "ssp.reports.unspecified": "Unspecified",
     "ssp.reports.critical": "Critical Value",
@@ -55261,7 +57201,8 @@ export const translations: Translations = {
     "ssp.reports.conclusion": "Conclusion",
     "ssp.reports.download": "Download Report",
     "ssp.reports.print": "Print Report",
-    "ssp.reports.legalNote": "Electronic reports have the same legal effect as paper reports; consult your clinician with the report if you have questions.",
+    "ssp.reports.legalNote":
+      "Electronic reports have the same legal effect as paper reports; consult your clinician with the report if you have questions.",
     "ssp.reports.downloadShort": "Download",
     "ssp.images.date": "Date",
     "ssp.images.dicomExamNo": "DICOM Exam No.:",
@@ -55275,7 +57216,8 @@ export const translations: Translations = {
     "ssp.education.readTimePrefix": "Estimated reading time: about",
     "ssp.education.readTimeSuffix": " sec",
     "ssp.clinical.viewDetail": "View Details",
-    "ssp.contacts.notice": "Phone numbers are for medical consultation only, 08:00-17:00.",
+    "ssp.contacts.notice":
+      "Phone numbers are for medical consultation only, 08:00-17:00.",
     "ssp.followup.apiRealtime": "followupApi live",
     "ssp.followup.demoFallback": "Demo fallback (followupApi unavailable)",
     "ssp.followup.loading": "Loading follow-up plans...",
@@ -55288,8 +57230,10 @@ export const translations: Translations = {
     "ssp.followup.reminderOn": "Reminder on",
     "ssp.followup.reminderOff": "Reminder off",
     "ssp.followup.completedAt": "Completed at",
-    "ssp.followup.submitNotice": "You will be reminded when the appointment date is due; bring prior imaging materials.",
-    "ssp.feedback.intro": "Your feedback helps us improve service quality; thank you for participating.",
+    "ssp.followup.submitNotice":
+      "You will be reminded when the appointment date is due; bring prior imaging materials.",
+    "ssp.feedback.intro":
+      "Your feedback helps us improve service quality; thank you for participating.",
     "ssp.patientCard.patientFallback": "P",
     "ssp.patientCard.ageSuffix": " y/o",
     "ssp.clinicalDrawer.title": "Clinical Data Details",
@@ -55419,6 +57363,10 @@ export const translations: Translations = {
     "srTpl.updated": "Template updated",
     "srTpl.created": "Template created",
     "srTpl.deleted": "Template deleted",
+    "srTpl.createFailed": "Failed to create SR template",
+    "srTpl.updateFailed": "Failed to update SR template",
+    "srTpl.deleteFailed": "Failed to delete SR template",
+    "srTpl.saveFailed": "Save failed",
     "srTpl.colId": "ID",
     "srTpl.colLabel": "Name (Chinese)",
     "srTpl.colLabelEn": "English Name",
@@ -55458,7 +57406,8 @@ export const translations: Translations = {
     "dw.noInstances": "No instances available for download",
     "dw.download": "Download",
     "dw.title": "DICOMweb Tool",
-    "dw.subtitle": "DICOMweb RESTful imaging service: search studies → preview series/instances → upload DICOM files",
+    "dw.subtitle":
+      "DICOMweb RESTful imaging service: search studies → preview series/instances → upload DICOM files",
     "dw.retry": "Retry",
     "dw.qidoTitle": "QIDO-RS Search",
     "dw.descKeywordPlaceholder": "Study description keyword",
@@ -55475,11 +57424,13 @@ export const translations: Translations = {
     "dw2.apiUnavailable": "Workload API unavailable",
     "dw2.loading": "Loading...",
     "dw2.emptyTitle": "No doctor workload data",
-    "dw2.emptyHint": "The system has not synced this month's report output yet; contact an administrator",
+    "dw2.emptyHint":
+      "The system has not synced this month's report output yet; contact an administrator",
     "dw2.title": "Doctor Workload Statistics",
     "dw2.sourceApi": "Source: /stats/workload",
     "dw2.sourceDemo": "Demo data (API unavailable)",
-    "dw2.subtitle": "6 dimensions: volume / quality / timeliness / critical value / consultation / device · ranking / trend",
+    "dw2.subtitle":
+      "6 dimensions: volume / quality / timeliness / critical value / consultation / device · ranking / trend",
     "dw2.sort.ranking": "Overall Ranking",
     "dw2.sort.totalReports": "Report Volume",
     "dw2.sort.qualityScore": "Quality Score",
@@ -55557,7 +57508,8 @@ export const translations: Translations = {
     "bk.status.pending": "Pending",
     "bk.createSuccess": "Backup created",
     "bk.restoreTitle": "Restore Backup",
-    "bk.restoreConfirm": "Restore this backup? This will overwrite current data.",
+    "bk.restoreConfirm":
+      "Restore this backup? This will overwrite current data.",
     "bk.restoreSuccess": "Restore succeeded",
     "bk.colCreatedAt": "Created At",
     "bk.colType": "Type",
@@ -55661,7 +57613,8 @@ export const translations: Translations = {
     "oeePage.loadError": "Load failed",
     "oeePage.refresh": "Refresh",
     "oeePage.noData": "No device OEE data",
-    "oeePage.statsTag": "Devices {{total}} · Highest {{high}}% · Lowest {{low}}%",
+    "oeePage.statsTag":
+      "Devices {{total}} · Highest {{high}}% · Lowest {{low}}%",
     "oeePage.selectDevice": "Select a device to view trend",
     "oeePage.partialFailed": "Partial data load failed",
     "oeePage.kpiOee": "Overall OEE",
@@ -55771,7 +57724,7 @@ export const translations: Translations = {
     "dvv.show": "Show",
     "dvv.curveExpand": "Curved reconstruction along dental arch",
     "dvv.curveInfo": "152mm × 256px  |  Expanded",
-    "dvv.clickShow": "Click \"Show\" to view curved reconstruction",
+    "dvv.clickShow": 'Click "Show" to view curved reconstruction',
     "dvv.tabVr": "Volume Params",
     "dvv.mesh3d": "3D Mesh",
     "dvv.vertexTag": "Vertices: 185K",
@@ -55809,7 +57762,8 @@ export const translations: Translations = {
     "smartAuth.revokeFailed": "Revoke failed",
     "smartAuth.revokeRequestFailed": "Revoke request failed",
     "smartAuth.title": "FHIR SMART Authorization",
-    "smartAuth.configTitle": "SMART Configuration (.well-known/smart-configuration)",
+    "smartAuth.configTitle":
+      "SMART Configuration (.well-known/smart-configuration)",
     "smartAuth.refresh": "Refresh",
     "smartAuth.authorizationEndpoint": "Authorization Endpoint",
     "smartAuth.tokenEndpoint": "Token Endpoint",
@@ -55844,13 +57798,15 @@ export const translations: Translations = {
     "deptOps.stat.dailyReports": "Today's Reports",
     "deptOps.stat.staffOnDuty": "Staff on Duty",
     "deptOps.title": "Breast Department Operations",
-    "deptOps.subtitle": "Breast imaging operations · scheduling · devices · workflow · statistics",
+    "deptOps.subtitle":
+      "Breast imaging operations · scheduling · devices · workflow · statistics",
     "deptOps.sourceApi": "Source: /stats/daily",
     "deptOps.sourceDemo": "Demo data (API unavailable)",
     "deptOps.loading": "Loading...",
     "deptOps.refresh": "Refresh",
     "deptOps.statsReport": "Statistics",
-    "deptOps.modalityDist": "Breast Modality Exam Distribution (source: /stats/by-modality)",
+    "deptOps.modalityDist":
+      "Breast Modality Exam Distribution (source: /stats/by-modality)",
     "deptOps.deviceStatus": "Device Status",
     "deptOps.todayPrefix": "Today",
     "deptOps.staffTitle": "Staff on Duty",
@@ -55892,7 +57848,8 @@ export const translations: Translations = {
     "nurse.stat.inProgress": "In Progress",
     "nurse.stat.critical": "Critical Values",
     "nurse.stat.todayExams": "Today's Exams",
-    "nurse.mockNotice": "Critical value API unavailable, showing offline demo data",
+    "nurse.mockNotice":
+      "Critical value API unavailable, showing offline demo data",
     "nurse.searchPlaceholder": "Search patient...",
     "nurse.tab.queue": "Patient Queue",
     "nurse.tab.meds": "Medication Records",
@@ -55927,11 +57884,14 @@ export const translations: Translations = {
     "rpb.unnamedPhrase": "Unnamed phrase",
     "rpb.sceneApi": "Smart snippet (templatesApi)",
     "rpb.system": "System",
-    "rpb.apiUnavailable": "templatesApi unavailable, showing built-in demo phrases",
+    "rpb.apiUnavailable":
+      "templatesApi unavailable, showing built-in demo phrases",
     "rpb.loadFailed": "Failed to load phrases, fell back to demo data",
-    "rpb.noContextNote": "No report context: preview keeps original {{placeholders}}, auto-filled with patient info when inserted in the writing page",
+    "rpb.noContextNote":
+      "No report context: preview keeps original {{placeholders}}, auto-filled with patient info when inserted in the writing page",
     "rpb.copied": "Copied to clipboard!",
-    "rpb.copyFailed": "Copy failed: clipboard permission denied, please select and copy manually",
+    "rpb.copyFailed":
+      "Copy failed: clipboard permission denied, please select and copy manually",
     "rpb.titleRequired": "Please enter phrase title",
     "rpb.contentRequired": "Please enter phrase content",
     "rpb.currentUser": "Current user",
@@ -55944,7 +57904,8 @@ export const translations: Translations = {
     "rpb.syncing": "Syncing...",
     "rpb.sourceApi": "Source: templatesApi.snippets live",
     "rpb.sourceDemo": "Demo data (API unavailable)",
-    "rpb.subtitle": "{{count}} phrases · 6 categories · placeholder replace · one-click copy · rating",
+    "rpb.subtitle":
+      "{{count}} phrases · 6 categories · placeholder replace · one-click copy · rating",
     "rpb.newPhrase": "New Phrase",
     "rpb.searchPlaceholder": "Search title/content/tag...",
     "rpb.placeholderCount": "{{count}} placeholders",
@@ -55971,7 +57932,8 @@ export const translations: Translations = {
     "rpb.titlePlaceholder": "e.g. Chest CT enhanced follow-up recommendation",
     "rpb.category": "Category",
     "rpb.contentLabel": "Phrase Content (supports {{placeholders}})",
-    "rpb.contentPlaceholder": "e.g. Recommend follow-up in {{timeframe}}, biopsy if necessary.",
+    "rpb.contentPlaceholder":
+      "e.g. Recommend follow-up in {{timeframe}}, biopsy if necessary.",
     // [v3.0.6.11-106 Wave 11B] KeywordCheckPage
     "kwc.sev.error": "Error",
     "kwc.sev.warning": "Warning",
@@ -56016,20 +57978,24 @@ export const translations: Translations = {
     "kwc.fullText": "Full text",
     "kwc.suggestionLabel": "Suggestion:",
     "kwc.clickIssue": "Click an issue on the left to view details",
-    "kwc.scanPrompt": "Click \"Start Scan\" to check the current report for keywords",
-    "kwc.scanPromptHint": "The system will run a full scan across 6 rule categories",
+    "kwc.scanPrompt":
+      'Click "Start Scan" to check the current report for keywords',
+    "kwc.scanPromptHint":
+      "The system will run a full scan across 6 rule categories",
     "kwc.unitCount": "rules",
     // [v3.0.6.11-106 Wave 11B] TemplateInheritancePage
     "tinh.unnamedTemplate": "Unnamed template",
     "tinh.system": "System",
-    "tinh.apiUnavailable": "templatesApi unavailable, showing built-in demo inheritance tree",
+    "tinh.apiUnavailable":
+      "templatesApi unavailable, showing built-in demo inheritance tree",
     "tinh.loadFailed": "Failed to load templates, fell back to demo data",
     "tinh.currentDoctor": "Current doctor",
     "tinh.title": "Template Inheritance & Cloning",
     "tinh.syncing": "Syncing...",
     "tinh.sourceApi": "Source: templatesApi live",
     "tinh.sourceDemo": "Demo data (API unavailable)",
-    "tinh.subtitle": "Template version management, cloning/inheritance, parent-child tracing, usage statistics",
+    "tinh.subtitle":
+      "Template version management, cloning/inheritance, parent-child tracing, usage statistics",
     "tinh.newTemplate": "New Template",
     "tinh.backToList": "Back to List",
     "tinh.statTotal": "Total Templates",
@@ -56071,14 +58037,16 @@ export const translations: Translations = {
     "tinh.typeChild": "Inherited clone",
     "tinh.typeSibling": "Sibling",
     "tinh.findingsHeader": "[Findings]",
-    "tinh.bodyPlaceholder": "(Template body preview placeholder: structured fields will be filled by the template designer)",
+    "tinh.bodyPlaceholder":
+      "(Template body preview placeholder: structured fields will be filled by the template designer)",
     "tinh.diagnosisHeader": "[Diagnosis]",
     "tinh.basedOn": "(Structured template based on {{name}})",
     "tinh.close": "Close",
     "tinh.templateUsageCount": "Template Usage Count",
     "tinh.directChildren": "Direct Child Templates",
     "tinh.familyUsageSummary": "Family Usage Summary (local derivation)",
-    "tinh.usageNote": "Usage counts are locally derived (note: pending template usage reporting API templatesApi.usage).",
+    "tinh.usageNote":
+      "Usage counts are locally derived (note: pending template usage reporting API templatesApi.usage).",
     // [v3.0.6.11-106 Wave 11B] ReportExportPage
     "rex.downloadFailed": "Download failed",
     "rex.exportFailed": "Export failed",
@@ -56086,7 +58054,8 @@ export const translations: Translations = {
     "rex.batchCreateFailed": "Failed to create batch export task",
     "rex.batchTimeout": "Batch export task failed or timed out",
     "rex.title": "Report Export Center",
-    "rex.subtitle": "v3.0.5.1 enhanced: HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 enhancements",
+    "rex.subtitle":
+      "v3.0.5.1 enhanced: HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 enhancements",
     "rex.tabV2": "Export Center V2",
     "rex.tabV3": "R3.INTEGRATION Enhanced",
     "rex.tabClassic": "Classic View",
@@ -56121,7 +58090,8 @@ export const translations: Translations = {
     "rex.downloadAll": "Download All",
     "rex.download": "Download",
     "rex.selectTemplateAndReport": "Please select a template and report first",
-    "rex.popupBlocked": "The browser blocked the new window; please allow pop-ups and retry",
+    "rex.popupBlocked":
+      "The browser blocked the new window; please allow pop-ups and retry",
     "rex.previewSample": "Preview Sample",
     "rex.exportReports": "Export {{count}} reports",
     "rex.templateQuickRef": "Template Quick Reference",
@@ -56130,8 +58100,10 @@ export const translations: Translations = {
     "iheConn.live.service": "IHE service",
     "iheConn.live.affinity": "Affinity domain",
     "iheConn.live.refresh": "Refresh status",
-    "iheConn.conn.loadFailed": "Could not read backend IHE service status; the case results below are locally simulated.",
-    "iheConn.subtitle": "XDS.b / PIX / PDQ / ATNA / PAM Test Execution Framework",
+    "iheConn.conn.loadFailed":
+      "Could not read backend IHE service status; the case results below are locally simulated.",
+    "iheConn.subtitle":
+      "XDS.b / PIX / PDQ / ATNA / PAM Test Execution Framework",
     "iheConn.mockBadge": "Simulation Tool · Results Generated Locally",
     "iheConn.viewProfile": "View Profile",
     "iheConn.sessionConfig": "Session Config",
@@ -56151,14 +58123,15 @@ export const translations: Translations = {
     "iheConn.skip": "Skipped",
     "iheConn.passRate": "Pass Rate",
     "iheConn.testCases": "Test Cases",
-    "iheConn.emptyClickLoad": "Click \"Load Cases\" to create",
+    "iheConn.emptyClickLoad": 'Click "Load Cases" to create',
     "iheConn.col.profile": "Profile",
     "iheConn.col.title": "Title",
     "iheConn.col.actor": "Actor/Role",
     "iheConn.col.steps": "Steps",
     "iheConn.col.status": "Status",
     "iheConn.col.duration": "Duration",
-    "iheConn.msg.fillConfig": "Please fill in complete session configuration (Name/Venue/Track/Monitor are required)",
+    "iheConn.msg.fillConfig":
+      "Please fill in complete session configuration (Name/Venue/Track/Monitor are required)",
     "iheConn.msg.selectProfile": "Please select at least one IHE Profile",
     "iheConn.msg.startFirst": "Please start a session first",
     "iheConn.step.prepare": "Prepare test environment",
@@ -56207,20 +58180,26 @@ export const translations: Translations = {
     "reportResult.verbExecute": "Execute",
     "reportResult.bulkCount": "{{count}} reports",
     "reportResult.dangerTitle": "Dangerous Operation",
-    "reportResult.dangerDesc": "This action cannot be undone. Published reports cannot be recovered.",
+    "reportResult.dangerDesc":
+      "This action cannot be undone. Published reports cannot be recovered.",
     "reportResult.confirmPublish": "Confirm Publish",
-    "reportResult.confirmPublishDesc": "Publish reports with status \"Approved\" among the selected reports as official reports.",
+    "reportResult.confirmPublishDesc":
+      'Publish reports with status "Approved" among the selected reports as official reports.',
     "reportResult.confirmReview": "Confirm Review",
-    "reportResult.confirmReviewDesc": "Submit reports with status \"Pending Review\" among the selected reports for initial review; approved ones proceed to signing.",
+    "reportResult.confirmReviewDesc":
+      'Submit reports with status "Pending Review" among the selected reports for initial review; approved ones proceed to signing.',
     "reportResult.confirmSign": "Confirm Sign",
-    "reportResult.confirmSignDesc": "Electronically sign reports with status \"Approved\" among the selected reports in bulk (→ Signed).",
+    "reportResult.confirmSignDesc":
+      'Electronically sign reports with status "Approved" among the selected reports in bulk (→ Signed).',
     "reportResult.confirmArchive": "Confirm Cold Archive",
-    "reportResult.confirmArchiveDesc": "Archive reports with status \"Published\" among the selected reports to the long-term storage layer (ARCHIVED + archive task record); non-published ones are skipped automatically.",
+    "reportResult.confirmArchiveDesc":
+      'Archive reports with status "Published" among the selected reports to the long-term storage layer (ARCHIVED + archive task record); non-published ones are skipped automatically.',
     "reportResult.processing": "Processing...",
     "reportResult.confirmVerb": "Confirm {{verb}}",
     "reportKpi.title": "Report KPI Dashboard",
     "reportKpi.demoBadge": "Demo data · Locally synthesized metrics",
-    "reportKpi.subtitle": "15 core KPIs · Device utilization · 24h/7d trends · Paperless / Blockchain",
+    "reportKpi.subtitle":
+      "15 core KPIs · Device utilization · 24h/7d trends · Paperless / Blockchain",
     "reportKpi.periodToday": "Today",
     "reportKpi.periodMonth": "This Month",
     "reportKpi.periodYear": "This Year",
@@ -56277,7 +58256,8 @@ export const translations: Translations = {
     "aiReviewPage.requestFailed": "Review request failed",
     "aiReviewPage.title": "AI Report Review",
     "aiReviewPage.qualityControl": "Quality Control",
-    "aiReviewPage.description": "Automatically detect grammar errors, terminology inconsistencies, logical contradictions, etc., and provide revision suggestions",
+    "aiReviewPage.description":
+      "Automatically detect grammar errors, terminology inconsistencies, logical contradictions, etc., and provide revision suggestions",
     "aiReviewPage.reportText": "Report Text",
     "aiReviewPage.reviewing": "Reviewing...",
     "aiReviewPage.startReview": "Start Review",
@@ -56297,7 +58277,8 @@ export const translations: Translations = {
     "benchmarkAi.title": "AI Diagnosis Accuracy Dashboard",
     "benchmarkAi.demoData": "Demo data",
     "benchmarkAi.subtitle": "Sensitivity/Specificity/PPV/NPV · Trend analysis",
-    "benchmarkAi.demoNote": "Demo data (backend /ai/score semantics mismatch, generated locally)",
+    "benchmarkAi.demoNote":
+      "Demo data (backend /ai/score semantics mismatch, generated locally)",
     "benchmarkAi.totalCases": "Total Cases",
     "benchmarkAi.caseUnit": "cases",
     "benchmarkAi.aiPositive": "AI Positive",
@@ -56328,12 +58309,14 @@ export const translations: Translations = {
     "costFilter.tabPl": "P&L Statement",
     "costFilter.tabClaims": "Claims Tracking",
     "costFilter.title": "Cost-Benefit Analysis",
-    "costFilter.subtitle": "Radiology CT/MRI/DSA equipment · consumables · labor cost analysis",
+    "costFilter.subtitle":
+      "Radiology CT/MRI/DSA equipment · consumables · labor cost analysis",
     "costFilter.monthly": "Monthly",
     "costFilter.quarterly": "Quarterly",
     "costFilter.yearly": "Yearly",
     "iolCalc.apiSaveFailed": "API save failed",
-    "iolCalc.saveFailedLocal": "Backend save failed; calculation result retained locally (pending EMR write-back)",
+    "iolCalc.saveFailedLocal":
+      "Backend save failed; calculation result retained locally (pending EMR write-back)",
     "iolCalc.back": "Back",
     "iolCalc.submitCalc": "Submit Calculation",
     "iolCalc.surgeon": "Surgeon",
@@ -56351,7 +58334,8 @@ export const translations: Translations = {
     "iolCalc.gender": "Gender",
     "iolCalc.male": "Male",
     "iolCalc.female": "Female",
-    "iolCalc.noUrlParams": "No URL parameters specified; using default 8-formula calculation",
+    "iolCalc.noUrlParams":
+      "No URL parameters specified; using default 8-formula calculation",
     "iolCalc.reset": "Clear and Reset",
     "iolCalc.recentSubmit": "Recent Submission",
     "iolCalc.iolPower": "IOL Power",
@@ -56380,7 +58364,8 @@ export const translations: Translations = {
     "logDetail.warning": "Warning",
     "logDetail.compliant": "Compliant",
     "logDetail.noViolation": "No violations",
-    "regionalPage.fillConsult": "Please fill in complete consultation request information",
+    "regionalPage.fillConsult":
+      "Please fill in complete consultation request information",
     "regionalPage.fillOpinion": "Please fill in consultation opinion",
     "regionalPage.fillRejectReason": "Please fill in the rejection reason",
     "regionalPage.fillReportContent": "Please fill in report content",
@@ -56396,9 +58381,11 @@ export const translations: Translations = {
     "regionalPage.tabSla": "SLA Monitoring",
     "regionalPage.tabRegionalStats": "Regional Stats",
     "regionalPage.title": "Regional Imaging Report Management",
-    "regionalPage.subtitle": "Remote Consultation | Report Review | Critical Value Notification | Tele-radiology Diagnosis | Cross-institution Co-signing",
+    "regionalPage.subtitle":
+      "Remote Consultation | Report Review | Critical Value Notification | Tele-radiology Diagnosis | Cross-institution Co-signing",
     "regionalPage.settings": "Settings",
-    "regionalPage.criticalHint": "Please operate in the critical value notification records area below",
+    "regionalPage.criticalHint":
+      "Please operate in the critical value notification records area below",
     "regionalPage.systemSettings": "System Settings",
     "regionalPage.institutionName": "Institution Name",
     "regionalPage.institutionNamePlaceholder": "Enter institution name",
@@ -56418,9 +58405,11 @@ export const translations: Translations = {
     "vesselAnalysis.title": "Vessel Analysis Workbench",
     "vesselAnalysis.realData": "Real API Data",
     "vesselAnalysis.demoData": "Demo Data (fallback)",
-    "vesselAnalysis.subtitle": "Coronary segment map (SVG vessel tree) · Stenosis/calcification derived from segment data",
+    "vesselAnalysis.subtitle":
+      "Coronary segment map (SVG vessel tree) · Stenosis/calcification derived from segment data",
     "vesselAnalysis.selectCase": "Select case",
-    "vesselAnalysis.realUnavailable": "Real API unavailable, fell back to demo data",
+    "vesselAnalysis.realUnavailable":
+      "Real API unavailable, fell back to demo data",
     "vesselAnalysis.retry": "Retry",
     "vesselAnalysis.noCases": "No vessel analysis cases",
     "vesselAnalysis.lesionCount": "Stenotic Lesions",
@@ -56429,10 +58418,13 @@ export const translations: Translations = {
     "vesselAnalysis.coronarySegments": "Coronary Segment Map (LAD / LCX / RCA)",
     "vesselAnalysis.noLesion": "No lesion",
     "vesselAnalysis.aorta": "Aorta",
-    "vesselAnalysis.legend": "Simplified: color = worst stenosis severity of the vessel",
-    "vesselAnalysis.noLesionCase": "No stenosis/calcification lesions in this case",
+    "vesselAnalysis.legend":
+      "Simplified: color = worst stenosis severity of the vessel",
+    "vesselAnalysis.noLesionCase":
+      "No stenosis/calcification lesions in this case",
     "vesselAnalysis.calcified": "Calcified",
-    "vesselAnalysis.calciumNote": "Calcium score = calcified lesions × 100 (derived estimate, noted)",
+    "vesselAnalysis.calciumNote":
+      "Calcium score = calcified lesions × 100 (derived estimate, noted)",
     "vesselAnalysis.dataSource": "Data source",
     "vesselAnalysis.realResult": "Real API result",
     "vesselAnalysis.demoFallback": "Demo fallback",
@@ -56455,7 +58447,8 @@ export const translations: Translations = {
     "aiProviders.colRequests": "Requests",
     "aiProviders.title": "AI Provider Management",
     "aiProviders.tagConfig": "Config Center",
-    "aiProviders.subtitle": "Manage and monitor AI service providers and view status and performance metrics",
+    "aiProviders.subtitle":
+      "Manage and monitor AI service providers and view status and performance metrics",
     "aiProviders.totalProviders": "Total Providers",
     "aiProviders.activeProviders": "Active Providers",
     "aiProviders.currentProvider": "Current Provider",
@@ -56497,7 +58490,8 @@ export const translations: Translations = {
     "fhirExport.statusPending": "In Progress",
     "fhirExport.jobStarted": "Export job started: {{jobId}}",
     "fhirExport.startFailed": "Failed to start export",
-    "fhirExport.jobStartedOffline": "Export job started in offline mode: {{jobId}}",
+    "fhirExport.jobStartedOffline":
+      "Export job started in offline mode: {{jobId}}",
     "fhirExport.completed": "Export completed",
     "fhirExport.failed": "Export failed",
     "fhirExport.completedOffline": "Export completed (offline mode)",
@@ -56519,7 +58513,8 @@ export const translations: Translations = {
     "iheVisit.transition.completed": "Complete Exam (A08)",
     "iheVisit.transition.discharged": "Discharge (A03)",
     "iheVisit.msgSent": "{{label}} message sent",
-    "iheVisit.msgFailed": "Failed to send {{label}} message; check the IHE connection",
+    "iheVisit.msgFailed":
+      "Failed to send {{label}} message; check the IHE connection",
     "clinicalCalc.category.kidney": "Kidney",
     "clinicalCalc.category.cardiac": "Cardiac",
     "clinicalCalc.category.liver": "Liver",
@@ -56576,7 +58571,8 @@ export const translations: Translations = {
     "feedback.ph.patientName": "e.g. John Doe",
     "feedback.ph.submittedBy": "e.g. Dr. Zhou",
     "feedback.ph.department": "e.g. Respiratory Medicine",
-    "feedback.ph.content": "Describe the objection/supplement/correction to the report",
+    "feedback.ph.content":
+      "Describe the objection/supplement/correction to the report",
     "feedback.ph.responseContent": "Enter the response",
     "feedback.ph.responder": "e.g. Dr. Wang",
     "feedback.ph.radiology": "Radiology",
@@ -56605,7 +58601,8 @@ export const translations: Translations = {
     "wadoRs.loadFailed": "Load failed",
     "wadoRs.retrieved": "Retrieved {{count}} series for study {{patient}}",
     "wadoRs.retrieveFailed": "Retrieve failed",
-    "wadoRs.seriesDownloaded": "Downloaded series {{num}} ({{count}} instances)",
+    "wadoRs.seriesDownloaded":
+      "Downloaded series {{num}} ({{count}} instances)",
     "wadoRs.downloadFailed": "Download failed",
     "wadoRs.colStudyUid": "Study UID",
     "wadoRs.colPatient": "Patient",
@@ -56623,11 +58620,13 @@ export const translations: Translations = {
     "wadoRs.searchPlaceholder": "Search patient name / study UID",
     "wadoRs.retry": "Retry",
     "wadoRs.resultTitle": "Retrieve Result - {{patient}}",
-    "wadoRs.resultSummary": "Patient {{patient}} · Modality {{modality}} · {{series}} series · {{instances}} instances",
+    "wadoRs.resultSummary":
+      "Patient {{patient}} · Modality {{modality}} · {{series}} series · {{instances}} instances",
     "wadoRs.noSeries": "No series data (not returned by backend)",
     "wadoRs.download": "Download",
     "wadoRs.seriesMeta": "Instances: {{count}} · Body part: {{bodyPart}}",
-    "offlineReports.readFailed": "Failed to read offline package: IndexedDB unavailable",
+    "offlineReports.readFailed":
+      "Failed to read offline package: IndexedDB unavailable",
     "offlineReports.deleted": "Offline copy deleted",
     "offlineReports.deleteFailed": "Delete failed: IndexedDB unavailable",
     "offlineReports.cleared": "Offline package cleared",
@@ -56639,11 +58638,14 @@ export const translations: Translations = {
     "offlineReports.clear": "Clear",
     "offlineReports.cancel": "Cancel",
     "offlineReports.backToList": "Back to Reports",
-    "offlineReports.desc1": "Offline copies are created via \"Report List -> Row Actions -> Save Offline\" and stored in the local browser IndexedDB.",
-    "offlineReports.desc2": "When offline you can browse saved reports on this page; when online the report detail page also indicates the presence of an offline copy.",
+    "offlineReports.desc1":
+      'Offline copies are created via "Report List -> Row Actions -> Save Offline" and stored in the local browser IndexedDB.',
+    "offlineReports.desc2":
+      "When offline you can browse saved reports on this page; when online the report detail page also indicates the presence of an offline copy.",
     "offlineReports.loading": "Loading...",
     "offlineReports.empty": "No offline reports",
-    "offlineReports.emptyHint": "Go to \"Report List\" and click the Save icon in a row to create an offline copy",
+    "offlineReports.emptyHint":
+      'Go to "Report List" and click the Save icon in a row to create an offline copy',
     "offlineReports.unknownPatient": "Unknown Patient",
     "offlineReports.offlineCopy": "Offline Copy",
     "offlineReports.statusLabel": "Status:",
@@ -56662,10 +58664,12 @@ export const translations: Translations = {
     "offlineReports.state.initialReview": "Initial Review",
     "offlineReports.state.finalReview": "Final Review",
     "offlineReports.state.amended": "Amended",
-    "dentalAiOnnx.modelNotFound": "YOLOv8n-dental.onnx not found; switched to offline inference mode",
+    "dentalAiOnnx.modelNotFound":
+      "YOLOv8n-dental.onnx not found; switched to offline inference mode",
     "dentalAiOnnx.initSuccess": "ONNX Runtime Web initialized",
     "dentalAiOnnx.loadModelFirst": "Please load the model first",
-    "dentalAiOnnx.uploadFirst": "Please upload a periapical/bitewing image first",
+    "dentalAiOnnx.uploadFirst":
+      "Please upload a periapical/bitewing image first",
     "dentalAiOnnx.inferenceDone": "Inference complete",
     "dentalAiOnnx.title": "Dental AI ONNX Inference Engine",
     "dentalAiOnnx.modelMgmt": "Model Management",
@@ -56674,7 +58678,8 @@ export const translations: Translations = {
     "dentalAiOnnx.realModel": "YOLOv8n-dental model (real inference)",
     "dentalAiOnnx.simModel": "YOLOv8n-dental model (simulation mode)",
     "dentalAiOnnx.initFailed": "Initialization Failed",
-    "dentalAiOnnx.browserUnsupported": "Browser does not support WebGL or ONNX Runtime",
+    "dentalAiOnnx.browserUnsupported":
+      "Browser does not support WebGL or ONNX Runtime",
     "dentalAiOnnx.uploadRadiograph": "Upload Periapical/Bitewing Image",
     "dentalAiOnnx.runInference": "Run Inference",
     "dentalAiOnnx.resultTitle": "Inference Result ({{mode}})",
@@ -56682,8 +58687,10 @@ export const translations: Translations = {
     "dentalAiOnnx.simulatedInference": "Simulated Inference",
     "dentalAiOnnx.result": "Result",
     "dentalAiOnnx.detected": "Detected {{count}} lesions",
-    "dentalAiOnnx.frameworkModel": "Framework: {{framework}} | Model: {{model}}",
-    "dentalAiOnnx.uploadPrompt": "Upload an image on the left and run inference",
+    "dentalAiOnnx.frameworkModel":
+      "Framework: {{framework}} | Model: {{model}}",
+    "dentalAiOnnx.uploadPrompt":
+      "Upload an image on the left and run inference",
     "deptFinance.workloadStats": "Workload Statistics",
     "deptFinance.demoData": "Demo Data",
     "deptFinance.thisWeek": "This Week",
@@ -56729,18 +58736,23 @@ export const translations: Translations = {
     "login.role.technician": "Technologist (technician)",
     "login.role.nurse": "Nurse (nurse)",
     "login.feat.diagnosis.title": "Imaging Diagnosis",
-    "login.feat.diagnosis.desc": "Multi-modality CT / MR / DR image review and structured reporting",
+    "login.feat.diagnosis.desc":
+      "Multi-modality CT / MR / DR image review and structured reporting",
     "login.feat.ai.title": "AI Assistance",
     "login.feat.ai.desc": "Dual engine for lesion hints and report QC",
     "login.feat.qc.title": "Quality Control",
-    "login.feat.qc.desc": "Closed-loop critical value alerts and review workflow",
+    "login.feat.qc.desc":
+      "Closed-loop critical value alerts and review workflow",
     "login.feat.device.title": "Device Monitoring",
-    "login.feat.device.desc": "Real-time device status monitoring and exam scheduling optimization",
+    "login.feat.device.desc":
+      "Real-time device status monitoring and exam scheduling optimization",
     "login.enterCredentials": "Please enter username and password",
     "login.loginFailed": "Login failed",
     "login.systemName": "G005 Radiology Information System",
-    "login.tagline": "Professional medical imaging · Diagnostic reporting · AI assistance",
-    "login.description": "A radiology information management platform for large hospitals, covering imaging exams, diagnostic reporting, AI assistance and quality management.",
+    "login.tagline":
+      "Professional medical imaging · Diagnostic reporting · AI assistance",
+    "login.description":
+      "A radiology information management platform for large hospitals, covering imaging exams, diagnostic reporting, AI assistance and quality management.",
     "login.formAria": "Login Form",
     "login.welcome": "Welcome",
     "login.loggedInPrefix": "Signed in as:",
@@ -56751,8 +58763,10 @@ export const translations: Translations = {
     "login.loggingIn": "Signing in...",
     "login.signIn": "Sign In",
     "login.demoEnv": "Demo Environment",
-    "login.demoHint": "Any username and password can sign in; select a role to enter as that identity. Production will integrate with the unified identity service.",
-    "login.footerSuffix": "Radiology Information Management System · For internal use only",
+    "login.demoHint":
+      "Any username and password can sign in; select a role to enter as that identity. Production will integrate with the unified identity service.",
+    "login.footerSuffix":
+      "Radiology Information Management System · For internal use only",
     "opsDashboard.vsYesterday": "vs yesterday",
     "opsDashboard.unassigned": "Unassigned",
     "opsDashboard.title": "Operations Command Center",
@@ -56781,13 +58795,16 @@ export const translations: Translations = {
     "opsDashboard.colExamCount": "Exams",
     "opsDashboard.colAvgTime": "Avg Time",
     "termSyn.unnamedTerm": "Unnamed Term",
-    "termSyn.apiUnavailable": "termApi unavailable; showing built-in demo terms",
-    "termSyn.loadFailedFallback": "Failed to load terms; fell back to demo data",
+    "termSyn.apiUnavailable":
+      "termApi unavailable; showing built-in demo terms",
+    "termSyn.loadFailedFallback":
+      "Failed to load terms; fell back to demo data",
     "termSyn.title": "Synonym Graph",
     "termSyn.syncing": "Syncing...",
     "termSyn.sourceApi": "Source: termApi live",
     "termSyn.sourceDemo": "Demo data (API unavailable)",
-    "termSyn.summary": "{{count}} terms · 7 categories · Synonym graph · ICD-10 linkage · Pinyin initial search",
+    "termSyn.summary":
+      "{{count}} terms · 7 categories · Synonym graph · ICD-10 linkage · Pinyin initial search",
     "termSyn.searchPlaceholder": "Search term/pinyin/definition...",
     "termSyn.times": "{{count}} views",
     "termSyn.noMatching": "No matching terms",
@@ -56812,13 +58829,15 @@ export const translations: Translations = {
     "caSignature.statusCfg.expired": "Expired",
     "caSignature.statusCfg.revoked": "Revoked",
     "caSignature.algo.rsaDesc": "International standard, 2048-bit key",
-    "caSignature.algo.sm2Desc": "Chinese national cryptography standard, MLPS compliant",
+    "caSignature.algo.sm2Desc":
+      "Chinese national cryptography standard, MLPS compliant",
     "caSignature.defaultHolderTitle": "Doctor",
     "caSignature.defaultIssuer": "CFCA China Financial Certification Authority",
     "caSignature.uploadSuccess": "Certificate {{name}} uploaded",
     "caSignature.certRevokedMsg": "Certificate {{name}} revoked",
     "caSignature.signing": "Signing {{percent}}%",
-    "caSignature.renewSubmitted": "Renewal request submitted for {{name}} (certificate {{certId}})",
+    "caSignature.renewSubmitted":
+      "Renewal request submitted for {{name}} (certificate {{certId}})",
     "caSignature.chain.rootName": "Root CA",
     "caSignature.chain.rootDesc": "National root certificate",
     "caSignature.chain.midName": "Intermediate CA",
@@ -56860,8 +58879,8 @@ export const translations: Translations = {
     "qcPdca.status.inProgress": "In Progress",
     "qcPdca.status.resolved": "Resolved",
     "qcPdca.autoLinkedDefect": "Automatically linked defect {{id}}",
-    "qcPdca.advancedTo": "Advanced to \"{{phase}}\"",
-    "qcPdca.confirmAdvanceTo": "Confirm advancing to \"{{phase}}\"?",
+    "qcPdca.advancedTo": 'Advanced to "{{phase}}"',
+    "qcPdca.confirmAdvanceTo": 'Confirm advancing to "{{phase}}"?',
     "qcPdca.totalCycles": "{{total}} cycles in total",
     "qcPdca.updatedAt": "Updated {{date}}",
     "dlDenoisePage.kernelMedian": "Median Filter",
@@ -56875,14 +58894,17 @@ export const translations: Translations = {
     "dlDenoisePage.speedFast": "Fast",
     "dlDenoisePage.speedMedium": "Medium",
     "dlDenoisePage.speedSlow": "Slow",
-    "dlDenoisePage.fallbackUnavailable": "Denoise service unavailable; fell back to local demo",
-    "dlDenoisePage.fallbackError": "Denoise request error; fell back to local demo",
+    "dlDenoisePage.fallbackUnavailable":
+      "Denoise service unavailable; fell back to local demo",
+    "dlDenoisePage.fallbackError":
+      "Denoise request error; fell back to local demo",
     "dlDenoisePage.historyCleared": "Processing history cleared",
     "dlDenoisePage.title": "Deep Learning Denoise",
     "dlDenoisePage.realBackend": "Real Backend",
     "dlDenoisePage.fallbackRender": "Demo Fallback · Local Render",
     "dlDenoisePage.localPreview": "Local Preview · Live-tunable parameters",
-    "dlDenoisePage.dataNote": "Data note: single-frame 256×256 synthetic slice · noise",
+    "dlDenoisePage.dataNote":
+      "Data note: single-frame 256×256 synthetic slice · noise",
     "dlDenoisePage.execute": "Run Denoise",
     "dlDenoisePage.saveResult": "Save Result",
     "dlDenoisePage.processSpeed": "Processing Speed",
@@ -56890,7 +58912,8 @@ export const translations: Translations = {
     "dlDenoisePage.model": "Model:",
     "dlDenoisePage.kernel": "Kernel:",
     "dlDenoisePage.preset": "Preset:",
-    "dlDenoisePage.estimateHint": "Laplacian-MAD local estimate + backend calibration",
+    "dlDenoisePage.estimateHint":
+      "Laplacian-MAD local estimate + backend calibration",
     "dlDenoisePage.estimateNoise": "Auto-estimate Noise",
     "dlDenoisePage.noiseLevel": "Noise Level:",
     "dlDenoisePage.originalNoisy": "Original (with noise)",
@@ -56898,7 +58921,8 @@ export const translations: Translations = {
     "dlDenoisePage.dragCompare": "drag to compare",
     "dlDenoisePage.history": "Processing History",
     "dlDenoisePage.clear": "Clear",
-    "dlDenoisePage.historyEmpty": "No processing records — generated after running denoise",
+    "dlDenoisePage.historyEmpty":
+      "No processing records — generated after running denoise",
     "dlDenoisePage.strength": "Strength",
     "asrPage.engineAliyun": "Aliyun ASR",
     "asrPage.engineWhisper": "Whisper",
@@ -56936,7 +58960,8 @@ export const translations: Translations = {
     "asrPage.noHistory": "No dictation history",
     "asrPage.lexiconDistribution": "Lexicon Distribution",
     "asrPage.entriesUnit": "entries",
-    "asrPage.dataSource": "Data source: medical lexicon (in-memory seed) · dictation sessions (derived from ASR transcription records) · correction feedback automatically accumulates homophone aliases. After transcription, homophone correction runs automatically and results can be saved as lexicon entries.",
+    "asrPage.dataSource":
+      "Data source: medical lexicon (in-memory seed) · dictation sessions (derived from ASR transcription records) · correction feedback automatically accumulates homophone aliases. After transcription, homophone correction runs automatically and results can be saved as lexicon entries.",
     "criticalValuePage.criticalEvent": "Critical Value Event",
     "criticalValuePage.operation": "Operation",
     "criticalValuePage.phoneRecorded": "Phone notification recorded",
@@ -56951,7 +58976,8 @@ export const translations: Translations = {
     "criticalValuePage.closeFailed": "Close-loop failed",
     "criticalValuePage.deleted": "Critical value deleted",
     "criticalValuePage.deleteFailed": "Delete failed",
-    "criticalValuePage.selfApproveForbidden": "Self-review forbidden: cannot process a critical value reported by yourself",
+    "criticalValuePage.selfApproveForbidden":
+      "Self-review forbidden: cannot process a critical value reported by yourself",
     "criticalValuePage.processed": "Processed",
     "criticalValuePage.followUpType": "System Notification",
     "criticalValuePage.followUpResult": "Replied",
@@ -56959,14 +58985,17 @@ export const translations: Translations = {
     "criticalValuePage.navCritical": "Navigate to Critical Values",
     "criticalValuePage.navReport": "Navigate to Reports",
     "criticalValuePage.loading": "Loading critical value data from API...",
-    "criticalValuePage.bannerTitle": "v1.0.5 Critical Value Subsystem Upgrade · 18 rules + 10-minute notification rate + 8 categories assessment",
-    "criticalValuePage.bannerDesc": "National Health Commission 2024 Critical Value Catalog · BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/Bone Age/Cardiac CTA",
+    "criticalValuePage.bannerTitle":
+      "v1.0.5 Critical Value Subsystem Upgrade · 18 rules + 10-minute notification rate + 8 categories assessment",
+    "criticalValuePage.bannerDesc":
+      "National Health Commission 2024 Critical Value Catalog · BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/Bone Age/Cardiac CTA",
     "criticalValuePage.ruleConfig": "Rule Configuration",
     "criticalValuePage.statsBoard": "Stats Dashboard",
     "criticalValuePage.assessment8": "8 Categories Assessment",
     "criticalValuePage.title": "Critical Value Management",
     "criticalValuePage.versionBadge": "v4.0 Follow-up + 5-Node Closed Loop",
-    "criticalValuePage.subtitle": "Critical value detection · Real-time alerts · Dual-loop closure · Follow-up management · 5-node tracking · Full lifecycle management",
+    "criticalValuePage.subtitle":
+      "Critical value detection · Real-time alerts · Dual-loop closure · Follow-up management · 5-node tracking · Full lifecycle management",
     "criticalValuePage.batchAck": "Batch Acknowledge",
     "criticalValuePage.batchAckConfirm": "Confirm batch acknowledge?",
     "criticalValuePage.batchProcess": "Batch Process",
@@ -56998,8 +59027,10 @@ export const translations: Translations = {
     "fusionPage.realData": "Real Data",
     "fusionPage.demoFallback": "Demo Fallback",
     "fusionPage.noPetData": "No PET Data",
-    "fusionPage.noPetDesc": "This study has no PET modality; SUV quantification is unavailable",
-    "fusionPage.suvParams": "Weight {{weight}}kg · Injected dose {{dose}}MBq · Injection to scan {{scan}}min",
+    "fusionPage.noPetDesc":
+      "This study has no PET modality; SUV quantification is unavailable",
+    "fusionPage.suvParams":
+      "Weight {{weight}}kg · Injected dose {{dose}}MBq · Injection to scan {{scan}}min",
     "fusionPage.paramSource": "Conversion parameter source:",
     "fusionPage.examDerived": "Exam data (Exam-derived)",
     "fusionPage.defaultFallback": "Default values (demo fallback)",
@@ -57092,7 +59123,8 @@ export const translations: Translations = {
     "dental.loadFailed": "Load failed",
     "clinicalConfig.title": "Clinical Config Center",
     "clinicalConfig.bootFailed": "Failed to load clinical config",
-    "clinicalConfig.localDefaultWarning": "Backend not writable; showing local defaults",
+    "clinicalConfig.localDefaultWarning":
+      "Backend not writable; showing local defaults",
     "clinicalConfig.loadFailed": "Failed to load clinical config",
     "clinicalConfig.invalidJsonObject": "Module content must be a JSON object",
     "clinicalConfig.stat.itemCount": "Entries",
@@ -57101,18 +59133,21 @@ export const translations: Translations = {
     "clinicalConfig.stat.category": "Category",
     "clinicalConfig.loadingConfig": "Loading config from backend…",
     "clinicalConfig.loading": "Loading",
-    "clinicalConfig.moduleNotLoaded": "This module is not loaded yet; please wait for startup to finish",
+    "clinicalConfig.moduleNotLoaded":
+      "This module is not loaded yet; please wait for startup to finish",
     "clinicalConfig.summarySample": "Summary (Sample)",
     "clinicalConfig.fullJsonEditable": "Full JSON (editable)",
     "clinicalConfig.savedToBackend": "Saved to backend",
-    "clinicalConfig.localDefaultUnsaved": "Local default (not saved to backend)",
+    "clinicalConfig.localDefaultUnsaved":
+      "Local default (not saved to backend)",
     "clinicalConfig.reset": "Reset",
     "clinicalConfig.save": "Save",
     "clinicalConfig.backendPersisted": "Persisted to backend",
     "clinicalConfig.localDefault": "Local default",
     "clinicalConfig.moduleCount": "{{count}} modules",
     "clinicalConfig.stage3Title": "Stage 3 Admin - Backend Persistence",
-    "clinicalConfig.stage3Desc": "After editing the JSON, click \"Save\" to write to backend SystemConfig (key=clinical_config); it persists across restarts/refreshes. Confirm the JSON structure matches the module schema before saving.",
+    "clinicalConfig.stage3Desc":
+      'After editing the JSON, click "Save" to write to backend SystemConfig (key=clinical_config); it persists across restarts/refreshes. Confirm the JSON structure matches the module schema before saving.',
     "clinicalConfig.noData": "No data",
     "vr.title": "VR Volume Rendering",
     "vr.preset.default": "Default",
@@ -57133,7 +59168,8 @@ export const translations: Translations = {
     "vr.notRendered": "3D image is not rendered yet; please wait",
     "vr.captureFailed": "3D capture failed; please retry",
     "vr.cacheFailed": "Failed to write snapshot cache; please retry",
-    "vr.cacheSuccess": "VR 3D snapshot cached; redirecting to the report editor for auto-insert",
+    "vr.cacheSuccess":
+      "VR 3D snapshot cached; redirecting to the report editor for auto-insert",
     "cdsDose.title": "CDS Dose Monitoring",
     "cdsDose.refresh": "Refresh",
     "cdsDose.stat.recordCount": "Monitoring Records",
@@ -57179,10 +59215,12 @@ export const translations: Translations = {
     "patientTable.pagination.perPage": "Per page",
     "patientTable.pagination.perPageAria": "Rows per page",
     "patientTable.pagination.rows": "{{count}} rows",
-    "patientTable.pagination.summary": "Showing {{start}}-{{end}} of {{total}} records",
+    "patientTable.pagination.summary":
+      "Showing {{start}}-{{end}} of {{total}} records",
     "patientTable.pagination.prev": "Previous",
     "patientTable.pagination.next": "Next",
-    "patientTable.duplicates.detected": "Detected {{count}} duplicate patient groups",
+    "patientTable.duplicates.detected":
+      "Detected {{count}} duplicate patient groups",
     "patientTable.duplicates.advice": "Suggest merging or verifying",
     "patientTable.duplicates.scoreSuffix": " pts",
     "patientTable.duplicates.andMore": "and {{count}} more groups",
@@ -57292,19 +59330,27 @@ export const translations: Translations = {
     "reportPage.noExportable": "No exportable reports",
     "reportPage.reviseNetError": "Revise failed: network error",
     "reportPage.republishNetError": "Republish failed: network error",
-    "reportPage.approvalSubmitted": "Approval request submitted; redirecting to the export approval center",
+    "reportPage.approvalSubmitted":
+      "Approval request submitted; redirecting to the export approval center",
     "reportPage.approvalNetError": "Approval request failed: network error",
     "reportPage.criticalTransferNetError": "Transfer failed: network error",
     "reportPage.deleteNetError": "Delete failed: network error",
-    "reportPage.missingPatient": "This report is missing patient info; cannot open the patient profile",
-    "reportPage.noTrackableLesion": "No trackable lesion keywords found in the report (pulmonary nodule / liver lesion / lymph node, etc.)",
+    "reportPage.missingPatient":
+      "This report is missing patient info; cannot open the patient profile",
+    "reportPage.noTrackableLesion":
+      "No trackable lesion keywords found in the report (pulmonary nodule / liver lesion / lymph node, etc.)",
     "reportPage.lesionCreateFailed": "Failed to create lesion",
     "reportPage.lesionCreateNetError": "Failed to create lesion: network error",
-    "reportPage.offlineSaveFailed": "Offline save failed: IndexedDB unavailable",
-    "reportPage.selfReviewForbidden": "Self-review forbidden: you cannot review your own report",
-    "reportPage.reviewSubmitNetError": "Review submission failed: network error, please retry later",
-    "reportPage.mfaSignNetError": "MFA signing failed: network error, please retry later",
-    "reportPage.accessDenied": "Resource-level access denied: the current user is not authorized to read report resources. Please contact the administrator.",
+    "reportPage.offlineSaveFailed":
+      "Offline save failed: IndexedDB unavailable",
+    "reportPage.selfReviewForbidden":
+      "Self-review forbidden: you cannot review your own report",
+    "reportPage.reviewSubmitNetError":
+      "Review submission failed: network error, please retry later",
+    "reportPage.mfaSignNetError":
+      "MFA signing failed: network error, please retry later",
+    "reportPage.accessDenied":
+      "Resource-level access denied: the current user is not authorized to read report resources. Please contact the administrator.",
     "reportPage.loading": "Loading report data from API...",
     "reportPage.stat.todayReports": "Today's Reports",
     "reportPage.stat.pendingReview": "Pending Review",
@@ -57321,8 +59367,10 @@ export const translations: Translations = {
     "reportPage.savePresetTitle": "Save Current Filter as Preset",
     "reportPage.save": "Save",
     "reportPage.cancel": "Cancel",
-    "reportPage.presetNamePlaceholder": "Preset name, e.g. this week's chest X-ray to-do / critical follow-up",
-    "reportPage.presetHelp": "After saving, click a Tag above to load it; click the close X to delete. Data is stored in the local browser.",
+    "reportPage.presetNamePlaceholder":
+      "Preset name, e.g. this week's chest X-ray to-do / critical follow-up",
+    "reportPage.presetHelp":
+      "After saving, click a Tag above to load it; click the close X to delete. Data is stored in the local browser.",
     "cdsMgmt.tab.appropriateness": "Appropriateness Rules",
     "cdsMgmt.tab.pathway": "Clinical Pathway",
     "cdsMgmt.tab.contrast": "Contrast Protocol",
@@ -57357,12 +59405,14 @@ export const translations: Translations = {
     "cdsMgmt.createRule": "Create Rule",
     "cdsMgmt.editRuleTitle": "Edit Rule",
     "cdsMgmt.currentStatusPrefix": "Current status:",
-    "cdsMgmt.editNote": " (toggle with the enable/disable button in the list). cdsApi has no rule update endpoint; saving is local (note: pending backend PUT /cds/rules/:id).",
+    "cdsMgmt.editNote":
+      " (toggle with the enable/disable button in the list). cdsApi has no rule update endpoint; saving is local (note: pending backend PUT /cds/rules/:id).",
     "cdsMgmt.enabledStatus": "Enabled",
     "cdsMgmt.disabledStatus": "Disabled",
     "cdsMgmt.saving": "Saving...",
     "cdsMgmt.saveChanges": "Save Changes",
-    "mobileApp.exportUnavailable": "Export is temporarily unavailable; please retry later or contact support",
+    "mobileApp.exportUnavailable":
+      "Export is temporarily unavailable; please retry later or contact support",
     "mobileApp.exportFailed": "Report export failed; please retry later",
     "mobileApp.loading": "Loading...",
     "mobileApp.unknown": "Unknown",
@@ -57403,13 +59453,15 @@ export const translations: Translations = {
     "mobileApp.profile.settings": "Settings",
     "mobileApp.profile.about": "About",
     "mobileApp.phoneLogin": "Quick Phone Login",
-    "mobileApp.phoneLoginHint": "Enter your phone number to receive an SMS code; after verification you can view full reports and make payments",
+    "mobileApp.phoneLoginHint":
+      "Enter your phone number to receive an SMS code; after verification you can view full reports and make payments",
     "mobileApp.phonePlaceholder": "Enter phone number",
     "mobileApp.smsPlaceholder": "6-digit SMS code",
     "mobileApp.getSmsCode": "Get Code",
     "mobileApp.verifying": "Verifying...",
     "mobileApp.login": "Log In",
-    "mobileApp.agreement": "By logging in you agree to the User Agreement and Privacy Policy",
+    "mobileApp.agreement":
+      "By logging in you agree to the User Agreement and Privacy Policy",
     "mobileApp.verified": "Verified",
     "mobileApp.disablePush": "Disable push notifications",
     "mobileApp.enablePush": "Enable push notifications",
@@ -57444,14 +59496,21 @@ export const translations: Translations = {
     "financeReport.kpi.revenuePerStaff": "Revenue per Staff",
     "financeReport.kpi.revenuePerDevice": "Revenue per Device",
     "financeReport.kpi.receivableTurnover": "Receivable Turnover",
-    "financeReport.kpiExplain.avgRevenue": "Average revenue per exam, reflecting pricing level and service mix",
-    "financeReport.kpiExplain.costRatio": "Total cost / total revenue; lower means better cost control",
-    "financeReport.kpiExplain.profitRate": "Net profit / total revenue, reflecting overall profitability",
-    "financeReport.kpiExplain.revenuePerStaff": "Total revenue / headcount, measuring human resource output efficiency",
-    "financeReport.kpiExplain.revenuePerDevice": "Total revenue / devices in use, assessing device utilization efficiency",
-    "financeReport.kpiExplain.receivableTurnover": "Average collection days, reflecting cash recovery efficiency",
+    "financeReport.kpiExplain.avgRevenue":
+      "Average revenue per exam, reflecting pricing level and service mix",
+    "financeReport.kpiExplain.costRatio":
+      "Total cost / total revenue; lower means better cost control",
+    "financeReport.kpiExplain.profitRate":
+      "Net profit / total revenue, reflecting overall profitability",
+    "financeReport.kpiExplain.revenuePerStaff":
+      "Total revenue / headcount, measuring human resource output efficiency",
+    "financeReport.kpiExplain.revenuePerDevice":
+      "Total revenue / devices in use, assessing device utilization efficiency",
+    "financeReport.kpiExplain.receivableTurnover":
+      "Average collection days, reflecting cash recovery efficiency",
     "costAnalysis.sourceRealtime": "Finance API Live",
-    "costAnalysis.loadFailed": "Failed to load cost data; fell back to demo data",
+    "costAnalysis.loadFailed":
+      "Failed to load cost data; fell back to demo data",
     "costAnalysis.noDrgData": "No DRG comparison data",
     "costAnalysis.noBreakEvenTrend": "No revenue/expense trend data",
     "costAnalysis.noPayerTrend": "No payer trend data",
@@ -57467,11 +59526,15 @@ export const translations: Translations = {
     "costAnalysis.monthRevenueWan": "Month Revenue (10k)",
     "costAnalysis.monthCostWan": "Month Cost (10k)",
     "costAnalysis.monthProfitWan": "Month Profit (10k)",
-    "costAnalysis.formulaStraightLine": "Formula: (original price - salvage value) / useful life",
-    "costAnalysis.featureStraightLine": "Feature: equal depreciation each period; book value declines evenly",
+    "costAnalysis.formulaStraightLine":
+      "Formula: (original price - salvage value) / useful life",
+    "costAnalysis.featureStraightLine":
+      "Feature: equal depreciation each period; book value declines evenly",
     "costAnalysis.annualDepreciationLabel": "Annual Depreciation:",
-    "costAnalysis.formulaDoubleDeclining": "Formula: 2 × (1/useful life) × book value",
-    "costAnalysis.featureDoubleDeclining": "Feature: higher depreciation early, switching to straight-line later",
+    "costAnalysis.formulaDoubleDeclining":
+      "Formula: 2 × (1/useful life) × book value",
+    "costAnalysis.featureDoubleDeclining":
+      "Feature: higher depreciation early, switching to straight-line later",
     "costAnalysis.ctEnhanced": "CT Enhanced",
     "costAnalysis.mrEnhanced": "MR Enhanced",
     "reportDefect.cat.description": "Description",
@@ -57485,7 +59548,8 @@ export const translations: Translations = {
     "reportDefect.sev.critical": "Critical",
     "reportDefect.unknown": "Unknown Defect",
     "reportDefect.title": "Report Defect Category Dictionary",
-    "reportDefect.summary": "{{count}} defect types · 6 categories · {{evaluated}} scoring triggers",
+    "reportDefect.summary":
+      "{{count}} defect types · 6 categories · {{evaluated}} scoring triggers",
     "reportDefect.addDefect": "Add Defect",
     "reportDefect.categoryStat": "types / {{count}} triggers",
     "reportDefect.top5": "Top 5 Most Frequent Defects (cumulative triggers)",
@@ -57509,7 +59573,8 @@ export const translations: Translations = {
     "reportDefect.saveEdit": "Save Changes",
     "reportDefect.codeInline": "Code {{code}} · {{count}} cumulative triggers",
     "reportDefect.triggerRecord": "Trigger #{{n}}",
-    "reportDefect.operatorInfo": "Operator: reviewing doctor · Report ID: RPT-{{id}}",
+    "reportDefect.operatorInfo":
+      "Operator: reviewing doctor · Report ID: RPT-{{id}}",
     "reportDefect.noTriggers": "No trigger records",
     "reportDefect.deleteTitle": "Delete Defect",
     "reportDefect.field.code": "Code *",
@@ -57535,7 +59600,8 @@ export const translations: Translations = {
     "reportWrite.fav": "Add to favorites",
     "reportWrite.replaceAllTitle": "Replace entire editor content",
     "reportWrite.applyBackend": "Apply Backend",
-    "reportWrite.applyBackendTitle": "Merge template into report via backend (append / overwrite)",
+    "reportWrite.applyBackendTitle":
+      "Merge template into report via backend (append / overwrite)",
     "reportWrite.varsBadge": "Variables ×{{count}} (auto-filled on insert)",
     "printMgmt.filmPrint": "Film Printing",
     "printMgmt.filmCost": "Film Cost",
@@ -57550,7 +59616,8 @@ export const translations: Translations = {
     // [G005 v3.0.6.11-106 Wave 2B] National RQI (2024)
     "nav.rqi2024": "National RQI (2024)",
     "rqi2024.title": "National RQI for Radiology (2024)",
-    "rqi2024.subtitle": "NHC Doc No.150 (2024) Annex 4 · 7 national indicators: overview, drill-down, trend and target config",
+    "rqi2024.subtitle":
+      "NHC Doc No.150 (2024) Annex 4 · 7 national indicators: overview, drill-down, trend and target config",
     "rqi2024.refresh": "Refresh",
     "rqi2024.config": "Target Config",
     "rqi2024.exportCsv": "Export CSV",
@@ -57582,7 +59649,8 @@ export const translations: Translations = {
     "rqi2024.momImproveValue": "{{count}}/{{total}}",
     "rqi2024.detailTitle": "Numerator / Denominator Drill-down",
     "rqi2024.detailEmpty": "No detail records",
-    "rqi2024.selectHint": "Click an indicator card above to view details and trend",
+    "rqi2024.selectHint":
+      "Click an indicator card above to view details and trend",
     "rqi2024.detailColLabel": "Item",
     "rqi2024.detailColKind": "Type",
     "rqi2024.detailColInNumerator": "In Numerator",
@@ -57650,7 +59718,8 @@ export const translations: Translations = {
     "rqi2024.computeEstimated": "Estimated",
     "rqi2024.computeEmpty": "No indicator data",
     "rqi2024.configTitle": "National RQI Target Config",
-    "rqi2024.configHint": "Adjust target and warning margin, then save. Compliance status will be recalculated.",
+    "rqi2024.configHint":
+      "Adjust target and warning margin, then save. Compliance status will be recalculated.",
     "rqi2024.configTarget": "Target",
     "rqi2024.configWarnMargin": "Warning Margin",
     "rqi2024.configSaved": "Target config saved",
@@ -57660,13 +59729,15 @@ export const translations: Translations = {
     // [G005 v3.0.6.11-106 Wave 3] National QC Report Center
     "nav.rqiReportCenter": "QC Report Center",
     "rqiReport.title": "QC Report Center",
-    "rqiReport.subtitle": "Generate national-indicator report batches by period · submit / receipt / reject-reopen loop and history tracking",
+    "rqiReport.subtitle":
+      "Generate national-indicator report batches by period · submit / receipt / reject-reopen loop and history tracking",
     "rqiReport.refresh": "Refresh",
     "rqiReport.createBatch": "New Report Batch",
     "rqiReport.source.memory": "Live data",
     "rqiReport.source.seed": "Seed fallback",
     "rqiReport.createTitle": "New Report Batch",
-    "rqiReport.createSubtitle": "Select a reporting period to generate its 7 national-indicator dataset",
+    "rqiReport.createSubtitle":
+      "Select a reporting period to generate its 7 national-indicator dataset",
     "rqiReport.periodType": "Period Type",
     "rqiReport.period": "Period",
     "rqiReport.createdBy": "Reported By",
@@ -57762,7 +59833,7 @@ export const translations: Translations = {
     "rqiReport.empty": "No report batches",
     "rqiReport.loading": "Loading...",
     "rqiReport.dash": "-",
-},
+  },
 };
 
 // [v3.0.6.11-106] 分命名空间字典自动合并 (src/i18n/namespaces/*.ts)
@@ -57770,14 +59841,16 @@ export const translations: Translations = {
 // [fix] import.meta.glob 是 Vite 静态宏, 必须"直接调用"; 之前赋给变量 globFn 导致
 //   未被 Vite 转换 → 运行时 undefined → 所有命名空间键从未合并 (回退人性化英文)。
 interface NamespaceModule {
-  default?: { zh?: Record<string, string>; en?: Record<string, string> }
+  default?: { zh?: Record<string, string>; en?: Record<string, string> };
 }
-const nsModules = import.meta.glob('./namespaces/*.ts', { eager: true }) as Record<string, NamespaceModule>
+const nsModules = import.meta.glob("./namespaces/*.ts", {
+  eager: true,
+}) as Record<string, NamespaceModule>;
 for (const mod of Object.values(nsModules)) {
-  const dict = mod?.default
-  if (!dict) continue
-  if (dict.zh) Object.assign(translations['zh-CN'], dict.zh)
-  if (dict.en) Object.assign(translations['en-US'], dict.en)
+  const dict = mod?.default;
+  if (!dict) continue;
+  if (dict.zh) Object.assign(translations["zh-CN"], dict.zh);
+  if (dict.en) Object.assign(translations["en-US"], dict.en);
 }
 
 let currentLocale: Locale = DEFAULT_LOCALE;
@@ -57804,19 +59877,19 @@ export const notifyLocaleChange = (locale: Locale): void => {
 const humanizeKey = (key: string): string => {
   // [fix] 防御非字符串/空键: 数据字段缺失时 (如 t(undefined)) 不再抛
   //   "Cannot read properties of undefined (reading 'includes')".
-  if (typeof key !== 'string' || key.length === 0) return ''
-  const last = key.includes('.') ? key.slice(key.lastIndexOf('.') + 1) : key
+  if (typeof key !== "string" || key.length === 0) return "";
+  const last = key.includes(".") ? key.slice(key.lastIndexOf(".") + 1) : key;
   const words = last
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/[_-]+/g, ' ')
-    .trim()
-  if (!words) return key
-  return words.charAt(0).toUpperCase() + words.slice(1)
-}
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim();
+  if (!words) return key;
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
 
 export const t = (key: string, params?: Record<string, unknown>): string => {
   // [fix] 键可能来自 API/可选字段, 运行时为 undefined/null; 直接返回空串避免 humanizeKey 崩溃.
-  if (typeof key !== 'string') return ''
+  if (typeof key !== "string") return "";
   const dict = translations[currentLocale] ?? translations[DEFAULT_LOCALE];
   let text = dict[key] ?? translations[DEFAULT_LOCALE][key] ?? humanizeKey(key);
   if (params) {

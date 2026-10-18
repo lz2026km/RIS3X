@@ -18,10 +18,19 @@
  *   POST   /ihe/mock/cross-reference
  */
 
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
-import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from "@nestjs/common";
+import { Roles } from "../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
 import {
   AffinityDomainSchema,
   PamMessageSchema,
@@ -29,7 +38,7 @@ import {
   PdqQuerySchema,
   PixFeedSchema,
   PixQuerySchema,
-} from './dto'
+} from "./dto";
 import type {
   AffinityDomainDto,
   PamMessageDto,
@@ -37,151 +46,199 @@ import type {
   PdqQueryDto,
   PixFeedDto,
   PixQueryDto,
-} from './dto'
-import { IheService } from './ihe.service'
-import { z } from 'zod'
+} from "./dto";
+import { IheService } from "./ihe.service";
+import { z } from "zod";
 
-const CrossReferenceSchema = z.object({ localId: z.string().min(1), remoteDomain: z.string().min(1) })
+const CrossReferenceSchema = z.object({
+  localId: z.string().min(1),
+  remoteDomain: z.string().min(1),
+});
 
-@ApiTags('ihe')
+@ApiTags("ihe")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN')
-@Controller('ihe')
+@Roles("ADMIN", "DIRECTOR", "TECHNICIAN")
+@Controller("ihe")
 export class IheController {
   constructor(private readonly service: IheService) {}
 
-  @Get('status')
+  @Get("status")
   async status() {
-    return this.service.getStatus()
+    return this.service.getStatus();
   }
 
-  @Get('affinity-domain')
+  @Get("affinity-domain")
   async getAffinityDomain() {
-    return this.service.getAffinityDomain()
+    return this.service.getAffinityDomain();
   }
 
-  @Put('affinity-domain')
-  async setAffinityDomain(@Body(new ZodValidationPipe(AffinityDomainSchema)) body: AffinityDomainDto) {
-    return this.service.setAffinityDomain(body)
+  @Put("affinity-domain")
+  async setAffinityDomain(
+    @Body(new ZodValidationPipe(AffinityDomainSchema)) body: AffinityDomainDto,
+  ) {
+    return this.service.setAffinityDomain(body);
   }
 
-  @Delete('affinity-domain')
+  @Delete("affinity-domain")
   async resetAffinityDomain() {
-    return this.service.resetAffinityDomain()
+    return this.service.resetAffinityDomain();
   }
 
-  @Post('pix/feed')
+  @Post("pix/feed")
   async pixFeed(@Body(new ZodValidationPipe(PixFeedSchema)) body: PixFeedDto) {
-    return this.service.pixFeed(body)
+    return this.service.pixFeed(body);
   }
 
-  @Post('pix/query')
-  async pixQuery(@Body(new ZodValidationPipe(PixQuerySchema)) body: PixQueryDto) {
-    const results = await this.service.pixQuery(body)
+  @Post("pix/query")
+  async pixQuery(
+    @Body(new ZodValidationPipe(PixQuerySchema)) body: PixQueryDto,
+  ) {
+    const results = await this.service.pixQuery(body);
     return {
-      transaction: 'ITI-9',
+      transaction: "ITI-9",
       count: results.length,
       patientId: body.patientId,
       sourceDomain: body.sourceDomain,
       results,
-    }
+    };
   }
 
-  @Post('pix/update-notification')
-  async pixUpdateNotification(@Body(new ZodValidationPipe(PixFeedSchema)) body: PixFeedDto) {
+  @Post("pix/update-notification")
+  async pixUpdateNotification(
+    @Body(new ZodValidationPipe(PixFeedSchema)) body: PixFeedDto,
+  ) {
     return {
-      transaction: 'ITI-10',
+      transaction: "ITI-10",
       ...(await this.service.pixUpdateNotification(body)),
-    }
+    };
   }
 
-  @Post('pdq/query')
-  async pdqQuery(@Body(new ZodValidationPipe(PdqQuerySchema)) body: PdqQueryDto) {
-    const results = await this.service.pdqQuery(body)
+  // [v3.0.6.16-6] PIX 映射列表 / 删除 (前端 PixPage 删除此前为本地假成功)
+  @Get("pix/mappings")
+  async listPixMappings() {
+    const items = await this.service.listPixMappings();
+    return { success: true, data: items, total: items.length };
+  }
+
+  @Delete("pix/mappings/:key")
+  async deletePixMapping(@Param("key") key: string) {
+    return this.service.deletePixMapping(decodeURIComponent(key));
+  }
+
+  @Post("pdq/query")
+  async pdqQuery(
+    @Body(new ZodValidationPipe(PdqQuerySchema)) body: PdqQueryDto,
+  ) {
+    const results = await this.service.pdqQuery(body);
     return {
-      transaction: 'ITI-21/ITI-22',
+      transaction: "ITI-21/ITI-22",
       count: results.length,
       ...(body.limit !== undefined ? { limit: body.limit } : {}),
       results,
-    }
+    };
   }
 
-  @Post('pam/message')
-  async pamMessage(@Body(new ZodValidationPipe(PamMessageSchema)) body: PamMessageDto) {
+  @Post("pam/message")
+  async pamMessage(
+    @Body(new ZodValidationPipe(PamMessageSchema)) body: PamMessageDto,
+  ) {
     return {
-      transaction: body.messageType.startsWith('ADT^A01') || body.messageType.startsWith('ADT^A04') || body.messageType.startsWith('ADT^A05')
-        ? 'ITI-30'
-        : 'ITI-31',
+      transaction:
+        body.messageType.startsWith("ADT^A01") ||
+        body.messageType.startsWith("ADT^A04") ||
+        body.messageType.startsWith("ADT^A05")
+          ? "ITI-30"
+          : "ITI-31",
       ...(await this.service.sendPamMessage(body)),
-    }
+    };
   }
 
-  @Get('pam/visit')
+  @Get("pam/visit")
   async getVisit(
-    @Query('patientId') patientId: string,
-    @Query('visitNumber') visitNumber?: string,
+    @Query("patientId") patientId: string,
+    @Query("visitNumber") visitNumber?: string,
   ) {
-    if (!patientId) return { error: 'patientId required' }
-    const full = await this.service.getVisitDetail(patientId, visitNumber)
-    if (!full) return { error: 'visit not found' }
-    return full
+    if (!patientId) return { error: "patientId required" };
+    const full = await this.service.getVisitDetail(patientId, visitNumber);
+    if (!full) return { error: "visit not found" };
+    return full;
   }
 
-  @Get('pam/visit-detail')
+  @Get("pam/visit-detail")
   async getVisitDetailRoute(
-    @Query('patientId') patientId: string,
-    @Query('visitNumber') visitNumber: string,
+    @Query("patientId") patientId: string,
+    @Query("visitNumber") visitNumber: string,
   ) {
-    if (!patientId || !visitNumber) return { error: 'patientId and visitNumber required' }
-    const full = await this.service.getVisitDetail(patientId, visitNumber)
-    if (!full) return { error: 'visit not found' }
-    return full
+    if (!patientId || !visitNumber)
+      return { error: "patientId and visitNumber required" };
+    const full = await this.service.getVisitDetail(patientId, visitNumber);
+    if (!full) return { error: "visit not found" };
+    return full;
   }
 
-  @Get('pam/messages')
+  @Get("pam/messages")
   async pamMessages(
-    @Query('limit') limit?: string,
-    @Query('messageType') messageType?: string,
-    @Query('patientId') patientId?: string,
+    @Query("limit") limit?: string,
+    @Query("messageType") messageType?: string,
+    @Query("patientId") patientId?: string,
   ) {
     const query = PamQuerySchema.parse({
       limit: limit ? Number(limit) : undefined,
       messageType,
       patientId,
-    })
-    return this.service.listPamMessages(query)
+    });
+    return this.service.listPamMessages(query);
   }
 
-  @Get('mock/register-document')
-  async mockRegister(@Query('patientId') patientId: string, @Query('repository') repository = 'xds-local') {
-    if (!patientId) return { error: 'patientId required' }
-    const docId = await this.service.registerDocumentStub({ patientId }, repository)
-    return { documentId: docId, patientId, repository }
-  }
-
-  @Get('mock/documents')
-  async mockDocuments(@Query('patientId') patientId: string, @Query('domain') domain = 'xds-local') {
-    if (!patientId) return { error: 'patientId required', documents: [] }
-    const docs = await this.service.queryDocumentsStub(patientId, domain)
-    return { patientId, domain, documents: docs }
-  }
-
-  @Get('mock/pdq')
-  async mockPdq(
-    @Query('patientId') patientId: string,
-    @Query('assigningAuthority') assigningAuthority = '1.2.840.113556.1.8000.2554.1.300',
+  @Get("mock/register-document")
+  async mockRegister(
+    @Query("patientId") patientId: string,
+    @Query("repository") repository = "xds-local",
   ) {
-    if (!patientId) return { error: 'patientId required' }
-    const r = await this.service.pdqQueryStub(patientId, assigningAuthority)
-    return r ?? { found: false, patientId, assigningAuthority }
+    if (!patientId) return { error: "patientId required" };
+    const docId = await this.service.registerDocumentStub(
+      { patientId },
+      repository,
+    );
+    return { documentId: docId, patientId, repository };
   }
 
-  @Post('mock/cross-reference')
-  async mockCrossReference(@Body(new ZodValidationPipe(CrossReferenceSchema)) body: { localId: string; remoteDomain: string }) {
+  @Get("mock/documents")
+  async mockDocuments(
+    @Query("patientId") patientId: string,
+    @Query("domain") domain = "xds-local",
+  ) {
+    if (!patientId) return { error: "patientId required", documents: [] };
+    const docs = await this.service.queryDocumentsStub(patientId, domain);
+    return { patientId, domain, documents: docs };
+  }
+
+  @Get("mock/pdq")
+  async mockPdq(
+    @Query("patientId") patientId: string,
+    @Query("assigningAuthority")
+    assigningAuthority = "1.2.840.113556.1.8000.2554.1.300",
+  ) {
+    if (!patientId) return { error: "patientId required" };
+    const r = await this.service.pdqQueryStub(patientId, assigningAuthority);
+    return r ?? { found: false, patientId, assigningAuthority };
+  }
+
+  @Post("mock/cross-reference")
+  async mockCrossReference(
+    @Body(new ZodValidationPipe(CrossReferenceSchema))
+    body: {
+      localId: string;
+      remoteDomain: string;
+    },
+  ) {
     if (!body?.localId || !body?.remoteDomain) {
-      return { error: 'localId & remoteDomain required' }
+      return { error: "localId & remoteDomain required" };
     }
-    const remoteId = await this.service.crossReferencePatientStub(body.localId, body.remoteDomain)
-    return { localId: body.localId, remoteDomain: body.remoteDomain, remoteId }
+    const remoteId = await this.service.crossReferencePatientStub(
+      body.localId,
+      body.remoteDomain,
+    );
+    return { localId: body.localId, remoteDomain: body.remoteDomain, remoteId };
   }
 }

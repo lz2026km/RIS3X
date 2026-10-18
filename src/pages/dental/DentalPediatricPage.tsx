@@ -26,12 +26,72 @@ const PAGE_SIZE = 10;
 
 // 确定性 seed 回退 (API 不可用时展示, 与 MSW 字段对齐)
 const SEED_TREATMENTS: any[] = [
-  { id: "SEED-PED-001", patientId: "P92001", patientName: "刘子轩", toothNo: "E", diagnosis: "乳牙龋坏", plan: "窝沟封闭 + 氟保护", status: "InProgress", cost: 400, createdAt: "2026-08-01T09:30:00.000Z" },
-  { id: "SEED-PED-002", patientId: "P92002", patientName: "陈语嫣", toothNo: "A", diagnosis: "乳牙深龋", plan: "乳牙根管治疗", status: "Planned", cost: 900, createdAt: "2026-08-02T10:00:00.000Z" },
-  { id: "SEED-PED-003", patientId: "P92003", patientName: "赵一诺", toothNo: "K", diagnosis: "乳牙滞留", plan: "乳牙拔除", status: "InProgress", cost: 300, createdAt: "2026-07-28T14:20:00.000Z" },
-  { id: "SEED-PED-004", patientId: "P92004", patientName: "孙浩然", toothNo: "F", diagnosis: "窝沟龋", plan: "充填治疗 + 窝沟封闭", status: "Completed", cost: 500, createdAt: "2026-07-20T11:00:00.000Z" },
-  { id: "SEED-PED-005", patientId: "P92005", patientName: "周雨桐", toothNo: "T", diagnosis: "乳牙牙髓炎", plan: "乳牙根管治疗 + 预成冠", status: "Completed", cost: 1200, createdAt: "2026-07-15T09:00:00.000Z" },
-  { id: "SEED-PED-006", patientId: "P92006", patientName: "吴彦博", toothNo: "C", diagnosis: "龋病风险评估", plan: "氟保护 + 口腔卫生指导", status: "Cancelled", cost: 200, createdAt: "2026-07-10T16:40:00.000Z" },
+  {
+    id: "SEED-PED-001",
+    patientId: "P92001",
+    patientName: "刘子轩",
+    toothNo: "E",
+    diagnosis: "乳牙龋坏",
+    plan: "窝沟封闭 + 氟保护",
+    status: "InProgress",
+    cost: 400,
+    createdAt: "2026-08-01T09:30:00.000Z",
+  },
+  {
+    id: "SEED-PED-002",
+    patientId: "P92002",
+    patientName: "陈语嫣",
+    toothNo: "A",
+    diagnosis: "乳牙深龋",
+    plan: "乳牙根管治疗",
+    status: "Planned",
+    cost: 900,
+    createdAt: "2026-08-02T10:00:00.000Z",
+  },
+  {
+    id: "SEED-PED-003",
+    patientId: "P92003",
+    patientName: "赵一诺",
+    toothNo: "K",
+    diagnosis: "乳牙滞留",
+    plan: "乳牙拔除",
+    status: "InProgress",
+    cost: 300,
+    createdAt: "2026-07-28T14:20:00.000Z",
+  },
+  {
+    id: "SEED-PED-004",
+    patientId: "P92004",
+    patientName: "孙浩然",
+    toothNo: "F",
+    diagnosis: "窝沟龋",
+    plan: "充填治疗 + 窝沟封闭",
+    status: "Completed",
+    cost: 500,
+    createdAt: "2026-07-20T11:00:00.000Z",
+  },
+  {
+    id: "SEED-PED-005",
+    patientId: "P92005",
+    patientName: "周雨桐",
+    toothNo: "T",
+    diagnosis: "乳牙牙髓炎",
+    plan: "乳牙根管治疗 + 预成冠",
+    status: "Completed",
+    cost: 1200,
+    createdAt: "2026-07-15T09:00:00.000Z",
+  },
+  {
+    id: "SEED-PED-006",
+    patientId: "P92006",
+    patientName: "吴彦博",
+    toothNo: "C",
+    diagnosis: "龋病风险评估",
+    plan: "氟保护 + 口腔卫生指导",
+    status: "Cancelled",
+    cost: 200,
+    createdAt: "2026-07-10T16:40:00.000Z",
+  },
 ];
 
 const STATUS_OPTIONS = [
@@ -44,9 +104,38 @@ const STATUS_OPTIONS = [
 
 function exportCsv(rows: DentalTreatment[]): void {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const header = ["id", "patientId", "patientName", "toothNo", "diagnosis", "plan", "status", "cost", "createdAt"];
-  const lines = [header.join(","), ...rows.map((r) => [r.id, r.patientId, r.patientName, r.toothNo, r.diagnosis, r.plan, r.status, r.cost, r.createdAt].map(esc).join(","))];
-  const blob = new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const header = [
+    "id",
+    "patientId",
+    "patientName",
+    "toothNo",
+    "diagnosis",
+    "plan",
+    "status",
+    "cost",
+    "createdAt",
+  ];
+  const lines = [
+    header.join(","),
+    ...rows.map((r) =>
+      [
+        r.id,
+        r.patientId,
+        r.patientName,
+        r.toothNo,
+        r.diagnosis,
+        r.plan,
+        r.status,
+        r.cost,
+        r.createdAt,
+      ]
+        .map(esc)
+        .join(","),
+    ),
+  ];
+  const blob = new Blob(["\ufeff" + lines.join("\n")], {
+    type: "text/csv;charset=utf-8;",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -72,7 +161,11 @@ export const DentalPediatricPage: React.FC = () => {
     setLoading(true);
     setLoadError(null);
     try {
-      const d = await dentalApi.listTreatments({ type: TYPE, page: 1, pageSize: 200 });
+      const d = await dentalApi.listTreatments({
+        type: TYPE,
+        page: 1,
+        pageSize: 200,
+      });
       if (d.success && Array.isArray(d.data) && d.data.length > 0) {
         setT(d.data);
         setFromSeed(false);
@@ -99,10 +192,11 @@ export const DentalPediatricPage: React.FC = () => {
     if (statusFilter) rows = rows.filter((r) => r.status === statusFilter);
     const q = search.trim().toLowerCase();
     if (q) {
-      rows = rows.filter((r) =>
-        (r.patientName || "").toLowerCase().includes(q) ||
-        (r.patientId || "").toLowerCase().includes(q) ||
-        (r.diagnosis || "").toLowerCase().includes(q),
+      rows = rows.filter(
+        (r) =>
+          (r.patientName || "").toLowerCase().includes(q) ||
+          (r.patientId || "").toLowerCase().includes(q) ||
+          (r.diagnosis || "").toLowerCase().includes(q),
       );
     }
     return rows;
@@ -136,15 +230,24 @@ export const DentalPediatricPage: React.FC = () => {
       const v = await form.validateFields();
       setSaving(true);
       if (editing) {
-        const d = await dentalApi.updateTreatment(editing.id, { ...v, type: TYPE });
+        const d = await dentalApi.updateTreatment(editing.id, {
+          ...v,
+          type: TYPE,
+        });
         if (d.success) {
-          setT((prev) => prev.map((r) => (r.id === editing.id ? { ...r, ...v } : r)));
+          setT((prev) =>
+            prev.map((r) => (r.id === editing.id ? { ...r, ...v } : r)),
+          );
           message.success(t("w9.dentalPed.updated"));
         } else {
           message.error(d.error?.message || t("w9.dentalPed.updated"));
         }
       } else {
-        const d = await dentalApi.createTreatment({ ...v, type: TYPE, status: "Planned" });
+        const d = await dentalApi.createTreatment({
+          ...v,
+          type: TYPE,
+          status: "Planned",
+        });
         if (d.success) {
           message.success(t("w9.dentalPed.created"));
           setT((prev) => [d.data, ...prev]);
@@ -161,9 +264,19 @@ export const DentalPediatricPage: React.FC = () => {
     }
   };
 
-  const onDelete = (rec: DentalTreatment) => {
-    setT((prev) => prev.filter((r) => r.id !== rec.id));
-    message.success(t("w9.common.deleteSuccess"));
+  // [v3.0.6.16-6] 删除改为调用真实后端 (此前只删本地 state + 弹绿勾, 刷新后记录复活)
+  const onDelete = async (rec: DentalTreatment) => {
+    try {
+      const res = await dentalApi.deleteTreatment(rec.id);
+      if (!res.success) {
+        message.error(res.error?.message ?? t("w9.common.deleteFailed"));
+        return;
+      }
+      setT((prev) => prev.filter((r) => r.id !== rec.id));
+      message.success(t("w9.common.deleteSuccess"));
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("w9.common.deleteFailed"));
+    }
   };
 
   const onExport = () => {
@@ -177,13 +290,29 @@ export const DentalPediatricPage: React.FC = () => {
       header={{
         title: t("w9.dentalPed.title"),
         version: "v3.0.6.11-103",
-        tags: [fromSeed && <Tag key="src" color="orange">{t("w9.common.apiFallback")}</Tag>],
+        tags: [
+          fromSeed && (
+            <Tag key="src" color="orange">
+              {t("w9.common.apiFallback")}
+            </Tag>
+          ),
+        ],
         extra: (
           <Space wrap>
-            <ActionButton action="refresh" size="compact" loading={loading} onClick={() => void load()}>
+            <ActionButton
+              action="refresh"
+              size="compact"
+              loading={loading}
+              onClick={() => void load()}
+            >
               {t("w9.common.refresh")}
             </ActionButton>
-            <ActionButton action="export" size="compact" disabled={filtered.length === 0} onClick={onExport}>
+            <ActionButton
+              action="export"
+              size="compact"
+              disabled={filtered.length === 0}
+              onClick={onExport}
+            >
               {t("w9.common.export")}
             </ActionButton>
             <ActionButton action="create" size="compact" onClick={openCreate}>
@@ -197,21 +326,54 @@ export const DentalPediatricPage: React.FC = () => {
         type: "info",
       }}
     >
-      {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t("w9.states.retry")} />}
-      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t("w9.common.statsTotal")} value={treats.length} icon={<Baby size={18} />} color="primary" />
-        <StatCard title={t("w9.common.statsActive")} value={activeCount} icon={<Clock3 size={18} />} color="warning" />
-        <StatCard title={t("w9.common.statsDone")} value={doneCount} icon={<CheckCircle2 size={18} />} color="success" />
-        <StatCard title={t("w9.common.statsCost")} value={totalCost.toLocaleString("zh-CN")} suffix="¥" icon={<Wallet size={18} />} color="error" />
+      {loadError && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => void load()}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
+      <StatCardGrid style={{ marginBottom: "var(--space-4, 16px)" }}>
+        <StatCard
+          title={t("w9.common.statsTotal")}
+          value={treats.length}
+          icon={<Baby size={18} />}
+          color="primary"
+        />
+        <StatCard
+          title={t("w9.common.statsActive")}
+          value={activeCount}
+          icon={<Clock3 size={18} />}
+          color="warning"
+        />
+        <StatCard
+          title={t("w9.common.statsDone")}
+          value={doneCount}
+          icon={<CheckCircle2 size={18} />}
+          color="success"
+        />
+        <StatCard
+          title={t("w9.common.statsCost")}
+          value={totalCost.toLocaleString("zh-CN")}
+          suffix="¥"
+          icon={<Wallet size={18} />}
+          color="error"
+        />
       </StatCardGrid>
 
-      <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
+      <Space style={{ marginBottom: "var(--space-3, 12px)" }} wrap>
         <Select
           size="small"
           style={{ width: 140 }}
           value={statusFilter}
-          onChange={(v) => { setStatusFilter(v); setPage(1); }}
-          options={STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.value || t("w9.common.allStatus") }))}
+          onChange={(v) => {
+            setStatusFilter(v);
+            setPage(1);
+          }}
+          options={STATUS_OPTIONS.map((o) => ({
+            value: o.value,
+            label: o.value || t("w9.common.allStatus"),
+          }))}
         />
         <Input
           size="small"
@@ -219,15 +381,29 @@ export const DentalPediatricPage: React.FC = () => {
           style={{ width: 220 }}
           placeholder={t("w9.common.filterPatient")}
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
         />
-        <Tag color={fromSeed ? "orange" : "green"} style={{ marginInlineEnd: 0 }}>
+        <Tag
+          color={fromSeed ? "orange" : "green"}
+          style={{ marginInlineEnd: 0 }}
+        >
           {filtered.length} / {treats.length}
         </Tag>
       </Space>
 
       {loading ? (
-        <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "var(--text-secondary)" }}>{t("w9.common.loading")}</div>
+        <div
+          style={{
+            padding: "var(--space-10, 40px)",
+            textAlign: "center",
+            color: "var(--text-secondary)",
+          }}
+        >
+          {t("w9.common.loading")}
+        </div>
       ) : filtered.length === 0 ? (
         <EmptyState
           tip={t("w9.dentalPed.empty")}
@@ -237,20 +413,50 @@ export const DentalPediatricPage: React.FC = () => {
       ) : (
         <DataTable
           rowKey="id"
-          pagination={{ current: page, pageSize: PAGE_SIZE, total: filtered.length, onChange: setPage, showSizeChanger: false }}
+          pagination={{
+            current: page,
+            pageSize: PAGE_SIZE,
+            total: filtered.length,
+            onChange: setPage,
+            showSizeChanger: false,
+          }}
           dataSource={paged}
           columns={[
-            { title: t("w9.common.patient"), dataIndex: "patientName", width: 100 },
-            { title: t("w9.dentalPed.deciduous"), dataIndex: "toothNo", width: 100 },
+            {
+              title: t("w9.common.patient"),
+              dataIndex: "patientName",
+              width: 100,
+            },
+            {
+              title: t("w9.dentalPed.deciduous"),
+              dataIndex: "toothNo",
+              width: 100,
+            },
             { title: t("w9.common.diagnosis"), dataIndex: "diagnosis" },
             { title: t("w9.common.plan"), dataIndex: "plan" },
-            { title: t("w9.common.cost"), dataIndex: "cost", width: 90, render: (v?: number) => (v != null ? `¥${v.toLocaleString("zh-CN")}` : "-") },
+            {
+              title: t("w9.common.cost"),
+              dataIndex: "cost",
+              width: 90,
+              render: (v?: number) =>
+                v != null ? `¥${v.toLocaleString("zh-CN")}` : "-",
+            },
             {
               title: t("w9.common.status"),
               dataIndex: "status",
               width: 110,
               render: (s?: string) => (
-                <Tag color={s === "Completed" ? "green" : s === "InProgress" ? "orange" : s === "Cancelled" ? "red" : "default"}>
+                <Tag
+                  color={
+                    s === "Completed"
+                      ? "green"
+                      : s === "InProgress"
+                        ? "orange"
+                        : s === "Cancelled"
+                          ? "red"
+                          : "default"
+                  }
+                >
                   {s || "-"}
                 </Tag>
               ),
@@ -260,9 +466,14 @@ export const DentalPediatricPage: React.FC = () => {
               width: 220,
               render: (_, rec) => (
                 <Space size={4}>
-                  <Button size="small" onClick={() => openEdit(rec)}>{t("w9.common.edit")}</Button>
+                  <Button size="small" onClick={() => openEdit(rec)}>
+                    {t("w9.common.edit")}
+                  </Button>
                   <TreatmentActions record={rec} />
-                  <Popconfirm title={t("w9.common.deleteConfirm")} onConfirm={() => onDelete(rec)}>
+                  <Popconfirm
+                    title={t("w9.common.deleteConfirm")}
+                    onConfirm={() => onDelete(rec)}
+                  >
                     <ActionButton action="delete" size="compact">
                       {t("w9.common.delete")}
                     </ActionButton>
@@ -284,17 +495,25 @@ export const DentalPediatricPage: React.FC = () => {
         confirmLoading={saving}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label={t("w9.common.patientId")} name="patientId" rules={[{ required: true }]}>
+          <Form.Item
+            label={t("w9.common.patientId")}
+            name="patientId"
+            rules={[{ required: true }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label={t("w9.dentalPed.deciduous")} name="toothNo" rules={[{ required: true }]}>
-                <Input placeholder={t("w9d.dentalPed.toothPlaceholder")} />
+          <Form.Item
+            label={t("w9.dentalPed.deciduous")}
+            name="toothNo"
+            rules={[{ required: true }]}
+          >
+            <Input placeholder={t("w9d.dentalPed.toothPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.common.diagnosis")} name="diagnosis">
-                <Input placeholder={t("w9d.dentalPed.diagnosisPlaceholder")} />
+            <Input placeholder={t("w9d.dentalPed.diagnosisPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.common.plan")} name="plan">
-                <Input placeholder={t("w9d.dentalPed.planPlaceholder")} />
+            <Input placeholder={t("w9d.dentalPed.planPlaceholder")} />
           </Form.Item>
         </Form>
       </Modal>

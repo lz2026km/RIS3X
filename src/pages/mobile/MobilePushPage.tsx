@@ -1,59 +1,108 @@
-import React, { useState, useEffect } from 'react'
-import { message } from 'antd'
-import { Bell, BellOff, Send, Trash2, Clock, CheckCircle, AlertTriangle, Filter } from 'lucide-react'
-import { pushService } from '../../services/mobile/push/PushService'
-import { mobileApi, notificationsApi } from '../../services/api'
-import type { PushPayload, PushSubscription } from '../../types/mobile'
-import type { NotificationSubscriptionType } from '../../services/api/notificationsApi'
-import { LoadingBanner } from '../../components/feedback'
-import { t } from '../../i18n/appI18n'
+import React, { useState, useEffect } from "react";
+import { message } from "antd";
+import {
+  Bell,
+  BellOff,
+  Send,
+  Trash2,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  Filter,
+} from "lucide-react";
+import { pushService } from "../../services/mobile/push/PushService";
+import { mobileApi, notificationsApi } from "../../services/api";
+import type { PushPayload, PushSubscription } from "../../types/mobile";
+import type {
+  NotificationSubscriptionType,
+  NotificationDto,
+} from "../../services/api/notificationsApi";
+import { LoadingBanner } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 
 interface PushNotificationItem {
-  id: string
-  title: string
-  body: string
-  tag: string
-  topic?: string
-  severity: 'info' | 'warning' | 'critical'
-  read: boolean
-  receivedAt: string
-  data?: Record<string, unknown>
+  id: string;
+  title: string;
+  body: string;
+  tag: string;
+  topic?: string;
+  severity: "info" | "warning" | "critical";
+  read: boolean;
+  receivedAt: string;
+  data?: Record<string, unknown>;
 }
 
-const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string; icon: React.ComponentType<{ size?: number | string; style?: React.CSSProperties }> }> = {
-  info: { bg: 'var(--color-info-bg)', color: 'var(--color-info)', borderColor: 'var(--color-info-border)', icon: Bell },
-  warning: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderColor: 'var(--color-warning-border)', icon: AlertTriangle },
-  critical: { bg: 'var(--color-error-bg)', color: 'var(--color-error)', borderColor: 'var(--color-error-border)', icon: AlertTriangle },
-}
-const DEFAULT_SEVERITY = { bg: 'var(--color-info-bg)', color: 'var(--color-info)', borderColor: 'var(--color-info-border)', icon: Bell }
+const SEVERITY_CONFIG: Record<
+  string,
+  {
+    bg: string;
+    color: string;
+    borderColor: string;
+    icon: React.ComponentType<{
+      size?: number | string;
+      style?: React.CSSProperties;
+    }>;
+  }
+> = {
+  info: {
+    bg: "var(--color-info-bg)",
+    color: "var(--color-info)",
+    borderColor: "var(--color-info-border)",
+    icon: Bell,
+  },
+  warning: {
+    bg: "var(--color-warning-bg)",
+    color: "var(--color-warning)",
+    borderColor: "var(--color-warning-border)",
+    icon: AlertTriangle,
+  },
+  critical: {
+    bg: "var(--color-error-bg)",
+    color: "var(--color-error)",
+    borderColor: "var(--color-error-border)",
+    icon: AlertTriangle,
+  },
+};
+const DEFAULT_SEVERITY = {
+  bg: "var(--color-info-bg)",
+  color: "var(--color-info)",
+  borderColor: "var(--color-info-border)",
+  icon: Bell,
+};
 
-const topicLabel = (topic: string): string => ({
-  critical: t('mobilePush.topicCritical'),
-  report: t('mobilePush.topicReport'),
-  appointment: t('mobilePush.topicAppointment'),
-  system: t('mobilePush.topicSystem'),
-}[topic] ?? t('mobilePush.topicSystem'))
+const topicLabel = (topic: string): string =>
+  ({
+    critical: t("mobilePush.topicCritical"),
+    report: t("mobilePush.topicReport"),
+    appointment: t("mobilePush.topicAppointment"),
+    system: t("mobilePush.topicSystem"),
+  })[topic] ?? t("mobilePush.topicSystem");
 
 // [v3.0.6.11-99 Wave7B] 推送订阅类型 (与通知中心订阅管理共享后端 GET/PUT /notifications/subscriptions)
-const subscriptionOptions = (): Array<{ key: NotificationSubscriptionType; label: string }> => [
-  { key: 'CRITICAL', label: t('mobilePush.subCritical') },
-  { key: 'REPORT', label: t('mobilePush.subReport') },
-  { key: 'FOLLOWUP', label: t('mobilePush.subFollowup') },
-  { key: 'QUALITY', label: t('mobilePush.subQuality') },
-  { key: 'SYSTEM', label: t('mobilePush.subSystem') },
-]
+const subscriptionOptions = (): Array<{
+  key: NotificationSubscriptionType;
+  label: string;
+}> => [
+  { key: "CRITICAL", label: t("mobilePush.subCritical") },
+  { key: "REPORT", label: t("mobilePush.subReport") },
+  { key: "FOLLOWUP", label: t("mobilePush.subFollowup") },
+  { key: "QUALITY", label: t("mobilePush.subQuality") },
+  { key: "SYSTEM", label: t("mobilePush.subSystem") },
+];
 
-const SUB_STORAGE_KEY = 'notify-subscription-types'
+const SUB_STORAGE_KEY = "notify-subscription-types";
 
 function loadLocalSubTypes(): string[] {
   try {
-    const raw = localStorage.getItem(SUB_STORAGE_KEY)
+    const raw = localStorage.getItem(SUB_STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as string[]
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      const parsed = JSON.parse(raw) as string[];
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-  } catch { /* ignore */ }
-  return ['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM']
+  } catch {
+    /* ignore */
+  }
+  return ["CRITICAL", "REPORT", "FOLLOWUP", "QUALITY", "SYSTEM"];
 }
 
 /**
@@ -64,66 +113,96 @@ async function registerDeviceToken(sub: PushSubscription): Promise<void> {
   try {
     const res = await mobileApi.registerDeviceToken({
       token: sub.endpoint,
-      platform: sub.channel === 'fcm' ? 'android' : sub.channel === 'apns' ? 'ios' : 'web',
-      deviceId: sub.deviceId || 'web-push',
-      userId: sub.userId || 'demo-user',
-    })
-    if (!res.success) console.warn('[push] device-token registration failed', res.error)
+      platform:
+        sub.channel === "fcm"
+          ? "android"
+          : sub.channel === "apns"
+            ? "ios"
+            : "web",
+      deviceId: sub.deviceId || "web-push",
+      userId: sub.userId || "demo-user",
+    });
+    if (!res.success)
+      console.warn("[push] device-token registration failed", res.error);
   } catch (e) {
-    console.warn('[push] device-token registration error', (e as Error)?.message)
+    console.warn(
+      "[push] device-token registration error",
+      (e as Error)?.message,
+    );
   }
 }
 
 export default function MobilePushPage() {
-  const [notifications, setNotifications] = useState<PushNotificationItem[]>([])
-  const [filterTopic, setFilterTopic] = useState<string>('all')
-  const [filterSeverity, _setFilterSeverity] = useState<string>('all')
-  const [pushEnabled, setPushEnabled] = useState(false)
-  const [pushPermission, setPushPermission] = useState(pushService.permission)
-  const [showTestPanel, setShowTestPanel] = useState(false)
-  const [testTitle, setTestTitle] = useState(t('mobilePush.testTitleDefault'))
-  const [testBody, setTestBody] = useState(t('mobilePush.testBodyDefault'))
+  const [notifications, setNotifications] = useState<PushNotificationItem[]>(
+    [],
+  );
+  const [filterTopic, setFilterTopic] = useState<string>("all");
+  const [filterSeverity, _setFilterSeverity] = useState<string>("all");
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushPermission, setPushPermission] = useState(pushService.permission);
+  const [showTestPanel, setShowTestPanel] = useState(false);
+  const [testTitle, setTestTitle] = useState(t("mobilePush.testTitleDefault"));
+  const [testBody, setTestBody] = useState(t("mobilePush.testBodyDefault"));
   // [v3.0.6.11-99 Wave7B] 推送订阅类型: 后端 /notifications/subscriptions + localStorage 持久化
-  const [subTypes, setSubTypes] = useState<string[]>(loadLocalSubTypes)
-  const [loading, setLoading] = useState(true)
+  const [subTypes, setSubTypes] = useState<string[]>(loadLocalSubTypes);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     void (async () => {
-      const res = await notificationsApi.getSubscriptions('demo-user')
+      const res = await notificationsApi.getSubscriptions("demo-user");
       if (res.success && res.data?.types?.length) {
-        setSubTypes(res.data.types)
-        localStorage.setItem(SUB_STORAGE_KEY, JSON.stringify(res.data.types))
+        setSubTypes(res.data.types);
+        localStorage.setItem(SUB_STORAGE_KEY, JSON.stringify(res.data.types));
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   const toggleSubType = (t: NotificationSubscriptionType) => {
     const next = subTypes.includes(t)
-      ? t === 'CRITICAL' ? subTypes : subTypes.filter(x => x !== t)
-      : [...subTypes, t]
-    const finalTypes = next.length > 0 ? next : ['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM']
-    setSubTypes(finalTypes)
-    localStorage.setItem(SUB_STORAGE_KEY, JSON.stringify(finalTypes))
-    void notificationsApi.updateSubscriptions('demo-user', finalTypes as NotificationSubscriptionType[]).then(res => {
-      if (!res.success) console.warn('[push] subscription update failed', res.error?.message)
-    })
-  }
+      ? t === "CRITICAL"
+        ? subTypes
+        : subTypes.filter((x) => x !== t)
+      : [...subTypes, t];
+    const finalTypes =
+      next.length > 0
+        ? next
+        : ["CRITICAL", "REPORT", "FOLLOWUP", "QUALITY", "SYSTEM"];
+    setSubTypes(finalTypes);
+    localStorage.setItem(SUB_STORAGE_KEY, JSON.stringify(finalTypes));
+    void notificationsApi
+      .updateSubscriptions(
+        "demo-user",
+        finalTypes as NotificationSubscriptionType[],
+      )
+      .then((res) => {
+        if (!res.success)
+          console.warn("[push] subscription update failed", res.error?.message);
+      });
+  };
 
   useEffect(() => {
-    setPushPermission(pushService.permission)
-    setPushEnabled(pushService.permission === 'granted')
+    setPushPermission(pushService.permission);
+    setPushEnabled(pushService.permission === "granted");
     // Phase 1.5: 注册 PWA SW(推送事件监听), build 模式生效
     void pushService.init().then((ok) => {
-      if (ok && pushService.permission === 'granted') {
+      if (ok && pushService.permission === "granted") {
         void pushService.getSubscription().then((sub) => {
           if (!sub) {
-            void pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
-              .then((newSub) => { if (newSub) void registerDeviceToken(newSub) })
+            void pushService
+              .subscribe("", "demo-user", "web", [
+                "critical",
+                "report",
+                "appointment",
+                "system",
+              ])
+              .then((newSub) => {
+                if (newSub) void registerDeviceToken(newSub);
+              });
           }
-        })
+        });
       }
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
     // 监听 SW 推送消息 → 同步到应用内列表
@@ -134,162 +213,313 @@ export default function MobilePushPage() {
             id: `PN-${payload.tag || Date.now()}`,
             title: payload.title,
             body: payload.body,
-            tag: payload.tag || '',
-            topic: payload.topic || 'critical',
-            severity: (payload.severity as PushNotificationItem['severity']) || 'info',
+            tag: payload.tag || "",
+            topic: payload.topic || "critical",
+            severity:
+              (payload.severity as PushNotificationItem["severity"]) || "info",
             read: false,
-            receivedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+            receivedAt: new Date()
+              .toISOString()
+              .replace("T", " ")
+              .substring(0, 16),
             data: payload.data as Record<string, unknown> | undefined,
-          }
-          return [item, ...prev]
-        })
+          };
+          return [item, ...prev];
+        });
       },
-    })
-    return unsub
-  }, [])
+    });
+    return unsub;
+  }, []);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     void (async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const res = await fetch('/api/v1/mobile/push-notifications').then(r => r.json())
-        if (!cancelled && res.data && Array.isArray(res.data)) {
-          setNotifications(res.data.map((n: any) => ({
-            id: n.id || `PN${Date.now()}`,
-        title: n.title || t('mobilePush.notification'),
-            body: n.body || '',
-            tag: n.tag || '',
-            topic: n.topic || 'system',
-            severity: n.severity || 'info',
-            read: n.read || false,
-            receivedAt: n.receivedAt || new Date().toLocaleString('zh-CN'),
-            data: n.data,
-          })))
+        // [v3.0.6.16-6] 改用统一 client (此前裸 fetch 绕过拦截器/演示回退/鉴权)
+        const res = await notificationsApi.list({ page: 1, pageSize: 50 });
+        const raw = (res as { data?: unknown })?.data;
+        const rows: NotificationDto[] = Array.isArray(raw)
+          ? (raw as NotificationDto[])
+          : ((raw as { items?: NotificationDto[] } | undefined)?.items ?? []);
+        if (!cancelled && rows.length > 0) {
+          setNotifications(
+            rows.map((n) => ({
+              id: n.id,
+              title: n.title || t("mobilePush.notification"),
+              body: n.content || "",
+              tag: (n as { tag?: string }).tag || "",
+              topic: (n.type || "system").toLowerCase(),
+              severity:
+                ((n as { severity?: string })
+                  .severity as PushNotificationItem["severity"]) || "info",
+              read: !!n.read,
+              receivedAt: n.createdAt
+                ? String(n.createdAt).replace("T", " ").substring(0, 16)
+                : new Date().toLocaleString("zh-CN"),
+              data: (n as { data?: Record<string, unknown> }).data,
+            })),
+          );
         }
-      } catch { /* keep empty */ } finally {
-        if (!cancelled) setLoading(false)
+      } catch {
+        /* keep empty */
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    })()
-    return () => { cancelled = true }
-  }, [])
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filtered = notifications.filter((n) => {
-    if (filterTopic !== 'all' && n.topic !== filterTopic) return false
-    if (filterSeverity !== 'all' && n.severity !== filterSeverity) return false
-    return true
-  })
+    if (filterTopic !== "all" && n.topic !== filterTopic) return false;
+    if (filterSeverity !== "all" && n.severity !== filterSeverity) return false;
+    return true;
+  });
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleEnablePush = async () => {
-    const perm = await pushService.requestPermission()
-    setPushPermission(perm)
-    setPushEnabled(perm === 'granted')
-    if (perm === 'granted') {
+    const perm = await pushService.requestPermission();
+    setPushPermission(perm);
+    setPushEnabled(perm === "granted");
+    if (perm === "granted") {
       // Phase 1.5: 真实 Web Push 订阅 (VAPID + 后端同步)
-      const sub = await pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
+      const sub = await pushService.subscribe("", "demo-user", "web", [
+        "critical",
+        "report",
+        "appointment",
+        "system",
+      ]);
       if (sub) {
-        void registerDeviceToken(sub)
-        message.success(t('mobilePush.pushEnabled'))
+        void registerDeviceToken(sub);
+        message.success(t("mobilePush.pushEnabled"));
       } else {
-        message.warning(t('mobilePush.subscribeFailed'))
+        message.warning(t("mobilePush.subscribeFailed"));
       }
-    } else if (perm === 'denied') {
-      message.warning(t('mobilePush.pushDenied'))
+    } else if (perm === "denied") {
+      message.warning(t("mobilePush.pushDenied"));
     } else {
-      message.info(t('mobilePush.pushUnsupported'))
+      message.info(t("mobilePush.pushUnsupported"));
     }
-  }
+  };
 
-  const handleMarkRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n))
-  }
+  // [v3.0.6.16-6] 以下四个操作改为调用真实后端 (此前只改本地 state + 弹绿勾, 刷新后还原)
+  const handleMarkRead = async (id: string) => {
+    try {
+      const res = await notificationsApi.markRead(id);
+      if (!res.success) {
+        message.error(res.error?.message ?? t("mobilePush.markReadFailed"));
+        return;
+      }
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+      );
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("mobilePush.markReadFailed"));
+    }
+  };
 
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-    message.success(t('mobilePush.allMarkedRead'))
-  }
+  const handleMarkAllRead = async () => {
+    try {
+      const res = await notificationsApi.markAllRead("demo-user");
+      if (!res.success) {
+        message.error(res.error?.message ?? t("mobilePush.markReadFailed"));
+        return;
+      }
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      message.success(t("mobilePush.allMarkedRead"));
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("mobilePush.markReadFailed"));
+    }
+  };
 
-  const handleDelete = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
-    message.success(t('mobilePush.deleted'))
-  }
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await notificationsApi.delete(id);
+      if (!res.success) {
+        message.error(res.error?.message ?? t("mobilePush.deleteFailed"));
+        return;
+      }
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      message.success(t("mobilePush.deleted"));
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("mobilePush.deleteFailed"));
+    }
+  };
 
-  const handleClearAll = () => {
-    setNotifications([])
-    message.success(t('mobilePush.allCleared'))
-  }
+  const handleClearAll = async () => {
+    const ids = notifications.map((n) => n.id);
+    try {
+      const results = await Promise.allSettled(
+        ids.map((id) => notificationsApi.delete(id)),
+      );
+      const failed = results.filter(
+        (r) => r.status === "rejected" || !r.value?.success,
+      ).length;
+      const deleted = new Set(
+        results
+          .map((r, i) =>
+            r.status === "fulfilled" && r.value?.success ? ids[i] : null,
+          )
+          .filter(Boolean) as string[],
+      );
+      setNotifications((prev) => prev.filter((n) => !deleted.has(n.id)));
+      if (failed > 0)
+        message.warning(
+          t("mobilePush.partialCleared").replace("{n}", String(failed)),
+        );
+      else message.success(t("mobilePush.allCleared"));
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("mobilePush.deleteFailed"));
+    }
+  };
 
   const handleTestPush = async () => {
     const payload: PushPayload = {
       title: testTitle,
       body: testBody,
       tag: `test-${Date.now()}`,
-      topic: 'critical',
-      data: { type: 'test' },
-    }
-    await pushService.simulatePushFromServer(payload)
+      topic: "critical",
+      data: { type: "test" },
+    };
+    await pushService.simulatePushFromServer(payload);
     const newItem: PushNotificationItem = {
       id: `PN-TEST-${Date.now()}`,
       title: payload.title,
       body: payload.body,
       tag: payload.tag,
-      topic: 'critical',
-      severity: 'info',
+      topic: "critical",
+      severity: "info",
       read: false,
-      receivedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
-    }
-    setNotifications((prev) => [newItem, ...prev])
-    message.success(t('mobilePush.testPushSent'))
-  }
+      receivedAt: new Date().toISOString().replace("T", " ").substring(0, 16),
+    };
+    setNotifications((prev) => [newItem, ...prev]);
+    message.success(t("mobilePush.testPushSent"));
+  };
 
   const containerStyle: React.CSSProperties = {
-    maxWidth: 480, margin: '0 auto', padding: 'var(--space-4, 16px)',
-    background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif',
-  }
+    maxWidth: 480,
+    margin: "0 auto",
+    padding: "var(--space-4, 16px)",
+    background: "var(--bg-primary)",
+    fontFamily: "-apple-system, sans-serif",
+  };
 
   const headerStyle: React.CSSProperties = {
-    background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))',
-    borderRadius: 12, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)', color: '#fff',
-  }
+    background:
+      "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))",
+    borderRadius: 12,
+    padding: "var(--space-4, 16px)",
+    marginBottom: "var(--space-4, 16px)",
+    color: "#fff",
+  };
 
   const cardStyle: React.CSSProperties = {
-    background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
-    marginBottom: 'var(--space-2, 8px)', overflow: 'hidden',
-  }
+    background: "var(--bg-card)",
+    borderRadius: 10,
+    border: "1px solid var(--border-color)",
+    marginBottom: "var(--space-2, 8px)",
+    overflow: "hidden",
+  };
 
   const btnBase: React.CSSProperties = {
-    minHeight: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer',
-    fontSize: 12, padding: '8px 14px',
-  }
+    minHeight: 40,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "none",
+    borderRadius: 8,
+    fontWeight: 600,
+    cursor: "pointer",
+    fontSize: 12,
+    padding: "8px 14px",
+  };
 
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "var(--space-3, 12px)",
+          }}
+        >
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{t('mobilePush.title')}</div>
-            <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('mobilePush.subtitle')}</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>
+              {t("mobilePush.title")}
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>
+              {t("mobilePush.subtitle")}
+            </div>
             {/* [v3.0.6.11-88 Round10] /mobile/push-notifications 后端未实现, MSW 演示数据 */}
-            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 'var(--space-1, 4px)' }}>{t('mobilePush.dataSource')}</div>
+            <div
+              style={{
+                fontSize: 11,
+                opacity: 0.7,
+                marginTop: "var(--space-1, 4px)",
+              }}
+            >
+              {t("mobilePush.dataSource")}
+            </div>
           </div>
-          <div style={{
-            width: 44, height: 44, borderRadius: 10,
-            background: pushEnabled ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            {pushEnabled ? <Bell size={22} color="#34d399" /> : <BellOff size={22} color="#f87171" />}
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 10,
+              background: pushEnabled
+                ? "rgba(16,185,129,0.2)"
+                : "rgba(239,68,68,0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {pushEnabled ? (
+              <Bell size={22} color="#34d399" />
+            ) : (
+              <BellOff size={22} color="#f87171" />
+            )}
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)' }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
           {[
-            { value: unreadCount, label: t('mobilePush.labelUnread'), bg: 'rgba(255,255,255,0.15)' },
-            { value: notifications.length, label: t('mobilePush.labelTotal'), bg: 'rgba(255,255,255,0.15)' },
-            { value: notifications.filter(n => n.severity === 'critical').length, label: t('mobilePush.labelCritical'), bg: 'rgba(239,68,68,0.3)' },
+            {
+              value: unreadCount,
+              label: t("mobilePush.labelUnread"),
+              bg: "rgba(255,255,255,0.15)",
+            },
+            {
+              value: notifications.length,
+              label: t("mobilePush.labelTotal"),
+              bg: "rgba(255,255,255,0.15)",
+            },
+            {
+              value: notifications.filter((n) => n.severity === "critical")
+                .length,
+              label: t("mobilePush.labelCritical"),
+              bg: "rgba(239,68,68,0.3)",
+            },
           ].map((s) => (
-            <div key={s.label} style={{ background: s.bg, borderRadius: 8, padding: '8px 4px', textAlign: 'center' }}>
+            <div
+              key={s.label}
+              style={{
+                background: s.bg,
+                borderRadius: 8,
+                padding: "8px 4px",
+                textAlign: "center",
+              }}
+            >
               <div style={{ fontSize: 20, fontWeight: 800 }}>{s.value}</div>
               <div style={{ fontSize: 11, opacity: 0.8 }}>{s.label}</div>
             </div>
@@ -297,190 +527,466 @@ export default function MobilePushPage() {
         </div>
       </div>
 
-      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
 
-      <div style={{ ...cardStyle, padding: 'var(--space-3, 12px)' }}>
-        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
+      <div style={{ ...cardStyle, padding: "var(--space-3, 12px)" }}>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
           <button
             onClick={handleEnablePush}
             disabled={pushEnabled}
             style={{
-              ...btnBase, flex: 1, gap: 6,
-              background: pushEnabled ? 'var(--color-success-bg)' : 'var(--color-primary-800)',
-              color: pushEnabled ? 'var(--color-success)' : '#fff',
+              ...btnBase,
+              flex: 1,
+              gap: 6,
+              background: pushEnabled
+                ? "var(--color-success-bg)"
+                : "var(--color-primary-800)",
+              color: pushEnabled ? "var(--color-success)" : "#fff",
               opacity: pushEnabled ? 0.7 : 1,
-              cursor: pushEnabled ? 'not-allowed' : 'pointer',
+              cursor: pushEnabled ? "not-allowed" : "pointer",
             }}
           >
             {pushEnabled ? <CheckCircle size={14} /> : <Bell size={14} />}
-            {pushEnabled ? t('mobilePush.enabled') : t('mobilePush.enablePush')}
+            {pushEnabled ? t("mobilePush.enabled") : t("mobilePush.enablePush")}
           </button>
-          <button onClick={() => setShowTestPanel(!showTestPanel)} style={{ ...btnBase, background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', gap: 6 }}>
-            <Send size={14} />{t('mobilePush.testPush')}
+          <button
+            onClick={() => setShowTestPanel(!showTestPanel)}
+            style={{
+              ...btnBase,
+              background: "var(--bg-card)",
+              color: "var(--text-muted, #64748b)",
+              gap: 6,
+            }}
+          >
+            <Send size={14} />
+            {t("mobilePush.testPush")}
           </button>
         </div>
-        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>
-          {t('mobilePush.pushStatus')} <span style={{ color: pushPermission === 'granted' ? '#059669' : 'var(--color-error-600)', fontWeight: 600 }}>
-            {pushPermission === 'granted' ? t('mobilePush.authorized') : pushPermission === 'denied' ? t('mobilePush.denied') : pushPermission === 'unsupported' ? t('mobilePush.unsupported') : t('mobilePush.unauthorized')}
+        <div
+          style={{
+            fontSize: 12,
+            color: "var(--text-muted, #94a3b8)",
+            marginTop: "var(--space-2, 8px)",
+          }}
+        >
+          {t("mobilePush.pushStatus")}{" "}
+          <span
+            style={{
+              color:
+                pushPermission === "granted"
+                  ? "#059669"
+                  : "var(--color-error-600)",
+              fontWeight: 600,
+            }}
+          >
+            {pushPermission === "granted"
+              ? t("mobilePush.authorized")
+              : pushPermission === "denied"
+                ? t("mobilePush.denied")
+                : pushPermission === "unsupported"
+                  ? t("mobilePush.unsupported")
+                  : t("mobilePush.unauthorized")}
           </span>
-          <span style={{ marginLeft: 'var(--space-2, 8px)' }}>{t('mobilePush.channel')} <span style={{ fontWeight: 600 }}>{pushService.supported ? t('mobilePush.browserPush') : 'N/A'}</span></span>
+          <span style={{ marginLeft: "var(--space-2, 8px)" }}>
+            {t("mobilePush.channel")}{" "}
+            <span style={{ fontWeight: 600 }}>
+              {pushService.supported ? t("mobilePush.browserPush") : "N/A"}
+            </span>
+          </span>
         </div>
       </div>
 
       {showTestPanel && (
-        <div style={{ ...cardStyle, padding: 'var(--space-3, 12px)', border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
-          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-            <label style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formTitle')}</label>
+        <div
+          style={{
+            ...cardStyle,
+            padding: "var(--space-3, 12px)",
+            border: "1px solid var(--color-info-border)",
+            background: "var(--color-info-bg)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              marginBottom: 10,
+            }}
+          >
+            {t("mobilePush.testPanel")}
+          </div>
+          <div style={{ marginBottom: "var(--space-2, 8px)" }}>
+            <label
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted, #64748b)",
+                display: "block",
+                marginBottom: "var(--space-1, 4px)",
+              }}
+            >
+              {t("mobilePush.formTitle")}
+            </label>
             <input
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, boxSizing: 'border-box' }}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid var(--border-color)",
+                fontSize: 12,
+                boxSizing: "border-box",
+              }}
             />
           </div>
-          <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-            <label style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formBody')}</label>
+          <div style={{ marginBottom: "var(--space-2, 8px)" }}>
+            <label
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted, #64748b)",
+                display: "block",
+                marginBottom: "var(--space-1, 4px)",
+              }}
+            >
+              {t("mobilePush.formBody")}
+            </label>
             <textarea
               value={testBody}
               onChange={(e) => setTestBody(e.target.value)}
               rows={2}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, resize: 'none', boxSizing: 'border-box' }}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid var(--border-color)",
+                fontSize: 12,
+                resize: "none",
+                boxSizing: "border-box",
+              }}
             />
           </div>
-          <button onClick={handleTestPush} style={{ ...btnBase, width: '100%', background: 'var(--color-primary-600)', color: '#fff', gap: 6 }}>
-            <Send size={14} />{t('mobilePush.sendTestPush')}
+          <button
+            onClick={handleTestPush}
+            style={{
+              ...btnBase,
+              width: "100%",
+              background: "var(--color-primary-600)",
+              color: "#fff",
+              gap: 6,
+            }}
+          >
+            <Send size={14} />
+            {t("mobilePush.sendTestPush")}
           </button>
         </div>
       )}
 
       {/* [v3.0.6.11-99 Wave7B] 推送订阅类型: 危急值/报告完成/随访提醒/质控通知/系统公告 */}
-      <div style={{ ...cardStyle, padding: 'var(--space-3, 12px)' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('mobilePush.subscriptionTypes')}</div>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {subscriptionOptions().map(opt => {
-            const checked = subTypes.includes(opt.key)
+      <div style={{ ...cardStyle, padding: "var(--space-3, 12px)" }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: "var(--color-primary-800)",
+            marginBottom: "var(--space-2, 8px)",
+          }}
+        >
+          {t("mobilePush.subscriptionTypes")}
+        </div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {subscriptionOptions().map((opt) => {
+            const checked = subTypes.includes(opt.key);
             return (
               <button
                 key={opt.key}
                 onClick={() => toggleSubType(opt.key)}
                 style={{
-                  padding: '5px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                  background: checked ? (opt.key === 'CRITICAL' ? 'var(--color-error-600)' : 'var(--color-primary-800)') : 'var(--bg-card)',
-                  color: checked ? '#fff' : '#64748b',
-                  opacity: opt.key === 'CRITICAL' && !checked ? 0.5 : 1,
+                  padding: "5px 12px",
+                  borderRadius: 14,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: "pointer",
+                  background: checked
+                    ? opt.key === "CRITICAL"
+                      ? "var(--color-error-600)"
+                      : "var(--color-primary-800)"
+                    : "var(--bg-card)",
+                  color: checked ? "#fff" : "#64748b",
+                  opacity: opt.key === "CRITICAL" && !checked ? 0.5 : 1,
                 }}
               >
-                {checked ? '' : ''}{opt.label}
+                {checked ? "" : ""}
+                {opt.label}
               </button>
-            )
+            );
           })}
         </div>
-        <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>
-          {t('mobilePush.subscriptionHint')}
+        <div
+          style={{
+            fontSize: 11,
+            color: "var(--text-muted, #94a3b8)",
+            marginTop: "var(--space-2, 8px)",
+          }}
+        >
+          {t("mobilePush.subscriptionHint")}
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          marginBottom: "var(--space-2, 8px)",
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-1, 4px)",
+          }}
+        >
           <Filter size={12} color="#64748b" />
-          <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('mobilePush.category')}</span>
+          <span style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            {t("mobilePush.category")}
+          </span>
         </div>
-        {['all', 'critical', 'report', 'appointment', 'system'].map((topic) => (
+        {["all", "critical", "report", "appointment", "system"].map((topic) => (
           <button
             key={topic}
             onClick={() => setFilterTopic(topic)}
             style={{
-              padding: '4px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
-              background: filterTopic === topic ? 'var(--color-primary-800)' : 'var(--bg-card)',
-              color: filterTopic === topic ? '#fff' : '#64748b',
+              padding: "4px 10px",
+              borderRadius: 12,
+              fontSize: 11,
+              fontWeight: 600,
+              border: "none",
+              cursor: "pointer",
+              background:
+                filterTopic === topic
+                  ? "var(--color-primary-800)"
+                  : "var(--bg-card)",
+              color: filterTopic === topic ? "#fff" : "#64748b",
             }}
           >
-            {topic === 'all' ? t('mobilePush.filterAll') : topicLabel(topic)}
+            {topic === "all" ? t("mobilePush.filterAll") : topicLabel(topic)}
           </button>
         ))}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
-        <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
-          {t('mobilePush.totalPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{filtered.length}</span> {t('mobilePush.totalSuffix')}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "var(--space-2, 8px)",
+        }}
+      >
+        <span style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+          {t("mobilePush.totalPrefix")}{" "}
+          <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>
+            {filtered.length}
+          </span>{" "}
+          {t("mobilePush.totalSuffix")}
         </span>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontSize: 11, cursor: 'pointer' }}>
-            <CheckCircle size={11} style={{ marginRight: 3 }} />{t('mobilePush.markAllRead')}
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            onClick={handleMarkAllRead}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 6,
+              border: "1px solid var(--border-color)",
+              background: "var(--bg-card)",
+              color: "var(--text-muted, #64748b)",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            <CheckCircle size={11} style={{ marginRight: 3 }} />
+            {t("mobilePush.markAllRead")}
           </button>
-          <button onClick={handleClearAll} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-error-border)', background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 11, cursor: 'pointer' }}>
-            <Trash2 size={11} style={{ marginRight: 3 }} />{t('mobilePush.clear')}
+          <button
+            onClick={handleClearAll}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 6,
+              border: "1px solid var(--color-error-border)",
+              background: "var(--bg-card)",
+              color: "var(--color-error-600)",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            <Trash2 size={11} style={{ marginRight: 3 }} />
+            {t("mobilePush.clear")}
           </button>
         </div>
       </div>
 
       {filtered.map((n) => {
-        const cfg = SEVERITY_CONFIG[n.severity] ?? DEFAULT_SEVERITY
-        const SeverityIcon = cfg.icon
+        const cfg = SEVERITY_CONFIG[n.severity] ?? DEFAULT_SEVERITY;
+        const SeverityIcon = cfg.icon;
         return (
           <div
             key={n.id}
             onClick={() => handleMarkRead(n.id)}
             style={{
               ...cardStyle,
-              padding: 'var(--space-3, 12px)', cursor: 'pointer',
+              padding: "var(--space-3, 12px)",
+              cursor: "pointer",
               borderLeft: `4px solid ${cfg.borderColor}`,
-              background: n.read ? 'var(--bg-card)' : 'var(--color-info-bg)',
+              background: n.read ? "var(--bg-card)" : "var(--color-info-bg)",
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 8, background: cfg.bg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  background: cfg.bg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
                 <SeverityIcon size={16} style={{ color: cfg.color }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
-                  {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-error-600)' }} />}
-                  <span style={{
-                    padding: '1px 6px', borderRadius: 8, fontSize: 10, fontWeight: 600,
-                    background: cfg.bg, color: cfg.color,
-                  }}>
-                    {topicLabel(n.topic || 'system')}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    marginBottom: 2,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    {n.title}
+                  </span>
+                  {!n.read && (
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: "var(--color-error-600)",
+                      }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      padding: "1px 6px",
+                      borderRadius: 8,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      background: cfg.bg,
+                      color: cfg.color,
+                    }}
+                  >
+                    {topicLabel(n.topic || "system")}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', lineHeight: 1.5 }}>{n.body}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-muted, #64748b)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {n.body}
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-2, 8px)",
+                    marginTop: "var(--space-1, 4px)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "var(--text-muted, #94a3b8)",
+                    }}
+                  >
                     <Clock size={10} style={{ marginRight: 2 }} />
                     {n.receivedAt}
                   </span>
                 </div>
               </div>
-              <button aria-label="删除"
-                onClick={(e) => { e.stopPropagation(); handleDelete(n.id) }}
-                style={{ padding: 'var(--space-1, 4px)', border: 'none', background: 'transparent', cursor: 'pointer', color: '#cbd5e1' }}
+              <button
+                aria-label="删除"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(n.id);
+                }}
+                style={{
+                  padding: "var(--space-1, 4px)",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  color: "#cbd5e1",
+                }}
               >
                 <Trash2 size={14} />
               </button>
             </div>
           </div>
-        )
+        );
       })}
 
       {filtered.length === 0 && (
-        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>
-          <BellOff size={32} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.5 }} />
-          <div style={{ fontSize: 14 }}>{t('mobilePush.noNotifications')}</div>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "var(--space-10, 40px)",
+            color: "var(--text-muted, #94a3b8)",
+          }}
+        >
+          <BellOff
+            size={32}
+            style={{ marginBottom: "var(--space-2, 8px)", opacity: 0.5 }}
+          />
+          <div style={{ fontSize: 14 }}>{t("mobilePush.noNotifications")}</div>
         </div>
       )}
 
-      <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', lineHeight: 1.8 }}>
-          <strong>{t('mobilePush.configTitle')}</strong><br />
-          {t('mobilePush.configLine1')}<br />
-          {t('mobilePush.configLine2')}<br />
-          {t('mobilePush.configLine3')}<br />
-          {t('mobilePush.configLine4')}
+      <div
+        style={{
+          marginTop: "var(--space-4, 16px)",
+          padding: "var(--space-3, 12px)",
+          background: "var(--bg-card)",
+          borderRadius: 8,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            color: "var(--text-muted, #64748b)",
+            lineHeight: 1.8,
+          }}
+        >
+          <strong>{t("mobilePush.configTitle")}</strong>
+          <br />
+          {t("mobilePush.configLine1")}
+          <br />
+          {t("mobilePush.configLine2")}
+          <br />
+          {t("mobilePush.configLine3")}
+          <br />
+          {t("mobilePush.configLine4")}
         </div>
       </div>
     </div>
-  )
+  );
 }

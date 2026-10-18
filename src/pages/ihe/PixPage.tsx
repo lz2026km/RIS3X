@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Card,
   Space,
@@ -279,9 +279,51 @@ export const PixPage: React.FC = () => {
     }
   };
 
-  const handleDeleteMapping = (id: string) => {
-    setMappings(mappings.filter((m) => m.id !== id));
-    message.success(t("pixPage.mappingDeleted"));
+  // [v3.0.6.16-6] 映射列表改为从后端加载 (此前恒为本地 DEMO_MAPPINGS)
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await iheApi.listPixMappings();
+        if (cancelled) return;
+        const list = Array.isArray(res?.data) ? res.data : [];
+        if (list.length > 0) {
+          setMappings(
+            list.map((m) => {
+              const ids = Array.isArray(m.identifiers)
+                ? (m.identifiers as Array<{ value?: string }>)
+                : [];
+              return {
+                id: m.key,
+                assigningAuthority: m.assigningAuthority,
+                externalId: ids[0]?.value ?? m.patientId,
+                internalPatientId: m.patientId,
+              } as PixMapping;
+            }),
+          );
+        }
+      } catch {
+        // 接口不可用时保留演示数据 (演示环境友好); 生产环境由全局回退横幅提示
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // [v3.0.6.16-6] 删除改为调用真实后端 (此前只改本地 state + 弹绿勾, 刷新后映射复活)
+  const handleDeleteMapping = async (id: string) => {
+    try {
+      const res = await iheApi.deletePixMapping(id);
+      if (!res.success) {
+        message.error(res.error?.message ?? t("pixPage.mappingDeleteFailed"));
+        return;
+      }
+      setMappings((prev) => prev.filter((m) => m.id !== id));
+      message.success(t("pixPage.mappingDeleted"));
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("pixPage.mappingDeleteFailed"));
+    }
   };
 
   const identitiesColumns = [
@@ -310,10 +352,16 @@ export const PixPage: React.FC = () => {
   ];
 
   return (
-    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: "var(--bg-primary)" }}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+    <PageContainer
+      maxWidth="full"
+      padding="var(--space-6, 24px)"
+      style={{ background: "var(--bg-primary)" }}
+    >
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <Fingerprint size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("pixPage.title")}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("pixPage.title")}
+        </span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Tag color="green">ITI-8 Feed</Tag>
         <Tag color="blue">ITI-9 Query</Tag>
@@ -330,7 +378,10 @@ export const PixPage: React.FC = () => {
             key: "feed",
             label: (
               <span>
-                <Send size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
+                <Send
+                  size={14}
+                  style={{ marginRight: "var(--space-1, 4px)" }}
+                />
                 PIX Feed
               </span>
             ),
@@ -344,14 +395,20 @@ export const PixPage: React.FC = () => {
                         label={t("pixPage.patientId")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder={t("pixPage.patientIdPlaceholder")} />
+                        <Input
+                          placeholder={t("pixPage.patientIdPlaceholder")}
+                        />
                       </Form.Item>
                       <Form.Item
                         name="assigningAuthority"
                         label={t("pixPage.assigningAuthority")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder={t("pixPage.assigningAuthorityPlaceholder")} />
+                        <Input
+                          placeholder={t(
+                            "pixPage.assigningAuthorityPlaceholder",
+                          )}
+                        />
                       </Form.Item>
                       <Form.Item
                         name="identifiers"
@@ -361,12 +418,18 @@ export const PixPage: React.FC = () => {
                       </Form.Item>
                       <Row gutter={8}>
                         <Col span={12}>
-                          <Form.Item name="familyName" label={t("pixPage.familyName")}>
+                          <Form.Item
+                            name="familyName"
+                            label={t("pixPage.familyName")}
+                          >
                             <Input placeholder={t("pixPage.familyName")} />
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item name="givenName" label={t("pixPage.givenName")}>
+                          <Form.Item
+                            name="givenName"
+                            label={t("pixPage.givenName")}
+                          >
                             <Input placeholder={t("pixPage.givenName")} />
                           </Form.Item>
                         </Col>
@@ -387,7 +450,7 @@ export const PixPage: React.FC = () => {
                         type={feedResult.success ? "success" : "error"}
                         title={`ACK: ${feedResult.ack}${feedResult.storedPid ? ` | Stored PID: ${feedResult.storedPid}` : ""}${feedResult.transaction ? ` | TXN: ${feedResult.transaction}` : ""}`}
                         showIcon
-                        style={{ marginTop: 'var(--space-2, 8px)' }}
+                        style={{ marginTop: "var(--space-2, 8px)" }}
                       />
                     )}
                   </Card>
@@ -399,7 +462,10 @@ export const PixPage: React.FC = () => {
             key: "query",
             label: (
               <span>
-                <Search size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
+                <Search
+                  size={14}
+                  style={{ marginRight: "var(--space-1, 4px)" }}
+                />
                 {t("pixPage.tabQuery")}
               </span>
             ),
@@ -413,14 +479,20 @@ export const PixPage: React.FC = () => {
                         label={t("pixPage.patientId")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder={t("pixPage.patientIdPlaceholder")} />
+                        <Input
+                          placeholder={t("pixPage.patientIdPlaceholder")}
+                        />
                       </Form.Item>
                       <Form.Item
                         name="sourceDomain"
                         label={t("pixPage.sourceDomain")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder={t("pixPage.assigningAuthorityPlaceholder")} />
+                        <Input
+                          placeholder={t(
+                            "pixPage.assigningAuthorityPlaceholder",
+                          )}
+                        />
                       </Form.Item>
                       <Form.Item
                         name="targetDomains"
@@ -451,7 +523,8 @@ export const PixPage: React.FC = () => {
                       size="small"
                       title={`${t("pixPage.queryResult")} (${queryResult.count} ${t("pixPage.items")})`}
                     >
-                      <DataTable scroll={{ x: 'max-content' }}
+                      <DataTable
+                        scroll={{ x: "max-content" }}
                         dataSource={queryPagination.pageData}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
                         pagination={queryPagination.pagination}
@@ -459,7 +532,11 @@ export const PixPage: React.FC = () => {
                       />
                       {queryResult.transaction && (
                         <div
-                          style={{ fontSize: 11, color: "#999", marginTop: 'var(--space-1, 4px)' }}
+                          style={{
+                            fontSize: 11,
+                            color: "#999",
+                            marginTop: "var(--space-1, 4px)",
+                          }}
                         >
                           {t("pixPage.transaction")}: {queryResult.transaction}
                         </div>
@@ -474,7 +551,10 @@ export const PixPage: React.FC = () => {
             key: "mapping",
             label: (
               <span>
-                <Users size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
+                <Users
+                  size={14}
+                  style={{ marginRight: "var(--space-1, 4px)" }}
+                />
                 {t("pixPage.tabMapping")}
               </span>
             ),
@@ -492,7 +572,8 @@ export const PixPage: React.FC = () => {
                   </Button>
                 }
               >
-                <DataTable scroll={{ x: 'max-content' }}
+                <DataTable
+                  scroll={{ x: "max-content" }}
                   dataSource={mappingsPagination.pageData}
                   rowKey="id"
                   pagination={mappingsPagination.pagination}
@@ -532,27 +613,37 @@ export const PixPage: React.FC = () => {
             key: "pdq",
             label: (
               <span>
-                <Activity size={14} style={{ marginRight: 'var(--space-1, 4px)' }} />
+                <Activity
+                  size={14}
+                  style={{ marginRight: "var(--space-1, 4px)" }}
+                />
                 {t("pixPage.tabPdq")}
               </span>
             ),
             children: (
               <Row gutter={16}>
                 <Col span={10}>
-                  <Card
-                    size="small"
-                    title={t("pixPage.pdqCardTitle")}
-                  >
+                  <Card size="small" title={t("pixPage.pdqCardTitle")}>
                     <Form form={pdqForm} layout="vertical" size="small">
-                      <Form.Item name="patientId" label={t("pixPage.patientId")}>
-                        <Input placeholder={t("pixPage.patientIdPlaceholder")} />
+                      <Form.Item
+                        name="patientId"
+                        label={t("pixPage.patientId")}
+                      >
+                        <Input
+                          placeholder={t("pixPage.patientIdPlaceholder")}
+                        />
                       </Form.Item>
                       <Form.Item name="name" label={t("pixPage.name")}>
-                        <Input placeholder={t("pixPage.patientNamePlaceholder")} />
+                        <Input
+                          placeholder={t("pixPage.patientNamePlaceholder")}
+                        />
                       </Form.Item>
                       <Row gutter={8}>
                         <Col span={12}>
-                          <Form.Item name="birthDate" label={t("pixPage.birthDate")}>
+                          <Form.Item
+                            name="birthDate"
+                            label={t("pixPage.birthDate")}
+                          >
                             <Input placeholder="YYYY-MM-DD" />
                           </Form.Item>
                         </Col>
@@ -563,7 +654,10 @@ export const PixPage: React.FC = () => {
                               placeholder={t("pixPage.selectGender")}
                               options={[
                                 { value: "M", label: t("pixPage.genderMale") },
-                                { value: "F", label: t("pixPage.genderFemale") },
+                                {
+                                  value: "F",
+                                  label: t("pixPage.genderFemale"),
+                                },
                                 { value: "O", label: t("pixPage.genderOther") },
                               ]}
                             />
@@ -589,12 +683,16 @@ export const PixPage: React.FC = () => {
                       size="small"
                       title={`${t("pixPage.pdqResult")} (${pdqResults.length})`}
                     >
-                      <DataTable scroll={{ x: 'max-content' }}
+                      <DataTable
+                        scroll={{ x: "max-content" }}
                         dataSource={pdqPagination.pageData}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
                         pagination={pdqPagination.pagination}
                         columns={[
-                          { title: t("pixPage.patientId"), dataIndex: "patientId" },
+                          {
+                            title: t("pixPage.patientId"),
+                            dataIndex: "patientId",
+                          },
                           {
                             title: t("pixPage.assigningAuthority"),
                             dataIndex: "assigningAuthority",
@@ -604,7 +702,10 @@ export const PixPage: React.FC = () => {
                             render: (_: any, r: PdqResult) =>
                               `${r.name.family} ${r.name.given?.join(" ")}`,
                           },
-                          { title: t("pixPage.birthDate"), dataIndex: "birthDate" },
+                          {
+                            title: t("pixPage.birthDate"),
+                            dataIndex: "birthDate",
+                          },
                           { title: t("pixPage.gender"), dataIndex: "gender" },
                           { title: t("pixPage.phone"), dataIndex: "phone" },
                           {
@@ -625,7 +726,6 @@ export const PixPage: React.FC = () => {
                             ),
                           },
                         ]}
-                     
                       />
                     </Card>
                   )}

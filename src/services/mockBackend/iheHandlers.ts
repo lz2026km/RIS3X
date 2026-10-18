@@ -23,13 +23,23 @@ const DEFAULT_DOMAIN = {
 let pamLog: any[] = [
   {
     ts: new Date(Date.now() - 3600_000).toISOString(),
-    message: { messageType: "ADT^A04", patientId: "P000001", assigningAuthority: "G005", visitNumber: "VN-001" },
+    message: {
+      messageType: "ADT^A04",
+      patientId: "P000001",
+      assigningAuthority: "G005",
+      visitNumber: "VN-001",
+    },
     ack: "AA",
     messageId: "PAM-001",
   },
   {
     ts: new Date(Date.now() - 7200_000).toISOString(),
-    message: { messageType: "ADT^A01", patientId: "P000002", assigningAuthority: "G005", visitNumber: "VN-002" },
+    message: {
+      messageType: "ADT^A01",
+      patientId: "P000002",
+      assigningAuthority: "G005",
+      visitNumber: "VN-002",
+    },
     ack: "AA",
     messageId: "PAM-002",
   },
@@ -57,17 +67,58 @@ let visits: any[] = [
 ];
 
 const seedPix = [
-  { patientId: "P000001", assigningAuthority: "G005", identifiers: [{ domain: "G005", value: "P000001" }], name: { family: "张明远", given: ["张明远"] } },
-  { patientId: "P000002", assigningAuthority: "G005", identifiers: [{ domain: "G005", value: "P000002" }], name: { family: "李静", given: ["李静"] } },
+  {
+    patientId: "P000001",
+    assigningAuthority: "G005",
+    identifiers: [{ domain: "G005", value: "P000001" }],
+    name: { family: "张", given: "伟" },
+  },
+  {
+    patientId: "P000002",
+    assigningAuthority: "G005",
+    identifiers: [{ domain: "G005", value: "P000002" }],
+    name: { family: "李", given: "娜" },
+  },
 ];
 
+// [v3.0.6.16-6] PIX 映射改为模块级可变数组 (前端 PixPage 删除此前只改本地 state)
+const pixMappings: Array<{
+  key: string;
+  patientId: string;
+  assigningAuthority: string;
+  identifiers: unknown;
+  name: unknown;
+  birthDate?: string;
+  createdAt?: string;
+}> = seedPix.map((p) => ({
+  key: `${p.assigningAuthority}^${p.patientId}`,
+  patientId: p.patientId,
+  assigningAuthority: p.assigningAuthority,
+  identifiers: p.identifiers,
+  name: p.name,
+  createdAt: new Date().toISOString(),
+}));
+
 const visitTimeline = (patientId: string, visitNumber: string) => [
-  { event: "PAM-ADT", timestamp: new Date(Date.now() - 3600_000).toISOString(), description: `A04 登记: ${visitNumber}` },
-  { event: "CHECK-IN", timestamp: new Date(Date.now() - 1800_000).toISOString(), description: `患者 ${patientId} 到达科室` },
+  {
+    event: "PAM-ADT",
+    timestamp: new Date(Date.now() - 3600_000).toISOString(),
+    description: `A04 登记: ${visitNumber}`,
+  },
+  {
+    event: "CHECK-IN",
+    timestamp: new Date(Date.now() - 1800_000).toISOString(),
+    description: `患者 ${patientId} 到达科室`,
+  },
 ];
 
 const visitAdt = (patientId: string, visitNumber: string) => [
-  { id: `ADT-${Date.now()}`, messageType: "ADT^A04", timestamp: new Date(Date.now() - 3600_000).toISOString(), content: `MSH|^~\\&|RIS|G005|||...ADT^A04...PID|1||${patientId}||${visitNumber}` },
+  {
+    id: `ADT-${Date.now()}`,
+    messageType: "ADT^A04",
+    timestamp: new Date(Date.now() - 3600_000).toISOString(),
+    content: `MSH|^~\\&|RIS|G005|||...ADT^A04...PID|1||${patientId}||${visitNumber}`,
+  },
 ];
 
 export const iheHandlers = [
@@ -78,8 +129,20 @@ export const iheHandlers = [
       data: {
         profile: "PAM/PIX/PDQ",
         affinityDomain: DEFAULT_DOMAIN,
-        metrics: { pixRecords: 12345, pdqCache: 892, pamLogSize: pamLog.length },
-        transactions: ["ITI-8", "ITI-9", "ITI-10", "ITI-21", "ITI-22", "ITI-30", "ITI-31"],
+        metrics: {
+          pixRecords: 12345,
+          pdqCache: 892,
+          pamLogSize: pamLog.length,
+        },
+        transactions: [
+          "ITI-8",
+          "ITI-9",
+          "ITI-10",
+          "ITI-21",
+          "ITI-22",
+          "ITI-30",
+          "ITI-31",
+        ],
       },
     });
   }),
@@ -92,7 +155,10 @@ export const iheHandlers = [
   http.put(`${API}/affinity-domain`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { ...DEFAULT_DOMAIN, ...body } });
+    return HttpResponse.json({
+      success: true,
+      data: { ...DEFAULT_DOMAIN, ...body },
+    });
   }),
 
   http.delete(`${API}/affinity-domain`, async () => {
@@ -108,8 +174,15 @@ export const iheHandlers = [
     const errors: string[] = [];
     if (!body?.patientId) errors.push("缺少 patientId");
     if (!body?.assigningAuthority) errors.push("缺少 assigningAuthority");
-    if (errors.length > 0) return HttpResponse.json({ success: true, data: { ack: "AE", messageId, errors } });
-    return HttpResponse.json({ success: true, data: { ack: "AA", messageId, storedPid: body.patientId } });
+    if (errors.length > 0)
+      return HttpResponse.json({
+        success: true,
+        data: { ack: "AE", messageId, errors },
+      });
+    return HttpResponse.json({
+      success: true,
+      data: { ack: "AA", messageId, storedPid: body.patientId },
+    });
   }),
 
   http.post(`${API}/pix/query`, async ({ request }) => {
@@ -117,7 +190,10 @@ export const iheHandlers = [
     const body = (await request.json()) as any;
     const targetDomains = body?.targetDomains ?? ["G005"];
     const sourceKey = `${body?.sourceDomain ?? "G005"}^${body?.patientId ?? ""}`;
-    const record = seedPix.find((r) => `G005^${r.patientId}` === sourceKey || r.patientId === body?.patientId);
+    const record = seedPix.find(
+      (r) =>
+        `G005^${r.patientId}` === sourceKey || r.patientId === body?.patientId,
+    );
     return HttpResponse.json({
       success: true,
       data: {
@@ -139,7 +215,41 @@ export const iheHandlers = [
   http.post(`${API}/pix/update-notification`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { transaction: "ITI-10", ack: "AA", messageId: `PIX-UP-${Date.now()}`, storedPid: body?.patientId } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        transaction: "ITI-10",
+        ack: "AA",
+        messageId: `PIX-UP-${Date.now()}`,
+        storedPid: body?.patientId,
+      },
+    });
+  }),
+
+  // [v3.0.6.16-6] PIX 映射列表 / 删除 (前端 PixPage 删除此前为本地假成功)
+  http.get(`${API}/pix/mappings`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({
+      success: true,
+      data: pixMappings,
+      total: pixMappings.length,
+    });
+  }),
+  http.delete(`${API}/pix/mappings/:key`, async ({ params }) => {
+    await delay(delayMs());
+    const key = decodeURIComponent(String(params.key ?? ""));
+    const idx = pixMappings.findIndex((m) => m.key === key);
+    if (idx < 0) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: "NOT_FOUND", message: `PIX 映射 ${key} 不存在` },
+        },
+        { status: 404 },
+      );
+    }
+    pixMappings.splice(idx, 1);
+    return HttpResponse.json({ success: true, data: { key, deleted: true } });
   }),
 
   // ── PDQ (ITI-21 / ITI-22) ──
@@ -147,8 +257,18 @@ export const iheHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     let results = seedPix;
-    if (body?.patientId) results = results.filter((r) => r.patientId === body.patientId || r.identifiers.some((i) => i.value === body.patientId));
-    if (body?.familyName) results = results.filter((r) => r.name.family.toLowerCase().includes(String(body.familyName).toLowerCase()));
+    if (body?.patientId)
+      results = results.filter(
+        (r) =>
+          r.patientId === body.patientId ||
+          r.identifiers.some((i) => i.value === body.patientId),
+      );
+    if (body?.familyName)
+      results = results.filter((r) =>
+        r.name.family
+          .toLowerCase()
+          .includes(String(body.familyName).toLowerCase()),
+      );
     return HttpResponse.json({
       success: true,
       data: {
@@ -177,14 +297,57 @@ export const iheHandlers = [
     if (!body?.patientId) errors.push("缺少 patientId");
     if (!body?.assigningAuthority) errors.push("缺少 assigningAuthority");
     if (errors.length > 0) {
-      pamLog = [{ ts: timestamp, message: body, ack: "AE", messageId }, ...pamLog];
-      return HttpResponse.json({ success: true, data: { transaction: "ITI-30", success: false, ack: "AE", messageId, errors, timestamp } });
+      pamLog = [
+        { ts: timestamp, message: body, ack: "AE", messageId },
+        ...pamLog,
+      ];
+      return HttpResponse.json({
+        success: true,
+        data: {
+          transaction: "ITI-30",
+          success: false,
+          ack: "AE",
+          messageId,
+          errors,
+          timestamp,
+        },
+      });
     }
     const visitNumber = body?.visitNumber ?? `VN-${Date.now()}`;
-    pamLog = [{ ts: timestamp, message: body, ack: "AA", messageId }, ...pamLog];
-    const status = body?.messageType?.includes("A01") || body?.messageType?.includes("A04") ? "ADMITTED" : "IN_PROGRESS";
-    visits = [{ patientId: body.patientId, visitNumber, status, classCode: "I", assignedLocation: { type: "WARD", room: "301", bed: "A" }, admitDateTime: timestamp, updatedAt: timestamp }, ...visits.filter((v) => !(v.patientId === body.patientId && v.visitNumber === visitNumber))];
-    return HttpResponse.json({ success: true, data: { transaction: "ITI-30", success: true, ack: "AA", messageId, visitNumber, timestamp } });
+    pamLog = [
+      { ts: timestamp, message: body, ack: "AA", messageId },
+      ...pamLog,
+    ];
+    const status =
+      body?.messageType?.includes("A01") || body?.messageType?.includes("A04")
+        ? "ADMITTED"
+        : "IN_PROGRESS";
+    visits = [
+      {
+        patientId: body.patientId,
+        visitNumber,
+        status,
+        classCode: "I",
+        assignedLocation: { type: "WARD", room: "301", bed: "A" },
+        admitDateTime: timestamp,
+        updatedAt: timestamp,
+      },
+      ...visits.filter(
+        (v) =>
+          !(v.patientId === body.patientId && v.visitNumber === visitNumber),
+      ),
+    ];
+    return HttpResponse.json({
+      success: true,
+      data: {
+        transaction: "ITI-30",
+        success: true,
+        ack: "AA",
+        messageId,
+        visitNumber,
+        timestamp,
+      },
+    });
   }),
 
   http.get(`${API}/pam/messages`, async ({ request }) => {
@@ -194,9 +357,14 @@ export const iheHandlers = [
     const messageType = sp.get("messageType");
     const patientId = sp.get("patientId");
     let items = [...pamLog];
-    if (messageType) items = items.filter((e) => e.message?.messageType === messageType);
-    if (patientId) items = items.filter((e) => e.message?.patientId === patientId);
-    return HttpResponse.json({ success: true, data: { total: items.length, entries: items.slice(0, limit) } });
+    if (messageType)
+      items = items.filter((e) => e.message?.messageType === messageType);
+    if (patientId)
+      items = items.filter((e) => e.message?.patientId === patientId);
+    return HttpResponse.json({
+      success: true,
+      data: { total: items.length, entries: items.slice(0, limit) },
+    });
   }),
 
   http.get(`${API}/pam/visit`, async ({ request }) => {
@@ -204,7 +372,11 @@ export const iheHandlers = [
     const sp = new URL(request.url).searchParams;
     const patientId = sp.get("patientId") ?? "";
     const visitNumber = sp.get("visitNumber");
-    const found = visits.find((v) => v.patientId === patientId && (!visitNumber || v.visitNumber === visitNumber));
+    const found = visits.find(
+      (v) =>
+        v.patientId === patientId &&
+        (!visitNumber || v.visitNumber === visitNumber),
+    );
     return HttpResponse.json({ success: true, data: found ?? null });
   }),
 
@@ -213,7 +385,9 @@ export const iheHandlers = [
     const sp = new URL(request.url).searchParams;
     const patientId = sp.get("patientId") ?? "";
     const visitNumber = sp.get("visitNumber") ?? "";
-    const found = visits.find((v) => v.patientId === patientId && v.visitNumber === visitNumber);
+    const found = visits.find(
+      (v) => v.patientId === patientId && v.visitNumber === visitNumber,
+    );
     if (!found) return HttpResponse.json({ success: true, data: null });
     return HttpResponse.json({
       success: true,
@@ -228,7 +402,14 @@ export const iheHandlers = [
   // ── Mock / 演示端点 ──
   http.get(`${API}/mock/register-document`, async () => {
     await delay(delayMs());
-    return HttpResponse.json({ success: true, data: { documentId: `doc-${Date.now()}`, patientId: "P000001", repository: "1.2.3.4.5.6.7.8.9.1" } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        documentId: `doc-${Date.now()}`,
+        patientId: "P000001",
+        repository: "1.2.3.4.5.6.7.8.9.1",
+      },
+    });
   }),
 
   http.get(`${API}/mock/documents`, async ({ request }) => {
@@ -240,8 +421,24 @@ export const iheHandlers = [
         patientId,
         domain: "G005",
         documents: [
-          { documentId: `doc-${patientId}-001`, patientId, repositoryUniqueId: "1.2.840.113556.1.8000.2554.1.100", classCode: "RAD", formatCode: "urn:ihe:rad:1", mimeType: "application/dicom", size: 1024 },
-          { documentId: `doc-${patientId}-002`, patientId, repositoryUniqueId: "1.2.840.113556.1.8000.2554.1.101", classCode: "RAD", formatCode: "urn:ihe:rad:2", mimeType: "application/pdf", size: 512 },
+          {
+            documentId: `doc-${patientId}-001`,
+            patientId,
+            repositoryUniqueId: "1.2.840.113556.1.8000.2554.1.100",
+            classCode: "RAD",
+            formatCode: "urn:ihe:rad:1",
+            mimeType: "application/dicom",
+            size: 1024,
+          },
+          {
+            documentId: `doc-${patientId}-002`,
+            patientId,
+            repositoryUniqueId: "1.2.840.113556.1.8000.2554.1.101",
+            classCode: "RAD",
+            formatCode: "urn:ihe:rad:2",
+            mimeType: "application/pdf",
+            size: 512,
+          },
         ],
       },
     });
@@ -268,7 +465,14 @@ export const iheHandlers = [
   http.post(`${API}/mock/cross-reference`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { localId: body?.localId, remoteDomain: body?.remoteDomain, remoteId: `${body?.remoteDomain}-${body?.localId}` } });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        localId: body?.localId,
+        remoteDomain: body?.remoteDomain,
+        remoteId: `${body?.remoteDomain}-${body?.localId}`,
+      },
+    });
   }),
 ];
 

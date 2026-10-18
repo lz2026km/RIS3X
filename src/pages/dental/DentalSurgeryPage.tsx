@@ -29,16 +29,71 @@ const ANESTHESIA_OPTIONS = [
   { value: "全麻", key: "w9d.dentalSurgery.anesthesia.general" },
   { value: "镇静", key: "w9d.dentalSurgery.anesthesia.sedation" },
 ];
-const anesthesiaLabel = (v: string) => t(ANESTHESIA_OPTIONS.find((o) => o.value === v)?.key ?? v);
+const anesthesiaLabel = (v: string) =>
+  t(ANESTHESIA_OPTIONS.find((o) => o.value === v)?.key ?? v);
 
 // 确定性 seed 回退 (API 不可用时展示, 与 MSW 字段对齐)
 const SEED_TREATMENTS: any[] = [
-  { id: "SEED-SURG-001", patientId: "P93001", patientName: "吴军", plan: "阻生牙拔除术", anesthesia: "局麻", status: "InProgress", cost: 2600, createdAt: "2026-08-01T09:30:00.000Z" },
-  { id: "SEED-SURG-002", patientId: "P93002", patientName: "周洋", plan: "颌骨囊肿摘除术", anesthesia: "全麻", status: "Planned", cost: 8600, createdAt: "2026-08-02T10:00:00.000Z" },
-  { id: "SEED-SURG-003", patientId: "P93003", patientName: "黄强", plan: "种植体植入术 (Straumann BLT)", anesthesia: "局麻", status: "InProgress", cost: 12000, createdAt: "2026-07-28T14:20:00.000Z" },
-  { id: "SEED-SURG-004", patientId: "P93004", patientName: "赵磊", plan: "牙槽骨修整术", anesthesia: "局麻", status: "Completed", cost: 1800, createdAt: "2026-07-20T11:00:00.000Z" },
-  { id: "SEED-SURG-005", patientId: "P93005", patientName: "陈静", plan: "上颌窦提升术", anesthesia: "镇静", status: "Completed", cost: 5800, createdAt: "2026-07-15T09:00:00.000Z" },
-  { id: "SEED-SURG-006", patientId: "P93006", patientName: "李娜", plan: "多生牙拔除术", anesthesia: "局麻", status: "Cancelled", cost: 1200, createdAt: "2026-07-10T16:40:00.000Z" },
+  {
+    id: "SEED-SURG-001",
+    patientId: "P93001",
+    patientName: "吴军",
+    plan: "阻生牙拔除术",
+    anesthesia: "局麻",
+    status: "InProgress",
+    cost: 2600,
+    createdAt: "2026-08-01T09:30:00.000Z",
+  },
+  {
+    id: "SEED-SURG-002",
+    patientId: "P93002",
+    patientName: "周洋",
+    plan: "颌骨囊肿摘除术",
+    anesthesia: "全麻",
+    status: "Planned",
+    cost: 8600,
+    createdAt: "2026-08-02T10:00:00.000Z",
+  },
+  {
+    id: "SEED-SURG-003",
+    patientId: "P93003",
+    patientName: "黄强",
+    plan: "种植体植入术 (Straumann BLT)",
+    anesthesia: "局麻",
+    status: "InProgress",
+    cost: 12000,
+    createdAt: "2026-07-28T14:20:00.000Z",
+  },
+  {
+    id: "SEED-SURG-004",
+    patientId: "P93004",
+    patientName: "赵磊",
+    plan: "牙槽骨修整术",
+    anesthesia: "局麻",
+    status: "Completed",
+    cost: 1800,
+    createdAt: "2026-07-20T11:00:00.000Z",
+  },
+  {
+    id: "SEED-SURG-005",
+    patientId: "P93005",
+    patientName: "陈静",
+    plan: "上颌窦提升术",
+    anesthesia: "镇静",
+    status: "Completed",
+    cost: 5800,
+    createdAt: "2026-07-15T09:00:00.000Z",
+  },
+  {
+    id: "SEED-SURG-006",
+    patientId: "P93006",
+    patientName: "李娜",
+    plan: "多生牙拔除术",
+    anesthesia: "局麻",
+    status: "Cancelled",
+    cost: 1200,
+    createdAt: "2026-07-10T16:40:00.000Z",
+  },
 ];
 
 const STATUS_OPTIONS = [
@@ -51,9 +106,36 @@ const STATUS_OPTIONS = [
 
 function exportCsv(rows: DentalTreatment[]): void {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const header = ["id", "patientId", "patientName", "plan", "anesthesia", "status", "cost", "createdAt"];
-  const lines = [header.join(","), ...rows.map((r) => [r.id, r.patientId, r.patientName, r.plan, (r as unknown as { anesthesia?: string }).anesthesia, r.status, r.cost, r.createdAt].map(esc).join(","))];
-  const blob = new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const header = [
+    "id",
+    "patientId",
+    "patientName",
+    "plan",
+    "anesthesia",
+    "status",
+    "cost",
+    "createdAt",
+  ];
+  const lines = [
+    header.join(","),
+    ...rows.map((r) =>
+      [
+        r.id,
+        r.patientId,
+        r.patientName,
+        r.plan,
+        (r as unknown as { anesthesia?: string }).anesthesia,
+        r.status,
+        r.cost,
+        r.createdAt,
+      ]
+        .map(esc)
+        .join(","),
+    ),
+  ];
+  const blob = new Blob(["\ufeff" + lines.join("\n")], {
+    type: "text/csv;charset=utf-8;",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -79,7 +161,11 @@ export const DentalSurgeryPage: React.FC = () => {
     setLoading(true);
     setLoadError(null);
     try {
-      const d = await dentalApi.listTreatments({ type: TYPE, page: 1, pageSize: 200 });
+      const d = await dentalApi.listTreatments({
+        type: TYPE,
+        page: 1,
+        pageSize: 200,
+      });
       if (d.success && Array.isArray(d.data) && d.data.length > 0) {
         setT(d.data);
         setFromSeed(false);
@@ -106,10 +192,11 @@ export const DentalSurgeryPage: React.FC = () => {
     if (statusFilter) rows = rows.filter((r) => r.status === statusFilter);
     const q = search.trim().toLowerCase();
     if (q) {
-      rows = rows.filter((r) =>
-        (r.patientName || "").toLowerCase().includes(q) ||
-        (r.patientId || "").toLowerCase().includes(q) ||
-        (r.plan || "").toLowerCase().includes(q),
+      rows = rows.filter(
+        (r) =>
+          (r.patientName || "").toLowerCase().includes(q) ||
+          (r.patientId || "").toLowerCase().includes(q) ||
+          (r.plan || "").toLowerCase().includes(q),
       );
     }
     return rows;
@@ -142,15 +229,24 @@ export const DentalSurgeryPage: React.FC = () => {
       const v = await form.validateFields();
       setSaving(true);
       if (editing) {
-        const d = await dentalApi.updateTreatment(editing.id, { ...v, type: TYPE });
+        const d = await dentalApi.updateTreatment(editing.id, {
+          ...v,
+          type: TYPE,
+        });
         if (d.success) {
-          setT((prev) => prev.map((r) => (r.id === editing.id ? { ...r, ...v } : r)));
+          setT((prev) =>
+            prev.map((r) => (r.id === editing.id ? { ...r, ...v } : r)),
+          );
           message.success(t("w9.dentalSurgery.updated"));
         } else {
           message.error(d.error?.message || t("w9.dentalSurgery.updated"));
         }
       } else {
-        const d = await dentalApi.createTreatment({ ...v, type: TYPE, status: "Planned" });
+        const d = await dentalApi.createTreatment({
+          ...v,
+          type: TYPE,
+          status: "Planned",
+        });
         if (d.success) {
           message.success(t("w9.dentalSurgery.created"));
           setT((prev) => [d.data, ...prev]);
@@ -167,9 +263,19 @@ export const DentalSurgeryPage: React.FC = () => {
     }
   };
 
-  const onDelete = (rec: DentalTreatment) => {
-    setT((prev) => prev.filter((r) => r.id !== rec.id));
-    message.success(t("w9.common.deleteSuccess"));
+  // [v3.0.6.16-6] 删除改为调用真实后端 (此前只删本地 state + 弹绿勾, 刷新后记录复活)
+  const onDelete = async (rec: DentalTreatment) => {
+    try {
+      const res = await dentalApi.deleteTreatment(rec.id);
+      if (!res.success) {
+        message.error(res.error?.message ?? t("w9.common.deleteFailed"));
+        return;
+      }
+      setT((prev) => prev.filter((r) => r.id !== rec.id));
+      message.success(t("w9.common.deleteSuccess"));
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("w9.common.deleteFailed"));
+    }
   };
 
   const onExport = () => {
@@ -183,13 +289,29 @@ export const DentalSurgeryPage: React.FC = () => {
       header={{
         title: t("w9.dentalSurgery.title"),
         version: "v3.0.6.11-103",
-        tags: [fromSeed && <Tag key="src" color="orange">{t("w9.common.apiFallback")}</Tag>],
+        tags: [
+          fromSeed && (
+            <Tag key="src" color="orange">
+              {t("w9.common.apiFallback")}
+            </Tag>
+          ),
+        ],
         extra: (
           <Space wrap>
-            <ActionButton action="refresh" size="compact" loading={loading} onClick={() => void load()}>
+            <ActionButton
+              action="refresh"
+              size="compact"
+              loading={loading}
+              onClick={() => void load()}
+            >
               {t("w9.common.refresh")}
             </ActionButton>
-            <ActionButton action="export" size="compact" disabled={filtered.length === 0} onClick={onExport}>
+            <ActionButton
+              action="export"
+              size="compact"
+              disabled={filtered.length === 0}
+              onClick={onExport}
+            >
               {t("w9.common.export")}
             </ActionButton>
             <ActionButton action="create" size="compact" onClick={openCreate}>
@@ -199,21 +321,54 @@ export const DentalSurgeryPage: React.FC = () => {
         ),
       }}
     >
-      {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t("w9.states.retry")} />}
-      <StatCardGrid style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t("w9.common.statsTotal")} value={treats.length} icon={<Scissors size={18} />} color="primary" />
-        <StatCard title={t("w9.common.statsActive")} value={activeCount} icon={<Clock3 size={18} />} color="warning" />
-        <StatCard title={t("w9.common.statsDone")} value={doneCount} icon={<CheckCircle2 size={18} />} color="success" />
-        <StatCard title={t("w9.common.statsCost")} value={totalCost.toLocaleString("zh-CN")} suffix="¥" icon={<Wallet size={18} />} color="error" />
+      {loadError && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => void load()}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
+      <StatCardGrid style={{ marginBottom: "var(--space-4, 16px)" }}>
+        <StatCard
+          title={t("w9.common.statsTotal")}
+          value={treats.length}
+          icon={<Scissors size={18} />}
+          color="primary"
+        />
+        <StatCard
+          title={t("w9.common.statsActive")}
+          value={activeCount}
+          icon={<Clock3 size={18} />}
+          color="warning"
+        />
+        <StatCard
+          title={t("w9.common.statsDone")}
+          value={doneCount}
+          icon={<CheckCircle2 size={18} />}
+          color="success"
+        />
+        <StatCard
+          title={t("w9.common.statsCost")}
+          value={totalCost.toLocaleString("zh-CN")}
+          suffix="¥"
+          icon={<Wallet size={18} />}
+          color="error"
+        />
       </StatCardGrid>
 
-      <Space style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
+      <Space style={{ marginBottom: "var(--space-3, 12px)" }} wrap>
         <Select
           size="small"
           style={{ width: 140 }}
           value={statusFilter}
-          onChange={(v) => { setStatusFilter(v); setPage(1); }}
-          options={STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.value || t("w9.common.allStatus") }))}
+          onChange={(v) => {
+            setStatusFilter(v);
+            setPage(1);
+          }}
+          options={STATUS_OPTIONS.map((o) => ({
+            value: o.value,
+            label: o.value || t("w9.common.allStatus"),
+          }))}
         />
         <Input
           size="small"
@@ -221,15 +376,29 @@ export const DentalSurgeryPage: React.FC = () => {
           style={{ width: 220 }}
           placeholder={t("w9.common.filterPatient")}
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
         />
-        <Tag color={fromSeed ? "orange" : "green"} style={{ marginInlineEnd: 0 }}>
+        <Tag
+          color={fromSeed ? "orange" : "green"}
+          style={{ marginInlineEnd: 0 }}
+        >
           {filtered.length} / {treats.length}
         </Tag>
       </Space>
 
       {loading ? (
-        <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "var(--text-secondary)" }}>{t("w9.common.loading")}</div>
+        <div
+          style={{
+            padding: "var(--space-10, 40px)",
+            textAlign: "center",
+            color: "var(--text-secondary)",
+          }}
+        >
+          {t("w9.common.loading")}
+        </div>
       ) : filtered.length === 0 ? (
         <EmptyState
           tip={t("w9.dentalSurgery.empty")}
@@ -239,24 +408,51 @@ export const DentalSurgeryPage: React.FC = () => {
       ) : (
         <DataTable
           rowKey="id"
-          pagination={{ current: page, pageSize: PAGE_SIZE, total: filtered.length, onChange: setPage, showSizeChanger: false }}
+          pagination={{
+            current: page,
+            pageSize: PAGE_SIZE,
+            total: filtered.length,
+            onChange: setPage,
+            showSizeChanger: false,
+          }}
           dataSource={paged}
           columns={[
-            { title: t("w9.common.patient"), dataIndex: "patientName", width: 100 },
+            {
+              title: t("w9.common.patient"),
+              dataIndex: "patientName",
+              width: 100,
+            },
             { title: t("w9.dentalSurgery.plan"), dataIndex: "plan" },
             {
               title: t("w9.dentalSurgery.anesthesia"),
               dataIndex: "anesthesia",
               width: 100,
-              render: (a?: string) => (a ? <Tag color="orange">{anesthesiaLabel(a)}</Tag> : "-"),
+              render: (a?: string) =>
+                a ? <Tag color="orange">{anesthesiaLabel(a)}</Tag> : "-",
             },
-            { title: t("w9.common.cost"), dataIndex: "cost", width: 100, render: (v?: number) => (v != null ? `¥${v.toLocaleString("zh-CN")}` : "-") },
+            {
+              title: t("w9.common.cost"),
+              dataIndex: "cost",
+              width: 100,
+              render: (v?: number) =>
+                v != null ? `¥${v.toLocaleString("zh-CN")}` : "-",
+            },
             {
               title: t("w9.common.status"),
               dataIndex: "status",
               width: 110,
               render: (s?: string) => (
-                <Tag color={s === "Completed" ? "green" : s === "InProgress" ? "orange" : s === "Cancelled" ? "red" : "default"}>
+                <Tag
+                  color={
+                    s === "Completed"
+                      ? "green"
+                      : s === "InProgress"
+                        ? "orange"
+                        : s === "Cancelled"
+                          ? "red"
+                          : "default"
+                  }
+                >
                   {s || "-"}
                 </Tag>
               ),
@@ -266,9 +462,14 @@ export const DentalSurgeryPage: React.FC = () => {
               width: 220,
               render: (_, rec) => (
                 <Space size={4}>
-                  <Button size="small" onClick={() => openEdit(rec)}>{t("w9.common.edit")}</Button>
+                  <Button size="small" onClick={() => openEdit(rec)}>
+                    {t("w9.common.edit")}
+                  </Button>
                   <TreatmentActions record={rec} />
-                  <Popconfirm title={t("w9.common.deleteConfirm")} onConfirm={() => onDelete(rec)}>
+                  <Popconfirm
+                    title={t("w9.common.deleteConfirm")}
+                    onConfirm={() => onDelete(rec)}
+                  >
                     <ActionButton action="delete" size="compact">
                       {t("w9.common.delete")}
                     </ActionButton>
@@ -282,7 +483,11 @@ export const DentalSurgeryPage: React.FC = () => {
       )}
 
       <Modal
-        title={editing ? t("w9.dentalSurgery.editTitle") : t("w9.dentalSurgery.create")}
+        title={
+          editing
+            ? t("w9.dentalSurgery.editTitle")
+            : t("w9.dentalSurgery.create")
+        }
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={() => void onSave()}
@@ -290,14 +495,27 @@ export const DentalSurgeryPage: React.FC = () => {
         confirmLoading={saving}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label={t("w9.common.patientId")} name="patientId" rules={[{ required: true }]}>
+          <Form.Item
+            label={t("w9.common.patientId")}
+            name="patientId"
+            rules={[{ required: true }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label={t("w9.dentalSurgery.plan")} name="plan" rules={[{ required: true }]}>
-                <Input placeholder={t("w9d.dentalSurgery.planPlaceholder")} />
+          <Form.Item
+            label={t("w9.dentalSurgery.plan")}
+            name="plan"
+            rules={[{ required: true }]}
+          >
+            <Input placeholder={t("w9d.dentalSurgery.planPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.dentalSurgery.anesthesia")} name="anesthesia">
-              <Select options={ANESTHESIA_OPTIONS.map((o) => ({ value: o.value, label: t(o.key) }))} />
+            <Select
+              options={ANESTHESIA_OPTIONS.map((o) => ({
+                value: o.value,
+                label: t(o.key),
+              }))}
+            />
           </Form.Item>
         </Form>
       </Modal>
