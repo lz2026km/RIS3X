@@ -37,6 +37,7 @@ import { ComplianceDocsModule } from "./modules/compliance-docs/compliance-docs.
 import { SafetyModule } from "./safety/safety.module";
 import { EyeModule } from "./eye/eye.module";
 import { DentalModule } from "./dental/dental.module";
+import { DistModule } from "./distribution/dist.module";
 import { WorkflowModule } from "./workflow/workflow.module";
 import { FinanceModule } from "./finance/finance.module";
 import { DataReportModule } from "./datareport/datareport.module";
@@ -297,6 +298,7 @@ import { PrivacyModule } from "./modules/privacy/privacy.module";
     SafetyModule,
     EyeModule,
     DentalModule,
+    DistModule,
     WorkflowModule,
     FinanceModule,
     DataReportModule,

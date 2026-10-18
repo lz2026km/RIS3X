@@ -1,156 +1,302 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
-import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { RegionalService } from './regional.service'
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { UpdateScheduleSchema, CreateAccessApplicationSchema, CreateConsultationRequestSchema, CreateAccessRecordSchema, CreateSiteSchema, UpdateSiteSchema, UpdateFederationConfigSchema } from './regional.schema'
+﻿import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Query,
+} from "@nestjs/common";
+import { Roles } from "../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { RegionalService } from "./regional.service";
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
+import {
+  UpdateScheduleSchema,
+  CreateAccessApplicationSchema,
+  CreateConsultationRequestSchema,
+  CreateAccessRecordSchema,
+  CreateSiteSchema,
+  UpdateSiteSchema,
+  UpdateFederationConfigSchema,
+} from "./regional.schema";
 
-@ApiTags('regional')
+@ApiTags("regional")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
-@Controller('regional')
+@Roles("ADMIN", "DIRECTOR")
+@Controller("regional")
 export class RegionalController {
   constructor(private readonly svc: RegionalService) {}
 
   // ── 医联体影像页 (静态子路由必须声明在 imaging/:id 之前) ──
 
-  @Get('imaging/applications')
-  listApplications() { return this.svc.listAccessApplications() }
-
-  @Post('imaging/applications')
-  createApplication(@Body(new ZodValidationPipe(CreateAccessApplicationSchema)) body: Record<string, unknown>) { return this.svc.createAccessApplication(body) }
-
-  @Post('imaging/applications/:id/approve')
-  approveApplication(@Param('id') id: string) { return this.svc.approveAccessApplication(id) }
-
-  @Post('imaging/applications/:id/reject')
-  rejectApplication(@Param('id') id: string) { return this.svc.rejectAccessApplication(id) }
-
-  @Get('imaging/consultations')
-  listConsultationRequests() { return this.svc.listConsultationRequests() }
-
-  @Post('imaging/consultations')
-  createConsultationRequest(@Body(new ZodValidationPipe(CreateConsultationRequestSchema)) body: Record<string, unknown>) { return this.svc.createConsultationRequest(body) }
-
-  @Get('imaging/access-records')
-  listAccessRecords() { return this.svc.listAccessRecords() }
-
-  // [G005 Wave 4B] 跨院调阅记录 + 会诊参与 (RegionalCollaborationPage)
-  @Post('imaging/access-records')
-  createAccessRecord(@Body(new ZodValidationPipe(CreateAccessRecordSchema)) body: Record<string, unknown>) { return this.svc.createAccessRecord(body) }
-
-  @Post('imaging/consultations/:id/accept')
-  acceptConsultationRequest(@Param('id') id: string) { return this.svc.acceptConsultationRequest(id) }
-
-  @Get('imaging/institutions')
-  listInstitutions() { return this.svc.listInstitutions() }
-
-  @Get('imaging/cross-query')
-  crossInstitutionQuery(@Query('institutionId') institutionId?: string, @Query('queryType') queryType?: string, @Query('queryValue') queryValue?: string) {
-    return this.svc.crossInstitutionQuery({ institutionId, queryType, queryValue })
+  @Get("imaging/applications")
+  listApplications() {
+    return this.svc.listAccessApplications();
   }
 
-  @Get('imaging/document-registry')
-  listDocumentRegistry() { return this.svc.listDocumentRegistry() }
+  @Post("imaging/applications")
+  createApplication(
+    @Body(new ZodValidationPipe(CreateAccessApplicationSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.createAccessApplication(body);
+  }
+
+  @Post("imaging/applications/:id/approve")
+  approveApplication(@Param("id") id: string) {
+    return this.svc.approveAccessApplication(id);
+  }
+
+  @Post("imaging/applications/:id/reject")
+  rejectApplication(@Param("id") id: string) {
+    return this.svc.rejectAccessApplication(id);
+  }
+
+  @Get("imaging/consultations")
+  listConsultationRequests() {
+    return this.svc.listConsultationRequests();
+  }
+
+  @Post("imaging/consultations")
+  createConsultationRequest(
+    @Body(new ZodValidationPipe(CreateConsultationRequestSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.createConsultationRequest(body);
+  }
+
+  @Get("imaging/access-records")
+  listAccessRecords() {
+    return this.svc.listAccessRecords();
+  }
+
+  // [G005 Wave 4B] 跨院调阅记录 + 会诊参与 (RegionalCollaborationPage)
+  @Post("imaging/access-records")
+  createAccessRecord(
+    @Body(new ZodValidationPipe(CreateAccessRecordSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.createAccessRecord(body);
+  }
+
+  @Post("imaging/consultations/:id/accept")
+  acceptConsultationRequest(@Param("id") id: string) {
+    return this.svc.acceptConsultationRequest(id);
+  }
+
+  @Get("imaging/institutions")
+  listInstitutions() {
+    return this.svc.listInstitutions();
+  }
+
+  @Get("imaging/cross-query")
+  crossInstitutionQuery(
+    @Query("institutionId") institutionId?: string,
+    @Query("queryType") queryType?: string,
+    @Query("queryValue") queryValue?: string,
+  ) {
+    return this.svc.crossInstitutionQuery({
+      institutionId,
+      queryType,
+      queryValue,
+    });
+  }
+
+  @Get("imaging/document-registry")
+  listDocumentRegistry() {
+    return this.svc.listDocumentRegistry();
+  }
 
   // [G005 v3.0.6.16-0] XDS-I 文档调阅 Retrieve
   // 此前该端点仅存在于 MSW (mock-only), real 模式 404 —— 医联体核心功能上线即挂。
   // 注册在 listDocumentRegistry 之后、静态子路径之前不受影响 (路径段数不同, 无歧义)。
-  @Get('imaging/document-registry/:id/retrieve')
-  retrieveDocument(@Param('id') id: string) { return this.svc.retrieveDocument(id) }
+  @Get("imaging/document-registry/:id/retrieve")
+  retrieveDocument(@Param("id") id: string) {
+    return this.svc.retrieveDocument(id);
+  }
 
-  @Get('imaging/pix')
-  pixQuery(@Query('patientId') patientId: string) { return this.svc.pixQuery(patientId) }
+  @Get("imaging/pix")
+  pixQuery(@Query("patientId") patientId: string) {
+    return this.svc.pixQuery(patientId);
+  }
 
-  @Get('imaging/audit-trail')
-  listAuditTrail() { return this.svc.listAuditTrail() }
+  @Get("imaging/audit-trail")
+  listAuditTrail() {
+    return this.svc.listAuditTrail();
+  }
 
   // ── 医联体报告页在用孤儿 ──
 
-  @Get('institutions')
-  listRegionalInstitutions() { return this.svc.listRegionalInstitutions() }
+  @Get("institutions")
+  listRegionalInstitutions() {
+    return this.svc.listRegionalInstitutions();
+  }
 
-  @Get('consultations')
-  listConsultations() { return this.svc.listConsultations() }
+  @Get("consultations")
+  listConsultations() {
+    return this.svc.listConsultations();
+  }
 
-  @Get('report-records')
-  listReportRecords() { return this.svc.listReportRecords() }
+  @Get("report-records")
+  listReportRecords() {
+    return this.svc.listReportRecords();
+  }
 
-  @Get('critical-values')
-  listCriticalValues() { return this.svc.listCriticalValues() }
+  @Get("critical-values")
+  listCriticalValues() {
+    return this.svc.listCriticalValues();
+  }
 
-  @Get('remote-diagnoses')
-  listRemoteDiagnoses() { return this.svc.listRemoteDiagnoses() }
+  @Get("remote-diagnoses")
+  listRemoteDiagnoses() {
+    return this.svc.listRemoteDiagnoses();
+  }
 
-  @Get('co-sign-records')
-  listCoSignRecords() { return this.svc.listCoSignRecords() }
+  @Get("co-sign-records")
+  listCoSignRecords() {
+    return this.svc.listCoSignRecords();
+  }
+
+  // [v3.0.6.16-6] 医联体转诊 / 报告共享记录 / 站点 SLA (前端裸 fetch 收口)
+  @Get("alliance-referrals")
+  listAllianceReferrals() {
+    return this.svc.listAllianceReferrals();
+  }
+
+  @Get("share-records")
+  listShareRecords() {
+    return this.svc.listShareRecords();
+  }
+
+  @Get("sla-data")
+  listSlaData() {
+    return this.svc.listSlaData();
+  }
 
   // ── [G005 Wave1A W9] 多站点/多院区仪表板 (前端 regionalApi listSites / listSiteSyncEvents / listSiteRoutingRules) ──
 
-  @Get('sites')
-  listSites() { return this.svc.listSites() }
+  @Get("sites")
+  listSites() {
+    return this.svc.listSites();
+  }
 
   // [G005 W11-MultiSite] 跨院区聚合统计 (静态子路由先于 sites/:id)
-  @Get('sites/stats')
-  crossSiteStats() { return this.svc.getCrossSiteStats() }
+  @Get("sites/stats")
+  crossSiteStats() {
+    return this.svc.getCrossSiteStats();
+  }
 
-  @Get('sites/sync-events')
-  listSiteSyncEvents() { return this.svc.listSiteSyncEvents() }
+  @Get("sites/sync-events")
+  listSiteSyncEvents() {
+    return this.svc.listSiteSyncEvents();
+  }
 
-  @Get('sites/routing-rules')
-  listSiteRoutingRules() { return this.svc.listSiteRoutingRules() }
+  @Get("sites/routing-rules")
+  listSiteRoutingRules() {
+    return this.svc.listSiteRoutingRules();
+  }
 
-  @Post('sites')
-  createSite(@Body(new ZodValidationPipe(CreateSiteSchema)) body: Record<string, unknown>) { return this.svc.createSite(body as never) }
+  @Post("sites")
+  createSite(
+    @Body(new ZodValidationPipe(CreateSiteSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.createSite(body as never);
+  }
 
-  @Put('sites/:id')
-  updateSite(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateSiteSchema)) body: Record<string, unknown>) { return this.svc.updateSite(id, body as never) }
+  @Put("sites/:id")
+  updateSite(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateSiteSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.updateSite(id, body as never);
+  }
 
-  @Get('sites/:id')
-  getSite(@Param('id') id: string) { return this.svc.getSite(id) }
+  @Get("sites/:id")
+  getSite(@Param("id") id: string) {
+    return this.svc.getSite(id);
+  }
 
   // [G005 W11-MultiSite] 院区 (campus) 模型 + 联邦配置
-  @Get('campuses')
-  listCampuses() { return this.svc.listCampuses() }
+  @Get("campuses")
+  listCampuses() {
+    return this.svc.listCampuses();
+  }
 
-  @Get('federation/config')
-  getFederationConfig() { return this.svc.getFederationConfig() }
+  @Get("federation/config")
+  getFederationConfig() {
+    return this.svc.getFederationConfig();
+  }
 
-  @Put('federation/config')
-  updateFederationConfig(@Body(new ZodValidationPipe(UpdateFederationConfigSchema)) body: Record<string, unknown>) { return this.svc.updateFederationConfig(body as never) }
+  @Put("federation/config")
+  updateFederationConfig(
+    @Body(new ZodValidationPipe(UpdateFederationConfigSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.updateFederationConfig(body as never);
+  }
 
   // ── 原有用例 ──
 
-  @Get('imaging')
-  listRegionalImaging() { return this.svc.listRegionalImaging() }
+  @Get("imaging")
+  listRegionalImaging() {
+    return this.svc.listRegionalImaging();
+  }
 
-  @Get('imaging/:id')
-  getRegionalImaging(@Param('id') id: string) { return this.svc.getRegionalImaging(id) }
+  @Get("imaging/:id")
+  getRegionalImaging(@Param("id") id: string) {
+    return this.svc.getRegionalImaging(id);
+  }
 
-  @Get('reports')
-  listRegionalReports() { return this.svc.listRegionalReports() }
+  @Get("reports")
+  listRegionalReports() {
+    return this.svc.listRegionalReports();
+  }
 
-  @Get('reports/:id')
-  getRegionalReport(@Param('id') id: string) { return this.svc.getRegionalReport(id) }
+  @Get("reports/:id")
+  getRegionalReport(@Param("id") id: string) {
+    return this.svc.getRegionalReport(id);
+  }
 
-  @Get('schedule')
-  getDepartmentSchedule() { return this.svc.getDepartmentSchedule() }
+  @Get("schedule")
+  getDepartmentSchedule() {
+    return this.svc.getDepartmentSchedule();
+  }
 
-  @Put('schedule/:id')
-  updateSchedule(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateScheduleSchema)) body: Record<string, unknown>) { return this.svc.updateSchedule(id, body) }
+  @Put("schedule/:id")
+  updateSchedule(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateScheduleSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.updateSchedule(id, body);
+  }
 
-  @Get('departments')
-  listDepartments() { return this.svc.listDepartments() }
+  @Get("departments")
+  listDepartments() {
+    return this.svc.listDepartments();
+  }
 
-  @Get('medical-alliance')
-  listMedicalAlliance() { return this.svc.listMedicalAlliance() }
+  @Get("medical-alliance")
+  listMedicalAlliance() {
+    return this.svc.listMedicalAlliance();
+  }
 
-  @Get('integration/fhir')
-  getFhirStatus() { return this.svc.getFhirStatus() }
+  @Get("integration/fhir")
+  getFhirStatus() {
+    return this.svc.getFhirStatus();
+  }
 
-  @Get('integration/ihe')
-  getIheStatus() { return this.svc.getIheStatus() }
+  @Get("integration/ihe")
+  getIheStatus() {
+    return this.svc.getIheStatus();
+  }
 
-  @Get('integration/mllp')
-  getMllpStatus() { return this.svc.getMllpStatus() }
+  @Get("integration/mllp")
+  getMllpStatus() {
+    return this.svc.getMllpStatus();
+  }
 }

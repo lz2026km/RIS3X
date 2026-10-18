@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 // ── [G005-P1] 在用孤儿补齐: 医联体影像/报告页 DTO 种子数据 ──
 // 说明: AccessApplication / ConsultationRequest / AccessRecord / Institution /
@@ -9,450 +9,1392 @@ import { PrismaService } from '../prisma/prisma.service'
 //       采用内存 seed(风格与 regionalHandlers.ts 一致), 标注 demo 级数据。
 
 export interface AccessApplication {
-  id: string; patientName: string; patientId: string; hospital: string; modality: string
-  studyDate: string; reason: string; status: 'pending' | 'approved' | 'rejected'; applyDate: string
+  id: string;
+  patientName: string;
+  patientId: string;
+  hospital: string;
+  modality: string;
+  studyDate: string;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  applyDate: string;
 }
 
 export interface ConsultationRequest {
-  id: string; patientName: string; hospital: string; diagnosis: string
-  priority: 'normal' | 'urgent' | 'critical'; status: 'open' | 'in-progress' | 'completed'
-  createDate: string; expert?: string
+  id: string;
+  patientName: string;
+  hospital: string;
+  diagnosis: string;
+  priority: "normal" | "urgent" | "critical";
+  status: "open" | "in-progress" | "completed";
+  createDate: string;
+  expert?: string;
 }
 
 export interface AccessRecord {
-  id: string; patientName: string; patientId: string; studyType: string; hospital: string
-  accessTime: string; accessor: string; purpose: string
+  id: string;
+  patientName: string;
+  patientId: string;
+  studyType: string;
+  hospital: string;
+  accessTime: string;
+  accessor: string;
+  purpose: string;
 }
 
 export interface Institution {
-  id: string; name: string; aeTitle: string; address: string; status: 'online' | 'offline' | 'busy'
+  id: string;
+  name: string;
+  aeTitle: string;
+  address: string;
+  status: "online" | "offline" | "busy";
 }
 
 export interface CrossInstitutionStudy {
-  id: string; patientId: string; patientName: string; studyUid: string; studyDescription: string
-  modality: string; institution: string; date: string; status: string
+  id: string;
+  patientId: string;
+  patientName: string;
+  studyUid: string;
+  studyDescription: string;
+  modality: string;
+  institution: string;
+  date: string;
+  status: string;
 }
 
 export interface DocumentRegistryEntry {
-  id: string; patientId: string; patientName: string; studyUid: string; studyDescription: string
-  modality: string; institution: string; date: string; status: string
+  id: string;
+  patientId: string;
+  patientName: string;
+  studyUid: string;
+  studyDescription: string;
+  modality: string;
+  institution: string;
+  date: string;
+  status: string;
 }
 
 export interface AuditTrailEntry {
-  id: string; patientId: string; action: string; institution: string; user: string
-  time: string; details: string
+  id: string;
+  patientId: string;
+  action: string;
+  institution: string;
+  user: string;
+  time: string;
+  details: string;
 }
 
 export interface RegionalConsultation {
-  id: string; caseId: string; patientName: string; gender: string; age: number
-  institution: string; modality: string; examItem: string; applyReason: string
-  status: '待接诊' | '会诊中' | '已完成' | '已取消'; applyTime: string
-  acceptTime?: string; completeTime?: string; applyDoctor: string; acceptDoctor?: string
-  consultationOpinion?: string; priority: '普通' | '紧急' | '立即'
+  id: string;
+  caseId: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  institution: string;
+  modality: string;
+  examItem: string;
+  applyReason: string;
+  status: "待接诊" | "会诊中" | "已完成" | "已取消";
+  applyTime: string;
+  acceptTime?: string;
+  completeTime?: string;
+  applyDoctor: string;
+  acceptDoctor?: string;
+  consultationOpinion?: string;
+  priority: "普通" | "紧急" | "立即";
 }
 
 export interface RegionalReportRecord {
-  id: string; reportId: string; institution: string; patientName: string; gender: string
-  age: number; modality: string; examItem: string; reportTime: string; reportDoctor: string
-  status: '待审核' | '已通过' | '有问题' | '已驳回'; qualityScore: number
-  qualityIssues: string[]; reviewOpinion?: string; reviewDoctor?: string; reviewTime?: string
+  id: string;
+  reportId: string;
+  institution: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  modality: string;
+  examItem: string;
+  reportTime: string;
+  reportDoctor: string;
+  status: "待审核" | "已通过" | "有问题" | "已驳回";
+  qualityScore: number;
+  qualityIssues: string[];
+  reviewOpinion?: string;
+  reviewDoctor?: string;
+  reviewTime?: string;
 }
 
 export interface CriticalValueReport {
-  id: string; patientName: string; gender: string; age: number; institution: string
-  modality: string; examItem: string; criticalFinding: string
-  severity: '危急' | '高危' | '紧急'; reportedTime: string; reportedDoctor: string
-  status: '待确认' | '已接收' | '处理中' | '已闭环'
-  receiveTime?: string; receiveDoctor?: string; handleTime?: string
-  handleDoctor?: string; closeTime?: string
+  id: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  institution: string;
+  modality: string;
+  examItem: string;
+  criticalFinding: string;
+  severity: "危急" | "高危" | "紧急";
+  reportedTime: string;
+  reportedDoctor: string;
+  status: "待确认" | "已接收" | "处理中" | "已闭环";
+  receiveTime?: string;
+  receiveDoctor?: string;
+  handleTime?: string;
+  handleDoctor?: string;
+  closeTime?: string;
 }
 
 export interface RemoteDiagnosis {
-  id: string; caseId: string; patientName: string; gender: string; age: number
-  examType: string; applyInstitution: string; remoteExpert: string; expertInstitution: string
-  status: '待书写' | '书写中' | '待审核' | '已完成'; applyTime: string
-  startTime?: string; completeTime?: string; reportContent?: string
-  isOtherTyping?: boolean; otherTypingName?: string
+  id: string;
+  caseId: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  examType: string;
+  applyInstitution: string;
+  remoteExpert: string;
+  expertInstitution: string;
+  status: "待书写" | "书写中" | "待审核" | "已完成";
+  applyTime: string;
+  startTime?: string;
+  completeTime?: string;
+  reportContent?: string;
+  isOtherTyping?: boolean;
+  otherTypingName?: string;
 }
 
 export interface CoSignRecord {
-  id: string; reportId: string; examType: string; patientName: string; gender: string
-  age: number; participatingInstitutions: string[]
-  status: '待签发' | '签发中' | '已完成'; createTime: string; completeTime?: string
-  signatures: Array<{ institution: string; doctorName: string; signTime: string; certificateStatus: string; order: number }>
-  versions: Array<{ version: string; modifyTime: string; modifyInstitution: string; modifyReason: string; modifier: string }>
+  id: string;
+  reportId: string;
+  examType: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  participatingInstitutions: string[];
+  status: "待签发" | "签发中" | "已完成";
+  createTime: string;
+  completeTime?: string;
+  signatures: Array<{
+    institution: string;
+    doctorName: string;
+    signTime: string;
+    certificateStatus: string;
+    order: number;
+  }>;
+  versions: Array<{
+    version: string;
+    modifyTime: string;
+    modifyInstitution: string;
+    modifyReason: string;
+    modifier: string;
+  }>;
 }
 
 export interface RegionalInstitution {
-  id: string; institutionId: string; institutionName: string; modality: string
-  examCount: number; positiveCount: number; positiveRate: number
-  avgReportTime: number; qualifiedRate: number; period: string
+  id: string;
+  institutionId: string;
+  institutionName: string;
+  modality: string;
+  examCount: number;
+  positiveCount: number;
+  positiveRate: number;
+  avgReportTime: number;
+  qualifiedRate: number;
+  period: string;
 }
 
 // ── [G005 Wave1A W9] 多站点/多院区仪表板 DTO (前端 regionalApi /regional/sites*) ──
 
 export interface RegionalSite {
-  id: string
-  name: string
-  code: string
-  region: string
-  city: string
-  status: 'active' | 'offline' | 'syncing' | 'maintenance'
-  studies: number
-  patients: number
-  users: number
-  storage: number
-  bandwidth: number
-  lastSync: string
-  latencyMs: number
-  uptimePct: number
-  version: string
-  primary: boolean
+  id: string;
+  name: string;
+  code: string;
+  region: string;
+  city: string;
+  status: "active" | "offline" | "syncing" | "maintenance";
+  studies: number;
+  patients: number;
+  users: number;
+  storage: number;
+  bandwidth: number;
+  lastSync: string;
+  latencyMs: number;
+  uptimePct: number;
+  version: string;
+  primary: boolean;
 }
 
 export interface RegionalSiteSyncEvent {
-  id: string
-  siteId: string
-  type: 'study_pushed' | 'study_pulled' | 'user_sync' | 'config_sync'
-  status: 'success' | 'failed' | 'pending'
-  count: number
-  bytes: number
-  duration: number
-  timestamp: string
-  message?: string
+  id: string;
+  siteId: string;
+  type: "study_pushed" | "study_pulled" | "user_sync" | "config_sync";
+  status: "success" | "failed" | "pending";
+  count: number;
+  bytes: number;
+  duration: number;
+  timestamp: string;
+  message?: string;
 }
 
 export interface RegionalSiteRoutingRule {
-  id: string
-  name: string
-  sourceSite: string
-  destSite: string
-  modality: string
-  condition: string
-  active: boolean
-  matchedCount: number
+  id: string;
+  name: string;
+  sourceSite: string;
+  destSite: string;
+  modality: string;
+  condition: string;
+  active: boolean;
+  matchedCount: number;
 }
 
 export interface RegionalSitesEnvelope<T> {
-  source: 'database' | 'demo'
-  generatedAt: string
-  data: T
+  source: "database" | "demo";
+  generatedAt: string;
+  data: T;
 }
 
 // ── [G005 W11-MultiSite] 多院区真实模型持久化 (内存) + 联邦配置 + 跨院区统计 ──
 
 export interface CampusDto {
-  id: string
-  siteId: string
-  siteName: string
-  name: string
-  address: string
-  buildings: number
-  devices: number
-  beds: number
-  isMain: boolean
+  id: string;
+  siteId: string;
+  siteName: string;
+  name: string;
+  address: string;
+  buildings: number;
+  devices: number;
+  beds: number;
+  isMain: boolean;
 }
 
 export interface FederationConfig {
-  federationId: string
-  name: string
-  mode: 'centralized' | 'federated'
-  syncIntervalSec: number
-  autoFailover: boolean
-  crossSiteQueryEnabled: boolean
-  sharedPatientIndex: boolean
-  members: string[]
-  updatedAt: string
+  federationId: string;
+  name: string;
+  mode: "centralized" | "federated";
+  syncIntervalSec: number;
+  autoFailover: boolean;
+  crossSiteQueryEnabled: boolean;
+  sharedPatientIndex: boolean;
+  members: string[];
+  updatedAt: string;
 }
 
 export interface CrossSiteStats {
-  totalSites: number
-  activeSites: number
-  offlineSites: number
-  totalStudies: number
-  totalPatients: number
-  totalUsers: number
-  totalStorageGb: number
-  totalBandwidthMbps: number
-  avgLatencyMs: number
-  avgUptimePct: number
-  byRegion: Array<{ region: string; sites: number; studies: number; patients: number }>
-  generatedAt: string
+  totalSites: number;
+  activeSites: number;
+  offlineSites: number;
+  totalStudies: number;
+  totalPatients: number;
+  totalUsers: number;
+  totalStorageGb: number;
+  totalBandwidthMbps: number;
+  avgLatencyMs: number;
+  avgUptimePct: number;
+  byRegion: Array<{
+    region: string;
+    sites: number;
+    studies: number;
+    patients: number;
+  }>;
+  generatedAt: string;
 }
 
 const SEED_ACCESS_APPLICATIONS: AccessApplication[] = [
-  { id: 'APP-202607-001', patientName: '张伟', patientId: 'P000023', hospital: '东华区第一医院', modality: 'CT', studyDate: '2026-07-06', reason: '肺癌术后复查,申请调阅外院基线片', status: 'pending', applyDate: '2026-07-08' },
-  { id: 'APP-202607-002', patientName: '王芳', patientId: 'P000047', hospital: '西城区人民医院', modality: 'MRI', studyDate: '2026-07-05', reason: '腰椎间盘突出会诊,需要本院 MRI 原始图像', status: 'approved', applyDate: '2026-07-07' },
-  { id: 'APP-202607-003', patientName: '李强', patientId: 'P000088', hospital: '高新区中心医院', modality: 'DR', studyDate: '2026-07-04', reason: '体检发现肺结节,调阅历史胸片对比', status: 'rejected', applyDate: '2026-07-06' },
-  { id: 'APP-202607-004', patientName: '刘敏', patientId: 'P000112', hospital: '东华区第一医院', modality: 'US', studyDate: '2026-07-03', reason: '甲状腺结节随访,调阅既往超声报告', status: 'pending', applyDate: '2026-07-05' },
-  { id: 'APP-202607-005', patientName: '陈杰', patientId: 'P000156', hospital: '南港区第二医院', modality: 'CT', studyDate: '2026-07-02', reason: '腹部增强 CT 双院区图像融合分析', status: 'approved', applyDate: '2026-07-04' },
-]
+  {
+    id: "APP-202607-001",
+    patientName: "张伟",
+    patientId: "P000023",
+    hospital: "东华区第一医院",
+    modality: "CT",
+    studyDate: "2026-07-06",
+    reason: "肺癌术后复查,申请调阅外院基线片",
+    status: "pending",
+    applyDate: "2026-07-08",
+  },
+  {
+    id: "APP-202607-002",
+    patientName: "王芳",
+    patientId: "P000047",
+    hospital: "西城区人民医院",
+    modality: "MRI",
+    studyDate: "2026-07-05",
+    reason: "腰椎间盘突出会诊,需要本院 MRI 原始图像",
+    status: "approved",
+    applyDate: "2026-07-07",
+  },
+  {
+    id: "APP-202607-003",
+    patientName: "李强",
+    patientId: "P000088",
+    hospital: "高新区中心医院",
+    modality: "DR",
+    studyDate: "2026-07-04",
+    reason: "体检发现肺结节,调阅历史胸片对比",
+    status: "rejected",
+    applyDate: "2026-07-06",
+  },
+  {
+    id: "APP-202607-004",
+    patientName: "刘敏",
+    patientId: "P000112",
+    hospital: "东华区第一医院",
+    modality: "US",
+    studyDate: "2026-07-03",
+    reason: "甲状腺结节随访,调阅既往超声报告",
+    status: "pending",
+    applyDate: "2026-07-05",
+  },
+  {
+    id: "APP-202607-005",
+    patientName: "陈杰",
+    patientId: "P000156",
+    hospital: "南港区第二医院",
+    modality: "CT",
+    studyDate: "2026-07-02",
+    reason: "腹部增强 CT 双院区图像融合分析",
+    status: "approved",
+    applyDate: "2026-07-04",
+  },
+];
 
 const SEED_CONSULTATION_REQUESTS: ConsultationRequest[] = [
-  { id: 'CSL-202607-001', patientName: '赵霞', hospital: '东华区第一医院', diagnosis: '颅内占位性质待定', priority: 'urgent', status: 'in-progress', createDate: '2026-07-08', expert: '王建华 主任医师' },
-  { id: 'CSL-202607-002', patientName: '孙浩', hospital: '西城区人民医院', diagnosis: '胰腺占位', priority: 'critical', status: 'open', createDate: '2026-07-08' },
-  { id: 'CSL-202607-003', patientName: '周婷', hospital: '高新区中心医院', diagnosis: '肺结节随访策略咨询', priority: 'normal', status: 'completed', createDate: '2026-07-06', expert: '张明远 主任医师' },
-  { id: 'CSL-202607-004', patientName: '吴刚', hospital: '南港区第二医院', diagnosis: '膝关节韧带损伤', priority: 'normal', status: 'completed', createDate: '2026-07-05', expert: '李慧敏 副主任医师' },
-]
+  {
+    id: "CSL-202607-001",
+    patientName: "赵霞",
+    hospital: "东华区第一医院",
+    diagnosis: "颅内占位性质待定",
+    priority: "urgent",
+    status: "in-progress",
+    createDate: "2026-07-08",
+    expert: "王建华 主任医师",
+  },
+  {
+    id: "CSL-202607-002",
+    patientName: "孙浩",
+    hospital: "西城区人民医院",
+    diagnosis: "胰腺占位",
+    priority: "critical",
+    status: "open",
+    createDate: "2026-07-08",
+  },
+  {
+    id: "CSL-202607-003",
+    patientName: "周婷",
+    hospital: "高新区中心医院",
+    diagnosis: "肺结节随访策略咨询",
+    priority: "normal",
+    status: "completed",
+    createDate: "2026-07-06",
+    expert: "张明远 主任医师",
+  },
+  {
+    id: "CSL-202607-004",
+    patientName: "吴刚",
+    hospital: "南港区第二医院",
+    diagnosis: "膝关节韧带损伤",
+    priority: "normal",
+    status: "completed",
+    createDate: "2026-07-05",
+    expert: "李慧敏 副主任医师",
+  },
+];
 
 const SEED_ACCESS_RECORDS: AccessRecord[] = [
-  { id: 'ARC-001', patientName: '张伟', patientId: 'P000023', studyType: 'CT 胸部平扫', hospital: '东华区第一医院', accessTime: '2026-07-08 09:32', accessor: '王建华', purpose: '跨院调阅基线对比' },
-  { id: 'ARC-002', patientName: '王芳', patientId: 'P000047', studyType: 'MRI 腰椎', hospital: '西城区人民医院', accessTime: '2026-07-08 10:15', accessor: '李慧敏', purpose: '远程会诊' },
-  { id: 'ARC-003', patientName: '刘敏', patientId: 'P000112', studyType: 'US 甲状腺', hospital: '东华区第一医院', accessTime: '2026-07-07 14:03', accessor: '张明远', purpose: '随访对比' },
-  { id: 'ARC-004', patientName: '陈杰', patientId: 'P000156', studyType: 'CT 腹部增强', hospital: '南港区第二医院', accessTime: '2026-07-07 16:48', accessor: '赵雪琴', purpose: '多院区融合分析' },
-  { id: 'ARC-005', patientName: '周婷', patientId: 'P000199', studyType: 'DR 胸部', hospital: '高新区中心医院', accessTime: '2026-07-06 11:20', accessor: '王建华', purpose: '医保核查' },
-]
+  {
+    id: "ARC-001",
+    patientName: "张伟",
+    patientId: "P000023",
+    studyType: "CT 胸部平扫",
+    hospital: "东华区第一医院",
+    accessTime: "2026-07-08 09:32",
+    accessor: "王建华",
+    purpose: "跨院调阅基线对比",
+  },
+  {
+    id: "ARC-002",
+    patientName: "王芳",
+    patientId: "P000047",
+    studyType: "MRI 腰椎",
+    hospital: "西城区人民医院",
+    accessTime: "2026-07-08 10:15",
+    accessor: "李慧敏",
+    purpose: "远程会诊",
+  },
+  {
+    id: "ARC-003",
+    patientName: "刘敏",
+    patientId: "P000112",
+    studyType: "US 甲状腺",
+    hospital: "东华区第一医院",
+    accessTime: "2026-07-07 14:03",
+    accessor: "张明远",
+    purpose: "随访对比",
+  },
+  {
+    id: "ARC-004",
+    patientName: "陈杰",
+    patientId: "P000156",
+    studyType: "CT 腹部增强",
+    hospital: "南港区第二医院",
+    accessTime: "2026-07-07 16:48",
+    accessor: "赵雪琴",
+    purpose: "多院区融合分析",
+  },
+  {
+    id: "ARC-005",
+    patientName: "周婷",
+    patientId: "P000199",
+    studyType: "DR 胸部",
+    hospital: "高新区中心医院",
+    accessTime: "2026-07-06 11:20",
+    accessor: "王建华",
+    purpose: "医保核查",
+  },
+];
 
 const SEED_INSTITUTIONS: Institution[] = [
-  { id: 'INST-001', name: '东华区第一医院', aeTitle: 'G005-DH01', address: '东华区解放路 88 号', status: 'online' },
-  { id: 'INST-002', name: '西城区人民医院', aeTitle: 'G005-XC01', address: '西城区人民大道 210 号', status: 'online' },
-  { id: 'INST-003', name: '高新区中心医院', aeTitle: 'G005-GX01', address: '高新区科园路 66 号', status: 'busy' },
-  { id: 'INST-004', name: '南港区第二医院', aeTitle: 'G005-NG01', address: '南港区港城路 12 号', status: 'offline' },
-]
+  {
+    id: "INST-001",
+    name: "东华区第一医院",
+    aeTitle: "G005-DH01",
+    address: "东华区解放路 88 号",
+    status: "online",
+  },
+  {
+    id: "INST-002",
+    name: "西城区人民医院",
+    aeTitle: "G005-XC01",
+    address: "西城区人民大道 210 号",
+    status: "online",
+  },
+  {
+    id: "INST-003",
+    name: "高新区中心医院",
+    aeTitle: "G005-GX01",
+    address: "高新区科园路 66 号",
+    status: "busy",
+  },
+  {
+    id: "INST-004",
+    name: "南港区第二医院",
+    aeTitle: "G005-NG01",
+    address: "南港区港城路 12 号",
+    status: "offline",
+  },
+];
 
 const SEED_CROSS_STUDIES: CrossInstitutionStudy[] = [
-  { id: 'CS-001', patientId: 'P000023', patientName: '张伟', studyUid: '1.2.826.0.1.3680043.8.498.1001', studyDescription: 'CT 胸部平扫', modality: 'CT', institution: '东华区第一医院', date: '2025-03-12', status: 'COMPLETE' },
-  { id: 'CS-002', patientId: 'P000023', patientName: '张伟', studyUid: '1.2.826.0.1.3680043.8.498.1002', studyDescription: 'CT 胸部增强', modality: 'CT', institution: '西城区人民医院', date: '2026-06-28', status: 'COMPLETE' },
-  { id: 'CS-003', patientId: 'P000047', patientName: '王芳', studyUid: '1.2.826.0.1.3680043.8.498.1003', studyDescription: 'MRI 腰椎平扫', modality: 'MRI', institution: '西城区人民医院', date: '2026-05-20', status: 'COMPLETE' },
-  { id: 'CS-004', patientId: 'P000088', patientName: '李强', studyUid: '1.2.826.0.1.3680043.8.498.1004', studyDescription: 'DR 胸部正位', modality: 'DR', institution: '高新区中心医院', date: '2026-04-02', status: 'COMPLETE' },
-]
+  {
+    id: "CS-001",
+    patientId: "P000023",
+    patientName: "张伟",
+    studyUid: "1.2.826.0.1.3680043.8.498.1001",
+    studyDescription: "CT 胸部平扫",
+    modality: "CT",
+    institution: "东华区第一医院",
+    date: "2025-03-12",
+    status: "COMPLETE",
+  },
+  {
+    id: "CS-002",
+    patientId: "P000023",
+    patientName: "张伟",
+    studyUid: "1.2.826.0.1.3680043.8.498.1002",
+    studyDescription: "CT 胸部增强",
+    modality: "CT",
+    institution: "西城区人民医院",
+    date: "2026-06-28",
+    status: "COMPLETE",
+  },
+  {
+    id: "CS-003",
+    patientId: "P000047",
+    patientName: "王芳",
+    studyUid: "1.2.826.0.1.3680043.8.498.1003",
+    studyDescription: "MRI 腰椎平扫",
+    modality: "MRI",
+    institution: "西城区人民医院",
+    date: "2026-05-20",
+    status: "COMPLETE",
+  },
+  {
+    id: "CS-004",
+    patientId: "P000088",
+    patientName: "李强",
+    studyUid: "1.2.826.0.1.3680043.8.498.1004",
+    studyDescription: "DR 胸部正位",
+    modality: "DR",
+    institution: "高新区中心医院",
+    date: "2026-04-02",
+    status: "COMPLETE",
+  },
+];
 
 const SEED_DOCUMENT_REGISTRY: DocumentRegistryEntry[] = [
-  { id: 'DOC-001', patientId: 'P000023', patientName: '张伟', studyUid: '1.2.826.0.1.3680043.8.498.1001', studyDescription: 'CT 胸部平扫', modality: 'CT', institution: '东华区第一医院', date: '2025-03-12', status: 'REGISTERED' },
-  { id: 'DOC-002', patientId: 'P000047', patientName: '王芳', studyUid: '1.2.826.0.1.3680043.8.498.1003', studyDescription: 'MRI 腰椎平扫', modality: 'MRI', institution: '西城区人民医院', date: '2026-05-20', status: 'REGISTERED' },
-  { id: 'DOC-003', patientId: 'P000156', patientName: '陈杰', studyUid: '1.2.826.0.1.3680043.8.498.1005', studyDescription: 'CT 腹部增强', modality: 'CT', institution: '南港区第二医院', date: '2026-07-02', status: 'SYNCED' },
-  { id: 'DOC-004', patientId: 'P000199', patientName: '周婷', studyUid: '1.2.826.0.1.3680043.8.498.1006', studyDescription: 'DR 胸部正位', modality: 'DR', institution: '高新区中心医院', date: '2026-06-15', status: 'PENDING' },
-]
+  {
+    id: "DOC-001",
+    patientId: "P000023",
+    patientName: "张伟",
+    studyUid: "1.2.826.0.1.3680043.8.498.1001",
+    studyDescription: "CT 胸部平扫",
+    modality: "CT",
+    institution: "东华区第一医院",
+    date: "2025-03-12",
+    status: "REGISTERED",
+  },
+  {
+    id: "DOC-002",
+    patientId: "P000047",
+    patientName: "王芳",
+    studyUid: "1.2.826.0.1.3680043.8.498.1003",
+    studyDescription: "MRI 腰椎平扫",
+    modality: "MRI",
+    institution: "西城区人民医院",
+    date: "2026-05-20",
+    status: "REGISTERED",
+  },
+  {
+    id: "DOC-003",
+    patientId: "P000156",
+    patientName: "陈杰",
+    studyUid: "1.2.826.0.1.3680043.8.498.1005",
+    studyDescription: "CT 腹部增强",
+    modality: "CT",
+    institution: "南港区第二医院",
+    date: "2026-07-02",
+    status: "SYNCED",
+  },
+  {
+    id: "DOC-004",
+    patientId: "P000199",
+    patientName: "周婷",
+    studyUid: "1.2.826.0.1.3680043.8.498.1006",
+    studyDescription: "DR 胸部正位",
+    modality: "DR",
+    institution: "高新区中心医院",
+    date: "2026-06-15",
+    status: "PENDING",
+  },
+];
 
 const SEED_AUDIT_TRAIL: AuditTrailEntry[] = [
-  { id: 'AUD-001', patientId: 'P000023', action: 'CROSS_QUERY', institution: '东华区第一医院', user: '王建华', time: '2026-07-08 09:32:11', details: '跨院检索: 患者 张伟, 检索条件 姓名+出生日期' },
-  { id: 'AUD-002', patientId: 'P000047', action: 'PIX_QUERY', institution: '西城区人民医院', user: '李慧敏', time: '2026-07-08 10:15:42', details: 'PIX 患者标识映射: 内部ID P000047 → 外部 20260518003' },
-  { id: 'AUD-003', patientId: 'P000112', action: 'DOCUMENT_RETRIEVE', institution: '东华区第一医院', user: '张明远', time: '2026-07-07 14:03:55', details: '调阅文档: DOC-001, 原始 DICOM 全部系列' },
-  { id: 'AUD-004', patientId: 'P000156', action: 'CONSULT_INVITE', institution: '南港区第二医院', user: '赵雪琴', time: '2026-07-07 16:48:30', details: '发起远程会诊邀请: 腹部增强 CT 融合分析' },
-  { id: 'AUD-005', patientId: 'P000199', action: 'CROSS_QUERY', institution: '高新区中心医院', user: '王建华', time: '2026-07-06 11:20:07', details: '跨院检索: 患者 周婷, 检索条件 门诊号 GX2026-0417' },
-]
+  {
+    id: "AUD-001",
+    patientId: "P000023",
+    action: "CROSS_QUERY",
+    institution: "东华区第一医院",
+    user: "王建华",
+    time: "2026-07-08 09:32:11",
+    details: "跨院检索: 患者 张伟, 检索条件 姓名+出生日期",
+  },
+  {
+    id: "AUD-002",
+    patientId: "P000047",
+    action: "PIX_QUERY",
+    institution: "西城区人民医院",
+    user: "李慧敏",
+    time: "2026-07-08 10:15:42",
+    details: "PIX 患者标识映射: 内部ID P000047 → 外部 20260518003",
+  },
+  {
+    id: "AUD-003",
+    patientId: "P000112",
+    action: "DOCUMENT_RETRIEVE",
+    institution: "东华区第一医院",
+    user: "张明远",
+    time: "2026-07-07 14:03:55",
+    details: "调阅文档: DOC-001, 原始 DICOM 全部系列",
+  },
+  {
+    id: "AUD-004",
+    patientId: "P000156",
+    action: "CONSULT_INVITE",
+    institution: "南港区第二医院",
+    user: "赵雪琴",
+    time: "2026-07-07 16:48:30",
+    details: "发起远程会诊邀请: 腹部增强 CT 融合分析",
+  },
+  {
+    id: "AUD-005",
+    patientId: "P000199",
+    action: "CROSS_QUERY",
+    institution: "高新区中心医院",
+    user: "王建华",
+    time: "2026-07-06 11:20:07",
+    details: "跨院检索: 患者 周婷, 检索条件 门诊号 GX2026-0417",
+  },
+];
 
 const SEED_REGIONAL_CONSULTATIONS: RegionalConsultation[] = [
-  { id: 'RC-202607-001', caseId: 'CASE-20260701', patientName: '赵霞', gender: '女', age: 56, institution: '东华区第一医院', modality: 'MRI', examItem: '头颅 MRI 增强', applyReason: '颅内占位性质待定,申请院级专家会诊', status: '会诊中', applyTime: '2026-07-08 08:30', acceptTime: '2026-07-08 09:10', applyDoctor: '刘敏', acceptDoctor: '王建华', priority: '紧急' },
-  { id: 'RC-202607-002', caseId: 'CASE-20260702', patientName: '孙浩', gender: '男', age: 61, institution: '西城区人民医院', modality: 'CT', examItem: '腹部增强 CT', applyReason: '胰腺占位,申请多学科会诊', status: '待接诊', applyTime: '2026-07-08 09:45', applyDoctor: '陈杰', priority: '立即' },
-  { id: 'RC-202607-003', caseId: 'CASE-20260703', patientName: '周婷', gender: '女', age: 43, institution: '高新区中心医院', modality: 'CT', examItem: '胸部高分辨率 CT', applyReason: '肺结节随访策略', status: '已完成', applyTime: '2026-07-06 14:20', acceptTime: '2026-07-06 15:00', completeTime: '2026-07-07 10:30', applyDoctor: '吴刚', acceptDoctor: '张明远', consultationOpinion: '建议 6 个月后复查,结节无明显变化', priority: '普通' },
-  { id: 'RC-202607-004', caseId: 'CASE-20260704', patientName: '吴刚', gender: '男', age: 38, institution: '南港区第二医院', modality: 'MRI', examItem: '膝关节 MRI', applyReason: '前交叉韧带损伤程度评估', status: '已完成', applyTime: '2026-07-05 11:00', acceptTime: '2026-07-05 11:40', completeTime: '2026-07-05 16:20', applyDoctor: '孙浩', acceptDoctor: '李慧敏', consultationOpinion: 'ACL 完全撕裂,建议关节镜手术', priority: '普通' },
-]
+  {
+    id: "RC-202607-001",
+    caseId: "CASE-20260701",
+    patientName: "赵霞",
+    gender: "女",
+    age: 56,
+    institution: "东华区第一医院",
+    modality: "MRI",
+    examItem: "头颅 MRI 增强",
+    applyReason: "颅内占位性质待定,申请院级专家会诊",
+    status: "会诊中",
+    applyTime: "2026-07-08 08:30",
+    acceptTime: "2026-07-08 09:10",
+    applyDoctor: "刘敏",
+    acceptDoctor: "王建华",
+    priority: "紧急",
+  },
+  {
+    id: "RC-202607-002",
+    caseId: "CASE-20260702",
+    patientName: "孙浩",
+    gender: "男",
+    age: 61,
+    institution: "西城区人民医院",
+    modality: "CT",
+    examItem: "腹部增强 CT",
+    applyReason: "胰腺占位,申请多学科会诊",
+    status: "待接诊",
+    applyTime: "2026-07-08 09:45",
+    applyDoctor: "陈杰",
+    priority: "立即",
+  },
+  {
+    id: "RC-202607-003",
+    caseId: "CASE-20260703",
+    patientName: "周婷",
+    gender: "女",
+    age: 43,
+    institution: "高新区中心医院",
+    modality: "CT",
+    examItem: "胸部高分辨率 CT",
+    applyReason: "肺结节随访策略",
+    status: "已完成",
+    applyTime: "2026-07-06 14:20",
+    acceptTime: "2026-07-06 15:00",
+    completeTime: "2026-07-07 10:30",
+    applyDoctor: "吴刚",
+    acceptDoctor: "张明远",
+    consultationOpinion: "建议 6 个月后复查,结节无明显变化",
+    priority: "普通",
+  },
+  {
+    id: "RC-202607-004",
+    caseId: "CASE-20260704",
+    patientName: "吴刚",
+    gender: "男",
+    age: 38,
+    institution: "南港区第二医院",
+    modality: "MRI",
+    examItem: "膝关节 MRI",
+    applyReason: "前交叉韧带损伤程度评估",
+    status: "已完成",
+    applyTime: "2026-07-05 11:00",
+    acceptTime: "2026-07-05 11:40",
+    completeTime: "2026-07-05 16:20",
+    applyDoctor: "孙浩",
+    acceptDoctor: "李慧敏",
+    consultationOpinion: "ACL 完全撕裂,建议关节镜手术",
+    priority: "普通",
+  },
+];
 
 const SEED_REPORT_RECORDS: RegionalReportRecord[] = [
-  { id: 'RR-001', reportId: 'RP20260708001', institution: '东华区第一医院', patientName: '张伟', gender: '男', age: 58, modality: 'CT', examItem: '胸部平扫', reportTime: '2026-07-08 09:20', reportDoctor: '刘敏', status: '待审核', qualityScore: 92, qualityIssues: [] },
-  { id: 'RR-002', reportId: 'RP20260707005', institution: '西城区人民医院', patientName: '王芳', gender: '女', age: 45, modality: 'MRI', examItem: '腰椎平扫', reportTime: '2026-07-07 15:40', reportDoctor: '陈杰', status: '已通过', qualityScore: 96, qualityIssues: [], reviewOpinion: '诊断明确,描述规范', reviewDoctor: '王建华', reviewTime: '2026-07-07 17:02' },
-  { id: 'RR-003', reportId: 'RP20260706002', institution: '高新区中心医院', patientName: '李强', gender: '男', age: 52, modality: 'DR', examItem: '胸部正位', reportTime: '2026-07-06 10:12', reportDoctor: '孙浩', status: '有问题', qualityScore: 71, qualityIssues: ['影像位置描述不全', '未提及心影形态'], reviewOpinion: '请补充心影及肋膈角描述', reviewDoctor: '李慧敏', reviewTime: '2026-07-06 11:30' },
-  { id: 'RR-004', reportId: 'RP20260705003', institution: '南港区第二医院', patientName: '刘敏', gender: '女', age: 49, modality: 'US', examItem: '甲状腺彩超', reportTime: '2026-07-05 16:05', reportDoctor: '赵雪琴', status: '已驳回', qualityScore: 58, qualityIssues: ['未记录甲状腺体积测量', '结论与描述不一致'], reviewOpinion: '结论与描述矛盾,请修改后重提', reviewDoctor: '张明远', reviewTime: '2026-07-05 17:20' },
-]
+  {
+    id: "RR-001",
+    reportId: "RP20260708001",
+    institution: "东华区第一医院",
+    patientName: "张伟",
+    gender: "男",
+    age: 58,
+    modality: "CT",
+    examItem: "胸部平扫",
+    reportTime: "2026-07-08 09:20",
+    reportDoctor: "刘敏",
+    status: "待审核",
+    qualityScore: 92,
+    qualityIssues: [],
+  },
+  {
+    id: "RR-002",
+    reportId: "RP20260707005",
+    institution: "西城区人民医院",
+    patientName: "王芳",
+    gender: "女",
+    age: 45,
+    modality: "MRI",
+    examItem: "腰椎平扫",
+    reportTime: "2026-07-07 15:40",
+    reportDoctor: "陈杰",
+    status: "已通过",
+    qualityScore: 96,
+    qualityIssues: [],
+    reviewOpinion: "诊断明确,描述规范",
+    reviewDoctor: "王建华",
+    reviewTime: "2026-07-07 17:02",
+  },
+  {
+    id: "RR-003",
+    reportId: "RP20260706002",
+    institution: "高新区中心医院",
+    patientName: "李强",
+    gender: "男",
+    age: 52,
+    modality: "DR",
+    examItem: "胸部正位",
+    reportTime: "2026-07-06 10:12",
+    reportDoctor: "孙浩",
+    status: "有问题",
+    qualityScore: 71,
+    qualityIssues: ["影像位置描述不全", "未提及心影形态"],
+    reviewOpinion: "请补充心影及肋膈角描述",
+    reviewDoctor: "李慧敏",
+    reviewTime: "2026-07-06 11:30",
+  },
+  {
+    id: "RR-004",
+    reportId: "RP20260705003",
+    institution: "南港区第二医院",
+    patientName: "刘敏",
+    gender: "女",
+    age: 49,
+    modality: "US",
+    examItem: "甲状腺彩超",
+    reportTime: "2026-07-05 16:05",
+    reportDoctor: "赵雪琴",
+    status: "已驳回",
+    qualityScore: 58,
+    qualityIssues: ["未记录甲状腺体积测量", "结论与描述不一致"],
+    reviewOpinion: "结论与描述矛盾,请修改后重提",
+    reviewDoctor: "张明远",
+    reviewTime: "2026-07-05 17:20",
+  },
+];
 
 const SEED_CRITICAL_VALUES: CriticalValueReport[] = [
-  { id: 'CV-001', patientName: '孙浩', gender: '男', age: 61, institution: '西城区人民医院', modality: 'CT', examItem: '腹部增强 CT', criticalFinding: '胰头区可见 4.2×3.5cm 肿块,考虑恶性占位可能', severity: '危急', reportedTime: '2026-07-08 09:50', reportedDoctor: '陈杰', status: '待确认' },
-  { id: 'CV-002', patientName: '赵霞', gender: '女', age: 56, institution: '东华区第一医院', modality: 'MRI', examItem: '头颅 MRI 增强', criticalFinding: '右侧基底节区可见急性脑出血灶', severity: '危急', reportedTime: '2026-07-08 08:35', reportedDoctor: '刘敏', status: '已接收', receiveTime: '2026-07-08 08:47', receiveDoctor: '值班医生' },
-  { id: 'CV-003', patientName: '周婷', gender: '女', age: 43, institution: '高新区中心医院', modality: 'CT', examItem: '胸部 HRCT', criticalFinding: '双肺弥漫性磨玻璃影,考虑重症肺炎可能', severity: '高危', reportedTime: '2026-07-06 15:10', reportedDoctor: '吴刚', status: '处理中', receiveTime: '2026-07-06 15:22', receiveDoctor: '呼吸科会诊', handleTime: '2026-07-06 16:00', handleDoctor: '张明远' },
-  { id: 'CV-004', patientName: '陈杰', gender: '男', age: 66, institution: '南港区第二医院', modality: 'CT', examItem: '头颅平扫', criticalFinding: '左侧大脑中动脉密度增高,急性缺血性卒中征象', severity: '危急', reportedTime: '2026-07-05 08:20', reportedDoctor: '赵雪琴', status: '已闭环', receiveTime: '2026-07-05 08:30', receiveDoctor: '神经内科', handleTime: '2026-07-05 09:15', handleDoctor: '介入科', closeTime: '2026-07-05 14:00' },
-]
+  {
+    id: "CV-001",
+    patientName: "孙浩",
+    gender: "男",
+    age: 61,
+    institution: "西城区人民医院",
+    modality: "CT",
+    examItem: "腹部增强 CT",
+    criticalFinding: "胰头区可见 4.2×3.5cm 肿块,考虑恶性占位可能",
+    severity: "危急",
+    reportedTime: "2026-07-08 09:50",
+    reportedDoctor: "陈杰",
+    status: "待确认",
+  },
+  {
+    id: "CV-002",
+    patientName: "赵霞",
+    gender: "女",
+    age: 56,
+    institution: "东华区第一医院",
+    modality: "MRI",
+    examItem: "头颅 MRI 增强",
+    criticalFinding: "右侧基底节区可见急性脑出血灶",
+    severity: "危急",
+    reportedTime: "2026-07-08 08:35",
+    reportedDoctor: "刘敏",
+    status: "已接收",
+    receiveTime: "2026-07-08 08:47",
+    receiveDoctor: "值班医生",
+  },
+  {
+    id: "CV-003",
+    patientName: "周婷",
+    gender: "女",
+    age: 43,
+    institution: "高新区中心医院",
+    modality: "CT",
+    examItem: "胸部 HRCT",
+    criticalFinding: "双肺弥漫性磨玻璃影,考虑重症肺炎可能",
+    severity: "高危",
+    reportedTime: "2026-07-06 15:10",
+    reportedDoctor: "吴刚",
+    status: "处理中",
+    receiveTime: "2026-07-06 15:22",
+    receiveDoctor: "呼吸科会诊",
+    handleTime: "2026-07-06 16:00",
+    handleDoctor: "张明远",
+  },
+  {
+    id: "CV-004",
+    patientName: "陈杰",
+    gender: "男",
+    age: 66,
+    institution: "南港区第二医院",
+    modality: "CT",
+    examItem: "头颅平扫",
+    criticalFinding: "左侧大脑中动脉密度增高,急性缺血性卒中征象",
+    severity: "危急",
+    reportedTime: "2026-07-05 08:20",
+    reportedDoctor: "赵雪琴",
+    status: "已闭环",
+    receiveTime: "2026-07-05 08:30",
+    receiveDoctor: "神经内科",
+    handleTime: "2026-07-05 09:15",
+    handleDoctor: "介入科",
+    closeTime: "2026-07-05 14:00",
+  },
+];
 
 const SEED_REMOTE_DIAGNOSES: RemoteDiagnosis[] = [
-  { id: 'RD-001', caseId: 'CASE-20260701', patientName: '赵霞', gender: '女', age: 56, examType: '头颅 MRI', applyInstitution: '东华区第一医院', remoteExpert: '王建华', expertInstitution: '市中心医院', status: '书写中', applyTime: '2026-07-08 08:30', startTime: '2026-07-08 09:10' },
-  { id: 'RD-002', caseId: 'CASE-20260702', patientName: '孙浩', gender: '男', age: 61, examType: '腹部增强 CT', applyInstitution: '西城区人民医院', remoteExpert: '张明远', expertInstitution: '市肿瘤医院', status: '待书写', applyTime: '2026-07-08 09:45' },
-  { id: 'RD-003', caseId: 'CASE-20260703', patientName: '周婷', gender: '女', age: 43, examType: '胸部 HRCT', applyInstitution: '高新区中心医院', remoteExpert: '李慧敏', expertInstitution: '市中心医院', status: '待审核', applyTime: '2026-07-06 14:20', startTime: '2026-07-06 15:00', completeTime: '2026-07-07 09:30', reportContent: '双肺多发磨玻璃影,右肺上叶 6mm 结节,建议 6 个月复查。' },
-  { id: 'RD-004', caseId: 'CASE-20260704', patientName: '吴刚', gender: '男', age: 38, examType: '膝关节 MRI', applyInstitution: '南港区第二医院', remoteExpert: '赵雪琴', expertInstitution: '市骨科医院', status: '已完成', applyTime: '2026-07-05 11:00', startTime: '2026-07-05 11:40', completeTime: '2026-07-05 16:20', reportContent: '前交叉韧带完全撕裂,内侧半月板后角损伤,建议手术。' },
-]
+  {
+    id: "RD-001",
+    caseId: "CASE-20260701",
+    patientName: "赵霞",
+    gender: "女",
+    age: 56,
+    examType: "头颅 MRI",
+    applyInstitution: "东华区第一医院",
+    remoteExpert: "王建华",
+    expertInstitution: "市中心医院",
+    status: "书写中",
+    applyTime: "2026-07-08 08:30",
+    startTime: "2026-07-08 09:10",
+  },
+  {
+    id: "RD-002",
+    caseId: "CASE-20260702",
+    patientName: "孙浩",
+    gender: "男",
+    age: 61,
+    examType: "腹部增强 CT",
+    applyInstitution: "西城区人民医院",
+    remoteExpert: "张明远",
+    expertInstitution: "市肿瘤医院",
+    status: "待书写",
+    applyTime: "2026-07-08 09:45",
+  },
+  {
+    id: "RD-003",
+    caseId: "CASE-20260703",
+    patientName: "周婷",
+    gender: "女",
+    age: 43,
+    examType: "胸部 HRCT",
+    applyInstitution: "高新区中心医院",
+    remoteExpert: "李慧敏",
+    expertInstitution: "市中心医院",
+    status: "待审核",
+    applyTime: "2026-07-06 14:20",
+    startTime: "2026-07-06 15:00",
+    completeTime: "2026-07-07 09:30",
+    reportContent: "双肺多发磨玻璃影,右肺上叶 6mm 结节,建议 6 个月复查。",
+  },
+  {
+    id: "RD-004",
+    caseId: "CASE-20260704",
+    patientName: "吴刚",
+    gender: "男",
+    age: 38,
+    examType: "膝关节 MRI",
+    applyInstitution: "南港区第二医院",
+    remoteExpert: "赵雪琴",
+    expertInstitution: "市骨科医院",
+    status: "已完成",
+    applyTime: "2026-07-05 11:00",
+    startTime: "2026-07-05 11:40",
+    completeTime: "2026-07-05 16:20",
+    reportContent: "前交叉韧带完全撕裂,内侧半月板后角损伤,建议手术。",
+  },
+];
 
 const SEED_CO_SIGN_RECORDS: CoSignRecord[] = [
   {
-    id: 'CSG-001', reportId: 'RP20260701001', examType: 'CT 腹部增强', patientName: '陈杰', gender: '男', age: 66,
-    participatingInstitutions: ['东华区第一医院', '南港区第二医院'], status: '签发中', createTime: '2026-07-01 10:00', completeTime: '2026-07-02 15:30',
+    id: "CSG-001",
+    reportId: "RP20260701001",
+    examType: "CT 腹部增强",
+    patientName: "陈杰",
+    gender: "男",
+    age: 66,
+    participatingInstitutions: ["东华区第一医院", "南港区第二医院"],
+    status: "签发中",
+    createTime: "2026-07-01 10:00",
+    completeTime: "2026-07-02 15:30",
     signatures: [
-      { institution: '东华区第一医院', doctorName: '张明远', signTime: '2026-07-01 10:20', certificateStatus: '有效', order: 1 },
-      { institution: '南港区第二医院', doctorName: '赵雪琴', signTime: '2026-07-02 15:30', certificateStatus: '有效', order: 2 },
+      {
+        institution: "东华区第一医院",
+        doctorName: "张明远",
+        signTime: "2026-07-01 10:20",
+        certificateStatus: "有效",
+        order: 1,
+      },
+      {
+        institution: "南港区第二医院",
+        doctorName: "赵雪琴",
+        signTime: "2026-07-02 15:30",
+        certificateStatus: "有效",
+        order: 2,
+      },
     ],
     versions: [
-      { version: 'v1.0', modifyTime: '2026-07-01 10:00', modifyInstitution: '东华区第一医院', modifyReason: '初始版本', modifier: '张明远' },
-      { version: 'v1.1', modifyTime: '2026-07-02 14:10', modifyInstitution: '南港区第二医院', modifyReason: '补充增强期相描述', modifier: '赵雪琴' },
+      {
+        version: "v1.0",
+        modifyTime: "2026-07-01 10:00",
+        modifyInstitution: "东华区第一医院",
+        modifyReason: "初始版本",
+        modifier: "张明远",
+      },
+      {
+        version: "v1.1",
+        modifyTime: "2026-07-02 14:10",
+        modifyInstitution: "南港区第二医院",
+        modifyReason: "补充增强期相描述",
+        modifier: "赵雪琴",
+      },
     ],
   },
   {
-    id: 'CSG-002', reportId: 'RP20260705002', examType: 'MRI 头颅增强', patientName: '赵霞', gender: '女', age: 56,
-    participatingInstitutions: ['东华区第一医院', '市中心医院'], status: '待签发', createTime: '2026-07-05 09:00',
+    id: "CSG-002",
+    reportId: "RP20260705002",
+    examType: "MRI 头颅增强",
+    patientName: "赵霞",
+    gender: "女",
+    age: 56,
+    participatingInstitutions: ["东华区第一医院", "市中心医院"],
+    status: "待签发",
+    createTime: "2026-07-05 09:00",
     signatures: [],
-    versions: [{ version: 'v1.0', modifyTime: '2026-07-05 09:00', modifyInstitution: '东华区第一医院', modifyReason: '初始版本', modifier: '刘敏' }],
+    versions: [
+      {
+        version: "v1.0",
+        modifyTime: "2026-07-05 09:00",
+        modifyInstitution: "东华区第一医院",
+        modifyReason: "初始版本",
+        modifier: "刘敏",
+      },
+    ],
   },
-]
+];
+
+// ── [v3.0.6.16-6] 医联体转诊 / 报告共享记录 / 站点 SLA ──
+// 背景: MedicalAlliancePage 与 RegionalReportList 用裸 fetch 调这 3 个端点,
+// 后端从未实现 (仅 MSW 兜底) —— 裸 fetch 绕过统一 client, api-contract-guard 看不见。
+
+export interface AllianceReferral {
+  id: string;
+  patientName: string;
+  patientId: string;
+  fromMemberId: string;
+  fromMemberName: string;
+  toMemberId: string;
+  toMemberName: string;
+  modality: string;
+  examItem: string;
+  reason: string;
+  status: string;
+  applyTime: string;
+  acceptTime?: string;
+}
+
+export interface RegionalShareRecord {
+  id: string;
+  reportId: string;
+  patientName: string;
+  institution: string;
+  targetInstitution: string;
+  shareType: string;
+  shareTime: string;
+  status: string;
+  expiresAt?: string;
+}
+
+export interface SiteSlaRecord {
+  id: string;
+  siteName: string;
+  assignedExams: number;
+  completedExams: number;
+  avgTAT: string;
+  slaTarget: string;
+  slaCompliance: number;
+  period: string;
+}
+
+const SEED_ALLIANCE_REFERRALS: AllianceReferral[] = [
+  {
+    id: "REF-001",
+    patientName: "张伟",
+    patientId: "P000023",
+    fromMemberId: "MA001",
+    fromMemberName: "东华区第一医院",
+    toMemberId: "MA002",
+    toMemberName: "市中心医院",
+    modality: "CT",
+    examItem: "胸部 HRCT",
+    reason: "需上级医院会诊",
+    status: "已接收",
+    applyTime: "2026-07-08 08:20",
+    acceptTime: "2026-07-08 08:55",
+  },
+  {
+    id: "REF-002",
+    patientName: "王芳",
+    patientId: "P000047",
+    fromMemberId: "MA002",
+    fromMemberName: "西城区人民医院",
+    toMemberId: "MA003",
+    toMemberName: "高新区中心医院",
+    modality: "MRI",
+    examItem: "腰椎平扫",
+    reason: "设备故障转诊",
+    status: "待接收",
+    applyTime: "2026-07-08 09:40",
+  },
+  {
+    id: "REF-003",
+    patientName: "李强",
+    patientId: "P000088",
+    fromMemberId: "MA003",
+    fromMemberName: "高新区中心医院",
+    toMemberId: "MA001",
+    toMemberName: "东华区第一医院",
+    modality: "US",
+    examItem: "甲状腺彩超",
+    reason: "患者就近就医",
+    status: "已完成",
+    applyTime: "2026-07-07 14:10",
+    acceptTime: "2026-07-07 14:35",
+  },
+];
+
+const SEED_SHARE_RECORDS: RegionalShareRecord[] = [
+  {
+    id: "SH-001",
+    reportId: "RPT-20260701",
+    patientName: "张伟",
+    institution: "东华区第一医院",
+    targetInstitution: "西城区人民医院",
+    shareType: "报告共享",
+    shareTime: "2026-07-08 10:00",
+    status: "已接收",
+  },
+  {
+    id: "SH-002",
+    reportId: "RPT-20260702",
+    patientName: "王芳",
+    institution: "西城区人民医院",
+    targetInstitution: "高新区中心医院",
+    shareType: "影像调阅",
+    shareTime: "2026-07-08 09:15",
+    status: "已接收",
+  },
+  {
+    id: "SH-003",
+    reportId: "RPT-20260628",
+    patientName: "刘敏",
+    institution: "东华区第一医院",
+    targetInstitution: "南港区第二医院",
+    shareType: "报告共享",
+    shareTime: "2026-07-07 16:30",
+    status: "待确认",
+  },
+];
+
+const SEED_SITE_SLA: SiteSlaRecord[] = [
+  {
+    id: "SLA-001",
+    siteName: "东华区第一医院",
+    assignedExams: 42,
+    completedExams: 39,
+    avgTAT: "2.4h",
+    slaTarget: "2h",
+    slaCompliance: 92.9,
+    period: "2026-07",
+  },
+  {
+    id: "SLA-002",
+    siteName: "西城区人民医院",
+    assignedExams: 31,
+    completedExams: 27,
+    avgTAT: "3.2h",
+    slaTarget: "3h",
+    slaCompliance: 87.1,
+    period: "2026-07",
+  },
+  {
+    id: "SLA-003",
+    siteName: "高新区中心医院",
+    assignedExams: 28,
+    completedExams: 26,
+    avgTAT: "1.6h",
+    slaTarget: "1h",
+    slaCompliance: 92.9,
+    period: "2026-07",
+  },
+  {
+    id: "SLA-004",
+    siteName: "南港区第二医院",
+    assignedExams: 35,
+    completedExams: 24,
+    avgTAT: "4.1h",
+    slaTarget: "2h",
+    slaCompliance: 68.6,
+    period: "2026-07",
+  },
+];
 
 const SEED_REGIONAL_INSTITUTIONS: RegionalInstitution[] = [
-  { id: 'RI-001', institutionId: 'INST-001', institutionName: '东华区第一医院', modality: 'CT', examCount: 1284, positiveCount: 389, positiveRate: 30.3, avgReportTime: 1.8, qualifiedRate: 96.2, period: '2026-06' },
-  { id: 'RI-002', institutionId: 'INST-002', institutionName: '西城区人民医院', modality: 'MRI', examCount: 856, positiveCount: 302, positiveRate: 35.3, avgReportTime: 2.4, qualifiedRate: 94.8, period: '2026-06' },
-  { id: 'RI-003', institutionId: 'INST-003', institutionName: '高新区中心医院', modality: 'DR', examCount: 1932, positiveCount: 412, positiveRate: 21.3, avgReportTime: 1.2, qualifiedRate: 97.5, period: '2026-06' },
-  { id: 'RI-004', institutionId: 'INST-004', institutionName: '南港区第二医院', modality: 'US', examCount: 1021, positiveCount: 356, positiveRate: 34.9, avgReportTime: 1.5, qualifiedRate: 93.1, period: '2026-06' },
-  { id: 'RI-005', institutionId: 'INST-001', institutionName: '东华区第一医院', modality: 'MRI', examCount: 645, positiveCount: 221, positiveRate: 34.3, avgReportTime: 2.1, qualifiedRate: 95.4, period: '2026-06' },
-]
+  {
+    id: "RI-001",
+    institutionId: "INST-001",
+    institutionName: "东华区第一医院",
+    modality: "CT",
+    examCount: 1284,
+    positiveCount: 389,
+    positiveRate: 30.3,
+    avgReportTime: 1.8,
+    qualifiedRate: 96.2,
+    period: "2026-06",
+  },
+  {
+    id: "RI-002",
+    institutionId: "INST-002",
+    institutionName: "西城区人民医院",
+    modality: "MRI",
+    examCount: 856,
+    positiveCount: 302,
+    positiveRate: 35.3,
+    avgReportTime: 2.4,
+    qualifiedRate: 94.8,
+    period: "2026-06",
+  },
+  {
+    id: "RI-003",
+    institutionId: "INST-003",
+    institutionName: "高新区中心医院",
+    modality: "DR",
+    examCount: 1932,
+    positiveCount: 412,
+    positiveRate: 21.3,
+    avgReportTime: 1.2,
+    qualifiedRate: 97.5,
+    period: "2026-06",
+  },
+  {
+    id: "RI-004",
+    institutionId: "INST-004",
+    institutionName: "南港区第二医院",
+    modality: "US",
+    examCount: 1021,
+    positiveCount: 356,
+    positiveRate: 34.9,
+    avgReportTime: 1.5,
+    qualifiedRate: 93.1,
+    period: "2026-06",
+  },
+  {
+    id: "RI-005",
+    institutionId: "INST-001",
+    institutionName: "东华区第一医院",
+    modality: "MRI",
+    examCount: 645,
+    positiveCount: 221,
+    positiveRate: 34.3,
+    avgReportTime: 2.1,
+    qualifiedRate: 95.4,
+    period: "2026-06",
+  },
+];
 
 @Injectable()
 export class RegionalService {
   // [G005 W11-MultiSite] 内存持久化站点/院区 + 联邦配置 (进程内跨请求保留)
-  private sitesStore: RegionalSite[] | null = null
-  private campusesStore: CampusDto[] | null = null
-  private federationStore: FederationConfig | null = null
+  private sitesStore: RegionalSite[] | null = null;
+  private campusesStore: CampusDto[] | null = null;
+  private federationStore: FederationConfig | null = null;
 
   constructor(private readonly prisma: PrismaService) {}
 
   // ── 原有用例 (Prisma) ──
 
   async listRegionalImaging() {
-    const data = await this.prisma.exam.findMany({ orderBy: { createdAt: 'desc' }, take: 100 })
-    return { data }
+    const data = await this.prisma.exam.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+    return { data };
   }
 
   async getRegionalImaging(id: string) {
-    const data = await this.prisma.exam.findUnique({ where: { id } })
-    return { data: data ? [data] : [] }
+    const data = await this.prisma.exam.findUnique({ where: { id } });
+    return { data: data ? [data] : [] };
   }
 
   async listRegionalReports() {
-    const data = await this.prisma.report.findMany({ orderBy: { createdAt: 'desc' }, take: 100 })
-    return { data }
+    const data = await this.prisma.report.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+    return { data };
   }
 
   async getRegionalReport(id: string) {
-    const data = await this.prisma.report.findUnique({ where: { id } })
-    return { data: data ? [data] : [] }
+    const data = await this.prisma.report.findUnique({ where: { id } });
+    return { data: data ? [data] : [] };
   }
 
   async getDepartmentSchedule() {
-    const data = await this.prisma.appointment.findMany({ orderBy: { scheduledAt: 'asc' }, take: 50 })
-    return { data }
+    const data = await this.prisma.appointment.findMany({
+      orderBy: { scheduledAt: "asc" },
+      take: 50,
+    });
+    return { data };
   }
 
   async updateSchedule(id: string, body: Record<string, unknown>) {
-    const data = await this.prisma.appointment.update({ where: { id }, data: body })
-    return { data: [data] }
+    const data = await this.prisma.appointment.update({
+      where: { id },
+      data: body,
+    });
+    return { data: [data] };
   }
 
   async listDepartments() {
-    const data = await this.prisma.user.findMany({ select: { department: true }, distinct: ['department'] })
-    return { data: data.filter(d => d.department) }
+    const data = await this.prisma.user.findMany({
+      select: { department: true },
+      distinct: ["department"],
+    });
+    return { data: data.filter((d) => d.department) };
   }
 
   async listMedicalAlliance() {
-    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'medical_alliance_' } } })
-    return { data }
+    const data = await this.prisma.systemConfig.findMany({
+      where: { key: { startsWith: "medical_alliance_" } },
+    });
+    return { data };
   }
 
   async getFhirStatus() {
-    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'fhir_' } } })
-    return { data }
+    const data = await this.prisma.systemConfig.findMany({
+      where: { key: { startsWith: "fhir_" } },
+    });
+    return { data };
   }
 
   async getIheStatus() {
-    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'ihe_' } } })
-    return { data }
+    const data = await this.prisma.systemConfig.findMany({
+      where: { key: { startsWith: "ihe_" } },
+    });
+    return { data };
   }
 
   async getMllpStatus() {
-    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'mllp_' } } })
-    return { data }
+    const data = await this.prisma.systemConfig.findMany({
+      where: { key: { startsWith: "mllp_" } },
+    });
+    return { data };
   }
 
   // ── [G005-P1] 医联体影像页在用孤儿 (seed) ──
 
   async listAccessApplications() {
-    return { success: true, data: SEED_ACCESS_APPLICATIONS }
+    return { success: true, data: SEED_ACCESS_APPLICATIONS };
   }
 
   async createAccessApplication(body: Partial<AccessApplication>) {
     const item: AccessApplication = {
       id: `APP-${Date.now()}`,
-      patientName: body.patientName ?? '',
-      patientId: body.patientId ?? '',
-      hospital: body.hospital ?? '',
-      modality: body.modality ?? 'CT',
+      patientName: body.patientName ?? "",
+      patientId: body.patientId ?? "",
+      hospital: body.hospital ?? "",
+      modality: body.modality ?? "CT",
       studyDate: body.studyDate ?? new Date().toISOString().slice(0, 10),
-      reason: body.reason ?? '',
-      status: 'pending',
+      reason: body.reason ?? "",
+      status: "pending",
       applyDate: new Date().toISOString().slice(0, 10),
-    }
-    SEED_ACCESS_APPLICATIONS.unshift(item)
-    return { success: true, data: item }
+    };
+    SEED_ACCESS_APPLICATIONS.unshift(item);
+    return { success: true, data: item };
   }
 
   async approveAccessApplication(id: string) {
-    const item = SEED_ACCESS_APPLICATIONS.find(a => a.id === id)
-    if (item) item.status = 'approved'
-    return { success: true, data: item ?? null }
+    const item = SEED_ACCESS_APPLICATIONS.find((a) => a.id === id);
+    if (item) item.status = "approved";
+    return { success: true, data: item ?? null };
   }
 
   async rejectAccessApplication(id: string) {
-    const item = SEED_ACCESS_APPLICATIONS.find(a => a.id === id)
-    if (item) item.status = 'rejected'
-    return { success: true, data: item ?? null }
+    const item = SEED_ACCESS_APPLICATIONS.find((a) => a.id === id);
+    if (item) item.status = "rejected";
+    return { success: true, data: item ?? null };
   }
 
   async listConsultationRequests() {
-    return { success: true, data: SEED_CONSULTATION_REQUESTS }
+    return { success: true, data: SEED_CONSULTATION_REQUESTS };
   }
 
   async createConsultationRequest(body: Partial<ConsultationRequest>) {
     const item: ConsultationRequest = {
       id: `CSL-${Date.now()}`,
-      patientName: body.patientName ?? '',
-      hospital: body.hospital ?? '',
-      diagnosis: body.diagnosis ?? '',
-      priority: body.priority ?? 'normal',
-      status: 'open',
+      patientName: body.patientName ?? "",
+      hospital: body.hospital ?? "",
+      diagnosis: body.diagnosis ?? "",
+      priority: body.priority ?? "normal",
+      status: "open",
       createDate: new Date().toISOString().slice(0, 10),
-    }
-    SEED_CONSULTATION_REQUESTS.unshift(item)
-    return { success: true, data: item }
+    };
+    SEED_CONSULTATION_REQUESTS.unshift(item);
+    return { success: true, data: item };
   }
 
   /** [G005 Wave 4B] POST /regional/imaging/consultations/:id/accept — 参与远程会诊 */
   async acceptConsultationRequest(id: string) {
-    const item = SEED_CONSULTATION_REQUESTS.find((c) => c.id === id)
+    const item = SEED_CONSULTATION_REQUESTS.find((c) => c.id === id);
     if (item) {
-      item.status = item.status === 'completed' ? item.status : 'in-progress'
-      item.expert = item.expert ?? '王建华 主任医师'
+      item.status = item.status === "completed" ? item.status : "in-progress";
+      item.expert = item.expert ?? "王建华 主任医师";
     }
-    return { success: true, data: item ?? null }
+    return { success: true, data: item ?? null };
   }
 
   async listAccessRecords() {
-    return { success: true, data: SEED_ACCESS_RECORDS }
+    return { success: true, data: SEED_ACCESS_RECORDS };
   }
 
   /** [G005 Wave 4B] POST /regional/imaging/access-records — 记录跨院调阅 */
   async createAccessRecord(body: Partial<AccessRecord>) {
     const item: AccessRecord = {
       id: `ARC-${Date.now()}`,
-      patientName: body.patientName ?? '',
-      patientId: body.patientId ?? '',
-      studyType: body.studyType ?? '',
-      hospital: body.hospital ?? '',
-      accessor: body.accessor ?? '当前用户',
-      purpose: body.purpose ?? '跨院调阅',
-      accessTime: new Date().toISOString().slice(0, 16).replace('T', ' '),
-    }
-    SEED_ACCESS_RECORDS.unshift(item)
-    return { success: true, data: item }
+      patientName: body.patientName ?? "",
+      patientId: body.patientId ?? "",
+      studyType: body.studyType ?? "",
+      hospital: body.hospital ?? "",
+      accessor: body.accessor ?? "当前用户",
+      purpose: body.purpose ?? "跨院调阅",
+      accessTime: new Date().toISOString().slice(0, 16).replace("T", " "),
+    };
+    SEED_ACCESS_RECORDS.unshift(item);
+    return { success: true, data: item };
   }
 
   async listInstitutions() {
-    return { success: true, data: SEED_INSTITUTIONS }
+    return { success: true, data: SEED_INSTITUTIONS };
   }
 
-  async crossInstitutionQuery(query: { institutionId?: string; queryType?: string; queryValue?: string }) {
-    const value = (query.queryValue ?? '').toLowerCase()
-    const institution = query.institutionId ?? ''
-    const data = SEED_CROSS_STUDIES.filter(s =>
-      (!institution || s.institution === SEED_INSTITUTIONS.find(i => i.id === institution)?.name) &&
-      (!value || s.patientName.toLowerCase().includes(value) || s.patientId.toLowerCase().includes(value) || s.studyDescription.toLowerCase().includes(value)),
-    )
-    return { success: true, data }
+  async crossInstitutionQuery(query: {
+    institutionId?: string;
+    queryType?: string;
+    queryValue?: string;
+  }) {
+    const value = (query.queryValue ?? "").toLowerCase();
+    const institution = query.institutionId ?? "";
+    const data = SEED_CROSS_STUDIES.filter(
+      (s) =>
+        (!institution ||
+          s.institution ===
+            SEED_INSTITUTIONS.find((i) => i.id === institution)?.name) &&
+        (!value ||
+          s.patientName.toLowerCase().includes(value) ||
+          s.patientId.toLowerCase().includes(value) ||
+          s.studyDescription.toLowerCase().includes(value)),
+    );
+    return { success: true, data };
   }
 
   async listDocumentRegistry() {
-    return { success: true, data: SEED_DOCUMENT_REGISTRY }
+    return { success: true, data: SEED_DOCUMENT_REGISTRY };
   }
 
   /**
@@ -463,12 +1405,17 @@ export class RegionalService {
    * 这里基于同一份 SEED_DOCUMENT_REGISTRY 生成可调阅的文档正文。
    */
   async retrieveDocument(id: string) {
-    const doc = SEED_DOCUMENT_REGISTRY.find((d) => d.id === id || d.id.toLowerCase() === id.toLowerCase())
+    const doc = SEED_DOCUMENT_REGISTRY.find(
+      (d) => d.id === id || d.id.toLowerCase() === id.toLowerCase(),
+    );
     if (!doc) {
       return {
         success: false,
-        error: { code: 'DOCUMENT_NOT_FOUND', message: `文档 ${id} 不在区域文档注册表中` },
-      }
+        error: {
+          code: "DOCUMENT_NOT_FOUND",
+          message: `文档 ${id} 不在区域文档注册表中`,
+        },
+      };
     }
     const content = [
       `${doc.institution} — 影像报告 (XDS-I Retrieve)`,
@@ -476,16 +1423,16 @@ export class RegionalService {
       `检查: ${doc.modality} ${doc.studyDescription}`,
       `检查号 UID: ${doc.studyUid}`,
       `报告日期: ${doc.date}`,
-      '',
-      '影像所见',
-      `双侧肺野未见明显实性病灶。${doc.modality === 'CT' ? '纵隔窗未见明显肿大淋巴结。' : ''}`,
-      '',
-      '影像诊断',
+      "",
+      "影像所见",
+      `双侧肺野未见明显实性病灶。${doc.modality === "CT" ? "纵隔窗未见明显肿大淋巴结。" : ""}`,
+      "",
+      "影像诊断",
       `${doc.studyDescription}。`,
-      '',
-      '报告医师: 本院放射科医师',
-      '审核医师: 本院放射科主任医师',
-    ].join('\n')
+      "",
+      "报告医师: 本院放射科医师",
+      "审核医师: 本院放射科主任医师",
+    ].join("\n");
 
     return {
       success: true,
@@ -496,51 +1443,79 @@ export class RegionalService {
         patientName: doc.patientName,
         studyUid: doc.studyUid,
         title: `${doc.institution}影像报告 (XDS-I Retrieve)`,
-        contentType: 'text/plain',
+        contentType: "text/plain",
         institution: doc.institution,
         reportDate: doc.date,
         sizeBytes: content.length,
         content,
         retrievedAt: new Date().toISOString(),
-        source: 'doc-registry',
+        source: "doc-registry",
       },
-    }
+    };
   }
 
   async pixQuery(patientId: string) {
-    const local = SEED_CROSS_STUDIES.find(s => s.patientId === patientId)?.studyUid ?? patientId
-    const remote = `PIX-EXT-${patientId.replace(/[^0-9]/g, '').slice(0, 6) || '000001'}`
-    return { success: true, data: { local, remote } }
+    const local =
+      SEED_CROSS_STUDIES.find((s) => s.patientId === patientId)?.studyUid ??
+      patientId;
+    const remote = `PIX-EXT-${patientId.replace(/[^0-9]/g, "").slice(0, 6) || "000001"}`;
+    return { success: true, data: { local, remote } };
   }
 
   async listAuditTrail() {
-    return { success: true, data: SEED_AUDIT_TRAIL }
+    return { success: true, data: SEED_AUDIT_TRAIL };
   }
 
   // ── [G005-P1] 医联体报告页在用孤儿 (seed) ──
 
   async listRegionalInstitutions() {
-    return { success: true, data: SEED_REGIONAL_INSTITUTIONS }
+    return { success: true, data: SEED_REGIONAL_INSTITUTIONS };
   }
 
   async listConsultations() {
-    return { success: true, data: SEED_REGIONAL_CONSULTATIONS }
+    return { success: true, data: SEED_REGIONAL_CONSULTATIONS };
   }
 
   async listReportRecords() {
-    return { success: true, data: SEED_REPORT_RECORDS }
+    return { success: true, data: SEED_REPORT_RECORDS };
   }
 
   async listCriticalValues() {
-    return { success: true, data: SEED_CRITICAL_VALUES }
+    return { success: true, data: SEED_CRITICAL_VALUES };
   }
 
   async listRemoteDiagnoses() {
-    return { success: true, data: SEED_REMOTE_DIAGNOSES }
+    return { success: true, data: SEED_REMOTE_DIAGNOSES };
   }
 
   async listCoSignRecords() {
-    return { success: true, data: SEED_CO_SIGN_RECORDS }
+    return { success: true, data: SEED_CO_SIGN_RECORDS };
+  }
+
+  // ── [v3.0.6.16-6] 医联体转诊 / 报告共享记录 / 站点 SLA (前端裸 fetch 收口) ──
+
+  async listAllianceReferrals() {
+    return {
+      success: true,
+      data: SEED_ALLIANCE_REFERRALS,
+      meta: { total: SEED_ALLIANCE_REFERRALS.length },
+    };
+  }
+
+  async listShareRecords() {
+    return {
+      success: true,
+      data: SEED_SHARE_RECORDS,
+      meta: { total: SEED_SHARE_RECORDS.length },
+    };
+  }
+
+  async listSlaData() {
+    return {
+      success: true,
+      data: SEED_SITE_SLA,
+      meta: { total: SEED_SITE_SLA.length },
+    };
   }
 
   // ── [G005 Wave1A W9] 多站点/多院区仪表板: 站点 + 同步事件 + 路由规则 ──
@@ -548,74 +1523,106 @@ export class RegionalService {
 
   /** 构建确定性站点种子 (默认总院 + 各成员机构) */
   private buildSites(): RegionalSite[] {
-    const now = Date.now()
-    const iso = (offsetMs: number) => new Date(now - offsetMs).toISOString()
+    const now = Date.now();
+    const iso = (offsetMs: number) => new Date(now - offsetMs).toISOString();
     const aggregate = (institutionId: string) =>
-      SEED_REGIONAL_INSTITUTIONS
-        .filter((r) => r.institutionId === institutionId)
-        .reduce((s, r) => ({ studies: s.studies + r.examCount, positive: s.positive + r.positiveCount }), { studies: 0, positive: 0 })
+      SEED_REGIONAL_INSTITUTIONS.filter(
+        (r) => r.institutionId === institutionId,
+      ).reduce(
+        (s, r) => ({
+          studies: s.studies + r.examCount,
+          positive: s.positive + r.positiveCount,
+        }),
+        { studies: 0, positive: 0 },
+      );
 
     const main: RegionalSite = {
-      id: 'SITE-MAIN', name: '山东省人民医院 (总院)', code: 'SDPH-MAIN', region: '华东', city: '济南',
-      status: 'active', studies: 148523, patients: 89521, users: 842, storage: 48230, bandwidth: 980,
-      lastSync: iso(30000), latencyMs: 12, uptimePct: 99.97, version: 'v3.0.6.11-87', primary: true,
-    }
-    const statusMap: Record<string, RegionalSite['status']> = { online: 'active', busy: 'syncing', offline: 'offline' }
-    const cities = ['济南', '青岛', '烟台', '潍坊']
+      id: "SITE-MAIN",
+      name: "山东省人民医院 (总院)",
+      code: "SDPH-MAIN",
+      region: "华东",
+      city: "济南",
+      status: "active",
+      studies: 148523,
+      patients: 89521,
+      users: 842,
+      storage: 48230,
+      bandwidth: 980,
+      lastSync: iso(30000),
+      latencyMs: 12,
+      uptimePct: 99.97,
+      version: "v3.0.6.11-87",
+      primary: true,
+    };
+    const statusMap: Record<string, RegionalSite["status"]> = {
+      online: "active",
+      busy: "syncing",
+      offline: "offline",
+    };
+    const cities = ["济南", "青岛", "烟台", "潍坊"];
     const members: RegionalSite[] = SEED_INSTITUTIONS.map((inst, i) => {
-      const agg = aggregate(inst.id)
+      const agg = aggregate(inst.id);
       return {
-        id: `SITE-${inst.id.replace('INST-', '').toLowerCase()}`,
+        id: `SITE-${inst.id.replace("INST-", "").toLowerCase()}`,
         name: inst.name,
         code: inst.aeTitle,
-        region: '华东',
-        city: cities[i % cities.length] ?? '济南',
-        status: statusMap[inst.status] ?? 'active',
+        region: "华东",
+        city: cities[i % cities.length] ?? "济南",
+        status: statusMap[inst.status] ?? "active",
         studies: agg.studies || 1000 + i * 137,
         patients: Math.round((agg.studies || 1000 + i * 137) * 0.6),
         users: 120 + i * 37,
         storage: 5000 + i * 2400,
-        bandwidth: inst.status === 'offline' ? 0 : 300 + i * 60,
-        lastSync: inst.status === 'offline' ? iso(3600000) : iso(60000 * (i + 1)),
-        latencyMs: inst.status === 'offline' ? 0 : 18 + i * 8,
-        uptimePct: inst.status === 'offline' ? 95.4 : 99.5 - i * 0.1,
-        version: 'v3.0.6.11-87',
+        bandwidth: inst.status === "offline" ? 0 : 300 + i * 60,
+        lastSync:
+          inst.status === "offline" ? iso(3600000) : iso(60000 * (i + 1)),
+        latencyMs: inst.status === "offline" ? 0 : 18 + i * 8,
+        uptimePct: inst.status === "offline" ? 95.4 : 99.5 - i * 0.1,
+        version: "v3.0.6.11-87",
         primary: false,
-      }
-    })
-    return [main, ...members]
+      };
+    });
+    return [main, ...members];
   }
 
   private ensureSites(): RegionalSite[] {
-    if (!this.sitesStore) this.sitesStore = this.buildSites()
-    return this.sitesStore
+    if (!this.sitesStore) this.sitesStore = this.buildSites();
+    return this.sitesStore;
   }
 
   listSites() {
     return {
       success: true,
-      data: { source: 'database' as const, generatedAt: new Date().toISOString(), data: this.ensureSites().map((s) => ({ ...s })) },
-    }
+      data: {
+        source: "database" as const,
+        generatedAt: new Date().toISOString(),
+        data: this.ensureSites().map((s) => ({ ...s })),
+      },
+    };
   }
 
   getSite(id: string) {
-    const site = this.ensureSites().find((s) => s.id === id)
-    return { success: true, data: site ? { ...site } : null }
+    const site = this.ensureSites().find((s) => s.id === id);
+    return { success: true, data: site ? { ...site } : null };
   }
 
   /** [G005 W11-MultiSite] 新建院区站点 (内存持久化) */
   createSite(body: Partial<RegionalSite>) {
-    if (!body.name?.trim()) return { success: false, error: { code: 'VALIDATION', message: '站点名称不能为空' } }
-    const sites = this.ensureSites()
-    const seq = sites.length + 1
-    const now = new Date().toISOString()
+    if (!body.name?.trim())
+      return {
+        success: false,
+        error: { code: "VALIDATION", message: "站点名称不能为空" },
+      };
+    const sites = this.ensureSites();
+    const seq = sites.length + 1;
+    const now = new Date().toISOString();
     const site: RegionalSite = {
       id: body.id?.trim() || `SITE-NEW-${seq}`,
       name: body.name.trim(),
-      code: body.code?.trim() || `NEW-${String(seq).padStart(2, '0')}`,
-      region: body.region?.trim() || '华东',
-      city: body.city?.trim() || '济南',
-      status: body.status ?? 'active',
+      code: body.code?.trim() || `NEW-${String(seq).padStart(2, "0")}`,
+      region: body.region?.trim() || "华东",
+      city: body.city?.trim() || "济南",
+      status: body.status ?? "active",
       studies: body.studies ?? 0,
       patients: body.patients ?? 0,
       users: body.users ?? 0,
@@ -624,31 +1631,55 @@ export class RegionalService {
       lastSync: body.lastSync ?? now,
       latencyMs: body.latencyMs ?? 15,
       uptimePct: body.uptimePct ?? 99.9,
-      version: body.version ?? 'v3.0.6.12',
+      version: body.version ?? "v3.0.6.12",
       primary: body.primary ?? false,
-    }
-    sites.push(site)
-    if (this.campusesStore) this.campusesStore = null
-    return { success: true, data: { ...site } }
+    };
+    sites.push(site);
+    if (this.campusesStore) this.campusesStore = null;
+    return { success: true, data: { ...site } };
   }
 
   /** [G005 W11-MultiSite] 更新院区站点 */
   updateSite(id: string, body: Partial<RegionalSite>) {
-    const site = this.ensureSites().find((s) => s.id === id)
-    if (!site) return { success: false, error: { code: 'NOT_FOUND', message: `站点 ${id} 不存在` } }
-    const allowed: (keyof RegionalSite)[] = ['name', 'code', 'region', 'city', 'status', 'studies', 'patients', 'users', 'storage', 'bandwidth', 'lastSync', 'latencyMs', 'uptimePct', 'version', 'primary']
+    const site = this.ensureSites().find((s) => s.id === id);
+    if (!site)
+      return {
+        success: false,
+        error: { code: "NOT_FOUND", message: `站点 ${id} 不存在` },
+      };
+    const allowed: (keyof RegionalSite)[] = [
+      "name",
+      "code",
+      "region",
+      "city",
+      "status",
+      "studies",
+      "patients",
+      "users",
+      "storage",
+      "bandwidth",
+      "lastSync",
+      "latencyMs",
+      "uptimePct",
+      "version",
+      "primary",
+    ];
     for (const key of allowed) {
-      const value = body[key]
-      if (value !== undefined) (site as unknown as Record<string, unknown>)[key] = value
+      const value = body[key];
+      if (value !== undefined)
+        (site as unknown as Record<string, unknown>)[key] = value;
     }
-    if (this.campusesStore) this.campusesStore = null
-    return { success: true, data: { ...site } }
+    if (this.campusesStore) this.campusesStore = null;
+    return { success: true, data: { ...site } };
   }
 
   /** [G005 W11-MultiSite] 院区 (campus) 列表: 每个站点派生主/分校区 */
-  listCampuses(): { success: true; data: { source: string; generatedAt: string; data: CampusDto[] } } {
+  listCampuses(): {
+    success: true;
+    data: { source: string; generatedAt: string; data: CampusDto[] };
+  } {
     if (!this.campusesStore) {
-      const sites = this.ensureSites()
+      const sites = this.ensureSites();
       this.campusesStore = sites.flatMap((site, idx) => {
         const main: CampusDto = {
           id: `${site.id}-C1`,
@@ -660,7 +1691,7 @@ export class RegionalService {
           devices: 24 + idx * 5,
           beds: 800 + idx * 120,
           isMain: true,
-        }
+        };
         const branch: CampusDto = {
           id: `${site.id}-C2`,
           siteId: site.id,
@@ -671,123 +1702,190 @@ export class RegionalService {
           devices: 8 + idx * 2,
           beds: 200 + idx * 40,
           isMain: false,
-        }
-        return [main, branch]
-      })
+        };
+        return [main, branch];
+      });
     }
-    return { success: true, data: { source: 'database', generatedAt: new Date().toISOString(), data: this.campusesStore.map((c) => ({ ...c })) } }
+    return {
+      success: true,
+      data: {
+        source: "database",
+        generatedAt: new Date().toISOString(),
+        data: this.campusesStore.map((c) => ({ ...c })),
+      },
+    };
   }
 
   /** [G005 W11-MultiSite] 联邦配置读取 (默认集中式, 可切联邦式) */
   getFederationConfig(): { success: true; data: FederationConfig } {
     if (!this.federationStore) {
       this.federationStore = {
-        federationId: 'FED-SDPH-001',
-        name: '山东省影像医联体',
-        mode: 'centralized',
+        federationId: "FED-SDPH-001",
+        name: "山东省影像医联体",
+        mode: "centralized",
         syncIntervalSec: 60,
         autoFailover: true,
         crossSiteQueryEnabled: true,
         sharedPatientIndex: true,
         members: this.ensureSites().map((s) => s.id),
         updatedAt: new Date().toISOString(),
-      }
+      };
     }
-    return { success: true, data: { ...this.federationStore, members: [...this.federationStore.members] } }
+    return {
+      success: true,
+      data: {
+        ...this.federationStore,
+        members: [...this.federationStore.members],
+      },
+    };
   }
 
-  updateFederationConfig(body: Partial<FederationConfig>): { success: true; data: FederationConfig } {
-    const current = this.getFederationConfig().data
+  updateFederationConfig(body: Partial<FederationConfig>): {
+    success: true;
+    data: FederationConfig;
+  } {
+    const current = this.getFederationConfig().data;
     const next: FederationConfig = {
       ...current,
       ...body,
       members: body.members ? [...body.members] : [...current.members],
       updatedAt: new Date().toISOString(),
-    }
-    this.federationStore = next
-    return { success: true, data: { ...next, members: [...next.members] } }
+    };
+    this.federationStore = next;
+    return { success: true, data: { ...next, members: [...next.members] } };
   }
 
   /** [G005 W11-MultiSite] 跨院区聚合统计 */
   getCrossSiteStats(): { success: true; data: CrossSiteStats } {
-    const sites = this.ensureSites()
-    const active = sites.filter((s) => s.status === 'active' || s.status === 'syncing')
-    const byRegionMap = new Map<string, { region: string; sites: number; studies: number; patients: number }>()
+    const sites = this.ensureSites();
+    const active = sites.filter(
+      (s) => s.status === "active" || s.status === "syncing",
+    );
+    const byRegionMap = new Map<
+      string,
+      { region: string; sites: number; studies: number; patients: number }
+    >();
     for (const s of sites) {
-      const entry = byRegionMap.get(s.region) ?? { region: s.region, sites: 0, studies: 0, patients: 0 }
-      entry.sites += 1
-      entry.studies += s.studies
-      entry.patients += s.patients
-      byRegionMap.set(s.region, entry)
+      const entry = byRegionMap.get(s.region) ?? {
+        region: s.region,
+        sites: 0,
+        studies: 0,
+        patients: 0,
+      };
+      entry.sites += 1;
+      entry.studies += s.studies;
+      entry.patients += s.patients;
+      byRegionMap.set(s.region, entry);
     }
     return {
       success: true,
       data: {
         totalSites: sites.length,
         activeSites: active.length,
-        offlineSites: sites.filter((s) => s.status === 'offline').length,
+        offlineSites: sites.filter((s) => s.status === "offline").length,
         totalStudies: sites.reduce((a, s) => a + s.studies, 0),
         totalPatients: sites.reduce((a, s) => a + s.patients, 0),
         totalUsers: sites.reduce((a, s) => a + s.users, 0),
         totalStorageGb: sites.reduce((a, s) => a + s.storage, 0),
         totalBandwidthMbps: sites.reduce((a, s) => a + s.bandwidth, 0),
-        avgLatencyMs: sites.length ? Math.round((sites.reduce((a, s) => a + s.latencyMs, 0) / sites.length) * 10) / 10 : 0,
-        avgUptimePct: sites.length ? Math.round((sites.reduce((a, s) => a + s.uptimePct, 0) / sites.length) * 100) / 100 : 0,
+        avgLatencyMs: sites.length
+          ? Math.round(
+              (sites.reduce((a, s) => a + s.latencyMs, 0) / sites.length) * 10,
+            ) / 10
+          : 0,
+        avgUptimePct: sites.length
+          ? Math.round(
+              (sites.reduce((a, s) => a + s.uptimePct, 0) / sites.length) * 100,
+            ) / 100
+          : 0,
         byRegion: [...byRegionMap.values()],
         generatedAt: new Date().toISOString(),
       },
-    }
+    };
   }
 
   /** 测试隔离用: 重置内存持久化状态 */
   resetSiteStore(): void {
-    this.sitesStore = null
-    this.campusesStore = null
-    this.federationStore = null
+    this.sitesStore = null;
+    this.campusesStore = null;
+    this.federationStore = null;
   }
 
   listSiteSyncEvents() {
-    const sites = this.listSites().data.data
-    const types: Array<RegionalSiteSyncEvent['type']> = ['study_pushed', 'study_pulled', 'user_sync', 'config_sync']
-    const statuses: Array<RegionalSiteSyncEvent['status']> = ['success', 'success', 'success', 'failed']
+    const sites = this.listSites().data.data;
+    const types: Array<RegionalSiteSyncEvent["type"]> = [
+      "study_pushed",
+      "study_pulled",
+      "user_sync",
+      "config_sync",
+    ];
+    const statuses: Array<RegionalSiteSyncEvent["status"]> = [
+      "success",
+      "success",
+      "success",
+      "failed",
+    ];
     // 确定性时间基线 (W9 spec: 两次调用结果必须一致)
-    const base = Date.UTC(2026, 7, 8, 10, 0, 0)
-    const events: RegionalSiteSyncEvent[] = Array.from({ length: 24 }, (_, i) => {
-      const site = sites[i % sites.length]!
-      const type = types[i % types.length]!
-      const status = statuses[i % statuses.length]!
-      return {
-        id: `SYNC-${String(1000 + i)}`,
-        siteId: site.id,
-        type,
-        status,
-        count: 2 + ((i * 13) % 40),
-        bytes: 512 * 1024 + ((i * 97) % 20) * 1024 * 1024,
-        duration: 300 + ((i * 61) % 9000),
-        timestamp: new Date(base - i * 5 * 60000).toISOString(),
-        message: status === 'failed' ? `站点 ${site.name} 网络抖动, 任务已排队重试` : undefined,
-      }
-    })
-    return { success: true, data: { source: 'database', generatedAt: new Date().toISOString(), data: events } }
+    const base = Date.UTC(2026, 7, 8, 10, 0, 0);
+    const events: RegionalSiteSyncEvent[] = Array.from(
+      { length: 24 },
+      (_, i) => {
+        const site = sites[i % sites.length]!;
+        const type = types[i % types.length]!;
+        const status = statuses[i % statuses.length]!;
+        return {
+          id: `SYNC-${String(1000 + i)}`,
+          siteId: site.id,
+          type,
+          status,
+          count: 2 + ((i * 13) % 40),
+          bytes: 512 * 1024 + ((i * 97) % 20) * 1024 * 1024,
+          duration: 300 + ((i * 61) % 9000),
+          timestamp: new Date(base - i * 5 * 60000).toISOString(),
+          message:
+            status === "failed"
+              ? `站点 ${site.name} 网络抖动, 任务已排队重试`
+              : undefined,
+        };
+      },
+    );
+    return {
+      success: true,
+      data: {
+        source: "database",
+        generatedAt: new Date().toISOString(),
+        data: events,
+      },
+    };
   }
 
   listSiteRoutingRules() {
-    const sites = this.listSites().data.data
-    const modalities = ['CT', 'MR', 'DR', 'MG', 'US']
-    const rules: RegionalSiteRoutingRule[] = Array.from({ length: 6 }, (_, i) => {
-      const src = sites[(i + 1) % sites.length]!
-      const dst = sites[i % sites.length]!
-      return {
-        id: `RULE-${String(100 + i)}`,
-        name: `${src.name} → ${dst.name} 影像调阅`,
-        sourceSite: src.id,
-        destSite: dst.id,
-        modality: modalities[i % modalities.length]!,
-        condition: i % 2 === 0 ? '工作日 08:00-18:00' : '急诊通道优先',
-        active: i % 3 !== 2,
-        matchedCount: 120 + ((i * 53) % 900),
-      }
-    })
-    return { success: true, data: { source: 'database', generatedAt: new Date().toISOString(), data: rules } }
+    const sites = this.listSites().data.data;
+    const modalities = ["CT", "MR", "DR", "MG", "US"];
+    const rules: RegionalSiteRoutingRule[] = Array.from(
+      { length: 6 },
+      (_, i) => {
+        const src = sites[(i + 1) % sites.length]!;
+        const dst = sites[i % sites.length]!;
+        return {
+          id: `RULE-${String(100 + i)}`,
+          name: `${src.name} → ${dst.name} 影像调阅`,
+          sourceSite: src.id,
+          destSite: dst.id,
+          modality: modalities[i % modalities.length]!,
+          condition: i % 2 === 0 ? "工作日 08:00-18:00" : "急诊通道优先",
+          active: i % 3 !== 2,
+          matchedCount: 120 + ((i * 53) % 900),
+        };
+      },
+    );
+    return {
+      success: true,
+      data: {
+        source: "database",
+        generatedAt: new Date().toISOString(),
+        data: rules,
+      },
+    };
   }
 }

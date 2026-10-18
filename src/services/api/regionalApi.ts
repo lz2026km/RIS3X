@@ -1,397 +1,589 @@
-import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
+import { api, invalidateApiCache, invalidateApiCacheByPrefix } from "./client";
 
 export interface RegionalImagingDto {
-  id: string
-  institutionId: string
-  institutionName: string
-  modality: string
-  examCount: number
-  positiveCount: number
-  positiveRate: number
-  avgReportTime: number
-  qualifiedRate: number
-  period: string
+  id: string;
+  institutionId: string;
+  institutionName: string;
+  modality: string;
+  examCount: number;
+  positiveCount: number;
+  positiveRate: number;
+  avgReportTime: number;
+  qualifiedRate: number;
+  period: string;
 }
 
 export interface RegionalReportDto {
-  id: string
-  reportId: string
-  institution: string
-  patientName: string
-  gender: string
-  age: number
-  modality: string
-  examItem: string
-  reportTime: string
-  reportDoctor: string
-  status: string
-  qualityScore: number
-  qualityIssues: string[]
-  reviewOpinion?: string
-  reviewDoctor?: string
-  reviewTime?: string
+  id: string;
+  reportId: string;
+  institution: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  modality: string;
+  examItem: string;
+  reportTime: string;
+  reportDoctor: string;
+  status: string;
+  qualityScore: number;
+  qualityIssues: string[];
+  reviewOpinion?: string;
+  reviewDoctor?: string;
+  reviewTime?: string;
 }
 
 export interface DepartmentScheduleDto {
-  id: string
-  departmentId: string
-  departmentName: string
-  date: string
-  shift: string
-  doctorId: string
-  doctorName: string
-  status: string
+  id: string;
+  departmentId: string;
+  departmentName: string;
+  date: string;
+  shift: string;
+  doctorId: string;
+  doctorName: string;
+  status: string;
 }
 
 export interface DepartmentDto {
-  id: string
-  name: string
-  level: string
-  type: string
-  reportCount: number
-  pendingCount: number
+  id: string;
+  name: string;
+  level: string;
+  type: string;
+  reportCount: number;
+  pendingCount: number;
 }
 
 export interface MedicalAllianceDto {
-  id: string
-  name: string
-  level: string
-  type: string
-  memberCount: number
-  status: string
+  id: string;
+  name: string;
+  level: string;
+  type: string;
+  memberCount: number;
+  status: string;
 }
 
 export interface IntegrationStatusDto {
-  status: string
-  lastSync: string
-  error?: string
+  status: string;
+  lastSync: string;
+  error?: string;
 }
 
 // ── Regional Imaging Page DTOs ──
 
 export interface AccessApplicationDto {
-  id: string; patientName: string; patientId: string; hospital: string; modality: string
-  studyDate: string; reason: string; status: 'pending' | 'approved' | 'rejected'; applyDate: string
+  id: string;
+  patientName: string;
+  patientId: string;
+  hospital: string;
+  modality: string;
+  studyDate: string;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  applyDate: string;
 }
 
 export interface ConsultationRequestDto {
-  id: string; patientName: string; hospital: string; diagnosis: string
-  priority: 'normal' | 'urgent' | 'critical'; status: 'open' | 'in-progress' | 'completed'
-  createDate: string; expert?: string
+  id: string;
+  patientName: string;
+  hospital: string;
+  diagnosis: string;
+  priority: "normal" | "urgent" | "critical";
+  status: "open" | "in-progress" | "completed";
+  createDate: string;
+  expert?: string;
 }
 
 export interface AccessRecordDto {
-  id: string; patientName: string; patientId: string; studyType: string; hospital: string
-  accessTime: string; accessor: string; purpose: string
+  id: string;
+  patientName: string;
+  patientId: string;
+  studyType: string;
+  hospital: string;
+  accessTime: string;
+  accessor: string;
+  purpose: string;
 }
 
 export interface InstitutionDto {
-  id: string; name: string; aeTitle: string; address: string; status: 'online' | 'offline' | 'busy'
+  id: string;
+  name: string;
+  aeTitle: string;
+  address: string;
+  status: "online" | "offline" | "busy";
 }
 
 export interface CrossInstitutionStudyDto {
-  id: string; patientId: string; patientName: string; studyUid: string; studyDescription: string
-  modality: string; institution: string; date: string; status: string
+  id: string;
+  patientId: string;
+  patientName: string;
+  studyUid: string;
+  studyDescription: string;
+  modality: string;
+  institution: string;
+  date: string;
+  status: string;
 }
 
 export interface DocumentRegistryEntryDto {
-  id: string; patientId: string; patientName: string; studyUid: string; studyDescription: string
-  modality: string; institution: string; date: string; status: string
+  id: string;
+  patientId: string;
+  patientName: string;
+  studyUid: string;
+  studyDescription: string;
+  modality: string;
+  institution: string;
+  date: string;
+  status: string;
 }
 
 export interface AuditTrailEntryDto {
-  id: string; patientId: string; action: string; institution: string; user: string
-  time: string; details: string
+  id: string;
+  patientId: string;
+  action: string;
+  institution: string;
+  user: string;
+  time: string;
+  details: string;
 }
 
 // [G005 W1-Controls P0] IHE XDS-I 文档调阅结果
 export interface RetrievedDocumentDto {
-  id: string; documentId: string; patientId: string; patientName: string
-  studyUid: string; title: string; contentType: string; institution: string
-  reportDate: string; sizeBytes: number; content: string; retrievedAt: string
-  source: string
+  id: string;
+  documentId: string;
+  patientId: string;
+  patientName: string;
+  studyUid: string;
+  title: string;
+  contentType: string;
+  institution: string;
+  reportDate: string;
+  sizeBytes: number;
+  content: string;
+  retrievedAt: string;
+  source: string;
 }
 
 // ── Regional Report Page DTOs ──
 
 export interface RegionalConsultationDto {
-  id: string; caseId: string; patientName: string; gender: string; age: number
-  institution: string; modality: string; examItem: string; applyReason: string
-  status: '待接诊' | '会诊中' | '已完成' | '已取消'; applyTime: string
-  acceptTime?: string; completeTime?: string; applyDoctor: string; acceptDoctor?: string
-  consultationOpinion?: string; priority: '普通' | '紧急' | '立即'
+  id: string;
+  caseId: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  institution: string;
+  modality: string;
+  examItem: string;
+  applyReason: string;
+  status: "待接诊" | "会诊中" | "已完成" | "已取消";
+  applyTime: string;
+  acceptTime?: string;
+  completeTime?: string;
+  applyDoctor: string;
+  acceptDoctor?: string;
+  consultationOpinion?: string;
+  priority: "普通" | "紧急" | "立即";
 }
 
 export interface RegionalReportRecordDto {
-  id: string; reportId: string; institution: string; patientName: string; gender: string
-  age: number; modality: string; examItem: string; reportTime: string; reportDoctor: string
-  status: '待审核' | '已通过' | '有问题' | '已驳回'; qualityScore: number
-  qualityIssues: string[]; reviewOpinion?: string; reviewDoctor?: string; reviewTime?: string
+  id: string;
+  reportId: string;
+  institution: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  modality: string;
+  examItem: string;
+  reportTime: string;
+  reportDoctor: string;
+  status: "待审核" | "已通过" | "有问题" | "已驳回";
+  qualityScore: number;
+  qualityIssues: string[];
+  reviewOpinion?: string;
+  reviewDoctor?: string;
+  reviewTime?: string;
 }
 
 export interface CriticalValueReportDto {
-  id: string; patientName: string; gender: string; age: number; institution: string
-  modality: string; examItem: string; criticalFinding: string
-  severity: '危急' | '高危' | '紧急'; reportedTime: string; reportedDoctor: string
-  status: '待确认' | '已接收' | '处理中' | '已闭环'
-  receiveTime?: string; receiveDoctor?: string; handleTime?: string
-  handleDoctor?: string; closeTime?: string
+  id: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  institution: string;
+  modality: string;
+  examItem: string;
+  criticalFinding: string;
+  severity: "危急" | "高危" | "紧急";
+  reportedTime: string;
+  reportedDoctor: string;
+  status: "待确认" | "已接收" | "处理中" | "已闭环";
+  receiveTime?: string;
+  receiveDoctor?: string;
+  handleTime?: string;
+  handleDoctor?: string;
+  closeTime?: string;
 }
 
 export interface RemoteDiagnosisDto {
-  id: string; caseId: string; patientName: string; gender: string; age: number
-  examType: string; applyInstitution: string; remoteExpert: string; expertInstitution: string
-  status: '待书写' | '书写中' | '待审核' | '已完成'; applyTime: string
-  startTime?: string; completeTime?: string; reportContent?: string
-  isOtherTyping?: boolean; otherTypingName?: string
+  id: string;
+  caseId: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  examType: string;
+  applyInstitution: string;
+  remoteExpert: string;
+  expertInstitution: string;
+  status: "待书写" | "书写中" | "待审核" | "已完成";
+  applyTime: string;
+  startTime?: string;
+  completeTime?: string;
+  reportContent?: string;
+  isOtherTyping?: boolean;
+  otherTypingName?: string;
 }
 
 export interface CoSignRecordDto {
-  id: string; reportId: string; examType: string; patientName: string; gender: string
-  age: number; participatingInstitutions: string[]
-  status: '待签发' | '签发中' | '已完成'; createTime: string; completeTime?: string
-  signatures: Array<{ institution: string; doctorName: string; signTime: string; certificateStatus: string; order: number }>
-  versions: Array<{ version: string; modifyTime: string; modifyInstitution: string; modifyReason: string; modifier: string }>
+  id: string;
+  reportId: string;
+  examType: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  participatingInstitutions: string[];
+  status: "待签发" | "签发中" | "已完成";
+  createTime: string;
+  completeTime?: string;
+  signatures: Array<{
+    institution: string;
+    doctorName: string;
+    signTime: string;
+    certificateStatus: string;
+    order: number;
+  }>;
+  versions: Array<{
+    version: string;
+    modifyTime: string;
+    modifyInstitution: string;
+    modifyReason: string;
+    modifier: string;
+  }>;
 }
 
 // ── Multi-Site Dashboard DTOs (多站点/多院区) ──
 // 后端暂未实现 → MSW regionalHandlers 支撑, 响应带 source 信封标注数据来源
 
 export interface RegionalSiteDto {
-  id: string
-  name: string
-  code: string
-  region: string
-  city: string
-  status: 'active' | 'offline' | 'syncing' | 'maintenance'
-  studies: number
-  patients: number
-  users: number
-  storage: number
-  bandwidth: number
-  lastSync: string
-  latencyMs: number
-  uptimePct: number
-  version: string
-  primary: boolean
+  id: string;
+  name: string;
+  code: string;
+  region: string;
+  city: string;
+  status: "active" | "offline" | "syncing" | "maintenance";
+  studies: number;
+  patients: number;
+  users: number;
+  storage: number;
+  bandwidth: number;
+  lastSync: string;
+  latencyMs: number;
+  uptimePct: number;
+  version: string;
+  primary: boolean;
 }
 
 export interface RegionalSiteSyncEventDto {
-  id: string
-  siteId: string
-  type: 'study_pushed' | 'study_pulled' | 'user_sync' | 'config_sync'
-  status: 'success' | 'failed' | 'pending'
-  count: number
-  bytes: number
-  duration: number
-  timestamp: string
-  message?: string
+  id: string;
+  siteId: string;
+  type: "study_pushed" | "study_pulled" | "user_sync" | "config_sync";
+  status: "success" | "failed" | "pending";
+  count: number;
+  bytes: number;
+  duration: number;
+  timestamp: string;
+  message?: string;
 }
 
 export interface RegionalSiteRoutingRuleDto {
-  id: string
-  name: string
-  sourceSite: string
-  destSite: string
-  modality: string
-  condition: string
-  active: boolean
-  matchedCount: number
+  id: string;
+  name: string;
+  sourceSite: string;
+  destSite: string;
+  modality: string;
+  condition: string;
+  active: boolean;
+  matchedCount: number;
 }
 
 export interface RegionalSitesEnvelope<T> {
-  source: 'database' | 'demo'
-  generatedAt: string
-  data: T
+  source: "database" | "demo";
+  generatedAt: string;
+  data: T;
 }
 
 // ── [G005 W11-MultiSite] 院区模型 / 联邦配置 / 跨院区统计 ──
 
 export interface CampusDto {
-  id: string
-  siteId: string
-  siteName: string
-  name: string
-  address: string
-  buildings: number
-  devices: number
-  beds: number
-  isMain: boolean
+  id: string;
+  siteId: string;
+  siteName: string;
+  name: string;
+  address: string;
+  buildings: number;
+  devices: number;
+  beds: number;
+  isMain: boolean;
 }
 
 export interface FederationConfigDto {
-  federationId: string
-  name: string
-  mode: 'centralized' | 'federated'
-  syncIntervalSec: number
-  autoFailover: boolean
-  crossSiteQueryEnabled: boolean
-  sharedPatientIndex: boolean
-  members: string[]
-  updatedAt: string
+  federationId: string;
+  name: string;
+  mode: "centralized" | "federated";
+  syncIntervalSec: number;
+  autoFailover: boolean;
+  crossSiteQueryEnabled: boolean;
+  sharedPatientIndex: boolean;
+  members: string[];
+  updatedAt: string;
 }
 
 export interface CrossSiteStatsDto {
-  totalSites: number
-  activeSites: number
-  offlineSites: number
-  totalStudies: number
-  totalPatients: number
-  totalUsers: number
-  totalStorageGb: number
-  totalBandwidthMbps: number
-  avgLatencyMs: number
-  avgUptimePct: number
-  byRegion: Array<{ region: string; sites: number; studies: number; patients: number }>
-  generatedAt: string
+  totalSites: number;
+  activeSites: number;
+  offlineSites: number;
+  totalStudies: number;
+  totalPatients: number;
+  totalUsers: number;
+  totalStorageGb: number;
+  totalBandwidthMbps: number;
+  avgLatencyMs: number;
+  avgUptimePct: number;
+  byRegion: Array<{
+    region: string;
+    sites: number;
+    studies: number;
+    patients: number;
+  }>;
+  generatedAt: string;
 }
 
 export const regionalApi = {
   // ── Multi-Site Dashboard endpoints ──
 
   listSites: () =>
-    api.get<RegionalSitesEnvelope<RegionalSiteDto[]>>('/regional/sites'),
+    api.get<RegionalSitesEnvelope<RegionalSiteDto[]>>("/regional/sites"),
 
   listSiteSyncEvents: () =>
-    api.get<RegionalSitesEnvelope<RegionalSiteSyncEventDto[]>>('/regional/sites/sync-events'),
+    api.get<RegionalSitesEnvelope<RegionalSiteSyncEventDto[]>>(
+      "/regional/sites/sync-events",
+    ),
 
   listSiteRoutingRules: () =>
-    api.get<RegionalSitesEnvelope<RegionalSiteRoutingRuleDto[]>>('/regional/sites/routing-rules'),
+    api.get<RegionalSitesEnvelope<RegionalSiteRoutingRuleDto[]>>(
+      "/regional/sites/routing-rules",
+    ),
 
   // [G005 W11-MultiSite] 站点管理 / 院区 / 联邦配置 / 跨院区统计
   createSite: async (data: Partial<RegionalSiteDto>) => {
-    const res = await api.post<RegionalSiteDto>('/regional/sites', data)
-    await invalidateApiCacheByPrefix('/regional/sites')
-    return res
+    const res = await api.post<RegionalSiteDto>("/regional/sites", data);
+    await invalidateApiCacheByPrefix("/regional/sites");
+    return res;
   },
 
   updateSite: async (id: string, data: Partial<RegionalSiteDto>) => {
-    const res = await api.put<RegionalSiteDto>(`/regional/sites/${encodeURIComponent(id)}`, data)
-    await invalidateApiCacheByPrefix('/regional/sites')
-    return res
+    const res = await api.put<RegionalSiteDto>(
+      `/regional/sites/${encodeURIComponent(id)}`,
+      data,
+    );
+    await invalidateApiCacheByPrefix("/regional/sites");
+    return res;
   },
 
-  getCrossSiteStats: () =>
-    api.get<CrossSiteStatsDto>('/regional/sites/stats'),
+  getCrossSiteStats: () => api.get<CrossSiteStatsDto>("/regional/sites/stats"),
 
   listCampuses: () =>
-    api.get<RegionalSitesEnvelope<CampusDto[]>>('/regional/campuses'),
+    api.get<RegionalSitesEnvelope<CampusDto[]>>("/regional/campuses"),
 
   getFederationConfig: () =>
-    api.get<FederationConfigDto>('/regional/federation/config'),
+    api.get<FederationConfigDto>("/regional/federation/config"),
 
   updateFederationConfig: async (data: Partial<FederationConfigDto>) => {
-    const res = await api.put<FederationConfigDto>('/regional/federation/config', data)
-    await invalidateApiCacheByPrefix('/regional/federation')
-    return res
+    const res = await api.put<FederationConfigDto>(
+      "/regional/federation/config",
+      data,
+    );
+    await invalidateApiCacheByPrefix("/regional/federation");
+    return res;
   },
 
   // ── Original endpoints ──
 
-  listRegionalImaging: () =>
-    api.get<RegionalImagingDto[]>('/regional/imaging'),
+  listRegionalImaging: () => api.get<RegionalImagingDto[]>("/regional/imaging"),
 
   getRegionalImaging: (id: string) =>
     api.get<RegionalImagingDto>(`/regional/imaging/${id}`),
 
-  listRegionalReports: () =>
-    api.get<RegionalReportDto[]>('/regional/reports'),
+  listRegionalReports: () => api.get<RegionalReportDto[]>("/regional/reports"),
 
   getRegionalReport: (id: string) =>
     api.get<RegionalReportDto>(`/regional/reports/${id}`),
 
   getDepartmentSchedule: () =>
-    api.get<DepartmentScheduleDto[]>('/regional/schedule'),
+    api.get<DepartmentScheduleDto[]>("/regional/schedule"),
 
   updateSchedule: async (id: string, data: Partial<DepartmentScheduleDto>) => {
-    const res = await api.put<DepartmentScheduleDto>(`/regional/schedule/${id}`, data)
-    await invalidateApiCache(`/regional/schedule/${id}`)
-    await invalidateApiCacheByPrefix('/regional/schedule')
-    return res
+    const res = await api.put<DepartmentScheduleDto>(
+      `/regional/schedule/${id}`,
+      data,
+    );
+    await invalidateApiCache(`/regional/schedule/${id}`);
+    await invalidateApiCacheByPrefix("/regional/schedule");
+    return res;
   },
 
-  listDepartments: () =>
-    api.get<DepartmentDto[]>('/regional/departments'),
+  listDepartments: () => api.get<DepartmentDto[]>("/regional/departments"),
 
   listMedicalAlliance: () =>
-    api.get<MedicalAllianceDto[]>('/regional/medical-alliance'),
+    api.get<MedicalAllianceDto[]>("/regional/medical-alliance"),
 
   getFhirStatus: () =>
-    api.get<IntegrationStatusDto>('/regional/integration/fhir'),
+    api.get<IntegrationStatusDto>("/regional/integration/fhir"),
 
   getIheStatus: () =>
-    api.get<IntegrationStatusDto>('/regional/integration/ihe'),
+    api.get<IntegrationStatusDto>("/regional/integration/ihe"),
 
   getMllpStatus: () =>
-    api.get<IntegrationStatusDto>('/regional/integration/mllp'),
+    api.get<IntegrationStatusDto>("/regional/integration/mllp"),
 
   // ── Regional Imaging Page endpoints ──
 
   listApplications: () =>
-    api.get<AccessApplicationDto[]>('/regional/imaging/applications'),
+    api.get<AccessApplicationDto[]>("/regional/imaging/applications"),
 
   createApplication: (data: Partial<AccessApplicationDto>) =>
-    api.post<AccessApplicationDto>('/regional/imaging/applications', data),
+    api.post<AccessApplicationDto>("/regional/imaging/applications", data),
 
   approveApplication: (id: string) =>
-    api.post<AccessApplicationDto>(`/regional/imaging/applications/${id}/approve`),
+    api.post<AccessApplicationDto>(
+      `/regional/imaging/applications/${id}/approve`,
+    ),
 
   rejectApplication: (id: string) =>
-    api.post<AccessApplicationDto>(`/regional/imaging/applications/${id}/reject`),
+    api.post<AccessApplicationDto>(
+      `/regional/imaging/applications/${id}/reject`,
+    ),
 
   listConsultationRequests: () =>
-    api.get<ConsultationRequestDto[]>('/regional/imaging/consultations'),
+    api.get<ConsultationRequestDto[]>("/regional/imaging/consultations"),
 
   createConsultationRequest: (data: Partial<ConsultationRequestDto>) =>
-    api.post<ConsultationRequestDto>('/regional/imaging/consultations', data),
+    api.post<ConsultationRequestDto>("/regional/imaging/consultations", data),
 
   listAccessRecords: () =>
-    api.get<AccessRecordDto[]>('/regional/imaging/access-records'),
+    api.get<AccessRecordDto[]>("/regional/imaging/access-records"),
 
   // [G005 Wave 4B] 跨院调阅记录写入 (RegionalCollaborationPage, 后端 POST /regional/imaging/access-records)
   createAccessRecord: (data: Partial<AccessRecordDto>) =>
-    api.post<AccessRecordDto>('/regional/imaging/access-records', data),
+    api.post<AccessRecordDto>("/regional/imaging/access-records", data),
 
   // [G005 Wave 4B] 参与远程会诊 (后端 POST /regional/imaging/consultations/:id/accept)
   acceptConsultationRequest: (id: string) =>
-    api.post<ConsultationRequestDto>(`/regional/imaging/consultations/${encodeURIComponent(id)}/accept`),
+    api.post<ConsultationRequestDto>(
+      `/regional/imaging/consultations/${encodeURIComponent(id)}/accept`,
+    ),
 
   listInstitutions: () =>
-    api.get<InstitutionDto[]>('/regional/imaging/institutions'),
+    api.get<InstitutionDto[]>("/regional/imaging/institutions"),
 
-  crossInstitutionQuery: (params: { institutionId: string; queryType: string; queryValue: string }) =>
-    api.get<CrossInstitutionStudyDto[]>(`/regional/imaging/cross-query?institutionId=${params.institutionId}&queryType=${params.queryType}&queryValue=${encodeURIComponent(params.queryValue)}`),
+  crossInstitutionQuery: (params: {
+    institutionId: string;
+    queryType: string;
+    queryValue: string;
+  }) =>
+    api.get<CrossInstitutionStudyDto[]>(
+      `/regional/imaging/cross-query?institutionId=${params.institutionId}&queryType=${params.queryType}&queryValue=${encodeURIComponent(params.queryValue)}`,
+    ),
 
   listDocumentRegistry: () =>
-    api.get<DocumentRegistryEntryDto[]>('/regional/imaging/document-registry'),
+    api.get<DocumentRegistryEntryDto[]>("/regional/imaging/document-registry"),
 
   // [G005 W1-Controls P0] IHE XDS-I 文档调阅: 后端无 Retrieve 数据源 → MSW 确定性文档
   retrieveDocument: (id: string) =>
-    api.get<RetrievedDocumentDto>(`/regional/imaging/document-registry/${encodeURIComponent(id)}/retrieve`),
+    api.get<RetrievedDocumentDto>(
+      `/regional/imaging/document-registry/${encodeURIComponent(id)}/retrieve`,
+    ),
 
   pixQuery: (patientId: string) =>
-    api.get<{ local: string; remote: string }>(`/regional/imaging/pix?patientId=${encodeURIComponent(patientId)}`),
+    api.get<{ local: string; remote: string }>(
+      `/regional/imaging/pix?patientId=${encodeURIComponent(patientId)}`,
+    ),
 
   listAuditTrail: () =>
-    api.get<AuditTrailEntryDto[]>('/regional/imaging/audit-trail'),
+    api.get<AuditTrailEntryDto[]>("/regional/imaging/audit-trail"),
 
   // ── Regional Report Page endpoints ──
 
   listConsultations: () =>
-    api.get<RegionalConsultationDto[]>('/regional/consultations'),
+    api.get<RegionalConsultationDto[]>("/regional/consultations"),
 
   listReportRecords: () =>
-    api.get<RegionalReportRecordDto[]>('/regional/report-records'),
+    api.get<RegionalReportRecordDto[]>("/regional/report-records"),
 
   listCriticalValues: () =>
-    api.get<CriticalValueReportDto[]>('/regional/critical-values'),
+    api.get<CriticalValueReportDto[]>("/regional/critical-values"),
 
   listRemoteDiagnoses: () =>
-    api.get<RemoteDiagnosisDto[]>('/regional/remote-diagnoses'),
+    api.get<RemoteDiagnosisDto[]>("/regional/remote-diagnoses"),
 
   listCoSignRecords: () =>
-    api.get<CoSignRecordDto[]>('/regional/co-sign-records'),
+    api.get<CoSignRecordDto[]>("/regional/co-sign-records"),
+
+  // [v3.0.6.16-6] 医联体转诊 / 报告共享记录 / 站点 SLA (页面此前用裸 fetch 绕过 client)
+  listAllianceReferrals: () =>
+    api.get<
+      Array<{
+        id: string;
+        patientName: string;
+        patientId: string;
+        fromMemberId: string;
+        fromMemberName: string;
+        toMemberId: string;
+        toMemberName: string;
+        modality: string;
+        examItem: string;
+        reason: string;
+        status: string;
+        applyTime: string;
+        acceptTime?: string;
+      }>
+    >("/regional/alliance-referrals"),
+  listShareRecords: () =>
+    api.get<
+      Array<{
+        id: string;
+        reportId: string;
+        patientName: string;
+        institution: string;
+        targetInstitution: string;
+        shareType: string;
+        shareTime: string;
+        status: string;
+        expiresAt?: string;
+      }>
+    >("/regional/share-records"),
+  listSlaData: () =>
+    api.get<
+      Array<{
+        id: string;
+        siteName: string;
+        assignedExams: number;
+        completedExams: number;
+        avgTAT: string;
+        slaTarget: string;
+        slaCompliance: number;
+        period: string;
+      }>
+    >("/regional/sla-data"),
 
   listRegionalInstitutions: () =>
-    api.get<RegionalImagingDto[]>('/regional/institutions'),
-}
+    api.get<RegionalImagingDto[]>("/regional/institutions"),
+};

@@ -106,8 +106,10 @@ export const eyeApi = {
   //   GET /eye/patients/:patientId/studies) — 替换原指向不存在的 /eye/pacs/studies/by-patient/*
   createStudy: (data: any) => api.post(`${EYE_API}/studies`, data),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
-  updateStudy: (id: string, data: any) => api.put(`${EYE_API}/studies/${encodeURIComponent(id)}`, data),
-  deleteStudy: (id: string) => api.delete(`${EYE_API}/studies/${encodeURIComponent(id)}`),
+  updateStudy: (id: string, data: any) =>
+    api.put(`${EYE_API}/studies/${encodeURIComponent(id)}`, data),
+  deleteStudy: (id: string) =>
+    api.delete(`${EYE_API}/studies/${encodeURIComponent(id)}`),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getStudiesByPatient: (patientId: string) =>
     api.get(`${EYE_API}/patients/${encodeURIComponent(patientId)}/studies`),
@@ -151,8 +153,7 @@ export const eyeApi = {
     api.delete(`${EYE_API}/ris/vision-records/${id}`),
   listIopRecords: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/ris/iop-records${buildQuery(params)}`),
-  createIopRecord: (data: any) =>
-    api.post(`${EYE_API}/ris/iop-records`, data),
+  createIopRecord: (data: any) => api.post(`${EYE_API}/ris/iop-records`, data),
   deleteIopRecord: (id: string) =>
     api.delete(`${EYE_API}/ris/iop-records/${id}`),
   // 兼容旧页面调用的别名
@@ -165,12 +166,16 @@ export const eyeApi = {
   //   无 patientId 时回退 /eye/emr/records (后端 @Get('emr/records') 列表, EyeEmrPage 在用)
   getEmr: (params?: Record<string, any>) =>
     params?.patientId
-      ? api.get(`${EYE_API}/emr/${encodeURIComponent(String(params.patientId))}`)
+      ? api.get(
+          `${EYE_API}/emr/${encodeURIComponent(String(params.patientId))}`,
+        )
       : api.get(`${EYE_API}/emr/records${buildQuery(params)}`),
   // [G005 W1-Controls P0] 新建眼科病历: 后端无创建端点 → MSW POST /eye/emr/records 确定性兜底
-  createEmr: (data: Record<string, any>) => api.post<any>(`${EYE_API}/emr/records`, data),
+  createEmr: (data: Record<string, any>) =>
+    api.post<any>(`${EYE_API}/emr/records`, data),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
-  getEmrById: (id: string) => api.get(`${EYE_API}/emr/${encodeURIComponent(id)}`),
+  getEmrById: (id: string) =>
+    api.get(`${EYE_API}/emr/${encodeURIComponent(id)}`),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getEmrByPatient: (patientId: string) =>
     api.get(`${EYE_API}/emr/${encodeURIComponent(patientId)}`),
@@ -202,8 +207,7 @@ export const eyeApi = {
   // ===== IOL Calculator =====
   // [G005 W3-A] 路径对齐: iol/constant/* -> /eye/iol/lenses; iol/calculate -> /eye/iol/calculate/barrett|kane
   //   (后端 @Get('iol/lenses') / @Post('iol/calculate/barrett|kane'); 旧 iol/constant、泛化 calculate 后端无对应)
-  getIolConstants: (_model: string) =>
-    api.get(`${EYE_API}/iol/lenses`),
+  getIolConstants: (_model: string) => api.get(`${EYE_API}/iol/lenses`),
   calculateIol: (data: {
     model: string;
     formula: string;
@@ -222,10 +226,10 @@ export const eyeApi = {
       AL: data.axialLength,
       K1: data.k1,
       K2: data.k2,
-    }
-    return String(data.formula).toLowerCase().includes('kane')
+    };
+    return String(data.formula).toLowerCase().includes("kane")
       ? api.post(`${EYE_API}/iol/calculate/kane`, body)
-      : api.post(`${EYE_API}/iol/calculate/barrett`, body)
+      : api.post(`${EYE_API}/iol/calculate/barrett`, body);
   },
   // [v3.0.6.11-88 P0] IOL 计算记录 (IolCalculatorPage 提交到病历; 后端 POST /eye/iol/calculations 内存+seed)
   saveIolCalculation: (data: Record<string, any>) =>
@@ -239,15 +243,25 @@ export const eyeApi = {
   getIolInventoryById: (id: string) =>
     api.get(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}`),
   getIolLowStock: (threshold?: number) =>
-    api.get(`${EYE_API}/iol/inventory/low-stock${threshold ? `?threshold=${threshold}` : ''}`),
+    api.get(
+      `${EYE_API}/iol/inventory/low-stock${threshold ? `?threshold=${threshold}` : ""}`,
+    ),
   getIolExpiring: (days = 90) =>
     api.get(`${EYE_API}/iol/inventory/expiring?days=${days}`),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
-  iolOutStock: (id: string, data: { reason: string; patientId?: string; surgeon?: string }) =>
-    api.post(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}/out`, data),
+  iolOutStock: (
+    id: string,
+    data: { reason: string; patientId?: string; surgeon?: string },
+  ) => api.post(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}/out`, data),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
-  iolTransfer: (id: string, data: { fromLocation: string; toLocation: string }) =>
-    api.post(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}/transfer`, data),
+  iolTransfer: (
+    id: string,
+    data: { fromLocation: string; toLocation: string },
+  ) =>
+    api.post(
+      `${EYE_API}/iol/inventory/${encodeURIComponent(id)}/transfer`,
+      data,
+    ),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   iolAdjust: (id: string, data: { deltaQty: number; reason: string }) =>
     api.post(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}/adjust`, data),
@@ -301,8 +315,7 @@ export const eyeApi = {
     api.post(`${EYE_API}/subspecialty/refractive/prescription`, data),
   // 低视力助视器处方 (GET=最近记录 / POST=开具)
   // [v3.0.6.11-103 Wave 3A] LowVisionPage 加载最近处方 UI 在用
-  getLowVisionPrescription: () =>
-    api.get(`${EYE_API}/low-vision/prescription`),
+  getLowVisionPrescription: () => api.get(`${EYE_API}/low-vision/prescription`),
 
   // ===== Edu 教学病例库 (CaseLibraryPage, 后端 eye-edu 模块) =====
   // [G005 Wave1A P0] /eye/edu/* MSW-only → 真实后端 (Report 派生 + seed + 内存标注)
@@ -310,21 +323,20 @@ export const eyeApi = {
     api.get(`${EYE_API}/edu/cases${buildQuery(params)}`),
   getEduCase: (id: string) =>
     api.get(`${EYE_API}/edu/cases/${encodeURIComponent(id)}`),
-  createEduCase: (data: any) =>
-    api.post(`${EYE_API}/edu/cases`, data),
+  createEduCase: (data: any) => api.post(`${EYE_API}/edu/cases`, data),
   annotateEduCase: (caseId: string, data: any) =>
-    api.post(`${EYE_API}/edu/cases/${encodeURIComponent(caseId)}/annotate`, data),
+    api.post(
+      `${EYE_API}/edu/cases/${encodeURIComponent(caseId)}/annotate`,
+      data,
+    ),
   listEduAnnotationProjects: () =>
     api.get(`${EYE_API}/edu/annotation-projects`),
   // [v3.0.6.11-103 Wave 3A] 创建标注项目 (CaseLibraryPage 标注项目 tab 在用)
   createEduAnnotationProject: (data: any) =>
     api.post(`${EYE_API}/edu/annotation-projects`, data),
-  eduCohort: (data: any) =>
-    api.post(`${EYE_API}/edu/cohort`, data),
-  eduDeidentify: (data: any) =>
-    api.post(`${EYE_API}/edu/deidentify`, data),
-  eduExportSr: (data: any) =>
-    api.post(`${EYE_API}/edu/export-sr`, data),
+  eduCohort: (data: any) => api.post(`${EYE_API}/edu/cohort`, data),
+  eduDeidentify: (data: any) => api.post(`${EYE_API}/edu/deidentify`, data),
+  eduExportSr: (data: any) => api.post(`${EYE_API}/edu/export-sr`, data),
   eduStats: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/edu/stats${buildQuery(params)}`),
 
@@ -340,7 +352,10 @@ export const eyeApi = {
     api.post(`${EYE_API}/contact-lens/inventory`, data),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   updateContactLens: (id: string, data: any) =>
-    api.put(`${EYE_API}/contact-lens/inventory/${encodeURIComponent(id)}`, data),
+    api.put(
+      `${EYE_API}/contact-lens/inventory/${encodeURIComponent(id)}`,
+      data,
+    ),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   deleteContactLens: (id: string) =>
     api.delete(`${EYE_API}/contact-lens/inventory/${encodeURIComponent(id)}`),
@@ -356,19 +371,27 @@ export const eyeApi = {
   getIolConstant: (model: string) =>
     api.get<any>(`${EYE_API}/iol/constant/${encodeURIComponent(model)}`),
   calculateIolFormula: (formula: string, data: Record<string, any>) =>
-    api.post<any>(`${EYE_API}/iol/calculate/${encodeURIComponent(formula)}`, data),
+    api.post<any>(
+      `${EYE_API}/iol/calculate/${encodeURIComponent(formula)}`,
+      data,
+    ),
   planToricIol: (data: any) => api.post<any>(`${EYE_API}/iol/toric/plan`, data),
   getToricCandidates: (params: { cornealAst: number; sia: number }) =>
-    api.get<any>(`${EYE_API}/iol/toric/candidate?cornealAst=${params.cornealAst}&sia=${params.sia}`),
+    api.get<any>(
+      `${EYE_API}/iol/toric/candidate?cornealAst=${params.cornealAst}&sia=${params.sia}`,
+    ),
   predictPostopIol: (data: any) =>
     api.post<any>(`${EYE_API}/iol/predict/postop`, data),
 
   // ===== [G005 Wave1B] 远程眼科 tele (TeleConsultPage, MSW eyeTeleModule 对齐) =====
   // [G005 Wave10A] /eye/tele/* 后端真实 (eye-tele 桥接 tele 模块): session CRUD + turn/stream/consult/stats
   getTeleTurn: () => api.get<any>(`${EYE_API}/tele/turn`),
-  createTeleSession: (data: any) => api.post<any>(`${EYE_API}/tele/session`, data),
-  createTeleStream: (data: any) => api.post<any>(`${EYE_API}/tele/stream`, data),
-  createTeleConsult: (data: any) => api.post<any>(`${EYE_API}/tele/consult`, data),
+  createTeleSession: (data: any) =>
+    api.post<any>(`${EYE_API}/tele/session`, data),
+  createTeleStream: (data: any) =>
+    api.post<any>(`${EYE_API}/tele/stream`, data),
+  createTeleConsult: (data: any) =>
+    api.post<any>(`${EYE_API}/tele/consult`, data),
   listTeleSessions: (params?: Record<string, any>) =>
     api.get<any>(`${EYE_API}/tele/sessions${buildQuery(params)}`),
   // [v3.0.6.11-103 Wave 3A] 会话详情/结束 (TeleConsultPage 远程阅片 tab)
@@ -385,7 +408,10 @@ export const eyeApi = {
   getTeleConsult: (consultId: string) =>
     api.get<any>(`${EYE_API}/tele/consult/${encodeURIComponent(consultId)}`),
   answerTeleConsult: (consultId: string, data: any) =>
-    api.post<any>(`${EYE_API}/tele/consult/${encodeURIComponent(consultId)}/answer`, data),
+    api.post<any>(
+      `${EYE_API}/tele/consult/${encodeURIComponent(consultId)}/answer`,
+      data,
+    ),
   getTeleStats: () => api.get<any>(`${EYE_API}/tele/stats`),
 
   // ===== [G005 Wave1B] 像素级图像处理 pixel (RealDicomViewerPage, MSW eyePixelModule 对齐) =====
@@ -393,20 +419,26 @@ export const eyeApi = {
     api.get<any>(`${EYE_API}/pixel/instance/${encodeURIComponent(instanceId)}`),
   // [v3.0.6.11-103 Wave 3A] 可选 frame 查询参数 (后端 GET /eye/pixel/histogram/:instanceId?frame=)
   getPixelHistogram: (instanceId: string, frame?: number) =>
-    api.get<any>(`${EYE_API}/pixel/histogram/${encodeURIComponent(instanceId)}${frame ? `?frame=${frame}` : ""}`),
+    api.get<any>(
+      `${EYE_API}/pixel/histogram/${encodeURIComponent(instanceId)}${frame ? `?frame=${frame}` : ""}`,
+    ),
   getPixelColormap: (modality: string) =>
     api.get<any>(`${EYE_API}/pixel/colormap/${encodeURIComponent(modality)}`),
   // [G005 Wave 4B] 全部 colormap 目录 (EyePixelPage, 后端 GET /eye/pixel/colormaps)
   listPixelColormaps: () => api.get<any>(`${EYE_API}/pixel/colormaps`),
-  analyzePixelSharpness: (data: any) => api.post<any>(`${EYE_API}/pixel/sharpness`, data),
-  reconstructPixelMpr: (data: any) => api.post<any>(`${EYE_API}/pixel/mpr`, data),
-  detectPixelArtifact: (data: any) => api.post<any>(`${EYE_API}/pixel/detect-artifact`, data),
+  analyzePixelSharpness: (data: any) =>
+    api.post<any>(`${EYE_API}/pixel/sharpness`, data),
+  reconstructPixelMpr: (data: any) =>
+    api.post<any>(`${EYE_API}/pixel/mpr`, data),
+  detectPixelArtifact: (data: any) =>
+    api.post<any>(`${EYE_API}/pixel/detect-artifact`, data),
 
   // ===== [G005 Wave1B] PACS 测量 (RealDicomViewerPage, MSW eyeHandlers 对齐) =====
   // [v3.0.6.11-104 Wave 1A] 路径对齐后端: /eye/pacs/measurement (单数) → /eye/pacs/measurements (复数)
   //   后端 eye.controller.ts 仅 @Get('pacs/measurements') (见 getMeasurements); 单数路径不存在 (404)。
   // MOCK-ONLY: 后端未实现以下测量写端点 (eye.controller 无 POST/DELETE/export-sr), 目前仅 MSW eyeHandlers 兜底。
-  savePacsMeasurement: (data: any) => api.post<any>(`${EYE_API}/pacs/measurements`, data),
+  savePacsMeasurement: (data: any) =>
+    api.post<any>(`${EYE_API}/pacs/measurements`, data),
   // MOCK-ONLY: 后端未实现
   deletePacsMeasurement: (id: string) =>
     api.delete<any>(`${EYE_API}/pacs/measurements/${encodeURIComponent(id)}`),
@@ -420,7 +452,9 @@ export const eyeApi = {
   optometryScreening: (data: any) =>
     api.post(`${EYE_API}/optometry/screening`, data),
   getRefractionCurve: (patientId: string) =>
-    api.get(`${EYE_API}/optometry/refraction-curve/${encodeURIComponent(patientId)}`),
+    api.get(
+      `${EYE_API}/optometry/refraction-curve/${encodeURIComponent(patientId)}`,
+    ),
   okTrial: (data: any) => api.post(`${EYE_API}/optometry/ok-trial`, data),
   orthoKOrder: (data: any) =>
     api.post(`${EYE_API}/optometry/ortho-k-order`, data),
@@ -439,7 +473,9 @@ export const eyeApi = {
   createOkLens: (data: any) => api.post(`${EYE_API}/optometry/ok-lens`, data),
   // 视力记录序列
   getOptometryVisionRecord: (patientId: string) =>
-    api.get(`${EYE_API}/optometry/vision-record/${encodeURIComponent(patientId)}`),
+    api.get(
+      `${EYE_API}/optometry/vision-record/${encodeURIComponent(patientId)}`,
+    ),
   // [v3.0.6.11-103 Wave 3A] 视光订单详情 (后端 GET /eye/optometry/orders/:id)
   getOptometryOrder: (id: string) =>
     api.get(`${EYE_API}/optometry/orders/${encodeURIComponent(id)}`),
@@ -453,6 +489,70 @@ export const eyeApi = {
     api.get(`${EYE_API}/kpi/quality-metrics${buildQuery(params)}`),
   getPatientSatisfaction: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/kpi/satisfaction${buildQuery(params)}`),
+
+  // ===== [v3.0.6.16-6] 眼科报告 AI 辅助 (此前页面用裸 fetch 绕过 client) =====
+  //   后端为确定性规则引擎 (engine: 'rule-based'), 非生成式模型
+  aiContinue: (data: {
+    patientName?: string;
+    findings?: string;
+    modality?: string;
+    condition?: string;
+    maxWords?: number;
+  }) =>
+    api.post<{
+      engine: string;
+      text: string;
+      condition: string;
+      wordCount: number;
+      generatedAt: string;
+      sources: string[];
+    }>(`${EYE_API}/report/ai/continue`, data),
+  aiRewrite: (data: {
+    originalText?: string;
+    instruction?: string;
+    style?: string;
+  }) =>
+    api.post<{
+      engine: string;
+      rewritten: string;
+      style: string;
+      instruction: string;
+      changed: boolean;
+    }>(`${EYE_API}/report/ai/rewrite`, data),
+  nlpExtract: (data: { text?: string; condition?: string; studyId?: string }) =>
+    api.post<{
+      engine: string;
+      sourceText: string;
+      extracted: {
+        laterality: string | null;
+        diagnoses: Array<{ name: string; code: string }>;
+        grade: string | null;
+        iolPower: number | null;
+        iop: number | null;
+        cupDiscRatio: number | null;
+        terms: string[];
+      };
+      studyId: string | null;
+      condition: string | null;
+    }>(`${EYE_API}/report/nlp/extract`, data),
+  voiceTranscribe: (data: {
+    audio?: string;
+    language?: string;
+    condition?: string;
+  }) =>
+    api.post<{
+      engine: string;
+      language: string;
+      condition: string | null;
+      audioBytes: number;
+    }>(`${EYE_API}/report/voice/transcribe`, data),
+  aiFeedback: (data: { reportId?: string; aiText?: string; rating?: number }) =>
+    api.post<{
+      reportId: string | null;
+      rating: number | null;
+      recordedAt: string;
+      accepted: boolean;
+    }>(`${EYE_API}/report/ai/feedback`, data),
 };
 
 export default eyeApi;

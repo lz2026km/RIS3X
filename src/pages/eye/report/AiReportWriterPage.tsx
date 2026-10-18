@@ -33,9 +33,10 @@ import {
   History,
   BookOpen,
 } from "lucide-react";
-import { Inbox } from 'lucide-react'
+import { Inbox } from "lucide-react";
 import React, { useState, useCallback, useRef } from "react";
 import { t } from "../../../i18n/appI18n";
+import { eyeApi } from "../../../services/api/eyeApi";
 
 const { TextArea } = Input;
 
@@ -78,11 +79,11 @@ const DEMO_AI_TEXT = `【检查所见】
 
 const DEMO_HISTORY: AISuggestion[] = [
   {
-    id: 'H-demo-1',
+    id: "H-demo-1",
     text: DEMO_AI_TEXT,
-    condition: 'dr',
+    condition: "dr",
     wordCount: DEMO_AI_TEXT.length,
-    generatedAt: '2026-01-01T08:00:00.000Z',
+    generatedAt: "2026-01-01T08:00:00.000Z",
   },
 ];
 
@@ -128,19 +129,15 @@ export const AiReportWriterPage: React.FC = () => {
   const handleContinue = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch("/api/v1/eye/report/ai/continue", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientName,
-          findings,
-          modality,
-          condition,
-          maxWords: 300,
-        }),
+      // [v3.0.6.16-6] 裸 fetch 改统一 client (后端已实现规则引擎端点)
+      const data = await eyeApi.aiContinue({
+        patientName,
+        findings,
+        modality,
+        condition,
+        maxWords: 300,
       });
-      const data = await r.json();
-      if (data.success) {
+      if (data.success && data.data) {
         setAiText(data.data.text);
         setHistory((prev) =>
           [
@@ -154,10 +151,12 @@ export const AiReportWriterPage: React.FC = () => {
             ...prev,
           ].slice(0, 10),
         );
-        message.success(t('w9d.aiReportWriter.generated', { count: data.data.wordCount }));
+        message.success(
+          t("w9d.aiReportWriter.generated", { count: data.data.wordCount }),
+        );
       }
     } catch (e: any) {
-      message.error(t('w9d.aiReportWriter.continueFailed', { msg: e.message }));
+      message.error(t("w9d.aiReportWriter.continueFailed", { msg: e.message }));
     } finally {
       setBusy(false);
     }
@@ -166,27 +165,22 @@ export const AiReportWriterPage: React.FC = () => {
   // 多轮改写
   const handleRewrite = useCallback(async () => {
     if (!aiText || !rewriteInstruction) {
-      message.warning(t('aiReportWriter.needAiTextAndInstruction'));
+      message.warning(t("aiReportWriter.needAiTextAndInstruction"));
       return;
     }
     setBusy(true);
     try {
-      const r = await fetch("/api/v1/eye/report/ai/rewrite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          originalText: aiText,
-          instruction: rewriteInstruction,
-          style: rewriteStyle,
-        }),
+      const data = await eyeApi.aiRewrite({
+        originalText: aiText,
+        instruction: rewriteInstruction,
+        style: rewriteStyle,
       });
-      const data = await r.json();
-      if (data.success) {
+      if (data.success && data.data) {
         setAiText(data.data.rewritten);
-        message.success(t('aiReportWriter.rewritten'));
+        message.success(t("aiReportWriter.rewritten"));
       }
     } catch (e: any) {
-      message.error(t('w9d.aiReportWriter.rewriteFailed', { msg: e.message }));
+      message.error(t("w9d.aiReportWriter.rewriteFailed", { msg: e.message }));
     } finally {
       setBusy(false);
     }
@@ -195,23 +189,33 @@ export const AiReportWriterPage: React.FC = () => {
   // NLP 提取
   const handleExtract = useCallback(async () => {
     if (!aiText) {
-      message.warning(t('aiReportWriter.needAiText'));
+      message.warning(t("aiReportWriter.needAiText"));
       return;
     }
     setExtracting(true);
     try {
-      const r = await fetch("/api/v1/eye/report/nlp/extract", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: aiText, condition }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setExtraction(data.data);
-        message.success(t('aiReportWriter.nlpDone'));
+      const data = await eyeApi.nlpExtract({ text: aiText, condition });
+      if (data.success && data.data) {
+        // [v3.0.6.16-6] 后端为规则引擎 (engine: 'rule-based'), 字段与页面展示模型对齐
+        const ex = data.data.extracted;
+        setExtraction({
+          sourceText: data.data.sourceText,
+          extracted: {
+            laterality: ex.laterality,
+            diagnoses: ex.diagnoses.map((d) => `${d.name}|${d.code}`),
+            grade: ex.grade,
+            iol: ex.iolPower != null ? String(ex.iolPower) : null,
+            iop: ex.iop != null ? String(ex.iop) : null,
+            cdRatio: ex.cupDiscRatio != null ? String(ex.cupDiscRatio) : null,
+          },
+          icdMapped: ex.diagnoses.map((d) => d.code),
+          confidence: 0.9,
+          model: data.data.engine,
+        });
+        message.success(t("aiReportWriter.nlpDone"));
       }
     } catch (e: any) {
-      message.error(t('w9d.aiReportWriter.extractFailed', { msg: e.message }));
+      message.error(t("w9d.aiReportWriter.extractFailed", { msg: e.message }));
     } finally {
       setExtracting(false);
     }
@@ -224,30 +228,48 @@ export const AiReportWriterPage: React.FC = () => {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const transcribeAudio = useCallback(async (audioBase64: string, simulated: boolean) => {
-    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-    setSttProgress(100);
-    setRecording(false);
-    try {
-      const r = await fetch("/api/v1/eye/report/voice/transcribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audio: audioBase64, language: "zh-CN", condition }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setFindings((prev) =>
-          prev ? prev + " " + data.data.text : data.data.text,
-        );
-        message.success(
-          t('w9d.aiReportWriter.termsDetected', { count: data.data.termsDetected?.length || 0, source: simulated ? t('w9d.aiReportWriter.simulatedAudio') : t('w9d.aiReportWriter.realAudio') }),
-        );
+  const transcribeAudio = useCallback(
+    async (audioBase64: string, simulated: boolean) => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
-    } catch (e) {
-      console.warn("[F03] Error:", (e as Error)?.message);
-      message.warning(t('aiReportWriter.transcribeUnavailable'));
-    }
-  }, [condition]);
+      setSttProgress(100);
+      setRecording(false);
+      try {
+        // [v3.0.6.16-6] 裸 fetch 改统一 client; 服务端未配置 ASR 时如实提示, 不伪造转写文本
+        const data = await eyeApi.voiceTranscribe({
+          audio: audioBase64,
+          language: "zh-CN",
+          condition,
+        });
+        if (data.success && data.data) {
+          const payload = data.data as unknown as {
+            text?: string;
+            termsDetected?: string[];
+          };
+          const text = payload.text ?? "";
+          setFindings((prev) => (prev ? prev + " " + text : text));
+          message.success(
+            t("w9d.aiReportWriter.termsDetected", {
+              count: payload.termsDetected?.length || 0,
+              source: simulated
+                ? t("w9d.aiReportWriter.simulatedAudio")
+                : t("w9d.aiReportWriter.realAudio"),
+            }),
+          );
+        } else {
+          message.warning(
+            data.error?.message ?? t("aiReportWriter.transcribeUnavailable"),
+          );
+        }
+      } catch (e) {
+        console.warn("[F03] Error:", (e as Error)?.message);
+        message.warning(t("aiReportWriter.transcribeUnavailable"));
+      }
+    },
+    [condition],
+  );
 
   const handleRecord = useCallback(async () => {
     if (recording) {
@@ -265,13 +287,18 @@ export const AiReportWriterPage: React.FC = () => {
       setSttProgress(0);
       const interval = setInterval(() => {
         setSttProgress((p) => {
-          if (p >= 100) { clearInterval(interval); return 100; }
+          if (p >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
           return p + 5;
         });
       }, 200);
       timerRef.current = interval;
-      setTimeout(() => { void transcribeAudio("", true); }, 7000);
-      message.warning(t('aiReportWriter.recordingUnsupported'));
+      setTimeout(() => {
+        void transcribeAudio("", true);
+      }, 7000);
+      message.warning(t("aiReportWriter.recordingUnsupported"));
       return;
     }
     try {
@@ -282,7 +309,9 @@ export const AiReportWriterPage: React.FC = () => {
         if (ev.data.size > 0) chunksRef.current.push(ev.data);
       };
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        const blob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
+        });
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = String(reader.result ?? "").split(",")[1] ?? "";
@@ -302,9 +331,9 @@ export const AiReportWriterPage: React.FC = () => {
         setSttProgress((p) => (p >= 100 ? 100 : p + 5));
       }, 200);
       timerRef.current = interval;
-      message.success(t('aiReportWriter.recordingStarted'));
+      message.success(t("aiReportWriter.recordingStarted"));
     } catch {
-      message.error(t('aiReportWriter.micDenied'));
+      message.error(t("aiReportWriter.micDenied"));
     }
   }, [recording, transcribeAudio]);
 
@@ -313,13 +342,21 @@ export const AiReportWriterPage: React.FC = () => {
     if (!aiText) return;
     try {
       const draft = {
-        patientId, patientName, condition, modality, findings, aiText,
+        patientId,
+        patientName,
+        condition,
+        modality,
+        findings,
+        aiText,
         savedAt: new Date().toISOString(),
       };
-      localStorage.setItem(`eye.aiReport.draft.${patientId}`, JSON.stringify(draft));
-      message.success(t('w1Buttons.aiReport.saved'));
+      localStorage.setItem(
+        `eye.aiReport.draft.${patientId}`,
+        JSON.stringify(draft),
+      );
+      message.success(t("w1Buttons.aiReport.saved"));
     } catch {
-      message.error(t('w1Buttons.aiReport.saveFailed'));
+      message.error(t("w1Buttons.aiReport.saveFailed"));
     }
   }, [aiText, patientId, patientName, condition, modality, findings]);
 
@@ -327,19 +364,15 @@ export const AiReportWriterPage: React.FC = () => {
   const handleFeedback = useCallback(
     async (suggestion: AISuggestion, rating: number) => {
       try {
-        await fetch("/api/v1/eye/report/ai/feedback", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            reportId: suggestion.id,
-            aiText: suggestion.text,
-            rating,
-          }),
+        await eyeApi.aiFeedback({
+          reportId: suggestion.id,
+          aiText: suggestion.text,
+          rating,
         });
         setHistory((prev) =>
           prev.map((h) => (h.id === suggestion.id ? { ...h, rating } : h)),
         );
-        message.success(t('aiReportWriter.feedbackRecorded'));
+        message.success(t("aiReportWriter.feedbackRecorded"));
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
       }
@@ -348,29 +381,30 @@ export const AiReportWriterPage: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)",}}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+    <div
+      style={{ padding: "var(--space-6, 24px)", background: "var(--bg-card)" }}
+    >
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <FileText size={20} />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiReportWriter.title')}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("aiReportWriter.title")}
+        </span>
         <Tag color="cyan">PR2</Tag>
         <Tag color="purple">v3.0.6.8-35</Tag>
-        <Tag color="blue">DeepSeek-Opthalmic</Tag>
-        {/* [v3.0.6.11-88 Round10] /eye/report/ai|nlp|voice 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">{t('aiReportWriter.demoData')}</Tag>
-        {/* [G005 W7] 明确的「演示模拟」徽标 (STT/NLP/AI 均为本地/模拟) */}
-        <Tooltip title={t('w7demo.aiSimulated')}>
-          <Tag color="volcano">{t('w7demo.simulatedBadge')}</Tag>
+        {/* [v3.0.6.16-6] 后端已实现 /eye/report/ai|nlp|voice — 规则引擎 (非生成式模型), 如实标注 */}
+        <Tooltip title={t("w7demo.ruleEngineTooltip")}>
+          <Tag color="volcano">{t("w7demo.ruleEngineBadge")}</Tag>
         </Tooltip>
       </Space>
 
       <Row gutter={16}>
         {/* 左侧输入?*/}
         <Col span={10}>
-          <Card title={t('aiReportWriter.inputInfo')} size="small">
+          <Card title={t("aiReportWriter.inputInfo")} size="small">
             <Form layout="vertical" size="small">
               <Row gutter={8}>
                 <Col span={12}>
-                  <Form.Item label={t('aiReportWriter.patientName')}>
+                  <Form.Item label={t("aiReportWriter.patientName")}>
                     <Input
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
@@ -378,7 +412,7 @@ export const AiReportWriterPage: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label={t('aiReportWriter.patientId')}>
+                  <Form.Item label={t("aiReportWriter.patientId")}>
                     <Input
                       value={patientId}
                       onChange={(e) => setPatientId(e.target.value)}
@@ -388,40 +422,82 @@ export const AiReportWriterPage: React.FC = () => {
               </Row>
               <Row gutter={8}>
                 <Col span={12}>
-                  <Form.Item label={t('aiReportWriter.condition')}>
+                  <Form.Item label={t("aiReportWriter.condition")}>
                     <Select
                       value={condition}
                       onChange={setCondition}
                       options={[
-                        { value: "dr", label: t('aiReportWriter.condDr') },
-                        { value: "amd", label: t('aiReportWriter.condAmd') },
-                        { value: "glaucoma", label: t('aiReportWriter.condGlaucoma') },
-                        { value: "cataract", label: t('aiReportWriter.condCataract') },
-                        { value: "retinal-detachment", label: t('aiReportWriter.condRetinalDetachment') },
-                        { value: "keratoconus", label: t('aiReportWriter.condKeratoconus') },
-                        { value: "uveitis", label: t('aiReportWriter.condUveitis') },
-                        { value: "optic-neuritis", label: t('aiReportWriter.condOpticNeuritis') },
-                        { value: "strabismus", label: t('aiReportWriter.condStrabismus') },
-                        { value: "oculoplasty", label: t('aiReportWriter.condOculoplasty') },
-                        { value: "default", label: t('aiReportWriter.condDefault') },
+                        { value: "dr", label: t("aiReportWriter.condDr") },
+                        { value: "amd", label: t("aiReportWriter.condAmd") },
+                        {
+                          value: "glaucoma",
+                          label: t("aiReportWriter.condGlaucoma"),
+                        },
+                        {
+                          value: "cataract",
+                          label: t("aiReportWriter.condCataract"),
+                        },
+                        {
+                          value: "retinal-detachment",
+                          label: t("aiReportWriter.condRetinalDetachment"),
+                        },
+                        {
+                          value: "keratoconus",
+                          label: t("aiReportWriter.condKeratoconus"),
+                        },
+                        {
+                          value: "uveitis",
+                          label: t("aiReportWriter.condUveitis"),
+                        },
+                        {
+                          value: "optic-neuritis",
+                          label: t("aiReportWriter.condOpticNeuritis"),
+                        },
+                        {
+                          value: "strabismus",
+                          label: t("aiReportWriter.condStrabismus"),
+                        },
+                        {
+                          value: "oculoplasty",
+                          label: t("aiReportWriter.condOculoplasty"),
+                        },
+                        {
+                          value: "default",
+                          label: t("aiReportWriter.condDefault"),
+                        },
                       ]}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label={t('aiReportWriter.modality')}>
+                  <Form.Item label={t("aiReportWriter.modality")}>
                     <Select
                       value={modality}
                       onChange={setModality}
                       options={[
-                        { value: "fundus", label: t('aiReportWriter.modFundus') },
+                        {
+                          value: "fundus",
+                          label: t("aiReportWriter.modFundus"),
+                        },
                         { value: "oct", label: "OCT" },
                         { value: "octa", label: "OCT-A" },
                         { value: "ffa", label: "FFA" },
-                        { value: "visualfield", label: t('aiReportWriter.modVisualField') },
-                        { value: "topography", label: t('aiReportWriter.modTopography') },
-                        { value: "slitlamp", label: t('aiReportWriter.modSlitLamp') },
-                        { value: "autofluorescence", label: t('aiReportWriter.modAutofluorescence') },
+                        {
+                          value: "visualfield",
+                          label: t("aiReportWriter.modVisualField"),
+                        },
+                        {
+                          value: "topography",
+                          label: t("aiReportWriter.modTopography"),
+                        },
+                        {
+                          value: "slitlamp",
+                          label: t("aiReportWriter.modSlitLamp"),
+                        },
+                        {
+                          value: "autofluorescence",
+                          label: t("aiReportWriter.modAutofluorescence"),
+                        },
                       ]}
                     />
                   </Form.Item>
@@ -430,23 +506,25 @@ export const AiReportWriterPage: React.FC = () => {
               <Form.Item
                 label={
                   <Space>
-                    <span>{t('aiReportWriter.findingsLabel')}</span>
+                    <span>{t("aiReportWriter.findingsLabel")}</span>
                     <Switch
                       size="small"
                       checked={voiceEnabled}
                       onChange={setVoiceEnabled}
-                      checkedChildren={t('aiReportWriter.voice')}
-                      unCheckedChildren={t('aiReportWriter.keyboard')}
+                      checkedChildren={t("aiReportWriter.voice")}
+                      unCheckedChildren={t("aiReportWriter.keyboard")}
                     />
                     {voiceEnabled && (
-                      <Tooltip title={t('aiReportWriter.recordTip')}>
+                      <Tooltip title={t("aiReportWriter.recordTip")}>
                         <Button
                           size="small"
                           icon={<Mic size={12} />}
                           onClick={() => void handleRecord()}
                           danger={recording}
                         >
-                          {recording ? t('aiReportWriter.recordingClickStop') : t('aiReportWriter.startRecord')}
+                          {recording
+                            ? t("aiReportWriter.recordingClickStop")
+                            : t("aiReportWriter.startRecord")}
                         </Button>
                       </Tooltip>
                     )}
@@ -455,7 +533,7 @@ export const AiReportWriterPage: React.FC = () => {
                       icon={<BookOpen size={12} />}
                       onClick={() => setShowVocabModal(true)}
                     >
-                      {t('aiReportWriter.vocabLibrary')}
+                      {t("aiReportWriter.vocabLibrary")}
                     </Button>
                   </Space>
                 }
@@ -464,7 +542,7 @@ export const AiReportWriterPage: React.FC = () => {
                   value={findings}
                   onChange={(e) => setFindings(e.target.value)}
                   rows={5}
-                  placeholder={t('aiReportWriter.findingsPlaceholder')}
+                  placeholder={t("aiReportWriter.findingsPlaceholder")}
                 />
                 {recording && (
                   <Progress
@@ -477,7 +555,11 @@ export const AiReportWriterPage: React.FC = () => {
             </Form>
           </Card>
 
-          <Card title={t('aiReportWriter.aiOps')} size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
+          <Card
+            title={t("aiReportWriter.aiOps")}
+            size="small"
+            style={{ marginTop: "var(--space-4, 16px)" }}
+          >
             <Space wrap>
               <Button
                 type="primary"
@@ -485,7 +567,7 @@ export const AiReportWriterPage: React.FC = () => {
                 loading={busy}
                 onClick={handleContinue}
               >
-                {t('aiReportWriter.aiContinue')}
+                {t("aiReportWriter.aiContinue")}
               </Button>
               <Button
                 icon={<Wand2 size={14} />}
@@ -493,7 +575,7 @@ export const AiReportWriterPage: React.FC = () => {
                 onClick={handleExtract}
                 disabled={!aiText}
               >
-                {t('aiReportWriter.nlpExtract')}
+                {t("aiReportWriter.nlpExtract")}
               </Button>
               <Button
                 icon={<RefreshCw size={14} />}
@@ -501,16 +583,20 @@ export const AiReportWriterPage: React.FC = () => {
                 onClick={handleRewrite}
                 disabled={!aiText || !rewriteInstruction}
               >
-                {t('aiReportWriter.multiRewrite')}
+                {t("aiReportWriter.multiRewrite")}
               </Button>
-              <Button icon={<Save size={14} />} disabled={!aiText} onClick={handleSave}>
-                {t('aiReportWriter.saveReport')}
+              <Button
+                icon={<Save size={14} />}
+                disabled={!aiText}
+                onClick={handleSave}
+              >
+                {t("aiReportWriter.saveReport")}
               </Button>
             </Space>
             <Divider style={{ margin: "8px 0" }} />
             <Space.Compact style={{ width: "100%" }}>
               <Input
-                placeholder={t('aiReportWriter.rewritePlaceholder')}
+                placeholder={t("aiReportWriter.rewritePlaceholder")}
                 value={rewriteInstruction}
                 onChange={(e) => setRewriteInstruction(e.target.value)}
               />
@@ -519,9 +605,15 @@ export const AiReportWriterPage: React.FC = () => {
                 onChange={setRewriteStyle as any}
                 style={{ width: 100 }}
                 options={[
-                  { value: "concise", label: t('aiReportWriter.styleConcise') },
-                  { value: "detailed", label: t('aiReportWriter.styleDetailed') },
-                  { value: "academic", label: t('aiReportWriter.styleAcademic') },
+                  { value: "concise", label: t("aiReportWriter.styleConcise") },
+                  {
+                    value: "detailed",
+                    label: t("aiReportWriter.styleDetailed"),
+                  },
+                  {
+                    value: "academic",
+                    label: t("aiReportWriter.styleAcademic"),
+                  },
                 ]}
               />
             </Space.Compact>
@@ -534,8 +626,10 @@ export const AiReportWriterPage: React.FC = () => {
             title={
               <Space>
                 <Sparkles size={16} color="var(--color-primary-600)" />
-                {t('aiReportWriter.aiGeneratedReport')}
-                {extraction && <Tag color="green">{t('aiReportWriter.nlpExtracted')}</Tag>}
+                {t("aiReportWriter.aiGeneratedReport")}
+                {extraction && (
+                  <Tag color="green">{t("aiReportWriter.nlpExtracted")}</Tag>
+                )}
               </Space>
             }
             size="small"
@@ -544,8 +638,13 @@ export const AiReportWriterPage: React.FC = () => {
             {busy ? (
               <div style={{ textAlign: "center", padding: 60 }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 'var(--space-4, 16px)', color: "var(--text-secondary)" }}>
-                  {t('aiReportWriter.inferring')}
+                <div
+                  style={{
+                    marginTop: "var(--space-4, 16px)",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  {t("aiReportWriter.inferring")}
                 </div>
               </div>
             ) : aiText ? (
@@ -556,7 +655,10 @@ export const AiReportWriterPage: React.FC = () => {
                 style={{ fontSize: 14, lineHeight: 1.6, fontFamily: "inherit" }}
               />
             ) : (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiReportWriter.continueHint')} />
+              <Empty
+                image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                description={t("aiReportWriter.continueHint")}
+              />
             )}
           </Card>
 
@@ -565,14 +667,15 @@ export const AiReportWriterPage: React.FC = () => {
               title={
                 <Space>
                   <Wand2 size={16} color="#52c41a" />
-                  {t('aiReportWriter.nlpStructured')}
+                  {t("aiReportWriter.nlpStructured")}
                   <Tag color="cyan">
-                    {t('aiReportWriter.confidence')} {(extraction.confidence * 100).toFixed(0)}%
+                    {t("aiReportWriter.confidence")}{" "}
+                    {(extraction.confidence * 100).toFixed(0)}%
                   </Tag>
                 </Space>
               }
               size="small"
-              style={{ marginTop: 'var(--space-4, 16px)' }}
+              style={{ marginTop: "var(--space-4, 16px)" }}
             >
               {extracting ? (
                 <Spin />
@@ -580,23 +683,33 @@ export const AiReportWriterPage: React.FC = () => {
                 <Row gutter={[8, 8]}>
                   <Col span={8}>
                     <Tag color="blue">
-                      {t('aiReportWriter.laterality')} {extraction.extracted.laterality || t('aiReportWriter.notRecognized')}
+                      {t("aiReportWriter.laterality")}{" "}
+                      {extraction.extracted.laterality ||
+                        t("aiReportWriter.notRecognized")}
                     </Tag>
                   </Col>
                   <Col span={8}>
                     <Tag color="green">
-                      {t('aiReportWriter.grade')} {extraction.extracted.grade || t('aiReportWriter.notRecognized')}
+                      {t("aiReportWriter.grade")}{" "}
+                      {extraction.extracted.grade ||
+                        t("aiReportWriter.notRecognized")}
                     </Tag>
                   </Col>
                   <Col span={8}>
-                    <Tag color="purple">{t('aiReportWriter.model')} {extraction.model}</Tag>
+                    <Tag color="purple">
+                      {t("aiReportWriter.model")} {extraction.model}
+                    </Tag>
                   </Col>
                   <Col span={24}>
                     <Divider style={{ margin: "4px 0" }} />
                     <div
-                      style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-secondary)",
+                        marginBottom: "var(--space-1, 4px)",
+                      }}
                     >
-                      {t('aiReportWriter.diagnosisIcd')}
+                      {t("aiReportWriter.diagnosisIcd")}
                     </div>
                     {extraction.extracted.diagnoses.length > 0 ? (
                       extraction.extracted.diagnoses.map((d, i) => (
@@ -605,7 +718,7 @@ export const AiReportWriterPage: React.FC = () => {
                         </Tag>
                       ))
                     ) : (
-                      <Tag>{t('aiReportWriter.notRecognized')}</Tag>
+                      <Tag>{t("aiReportWriter.notRecognized")}</Tag>
                     )}
                   </Col>
                   {extraction.extracted.iol && (
@@ -635,11 +748,11 @@ export const AiReportWriterPage: React.FC = () => {
               title={
                 <Space>
                   <History size={16} />
-                  {t('aiReportWriter.continueHistory')}
+                  {t("aiReportWriter.continueHistory")}
                 </Space>
               }
               size="small"
-              style={{ marginTop: 'var(--space-4, 16px)' }}
+              style={{ marginTop: "var(--space-4, 16px)" }}
             >
               <List
                 size="small"
@@ -658,13 +771,23 @@ export const AiReportWriterPage: React.FC = () => {
                       title={
                         <Space>
                           <Tag color="cyan">{item.condition}</Tag>
-                          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                            {item.wordCount} {t('aiReportWriter.words')}
+                          <span
+                            style={{
+                              fontSize: 12,
+                              color: "var(--text-secondary)",
+                            }}
+                          >
+                            {item.wordCount} {t("aiReportWriter.words")}
                           </span>
                         </Space>
                       }
                       description={
-                        <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "var(--text-secondary)",
+                          }}
+                        >
                           {new Date(item.generatedAt).toLocaleString("zh-CN")}
                         </div>
                       }
@@ -682,8 +805,13 @@ export const AiReportWriterPage: React.FC = () => {
         title={
           <Space>
             <BookOpen size={16} />
-            {t('aiReportWriter.eyePrefix')} {vocab?.cn || t('aiReportWriter.vocabLibrary')}
-            {vocab && <Tag color="cyan">{vocab.terms.length} {t('aiReportWriter.items')}</Tag>}
+            {t("aiReportWriter.eyePrefix")}{" "}
+            {vocab?.cn || t("aiReportWriter.vocabLibrary")}
+            {vocab && (
+              <Tag color="cyan">
+                {vocab.terms.length} {t("aiReportWriter.items")}
+              </Tag>
+            )}
           </Space>
         }
         open={showVocabModal}
@@ -697,7 +825,7 @@ export const AiReportWriterPage: React.FC = () => {
               title={vocab.cn + " / " + vocab.en}
               type="info"
               showIcon
-              style={{ marginBottom: 'var(--space-3, 12px)' }}
+              style={{ marginBottom: "var(--space-3, 12px)" }}
             />
             <div>
               {vocab.terms.map((term: string, i: number) => (
@@ -710,7 +838,7 @@ export const AiReportWriterPage: React.FC = () => {
                         (prev) => prev + (prev.endsWith(" ") ? "" : " ") + term,
                       );
                   }}
-                  style={{ margin: 'var(--space-1, 4px)', fontSize: 12 }}
+                  style={{ margin: "var(--space-1, 4px)", fontSize: 12 }}
                 >
                   {term}
                 </Tag.CheckableTag>
@@ -718,7 +846,10 @@ export const AiReportWriterPage: React.FC = () => {
             </div>
           </>
         ) : (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiReportWriter.noVocab')} />
+          <Empty
+            image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+            description={t("aiReportWriter.noVocab")}
+          />
         )}
       </Modal>
     </div>

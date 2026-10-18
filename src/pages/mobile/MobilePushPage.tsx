@@ -455,7 +455,7 @@ export default function MobilePushPage() {
             <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>
               {t("mobilePush.subtitle")}
             </div>
-            {/* [v3.0.6.11-88 Round10] /mobile/push-notifications 后端未实现, MSW 演示数据 */}
+            {/* [v3.0.6.16-6] 已改调真实 /notifications 端点 (后端 notifications.controller 已实现) */}
             <div
               style={{
                 fontSize: 11,

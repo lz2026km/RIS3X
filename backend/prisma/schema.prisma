@@ -1886,3 +1886,25 @@ model QueueState {
   @@index([tenantId, roomId])
   @@map("queue_states")
 }
+
+// [v3.0.6.16-6] 报告分发任务 — 此前 /dist/tasks 仅 MSW 兜底, 页面用裸 fetch 绕过 client 隐藏了死端点
+model DistTask {
+  id         String    @id @default(cuid())
+  tenantId   String    @map("tenant_id")
+  reportId   String    @map("report_id")
+  channel    String
+  target     String    @default("")
+  recipient  String?
+  status     String    @default("pending")
+  error      String?
+  retryCount Int       @default(0) @map("retry_count")
+  sentAt     DateTime? @map("sent_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([reportId])
+  @@index([status])
+  @@index([channel])
+  @@index([tenantId])
+  @@map("dist_tasks")
+}
