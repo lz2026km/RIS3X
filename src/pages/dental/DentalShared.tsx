@@ -1,11 +1,14 @@
 // [v3.0.6.8-82] 口腔模块共享组件
-import React, { useState } from 'react';
-import { Space, Tag, Empty } from 'antd';
-import { Button, Alert, message, Modal, Descriptions } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { Activity, Plus } from 'lucide-react';
-import { t } from '../../i18n/appI18n';
+import React, { useMemo, useState } from "react";
+import { Space, Tag, Empty } from "antd";
+import { Button, Alert, message, Modal, Descriptions } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { Activity, Plus } from "lucide-react";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
+import { t } from "../../i18n/appI18n";
 import { DataTable } from "../../components/common";
+import { FilterBar } from "../../components/common/FilterBar";
 
 export interface DentalHeaderProps {
   title: string;
@@ -18,9 +21,23 @@ export interface DentalHeaderProps {
 
 /** 口腔页面统一页头 */
 export const DentalPageHeader: React.FC<DentalHeaderProps> = ({
-  title, version = 'v3.0.6.8-82', icon, tags = [], children, extra,
+  title,
+  version = "v3.0.6.8-82",
+  icon,
+  tags = [],
+  children,
+  extra,
 }) => (
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "var(--space-4, 16px)",
+      flexWrap: "wrap",
+      gap: "var(--space-2, 8px)",
+    }}
+  >
     <Space>
       {icon || <Activity size={20} color="var(--color-primary-600)" />}
       <span style={{ fontSize: 18, fontWeight: 600 }}>{title}</span>
@@ -32,52 +49,109 @@ export const DentalPageHeader: React.FC<DentalHeaderProps> = ({
   </div>
 );
 
-export const EmptyState: React.FC<{ tip?: string; onCreate?: () => void; createLabel?: string }> = ({
-  tip = t('dentalShared.noData'),
+export const EmptyState: React.FC<{
+  tip?: string;
+  onCreate?: () => void;
+  createLabel?: string;
+}> = ({
+  tip = t("dentalShared.noData"),
   onCreate,
-  createLabel = t('dentalShared.create'),
+  createLabel = t("dentalShared.create"),
 }) => (
   <Empty description={tip} image={Empty.PRESENTED_IMAGE_SIMPLE}>
-    {onCreate && <Button type="primary" icon={<Plus size={14} />} onClick={onCreate}>{createLabel}</Button>}
+    {onCreate && (
+      <Button type="primary" icon={<Plus size={14} />} onClick={onCreate}>
+        {createLabel}
+      </Button>
+    )}
   </Empty>
 );
 
-export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record }) => {
+export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({
+  record,
+}) => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [followedUp, setFollowedUp] = useState(false);
 
   const handleFollowUp = () => {
     setFollowedUp(true);
-    message.success(t('dentalShared.followUpScheduled', { name: record.patientName || record.patientId || record.id }));
+    message.success(
+      t("dentalShared.followUpScheduled", {
+        name: record.patientName || record.patientId || record.id,
+      }),
+    );
   };
 
   return (
     <Space size={4}>
-      <Button size="small" onClick={() => setDetailOpen(true)}>{t('dentalShared.detail')}</Button>
-      <Button size="small" type="link" disabled={followedUp} onClick={handleFollowUp}>
-        {followedUp ? t('dentalShared.followedUp') : t('dentalShared.followUp')}
+      <Button size="small" onClick={() => setDetailOpen(true)}>
+        {t("dentalShared.detail")}
+      </Button>
+      <Button
+        size="small"
+        type="link"
+        disabled={followedUp}
+        onClick={handleFollowUp}
+      >
+        {followedUp ? t("dentalShared.followedUp") : t("dentalShared.followUp")}
       </Button>
       <Modal
-        title={t('dentalShared.detailTitle', { name: record.patientName || record.patientId || record.id })}
+        title={t("dentalShared.detailTitle", {
+          name: record.patientName || record.patientId || record.id,
+        })}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
-        footer={<Button onClick={() => setDetailOpen(false)}>{t('dentalShared.close')}</Button>}
+        footer={
+          <Button onClick={() => setDetailOpen(false)}>
+            {t("dentalShared.close")}
+          </Button>
+        }
         width={560}
       >
         <Descriptions bordered size="small" column={2}>
-          <Descriptions.Item label={t('dentalShared.patient')}>{record.patientName || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.patientId')}>{record.patientId || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.toothNo')}>{record.toothNo ? `#${record.toothNo}` : '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.toothSurface')}>{record.toothSurface || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.diagnosis')} span={2}>{record.diagnosis || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.plan')} span={2}>{record.plan || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.cost')}>{record.cost != null ? `¥${record.cost}` : '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.status')}>
-            <Tag color={record.status === 'Completed' || record.status === 'completed' ? 'green' : record.status === 'InProgress' ? 'orange' : 'default'}>
-              {record.status === 'Completed' || record.status === 'completed' ? t('dentalShared.statusCompleted') : record.status === 'InProgress' ? t('dentalShared.statusInProgress') : record.status || '-'}
+          <Descriptions.Item label={t("dentalShared.patient")}>
+            {record.patientName || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.patientId")}>
+            {record.patientId || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.toothNo")}>
+            {record.toothNo ? `#${record.toothNo}` : "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.toothSurface")}>
+            {record.toothSurface || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.diagnosis")} span={2}>
+            {record.diagnosis || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.plan")} span={2}>
+            {record.plan || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.cost")}>
+            {record.cost != null ? `¥${record.cost}` : "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.status")}>
+            <Tag
+              color={
+                record.status === "Completed" || record.status === "completed"
+                  ? "green"
+                  : record.status === "InProgress"
+                    ? "orange"
+                    : "default"
+              }
+            >
+              {record.status === "Completed" || record.status === "completed"
+                ? t("dentalShared.statusCompleted")
+                : record.status === "InProgress"
+                  ? t("dentalShared.statusInProgress")
+                  : record.status || "-"}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label={t('dentalShared.createdAt')} span={2}>{record.createdAt ? new Date(record.createdAt).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
+          <Descriptions.Item label={t("dentalShared.createdAt")} span={2}>
+            {record.createdAt
+              ? new Date(record.createdAt).toLocaleString("zh-CN")
+              : "-"}
+          </Descriptions.Item>
         </Descriptions>
       </Modal>
     </Space>
@@ -102,57 +176,198 @@ export const DentalTreatmentTable: React.FC<{
   data: DentalTreatment[];
   showSurface?: boolean;
   showActions?: boolean;
-  size?: 'small' | 'middle' | 'large';
-}> = ({ data, showSurface = false, showActions = false }) => {
+  size?: "small" | "middle" | "large";
+  /** [v3.0.6.16-6] 开启内部筛选 (关键词/状态/时间范围); 默认关闭, 既有调用方输出不变 */
+  filterable?: boolean;
+}> = ({
+  data,
+  showSurface = false,
+  showActions = false,
+  filterable = false,
+}) => {
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [dateRange, setDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
+
+  const filteredData = useMemo(() => {
+    if (!filterable) return data;
+    const kw = keyword.trim().toLowerCase();
+    return data.filter((r) => {
+      const matchKw =
+        !kw ||
+        [r.patientName, r.patientId, r.diagnosis, r.plan].some((v) =>
+          String(v ?? "")
+            .toLowerCase()
+            .includes(kw),
+        );
+      const matchStatus =
+        !filterValues.status || r.status === filterValues.status;
+      let matchDate = true;
+      if (dateRange && (dateRange[0] || dateRange[1])) {
+        const d = dayjs(r.createdAt);
+        if (!d.isValid()) matchDate = false;
+        else {
+          if (dateRange[0] && d.isBefore(dateRange[0].startOf("day")))
+            matchDate = false;
+          if (dateRange[1] && d.isAfter(dateRange[1].endOf("day")))
+            matchDate = false;
+        }
+      }
+      return matchKw && matchStatus && matchDate;
+    });
+  }, [data, filterable, keyword, filterValues, dateRange]);
+
+  const statusOptions = useMemo(
+    () =>
+      Array.from(new Set(data.map((r) => r.status)))
+        .filter(Boolean)
+        .map((v) => ({ value: String(v), label: String(v) })),
+    [data],
+  );
+
   const baseColumns: ColumnsType<DentalTreatment> = [
-    { title: t('dentalShared.patient'), dataIndex: 'patientName', width: 100 },
-    { title: t('dentalShared.toothNo'), dataIndex: 'toothNo', width: 80, render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
+    { title: t("dentalShared.patient"), dataIndex: "patientName", width: 100 },
+    {
+      title: t("dentalShared.toothNo"),
+      dataIndex: "toothNo",
+      width: 80,
+      render: (n?: number) => (n ? <Tag color="blue">#{n}</Tag> : "-"),
+    },
   ];
-  if (showSurface) baseColumns.push({ title: t('dentalShared.surface'), dataIndex: 'toothSurface', width: 60 });
+  if (showSurface)
+    baseColumns.push({
+      title: t("dentalShared.surface"),
+      dataIndex: "toothSurface",
+      width: 60,
+    });
   baseColumns.push(
-    { title: t('dentalShared.diagnosis'), dataIndex: 'diagnosis', width: 180 },
-    { title: t('dentalShared.plan'), dataIndex: 'plan', width: 180 },
-    { title: t('dentalShared.cost'), dataIndex: 'cost', width: 80, render: (v?: number) => v != null ? `¥${v}` : '-' },
-    { title: t('dentalShared.status'), dataIndex: 'status', width: 100, render: (s?: string) =>
-      <Tag color={s === 'Completed' ? 'green' : s === 'InProgress' ? 'orange' : s === 'completed' ? 'success' : 'default'}>{s || '-'}</Tag> },
+    { title: t("dentalShared.diagnosis"), dataIndex: "diagnosis", width: 180 },
+    { title: t("dentalShared.plan"), dataIndex: "plan", width: 180 },
+    {
+      title: t("dentalShared.cost"),
+      dataIndex: "cost",
+      width: 80,
+      render: (v?: number) => (v != null ? `¥${v}` : "-"),
+    },
+    {
+      title: t("dentalShared.status"),
+      dataIndex: "status",
+      width: 100,
+      render: (s?: string) => (
+        <Tag
+          color={
+            s === "Completed"
+              ? "green"
+              : s === "InProgress"
+                ? "orange"
+                : s === "completed"
+                  ? "success"
+                  : "default"
+          }
+        >
+          {s || "-"}
+        </Tag>
+      ),
+    },
   );
   if (showActions) {
     baseColumns.push({
-      title: t('dentalShared.actions'), width: 180,
+      title: t("dentalShared.actions"),
+      width: 180,
       render: (_, rec) => (
         <Space>
-          <Button size="small" onClick={async () => {
-            try {
-              await fetch(`/api/v1/dental/treatments/${rec.id}/start`, { method: 'POST' });
-              message.success(t('dentalShared.started'));
-            } catch (e) {
-              console.warn('[F03] Error:', (e as Error)?.message);
-            }
-          }}>{t('dentalShared.start')}</Button>
-          <Button size="small" onClick={async () => {
-            try {
-              await fetch(`/api/v1/dental/treatments/${rec.id}/complete`, { method: 'POST' });
-              message.success(t('dentalShared.completed'));
-            } catch (e) {
-              console.warn('[F03] Error:', (e as Error)?.message);
-            }
-          }}>{t('dentalShared.complete')}</Button>
+          <Button
+            size="small"
+            onClick={async () => {
+              try {
+                await fetch(`/api/v1/dental/treatments/${rec.id}/start`, {
+                  method: "POST",
+                });
+                message.success(t("dentalShared.started"));
+              } catch (e) {
+                console.warn("[F03] Error:", (e as Error)?.message);
+              }
+            }}
+          >
+            {t("dentalShared.start")}
+          </Button>
+          <Button
+            size="small"
+            onClick={async () => {
+              try {
+                await fetch(`/api/v1/dental/treatments/${rec.id}/complete`, {
+                  method: "POST",
+                });
+                message.success(t("dentalShared.completed"));
+              } catch (e) {
+                console.warn("[F03] Error:", (e as Error)?.message);
+              }
+            }}
+          >
+            {t("dentalShared.complete")}
+          </Button>
         </Space>
       ),
     });
   }
-  return <DataTable dataSource={data} rowKey="id" columns={baseColumns} pagination={false} scroll={{ x: 'max-content' }} />;
+  return (
+    <div>
+      {filterable && (
+        <FilterBar
+          searchPlaceholder="搜索患者/诊断..."
+          searchValue={keyword}
+          onSearchChange={setKeyword}
+          dateRange={{ value: dateRange, onChange: setDateRange }}
+          filters={[
+            {
+              key: "status",
+              label: t("dentalShared.status"),
+              options: statusOptions,
+            },
+          ]}
+          filterValues={filterValues}
+          onFilterChange={(k, v) =>
+            setFilterValues((prev) => ({ ...prev, [k]: v }))
+          }
+          onReset={() => {
+            setKeyword("");
+            setFilterValues({});
+            setDateRange(null);
+          }}
+          summary={`共 ${filteredData.length} 条`}
+        />
+      )}
+      <DataTable
+        dataSource={filteredData}
+        rowKey="id"
+        columns={baseColumns}
+        pagination={false}
+        scroll={{ x: "max-content" }}
+      />
+    </div>
+  );
 };
 
 /** 口腔治疗页面通用容器 */
 export const DentalPageLayout: React.FC<{
   header: DentalHeaderProps;
-  alert?: { message: string; type?: 'info' | 'success' | 'warning' | 'error' };
+  alert?: { message: string; type?: "info" | "success" | "warning" | "error" };
   children?: React.ReactNode;
 }> = ({ header, alert, children }) => (
-  <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+  <div
+    style={{ padding: "var(--space-6, 24px)", background: "var(--bg-card)" }}
+  >
     <DentalPageHeader {...header} />
-    {alert && <Alert title={alert.message} type={alert.type || 'info'} showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} />}
+    {alert && (
+      <Alert
+        title={alert.message}
+        type={alert.type || "info"}
+        showIcon
+        style={{ marginBottom: "var(--space-3, 12px)" }}
+      />
+    )}
     {children}
   </div>
 );

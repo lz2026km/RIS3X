@@ -1,19 +1,19 @@
 import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
 import type { FractureCadResult } from "../../services/api/fractureCadApi";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  Tag,
-  Space,
-  Spin,
-  Alert,
-  Button,
-  message,
-} from "antd";
+import { Card, Tag, Space, Spin, Alert, Button, message } from "antd";
 import { Activity, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 import { t } from "../../i18n/appI18n";
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+} from "../../components/common";
+import { FilterBar } from "../../components/common/FilterBar";
 
 const severityColor: Record<string, string> = {
   mild: "green",
@@ -29,12 +29,66 @@ const FractureCadPage: React.FC = () => {
   const [retraining, setRetraining] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [batchLoading, setBatchLoading] = useState(false);
+  // [v3.0.6.16-6] 结果列表筛选 (关键词/时间范围/严重度/状态)
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [dateRange, setDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
+
+  const filteredResults = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return results.filter((r) => {
+      const matchKw =
+        !kw ||
+        [r.studyId, r.patientName, r.bodyPart].some((v) =>
+          String(v ?? "")
+            .toLowerCase()
+            .includes(kw),
+        );
+      const matchStatus =
+        !filterValues.status || r.status === filterValues.status;
+      const matchSeverity =
+        !filterValues.severity || r.severity === filterValues.severity;
+      let matchDate = true;
+      if (dateRange && (dateRange[0] || dateRange[1])) {
+        const d = dayjs(r.createdAt);
+        if (!d.isValid()) matchDate = false;
+        else {
+          if (dateRange[0] && d.isBefore(dateRange[0].startOf("day")))
+            matchDate = false;
+          if (dateRange[1] && d.isAfter(dateRange[1].endOf("day")))
+            matchDate = false;
+        }
+      }
+      return matchKw && matchStatus && matchSeverity && matchDate;
+    });
+  }, [results, keyword, filterValues, dateRange]);
+
+  const fractureStatusOptions = useMemo(
+    () =>
+      Array.from(new Set(results.map((r) => r.status)))
+        .filter(Boolean)
+        .map((v) => ({ value: String(v), label: String(v) })),
+    [results],
+  );
+  const fractureSeverityOptions = useMemo(
+    () =>
+      Array.from(new Set(results.map((r) => r.severity)))
+        .filter(Boolean)
+        .map((v) => ({
+          value: String(v),
+          label: t(`w9d.fracture.severity.${v}`),
+        })),
+    [results],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await aiDiagnosisApi.listResults<FractureCadResult>("fracture-cad");
+      const res =
+        await aiDiagnosisApi.listResults<FractureCadResult>("fracture-cad");
       if (res.success) {
         setResults(res.data ?? []);
       } else {
@@ -55,7 +109,12 @@ const FractureCadPage: React.FC = () => {
       const modelVersion = results[0]?.modelVersion ?? "fracturecad-v1.9.3";
       const res = await aiDiagnosisApi.retrainModel(modelVersion);
       if (res.success) {
-        message.success(t("w9d.fracture.retrainSubmitted", { version: res.data?.modelVersion ?? "", status: res.data?.status ?? "" }));
+        message.success(
+          t("w9d.fracture.retrainSubmitted", {
+            version: res.data?.modelVersion ?? "",
+            status: res.data?.status ?? "",
+          }),
+        );
       } else {
         message.error(res.error?.message ?? t("w9d.fracture.retrainFailed"));
       }
@@ -76,14 +135,35 @@ const FractureCadPage: React.FC = () => {
         "fracture-cad",
       );
       if (res.success) {
-        message.success(t(status === "confirmed" ? "w9d.fracture.batchConfirmed" : "w9d.fracture.batchRejected", { count: selectedRowKeys.length }));
+        message.success(
+          t(
+            status === "confirmed"
+              ? "w9d.fracture.batchConfirmed"
+              : "w9d.fracture.batchRejected",
+            { count: selectedRowKeys.length },
+          ),
+        );
         setSelectedRowKeys([]);
         await load();
       } else {
-        message.error(res.error?.message ?? t(status === "confirmed" ? "w9d.fracture.batchConfirmFailed" : "w9d.fracture.batchRejectFailed"));
+        message.error(
+          res.error?.message ??
+            t(
+              status === "confirmed"
+                ? "w9d.fracture.batchConfirmFailed"
+                : "w9d.fracture.batchRejectFailed",
+            ),
+        );
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? t(status === "confirmed" ? "w9d.fracture.batchConfirmFailed" : "w9d.fracture.batchRejectFailed"));
+      message.error(
+        (e as Error)?.message ??
+          t(
+            status === "confirmed"
+              ? "w9d.fracture.batchConfirmFailed"
+              : "w9d.fracture.batchRejectFailed",
+          ),
+      );
     } finally {
       setBatchLoading(false);
     }
@@ -94,15 +174,33 @@ const FractureCadPage: React.FC = () => {
   }, [load]);
 
   const columns = [
-    { title: t("w9d.fracture.colStudyId"), dataIndex: "studyId", key: "studyId" },
-    { title: t("w9d.fracture.colPatient"), dataIndex: "patientName", key: "patientName" },
-    { title: t("w9d.fracture.colBodyPart"), dataIndex: "bodyPart", key: "bodyPart" },
-    { title: t("w9d.fracture.colFractureCount"), dataIndex: "fractureCount", key: "fractureCount" },
+    {
+      title: t("w9d.fracture.colStudyId"),
+      dataIndex: "studyId",
+      key: "studyId",
+    },
+    {
+      title: t("w9d.fracture.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+    },
+    {
+      title: t("w9d.fracture.colBodyPart"),
+      dataIndex: "bodyPart",
+      key: "bodyPart",
+    },
+    {
+      title: t("w9d.fracture.colFractureCount"),
+      dataIndex: "fractureCount",
+      key: "fractureCount",
+    },
     {
       title: t("w9d.fracture.colSeverity"),
       dataIndex: "severity",
       key: "severity",
-      render: (v: string) => <Tag color={severityColor[v]}>{t(`w9d.fracture.severity.${v}`)}</Tag>,
+      render: (v: string) => (
+        <Tag color={severityColor[v]}>{t(`w9d.fracture.severity.${v}`)}</Tag>
+      ),
     },
     {
       title: t("w9d.fracture.colStatus"),
@@ -126,7 +224,11 @@ const FractureCadPage: React.FC = () => {
           size="small"
           icon={<Eye size={14} />}
           data-testid={`goto-viewer-${r.id}`}
-          onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
+          onClick={() =>
+            navigate(
+              `/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`,
+            )
+          }
         >
           {t("w9d.fracture.gotoViewer")}
         </Button>
@@ -136,9 +238,11 @@ const FractureCadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <Activity size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.fracture.title")}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("w9d.fracture.title")}
+        </span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
@@ -164,7 +268,9 @@ const FractureCadPage: React.FC = () => {
               loading={batchLoading}
               onClick={() => void handleBatch("confirmed")}
             >
-              {t("w9d.fracture.batchConfirm", { count: selectedRowKeys.length })}
+              {t("w9d.fracture.batchConfirm", {
+                count: selectedRowKeys.length,
+              })}
             </Button>
             <Button
               size="small"
@@ -178,8 +284,17 @@ const FractureCadPage: React.FC = () => {
           </>
         )}
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t("w9d.fracture.statTotal")} value={results.length} color="primary" icon={<Activity size={18} />} />
+      <StatCardGrid
+        minWidth={200}
+        gap={16}
+        style={{ marginBottom: "var(--space-4, 16px)" }}
+      >
+        <StatCard
+          title={t("w9d.fracture.statTotal")}
+          value={results.length}
+          color="primary"
+          icon={<Activity size={18} />}
+        />
         <StatCard
           title={t("w9d.fracture.statSevere")}
           value={results.filter((r) => r.severity === "severe").length}
@@ -195,26 +310,56 @@ const FractureCadPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 'var(--space-4, 16px)' }}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
           title={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
+          action={
+            <Button size="small" onClick={() => void load()}>
+              <RefreshCw size={14} />
               {t("w9d.fracture.retry")}
             </Button>
           }
         />
       )}
       <Card size="small">
+        <FilterBar
+          searchPlaceholder="搜索检查号/患者/部位..."
+          searchValue={keyword}
+          onSearchChange={setKeyword}
+          dateRange={{ value: dateRange, onChange: setDateRange }}
+          filters={[
+            {
+              key: "status",
+              label: t("w9d.fracture.colStatus"),
+              options: fractureStatusOptions,
+            },
+            {
+              key: "severity",
+              label: t("w9d.fracture.colSeverity"),
+              options: fractureSeverityOptions,
+            },
+          ]}
+          filterValues={filterValues}
+          onFilterChange={(k, v) =>
+            setFilterValues((prev) => ({ ...prev, [k]: v }))
+          }
+          onReset={() => {
+            setKeyword("");
+            setFilterValues({});
+            setDateRange(null);
+          }}
+          summary={`共 ${filteredResults.length} 条`}
+        />
         <Spin spinning={loading}>
           <DataTable
             rowKey="id"
-            dataSource={results}
+            dataSource={filteredResults}
             columns={columns}
             pagination={false}
             rowSelection={{
               selectedRowKeys,
               onChange: (keys) => setSelectedRowKeys(keys),
             }}
-          scroll={{ x: 'max-content' }}
+            scroll={{ x: "max-content" }}
           />
         </Spin>
       </Card>

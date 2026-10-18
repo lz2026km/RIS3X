@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -14,11 +14,19 @@ import { staffDoseRecords } from "./mockData";
 import type { StaffDoseRecord } from "./types";
 import { rdsrApi } from "../../services/api/rdsrApi";
 import { DataTable } from "../../components/common";
+import { FilterBar } from "../../components/common/FilterBar";
 import { LoadingBanner, ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
-const STAFF_COLORS = ["var(--color-primary-500)", "#8b5cf6", "var(--color-error-500)", "#10b981", "var(--color-warning-500)", "#6366f1"];
+const STAFF_COLORS = [
+  "var(--color-primary-500)",
+  "#8b5cf6",
+  "var(--color-error-500)",
+  "#10b981",
+  "var(--color-warning-500)",
+  "#6366f1",
+];
 
 // [G005 W8-Dose] 工作人员剂量: 优先取 /rdsr/staff, 端点不可用/返回空时回退内置演示数据。
 export default function StaffDoseMonitoring() {
@@ -34,7 +42,12 @@ export default function StaffDoseMonitoring() {
       setLoadError(null);
       try {
         const res = await rdsrApi.getStaffDose();
-        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        if (
+          !cancelled &&
+          res.success &&
+          Array.isArray(res.data) &&
+          res.data.length > 0
+        ) {
           setRecords(res.data as StaffDoseRecord[]);
           setDataSource("api");
         } else if (!cancelled && !res.success) {
@@ -51,6 +64,46 @@ export default function StaffDoseMonitoring() {
     };
   }, [reloadTick]);
 
+  // [v3.0.6.16-6] 个人剂量监测记录筛选: 关键词/科室/岗位/状态(按合规率派生)
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+
+  const filteredRecords = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return records.filter((r: StaffDoseRecord) => {
+      const matchKw =
+        !kw ||
+        r.staffName.toLowerCase().includes(kw) ||
+        (r.department ?? "").toLowerCase().includes(kw) ||
+        (r.role ?? "").toLowerCase().includes(kw);
+      const matchDept =
+        !filterValues.department || r.department === filterValues.department;
+      const matchRole = !filterValues.role || r.role === filterValues.role;
+      const matchStatus =
+        !filterValues.status ||
+        (filterValues.status === "high-risk"
+          ? r.complianceRate < 60
+          : r.complianceRate >= 60);
+      return matchKw && matchDept && matchRole && matchStatus;
+    });
+  }, [records, keyword, filterValues]);
+
+  const departmentOptions = useMemo(
+    () =>
+      Array.from(new Set(records.map((r: StaffDoseRecord) => r.department)))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: v })),
+    [records],
+  );
+
+  const roleOptions = useMemo(
+    () =>
+      Array.from(new Set(records.map((r: StaffDoseRecord) => r.role)))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: v })),
+    [records],
+  );
+
   const first = records[0];
   if (!first) return null;
 
@@ -65,38 +118,54 @@ export default function StaffDoseMonitoring() {
   }));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
-      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
+      {loadError && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
       {dataSource === "demo" && (
-      <div
-        style={{
-          padding: "8px 12px",
-          background: "#fef3c7",
-          color: "var(--color-warning-600)",
-          borderRadius: 8,
-          fontSize: 12,
-          display: "flex",
-          alignItems: "center",
-          gap: 'var(--space-2, 8px)',
-        }}
-      >
-        <AlertTriangle size={14} /> {t("w8Dose.staffDemo")}
-      </div>
+        <div
+          style={{
+            padding: "8px 12px",
+            background: "#fef3c7",
+            color: "var(--color-warning-600)",
+            borderRadius: 8,
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <AlertTriangle size={14} /> {t("w8Dose.staffDemo")}
+        </div>
       )}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 'var(--space-3, 12px)',
+          gap: "var(--space-3, 12px)",
         }}
       >
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>监测人数</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            监测人数
+          </div>
           <div style={kpiVal("var(--color-primary-800)")}>{records.length}</div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>最高年剂量</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            最高年剂量
+          </div>
           <div
             style={kpiVal(
               Math.max(...records.map((s: StaffDoseRecord) => s.annualDose)) >
@@ -107,10 +176,20 @@ export default function StaffDoseMonitoring() {
           >
             {Math.max(...records.map((s: StaffDoseRecord) => s.annualDose))}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>mSv</div>
+          <div
+            style={{
+              fontSize: 12,
+              color: "var(--text-muted, #94a3b8)",
+              marginTop: 2,
+            }}
+          >
+            mSv
+          </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>平均合规率</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            平均合规率
+          </div>
           <div style={kpiVal("var(--color-success-600)")}>
             {Math.round(
               records.reduce(
@@ -122,19 +201,21 @@ export default function StaffDoseMonitoring() {
           </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>高风险人员</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            高风险人员
+          </div>
           <div
             style={kpiVal(
-              records.filter(
-                (s: StaffDoseRecord) => s.complianceRate < 60,
-              ).length > 0
+              records.filter((s: StaffDoseRecord) => s.complianceRate < 60)
+                .length > 0
                 ? "var(--color-error-600)"
                 : "var(--color-success-600)",
             )}
           >
-            {records.filter(
-              (s: StaffDoseRecord) => s.complianceRate < 60,
-            ).length}
+            {
+              records.filter((s: StaffDoseRecord) => s.complianceRate < 60)
+                .length
+            }
           </div>
         </div>
       </div>
@@ -143,7 +224,7 @@ export default function StaffDoseMonitoring() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 'var(--space-5, 20px)',
+          padding: "var(--space-5, 20px)",
           border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
@@ -152,12 +233,16 @@ export default function StaffDoseMonitoring() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 'var(--space-4, 16px)',
+            marginBottom: "var(--space-4, 16px)",
           }}
         >
           月度人员剂量对比
         </div>
-        <ChartContainer height={220} state={monthlyChartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
+        <ChartContainer
+          height={220}
+          state={monthlyChartData.length > 0 ? "ready" : "empty"}
+          emptyDescription="暂无数据"
+        >
           <BarChart data={monthlyChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -191,7 +276,7 @@ export default function StaffDoseMonitoring() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 'var(--space-5, 20px)',
+          padding: "var(--space-5, 20px)",
           border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
@@ -200,47 +285,184 @@ export default function StaffDoseMonitoring() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 'var(--space-4, 16px)',
+            marginBottom: "var(--space-4, 16px)",
           }}
         >
           个人剂量监测记录
         </div>
+        <FilterBar
+          searchPlaceholder="搜索姓名 / 科室 / 岗位…"
+          searchValue={keyword}
+          onSearchChange={setKeyword}
+          filters={[
+            { key: "department", label: "科室", options: departmentOptions },
+            { key: "role", label: "岗位", options: roleOptions },
+            {
+              key: "status",
+              label: "状态",
+              options: [
+                { value: "high-risk", label: "高风险" },
+                { value: "normal", label: "正常" },
+              ],
+            },
+          ]}
+          filterValues={filterValues}
+          onFilterChange={(k, v) =>
+            setFilterValues((prev) => ({ ...prev, [k]: v }))
+          }
+          onReset={() => {
+            setKeyword("");
+            setFilterValues({});
+          }}
+          summary={`共 ${filteredRecords.length} 条`}
+        />
         <div style={{ overflowX: "auto" }}>
           <DataTable
             rowKey="id"
-            dataSource={records}
+            dataSource={filteredRecords}
             showPagination={false}
             showExport={false}
             showDensity={false}
             columns={[
-              { title: "姓名", dataIndex: "staffName", key: "staffName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-              { title: "科室", dataIndex: "department", key: "department", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
-              { title: "岗位", dataIndex: "role", key: "role", align: "center", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
-              { title: "本月剂量(mSv)", dataIndex: "monthlyDose", key: "monthlyDose", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v}</span> },
               {
-                title: "年累计(mSv)", dataIndex: "annualDose", key: "annualDose", align: "center",
-                render: (v: number) => <span style={{ color: v > 15 ? "var(--color-error-600)" : "#334155", fontWeight: 600 }}>{v}</span>,
+                title: "姓名",
+                dataIndex: "staffName",
+                key: "staffName",
+                align: "center",
+                render: (v: string) => (
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      color: "var(--color-primary-800)",
+                    }}
+                  >
+                    {v}
+                  </span>
+                ),
               },
-              { title: "年限值(mSv)", dataIndex: "annualLimit", key: "annualLimit", align: "center", render: (v: number) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
               {
-                title: "合规率", dataIndex: "complianceRate", key: "complianceRate", align: "center",
+                title: "科室",
+                dataIndex: "department",
+                key: "department",
+                align: "center",
+                render: (v: string) => (
+                  <span style={{ color: "var(--text-primary, #334155)" }}>
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "岗位",
+                dataIndex: "role",
+                key: "role",
+                align: "center",
+                render: (v: string) => (
+                  <span style={{ color: "var(--text-muted, #64748b)" }}>
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "本月剂量(mSv)",
+                dataIndex: "monthlyDose",
+                key: "monthlyDose",
+                align: "center",
+                render: (v: number) => (
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      color: "var(--color-primary-800)",
+                    }}
+                  >
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "年累计(mSv)",
+                dataIndex: "annualDose",
+                key: "annualDose",
+                align: "center",
+                render: (v: number) => (
+                  <span
+                    style={{
+                      color: v > 15 ? "var(--color-error-600)" : "#334155",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "年限值(mSv)",
+                dataIndex: "annualLimit",
+                key: "annualLimit",
+                align: "center",
+                render: (v: number) => (
+                  <span style={{ color: "var(--text-muted, #64748b)" }}>
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "合规率",
+                dataIndex: "complianceRate",
+                key: "complianceRate",
+                align: "center",
                 render: (v: number) => {
                   const isHighRisk = v < 60;
-                  const badgeBg = isHighRisk ? "#fef2f2" : v < 80 ? "#fffbeb" : "#f0fdf4";
-                  const badgeColor = isHighRisk ? "var(--color-error-600)" : v < 80 ? "var(--color-warning-600)" : "var(--color-success-600)";
+                  const badgeBg = isHighRisk
+                    ? "#fef2f2"
+                    : v < 80
+                      ? "#fffbeb"
+                      : "#f0fdf4";
+                  const badgeColor = isHighRisk
+                    ? "var(--color-error-600)"
+                    : v < 80
+                      ? "var(--color-warning-600)"
+                      : "var(--color-success-600)";
                   return (
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)', padding: "2px 8px", background: badgeBg, color: badgeColor, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "var(--space-1, 4px)",
+                        padding: "2px 8px",
+                        background: badgeBg,
+                        color: badgeColor,
+                        borderRadius: 4,
+                        fontSize: 12,
+                        fontWeight: 700,
+                      }}
+                    >
                       {v}%
                     </div>
                   );
                 },
               },
               {
-                title: "状态", dataIndex: "complianceRate", key: "status", align: "center",
+                title: "状态",
+                dataIndex: "complianceRate",
+                key: "status",
+                align: "center",
                 render: (v: number) => {
                   const isHighRisk = v < 60;
                   return (
-                    <span style={{ padding: "2px 8px", background: isHighRisk ? "#fef2f2" : "var(--color-success-bg, #f0fdf4)", color: isHighRisk ? "var(--color-error-600)" : "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
+                    <span
+                      style={{
+                        padding: "2px 8px",
+                        background: isHighRisk
+                          ? "#fef2f2"
+                          : "var(--color-success-bg, #f0fdf4)",
+                        color: isHighRisk
+                          ? "var(--color-error-600)"
+                          : "var(--color-success-600)",
+                        borderRadius: 4,
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
                       {isHighRisk ? "高风险" : "正常"}
                     </span>
                   );
@@ -266,5 +488,5 @@ const kpiVal = (color: string): React.CSSProperties => ({
   fontSize: 24,
   fontWeight: 800,
   color,
-  marginTop: 'var(--space-1, 4px)',
+  marginTop: "var(--space-1, 4px)",
 });

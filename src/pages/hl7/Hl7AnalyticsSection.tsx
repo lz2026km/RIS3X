@@ -1,22 +1,30 @@
 // [v3.0.6.11-104 Wave 2D] HL7 接口监控分析区块
 // 接入 GET /hl7/overview · /hl7/error-analysis · /hl7/throughput · /hl7/message-types
-import { useCallback, useEffect, useState } from 'react';
-import { Space, Tag } from 'antd';
-import type { TableColumnsType } from 'antd';
-import { Activity, AlertTriangle, BarChart3, Inbox, ShieldCheck, TrendingUp } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Space, Tag } from "antd";
+import type { TableColumnsType } from "antd";
+import {
+  Activity,
+  AlertTriangle,
+  BarChart3,
+  Inbox,
+  ShieldCheck,
+  TrendingUp,
+} from "lucide-react";
 import {
   hl7Api,
   type Hl7ErrorAnalysisDto,
   type Hl7MessageTypeDto,
   type Hl7OverviewDto,
   type Hl7ThroughputPoint,
-} from '../../services/api/integrationApi';
-import { StatCard, StatCardGrid } from '../../components/common/StatCard';
-import { DashboardCard } from '../../components/dashboard/DashboardCard';
-import { TrendChart } from '../../components/dashboard/TrendChart';
-import { DataTable } from '../../components/common/DataTable';
-import { StateView } from '../../components/common/StateView';
-import { t } from '../../i18n/appI18n';
+} from "../../services/api/integrationApi";
+import { StatCard, StatCardGrid } from "../../components/common/StatCard";
+import { DashboardCard } from "../../components/dashboard/DashboardCard";
+import { TrendChart } from "../../components/dashboard/TrendChart";
+import { DataTable } from "../../components/common/DataTable";
+import { FilterBar } from "../../components/common/FilterBar";
+import { StateView } from "../../components/common/StateView";
+import { t } from "../../i18n/appI18n";
 
 export function Hl7AnalyticsSection() {
   const [overview, setOverview] = useState<Hl7OverviewDto | null>(null);
@@ -25,6 +33,33 @@ export function Hl7AnalyticsSection() {
   const [messageTypes, setMessageTypes] = useState<Hl7MessageTypeDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // [v3.0.6.16-6] 消息类型统计筛选 (关键词/方向)
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+
+  const filteredMessageTypes = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return messageTypes.filter((m) => {
+      const matchKw =
+        !kw ||
+        [m.messageType, m.direction].some((v) =>
+          String(v ?? "")
+            .toLowerCase()
+            .includes(kw),
+        );
+      const matchDirection =
+        !filterValues.direction || m.direction === filterValues.direction;
+      return matchKw && matchDirection;
+    });
+  }, [messageTypes, keyword, filterValues]);
+
+  const directionOptions = useMemo(
+    () =>
+      Array.from(new Set(messageTypes.map((m) => m.direction)))
+        .filter(Boolean)
+        .map((v) => ({ value: String(v), label: String(v) })),
+    [messageTypes],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -36,7 +71,7 @@ export function Hl7AnalyticsSection() {
       hl7Api.getMessageTypes(),
     ]);
     if (!ov.success) {
-      setError(ov.error?.message ?? t('w2d.loadFailed'));
+      setError(ov.error?.message ?? t("w2d.loadFailed"));
       setLoading(false);
       return;
     }
@@ -52,17 +87,35 @@ export function Hl7AnalyticsSection() {
   }, [load]);
 
   const typeColumns: TableColumnsType<Hl7MessageTypeDto> = [
-    { title: t('hl7Ext.messageType'), dataIndex: 'messageType', key: 'messageType' },
-    { title: t('hl7Ext.direction'), dataIndex: 'direction', key: 'direction' },
-    { title: t('w2d.count'), dataIndex: 'count', key: 'count' },
-    { title: t('w2d.percent'), dataIndex: 'percent', key: 'percent', render: (v: number) => `${v}%` },
-    { title: t('hl7Ext.avgBytes'), dataIndex: 'avgBytes', key: 'avgBytes' },
+    {
+      title: t("hl7Ext.messageType"),
+      dataIndex: "messageType",
+      key: "messageType",
+    },
+    { title: t("hl7Ext.direction"), dataIndex: "direction", key: "direction" },
+    { title: t("w2d.count"), dataIndex: "count", key: "count" },
+    {
+      title: t("w2d.percent"),
+      dataIndex: "percent",
+      key: "percent",
+      render: (v: number) => `${v}%`,
+    },
+    { title: t("hl7Ext.avgBytes"), dataIndex: "avgBytes", key: "avgBytes" },
   ];
 
-  const errorTypeColumns: TableColumnsType<{ errorType: string; count: number; percent: number }> = [
-    { title: t('hl7Ext.errorType'), dataIndex: 'errorType', key: 'errorType' },
-    { title: t('w2d.count'), dataIndex: 'count', key: 'count' },
-    { title: t('w2d.percent'), dataIndex: 'percent', key: 'percent', render: (v: number) => `${v}%` },
+  const errorTypeColumns: TableColumnsType<{
+    errorType: string;
+    count: number;
+    percent: number;
+  }> = [
+    { title: t("hl7Ext.errorType"), dataIndex: "errorType", key: "errorType" },
+    { title: t("w2d.count"), dataIndex: "count", key: "count" },
+    {
+      title: t("w2d.percent"),
+      dataIndex: "percent",
+      key: "percent",
+      render: (v: number) => `${v}%`,
+    },
   ];
 
   if (loading) {
@@ -72,41 +125,51 @@ export function Hl7AnalyticsSection() {
     return <StateView error={error} onRetry={() => void load()} />;
   }
   if (!overview) {
-    return <StateView empty emptyDescription={t('w2d.empty')} />;
+    return <StateView empty emptyDescription={t("w2d.empty")} />;
   }
 
   return (
-    <Space direction="vertical" size={16} style={{ width: '100%' }}>
+    <Space direction="vertical" size={16} style={{ width: "100%" }}>
       <StatCardGrid>
         <StatCard
-          title={t('hl7Ext.totalMessages')}
+          title={t("hl7Ext.totalMessages")}
           value={overview.totalMessages}
           icon={<Inbox size={18} />}
           color="primary"
           gradient
-          sub={`${t('hl7Ext.todayMessages')}: ${overview.todayMessages}`}
+          sub={`${t("hl7Ext.todayMessages")}: ${overview.todayMessages}`}
         />
-        <StatCard title={t('hl7Ext.inbound')} value={overview.inboundCount} color="info" />
-        <StatCard title={t('hl7Ext.outbound')} value={overview.outboundCount} color="success" />
         <StatCard
-          title={t('hl7Ext.successRate')}
+          title={t("hl7Ext.inbound")}
+          value={overview.inboundCount}
+          color="info"
+        />
+        <StatCard
+          title={t("hl7Ext.outbound")}
+          value={overview.outboundCount}
+          color="success"
+        />
+        <StatCard
+          title={t("hl7Ext.successRate")}
           value={overview.successRate}
           suffix="%"
           icon={<ShieldCheck size={18} />}
-          color={overview.successRate >= 95 ? 'success' : 'warning'}
+          color={overview.successRate >= 95 ? "success" : "warning"}
         />
         <StatCard
-          title={t('hl7Ext.failed')}
+          title={t("hl7Ext.failed")}
           value={overview.failedCount}
           icon={<AlertTriangle size={18} />}
-          color={overview.failedCount > 0 ? 'error' : 'success'}
+          color={overview.failedCount > 0 ? "error" : "success"}
         />
       </StatCardGrid>
 
       <DashboardCard
-        title={t('hl7Ext.throughput')}
+        title={t("hl7Ext.throughput")}
         icon={<TrendingUp size={15} />}
-        extra={overview.seeded ? <Tag color="default">{t('w2d.seeded')}</Tag> : null}
+        extra={
+          overview.seeded ? <Tag color="default">{t("w2d.seeded")}</Tag> : null
+        }
       >
         <TrendChart
           data={throughput as unknown as Array<Record<string, string | number>>}
@@ -115,45 +178,102 @@ export function Hl7AnalyticsSection() {
           percent
           height={240}
           series={[
-            { key: 'success', name: t('hl7Ext.success'), color: 'var(--color-success-600)' },
-            { key: 'failed', name: t('hl7Ext.failed'), color: 'var(--color-error-600)' },
+            {
+              key: "success",
+              name: t("hl7Ext.success"),
+              color: "var(--color-success-600)",
+            },
+            {
+              key: "failed",
+              name: t("hl7Ext.failed"),
+              color: "var(--color-error-600)",
+            },
           ]}
         />
       </DashboardCard>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
-        <DashboardCard title={t('hl7Ext.messageTypes')} icon={<BarChart3 size={15} />}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
+        <DashboardCard
+          title={t("hl7Ext.messageTypes")}
+          icon={<BarChart3 size={15} />}
+        >
+          <FilterBar
+            searchPlaceholder="搜索消息类型/方向..."
+            searchValue={keyword}
+            onSearchChange={setKeyword}
+            filters={[
+              {
+                key: "direction",
+                label: t("hl7Ext.direction"),
+                options: directionOptions,
+              },
+            ]}
+            filterValues={filterValues}
+            onFilterChange={(k, v) =>
+              setFilterValues((prev) => ({ ...prev, [k]: v }))
+            }
+            onReset={() => {
+              setKeyword("");
+              setFilterValues({});
+            }}
+            summary={`共 ${filteredMessageTypes.length} 条`}
+          />
           <DataTable<Hl7MessageTypeDto>
             rowKey="messageType"
-            dataSource={messageTypes}
+            dataSource={filteredMessageTypes}
             columns={typeColumns}
             showPagination={false}
-            emptyText={t('w2d.empty')}
+            emptyText={t("w2d.empty")}
           />
         </DashboardCard>
 
-        <DashboardCard title={t('hl7Ext.errorAnalysis')} icon={<Activity size={15} />}>
+        <DashboardCard
+          title={t("hl7Ext.errorAnalysis")}
+          icon={<Activity size={15} />}
+        >
           <DataTable<{ errorType: string; count: number; percent: number }>
             rowKey="errorType"
             dataSource={errors?.byErrorType ?? []}
             columns={errorTypeColumns}
             showPagination={false}
-            emptyText={t('w2d.empty')}
+            emptyText={t("w2d.empty")}
           />
         </DashboardCard>
       </div>
 
       {errors && errors.recentErrors.length > 0 && (
-        <DashboardCard title={t('hl7Ext.recentErrors')} icon={<AlertTriangle size={15} />}>
-          <DataTable<{ id: string; messageType: string; ackStatus: string; createdAt: string }>
+        <DashboardCard
+          title={t("hl7Ext.recentErrors")}
+          icon={<AlertTriangle size={15} />}
+        >
+          <DataTable<{
+            id: string;
+            messageType: string;
+            ackStatus: string;
+            createdAt: string;
+          }>
             rowKey="id"
             dataSource={errors.recentErrors}
             columns={[
-              { title: t('hl7Ext.messageType'), dataIndex: 'messageType', key: 'messageType' },
-              { title: 'ACK', dataIndex: 'ackStatus', key: 'ackStatus' },
-              { title: t('w2d.time'), dataIndex: 'createdAt', key: 'createdAt' },
+              {
+                title: t("hl7Ext.messageType"),
+                dataIndex: "messageType",
+                key: "messageType",
+              },
+              { title: "ACK", dataIndex: "ackStatus", key: "ackStatus" },
+              {
+                title: t("w2d.time"),
+                dataIndex: "createdAt",
+                key: "createdAt",
+              },
             ]}
-            emptyText={t('w2d.empty')}
+            emptyText={t("w2d.empty")}
           />
         </DashboardCard>
       )}

@@ -1,19 +1,19 @@
 import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
 import type { CardiacAiResult } from "../../services/api/cardiacAiApi";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  Tag,
-  Space,
-  Spin,
-  Alert,
-  Button,
-  message,
-} from "antd";
+import { Card, Tag, Space, Spin, Alert, Button, message } from "antd";
 import { HeartPulse, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 import { t } from "../../i18n/appI18n";
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+} from "../../components/common";
+import { FilterBar } from "../../components/common/FilterBar";
 
 const cadRadsColor: Record<string, string> = {
   "0": "green",
@@ -32,12 +32,63 @@ const CardiacAiPage: React.FC = () => {
   const [retraining, setRetraining] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [batchLoading, setBatchLoading] = useState(false);
+  // [v3.0.6.16-6] 结果列表筛选 (关键词/时间范围/状态/模态)
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [dateRange, setDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
+
+  const filteredResults = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return results.filter((r) => {
+      const matchKw =
+        !kw ||
+        [r.studyId, r.patientName].some((v) =>
+          String(v ?? "")
+            .toLowerCase()
+            .includes(kw),
+        );
+      const matchStatus =
+        !filterValues.status || r.status === filterValues.status;
+      const matchModality =
+        !filterValues.modality || r.modality === filterValues.modality;
+      let matchDate = true;
+      if (dateRange && (dateRange[0] || dateRange[1])) {
+        const d = dayjs(r.createdAt);
+        if (!d.isValid()) matchDate = false;
+        else {
+          if (dateRange[0] && d.isBefore(dateRange[0].startOf("day")))
+            matchDate = false;
+          if (dateRange[1] && d.isAfter(dateRange[1].endOf("day")))
+            matchDate = false;
+        }
+      }
+      return matchKw && matchStatus && matchModality && matchDate;
+    });
+  }, [results, keyword, filterValues, dateRange]);
+
+  const cardiacStatusOptions = useMemo(
+    () =>
+      Array.from(new Set(results.map((r) => r.status)))
+        .filter(Boolean)
+        .map((v) => ({ value: String(v), label: String(v) })),
+    [results],
+  );
+  const cardiacModalityOptions = useMemo(
+    () =>
+      Array.from(new Set(results.map((r) => r.modality)))
+        .filter(Boolean)
+        .map((v) => ({ value: String(v), label: String(v) })),
+    [results],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await aiDiagnosisApi.listResults<CardiacAiResult>("cardiac-ai");
+      const res =
+        await aiDiagnosisApi.listResults<CardiacAiResult>("cardiac-ai");
       if (res.success) {
         setResults(res.data ?? []);
       } else {
@@ -58,7 +109,12 @@ const CardiacAiPage: React.FC = () => {
       const modelVersion = results[0]?.modelVersion ?? "cardiacai-v2.4.1";
       const res = await aiDiagnosisApi.retrainModel(modelVersion);
       if (res.success) {
-        message.success(t("w9d.cardiac.retrainSubmitted", { version: res.data?.modelVersion ?? "", status: res.data?.status ?? "" }));
+        message.success(
+          t("w9d.cardiac.retrainSubmitted", {
+            version: res.data?.modelVersion ?? "",
+            status: res.data?.status ?? "",
+          }),
+        );
       } else {
         message.error(res.error?.message ?? t("w9d.cardiac.retrainFailed"));
       }
@@ -79,14 +135,35 @@ const CardiacAiPage: React.FC = () => {
         "cardiac-ai",
       );
       if (res.success) {
-        message.success(t(status === "confirmed" ? "w9d.cardiac.batchConfirmed" : "w9d.cardiac.batchRejected", { count: selectedRowKeys.length }));
+        message.success(
+          t(
+            status === "confirmed"
+              ? "w9d.cardiac.batchConfirmed"
+              : "w9d.cardiac.batchRejected",
+            { count: selectedRowKeys.length },
+          ),
+        );
         setSelectedRowKeys([]);
         await load();
       } else {
-        message.error(res.error?.message ?? t(status === "confirmed" ? "w9d.cardiac.batchConfirmFailed" : "w9d.cardiac.batchRejectFailed"));
+        message.error(
+          res.error?.message ??
+            t(
+              status === "confirmed"
+                ? "w9d.cardiac.batchConfirmFailed"
+                : "w9d.cardiac.batchRejectFailed",
+            ),
+        );
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? t(status === "confirmed" ? "w9d.cardiac.batchConfirmFailed" : "w9d.cardiac.batchRejectFailed"));
+      message.error(
+        (e as Error)?.message ??
+          t(
+            status === "confirmed"
+              ? "w9d.cardiac.batchConfirmFailed"
+              : "w9d.cardiac.batchRejectFailed",
+          ),
+      );
     } finally {
       setBatchLoading(false);
     }
@@ -105,8 +182,16 @@ const CardiacAiPage: React.FC = () => {
       : 0;
 
   const columns = [
-    { title: t("w9d.cardiac.colStudyId"), dataIndex: "studyId", key: "studyId" },
-    { title: t("w9d.cardiac.colPatient"), dataIndex: "patientName", key: "patientName" },
+    {
+      title: t("w9d.cardiac.colStudyId"),
+      dataIndex: "studyId",
+      key: "studyId",
+    },
+    {
+      title: t("w9d.cardiac.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+    },
     {
       title: "EF(%)",
       dataIndex: "ejectionFraction",
@@ -147,7 +232,11 @@ const CardiacAiPage: React.FC = () => {
           size="small"
           icon={<Eye size={14} />}
           data-testid={`goto-viewer-${r.id}`}
-          onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
+          onClick={() =>
+            navigate(
+              `/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`,
+            )
+          }
         >
           {t("w9d.cardiac.gotoViewer")}
         </Button>
@@ -157,9 +246,11 @@ const CardiacAiPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <HeartPulse size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.cardiac.title")}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("w9d.cardiac.title")}
+        </span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
@@ -199,8 +290,17 @@ const CardiacAiPage: React.FC = () => {
           </>
         )}
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t("w9d.cardiac.statTotal")} value={results.length} color="primary" icon={<HeartPulse size={18} />} />
+      <StatCardGrid
+        minWidth={200}
+        gap={16}
+        style={{ marginBottom: "var(--space-4, 16px)" }}
+      >
+        <StatCard
+          title={t("w9d.cardiac.statTotal")}
+          value={results.length}
+          color="primary"
+          icon={<HeartPulse size={18} />}
+        />
         <StatCard
           title="CAD-RADS 3+"
           value={
@@ -210,32 +310,62 @@ const CardiacAiPage: React.FC = () => {
           }
           color="error"
         />
-        <StatCard title={t("w9d.cardiac.statAvgEf")} value={`${avgEf.toFixed(1)}%`} color="success" />
+        <StatCard
+          title={t("w9d.cardiac.statAvgEf")}
+          value={`${avgEf.toFixed(1)}%`}
+          color="success"
+        />
       </StatCardGrid>
       {error && (
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 'var(--space-4, 16px)' }}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
           title={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
+          action={
+            <Button size="small" onClick={() => void load()}>
+              <RefreshCw size={14} />
               {t("w9d.cardiac.retry")}
             </Button>
           }
         />
       )}
       <Card size="small">
+        <FilterBar
+          searchPlaceholder="搜索检查号/患者..."
+          searchValue={keyword}
+          onSearchChange={setKeyword}
+          dateRange={{ value: dateRange, onChange: setDateRange }}
+          filters={[
+            {
+              key: "status",
+              label: t("w9d.cardiac.colStatus"),
+              options: cardiacStatusOptions,
+            },
+            { key: "modality", label: "模态", options: cardiacModalityOptions },
+          ]}
+          filterValues={filterValues}
+          onFilterChange={(k, v) =>
+            setFilterValues((prev) => ({ ...prev, [k]: v }))
+          }
+          onReset={() => {
+            setKeyword("");
+            setFilterValues({});
+            setDateRange(null);
+          }}
+          summary={`共 ${filteredResults.length} 条`}
+        />
         <Spin spinning={loading}>
           <DataTable
             rowKey="id"
-            dataSource={results}
+            dataSource={filteredResults}
             columns={columns}
             pagination={false}
             rowSelection={{
               selectedRowKeys,
               onChange: (keys) => setSelectedRowKeys(keys),
             }}
-          scroll={{ x: 'max-content' }}
+            scroll={{ x: "max-content" }}
           />
         </Spin>
       </Card>

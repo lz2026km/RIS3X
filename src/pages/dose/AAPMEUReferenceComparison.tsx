@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import ChartContainer from "../../components/charts/ChartContainer";
 import { DataTable } from "../../components/common";
+import { FilterBar } from "../../components/common/FilterBar";
 import { ErrorBanner } from "../../components/feedback";
 import { AAPM_EU_REFERENCES } from "./mockData";
 import { rdsrApi } from "../../services/api/rdsrApi";
@@ -23,6 +24,8 @@ export default function AAPMEUReferenceComparison() {
   const [refs, setRefs] = useState<AAPMReference[]>(AAPM_EU_REFERENCES);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -31,7 +34,10 @@ export default function AAPMEUReferenceComparison() {
       try {
         const res = await rdsrApi.getToday();
         if (cancelled) return;
-        if (!res.success) { setLoadError(t('w9.states.error')); return; }
+        if (!res.success) {
+          setLoadError(t("w9.states.error"));
+          return;
+        }
         if (!res.data) return;
         const dist = res.data.bodyPartDistribution ?? [];
         if (dist.length === 0) return;
@@ -48,13 +54,38 @@ export default function AAPMEUReferenceComparison() {
           }),
         );
       } catch {
-        setLoadError(t('w9.states.error'));
+        setLoadError(t("w9.states.error"));
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [reloadTick]);
+
+  // [v3.0.6.16-6] 参考值对比表筛选: 关键词(检查类型) + 类型 + 超标状态, 选项取自数据去重
+  const filteredRefs = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return refs.filter((r) => {
+      const matchKw = !kw || r.examType.toLowerCase().includes(kw);
+      const type = filterValues.examType;
+      const matchType = !type || r.examType === type;
+      const exceed = filterValues.exceed;
+      const matchExceed =
+        !exceed || (exceed === "exceed" ? r.exceedRate > 0 : r.exceedRate <= 0);
+      return matchKw && matchType && matchExceed;
+    });
+  }, [refs, keyword, filterValues]);
+
+  const refTypeOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const out: Array<{ value: string; label: string }> = [];
+    refs.forEach((r) => {
+      if (!r.examType || seen.has(r.examType)) return;
+      seen.add(r.examType);
+      out.push({ value: r.examType, label: r.examType });
+    });
+    return out;
+  }, [refs]);
 
   const chartData = refs.map((ref: AAPMReference) => ({
     name: ref.examType,
@@ -78,7 +109,7 @@ export default function AAPMEUReferenceComparison() {
         <div
           style={{
             background: "var(--bg-card)",
-            padding: 'var(--space-3, 12px)',
+            padding: "var(--space-3, 12px)",
             border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
@@ -89,15 +120,17 @@ export default function AAPMEUReferenceComparison() {
               fontSize: 12,
               fontWeight: 700,
               color: "var(--color-primary-800)",
-              marginBottom: 'var(--space-2, 8px)',
+              marginBottom: "var(--space-2, 8px)",
             }}
           >
             {label}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
             <div>
               AAPM参考值:{" "}
-              <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>
+              <span
+                style={{ fontWeight: 600, color: "var(--color-primary-800)" }}
+              >
                 {payload[0]?.value} mGy
               </span>
             </div>
@@ -109,7 +142,9 @@ export default function AAPMEUReferenceComparison() {
             </div>
             <div>
               本院平均值:{" "}
-              <span style={{ fontWeight: 600, color: "var(--color-error-600)" }}>
+              <span
+                style={{ fontWeight: 600, color: "var(--color-error-600)" }}
+              >
                 {payload[2]?.value} mGy
               </span>
             </div>
@@ -119,7 +154,10 @@ export default function AAPMEUReferenceComparison() {
                 <span
                   style={{
                     fontWeight: 600,
-                    color: ref.exceedRate > 0.5 ? "var(--color-error-600)" : "var(--color-success-600)",
+                    color:
+                      ref.exceedRate > 0.5
+                        ? "var(--color-error-600)"
+                        : "var(--color-success-600)",
                   }}
                 >
                   {(ref.exceedRate * 100).toFixed(0)}%
@@ -134,8 +172,20 @@ export default function AAPMEUReferenceComparison() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
-      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
+      {loadError && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
       <div
         style={{
           padding: "8px 12px",
@@ -145,184 +195,317 @@ export default function AAPMEUReferenceComparison() {
           fontSize: 12,
           display: "flex",
           alignItems: "center",
-          gap: 'var(--space-2, 8px)',
+          gap: "var(--space-2, 8px)",
         }}
       >
-        <AlertTriangle size={14} /> 静态参考数据：AAPM / 欧盟 CTDIvol 参考值来自公开规范文档（非接口数据）；院内平均值部分为演示
+        <AlertTriangle size={14} /> 静态参考数据：AAPM / 欧盟 CTDIvol
+        参考值来自公开规范文档（非接口数据）；院内平均值部分为演示
       </div>
       <div
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 'var(--space-5, 20px)',
+          padding: "var(--space-5, 20px)",
           border: "1px solid var(--border-color, #e2e8f0)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 'var(--space-4, 16px)',
         }}
       >
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
-            AAPM/欧盟 CT剂量参考值对比
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
-            本院CT剂量 vs 国际参考值（单位: CTDIvol mGy）
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 'var(--space-3, 12px)' }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 2,
-                background: "var(--color-primary-800)",
-              }}
-            />
-            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>AAPM参考值</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 2,
-                background: "#7c3aed",
-              }}
-            />
-            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>欧盟参考值</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 2,
-                background: "var(--color-error-600)",
-              }}
-            />
-            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>本院平均值</span>
-          </div>
-        </div>
-      </div>
-
-      <ChartContainer height={280} state={chartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
-        <BarChart data={chartData} barCategoryGap="25%">
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
-          <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 70]} />
-          <Tooltip content={<CustomTooltip />} />
-          <Bar
-            dataKey="aapm"
-            fill="var(--color-primary-800)"
-            radius={[4, 4, 0, 0]}
-            name="AAPM参考值"
-          />
-          <Bar
-            dataKey="eu"
-            fill="#7c3aed"
-            radius={[4, 4, 0, 0]}
-            name="欧盟参考值"
-          />
-          <Bar
-            dataKey="hospital"
-            fill="var(--color-error-600)"
-            radius={[4, 4, 0, 0]}
-            name="本院平均值"
-          >
-            {chartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.hospital > entry.aapm ? "var(--color-error-600)" : "var(--color-success-600)"}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ChartContainer>
-
-      {/* 超标告警表格 */}
-      <div style={{ marginTop: 'var(--space-5, 20px)' }}>
         <div
           style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: "var(--color-primary-800)",
-            marginBottom: 'var(--space-3, 12px)',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "var(--space-4, 16px)",
           }}
         >
-          CT剂量参考值对比表
+          <div>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+              }}
+            >
+              AAPM/欧盟 CT剂量参考值对比
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted, #94a3b8)",
+                marginTop: 2,
+              }}
+            >
+              本院CT剂量 vs 国际参考值（单位: CTDIvol mGy）
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "var(--space-3, 12px)" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 2,
+                  background: "var(--color-primary-800)",
+                }}
+              />
+              <span
+                style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}
+              >
+                AAPM参考值
+              </span>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 2,
+                  background: "#7c3aed",
+                }}
+              />
+              <span
+                style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}
+              >
+                欧盟参考值
+              </span>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 2,
+                  background: "var(--color-error-600)",
+                }}
+              />
+              <span
+                style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}
+              >
+                本院平均值
+              </span>
+            </div>
+          </div>
         </div>
-        <DataTable
-          rowKey="examType"
-          dataSource={refs}
-          showPagination={false}
-          showExport={false}
-          showDensity={false}
-          columns={[
-            { title: "检查类型", dataIndex: "examType", key: "examType", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-            { title: "AAPM参考值", dataIndex: "aapmRef", key: "aapmRef", align: "center", render: (v: number) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v} mGy</span> },
-            { title: "欧盟参考值", dataIndex: "euRef", key: "euRef", align: "center", render: (v: number) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v} mGy</span> },
-            {
-              title: "本院平均值", dataIndex: "hospitalAvg", key: "hospitalAvg", align: "center",
-              render: (v: number, ref: AAPMReference) => (
-                <span style={{ fontWeight: 700, color: ref.exceedRate > 0 ? "var(--color-error-600)" : "var(--color-success-600)" }}>{v} mGy</span>
-              ),
-            },
-            {
-              title: "超标比例", dataIndex: "exceedRate", key: "exceedRate", align: "center",
-              render: (_v: number, ref: AAPMReference) => {
-                const isExceed = ref.exceedRate > 0;
-                return (
+
+        <ChartContainer
+          height={280}
+          state={chartData.length > 0 ? "ready" : "empty"}
+          emptyDescription="暂无数据"
+        >
+          <BarChart data={chartData} barCategoryGap="25%">
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 70]} />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar
+              dataKey="aapm"
+              fill="var(--color-primary-800)"
+              radius={[4, 4, 0, 0]}
+              name="AAPM参考值"
+            />
+            <Bar
+              dataKey="eu"
+              fill="#7c3aed"
+              radius={[4, 4, 0, 0]}
+              name="欧盟参考值"
+            />
+            <Bar
+              dataKey="hospital"
+              fill="var(--color-error-600)"
+              radius={[4, 4, 0, 0]}
+              name="本院平均值"
+            >
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    entry.hospital > entry.aapm
+                      ? "var(--color-error-600)"
+                      : "var(--color-success-600)"
+                  }
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ChartContainer>
+
+        {/* 超标告警表格 */}
+        <div style={{ marginTop: "var(--space-5, 20px)" }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            CT剂量参考值对比表
+          </div>
+          <FilterBar
+            searchPlaceholder="搜索检查类型…"
+            searchValue={keyword}
+            onSearchChange={setKeyword}
+            filters={[
+              { key: "examType", label: "检查类型", options: refTypeOptions },
+              {
+                key: "exceed",
+                label: "超标状态",
+                options: [
+                  { value: "exceed", label: "超标" },
+                  { value: "normal", label: "未超标" },
+                ],
+              },
+            ]}
+            filterValues={filterValues}
+            onFilterChange={(k, v) =>
+              setFilterValues((prev) => ({ ...prev, [k]: v }))
+            }
+            onReset={() => {
+              setKeyword("");
+              setFilterValues({});
+            }}
+            summary={`共 ${filteredRefs.length} 条`}
+          />
+          <DataTable
+            rowKey="examType"
+            dataSource={filteredRefs}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            columns={[
+              {
+                title: "检查类型",
+                dataIndex: "examType",
+                key: "examType",
+                align: "center",
+                render: (v: string) => (
                   <span
                     style={{
-                      padding: "3px 8px",
-                      background: isExceed ? "#fef2f2" : "var(--color-success-bg, #f0fdf4)",
-                      color: isExceed ? "var(--color-error-600)" : "var(--color-success-600)",
-                      borderRadius: 4,
-                      fontSize: 12,
-                      fontWeight: 700,
+                      fontWeight: 600,
+                      color: "var(--color-primary-800)",
                     }}
                   >
-                    {isExceed ? `${(ref.exceedRate * 100).toFixed(0)}%` : "0%"}
+                    {v}
                   </span>
-                );
+                ),
               },
-            },
-          ]}
-        />
-      </div>
-
-      {/* 告警说明 */}
-      {refs.some((r) => r.exceedRate > 0.5) && (
-        <div
-          style={{
-            marginTop: 'var(--space-4, 16px)',
-            padding: "12px 16px",
-            background: "#fef2f2",
-            border: "1px solid #fecaca",
-            borderRadius: 8,
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 10,
-          }}
-        >
-          <AlertTriangle
-            size={16}
-            color="var(--color-error-600)"
-            style={{ marginTop: 2, flexShrink: 0 }}
+              {
+                title: "AAPM参考值",
+                dataIndex: "aapmRef",
+                key: "aapmRef",
+                align: "center",
+                render: (v: number) => (
+                  <span style={{ color: "var(--text-primary, #334155)" }}>
+                    {v} mGy
+                  </span>
+                ),
+              },
+              {
+                title: "欧盟参考值",
+                dataIndex: "euRef",
+                key: "euRef",
+                align: "center",
+                render: (v: number) => (
+                  <span style={{ color: "var(--text-primary, #334155)" }}>
+                    {v} mGy
+                  </span>
+                ),
+              },
+              {
+                title: "本院平均值",
+                dataIndex: "hospitalAvg",
+                key: "hospitalAvg",
+                align: "center",
+                render: (v: number, ref: AAPMReference) => (
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      color:
+                        ref.exceedRate > 0
+                          ? "var(--color-error-600)"
+                          : "var(--color-success-600)",
+                    }}
+                  >
+                    {v} mGy
+                  </span>
+                ),
+              },
+              {
+                title: "超标比例",
+                dataIndex: "exceedRate",
+                key: "exceedRate",
+                align: "center",
+                render: (_v: number, ref: AAPMReference) => {
+                  const isExceed = ref.exceedRate > 0;
+                  return (
+                    <span
+                      style={{
+                        padding: "3px 8px",
+                        background: isExceed
+                          ? "#fef2f2"
+                          : "var(--color-success-bg, #f0fdf4)",
+                        color: isExceed
+                          ? "var(--color-error-600)"
+                          : "var(--color-success-600)",
+                        borderRadius: 4,
+                        fontSize: 12,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {isExceed
+                        ? `${(ref.exceedRate * 100).toFixed(0)}%`
+                        : "0%"}
+                    </span>
+                  );
+                },
+              },
+            ]}
           />
-          <div style={{ fontSize: 12, color: "var(--color-error-600)" }}>
-            <strong>超标告警：</strong>
-            胸部CT和腹部CT的本院平均值超过AAPM参考值，需要进行剂量优化分析。建议检查扫描参数设置，考虑降低剂量配置。
-          </div>
         </div>
-      )}
-    </div>
+
+        {/* 告警说明 */}
+        {refs.some((r) => r.exceedRate > 0.5) && (
+          <div
+            style={{
+              marginTop: "var(--space-4, 16px)",
+              padding: "12px 16px",
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 10,
+            }}
+          >
+            <AlertTriangle
+              size={16}
+              color="var(--color-error-600)"
+              style={{ marginTop: 2, flexShrink: 0 }}
+            />
+            <div style={{ fontSize: 12, color: "var(--color-error-600)" }}>
+              <strong>超标告警：</strong>
+              胸部CT和腹部CT的本院平均值超过AAPM参考值，需要进行剂量优化分析。建议检查扫描参数设置，考虑降低剂量配置。
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

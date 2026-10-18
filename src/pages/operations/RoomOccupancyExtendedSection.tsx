@@ -1,27 +1,34 @@
 // [v3.0.6.11-104 Wave 2D] 检查室占用扩展总览区块
 // 接入 GET /occupancy/overview · /occupancy/daily-trend · /occupancy/by-shift
-import { useCallback, useEffect, useState } from 'react';
-import { Space, Tag } from 'antd';
-import type { TableColumnsType } from 'antd';
-import { Activity, AlertTriangle, Clock, Layers, TrendingUp } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Space, Tag } from "antd";
+import type { TableColumnsType } from "antd";
+import {
+  Activity,
+  AlertTriangle,
+  Clock,
+  Layers,
+  TrendingUp,
+} from "lucide-react";
 import {
   occupancyApi,
   type OccupancyDailyPoint,
   type OccupancyOverviewDto,
   type ShiftStatDto,
-} from '../../services/api/occupancyApi';
-import { StatCard, StatCardGrid } from '../../components/common/StatCard';
-import { DashboardCard } from '../../components/dashboard/DashboardCard';
-import { TrendChart } from '../../components/dashboard/TrendChart';
-import { DataTable } from '../../components/common/DataTable';
-import { StateView } from '../../components/common/StateView';
-import { t } from '../../i18n/appI18n';
+} from "../../services/api/occupancyApi";
+import { StatCard, StatCardGrid } from "../../components/common/StatCard";
+import { DashboardCard } from "../../components/dashboard/DashboardCard";
+import { TrendChart } from "../../components/dashboard/TrendChart";
+import { DataTable } from "../../components/common/DataTable";
+import { FilterBar } from "../../components/common/FilterBar";
+import { StateView } from "../../components/common/StateView";
+import { t } from "../../i18n/appI18n";
 
 const SHIFT_LABEL: Record<string, string> = {
-  morning: 'morning',
-  afternoon: 'afternoon',
-  evening: 'evening',
-  night: 'night',
+  morning: "morning",
+  afternoon: "afternoon",
+  evening: "evening",
+  night: "night",
 };
 
 export function RoomOccupancyExtendedSection() {
@@ -30,6 +37,34 @@ export function RoomOccupancyExtendedSection() {
   const [shifts, setShifts] = useState<ShiftStatDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // [v3.0.6.16-6] 班次统计筛选: 关键词 + 班次
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+
+  const filteredShifts = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return shifts.filter((s) => {
+      const label = t(`occExt.${SHIFT_LABEL[s.shift] ?? "morning"}`);
+      const matchKw =
+        !kw ||
+        s.shift.toLowerCase().includes(kw) ||
+        label.toLowerCase().includes(kw) ||
+        s.timeRange.toLowerCase().includes(kw);
+      const matchShift = !filterValues.shift || s.shift === filterValues.shift;
+      return matchKw && matchShift;
+    });
+  }, [shifts, keyword, filterValues]);
+
+  const shiftOptions = useMemo(
+    () =>
+      Array.from(new Set(shifts.map((s) => s.shift)))
+        .filter(Boolean)
+        .map((v) => ({
+          value: v,
+          label: t(`occExt.${SHIFT_LABEL[v] ?? "morning"}`),
+        })),
+    [shifts],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -40,7 +75,7 @@ export function RoomOccupancyExtendedSection() {
       occupancyApi.getByShift(),
     ]);
     if (!ov.success) {
-      setError(ov.error?.message ?? t('w2d.loadFailed'));
+      setError(ov.error?.message ?? t("w2d.loadFailed"));
       setLoading(false);
       return;
     }
@@ -56,15 +91,26 @@ export function RoomOccupancyExtendedSection() {
 
   const shiftColumns: TableColumnsType<ShiftStatDto> = [
     {
-      title: t('occExt.shift'),
-      dataIndex: 'shift',
-      key: 'shift',
-      render: (_v: string, row) => t(`occExt.${SHIFT_LABEL[row.shift] ?? 'morning'}`),
+      title: t("occExt.shift"),
+      dataIndex: "shift",
+      key: "shift",
+      render: (_v: string, row) =>
+        t(`occExt.${SHIFT_LABEL[row.shift] ?? "morning"}`),
     },
-    { title: t('occExt.timeRange'), dataIndex: 'timeRange', key: 'timeRange' },
-    { title: t('occExt.occupancyRate'), dataIndex: 'occupancyRate', key: 'occupancyRate', render: (v: number) => `${v}%` },
-    { title: t('occExt.exams'), dataIndex: 'exams', key: 'exams' },
-    { title: t('occExt.avgSessionMinutes'), dataIndex: 'avgSessionMinutes', key: 'avgSessionMinutes', render: (v: number) => `${v} min` },
+    { title: t("occExt.timeRange"), dataIndex: "timeRange", key: "timeRange" },
+    {
+      title: t("occExt.occupancyRate"),
+      dataIndex: "occupancyRate",
+      key: "occupancyRate",
+      render: (v: number) => `${v}%`,
+    },
+    { title: t("occExt.exams"), dataIndex: "exams", key: "exams" },
+    {
+      title: t("occExt.avgSessionMinutes"),
+      dataIndex: "avgSessionMinutes",
+      key: "avgSessionMinutes",
+      render: (v: number) => `${v} min`,
+    },
   ];
 
   if (loading) {
@@ -74,37 +120,69 @@ export function RoomOccupancyExtendedSection() {
     return <StateView error={error} onRetry={() => void load()} />;
   }
   if (!overview) {
-    return <StateView empty emptyDescription={t('w2d.empty')} />;
+    return <StateView empty emptyDescription={t("w2d.empty")} />;
   }
 
   return (
-    <Space direction="vertical" size={16} style={{ width: '100%', marginBottom: 'var(--space-4, 16px)' }}>
+    <Space
+      direction="vertical"
+      size={16}
+      style={{ width: "100%", marginBottom: "var(--space-4, 16px)" }}
+    >
       <StatCardGrid>
-        <StatCard title={t('occExt.totalRooms')} value={overview.totalRooms} icon={<Layers size={18} />} color="primary" />
         <StatCard
-          title={t('occExt.occupancyRate')}
+          title={t("occExt.totalRooms")}
+          value={overview.totalRooms}
+          icon={<Layers size={18} />}
+          color="primary"
+        />
+        <StatCard
+          title={t("occExt.occupancyRate")}
           value={overview.occupancyRate}
           suffix="%"
           icon={<Activity size={18} />}
-          color={overview.occupancyRate > 80 ? 'error' : 'success'}
+          color={overview.occupancyRate > 80 ? "error" : "success"}
           gradient
         />
-        <StatCard title={t('occExt.occupied')} value={overview.occupiedRooms} icon={<Activity size={18} />} color="info" />
-        <StatCard title={t('occExt.idle')} value={overview.idleRooms} color="success" />
-        <StatCard title={t('occExt.todayExams')} value={overview.todayExams} color="primary" />
         <StatCard
-          title={t('occExt.overdue')}
+          title={t("occExt.occupied")}
+          value={overview.occupiedRooms}
+          icon={<Activity size={18} />}
+          color="info"
+        />
+        <StatCard
+          title={t("occExt.idle")}
+          value={overview.idleRooms}
+          color="success"
+        />
+        <StatCard
+          title={t("occExt.todayExams")}
+          value={overview.todayExams}
+          color="primary"
+        />
+        <StatCard
+          title={t("occExt.overdue")}
           value={overview.overdueRooms}
           icon={<AlertTriangle size={18} />}
-          color={overview.overdueRooms > 0 ? 'error' : 'success'}
+          color={overview.overdueRooms > 0 ? "error" : "success"}
         />
       </StatCardGrid>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
         <DashboardCard
-          title={t('occExt.dailyTrend')}
+          title={t("occExt.dailyTrend")}
           icon={<TrendingUp size={15} />}
-          extra={overview.seeded ? <Tag color="default">{t('w2d.seeded')}</Tag> : null}
+          extra={
+            overview.seeded ? (
+              <Tag color="default">{t("w2d.seeded")}</Tag>
+            ) : null
+          }
         >
           <TrendChart
             data={trend as unknown as Array<Record<string, string | number>>}
@@ -112,19 +190,44 @@ export function RoomOccupancyExtendedSection() {
             percent
             height={220}
             series={[
-              { key: 'occupancyRate', name: t('occExt.occupancyRate'), color: 'var(--color-primary-600)' },
-              { key: 'exams', name: t('occExt.exams'), color: 'var(--color-success-600)' },
+              {
+                key: "occupancyRate",
+                name: t("occExt.occupancyRate"),
+                color: "var(--color-primary-600)",
+              },
+              {
+                key: "exams",
+                name: t("occExt.exams"),
+                color: "var(--color-success-600)",
+              },
             ]}
           />
         </DashboardCard>
 
-        <DashboardCard title={t('occExt.byShift')} icon={<Clock size={15} />}>
+        <DashboardCard title={t("occExt.byShift")} icon={<Clock size={15} />}>
+          <FilterBar
+            searchPlaceholder="搜索班次 / 时段…"
+            searchValue={keyword}
+            onSearchChange={setKeyword}
+            filters={[
+              { key: "shift", label: t("occExt.shift"), options: shiftOptions },
+            ]}
+            filterValues={filterValues}
+            onFilterChange={(k, v) =>
+              setFilterValues((prev) => ({ ...prev, [k]: v }))
+            }
+            onReset={() => {
+              setKeyword("");
+              setFilterValues({});
+            }}
+            summary={`共 ${filteredShifts.length} / ${shifts.length} 条`}
+          />
           <DataTable<ShiftStatDto>
             rowKey="shift"
-            dataSource={shifts}
+            dataSource={filteredShifts}
             columns={shiftColumns}
             showPagination={false}
-            emptyText={t('w2d.empty')}
+            emptyText={t("w2d.empty")}
           />
         </DashboardCard>
       </div>

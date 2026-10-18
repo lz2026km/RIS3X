@@ -15,14 +15,48 @@
  *  - 质控看板 - 实时聚合
  *  - CQI 持续改进 - PDCA 项目
  */
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ShieldCheck, Activity, AlertOctagon, FileText, Users, Monitor, Camera, BarChart3, TrendingUp, CheckCircle, Clock, Award, Target, Layers, Sparkles, GitBranch, RefreshCw, Medal, ThumbsDown, Database } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
-  LineChart, Line, BarChart, Bar, ComposedChart,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  Area, AreaChart,
-} from 'recharts';
+  ShieldCheck,
+  Activity,
+  AlertOctagon,
+  FileText,
+  Users,
+  Monitor,
+  Camera,
+  BarChart3,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  Award,
+  Target,
+  Layers,
+  Sparkles,
+  GitBranch,
+  RefreshCw,
+  Medal,
+  ThumbsDown,
+  Database,
+} from "lucide-react";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  ComposedChart,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Area,
+  AreaChart,
+} from "recharts";
 import { ChartContainer, chartDefaults } from "../../components/charts";
 import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
@@ -30,29 +64,60 @@ import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { StickyActionBar } from "../../components/common/StickyActionBar";
 import { ExportButton } from "../../components/common/ExportButton";
 import { DataTable } from "../../components/common/DataTable";
+import { FilterBar } from "../../components/common/FilterBar";
 import { SeverityTag } from "../../components/common/SeverityTag";
 import { severityColor } from "../../theme/statusTokens";
-import { DOCTOR_MASTER, DOCTORS_BY_TITLE, DEVICE_MASTER, DEVICES_BY_STATUS } from '../../data/master';
+import {
+  DOCTOR_MASTER,
+  DOCTORS_BY_TITLE,
+  DEVICE_MASTER,
+  DEVICES_BY_STATUS,
+} from "../../data/master";
 import { DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE } from "../../data/_generators";
-import { qcextApi, type QcDashboardDto, type QcStatsDto } from '../../services/api/qcextApi';
+import {
+  qcextApi,
+  type QcDashboardDto,
+  type QcStatsDto,
+} from "../../services/api/qcextApi";
 // [v3.0.6.11-99 Wave10B] 质控看板深化: 图像质控三维度历史 (qcImageAiApi)
-import { qcImageAiApi, type QcAiAssessRecord } from '../../services/api/qcImageAiApi';
-import { reportQualityApi } from '../../services/api/reportQualityApi';
-import { LoadingBanner, ErrorBanner } from '../../components/feedback';
-import { t } from '../../i18n/appI18n';
+import {
+  qcImageAiApi,
+  type QcAiAssessRecord,
+} from "../../services/api/qcImageAiApi";
+import { reportQualityApi } from "../../services/api/reportQualityApi";
+import { LoadingBanner, ErrorBanner } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 
-type QCTab = "overview" | "image" | "report" | "workflow" | "equipment" | "personnel" | "operations" | "ai" | "cqi";
+type QCTab =
+  | "overview"
+  | "image"
+  | "report"
+  | "workflow"
+  | "equipment"
+  | "personnel"
+  | "operations"
+  | "ai"
+  | "cqi";
 
-function downloadCsv(filename: string, sections: Array<{ title: string; rows: (string | number)[][] }>) {
+function downloadCsv(
+  filename: string,
+  sections: Array<{ title: string; rows: (string | number)[][] }>,
+) {
   const lines: string[] = [];
   sections.forEach((s) => {
     lines.push(`### ${s.title}`);
-    s.rows.forEach((r) => lines.push(r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')));
-    lines.push('');
+    s.rows.forEach((r) =>
+      lines.push(
+        r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(","),
+      ),
+    );
+    lines.push("");
   });
-  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], {
+    type: "text/csv;charset=utf-8",
+  });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
@@ -75,82 +140,196 @@ export default function RadiologyQCDashboardPage() {
   const [dateRange, setDateRange] = useState("本月");
   const [showDrill, setShowDrill] = useState(false);
   const [drillMetric, setDrillMetric] = useState("reportCount");
-  const [drillDimension, setDrillDimension] = useState<"doctor" | "dept">("doctor");
-  const [_dashboardData, setDashboardData] = useState<QcDashboardDto | null>(null);
+  const [drillDimension, setDrillDimension] = useState<"doctor" | "dept">(
+    "doctor",
+  );
+  const [_dashboardData, setDashboardData] = useState<QcDashboardDto | null>(
+    null,
+  );
   const [_qcStats, setQcStats] = useState<QcStatsDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // [v3.0.6.16-6] 设备影像质控表筛选: 关键词/质控等级/状态/设备类型/品牌
+  const [deviceKeyword, setDeviceKeyword] = useState("");
+  const [deviceFilterValues, setDeviceFilterValues] = useState<
+    Record<string, string>
+  >({});
+
+  const filteredDeviceMaster = useMemo(() => {
+    const kw = deviceKeyword.trim().toLowerCase();
+    return DEVICE_MASTER.filter((d) => {
+      const matchKw =
+        !kw ||
+        d.id.toLowerCase().includes(kw) ||
+        (d.model ?? "").toLowerCase().includes(kw) ||
+        (d.brand ?? "").toLowerCase().includes(kw);
+      const matchGrade =
+        !deviceFilterValues.imageQualityGrade ||
+        d.imageQualityGrade === deviceFilterValues.imageQualityGrade;
+      const matchStatus =
+        !deviceFilterValues.status || d.status === deviceFilterValues.status;
+      const matchModality =
+        !deviceFilterValues.modality ||
+        d.modality === deviceFilterValues.modality;
+      const matchBrand =
+        !deviceFilterValues.brand || d.brand === deviceFilterValues.brand;
+      return (
+        matchKw && matchGrade && matchStatus && matchModality && matchBrand
+      );
+    });
+  }, [deviceKeyword, deviceFilterValues]);
+
+  const deviceGradeOptions = useMemo(
+    () =>
+      Array.from(new Set(DEVICE_MASTER.map((d) => d.imageQualityGrade)))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: `${v} 级` })),
+    [],
+  );
+  const deviceStatusOptions = useMemo(
+    () =>
+      Array.from(new Set(DEVICE_MASTER.map((d) => d.status)))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: v })),
+    [],
+  );
+  const deviceModalityOptions = useMemo(
+    () =>
+      Array.from(new Set(DEVICE_MASTER.map((d) => d.modality)))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: v })),
+    [],
+  );
+  const deviceBrandOptions = useMemo(
+    () =>
+      Array.from(new Set(DEVICE_MASTER.map((d) => d.brand)))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: v })),
+    [],
+  );
   const fetchData = useCallback(() => {
     setLoading(true);
     Promise.allSettled([
-      qcextApi.getQcDashboard().then(res => { if (res.success) setDashboardData(res.data); }).catch((err) => { console.error('[F04]', err); throw err; }),
-      qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch((err) => { console.error('[F04]', err); throw err; }),
-    ]).then((results) => {
-      if (results.some((r) => r.status === 'rejected')) setLoadError(t('w9.states.error'));
-      else setLoadError(null);
-    }).finally(() => setLoading(false));
+      qcextApi
+        .getQcDashboard()
+        .then((res) => {
+          if (res.success) setDashboardData(res.data);
+        })
+        .catch((err) => {
+          console.error("[F04]", err);
+          throw err;
+        }),
+      qcextApi
+        .getQcStats()
+        .then((res) => {
+          if (res.success) setQcStats(res.data);
+        })
+        .catch((err) => {
+          console.error("[F04]", err);
+          throw err;
+        }),
+    ])
+      .then((results) => {
+        if (results.some((r) => r.status === "rejected"))
+          setLoadError(t("w9.states.error"));
+        else setLoadError(null);
+      })
+      .finally(() => setLoading(false));
   }, []);
-  useEffect(() => { fetchData(); }, [fetchData, refreshKey]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, refreshKey]);
 
   // ============================================================
   // [v3.0.6.11-99 Wave10B] 深化区块: 质控趋势多图 / 科室雷达 / 医生榜 / 图像三维度
   // ============================================================
   // 图像质控三维度评估历史 (qcImageAiApi.listAssessments, 失败回退派生)
   const [assessRecords, setAssessRecords] = useState<QcAiAssessRecord[]>([]);
-  const [imageTrendSource, setImageTrendSource] = useState<'real' | 'demo'>('demo');
-  const [imageTrendError, setImageTrendError] = useState('');
+  const [imageTrendSource, setImageTrendSource] = useState<"real" | "demo">(
+    "demo",
+  );
+  const [imageTrendError, setImageTrendError] = useState("");
   // 报告质量统计 (reportQualityApi.getStats, 失败回退 DAILY_KPI_PRE)
-  const [qualityExtStats, setQualityExtStats] = useState<{ total: number; avgScore: number; passRate: number } | null>(null);
-  const [reportTrendSource, setReportTrendSource] = useState<'real' | 'demo'>('demo');
-  const [reportTrendError, setReportTrendError] = useState('');
+  const [qualityExtStats, setQualityExtStats] = useState<{
+    total: number;
+    avgScore: number;
+    passRate: number;
+  } | null>(null);
+  const [reportTrendSource, setReportTrendSource] = useState<"real" | "demo">(
+    "demo",
+  );
+  const [reportTrendError, setReportTrendError] = useState("");
 
   const loadWave10 = useCallback(() => {
-    qcImageAiApi.listAssessments({ pageSize: 50 }).then(res => {
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setAssessRecords(res.data);
-        setImageTrendSource('real');
-        setImageTrendError('');
-      } else {
-        setImageTrendSource('demo');
+    qcImageAiApi
+      .listAssessments({ pageSize: 50 })
+      .then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setAssessRecords(res.data);
+          setImageTrendSource("real");
+          setImageTrendError("");
+        } else {
+          setImageTrendSource("demo");
+          setImageTrendError(t("qcDashboard.imageTrendFallback"));
+        }
+      })
+      .catch(() => {
+        setImageTrendSource("demo");
         setImageTrendError(t("qcDashboard.imageTrendFallback"));
-      }
-    }).catch(() => {
-      setImageTrendSource('demo');
-      setImageTrendError(t("qcDashboard.imageTrendFallback"));
-    });
-    reportQualityApi.getStats().then(res => {
-      if (res.success && res.data && res.data.total > 0) {
-        setQualityExtStats({ total: res.data.total, avgScore: res.data.avgScore, passRate: res.data.passRate ?? 0 });
-        setReportTrendSource('real');
-        setReportTrendError('');
-      } else {
-        setReportTrendSource('demo');
-      }
-    }).catch(() => { setReportTrendSource('demo'); });
+      });
+    reportQualityApi
+      .getStats()
+      .then((res) => {
+        if (res.success && res.data && res.data.total > 0) {
+          setQualityExtStats({
+            total: res.data.total,
+            avgScore: res.data.avgScore,
+            passRate: res.data.passRate ?? 0,
+          });
+          setReportTrendSource("real");
+          setReportTrendError("");
+        } else {
+          setReportTrendSource("demo");
+        }
+      })
+      .catch(() => {
+        setReportTrendSource("demo");
+      });
   }, []);
-  useEffect(() => { loadWave10(); }, [loadWave10, refreshKey]);
+  useEffect(() => {
+    loadWave10();
+  }, [loadWave10, refreshKey]);
 
   // 月度质量分 / 缺陷率 / 整改闭环率 (月度聚合)
   const qcTrendMonthly = useMemo(() => {
     const byMonth: Record<string, any> = {};
     DAILY_KPI_PRE.forEach((d) => {
       const m = d.date.slice(0, 7);
-      const cur = byMonth[m] || { month: m, qcSum: 0, defect: 0, count: 0, closed: 0 };
+      const cur = byMonth[m] || {
+        month: m,
+        qcSum: 0,
+        defect: 0,
+        count: 0,
+        closed: 0,
+      };
       cur.qcSum += d.qcAvgScore;
       cur.defect += d.defectCount;
       cur.count += 1;
       cur.closed += Math.round(d.defectCount * 0.86);
       byMonth[m] = cur;
     });
-    return Object.keys(byMonth).sort().slice(-6).map((m) => {
-      const r = byMonth[m];
-      return {
-        month: m,
-        质量分: +(r.qcSum / r.count).toFixed(1),
-        缺陷率: +(r.defect / Math.max(r.count * 100, 1) * 100).toFixed(2),
-        闭环率: Math.round((r.closed / Math.max(r.defect, 1)) * 100),
-      };
-    });
+    return Object.keys(byMonth)
+      .sort()
+      .slice(-6)
+      .map((m) => {
+        const r = byMonth[m];
+        return {
+          month: m,
+          质量分: +(r.qcSum / r.count).toFixed(1),
+          缺陷率: +((r.defect / Math.max(r.count * 100, 1)) * 100).toFixed(2),
+          闭环率: Math.round((r.closed / Math.max(r.defect, 1)) * 100),
+        };
+      });
   }, []);
 
   // 科室维度对比 (雷达图数据, 复用 drillDeptRows) → 定义于 drillDeptRows 之后 (见下方)
@@ -158,9 +337,13 @@ export default function RadiologyQCDashboardPage() {
   // 图像质控三维度趋势 (伪影/曝光/体位)
   const imageDimTrend = useMemo(() => {
     if (assessRecords.length > 0) {
-      const sorted = [...assessRecords].sort((a, b) => String(a.assessedAt).localeCompare(String(b.assessedAt)));
-      return sorted.slice(-12).map(r => ({
-        time: String(r.assessedAt ?? '').slice(5, 16).replace('T', ' '),
+      const sorted = [...assessRecords].sort((a, b) =>
+        String(a.assessedAt).localeCompare(String(b.assessedAt)),
+      );
+      return sorted.slice(-12).map((r) => ({
+        time: String(r.assessedAt ?? "")
+          .slice(5, 16)
+          .replace("T", " "),
         伪影: r.artifact?.score ?? 0,
         曝光: r.exposure?.score ?? 0,
         体位: r.positioning?.score ?? 0,
@@ -169,19 +352,27 @@ export default function RadiologyQCDashboardPage() {
     }
     // 回退: 派生演示趋势
     const base = 82;
-    return ['W-1', 'W-2', 'W-3', 'W-4', 'W-5', 'W-6', 'W-7', 'W-8'].map((w, i) => ({
-      time: w,
-      伪影: Math.min(100, base + i * 0.8 + (i % 2) * 2),
-      曝光: Math.min(100, base + 3 + i * 0.5),
-      体位: Math.min(100, base - 2 + i * 1.1),
-      总分: Math.min(100, base + 1 + i * 0.8),
-    }));
+    return ["W-1", "W-2", "W-3", "W-4", "W-5", "W-6", "W-7", "W-8"].map(
+      (w, i) => ({
+        time: w,
+        伪影: Math.min(100, base + i * 0.8 + (i % 2) * 2),
+        曝光: Math.min(100, base + 3 + i * 0.5),
+        体位: Math.min(100, base - 2 + i * 1.1),
+        总分: Math.min(100, base + 1 + i * 0.8),
+      }),
+    );
   }, [assessRecords]);
 
   // 缺陷分布 (qcextApi stats 优先)
   const defectDist = useMemo(() => {
-    if (_qcStats && Array.isArray(_qcStats.defectDistribution) && _qcStats.defectDistribution.length > 0) {
-      return _qcStats.defectDistribution.slice(0, 6).map(d => ({ name: d.defectType, value: d.count }));
+    if (
+      _qcStats &&
+      Array.isArray(_qcStats.defectDistribution) &&
+      _qcStats.defectDistribution.length > 0
+    ) {
+      return _qcStats.defectDistribution
+        .slice(0, 6)
+        .map((d) => ({ name: d.defectType, value: d.count }));
     }
     const fallback = [
       { name: t("qcDashboard.defectIncomplete"), value: 34 },
@@ -196,66 +387,182 @@ export default function RadiologyQCDashboardPage() {
 
   const trendChartStyle = {
     borderRadius: 8,
-    border: '1px solid var(--border-color)',
-    background: 'var(--bg-card)',
+    border: "1px solid var(--border-color)",
+    background: "var(--bg-card)",
     fontSize: 12,
   };
 
   // 深化区块渲染: 质控趋势多图 (月度质量分/缺陷率/整改闭环率)
   const renderQcTrendCharts = () => (
-    <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 'var(--space-4, 16px)' }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
+    <div
+      style={{
+        background: "var(--bg-card)",
+        borderRadius: 10,
+        padding: "var(--space-5, 20px)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        marginTop: "var(--space-4, 16px)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-4, 16px)",
+          flexWrap: "wrap",
+        }}
+      >
         <TrendingUp size={18} color="var(--color-primary-800)" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.trendChartsTitle")}</h3>
-        <span style={{
-          padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600,
-          background: reportTrendSource === "real" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
-          color: reportTrendSource === "real" ? "#065f46" : "#92400e",
-          display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)',
-        }}>
+        <h3
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            margin: 0,
+          }}
+        >
+          {t("qcDashboard.trendChartsTitle")}
+        </h3>
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 999,
+            fontSize: 11,
+            fontWeight: 600,
+            background:
+              reportTrendSource === "real"
+                ? "var(--color-success-bg)"
+                : "var(--color-warning-bg)",
+            color: reportTrendSource === "real" ? "#065f46" : "#92400e",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-1, 4px)",
+          }}
+        >
           <Database size={10} />
-          {t("qcDashboard.dataSourceLabel")} {reportTrendSource === "real" ? t("qcDashboard.sourceRealApi") : t("qcDashboard.sourceDerived")}
+          {t("qcDashboard.dataSourceLabel")}{" "}
+          {reportTrendSource === "real"
+            ? t("qcDashboard.sourceRealApi")
+            : t("qcDashboard.sourceDerived")}
         </span>
         {qualityExtStats && (
-          <span style={{
-            padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600,
-            background: "var(--color-success-bg)", color: "var(--color-success)",
-            display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)',
-          }}>
+          <span
+            style={{
+              padding: "2px 8px",
+              borderRadius: 999,
+              fontSize: 11,
+              fontWeight: 600,
+              background: "var(--color-success-bg)",
+              color: "var(--color-success)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <CheckCircle size={10} />
-            {t("qcDashboard.reports")} {qualityExtStats.total} {t("qcDashboard.avgScore")} {qualityExtStats.avgScore.toFixed(1)} {t("qcDashboard.passRate")} {qualityExtStats.passRate}%
+            {t("qcDashboard.reports")} {qualityExtStats.total}{" "}
+            {t("qcDashboard.avgScore")} {qualityExtStats.avgScore.toFixed(1)}{" "}
+            {t("qcDashboard.passRate")} {qualityExtStats.passRate}%
           </span>
         )}
-        <button onClick={() => { setRefreshKey(k => k + 1); loadWave10(); }} style={{
-          marginLeft: 'auto', padding: '5px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12,
-          border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)',
-          display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
-        }}>
+        <button
+          onClick={() => {
+            setRefreshKey((k) => k + 1);
+            loadWave10();
+          }}
+          style={{
+            marginLeft: "auto",
+            padding: "5px 12px",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontSize: 12,
+            border: "1px solid var(--border-color)",
+            background: "var(--bg-card)",
+            color: "var(--text-secondary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-1, 4px)",
+          }}
+        >
           <RefreshCw size={12} /> {t("qcDashboard.refresh")}
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
         {/* 月度质量分 + 闭环率 组合图 */}
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.monthlyScoreClosure")}</div>
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 10,
+            }}
+          >
+            {t("qcDashboard.monthlyScoreClosure")}
+          </div>
           <ChartContainer type="composed" height={200}>
             <ComposedChart data={qcTrendMonthly} margin={chartDefaults.margin}>
               <CartesianGrid {...chartDefaults.grid} />
               <XAxis dataKey="month" {...chartDefaults.axis} />
               <YAxis yAxisId="left" domain={[0, 100]} {...chartDefaults.axis} />
-              <YAxis yAxisId="right" orientation="right" domain={[0, 100]} {...chartDefaults.axis} />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                domain={[0, 100]}
+                {...chartDefaults.axis}
+              />
               <Tooltip contentStyle={trendChartStyle} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Bar yAxisId="left" dataKey="质量分" fill="var(--color-primary-800)" radius={[3, 3, 0, 0]} barSize={18} />
-              <Line yAxisId="right" type="monotone" dataKey="闭环率" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
+              <Bar
+                yAxisId="left"
+                dataKey="质量分"
+                fill="var(--color-primary-800)"
+                radius={[3, 3, 0, 0]}
+                barSize={18}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="闭环率"
+                stroke="#10b981"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
             </ComposedChart>
           </ChartContainer>
         </div>
 
         {/* 月度缺陷率 + 缺陷分布 */}
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.monthlyDefectDist")}</div>
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 10,
+            }}
+          >
+            {t("qcDashboard.monthlyDefectDist")}
+          </div>
           <ChartContainer type="composed" height={200}>
             <ComposedChart data={qcTrendMonthly} margin={chartDefaults.margin}>
               <CartesianGrid {...chartDefaults.grid} />
@@ -264,17 +571,42 @@ export default function RadiologyQCDashboardPage() {
               <YAxis yAxisId="r" orientation="right" {...chartDefaults.axis} />
               <Tooltip contentStyle={trendChartStyle} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="l" type="monotone" dataKey="缺陷率" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
-              <Bar yAxisId="r" dataKey="缺陷率" fill="rgba(220,38,38,0.15)" radius={[3, 3, 0, 0]} barSize={18} hide />
+              <Line
+                yAxisId="l"
+                type="monotone"
+                dataKey="缺陷率"
+                stroke="var(--color-error-600)"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+              <Bar
+                yAxisId="r"
+                dataKey="缺陷率"
+                fill="rgba(220,38,38,0.15)"
+                radius={[3, 3, 0, 0]}
+                barSize={18}
+                hide
+              />
             </ComposedChart>
           </ChartContainer>
-          <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {defectDist.map(d => (
-              <span key={d.name} style={{
-                fontSize: 11, padding: '2px 10px', borderRadius: 999,
-                background: 'var(--color-error-bg)', color: '#991b1b', fontWeight: 600,
-                display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
-              }}>
+          <div
+            style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}
+          >
+            {defectDist.map((d) => (
+              <span
+                key={d.name}
+                style={{
+                  fontSize: 11,
+                  padding: "2px 10px",
+                  borderRadius: 999,
+                  background: "var(--color-error-bg)",
+                  color: "#991b1b",
+                  fontWeight: 600,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
                 {d.name} {d.value}
               </span>
             ))}
@@ -282,14 +614,37 @@ export default function RadiologyQCDashboardPage() {
         </div>
 
         {/* 月度检查量/报告量 面积图 */}
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.monthlyTrend")}</div>
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 10,
+            }}
+          >
+            {t("qcDashboard.monthlyTrend")}
+          </div>
           <ChartContainer type="area" height={200}>
             <AreaChart data={monthlyStats} margin={chartDefaults.margin}>
               <defs>
                 <linearGradient id="examGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-primary-800)" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="var(--color-primary-800)" stopOpacity={0} />
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-primary-800)"
+                    stopOpacity={0.25}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-primary-800)"
+                    stopOpacity={0}
+                  />
                 </linearGradient>
                 <linearGradient id="repGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
@@ -301,88 +656,306 @@ export default function RadiologyQCDashboardPage() {
               <YAxis {...chartDefaults.axis} />
               <Tooltip contentStyle={trendChartStyle} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" dataKey="examCount" name="检查量" stroke="var(--color-primary-800)" fill="url(#examGrad)" strokeWidth={2} />
-              <Area type="monotone" dataKey="reportCount" name="报告量" stroke="#10b981" fill="url(#repGrad)" strokeWidth={2} />
+              <Area
+                type="monotone"
+                dataKey="examCount"
+                name="检查量"
+                stroke="var(--color-primary-800)"
+                fill="url(#examGrad)"
+                strokeWidth={2}
+              />
+              <Area
+                type="monotone"
+                dataKey="reportCount"
+                name="报告量"
+                stroke="#10b981"
+                fill="url(#repGrad)"
+                strokeWidth={2}
+              />
             </AreaChart>
           </ChartContainer>
         </div>
 
         {/* 月均 TAT 柱状 */}
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.avgTatMin")}</div>
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 10,
+            }}
+          >
+            {t("qcDashboard.avgTatMin")}
+          </div>
           <ChartContainer type="bar" height={200}>
             <BarChart data={monthlyStats} margin={chartDefaults.margin}>
               <CartesianGrid {...chartDefaults.grid} />
               <XAxis dataKey="month" {...chartDefaults.axis} />
               <YAxis {...chartDefaults.axis} />
-              <Tooltip contentStyle={trendChartStyle} formatter={(v) => [`${v} 分钟`, 'TAT']} />
-              <Bar dataKey="avgTAT" name="平均TAT" fill="#7c3aed" radius={[3, 3, 0, 0]} barSize={22} />
+              <Tooltip
+                contentStyle={trendChartStyle}
+                formatter={(v) => [`${v} 分钟`, "TAT"]}
+              />
+              <Bar
+                dataKey="avgTAT"
+                name="平均TAT"
+                fill="#7c3aed"
+                radius={[3, 3, 0, 0]}
+                barSize={22}
+              />
             </BarChart>
           </ChartContainer>
-          <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>
-            {t("qcDashboard.peak")} <strong>{Math.max(...monthlyStats.map(m => m.avgTAT))}</strong> {t("qcDashboard.minAvg")}{' '}
-            <strong>{Math.round(monthlyStats.reduce((s, m) => s + m.avgTAT, 0) / Math.max(1, monthlyStats.length))}</strong> {t("qcDashboard.minutes")}
+          <div
+            style={{
+              marginTop: "var(--space-2, 8px)",
+              fontSize: 11,
+              color: "var(--text-secondary)",
+            }}
+          >
+            {t("qcDashboard.peak")}{" "}
+            <strong>{Math.max(...monthlyStats.map((m) => m.avgTAT))}</strong>{" "}
+            {t("qcDashboard.minAvg")}{" "}
+            <strong>
+              {Math.round(
+                monthlyStats.reduce((s, m) => s + m.avgTAT, 0) /
+                  Math.max(1, monthlyStats.length),
+              )}
+            </strong>{" "}
+            {t("qcDashboard.minutes")}
           </div>
         </div>
       </div>
       {reportTrendError && (
-        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--color-warning)' }}>{reportTrendError}</div>
+        <div
+          style={{ marginTop: 10, fontSize: 11, color: "var(--color-warning)" }}
+        >
+          {reportTrendError}
+        </div>
       )}
     </div>
-  )
+  );
 
   // 深化区块渲染: 科室维度对比 (雷达 + 条形)
   const renderDeptCompare = () => (
-    <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 'var(--space-4, 16px)' }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
+    <div
+      style={{
+        background: "var(--bg-card)",
+        borderRadius: 10,
+        padding: "var(--space-5, 20px)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        marginTop: "var(--space-4, 16px)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-4, 16px)",
+          flexWrap: "wrap",
+        }}
+      >
         <Layers size={18} color="#7c3aed" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.deptCompare")}</h3>
-        <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)" }}>
+        <h3
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            margin: 0,
+          }}
+        >
+          {t("qcDashboard.deptCompare")}
+        </h3>
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 999,
+            fontSize: 11,
+            fontWeight: 600,
+            background: "var(--color-warning-bg)",
+            color: "var(--color-warning)",
+          }}
+        >
           {t("qcDashboard.deptCompareSub")}
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.deptRadarSub")}</div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 10,
+            }}
+          >
+            {t("qcDashboard.deptRadarSub")}
+          </div>
           {deptRadarData.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-secondary)', fontSize: 12 }}>{t("qcDashboard.noDeptData")}</div>
+            <div
+              style={{
+                textAlign: "center",
+                padding: "var(--space-10, 40px)",
+                color: "var(--text-secondary)",
+                fontSize: 12,
+              }}
+            >
+              {t("qcDashboard.noDeptData")}
+            </div>
           ) : (
             <ChartContainer type="radar" height={240}>
-              <RadarChart data={deptRadarData} cx="50%" cy="50%" outerRadius="70%">
+              <RadarChart
+                data={deptRadarData}
+                cx="50%"
+                cy="50%"
+                outerRadius="70%"
+              >
                 <PolarGrid stroke="var(--border-color)" />
-                <PolarAngleAxis dataKey="dept" tick={{ fontSize: 10, fill: '#64748b' }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                <Radar name="质控分" dataKey="质控分" stroke="var(--color-primary-800)" fill="var(--color-primary-800)" fillOpacity={0.35} />
-                <Radar name="报告量" dataKey="报告量" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
-                <Radar name="及时率" dataKey="及时率" stroke="var(--color-warning-500)" fill="var(--color-warning-500)" fillOpacity={0.25} />
+                <PolarAngleAxis
+                  dataKey="dept"
+                  tick={{ fontSize: 10, fill: "#64748b" }}
+                />
+                <PolarRadiusAxis
+                  angle={30}
+                  domain={[0, 100]}
+                  tick={{ fontSize: 10, fill: "#94a3b8" }}
+                />
+                <Radar
+                  name="质控分"
+                  dataKey="质控分"
+                  stroke="var(--color-primary-800)"
+                  fill="var(--color-primary-800)"
+                  fillOpacity={0.35}
+                />
+                <Radar
+                  name="报告量"
+                  dataKey="报告量"
+                  stroke="#10b981"
+                  fill="#10b981"
+                  fillOpacity={0.3}
+                />
+                <Radar
+                  name="及时率"
+                  dataKey="及时率"
+                  stroke="var(--color-warning-500)"
+                  fill="var(--color-warning-500)"
+                  fillOpacity={0.25}
+                />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <Tooltip contentStyle={trendChartStyle} />
               </RadarChart>
             </ChartContainer>
           )}
         </div>
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.deptDefectBars")}</div>
-          <div style={{ height: 240, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-            {drillDeptRows.slice(0, 6).map(r => (
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            padding: "var(--space-3, 12px)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: 10,
+            }}
+          >
+            {t("qcDashboard.deptDefectBars")}
+          </div>
+          <div
+            style={{
+              height: 240,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              gap: 10,
+            }}
+          >
+            {drillDeptRows.slice(0, 6).map((r) => (
               <div key={r.dept}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
-                  <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{r.dept}</span>
-                  <span style={{ color: r.defectRate > 1.5 ? 'var(--color-error-600)' : r.defectRate > 1 ? 'var(--color-warning-600)' : '#059669', fontWeight: 700 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 12,
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  <span
+                    style={{ color: "var(--text-secondary)", fontWeight: 600 }}
+                  >
+                    {r.dept}
+                  </span>
+                  <span
+                    style={{
+                      color:
+                        r.defectRate > 1.5
+                          ? "var(--color-error-600)"
+                          : r.defectRate > 1
+                            ? "var(--color-warning-600)"
+                            : "#059669",
+                      fontWeight: 700,
+                    }}
+                  >
                     {r.defectRate}%
                   </span>
                 </div>
-                <div style={{ height: 8, background: 'var(--content-bg)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${Math.min(100, r.defectRate * 20)}%`, height: '100%', borderRadius: 4,
-                    background: r.defectRate > 1.5 ? 'var(--color-error-600)' : r.defectRate > 1 ? 'var(--color-warning-500)' : '#10b981',
-                    transition: 'width 0.4s',
-                  }} />
+                <div
+                  style={{
+                    height: 8,
+                    background: "var(--content-bg)",
+                    borderRadius: 4,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${Math.min(100, r.defectRate * 20)}%`,
+                      height: "100%",
+                      borderRadius: 4,
+                      background:
+                        r.defectRate > 1.5
+                          ? "var(--color-error-600)"
+                          : r.defectRate > 1
+                            ? "var(--color-warning-500)"
+                            : "#10b981",
+                      transition: "width 0.4s",
+                    }}
+                  />
                 </div>
               </div>
             ))}
             {drillDeptRows.length === 0 && (
-              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t("qcDashboard.noDeptData")}</div>
+              <div
+                style={{
+                  textAlign: "center",
+                  color: "var(--text-secondary)",
+                  fontSize: 12,
+                }}
+              >
+                {t("qcDashboard.noDeptData")}
+              </div>
             )}
           </div>
         </div>
@@ -395,149 +968,395 @@ export default function RadiologyQCDashboardPage() {
           showExport={false}
           showDensity={false}
           columns={[
-            { title: t("qcDashboard.dept"), dataIndex: 'dept', render: (value: string) => <span style={{ fontWeight: 600 }}>{value}</span> },
-            { title: t("qcDashboard.doctorCount"), dataIndex: 'doctorCount', align: 'right' },
-            { title: t("qcDashboard.reportCount"), dataIndex: 'reportCount', align: 'right' },
+            {
+              title: t("qcDashboard.dept"),
+              dataIndex: "dept",
+              render: (value: string) => (
+                <span style={{ fontWeight: 600 }}>{value}</span>
+              ),
+            },
+            {
+              title: t("qcDashboard.doctorCount"),
+              dataIndex: "doctorCount",
+              align: "right",
+            },
+            {
+              title: t("qcDashboard.reportCount"),
+              dataIndex: "reportCount",
+              align: "right",
+            },
             {
               title: t("qcDashboard.defectRatePct"),
-              dataIndex: 'defectRate',
-              align: 'right',
+              dataIndex: "defectRate",
+              align: "right",
               render: (value: number) => (
-                <span style={{ color: value > 1.5 ? severityColor('critical') : 'var(--text-secondary)', fontWeight: value > 1.5 ? 700 : 400 }}>{value}%</span>
+                <span
+                  style={{
+                    color:
+                      value > 1.5
+                        ? severityColor("critical")
+                        : "var(--text-secondary)",
+                    fontWeight: value > 1.5 ? 700 : 400,
+                  }}
+                >
+                  {value}%
+                </span>
               ),
             },
             {
               title: t("qcDashboard.qcScore"),
-              dataIndex: 'qcScore',
-              align: 'right',
+              dataIndex: "qcScore",
+              align: "right",
               render: (value: number) => (
-                <span style={{ fontWeight: 700, color: severityColor(value >= 90 ? 'success' : value >= 80 ? 'warning' : 'critical') }}>{value}</span>
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: severityColor(
+                      value >= 90
+                        ? "success"
+                        : value >= 80
+                          ? "warning"
+                          : "critical",
+                    ),
+                  }}
+                >
+                  {value}
+                </span>
               ),
             },
-            { title: t("qcDashboard.criticalValue"), dataIndex: 'criticalValueCount', align: 'right' },
+            {
+              title: t("qcDashboard.criticalValue"),
+              dataIndex: "criticalValueCount",
+              align: "right",
+            },
           ]}
         />
       </div>
     </div>
-  )
+  );
 
   // 深化区块渲染: 报告质量 TOP / BOTTOM 医生榜
   const renderDoctorRankBoards = () => (
-    <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 'var(--space-4, 16px)' }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
+    <div
+      style={{
+        background: "var(--bg-card)",
+        borderRadius: 10,
+        padding: "var(--space-5, 20px)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        marginTop: "var(--space-4, 16px)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-4, 16px)",
+          flexWrap: "wrap",
+        }}
+      >
         <Award size={18} color="var(--color-warning-500)" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.doctorRankTitle")}</h3>
-        <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)" }}>
+        <h3
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            margin: 0,
+          }}
+        >
+          {t("qcDashboard.doctorRankTitle")}
+        </h3>
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 999,
+            fontSize: 11,
+            fontWeight: 600,
+            background: "var(--color-warning-bg)",
+            color: "var(--color-warning)",
+          }}
+        >
           {t("qcDashboard.doctorRankSub")}
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "var(--space-4, 16px)",
+        }}
+      >
         {/* TOP 榜 */}
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{
-            padding: '10px 14px', fontWeight: 700, fontSize: 12, color: '#fff',
-            background: 'linear-gradient(90deg, #059669, #10b981)',
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}>
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              padding: "10px 14px",
+              fontWeight: 700,
+              fontSize: 12,
+              color: "#fff",
+              background: "linear-gradient(90deg, #059669, #10b981)",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
             <Medal size={14} /> {t("qcDashboard.top5")}
           </div>
           {doctorRankBoards.top.map((r, i) => (
-            <div key={r.doctorId} style={{
-              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
-              borderBottom: '1px solid var(--border-color)',
-              background: i === 0 ? 'rgba(16,185,129,0.06)' : 'transparent',
-            }}>
-              <span style={{
-                width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 700,
-                background: i === 0 ? 'var(--color-warning-400)' : i === 1 ? '#cbd5e1' : i === 2 ? '#cd7c32' : 'var(--content-bg)',
-                color: i < 3 ? '#0f172a' : '#64748b',
-              }}>
+            <div
+              key={r.doctorId}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 14px",
+                borderBottom: "1px solid var(--border-color)",
+                background: i === 0 ? "rgba(16,185,129,0.06)" : "transparent",
+              }}
+            >
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  background:
+                    i === 0
+                      ? "var(--color-warning-400)"
+                      : i === 1
+                        ? "#cbd5e1"
+                        : i === 2
+                          ? "#cd7c32"
+                          : "var(--content-bg)",
+                  color: i < 3 ? "#0f172a" : "#64748b",
+                }}
+              >
                 {i + 1}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.doctorName}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.title} {t("qcDashboard.dashReports")} {r.reportCount} {t("qcDashboard.dashDefectRate")} {r.defectRate}%</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {r.doctorName}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                  {r.title} {t("qcDashboard.dashReports")} {r.reportCount}{" "}
+                  {t("qcDashboard.dashDefectRate")} {r.defectRate}%
+                </div>
               </div>
-              <span style={{
-                fontSize: 16, fontWeight: 800,
-                color: r.qcScore >= 92 ? '#059669' : r.qcScore >= 85 ? 'var(--color-warning-600)' : 'var(--color-error-600)',
-              }}>
+              <span
+                style={{
+                  fontSize: 16,
+                  fontWeight: 800,
+                  color:
+                    r.qcScore >= 92
+                      ? "#059669"
+                      : r.qcScore >= 85
+                        ? "var(--color-warning-600)"
+                        : "var(--color-error-600)",
+                }}
+              >
                 {r.qcScore}
               </span>
-              <span style={{
-                fontSize: 11, fontWeight: 700, padding: '1px 8px', borderRadius: 4,
-                background: r.qcScore >= 92 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                color: r.qcScore >= 92 ? '#065f46' : '#92400e',
-              }}>
-                {r.qcScore >= 92 ? 'A' : r.qcScore >= 85 ? 'B' : 'C'}
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: "1px 8px",
+                  borderRadius: 4,
+                  background:
+                    r.qcScore >= 92
+                      ? "var(--color-success-bg)"
+                      : "var(--color-warning-bg)",
+                  color: r.qcScore >= 92 ? "#065f46" : "#92400e",
+                }}
+              >
+                {r.qcScore >= 92 ? "A" : r.qcScore >= 85 ? "B" : "C"}
               </span>
             </div>
           ))}
         </div>
         {/* BOTTOM 榜 */}
-        <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{
-            padding: '10px 14px', fontWeight: 700, fontSize: 12, color: '#fff',
-            background: 'linear-gradient(90deg, #b91c1c, var(--color-error-500))',
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}>
+        <div
+          style={{
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              padding: "10px 14px",
+              fontWeight: 700,
+              fontSize: 12,
+              color: "#fff",
+              background:
+                "linear-gradient(90deg, #b91c1c, var(--color-error-500))",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
             <ThumbsDown size={14} /> {t("qcDashboard.bottom5")}
           </div>
           {doctorRankBoards.bottom.map((r, i) => (
-            <div key={r.doctorId} style={{
-              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
-              borderBottom: '1px solid var(--border-color)',
-              background: i === 0 ? 'rgba(239,68,68,0.06)' : 'transparent',
-            }}>
-              <span style={{
-                width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 700,
-                background: i === 0 ? 'var(--color-error-bg)' : 'var(--content-bg)',
-                color: i === 0 ? '#b91c1c' : '#64748b',
-              }}>
+            <div
+              key={r.doctorId}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 14px",
+                borderBottom: "1px solid var(--border-color)",
+                background: i === 0 ? "rgba(239,68,68,0.06)" : "transparent",
+              }}
+            >
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  background:
+                    i === 0 ? "var(--color-error-bg)" : "var(--content-bg)",
+                  color: i === 0 ? "#b91c1c" : "#64748b",
+                }}
+              >
                 {i + 1}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.doctorName}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.title} {t("qcDashboard.dashReports")} {r.reportCount} {t("qcDashboard.dashDefectRate")} {r.defectRate}%</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {r.doctorName}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                  {r.title} {t("qcDashboard.dashReports")} {r.reportCount}{" "}
+                  {t("qcDashboard.dashDefectRate")} {r.defectRate}%
+                </div>
               </div>
-              <span style={{ fontSize: 16, fontWeight: 800, color: r.qcScore < 80 ? 'var(--color-error-600)' : 'var(--color-warning-600)' }}>
+              <span
+                style={{
+                  fontSize: 16,
+                  fontWeight: 800,
+                  color:
+                    r.qcScore < 80
+                      ? "var(--color-error-600)"
+                      : "var(--color-warning-600)",
+                }}
+              >
                 {r.qcScore}
               </span>
-              <span style={{
-                fontSize: 11, fontWeight: 700, padding: '1px 8px', borderRadius: 4,
-                background: r.qcScore < 80 ? 'var(--color-error-bg)' : 'var(--color-warning-bg)',
-                color: r.qcScore < 80 ? '#991b1b' : '#92400e',
-              }}>
-                {r.qcScore < 80 ? 'D' : 'C'}
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: "1px 8px",
+                  borderRadius: 4,
+                  background:
+                    r.qcScore < 80
+                      ? "var(--color-error-bg)"
+                      : "var(--color-warning-bg)",
+                  color: r.qcScore < 80 ? "#991b1b" : "#92400e",
+                }}
+              >
+                {r.qcScore < 80 ? "D" : "C"}
               </span>
             </div>
           ))}
           {doctorRankBoards.bottom.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t("qcDashboard.noData")}</div>
+            <div
+              style={{
+                textAlign: "center",
+                padding: 30,
+                color: "var(--text-secondary)",
+                fontSize: 12,
+              }}
+            >
+              {t("qcDashboard.noData")}
+            </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 
   // [v3.0.6.11-99 Wave10B] 深化区块渲染: 图像质控三维度趋势 (qcImageAiApi assessments 历史)
   const renderImageDimTrend = () => (
-    <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 'var(--space-4, 16px)' }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
+    <div
+      style={{
+        background: "var(--bg-card)",
+        borderRadius: 10,
+        padding: "var(--space-5, 20px)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        marginTop: "var(--space-4, 16px)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-4, 16px)",
+          flexWrap: "wrap",
+        }}
+      >
         <Camera size={18} color="var(--color-primary-500)" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.imageDimTrend")}</h3>
-        <span style={{
-          padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600,
-          background: imageTrendSource === "real" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
-          color: imageTrendSource === "real" ? "#065f46" : "#92400e",
-          display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)',
-        }}>
+        <h3
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            margin: 0,
+          }}
+        >
+          {t("qcDashboard.imageDimTrend")}
+        </h3>
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 999,
+            fontSize: 11,
+            fontWeight: 600,
+            background:
+              imageTrendSource === "real"
+                ? "var(--color-success-bg)"
+                : "var(--color-warning-bg)",
+            color: imageTrendSource === "real" ? "#065f46" : "#92400e",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-1, 4px)",
+          }}
+        >
           <Database size={10} />
-          {t("qcDashboard.dataSourceLabel")} {imageTrendSource === "real" ? `真实 (${assessRecords.length} 条评估记录)` : t("qcDashboard.derivedDemo")}
+          {t("qcDashboard.dataSourceLabel")}{" "}
+          {imageTrendSource === "real"
+            ? `真实 (${assessRecords.length} 条评估记录)`
+            : t("qcDashboard.derivedDemo")}
         </span>
       </div>
       <ChartContainer type="line" height={240}>
@@ -545,39 +1364,96 @@ export default function RadiologyQCDashboardPage() {
           <CartesianGrid {...chartDefaults.grid} />
           <XAxis dataKey="time" {...chartDefaults.axis} />
           <YAxis domain={[0, 100]} {...chartDefaults.axis} />
-          <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v} 分`, '']} />
+          <Tooltip
+            contentStyle={trendChartStyle}
+            formatter={(v: number) => [`${v} 分`, ""]}
+          />
           <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-          <Line type="monotone" dataKey="伪影" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
-          <Line type="monotone" dataKey="曝光" stroke="var(--color-warning-500)" strokeWidth={2} dot={{ r: 3 }} />
-          <Line type="monotone" dataKey="体位" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} />
-          <Line type="monotone" dataKey="总分" stroke="#10b981" strokeWidth={2.5} strokeDasharray="6 3" dot={{ r: 3 }} />
+          <Line
+            type="monotone"
+            dataKey="伪影"
+            stroke="var(--color-error-600)"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="曝光"
+            stroke="var(--color-warning-500)"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="体位"
+            stroke="var(--color-primary-500)"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="总分"
+            stroke="#10b981"
+            strokeWidth={2.5}
+            strokeDasharray="6 3"
+            dot={{ r: 3 }}
+          />
         </LineChart>
       </ChartContainer>
-      <div style={{ marginTop: 10, display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
-        {['伪影', '曝光', '体位', '总分'].map((dim, i) => {
-          const last = imageDimTrend[imageDimTrend.length - 1] as Record<string, unknown> | undefined
-          const first = imageDimTrend[0] as Record<string, unknown> | undefined
-          const delta = last && first ? Number(last[dim]) - Number(first[dim]) : 0
-          const colors = ['var(--color-error-600)', 'var(--color-warning-500)', 'var(--color-primary-500)', '#10b981']
+      <div
+        style={{
+          marginTop: 10,
+          display: "flex",
+          gap: "var(--space-3, 12px)",
+          flexWrap: "wrap",
+        }}
+      >
+        {["伪影", "曝光", "体位", "总分"].map((dim, i) => {
+          const last = imageDimTrend[imageDimTrend.length - 1] as
+            Record<string, unknown> | undefined;
+          const first = imageDimTrend[0] as Record<string, unknown> | undefined;
+          const delta =
+            last && first ? Number(last[dim]) - Number(first[dim]) : 0;
+          const colors = [
+            "var(--color-error-600)",
+            "var(--color-warning-500)",
+            "var(--color-primary-500)",
+            "#10b981",
+          ];
           return (
-            <span key={dim} style={{
-              padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-              background: colors[i] + '15', color: colors[i],
-              border: `1px solid ${colors[i]}40`,
-            }}>
-              {dim}: {last ? Number(last[dim]).toFixed(1) : '—'}
+            <span
+              key={dim}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                background: colors[i] + "15",
+                color: colors[i],
+                border: `1px solid ${colors[i]}40`,
+              }}
+            >
+              {dim}: {last ? Number(last[dim]).toFixed(1) : "—"}
               <span style={{ marginLeft: 6, fontSize: 11 }}>
-                {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}
+                {delta >= 0 ? "↑" : "↓"} {Math.abs(delta).toFixed(1)}
               </span>
             </span>
-          )
+          );
         })}
       </div>
       {imageTrendError && (
-        <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--color-warning)' }}>{imageTrendError}</div>
+        <div
+          style={{
+            marginTop: "var(--space-2, 8px)",
+            fontSize: 11,
+            color: "var(--color-warning)",
+          }}
+        >
+          {imageTrendError}
+        </div>
       )}
     </div>
-  )
+  );
 
   // [v3.0.6.11-99 Wave10B] 深化区块: AI 质控月度趋势 + 设备扫描 TOP + 报告维度分解
   const renderAiQcAndDevices = () => {
@@ -589,18 +1465,60 @@ export default function RadiologyQCDashboardPage() {
       { month: t("qcDashboard.may"), 准确率: 92.4, 召回率: 87.2, 误报率: 4.6 },
       { month: t("qcDashboard.jun"), 准确率: 93.1, 召回率: 88.4, 误报率: 4.1 },
       { month: t("qcDashboard.jul"), 准确率: 93.8, 召回率: 89.3, 误报率: 3.7 },
-    ]
+    ];
     // 设备月扫描 TOP (DEVICE_MASTER)
-    const deviceTop = [...DEVICE_MASTER].sort((a, b) => b.monthlyScans - a.monthlyScans).slice(0, 6)
-    const maxScan = Math.max(1, ...deviceTop.map(d => d.monthlyScans))
+    const deviceTop = [...DEVICE_MASTER]
+      .sort((a, b) => b.monthlyScans - a.monthlyScans)
+      .slice(0, 6);
+    const maxScan = Math.max(1, ...deviceTop.map((d) => d.monthlyScans));
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginTop: 'var(--space-4, 16px)' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "var(--space-4, 16px)",
+          marginTop: "var(--space-4, 16px)",
+        }}
+      >
         {/* AI 质控趋势 */}
-        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 10,
+            padding: "var(--space-5, 20px)",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
             <Sparkles size={18} color="#7c3aed" />
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.aiQcMonthly")}</h3>
-            <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)", marginLeft: 'auto' }}>
+            <h3
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                margin: 0,
+              }}
+            >
+              {t("qcDashboard.aiQcMonthly")}
+            </h3>
+            <span
+              style={{
+                padding: "2px 8px",
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 600,
+                background: "var(--color-warning-bg)",
+                color: "var(--color-warning)",
+                marginLeft: "auto",
+              }}
+            >
               {t("qcDashboard.aiQcDemoSub")}
             </span>
           </div>
@@ -609,52 +1527,174 @@ export default function RadiologyQCDashboardPage() {
               <CartesianGrid {...chartDefaults.grid} />
               <XAxis dataKey="month" {...chartDefaults.axis} />
               <YAxis domain={[0, 100]} {...chartDefaults.axis} />
-              <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v}%`, '']} />
+              <Tooltip
+                contentStyle={trendChartStyle}
+                formatter={(v: number) => [`${v}%`, ""]}
+              />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="准确率" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="召回率" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="误报率" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
+              <Line
+                type="monotone"
+                dataKey="准确率"
+                stroke="#7c3aed"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="召回率"
+                stroke="var(--color-primary-500)"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="误报率"
+                stroke="var(--color-error-600)"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
             </LineChart>
           </ChartContainer>
-          <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-            {aiTrend.map(t => (
-              <span key={t.month} style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                {t.month}: <strong style={{ color: '#7c3aed' }}>{t.准确率}%</strong> / 误报 <strong style={{ color: 'var(--color-error)' }}>{t.误报率}%</strong>
+          <div
+            style={{
+              marginTop: "var(--space-2, 8px)",
+              display: "flex",
+              gap: 14,
+              flexWrap: "wrap",
+            }}
+          >
+            {aiTrend.map((t) => (
+              <span
+                key={t.month}
+                style={{ fontSize: 11, color: "var(--text-secondary)" }}
+              >
+                {t.month}:{" "}
+                <strong style={{ color: "#7c3aed" }}>{t.准确率}%</strong> / 误报{" "}
+                <strong style={{ color: "var(--color-error)" }}>
+                  {t.误报率}%
+                </strong>
               </span>
             ))}
           </div>
         </div>
 
         {/* 设备月扫描 TOP */}
-        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 10,
+            padding: "var(--space-5, 20px)",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
             <Monitor size={18} color="var(--color-primary-500)" />
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.deviceScanTop6")}</h3>
-            <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)", marginLeft: 'auto' }}>
+            <h3
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                margin: 0,
+              }}
+            >
+              {t("qcDashboard.deviceScanTop6")}
+            </h3>
+            <span
+              style={{
+                padding: "2px 8px",
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 600,
+                background: "var(--color-warning-bg)",
+                color: "var(--color-warning)",
+                marginLeft: "auto",
+              }}
+            >
               {t("qcDashboard.deviceLocal")}
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {deviceTop.map((d, i) => (
               <div key={d.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>
-                  <span style={{ color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{
-                      width: 20, height: 20, borderRadius: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 11, fontWeight: 700, flexShrink: 0,
-                      background: i === 0 ? 'var(--color-warning-400)' : i === 1 ? '#cbd5e1' : i === 2 ? '#cd7c32' : 'var(--content-bg)',
-                      color: i < 3 ? '#0f172a' : '#64748b',
-                    }}>{i + 1}</span>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 12,
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "var(--text-secondary)",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: 4,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                        background:
+                          i === 0
+                            ? "var(--color-warning-400)"
+                            : i === 1
+                              ? "#cbd5e1"
+                              : i === 2
+                                ? "#cd7c32"
+                                : "var(--content-bg)",
+                        color: i < 3 ? "#0f172a" : "#64748b",
+                      }}
+                    >
+                      {i + 1}
+                    </span>
                     {d.model || d.id}
-                    <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{d.brand}</span>
+                    <span
+                      style={{ fontSize: 10, color: "var(--text-secondary)" }}
+                    >
+                      {d.brand}
+                    </span>
                   </span>
-                  <span style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{d.monthlyScans.toLocaleString()}</span>
+                  <span
+                    style={{ color: "var(--color-primary)", fontWeight: 700 }}
+                  >
+                    {d.monthlyScans.toLocaleString()}
+                  </span>
                 </div>
-                <div style={{ height: 8, background: 'var(--content-bg)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${(d.monthlyScans / maxScan) * 100}%`, height: '100%', borderRadius: 4,
-                    background: 'linear-gradient(90deg, var(--color-primary-800), var(--color-primary-500))', transition: 'width 0.4s',
-                  }} />
+                <div
+                  style={{
+                    height: 8,
+                    background: "var(--content-bg)",
+                    borderRadius: 4,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${(d.monthlyScans / maxScan) * 100}%`,
+                      height: "100%",
+                      borderRadius: 4,
+                      background:
+                        "linear-gradient(90deg, var(--color-primary-800), var(--color-primary-500))",
+                      transition: "width 0.4s",
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -662,40 +1702,149 @@ export default function RadiologyQCDashboardPage() {
         </div>
 
         {/* 报告维度分解 (格式/准确/及时) */}
-        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", gridColumn: '1 / -1' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
+        <div
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 10,
+            padding: "var(--space-5, 20px)",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            gridColumn: "1 / -1",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
             <FileText size={18} color="#10b981" />
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.reportDimBreakdown")}</h3>
-            <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)", marginLeft: 'auto' }}>
+            <h3
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                margin: 0,
+              }}
+            >
+              {t("qcDashboard.reportDimBreakdown")}
+            </h3>
+            <span
+              style={{
+                padding: "2px 8px",
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 600,
+                background: "var(--color-warning-bg)",
+                color: "var(--color-warning)",
+                marginLeft: "auto",
+              }}
+            >
               {t("qcDashboard.reportDimSub")}
             </span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)' }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "var(--space-4, 16px)",
+            }}
+          >
             {[
-              { dim: t("qcDashboard.dimFormat"), desc: t("qcDashboard.dimFormatDesc"), score: 94.2, delta: '+1.8', color: '#10b981' },
-              { dim: t("qcDashboard.dimAccuracy"), desc: t("qcDashboard.dimAccuracyDesc"), score: 91.7, delta: '+2.3', color: 'var(--color-primary-500)' },
-              { dim: t("qcDashboard.dimTimely"), desc: t("qcDashboard.dimTimelyDesc"), score: 88.9, delta: '+0.6', color: 'var(--color-warning-500)' },
-            ].map(item => (
-              <div key={item.dim} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{item.dim}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: item.color }}>{item.score}{t("qcDashboard.points")}</span>
+              {
+                dim: t("qcDashboard.dimFormat"),
+                desc: t("qcDashboard.dimFormatDesc"),
+                score: 94.2,
+                delta: "+1.8",
+                color: "#10b981",
+              },
+              {
+                dim: t("qcDashboard.dimAccuracy"),
+                desc: t("qcDashboard.dimAccuracyDesc"),
+                score: 91.7,
+                delta: "+2.3",
+                color: "var(--color-primary-500)",
+              },
+              {
+                dim: t("qcDashboard.dimTimely"),
+                desc: t("qcDashboard.dimTimelyDesc"),
+                score: 88.9,
+                delta: "+0.6",
+                color: "var(--color-warning-500)",
+              },
+            ].map((item) => (
+              <div
+                key={item.dim}
+                style={{
+                  border: "1px solid var(--border-color)",
+                  borderRadius: 8,
+                  padding: 14,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 6,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    {item.dim}
+                  </span>
+                  <span
+                    style={{ fontSize: 12, fontWeight: 700, color: item.color }}
+                  >
+                    {item.score}
+                    {t("qcDashboard.points")}
+                  </span>
                 </div>
-                <div style={{ height: 10, background: 'var(--content-bg)', borderRadius: 5, overflow: 'hidden', marginBottom: 'var(--space-2, 8px)' }}>
-                  <div style={{
-                    width: `${item.score}%`, height: '100%', borderRadius: 5,
-                    background: `linear-gradient(90deg, ${item.color}99, ${item.color})`, transition: 'width 0.5s',
-                  }} />
+                <div
+                  style={{
+                    height: 10,
+                    background: "var(--content-bg)",
+                    borderRadius: 5,
+                    overflow: "hidden",
+                    marginBottom: "var(--space-2, 8px)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${item.score}%`,
+                      height: "100%",
+                      borderRadius: 5,
+                      background: `linear-gradient(90deg, ${item.color}99, ${item.color})`,
+                      transition: "width 0.5s",
+                    }}
+                  />
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{item.desc}</div>
-                <div style={{ marginTop: 6, fontSize: 11, fontWeight: 600, color: '#059669' }}>{t("qcDashboard.mom")} {item.delta}</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                  {item.desc}
+                </div>
+                <div
+                  style={{
+                    marginTop: 6,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#059669",
+                  }}
+                >
+                  {t("qcDashboard.mom")} {item.delta}
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   // ========== 总览数据计算 ==========
   // [v3.0.6.11-91] 真实数据优先: qcextApi.getQcDashboard/getQcStats 有则渲染, 无则回退 DAILY_KPI_PRE
@@ -705,25 +1854,48 @@ export default function RadiologyQCDashboardPage() {
       totalReports: DAILY_KPI_PRE.reduce((s, d) => s + d.reportCount, 0),
       totalCritical: DAILY_KPI_PRE.reduce((s, d) => s + d.criticalCount, 0),
       totalCosign: DAILY_KPI_PRE.reduce((s, d) => s + d.cosignCount, 0),
-      avgTAT: (DAILY_KPI_PRE.reduce((s, d) => s + d.avgTAT, 0) / DAILY_KPI_PRE.length).toFixed(0),
-      qcAvg: (DAILY_KPI_PRE.reduce((s, d) => s + d.qcAvgScore, 0) / DAILY_KPI_PRE.length).toFixed(1),
+      avgTAT: (
+        DAILY_KPI_PRE.reduce((s, d) => s + d.avgTAT, 0) / DAILY_KPI_PRE.length
+      ).toFixed(0),
+      qcAvg: (
+        DAILY_KPI_PRE.reduce((s, d) => s + d.qcAvgScore, 0) /
+        DAILY_KPI_PRE.length
+      ).toFixed(1),
       totalDefect: DAILY_KPI_PRE.reduce((s, d) => s + d.defectCount, 0),
     };
     const deviceRun = DEVICES_BY_STATUS["运行中"]?.length || 0;
     const deviceMaint = DEVICES_BY_STATUS["维护中"]?.length || 0;
     const doctorActive = DOCTOR_MASTER.filter((d) => d.active).length;
-    const qcDoctors = DOCTOR_MASTER.filter((d) => d.title === "主任医师" || d.title === "副主任医师").length;
+    const qcDoctors = DOCTOR_MASTER.filter(
+      (d) => d.title === "主任医师" || d.title === "副主任医师",
+    ).length;
     const real = _dashboardData;
     const stats = _qcStats;
     const hasReal = !!real && real.totalInspected > 0;
     return {
       totalExams: hasReal ? real.totalInspected : fallback.totalExams,
-      totalReports: stats && stats.totalReports > 0 ? stats.totalReports : fallback.totalReports,
-      totalCritical: hasReal ? Math.round(real.totalInspected * 0.05) : fallback.totalCritical,
-      totalCosign: hasReal ? Math.round((stats && stats.totalReports > 0 ? stats.totalReports : real.totalInspected) * 0.3) : fallback.totalCosign,
+      totalReports:
+        stats && stats.totalReports > 0
+          ? stats.totalReports
+          : fallback.totalReports,
+      totalCritical: hasReal
+        ? Math.round(real.totalInspected * 0.05)
+        : fallback.totalCritical,
+      totalCosign: hasReal
+        ? Math.round(
+            (stats && stats.totalReports > 0
+              ? stats.totalReports
+              : real.totalInspected) * 0.3,
+          )
+        : fallback.totalCosign,
       avgTAT: fallback.avgTAT,
-      qcAvg: hasReal && stats && stats.avgScore > 0 ? stats.avgScore.toFixed(1) : fallback.qcAvg,
-      totalDefect: hasReal ? Math.round(real.totalInspected * (real.defectRate / 100)) : fallback.totalDefect,
+      qcAvg:
+        hasReal && stats && stats.avgScore > 0
+          ? stats.avgScore.toFixed(1)
+          : fallback.qcAvg,
+      totalDefect: hasReal
+        ? Math.round(real.totalInspected * (real.defectRate / 100))
+        : fallback.totalDefect,
       deviceRun,
       deviceMaint,
       doctorActive,
@@ -737,23 +1909,51 @@ export default function RadiologyQCDashboardPage() {
 
   // 影像质控: 设备等级
   const imageQC = useMemo(() => {
-    const gradeA = DEVICE_MASTER.filter((d) => d.imageQualityGrade === "A").length;
-    const gradeB = DEVICE_MASTER.filter((d) => d.imageQualityGrade === "B").length;
-    const gradeC = DEVICE_MASTER.filter((d) => d.imageQualityGrade === "C").length;
-    const gradeD = DEVICE_MASTER.filter((d) => d.imageQualityGrade === "D").length;
-    const doseCompliant = DEVICE_MASTER.filter((d) => d.doseComplianceRate >= 90).length;
-    return { gradeA, gradeB, gradeC, gradeD, doseCompliant, total: DEVICE_MASTER.length };
+    const gradeA = DEVICE_MASTER.filter(
+      (d) => d.imageQualityGrade === "A",
+    ).length;
+    const gradeB = DEVICE_MASTER.filter(
+      (d) => d.imageQualityGrade === "B",
+    ).length;
+    const gradeC = DEVICE_MASTER.filter(
+      (d) => d.imageQualityGrade === "C",
+    ).length;
+    const gradeD = DEVICE_MASTER.filter(
+      (d) => d.imageQualityGrade === "D",
+    ).length;
+    const doseCompliant = DEVICE_MASTER.filter(
+      (d) => d.doseComplianceRate >= 90,
+    ).length;
+    return {
+      gradeA,
+      gradeB,
+      gradeC,
+      gradeD,
+      doseCompliant,
+      total: DEVICE_MASTER.length,
+    };
   }, []);
 
   // 报告质控: 评分分布
   const reportQC = useMemo(() => {
     const a = DOCTOR_PERFORMANCE_PRE.filter((p) => p.qcScore >= 92).length;
-    const b = DOCTOR_PERFORMANCE_PRE.filter((p) => p.qcScore >= 85 && p.qcScore < 92).length;
-    const c = DOCTOR_PERFORMANCE_PRE.filter((p) => p.qcScore >= 75 && p.qcScore < 85).length;
+    const b = DOCTOR_PERFORMANCE_PRE.filter(
+      (p) => p.qcScore >= 85 && p.qcScore < 92,
+    ).length;
+    const c = DOCTOR_PERFORMANCE_PRE.filter(
+      (p) => p.qcScore >= 75 && p.qcScore < 85,
+    ).length;
     const d = DOCTOR_PERFORMANCE_PRE.filter((p) => p.qcScore < 75).length;
-    const totalDefect = DOCTOR_PERFORMANCE_PRE.reduce((s, p) => s + p.defectCount, 0);
-    const totalReport = DOCTOR_PERFORMANCE_PRE.reduce((s, p) => s + p.reportCount, 0);
-    const defectRate = totalReport > 0 ? ((totalDefect / totalReport) * 100).toFixed(2) : "0";
+    const totalDefect = DOCTOR_PERFORMANCE_PRE.reduce(
+      (s, p) => s + p.defectCount,
+      0,
+    );
+    const totalReport = DOCTOR_PERFORMANCE_PRE.reduce(
+      (s, p) => s + p.reportCount,
+      0,
+    );
+    const defectRate =
+      totalReport > 0 ? ((totalDefect / totalReport) * 100).toFixed(2) : "0";
     return { a, b, c, d, defectRate, totalDefect, totalReport };
   }, []);
 
@@ -771,18 +1971,34 @@ export default function RadiologyQCDashboardPage() {
     const standby = DEVICES_BY_STATUS["待机"]?.length || 0;
     const maintenance = DEVICES_BY_STATUS["维护中"]?.length || 0;
     const fault = DEVICES_BY_STATUS["故障"]?.length || 0;
-    const totalMonthlyScans = DEVICE_MASTER.reduce((s, d) => s + d.monthlyScans, 0);
+    const totalMonthlyScans = DEVICE_MASTER.reduce(
+      (s, d) => s + d.monthlyScans,
+      0,
+    );
     const avgUtil = (totalMonthlyScans / running).toFixed(0);
     return { running, standby, maintenance, fault, totalMonthlyScans, avgUtil };
   }, []);
 
   // 人员质控
   const personnelQC = useMemo(() => {
-    const doctors = DOCTOR_MASTER.filter((d) => d.title === "主任医师" || d.title === "副主任医师" || d.title === "主治医师" || d.title === "住院医师");
+    const doctors = DOCTOR_MASTER.filter(
+      (d) =>
+        d.title === "主任医师" ||
+        d.title === "副主任医师" ||
+        d.title === "主治医师" ||
+        d.title === "住院医师",
+    );
     const techs = DOCTORS_BY_TITLE["技师"] || [];
     const nurses = DOCTORS_BY_TITLE["护士"] || [];
-    const topPerformers = [...DOCTOR_PERFORMANCE_PRE].sort((a, b) => b.qcScore - a.qcScore).slice(0, 10);
-    return { doctorCount: doctors.length, techCount: techs.length, nurseCount: nurses.length, topPerformers };
+    const topPerformers = [...DOCTOR_PERFORMANCE_PRE]
+      .sort((a, b) => b.qcScore - a.qcScore)
+      .slice(0, 10);
+    return {
+      doctorCount: doctors.length,
+      techCount: techs.length,
+      nurseCount: nurses.length,
+      topPerformers,
+    };
   }, []);
 
   // AI 质控
@@ -813,7 +2029,17 @@ export default function RadiologyQCDashboardPage() {
     const byMonth: Record<string, any> = {};
     DAILY_KPI_PRE.forEach((d) => {
       const m = d.date.slice(0, 7);
-      const cur = byMonth[m] || { month: m, examCount: 0, reportCount: 0, criticalCount: 0, cosignCount: 0, avgTAT: 0, qcAvgScore: 0, defectCount: 0, count: 0 };
+      const cur = byMonth[m] || {
+        month: m,
+        examCount: 0,
+        reportCount: 0,
+        criticalCount: 0,
+        cosignCount: 0,
+        avgTAT: 0,
+        qcAvgScore: 0,
+        defectCount: 0,
+        count: 0,
+      };
       cur.examCount += d.examCount;
       cur.reportCount += d.reportCount;
       cur.criticalCount += d.criticalCount;
@@ -824,19 +2050,41 @@ export default function RadiologyQCDashboardPage() {
       cur.count += 1;
       byMonth[m] = cur;
     });
-    return Object.keys(byMonth).sort().map((m) => {
-      const r = byMonth[m];
-      return { month: r.month, examCount: r.examCount, reportCount: r.reportCount, criticalCount: r.criticalCount, cosignCount: r.cosignCount, avgTAT: Math.round(r.avgTAT / r.count), qcAvgScore: +(r.qcAvgScore / r.count).toFixed(1), defectCount: r.defectCount };
-    });
+    return Object.keys(byMonth)
+      .sort()
+      .map((m) => {
+        const r = byMonth[m];
+        return {
+          month: r.month,
+          examCount: r.examCount,
+          reportCount: r.reportCount,
+          criticalCount: r.criticalCount,
+          cosignCount: r.cosignCount,
+          avgTAT: Math.round(r.avgTAT / r.count),
+          qcAvgScore: +(r.qcAvgScore / r.count).toFixed(1),
+          defectCount: r.defectCount,
+        };
+      });
   }, []);
 
   // [v3.0.6.11-91] 季度粒度聚合 (月度 → 季度)
   const quarterlyStats = useMemo(() => {
-    const quarterOf = (m: string) => `${m.slice(0, 4)}Q${Math.floor((parseInt(m.slice(5), 10) - 1) / 3) + 1}`;
+    const quarterOf = (m: string) =>
+      `${m.slice(0, 4)}Q${Math.floor((parseInt(m.slice(5), 10) - 1) / 3) + 1}`;
     const agg: Record<string, any> = {};
     monthlyStats.forEach((r) => {
       const q = quarterOf(r.month);
-      const cur = agg[q] || { quarter: q, examCount: 0, reportCount: 0, criticalCount: 0, cosignCount: 0, avgTAT: 0, qcAvgScore: 0, defectCount: 0, count: 0 };
+      const cur = agg[q] || {
+        quarter: q,
+        examCount: 0,
+        reportCount: 0,
+        criticalCount: 0,
+        cosignCount: 0,
+        avgTAT: 0,
+        qcAvgScore: 0,
+        defectCount: 0,
+        count: 0,
+      };
       cur.examCount += r.examCount;
       cur.reportCount += r.reportCount;
       cur.criticalCount += r.criticalCount;
@@ -858,7 +2106,17 @@ export default function RadiologyQCDashboardPage() {
   const drillDoctorRows = useMemo(() => {
     const map = new Map<string, any>();
     DOCTOR_PERFORMANCE_PRE.forEach((p) => {
-      const cur = map.get(p.doctorId) || { doctorId: p.doctorId, doctorName: p.doctorName, title: p.title, reportCount: 0, defectCount: 0, qcScore: 0, criticalValueCount: 0, timelyRate: 0, count: 0 };
+      const cur = map.get(p.doctorId) || {
+        doctorId: p.doctorId,
+        doctorName: p.doctorName,
+        title: p.title,
+        reportCount: 0,
+        defectCount: 0,
+        qcScore: 0,
+        criticalValueCount: 0,
+        timelyRate: 0,
+        count: 0,
+      };
       cur.reportCount += p.reportCount;
       cur.defectCount += p.defectCount;
       cur.qcScore += p.qcScore;
@@ -869,7 +2127,9 @@ export default function RadiologyQCDashboardPage() {
     });
     return [...map.values()].map((r) => ({
       ...r,
-      defectRate: +(r.defectCount / Math.max(r.reportCount, 1) * 100).toFixed(1),
+      defectRate: +((r.defectCount / Math.max(r.reportCount, 1)) * 100).toFixed(
+        1,
+      ),
       qcScore: +(r.qcScore / r.count).toFixed(1),
       timelyRate: +(r.timelyRate / r.count).toFixed(1),
     }));
@@ -881,7 +2141,15 @@ export default function RadiologyQCDashboardPage() {
     DOCTOR_PERFORMANCE_PRE.forEach((p) => {
       const doc = DOCTOR_MASTER.find((d) => d.id === p.doctorId);
       const dept = doc?.subspecialty || t("qcDashboard.defectOther");
-      const cur = map.get(dept) || { dept, doctors: new Set<string>(), reportCount: 0, defectCount: 0, qcScore: 0, criticalValueCount: 0, count: 0 };
+      const cur = map.get(dept) || {
+        dept,
+        doctors: new Set<string>(),
+        reportCount: 0,
+        defectCount: 0,
+        qcScore: 0,
+        criticalValueCount: 0,
+        count: 0,
+      };
       cur.doctors.add(p.doctorId);
       cur.reportCount += p.reportCount;
       cur.defectCount += p.defectCount;
@@ -894,7 +2162,9 @@ export default function RadiologyQCDashboardPage() {
       dept: m.dept,
       doctorCount: m.doctors.size,
       reportCount: m.reportCount,
-      defectRate: +(m.defectCount / Math.max(m.reportCount, 1) * 100).toFixed(1),
+      defectRate: +((m.defectCount / Math.max(m.reportCount, 1)) * 100).toFixed(
+        1,
+      ),
       qcScore: +(m.qcScore / m.count).toFixed(1),
       criticalValueCount: m.criticalValueCount,
     }));
@@ -903,8 +2173,8 @@ export default function RadiologyQCDashboardPage() {
   // [v3.0.6.11-99 Wave10B] 科室维度对比 (雷达图数据, 复用 drillDeptRows)
   const deptRadarData = useMemo(() => {
     const rows = drillDeptRows.slice(0, 6);
-    const maxReport = Math.max(1, ...rows.map(r => r.reportCount));
-    return rows.map(r => ({
+    const maxReport = Math.max(1, ...rows.map((r) => r.reportCount));
+    return rows.map((r) => ({
       dept: r.dept,
       报告量: +((r.reportCount / maxReport) * 100).toFixed(1),
       质控分: r.qcScore,
@@ -917,7 +2187,10 @@ export default function RadiologyQCDashboardPage() {
     const sorted = [...drillDoctorRows].sort((a, b) => b.qcScore - a.qcScore);
     return {
       top: sorted.slice(0, 5),
-      bottom: [...sorted].sort((a, b) => a.qcScore - b.qcScore).filter(r => r.reportCount > 0).slice(0, 5),
+      bottom: [...sorted]
+        .sort((a, b) => a.qcScore - b.qcScore)
+        .filter((r) => r.reportCount > 0)
+        .slice(0, 5),
     };
   }, [drillDoctorRows]);
 
@@ -940,21 +2213,62 @@ export default function RadiologyQCDashboardPage() {
           [t("qcDashboard.devicesMaintenance"), s.deviceMaint],
           [t("qcDashboard.doctorsOnDuty"), s.doctorActive],
           [t("qcDashboard.qcDoctors"), s.qcDoctors],
-          [t("qcDashboard.dataSource"), s.dataSource === "real" ? t("qcDashboard.realData") : t("qcDashboard.demoData")],
+          [
+            t("qcDashboard.dataSource"),
+            s.dataSource === "real"
+              ? t("qcDashboard.realData")
+              : t("qcDashboard.demoData"),
+          ],
         ],
       },
       {
         title: t("qcDashboard.kpiTrend30"),
         rows: [
-          [t("qcDashboard.date"), "检查量", t("qcDashboard.reportCount"), t("qcDashboard.criticalValue"), t("qcDashboard.doubleSign"), t("qcDashboard.avgTatShort"), t("qcDashboard.qcScore"), t("qcDashboard.defectCount")],
-          ...DAILY_KPI_PRE.slice(-30).map((d) => [d.date, d.examCount, d.reportCount, d.criticalCount, d.cosignCount, d.avgTAT, d.qcAvgScore, d.defectCount]),
+          [
+            t("qcDashboard.date"),
+            "检查量",
+            t("qcDashboard.reportCount"),
+            t("qcDashboard.criticalValue"),
+            t("qcDashboard.doubleSign"),
+            t("qcDashboard.avgTatShort"),
+            t("qcDashboard.qcScore"),
+            t("qcDashboard.defectCount"),
+          ],
+          ...DAILY_KPI_PRE.slice(-30).map((d) => [
+            d.date,
+            d.examCount,
+            d.reportCount,
+            d.criticalCount,
+            d.cosignCount,
+            d.avgTAT,
+            d.qcAvgScore,
+            d.defectCount,
+          ]),
         ],
       },
       {
         title: t("qcDashboard.doctorTop10"),
         rows: [
-          [t("qcDashboard.rank"), t("qcDashboard.doctor"), t("qcDashboard.title"), t("qcDashboard.reportNum"), t("qcDashboard.defectCount"), t("qcDashboard.defectRatePct"), "质量分", t("qcDashboard.grade")],
-          ...personnelQC.topPerformers.map((p, i) => [i + 1, p.doctorName, p.title, p.reportCount, p.defectCount, p.defectRate, p.qcScore, p.grade]),
+          [
+            t("qcDashboard.rank"),
+            t("qcDashboard.doctor"),
+            t("qcDashboard.title"),
+            t("qcDashboard.reportNum"),
+            t("qcDashboard.defectCount"),
+            t("qcDashboard.defectRatePct"),
+            "质量分",
+            t("qcDashboard.grade"),
+          ],
+          ...personnelQC.topPerformers.map((p, i) => [
+            i + 1,
+            p.doctorName,
+            p.title,
+            p.reportCount,
+            p.defectCount,
+            p.defectRate,
+            p.qcScore,
+            p.grade,
+          ]),
         ],
       },
     ]);
@@ -966,15 +2280,51 @@ export default function RadiologyQCDashboardPage() {
       {
         title: t("qcDashboard.csvQuarterTitle"),
         rows: [
-          [t("qcDashboard.quarter"), "检查量", t("qcDashboard.reportCount"), t("qcDashboard.criticalValue"), t("qcDashboard.doubleSign"), t("qcDashboard.avgTatShort"), t("qcDashboard.avgQcScore"), t("qcDashboard.defectCount")],
-          ...quarterlyStats.map((q) => [q.quarter, q.examCount, q.reportCount, q.criticalCount, q.cosignCount, q.avgTAT, q.qcAvg, q.defectCount]),
+          [
+            t("qcDashboard.quarter"),
+            "检查量",
+            t("qcDashboard.reportCount"),
+            t("qcDashboard.criticalValue"),
+            t("qcDashboard.doubleSign"),
+            t("qcDashboard.avgTatShort"),
+            t("qcDashboard.avgQcScore"),
+            t("qcDashboard.defectCount"),
+          ],
+          ...quarterlyStats.map((q) => [
+            q.quarter,
+            q.examCount,
+            q.reportCount,
+            q.criticalCount,
+            q.cosignCount,
+            q.avgTAT,
+            q.qcAvg,
+            q.defectCount,
+          ]),
         ],
       },
       {
         title: t("qcDashboard.monthlyDetail"),
         rows: [
-          [t("qcDashboard.month"), "检查量", t("qcDashboard.reportCount"), t("qcDashboard.criticalValue"), t("qcDashboard.doubleSign"), t("qcDashboard.avgTatShort"), t("qcDashboard.qcScore"), t("qcDashboard.defectCount")],
-          ...monthlyStats.map((r) => [r.month, r.examCount, r.reportCount, r.criticalCount, r.cosignCount, r.avgTAT, r.qcAvgScore, r.defectCount]),
+          [
+            t("qcDashboard.month"),
+            "检查量",
+            t("qcDashboard.reportCount"),
+            t("qcDashboard.criticalValue"),
+            t("qcDashboard.doubleSign"),
+            t("qcDashboard.avgTatShort"),
+            t("qcDashboard.qcScore"),
+            t("qcDashboard.defectCount"),
+          ],
+          ...monthlyStats.map((r) => [
+            r.month,
+            r.examCount,
+            r.reportCount,
+            r.criticalCount,
+            r.cosignCount,
+            r.avgTAT,
+            r.qcAvgScore,
+            r.defectCount,
+          ]),
         ],
       },
     ]);
@@ -1002,31 +2352,77 @@ export default function RadiologyQCDashboardPage() {
           />
         }
       />
-      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <StickyActionBar
         actions={[
-          { key: "refresh", label: t("qcDashboard.refreshData"), onClick: () => setRefreshKey(k => k + 1), type: "default", ariaLabel: t("qcDashboard.refreshDataAria") },
-          { key: "export-monthly", label: t("qcDashboard.monthlyReport"), onClick: handleExportMonthly, type: "default", ariaLabel: t("qcDashboard.exportMonthlyReport") },
-          { key: "export-quarterly", label: t("qcDashboard.quarterlyReport"), onClick: handleExportQuarterly, type: "default", ariaLabel: t("qcDashboard.exportQuarterlyReport") },
-          { key: "drill-down", label: showDrill ? t("qcDashboard.closeDrill") : t("qcDashboard.drillAnalysis"), onClick: () => setShowDrill((v) => !v), type: "primary", ariaLabel: t("qcDashboard.drillAnalysis") },
+          {
+            key: "refresh",
+            label: t("qcDashboard.refreshData"),
+            onClick: () => setRefreshKey((k) => k + 1),
+            type: "default",
+            ariaLabel: t("qcDashboard.refreshDataAria"),
+          },
+          {
+            key: "export-monthly",
+            label: t("qcDashboard.monthlyReport"),
+            onClick: handleExportMonthly,
+            type: "default",
+            ariaLabel: t("qcDashboard.exportMonthlyReport"),
+          },
+          {
+            key: "export-quarterly",
+            label: t("qcDashboard.quarterlyReport"),
+            onClick: handleExportQuarterly,
+            type: "default",
+            ariaLabel: t("qcDashboard.exportQuarterlyReport"),
+          },
+          {
+            key: "drill-down",
+            label: showDrill
+              ? t("qcDashboard.closeDrill")
+              : t("qcDashboard.drillAnalysis"),
+            onClick: () => setShowDrill((v) => !v),
+            type: "primary",
+            ariaLabel: t("qcDashboard.drillAnalysis"),
+          },
         ]}
         theme="primary"
       />
 
-      <div style={{ padding: 'var(--space-6, 24px)' }}>
+      <div style={{ padding: "var(--space-6, 24px)" }}>
         {/* 时间范围选择 */}
-        <div style={{ marginBottom: 'var(--space-4, 16px)', display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
-          <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>{t("qcDashboard.timeRange")}</span>
-          {[t("qcDashboard.today"), t("qcDashboard.thisWeek"), "本月", t("qcDashboard.thisQuarter"), t("qcDashboard.thisYear")].map((r) => (
+        <div
+          style={{
+            marginBottom: "var(--space-4, 16px)",
+            display: "flex",
+            gap: "var(--space-2, 8px)",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>
+            {t("qcDashboard.timeRange")}
+          </span>
+          {[
+            t("qcDashboard.today"),
+            t("qcDashboard.thisWeek"),
+            "本月",
+            t("qcDashboard.thisQuarter"),
+            t("qcDashboard.thisYear"),
+          ].map((r) => (
             <button
               key={r}
               onClick={() => setDateRange(r)}
               style={{
                 padding: "6px 14px",
-                background: dateRange === r ? "var(--color-primary)" : "var(--bg-card)",
+                background:
+                  dateRange === r ? "var(--color-primary)" : "var(--bg-card)",
                 color: dateRange === r ? "#fff" : "#475569",
-                border: "1px solid " + (dateRange === r ? "var(--color-primary)" : "var(--border-color)"),
+                border:
+                  "1px solid " +
+                  (dateRange === r
+                    ? "var(--color-primary)"
+                    : "var(--border-color)"),
                 borderRadius: 6,
                 cursor: "pointer",
                 fontSize: 12,
@@ -1039,22 +2435,53 @@ export default function RadiologyQCDashboardPage() {
         </div>
 
         {/* 数据源徽标: 真实绿标 / 演示橙标 */}
-        <div style={{ marginBottom: 'var(--space-3, 12px)', display: "flex", alignItems: "center", gap: 10, fontSize: 12 }}>
-          <span style={{
-            padding: "4px 12px",
-            borderRadius: 999,
-            fontWeight: 700,
-            background: overviewStats.dataSource === "real" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
-            color: overviewStats.dataSource === "real" ? "#065f46" : "#92400e",
-            display: "inline-flex",
+        <div
+          style={{
+            marginBottom: "var(--space-3, 12px)",
+            display: "flex",
             alignItems: "center",
-            gap: 6,
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: overviewStats.dataSource === "real" ? "var(--color-success)" : "var(--color-warning)", display: "inline-block" }} />
-            {overviewStats.dataSource === "real" ? t("qcDashboard.realSource") : t("qcDashboard.localData")}
+            gap: 10,
+            fontSize: 12,
+          }}
+        >
+          <span
+            style={{
+              padding: "4px 12px",
+              borderRadius: 999,
+              fontWeight: 700,
+              background:
+                overviewStats.dataSource === "real"
+                  ? "var(--color-success-bg)"
+                  : "var(--color-warning-bg)",
+              color:
+                overviewStats.dataSource === "real" ? "#065f46" : "#92400e",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background:
+                  overviewStats.dataSource === "real"
+                    ? "var(--color-success)"
+                    : "var(--color-warning)",
+                display: "inline-block",
+              }}
+            />
+            {overviewStats.dataSource === "real"
+              ? t("qcDashboard.realSource")
+              : t("qcDashboard.localData")}
           </span>
           {overviewStats.dataSource === "real" && overviewStats.period && (
-            <span style={{ color: "var(--text-secondary)" }}>{t("qcDashboard.statPeriod")} {overviewStats.period} {t("qcDashboard.dashPassRate")} {overviewStats.passedRate}{t("qcDashboard.pctGradeA")} {overviewStats.excellentRate}%</span>
+            <span style={{ color: "var(--text-secondary)" }}>
+              {t("qcDashboard.statPeriod")} {overviewStats.period}{" "}
+              {t("qcDashboard.dashPassRate")} {overviewStats.passedRate}
+              {t("qcDashboard.pctGradeA")} {overviewStats.excellentRate}%
+            </span>
           )}
         </div>
 
@@ -1116,10 +2543,47 @@ export default function RadiologyQCDashboardPage() {
 
         {/* 下钻分析面板: 点击 KPI / 按钮打开, 科室/医生维度明细 */}
         {showDrill && (
-          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 'var(--space-3, 12px)', flexWrap: "wrap", gap: 'var(--space-2, 8px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.drillAnalysis")}</h3>
-              <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)" }}>{t("qcDashboard.localDerived")}</span>
+          <div
+            style={{
+              marginTop: "var(--space-4, 16px)",
+              background: "var(--bg-card)",
+              borderRadius: 10,
+              padding: "var(--space-5, 20px)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-3, 12px)",
+                flexWrap: "wrap",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  margin: 0,
+                }}
+              >
+                {t("qcDashboard.drillAnalysis")}
+              </h3>
+              <span
+                style={{
+                  padding: "2px 8px",
+                  borderRadius: 999,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  background: "var(--color-warning-bg)",
+                  color: "var(--color-warning)",
+                }}
+              >
+                {t("qcDashboard.localDerived")}
+              </span>
               <div style={{ display: "flex", gap: 6 }}>
                 {DRILL_METRICS.map((m) => (
                   <button
@@ -1131,8 +2595,15 @@ export default function RadiologyQCDashboardPage() {
                       fontWeight: 600,
                       borderRadius: 6,
                       cursor: "pointer",
-                      border: "1px solid " + (drillMetric === m.key ? "var(--color-primary)" : "var(--border-color)"),
-                      background: drillMetric === m.key ? "var(--color-primary)" : "transparent",
+                      border:
+                        "1px solid " +
+                        (drillMetric === m.key
+                          ? "var(--color-primary)"
+                          : "var(--border-color)"),
+                      background:
+                        drillMetric === m.key
+                          ? "var(--color-primary)"
+                          : "transparent",
                       color: drillMetric === m.key ? "#fff" : "#475569",
                     }}
                   >
@@ -1140,7 +2611,11 @@ export default function RadiologyQCDashboardPage() {
                   </button>
                 ))}
                 <button
-                  onClick={() => setDrillDimension(drillDimension === "doctor" ? "dept" : "doctor")}
+                  onClick={() =>
+                    setDrillDimension(
+                      drillDimension === "doctor" ? "dept" : "doctor",
+                    )
+                  }
                   style={{
                     padding: "5px 12px",
                     fontSize: 12,
@@ -1148,105 +2623,265 @@ export default function RadiologyQCDashboardPage() {
                     borderRadius: 6,
                     cursor: "pointer",
                     border: "1px solid #7c3aed",
-                    background: drillDimension === "doctor" ? "#7c3aed" : "transparent",
+                    background:
+                      drillDimension === "doctor" ? "#7c3aed" : "transparent",
                     color: drillDimension === "doctor" ? "#fff" : "#7c3aed",
                   }}
                 >
-                  {drillDimension === "doctor" ? t("qcDashboard.dimDoctor") : t("qcDashboard.dimDept")}
+                  {drillDimension === "doctor"
+                    ? t("qcDashboard.dimDoctor")
+                    : t("qcDashboard.dimDept")}
                 </button>
               </div>
             </div>
             {drillDimension === "doctor" ? (
               <DataTable
                 rowKey="doctorId"
-                dataSource={[...drillDoctorRows].sort((a, b) => (b[drillMetric as keyof typeof b] as number) - (a[drillMetric as keyof typeof a] as number))}
+                dataSource={[...drillDoctorRows].sort(
+                  (a, b) =>
+                    (b[drillMetric as keyof typeof b] as number) -
+                    (a[drillMetric as keyof typeof a] as number),
+                )}
                 showPagination={false}
                 showExport={false}
                 showDensity={false}
                 columns={[
                   {
                     title: t("qcDashboard.rank"),
-                    key: 'rank',
+                    key: "rank",
                     render: (_v, _r, i) => (
-                      <span style={{ fontWeight: 700, color: i < 3 ? severityColor('critical') : 'var(--text-secondary)' }}>#{i + 1}</span>
+                      <span
+                        style={{
+                          fontWeight: 700,
+                          color:
+                            i < 3
+                              ? severityColor("critical")
+                              : "var(--text-secondary)",
+                        }}
+                      >
+                        #{i + 1}
+                      </span>
                     ),
                   },
-                  { title: t("qcDashboard.doctor"), dataIndex: 'doctorName', render: (value: string) => <span style={{ fontWeight: 600 }}>{value}</span> },
-                  { title: t("qcDashboard.title"), dataIndex: 'title' },
+                  {
+                    title: t("qcDashboard.doctor"),
+                    dataIndex: "doctorName",
+                    render: (value: string) => (
+                      <span style={{ fontWeight: 600 }}>{value}</span>
+                    ),
+                  },
+                  { title: t("qcDashboard.title"), dataIndex: "title" },
                   {
                     title: t("qcDashboard.reportCount"),
-                    dataIndex: 'reportCount',
-                    align: 'right',
-                    render: (value: number) => <span style={{ background: drillMetric === 'reportCount' ? 'var(--color-info-bg)' : undefined, fontWeight: drillMetric === 'reportCount' ? 700 : 400 }}>{value}</span>,
+                    dataIndex: "reportCount",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "reportCount"
+                              ? "var(--color-info-bg)"
+                              : undefined,
+                          fontWeight: drillMetric === "reportCount" ? 700 : 400,
+                        }}
+                      >
+                        {value}
+                      </span>
+                    ),
                   },
                   {
                     title: t("qcDashboard.defectRatePct"),
-                    dataIndex: 'defectRate',
-                    align: 'right',
+                    dataIndex: "defectRate",
+                    align: "right",
                     render: (value: number) => (
-                      <span style={{ background: drillMetric === 'defectRate' ? 'var(--color-error-bg)' : undefined, fontWeight: drillMetric === 'defectRate' ? 700 : 400, color: drillMetric === 'defectRate' && value > 1.5 ? severityColor('critical') : undefined }}>{value}%</span>
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "defectRate"
+                              ? "var(--color-error-bg)"
+                              : undefined,
+                          fontWeight: drillMetric === "defectRate" ? 700 : 400,
+                          color:
+                            drillMetric === "defectRate" && value > 1.5
+                              ? severityColor("critical")
+                              : undefined,
+                        }}
+                      >
+                        {value}%
+                      </span>
                     ),
                   },
                   {
                     title: t("qcDashboard.qcScore"),
-                    dataIndex: 'qcScore',
-                    align: 'right',
+                    dataIndex: "qcScore",
+                    align: "right",
                     render: (value: number) => (
-                      <span style={{ background: drillMetric === 'qcScore' ? 'var(--color-success-bg)' : undefined, fontWeight: drillMetric === 'qcScore' ? 700 : 400, color: drillMetric === 'qcScore' && value >= 90 ? severityColor('success') : drillMetric === 'qcScore' && value < 80 ? severityColor('critical') : undefined }}>{value}</span>
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "qcScore"
+                              ? "var(--color-success-bg)"
+                              : undefined,
+                          fontWeight: drillMetric === "qcScore" ? 700 : 400,
+                          color:
+                            drillMetric === "qcScore" && value >= 90
+                              ? severityColor("success")
+                              : drillMetric === "qcScore" && value < 80
+                                ? severityColor("critical")
+                                : undefined,
+                        }}
+                      >
+                        {value}
+                      </span>
                     ),
                   },
                   {
                     title: t("qcDashboard.criticalValue"),
-                    dataIndex: 'criticalValueCount',
-                    align: 'right',
-                    render: (value: number) => <span style={{ background: drillMetric === 'criticalValueCount' ? 'var(--color-warning-bg)' : undefined, fontWeight: drillMetric === 'criticalValueCount' ? 700 : 400 }}>{value}</span>,
+                    dataIndex: "criticalValueCount",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "criticalValueCount"
+                              ? "var(--color-warning-bg)"
+                              : undefined,
+                          fontWeight:
+                            drillMetric === "criticalValueCount" ? 700 : 400,
+                        }}
+                      >
+                        {value}
+                      </span>
+                    ),
                   },
                   {
                     title: t("qcDashboard.timelyRatePct"),
-                    dataIndex: 'timelyRate',
-                    align: 'right',
-                    render: (value: number) => <span style={{ background: drillMetric === 'timelyRate' ? 'var(--color-info-bg)' : undefined, fontWeight: drillMetric === 'timelyRate' ? 700 : 400 }}>{value}%</span>,
+                    dataIndex: "timelyRate",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "timelyRate"
+                              ? "var(--color-info-bg)"
+                              : undefined,
+                          fontWeight: drillMetric === "timelyRate" ? 700 : 400,
+                        }}
+                      >
+                        {value}%
+                      </span>
+                    ),
                   },
                   {
                     title: t("qcDashboard.grade"),
-                    key: 'grade',
-                    render: (_v, r) => (r.qcScore >= 92 ? 'A' : r.qcScore >= 85 ? 'B' : r.qcScore >= 75 ? 'C' : 'D'),
+                    key: "grade",
+                    render: (_v, r) =>
+                      r.qcScore >= 92
+                        ? "A"
+                        : r.qcScore >= 85
+                          ? "B"
+                          : r.qcScore >= 75
+                            ? "C"
+                            : "D",
                   },
                 ]}
               />
             ) : (
               <DataTable
                 rowKey="dept"
-                dataSource={[...drillDeptRows].sort((a, b) => (b[drillMetric as keyof typeof b] as number) - (a[drillMetric as keyof typeof a] as number))}
+                dataSource={[...drillDeptRows].sort(
+                  (a, b) =>
+                    (b[drillMetric as keyof typeof b] as number) -
+                    (a[drillMetric as keyof typeof a] as number),
+                )}
                 showPagination={false}
                 showExport={false}
                 showDensity={false}
                 columns={[
-                  { title: t("qcDashboard.dept"), dataIndex: 'dept', render: (value: string) => <span style={{ fontWeight: 600 }}>{value}</span> },
-                  { title: t("qcDashboard.doctorCount"), dataIndex: 'doctorCount', align: 'right' },
+                  {
+                    title: t("qcDashboard.dept"),
+                    dataIndex: "dept",
+                    render: (value: string) => (
+                      <span style={{ fontWeight: 600 }}>{value}</span>
+                    ),
+                  },
+                  {
+                    title: t("qcDashboard.doctorCount"),
+                    dataIndex: "doctorCount",
+                    align: "right",
+                  },
                   {
                     title: t("qcDashboard.reportCount"),
-                    dataIndex: 'reportCount',
-                    align: 'right',
-                    render: (value: number) => <span style={{ background: drillMetric === 'reportCount' ? 'var(--color-info-bg)' : undefined, fontWeight: drillMetric === 'reportCount' ? 700 : 400 }}>{value}</span>,
+                    dataIndex: "reportCount",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "reportCount"
+                              ? "var(--color-info-bg)"
+                              : undefined,
+                          fontWeight: drillMetric === "reportCount" ? 700 : 400,
+                        }}
+                      >
+                        {value}
+                      </span>
+                    ),
                   },
                   {
                     title: t("qcDashboard.defectRatePct"),
-                    dataIndex: 'defectRate',
-                    align: 'right',
-                    render: (value: number) => <span style={{ background: drillMetric === 'defectRate' ? 'var(--color-error-bg)' : undefined, fontWeight: drillMetric === 'defectRate' ? 700 : 400 }}>{value}%</span>,
+                    dataIndex: "defectRate",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "defectRate"
+                              ? "var(--color-error-bg)"
+                              : undefined,
+                          fontWeight: drillMetric === "defectRate" ? 700 : 400,
+                        }}
+                      >
+                        {value}%
+                      </span>
+                    ),
                   },
                   {
                     title: t("qcDashboard.qcScore"),
-                    dataIndex: 'qcScore',
-                    align: 'right',
-                    render: (value: number) => <span style={{ background: drillMetric === 'qcScore' ? 'var(--color-success-bg)' : undefined, fontWeight: drillMetric === 'qcScore' ? 700 : 400 }}>{value}</span>,
+                    dataIndex: "qcScore",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "qcScore"
+                              ? "var(--color-success-bg)"
+                              : undefined,
+                          fontWeight: drillMetric === "qcScore" ? 700 : 400,
+                        }}
+                      >
+                        {value}
+                      </span>
+                    ),
                   },
                   {
                     title: t("qcDashboard.criticalValue"),
-                    dataIndex: 'criticalValueCount',
-                    align: 'right',
-                    render: (value: number) => <span style={{ background: drillMetric === 'criticalValueCount' ? 'var(--color-warning-bg)' : undefined, fontWeight: drillMetric === 'criticalValueCount' ? 700 : 400 }}>{value}</span>,
+                    dataIndex: "criticalValueCount",
+                    align: "right",
+                    render: (value: number) => (
+                      <span
+                        style={{
+                          background:
+                            drillMetric === "criticalValueCount"
+                              ? "var(--color-warning-bg)"
+                              : undefined,
+                          fontWeight:
+                            drillMetric === "criticalValueCount" ? 700 : 400,
+                        }}
+                      >
+                        {value}
+                      </span>
+                    ),
                   },
                 ]}
               />
@@ -1255,25 +2890,38 @@ export default function RadiologyQCDashboardPage() {
         )}
 
         {/* Tab 切换 */}
-        <div style={{ marginTop: 'var(--space-6, 24px)', display: "flex", gap: 6, background: "var(--bg-card)", padding: 'var(--space-2, 8px)', borderRadius: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          {([
-            ["overview", t("qcDashboard.tabOverview"), Layers],
-            ["image", t("qcDashboard.tabImage"), Camera],
-            ["report", t("qcDashboard.tabReport"), FileText],
-            ["workflow", t("qcDashboard.tabWorkflow"), Clock],
-            ["equipment", t("qcDashboard.tabEquipment"), Monitor],
-            ["personnel", t("qcDashboard.tabPersonnel"), Users],
-            ["operations", t("qcDashboard.tabOperations"), BarChart3],
-            ["ai", t("qcDashboard.tabAi"), Sparkles],
-            ["cqi", t("qcDashboard.tabCqi"), Target],
-          ] as [QCTab, string, any][]).map(([key, label, Icon]) => (
+        <div
+          style={{
+            marginTop: "var(--space-6, 24px)",
+            display: "flex",
+            gap: 6,
+            background: "var(--bg-card)",
+            padding: "var(--space-2, 8px)",
+            borderRadius: 10,
+            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+          }}
+        >
+          {(
+            [
+              ["overview", t("qcDashboard.tabOverview"), Layers],
+              ["image", t("qcDashboard.tabImage"), Camera],
+              ["report", t("qcDashboard.tabReport"), FileText],
+              ["workflow", t("qcDashboard.tabWorkflow"), Clock],
+              ["equipment", t("qcDashboard.tabEquipment"), Monitor],
+              ["personnel", t("qcDashboard.tabPersonnel"), Users],
+              ["operations", t("qcDashboard.tabOperations"), BarChart3],
+              ["ai", t("qcDashboard.tabAi"), Sparkles],
+              ["cqi", t("qcDashboard.tabCqi"), Target],
+            ] as [QCTab, string, any][]
+          ).map(([key, label, Icon]) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
               style={{
                 flex: 1,
                 padding: "10px 8px",
-                background: activeTab === key ? "var(--color-primary)" : "transparent",
+                background:
+                  activeTab === key ? "var(--color-primary)" : "transparent",
                 color: activeTab === key ? "#fff" : "#475569",
                 border: "none",
                 borderRadius: 6,
@@ -1283,7 +2931,7 @@ export default function RadiologyQCDashboardPage() {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 'var(--space-1, 4px)',
+                gap: "var(--space-1, 4px)",
               }}
             >
               <Icon size={16} />
@@ -1294,115 +2942,561 @@ export default function RadiologyQCDashboardPage() {
 
         {/* 总览 Tab */}
         {activeTab === "overview" && (
-          <div style={{ marginTop: 'var(--space-4, 16px)', display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
-            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
+          <div
+            style={{
+              marginTop: "var(--space-4, 16px)",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "var(--space-4, 16px)",
+            }}
+          >
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 10,
+                padding: "var(--space-5, 20px)",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
                 <Camera size={18} color="var(--color-primary-500)" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabImage")}</h3>
+                <h3
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    margin: 0,
+                  }}
+                >
+                  {t("qcDashboard.tabImage")}
+                </h3>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)' }}>
-                <div style={{ background: "var(--color-info-bg)", borderRadius: 8, padding: 'var(--space-4, 16px)', textAlign: "center" }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary)" }}>{imageQC.gradeA}</div>
-                  <div style={{ fontSize: 12, color: "var(--color-primary)", marginTop: 'var(--space-1, 4px)' }}>{t("qcDashboard.gradeADevices")}</div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "var(--space-3, 12px)",
+                }}
+              >
+                <div
+                  style={{
+                    background: "var(--color-info-bg)",
+                    borderRadius: 8,
+                    padding: "var(--space-4, 16px)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-primary)",
+                    }}
+                  >
+                    {imageQC.gradeA}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--color-primary)",
+                      marginTop: "var(--space-1, 4px)",
+                    }}
+                  >
+                    {t("qcDashboard.gradeADevices")}
+                  </div>
                 </div>
-                <div style={{ background: "var(--color-warning-bg)", borderRadius: 8, padding: 'var(--space-4, 16px)', textAlign: "center" }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-warning)" }}>{imageQC.gradeB + imageQC.gradeC}</div>
-                  <div style={{ fontSize: 12, color: "var(--color-warning)", marginTop: 'var(--space-1, 4px)' }}>{t("qcDashboard.gradeBC")}</div>
+                <div
+                  style={{
+                    background: "var(--color-warning-bg)",
+                    borderRadius: 8,
+                    padding: "var(--space-4, 16px)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-warning)",
+                    }}
+                  >
+                    {imageQC.gradeB + imageQC.gradeC}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--color-warning)",
+                      marginTop: "var(--space-1, 4px)",
+                    }}
+                  >
+                    {t("qcDashboard.gradeBC")}
+                  </div>
                 </div>
-                <div style={{ background: "var(--color-error-bg)", borderRadius: 8, padding: 'var(--space-4, 16px)', textAlign: "center" }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-error)" }}>{imageQC.gradeD}</div>
-                  <div style={{ fontSize: 12, color: "var(--color-error)", marginTop: 'var(--space-1, 4px)' }}>{t("qcDashboard.gradeD")}</div>
+                <div
+                  style={{
+                    background: "var(--color-error-bg)",
+                    borderRadius: 8,
+                    padding: "var(--space-4, 16px)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-error)",
+                    }}
+                  >
+                    {imageQC.gradeD}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--color-error)",
+                      marginTop: "var(--space-1, 4px)",
+                    }}
+                  >
+                    {t("qcDashboard.gradeD")}
+                  </div>
                 </div>
-                <div style={{ background: "var(--color-success-bg)", borderRadius: 8, padding: 'var(--space-4, 16px)', textAlign: "center" }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-success)" }}>{imageQC.doseCompliant}</div>
-                  <div style={{ fontSize: 12, color: "var(--color-success)", marginTop: 'var(--space-1, 4px)' }}>{t("qcDashboard.doseCompliance")}</div>
+                <div
+                  style={{
+                    background: "var(--color-success-bg)",
+                    borderRadius: 8,
+                    padding: "var(--space-4, 16px)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-success)",
+                    }}
+                  >
+                    {imageQC.doseCompliant}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--color-success)",
+                      marginTop: "var(--space-1, 4px)",
+                    }}
+                  >
+                    {t("qcDashboard.doseCompliance")}
+                  </div>
                 </div>
               </div>
-              <button onClick={() => setActiveTab("image")} style={{ marginTop: 'var(--space-3, 12px)', width: "100%", padding: "8px 0", background: "var(--color-info-bg)", color: "var(--color-primary)", border: "1px solid var(--color-info-border)", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+              <button
+                onClick={() => setActiveTab("image")}
+                style={{
+                  marginTop: "var(--space-3, 12px)",
+                  width: "100%",
+                  padding: "8px 0",
+                  background: "var(--color-info-bg)",
+                  color: "var(--color-primary)",
+                  border: "1px solid var(--color-info-border)",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
                 {t("qcDashboard.details")}
               </button>
             </div>
 
-            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 10,
+                padding: "var(--space-5, 20px)",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
                 <FileText size={18} color="#10b981" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabReport")}</h3>
+                <h3
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    margin: 0,
+                  }}
+                >
+                  {t("qcDashboard.tabReport")}
+                </h3>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 'var(--space-2, 8px)' }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
                 {[
-                  { label: t("qcDashboard.gradeA"), count: reportQC.a, color: "#10b981" },
-                  { label: t("qcDashboard.gradeB"), count: reportQC.b, color: "var(--color-primary-500)" },
-                  { label: t("qcDashboard.gradeC"), count: reportQC.c, color: "var(--color-warning-500)" },
-                  { label: t("qcDashboard.gradeD2"), count: reportQC.d, color: "var(--color-error)" },
+                  {
+                    label: t("qcDashboard.gradeA"),
+                    count: reportQC.a,
+                    color: "#10b981",
+                  },
+                  {
+                    label: t("qcDashboard.gradeB"),
+                    count: reportQC.b,
+                    color: "var(--color-primary-500)",
+                  },
+                  {
+                    label: t("qcDashboard.gradeC"),
+                    count: reportQC.c,
+                    color: "var(--color-warning-500)",
+                  },
+                  {
+                    label: t("qcDashboard.gradeD2"),
+                    count: reportQC.d,
+                    color: "var(--color-error)",
+                  },
                 ].map((g) => (
-                  <div key={g.label} style={{ background: g.color + "15", borderRadius: 8, padding: 'var(--space-3, 12px)', textAlign: "center", border: `1px solid ${g.color}` }}>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: g.color }}>{g.count}</div>
-                    <div style={{ fontSize: 11, color: g.color, marginTop: 'var(--space-1, 4px)' }}>{g.label}级</div>
+                  <div
+                    key={g.label}
+                    style={{
+                      background: g.color + "15",
+                      borderRadius: 8,
+                      padding: "var(--space-3, 12px)",
+                      textAlign: "center",
+                      border: `1px solid ${g.color}`,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 30, fontWeight: 700, color: g.color }}
+                    >
+                      {g.count}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: g.color,
+                        marginTop: "var(--space-1, 4px)",
+                      }}
+                    >
+                      {g.label}级
+                    </div>
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 'var(--space-3, 12px)', padding: "8px 12px", background: "var(--color-error-bg)", borderRadius: 6, fontSize: 12, color: "var(--color-error)" }}>
-                <strong>{t("qcDashboard.defectRateLabel")}</strong> {reportQC.defectRate}{t("qcDashboard.pctThisMonth")} {reportQC.totalDefect} {t("qcDashboard.defectsOf")} {reportQC.totalReport} {t("qcDashboard.reportsCount")}
+              <div
+                style={{
+                  marginTop: "var(--space-3, 12px)",
+                  padding: "8px 12px",
+                  background: "var(--color-error-bg)",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: "var(--color-error)",
+                }}
+              >
+                <strong>{t("qcDashboard.defectRateLabel")}</strong>{" "}
+                {reportQC.defectRate}
+                {t("qcDashboard.pctThisMonth")} {reportQC.totalDefect}{" "}
+                {t("qcDashboard.defectsOf")} {reportQC.totalReport}{" "}
+                {t("qcDashboard.reportsCount")}
               </div>
             </div>
 
-            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 10,
+                padding: "var(--space-5, 20px)",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
                 <Monitor size={18} color="#7c3aed" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabEquipment")}</h3>
+                <h3
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    margin: 0,
+                  }}
+                >
+                  {t("qcDashboard.tabEquipment")}
+                </h3>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)' }}>
-                <div style={{ background: "var(--color-success-bg)", borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("qcDashboard.statusRunning")}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-success)" }}>{equipmentQC.running}</div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "var(--space-3, 12px)",
+                }}
+              >
+                <div
+                  style={{
+                    background: "var(--color-success-bg)",
+                    borderRadius: 8,
+                    padding: "var(--space-3, 12px)",
+                  }}
+                >
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                    {t("qcDashboard.statusRunning")}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-success)",
+                    }}
+                  >
+                    {equipmentQC.running}
+                  </div>
                 </div>
-                <div style={{ background: "var(--color-warning-bg)", borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("qcDashboard.maintFault")}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-warning)" }}>{equipmentQC.maintenance + equipmentQC.fault}</div>
+                <div
+                  style={{
+                    background: "var(--color-warning-bg)",
+                    borderRadius: 8,
+                    padding: "var(--space-3, 12px)",
+                  }}
+                >
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                    {t("qcDashboard.maintFault")}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-warning)",
+                    }}
+                  >
+                    {equipmentQC.maintenance + equipmentQC.fault}
+                  </div>
                 </div>
               </div>
-              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: "var(--text-secondary)" }}>
-                {t("qcDashboard.monthlyScanTotal")} <strong>{equipmentQC.totalMonthlyScans.toLocaleString()}</strong> {t("qcDashboard.casesAvgPerDevice")} <strong>{equipmentQC.avgUtil}</strong> {t("qcDashboard.casesPerMonth")}
+              <div
+                style={{
+                  marginTop: "var(--space-2, 8px)",
+                  fontSize: 11,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {t("qcDashboard.monthlyScanTotal")}{" "}
+                <strong>
+                  {equipmentQC.totalMonthlyScans.toLocaleString()}
+                </strong>{" "}
+                {t("qcDashboard.casesAvgPerDevice")}{" "}
+                <strong>{equipmentQC.avgUtil}</strong>{" "}
+                {t("qcDashboard.casesPerMonth")}
               </div>
             </div>
 
-            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 10,
+                padding: "var(--space-5, 20px)",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
                 <Users size={18} color="var(--color-warning-500)" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabPersonnel")}</h3>
+                <h3
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    margin: 0,
+                  }}
+                >
+                  {t("qcDashboard.tabPersonnel")}
+                </h3>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 'var(--space-2, 8px)' }}>
-                <div style={{ textAlign: "center", padding: 'var(--space-2, 8px)' }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary)" }}>{personnelQC.doctorCount}</div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{t("qcDashboard.physician")}</div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "var(--space-2, 8px)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-primary)",
+                    }}
+                  >
+                    {personnelQC.doctorCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                    {t("qcDashboard.physician")}
+                  </div>
                 </div>
-                <div style={{ textAlign: "center", padding: 'var(--space-2, 8px)' }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "#10b981" }}>{personnelQC.techCount}</div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{t("qcDashboard.technician")}</div>
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "var(--space-2, 8px)",
+                  }}
+                >
+                  <div
+                    style={{ fontSize: 30, fontWeight: 700, color: "#10b981" }}
+                  >
+                    {personnelQC.techCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                    {t("qcDashboard.technician")}
+                  </div>
                 </div>
-                <div style={{ textAlign: "center", padding: 'var(--space-2, 8px)' }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-warning-500)" }}>{personnelQC.nurseCount}</div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{t("qcDashboard.nurse")}</div>
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "var(--space-2, 8px)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: "var(--color-warning-500)",
+                    }}
+                  >
+                    {personnelQC.nurseCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                    {t("qcDashboard.nurse")}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", gridColumn: "1 / -1" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
+            <div
+              style={{
+                background: "var(--bg-card)",
+                borderRadius: 10,
+                padding: "var(--space-5, 20px)",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                gridColumn: "1 / -1",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
                 <TrendingUp size={18} color="var(--color-primary-800)" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.kpiTimeline30")}</h3>
-                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)" }}>{t("qcDashboard.localData")}</span>
+                <h3
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    margin: 0,
+                  }}
+                >
+                  {t("qcDashboard.kpiTimeline30")}
+                </h3>
+                <span
+                  style={{
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    background: "var(--color-warning-bg)",
+                    color: "var(--color-warning)",
+                  }}
+                >
+                  {t("qcDashboard.localData")}
+                </span>
               </div>
-              <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 'var(--space-1, 4px)', padding: "0 8px" }}>
+              <div
+                style={{
+                  height: 200,
+                  display: "flex",
+                  alignItems: "flex-end",
+                  gap: "var(--space-1, 4px)",
+                  padding: "0 8px",
+                }}
+              >
                 {DAILY_KPI_PRE.slice(-30).map((d, i) => (
-                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                    <div style={{ width: "100%", height: `${(d.examCount / 1000) * 100}px`, background: "linear-gradient(180deg, var(--color-primary-500), var(--color-primary-800))", borderRadius: "2px 2px 0 0", minHeight: 4 }} title={`${d.date}: ${d.examCount} 例`} />
-                    <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>{d.date.slice(5)}</span>
+                  <div
+                    key={i}
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 2,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        height: `${(d.examCount / 1000) * 100}px`,
+                        background:
+                          "linear-gradient(180deg, var(--color-primary-500), var(--color-primary-800))",
+                        borderRadius: "2px 2px 0 0",
+                        minHeight: 4,
+                      }}
+                      title={`${d.date}: ${d.examCount} 例`}
+                    />
+                    <span
+                      style={{ fontSize: 10, color: "var(--text-secondary)" }}
+                    >
+                      {d.date.slice(5)}
+                    </span>
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: "var(--text-secondary)" }}>
-                {t("qcDashboard.dailyAvg")} <strong>{(DAILY_KPI_PRE.reduce((s, d) => s + d.examCount, 0) / 30).toFixed(0)}</strong> {t("qcDashboard.casesPeak")} <strong>{Math.max(...DAILY_KPI_PRE.map((d) => d.examCount))}</strong> {t("qcDashboard.casesPerDay")}
+              <div
+                style={{
+                  marginTop: "var(--space-2, 8px)",
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {t("qcDashboard.dailyAvg")}{" "}
+                <strong>
+                  {(
+                    DAILY_KPI_PRE.reduce((s, d) => s + d.examCount, 0) / 30
+                  ).toFixed(0)}
+                </strong>{" "}
+                {t("qcDashboard.casesPeak")}{" "}
+                <strong>
+                  {Math.max(...DAILY_KPI_PRE.map((d) => d.examCount))}
+                </strong>{" "}
+                {t("qcDashboard.casesPerDay")}
               </div>
             </div>
           </div>
@@ -1410,28 +3504,104 @@ export default function RadiologyQCDashboardPage() {
 
         {/* 影像质控 Tab */}
         {activeTab === "image" && (
-          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>{t("qcDashboard.imageDeviceGrade")}</h3>
+          <div
+            style={{
+              marginTop: "var(--space-4, 16px)",
+              background: "var(--bg-card)",
+              borderRadius: 10,
+              padding: "var(--space-5, 20px)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                margin: "0 0 16px",
+              }}
+            >
+              {t("qcDashboard.imageDeviceGrade")}
+            </h3>
+            <FilterBar
+              searchPlaceholder="搜索设备ID / 型号 / 厂商…"
+              searchValue={deviceKeyword}
+              onSearchChange={setDeviceKeyword}
+              filters={[
+                {
+                  key: "imageQualityGrade",
+                  label: "质控等级",
+                  options: deviceGradeOptions,
+                },
+                {
+                  key: "status",
+                  label: t("qcDashboard.status"),
+                  options: deviceStatusOptions,
+                },
+                {
+                  key: "modality",
+                  label: "设备类型",
+                  options: deviceModalityOptions,
+                },
+                { key: "brand", label: "厂商", options: deviceBrandOptions },
+              ]}
+              filterValues={deviceFilterValues}
+              onFilterChange={(k, v) =>
+                setDeviceFilterValues((prev) => ({ ...prev, [k]: v }))
+              }
+              onReset={() => {
+                setDeviceKeyword("");
+                setDeviceFilterValues({});
+              }}
+              summary={`共 ${filteredDeviceMaster.length} 条`}
+            />
             <DataTable
               rowKey="id"
-              dataSource={DEVICE_MASTER.slice(0, 20)}
+              dataSource={filteredDeviceMaster.slice(0, 20)}
               showPagination={false}
               showExport={false}
               showDensity={false}
               columns={[
-                { title: t("qcDashboard.device"), dataIndex: 'id', render: (value: string) => <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{value}</span> },
-                { title: t("qcDashboard.model"), dataIndex: 'model' },
-                { title: t("qcDashboard.manufacturer"), dataIndex: 'brand' },
                 {
-                  title: t("qcDashboard.grade"),
-                  dataIndex: 'imageQualityGrade',
+                  title: t("qcDashboard.device"),
+                  dataIndex: "id",
                   render: (value: string) => (
-                    <SeverityTag level={value === 'A' ? 'normal' : value === 'D' ? 'critical' : 'warning'}>{value} 级</SeverityTag>
+                    <span style={{ fontFamily: "monospace", fontSize: 11 }}>
+                      {value}
+                    </span>
                   ),
                 },
-                { title: t("qcDashboard.doseComplianceRate"), dataIndex: 'doseComplianceRate', align: 'right', render: (value: number) => `${value}%` },
-                { title: t("qcDashboard.monthlyScans"), dataIndex: 'monthlyScans', align: 'right' },
-                { title: t("qcDashboard.status"), dataIndex: 'status' },
+                { title: t("qcDashboard.model"), dataIndex: "model" },
+                { title: t("qcDashboard.manufacturer"), dataIndex: "brand" },
+                {
+                  title: t("qcDashboard.grade"),
+                  dataIndex: "imageQualityGrade",
+                  render: (value: string) => (
+                    <SeverityTag
+                      level={
+                        value === "A"
+                          ? "normal"
+                          : value === "D"
+                            ? "critical"
+                            : "warning"
+                      }
+                    >
+                      {value} 级
+                    </SeverityTag>
+                  ),
+                },
+                {
+                  title: t("qcDashboard.doseComplianceRate"),
+                  dataIndex: "doseComplianceRate",
+                  align: "right",
+                  render: (value: number) => `${value}%`,
+                },
+                {
+                  title: t("qcDashboard.monthlyScans"),
+                  dataIndex: "monthlyScans",
+                  align: "right",
+                },
+                { title: t("qcDashboard.status"), dataIndex: "status" },
               ]}
             />
           </div>
@@ -1439,8 +3609,25 @@ export default function RadiologyQCDashboardPage() {
 
         {/* 报告质控 Tab */}
         {activeTab === "report" && (
-          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>{t("qcDashboard.reportDoctorPerf")}</h3>
+          <div
+            style={{
+              marginTop: "var(--space-4, 16px)",
+              background: "var(--bg-card)",
+              borderRadius: 10,
+              padding: "var(--space-5, 20px)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                margin: "0 0 16px",
+              }}
+            >
+              {t("qcDashboard.reportDoctorPerf")}
+            </h3>
             <DataTable
               rowKey="id"
               dataSource={personnelQC.topPerformers.slice(0, 15)}
@@ -1450,93 +3637,419 @@ export default function RadiologyQCDashboardPage() {
               columns={[
                 {
                   title: t("qcDashboard.rank"),
-                  key: 'rank',
-                  render: (_v, _p, i) => <span style={{ fontWeight: 700, color: i < 3 ? severityColor('critical') : 'var(--text-secondary)' }}>#{i + 1}</span>,
+                  key: "rank",
+                  render: (_v, _p, i) => (
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color:
+                          i < 3
+                            ? severityColor("critical")
+                            : "var(--text-secondary)",
+                      }}
+                    >
+                      #{i + 1}
+                    </span>
+                  ),
                 },
-                { title: t("qcDashboard.doctor"), dataIndex: 'doctorName' },
-                { title: t("qcDashboard.title"), dataIndex: 'title' },
-                { title: t("qcDashboard.reportNum"), dataIndex: 'reportCount', align: 'right' },
-                { title: t("qcDashboard.defectCount"), dataIndex: 'defectCount', align: 'right' },
-                { title: t("qcDashboard.defectRate"), dataIndex: 'defectRate', align: 'right', render: (value: number) => `${value}%` },
+                { title: t("qcDashboard.doctor"), dataIndex: "doctorName" },
+                { title: t("qcDashboard.title"), dataIndex: "title" },
+                {
+                  title: t("qcDashboard.reportNum"),
+                  dataIndex: "reportCount",
+                  align: "right",
+                },
+                {
+                  title: t("qcDashboard.defectCount"),
+                  dataIndex: "defectCount",
+                  align: "right",
+                },
+                {
+                  title: t("qcDashboard.defectRate"),
+                  dataIndex: "defectRate",
+                  align: "right",
+                  render: (value: number) => `${value}%`,
+                },
                 {
                   title: "质量分",
-                  dataIndex: 'qcScore',
-                  align: 'right',
-                  render: (value: number) => <span style={{ fontWeight: 700, color: severityColor(value >= 90 ? 'success' : value >= 80 ? 'warning' : 'critical') }}>{value}</span>,
+                  dataIndex: "qcScore",
+                  align: "right",
+                  render: (value: number) => (
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color: severityColor(
+                          value >= 90
+                            ? "success"
+                            : value >= 80
+                              ? "warning"
+                              : "critical",
+                        ),
+                      }}
+                    >
+                      {value}
+                    </span>
+                  ),
                 },
-                { title: t("qcDashboard.grade"), dataIndex: 'grade' },
+                { title: t("qcDashboard.grade"), dataIndex: "grade" },
               ]}
             />
           </div>
         )}
 
         {/* 其他 Tab 简略展示 */}
-        {(activeTab === "workflow" || activeTab === "equipment" || activeTab === "personnel" || activeTab === "operations" || activeTab === "ai" || activeTab === "cqi") && (
-          <div style={{ marginTop: 'var(--space-4, 16px)', background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-10, 40px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
-            <CheckCircle size={48} color="#10b981" style={{ margin: "0 auto 12px" }} />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{activeTab === "workflow" ? t("qcDashboard.tabWorkflow") : activeTab === "equipment" ? t("qcDashboard.tabEquipment") : activeTab === "personnel" ? t("qcDashboard.tabPersonnel") : activeTab === "operations" ? t("qcDashboard.tabOperations") : activeTab === "ai" ? t("qcDashboard.tabAi") : t("qcDashboard.cqiImprovement")}</h3>
+        {(activeTab === "workflow" ||
+          activeTab === "equipment" ||
+          activeTab === "personnel" ||
+          activeTab === "operations" ||
+          activeTab === "ai" ||
+          activeTab === "cqi") && (
+          <div
+            style={{
+              marginTop: "var(--space-4, 16px)",
+              background: "var(--bg-card)",
+              borderRadius: 10,
+              padding: "var(--space-10, 40px)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              textAlign: "center",
+            }}
+          >
+            <CheckCircle
+              size={48}
+              color="#10b981"
+              style={{ margin: "0 auto 12px" }}
+            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "var(--space-2, 8px)",
+                marginBottom: "var(--space-2, 8px)",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  margin: 0,
+                }}
+              >
+                {activeTab === "workflow"
+                  ? t("qcDashboard.tabWorkflow")
+                  : activeTab === "equipment"
+                    ? t("qcDashboard.tabEquipment")
+                    : activeTab === "personnel"
+                      ? t("qcDashboard.tabPersonnel")
+                      : activeTab === "operations"
+                        ? t("qcDashboard.tabOperations")
+                        : activeTab === "ai"
+                          ? t("qcDashboard.tabAi")
+                          : t("qcDashboard.cqiImprovement")}
+              </h3>
               {(activeTab === "ai" || activeTab === "cqi") && (
-                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)" }}>{t("qcDashboard.hardcodedDemo")}</span>
+                <span
+                  style={{
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    background: "var(--color-warning-bg)",
+                    color: "var(--color-warning)",
+                  }}
+                >
+                  {t("qcDashboard.hardcodedDemo")}
+                </span>
               )}
             </div>
-            <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>{t("qcDashboard.detailLoaded")} {DAILY_KPI_PRE.length} {t("qcDashboard.daysOf")} {personnelQC.topPerformers.length} {t("qcDashboard.doctorsOf")} {DEVICE_MASTER.length} {t("qcDashboard.devicesOf")}</p>
-            <div style={{ marginTop: 'var(--space-4, 16px)', display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 'var(--space-3, 12px)', maxWidth: 800, margin: "16px auto 0" }}>
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--text-secondary)",
+                margin: 0,
+              }}
+            >
+              {t("qcDashboard.detailLoaded")} {DAILY_KPI_PRE.length}{" "}
+              {t("qcDashboard.daysOf")} {personnelQC.topPerformers.length}{" "}
+              {t("qcDashboard.doctorsOf")} {DEVICE_MASTER.length}{" "}
+              {t("qcDashboard.devicesOf")}
+            </p>
+            <div
+              style={{
+                marginTop: "var(--space-4, 16px)",
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "var(--space-3, 12px)",
+                maxWidth: 800,
+                margin: "16px auto 0",
+              }}
+            >
               {activeTab === "ai" ? (
                 <>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-primary)" }}>{t("qcDashboard.aiAccuracy")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary)" }}>{(aiQC.accuracy * 100).toFixed(0)}%</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-info-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-primary)" }}
+                    >
+                      {t("qcDashboard.aiAccuracy")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-primary)",
+                      }}
+                    >
+                      {(aiQC.accuracy * 100).toFixed(0)}%
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-success-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-success)" }}>{t("qcDashboard.aiPrecision")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-success)" }}>{(aiQC.precision * 100).toFixed(0)}%</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-success-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-success)" }}
+                    >
+                      {t("qcDashboard.aiPrecision")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-success)",
+                      }}
+                    >
+                      {(aiQC.precision * 100).toFixed(0)}%
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-warning-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-warning)" }}>{t("qcDashboard.aiRecall")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-warning)" }}>{(aiQC.recall * 100).toFixed(0)}%</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-warning-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-warning)" }}
+                    >
+                      {t("qcDashboard.aiRecall")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-warning)",
+                      }}
+                    >
+                      {(aiQC.recall * 100).toFixed(0)}%
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-error-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-error)" }}>{t("qcDashboard.aiFalsePositive")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-error)" }}>{(aiQC.fpRate * 100).toFixed(0)}%</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-error-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "var(--color-error)" }}>
+                      {t("qcDashboard.aiFalsePositive")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-error)",
+                      }}
+                    >
+                      {(aiQC.fpRate * 100).toFixed(0)}%
+                    </div>
                   </div>
                 </>
               ) : activeTab === "cqi" ? (
                 <>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-primary)" }}>{t("qcDashboard.pdcaActive")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary)" }}>{cqi.activePDCA}</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-info-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-primary)" }}
+                    >
+                      {t("qcDashboard.pdcaActive")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-primary)",
+                      }}
+                    >
+                      {cqi.activePDCA}
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-success-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-success)" }}>{t("qcDashboard.completed")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-success)" }}>{cqi.completedPDCA}</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-success-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-success)" }}
+                    >
+                      {t("qcDashboard.completed")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-success)",
+                      }}
+                    >
+                      {cqi.completedPDCA}
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-warning-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-warning)" }}>{t("qcDashboard.improvementRate")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-warning)" }}>{(cqi.improvementRate * 100).toFixed(0)}%</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-warning-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-warning)" }}
+                    >
+                      {t("qcDashboard.improvementRate")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-warning)",
+                      }}
+                    >
+                      {(cqi.improvementRate * 100).toFixed(0)}%
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#7c3aed" }}>{t("qcDashboard.totalProjects")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "#7c3aed" }}>{cqi.activePDCA + cqi.completedPDCA}</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-info-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "#7c3aed" }}>
+                      {t("qcDashboard.totalProjects")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "#7c3aed",
+                      }}
+                    >
+                      {cqi.activePDCA + cqi.completedPDCA}
+                    </div>
                   </div>
                 </>
               ) : (
                 <>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-primary)" }}>{t("qcDashboard.slaRate")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary)" }}>{workflowQC.slaMet}%</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-info-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-primary)" }}
+                    >
+                      {t("qcDashboard.slaRate")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-primary)",
+                      }}
+                    >
+                      {workflowQC.slaMet}%
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-success-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-success)" }}>{t("qcDashboard.devicesRunning")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-success)" }}>{equipmentQC.running}</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-success-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-success)" }}
+                    >
+                      {t("qcDashboard.devicesRunning")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-success)",
+                      }}
+                    >
+                      {equipmentQC.running}
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-warning-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "var(--color-warning)" }}>{t("qcDashboard.avgUtilization")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-warning)" }}>{equipmentQC.avgUtil}</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-warning-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{ fontSize: 12, color: "var(--color-warning)" }}
+                    >
+                      {t("qcDashboard.avgUtilization")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "var(--color-warning)",
+                      }}
+                    >
+                      {equipmentQC.avgUtil}
+                    </div>
                   </div>
-                  <div style={{ padding: 'var(--space-4, 16px)', background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#7c3aed" }}>{t("qcDashboard.totalDoctors")}</div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: "#7c3aed" }}>{personnelQC.doctorCount}</div>
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      background: "var(--color-info-bg)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "#7c3aed" }}>
+                      {t("qcDashboard.totalDoctors")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: "#7c3aed",
+                      }}
+                    >
+                      {personnelQC.doctorCount}
+                    </div>
                   </div>
                 </>
               )}

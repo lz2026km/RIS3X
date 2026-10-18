@@ -3,6 +3,9 @@
 // 数据来源: src/services/ai/aiPlatformData.ts (seeded by id, 无 Math.random)
 import React, { useCallback, useMemo, useState } from "react";
 import { DataSourceBadge } from "../../components/common/DataSourceBadge";
+import { FilterBar } from "../../components/common/FilterBar";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 import {
   Card,
   Col,
@@ -46,7 +49,11 @@ import {
 import { DataTable } from "../../components/common/DataTable";
 import { t } from "../../i18n/appI18n";
 import { AppStaffField } from "../../components/common/AppStaffField";
-import { severityColor, severityToAntd, toneToAntd } from "../../theme/statusTokens";
+import {
+  severityColor,
+  severityToAntd,
+  toneToAntd,
+} from "../../theme/statusTokens";
 import {
   getAiModelCatalog,
   getDriftAlerts,
@@ -137,6 +144,75 @@ const TriageTab: React.FC = () => {
   );
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [doctor, setDoctor] = useState<string>("D1008");
+  // [v3.0.6.16-6] 分诊队列筛选 (关键词/时间范围/优先级/模态/状态)
+  const [keyword, setKeyword] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [dateRange, setDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
+
+  const filteredQueue = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return queue.filter((r) => {
+      const matchKw =
+        !kw ||
+        [
+          r.patientName,
+          r.patientNameEn,
+          r.examNo,
+          r.examItem,
+          r.assignedDoctor,
+        ].some((v) =>
+          String(v ?? "")
+            .toLowerCase()
+            .includes(kw),
+        );
+      const matchPriority =
+        !filterValues.priority || r.priority === filterValues.priority;
+      const matchModality =
+        !filterValues.modality || r.modality === filterValues.modality;
+      const matchStatus =
+        !filterValues.status || r.status === filterValues.status;
+      let matchDate = true;
+      if (dateRange && (dateRange[0] || dateRange[1])) {
+        const d = dayjs(r.arrivalAt);
+        if (!d.isValid()) matchDate = false;
+        else {
+          if (dateRange[0] && d.isBefore(dateRange[0].startOf("day")))
+            matchDate = false;
+          if (dateRange[1] && d.isAfter(dateRange[1].endOf("day")))
+            matchDate = false;
+        }
+      }
+      return (
+        matchKw && matchPriority && matchModality && matchStatus && matchDate
+      );
+    });
+  }, [queue, keyword, filterValues, dateRange]);
+
+  const triagePriorityOptions = useMemo(
+    () =>
+      Array.from(new Set(queue.map((r) => r.priority))).map((p) => ({
+        value: p,
+        label: t(PRIORITY_I18N[p]),
+      })),
+    [queue],
+  );
+  const triageModalityOptions = useMemo(
+    () =>
+      Array.from(new Set(queue.map((r) => r.modality)))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: v })),
+    [queue],
+  );
+  const triageStatusOptions = useMemo(
+    () =>
+      Array.from(new Set(queue.map((r) => r.status))).map((s) => ({
+        value: s,
+        label: t(TRIAGE_STATUS_I18N[s]),
+      })),
+    [queue],
+  );
 
   const move = useCallback((index: number, dir: -1 | 1) => {
     setQueue((prev) => {
@@ -152,7 +228,9 @@ const TriageTab: React.FC = () => {
   }, []);
 
   const setStatus = useCallback((id: string, status: TriageStatus) => {
-    setQueue((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
+    setQueue((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status } : item)),
+    );
   }, []);
 
   const handleAssign = useCallback(() => {
@@ -164,14 +242,18 @@ const TriageTab: React.FC = () => {
     setQueue((prev) =>
       prev.map((item) =>
         keySet.has(item.id)
-          ? { ...item, assignedDoctor: doctor, status: "reviewing" as TriageStatus }
+          ? {
+              ...item,
+              assignedDoctor: doctor,
+              status: "reviewing" as TriageStatus,
+            }
           : item,
       ),
     );
     message.success(
       t("w4ai.triage.assignOk", {
         count: selectedKeys.length,
-        doctor: doctor || '-',
+        doctor: doctor || "-",
       }),
     );
     setSelectedKeys([]);
@@ -243,7 +325,9 @@ const TriageTab: React.FC = () => {
         dataIndex: "priority",
         key: "priority",
         width: 100,
-        render: (p: TriagePriority) => <Tag color={PRIORITY_COLOR[p]}>{t(PRIORITY_I18N[p])}</Tag>,
+        render: (p: TriagePriority) => (
+          <Tag color={PRIORITY_COLOR[p]}>{t(PRIORITY_I18N[p])}</Tag>
+        ),
       },
       {
         title: t("w4ai.triage.col.suggestion"),
@@ -272,7 +356,9 @@ const TriageTab: React.FC = () => {
           <Space size={4}>
             <Tag color={TRIAGE_STATUS_COLOR[s]}>{t(TRIAGE_STATUS_I18N[s])}</Tag>
             {r.assignedDoctor ? (
-              <Tooltip title={`${t("w4ai.triage.assigned")}: ${r.assignedDoctor}`}>
+              <Tooltip
+                title={`${t("w4ai.triage.assigned")}: ${r.assignedDoctor}`}
+              >
                 <Text type="secondary" style={{ fontSize: 11 }}>
                   {r.assignedDoctor}
                 </Text>
@@ -286,64 +372,75 @@ const TriageTab: React.FC = () => {
         key: "actions",
         width: 180,
         fixed: "right",
-        render: (_: unknown, r: TriageQueueItem, index: number) => (
-          <Space size={[4, 4]} wrap>
-            <ActionButton
-              action="refresh"
-              size="compact"
-              icon={<ArrowUp size={13} />}
-              disabled={index === 0}
-              onClick={() => move(index, -1)}
-              title={t("w4ai.triage.moveUp")}
-              aria-label={t("w4ai.triage.moveUp")}
-            />
-            <ActionButton
-              action="refresh"
-              size="compact"
-              icon={<ArrowDown size={13} />}
-              disabled={index === queue.length - 1}
-              onClick={() => move(index, 1)}
-              title={t("w4ai.triage.moveDown")}
-              aria-label={t("w4ai.triage.moveDown")}
-            />
-            <ActionButton
-              action="edit"
-              size="compact"
-              icon={<Hand size={13} />}
-              title={t("w4ai.triage.hold")}
-              aria-label={t("w4ai.triage.hold")}
-              onClick={() => {
-                // [G005 v3.0.6.16-0] 后端无"挂起/复核/采纳"状态流转端点
-                // (POST /triage/assign 需要检查级临床输入 ESI/生命体征, 不是队列项状态切换),
-                // 旧实现仅改本地 state 却弹绿色成功提示。改为明确告知未接入, 不再伪造成功。
-                message.warning(t("w4ai.triage.holdNotSupported", { name: r.patientName }));
-              }}
-            />
-            <ActionButton
-              action="edit"
-              size="compact"
-              icon={<Gauge size={13} />}
-              title={t("w4ai.triage.review")}
-              aria-label={t("w4ai.triage.review")}
-              onClick={() => {
-                message.warning(t("w4ai.triage.reviewNotSupported", { name: r.patientName }));
-              }}
-            />
-            <ActionButton
-              action="submit"
-              size="compact"
-              icon={<CheckCircle2 size={13} />}
-              title={t("w4ai.triage.adopt")}
-              aria-label={t("w4ai.triage.adopt")}
-              onClick={() => {
-                message.warning(t("w4ai.triage.adoptNotSupported", { name: r.patientName }));
-              }}
-            />
-          </Space>
-        ),
+        render: (_: unknown, r: TriageQueueItem) => {
+          const queueIndex = queue.findIndex((q) => q.id === r.id);
+          return (
+            <Space size={[4, 4]} wrap>
+              <ActionButton
+                action="refresh"
+                size="compact"
+                icon={<ArrowUp size={13} />}
+                disabled={queueIndex <= 0}
+                onClick={() => move(queueIndex, -1)}
+                title={t("w4ai.triage.moveUp")}
+                aria-label={t("w4ai.triage.moveUp")}
+              />
+              <ActionButton
+                action="refresh"
+                size="compact"
+                icon={<ArrowDown size={13} />}
+                disabled={queueIndex === queue.length - 1}
+                onClick={() => move(queueIndex, 1)}
+                title={t("w4ai.triage.moveDown")}
+                aria-label={t("w4ai.triage.moveDown")}
+              />
+              <ActionButton
+                action="edit"
+                size="compact"
+                icon={<Hand size={13} />}
+                title={t("w4ai.triage.hold")}
+                aria-label={t("w4ai.triage.hold")}
+                onClick={() => {
+                  // [G005 v3.0.6.16-0] 后端无"挂起/复核/采纳"状态流转端点
+                  // (POST /triage/assign 需要检查级临床输入 ESI/生命体征, 不是队列项状态切换),
+                  // 旧实现仅改本地 state 却弹绿色成功提示。改为明确告知未接入, 不再伪造成功。
+                  message.warning(
+                    t("w4ai.triage.holdNotSupported", { name: r.patientName }),
+                  );
+                }}
+              />
+              <ActionButton
+                action="edit"
+                size="compact"
+                icon={<Gauge size={13} />}
+                title={t("w4ai.triage.review")}
+                aria-label={t("w4ai.triage.review")}
+                onClick={() => {
+                  message.warning(
+                    t("w4ai.triage.reviewNotSupported", {
+                      name: r.patientName,
+                    }),
+                  );
+                }}
+              />
+              <ActionButton
+                action="submit"
+                size="compact"
+                icon={<CheckCircle2 size={13} />}
+                title={t("w4ai.triage.adopt")}
+                aria-label={t("w4ai.triage.adopt")}
+                onClick={() => {
+                  message.warning(
+                    t("w4ai.triage.adoptNotSupported", { name: r.patientName }),
+                  );
+                }}
+              />
+            </Space>
+          );
+        },
       },
     ],
-    [move, queue.length, setStatus],
+    [move, queue, setStatus],
   );
 
   return (
@@ -367,8 +464,8 @@ const TriageTab: React.FC = () => {
               role="DOCTOR"
               style={{ width: 200 }}
               value={doctor || undefined}
-              onChange={(v) => setDoctor(v ?? '')}
-              placeholder={t('w4ai.triage.assignDoctor')}
+              onChange={(v) => setDoctor(v ?? "")}
+              placeholder={t("w4ai.triage.assignDoctor")}
               allowClear={false}
             />
             <ActionButton
@@ -383,9 +480,43 @@ const TriageTab: React.FC = () => {
         </Space>
       </Card>
 
+      <FilterBar
+        searchPlaceholder="搜索患者/检查号/项目..."
+        searchValue={keyword}
+        onSearchChange={setKeyword}
+        dateRange={{ value: dateRange, onChange: setDateRange }}
+        filters={[
+          {
+            key: "status",
+            label: t("w4ai.triage.col.status"),
+            options: triageStatusOptions,
+          },
+          {
+            key: "priority",
+            label: t("w4ai.triage.col.priority"),
+            options: triagePriorityOptions,
+          },
+          {
+            key: "modality",
+            label: t("w4ai.triage.col.modalityBody"),
+            options: triageModalityOptions,
+          },
+        ]}
+        filterValues={filterValues}
+        onFilterChange={(k, v) =>
+          setFilterValues((prev) => ({ ...prev, [k]: v }))
+        }
+        onReset={() => {
+          setKeyword("");
+          setFilterValues({});
+          setDateRange(null);
+        }}
+        summary={`共 ${filteredQueue.length} 条`}
+      />
+
       <DataTable<TriageQueueItem>
         rowKey="id"
-        dataSource={queue}
+        dataSource={filteredQueue}
         columns={columns}
         showPagination={false}
         scroll={{ x: "max-content" }}
@@ -409,18 +540,27 @@ const ReviewTab: React.FC = () => {
   const overallAdopt = useMemo(
     () =>
       stats.length > 0
-        ? Math.round((stats.reduce((s, m) => s + m.adoptRate, 0) / stats.length) * 10) / 10
+        ? Math.round(
+            (stats.reduce((s, m) => s + m.adoptRate, 0) / stats.length) * 10,
+          ) / 10
         : 0,
     [stats],
   );
   const overallConsistency = useMemo(
     () =>
       stats.length > 0
-        ? Math.round((stats.reduce((s, m) => s + m.doctorConsistency, 0) / stats.length) * 10) / 10
+        ? Math.round(
+            (stats.reduce((s, m) => s + m.doctorConsistency, 0) /
+              stats.length) *
+              10,
+          ) / 10
         : 0,
     [stats],
   );
-  const totalReviewed = useMemo(() => stats.reduce((s, m) => s + m.reviewed, 0), [stats]);
+  const totalReviewed = useMemo(
+    () => stats.reduce((s, m) => s + m.reviewed, 0),
+    [stats],
+  );
 
   const columns: TableColumnsType<(typeof stats)[number]> = [
     {
@@ -442,9 +582,22 @@ const ReviewTab: React.FC = () => {
       width: 160,
       render: (v: number) => (
         <Space size={6}>
-          <span style={{ width: 44, fontWeight: 600, color: "var(--color-success-600)" }}>{v.toFixed(1)}%</span>
+          <span
+            style={{
+              width: 44,
+              fontWeight: 600,
+              color: "var(--color-success-600)",
+            }}
+          >
+            {v.toFixed(1)}%
+          </span>
           <div style={{ width: 70 }}>
-            <Progress percent={v} showInfo={false} size="small" strokeColor="var(--color-success-600)" />
+            <Progress
+              percent={v}
+              showInfo={false}
+              size="small"
+              strokeColor="var(--color-success-600)"
+            />
           </div>
         </Space>
       ),
@@ -454,14 +607,20 @@ const ReviewTab: React.FC = () => {
       dataIndex: "rejectRate",
       key: "rejectRate",
       width: 100,
-      render: (v: number) => <span style={{ color: "var(--color-error-600)" }}>{v.toFixed(1)}%</span>,
+      render: (v: number) => (
+        <span style={{ color: "var(--color-error-600)" }}>{v.toFixed(1)}%</span>
+      ),
     },
     {
       title: t("w4ai.review.col.modify"),
       dataIndex: "modifyRate",
       key: "modifyRate",
       width: 100,
-      render: (v: number) => <span style={{ color: "var(--color-warning-600)" }}>{v.toFixed(1)}%</span>,
+      render: (v: number) => (
+        <span style={{ color: "var(--color-warning-600)" }}>
+          {v.toFixed(1)}%
+        </span>
+      ),
     },
     {
       title: t("w4ai.review.col.consistency"),
@@ -472,7 +631,12 @@ const ReviewTab: React.FC = () => {
         <Space size={6}>
           <span style={{ width: 44, fontWeight: 600 }}>{v.toFixed(1)}%</span>
           <div style={{ width: 60 }}>
-            <Progress percent={v} showInfo={false} size="small" strokeColor="var(--color-primary-600)" />
+            <Progress
+              percent={v}
+              showInfo={false}
+              size="small"
+              strokeColor="var(--color-primary-600)"
+            />
           </div>
         </Space>
       ),
@@ -515,25 +679,50 @@ const ReviewTab: React.FC = () => {
       </Card>
 
       <Card size="small" title={t("w4ai.review.trend")}>
-        <Space size={16} style={{ marginBottom: 'var(--space-3, 12px)' }} wrap>
+        <Space size={16} style={{ marginBottom: "var(--space-3, 12px)" }} wrap>
           <Space size={4}>
-            <span style={{ width: 10, height: 10, background: "var(--color-success-600)", display: "inline-block" }} />
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                background: "var(--color-success-600)",
+                display: "inline-block",
+              }}
+            />
             <Text style={{ fontSize: 12 }}>{t("w4ai.review.legendAdopt")}</Text>
           </Space>
           <Space size={4}>
-            <span style={{ width: 10, height: 10, background: "var(--color-warning-600)", display: "inline-block" }} />
-            <Text style={{ fontSize: 12 }}>{t("w4ai.review.legendModify")}</Text>
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                background: "var(--color-warning-600)",
+                display: "inline-block",
+              }}
+            />
+            <Text style={{ fontSize: 12 }}>
+              {t("w4ai.review.legendModify")}
+            </Text>
           </Space>
           <Space size={4}>
-            <span style={{ width: 10, height: 10, background: "var(--color-error-600)", display: "inline-block" }} />
-            <Text style={{ fontSize: 12 }}>{t("w4ai.review.legendReject")}</Text>
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                background: "var(--color-error-600)",
+                display: "inline-block",
+              }}
+            />
+            <Text style={{ fontSize: 12 }}>
+              {t("w4ai.review.legendReject")}
+            </Text>
           </Space>
         </Space>
         <div
           style={{
             display: "flex",
             alignItems: "flex-end",
-            gap: 'var(--space-6, 24px)',
+            gap: "var(--space-6, 24px)",
             height: 180,
             padding: "0 8px",
             borderBottom: "1px solid var(--border-color, #e2e8f0)",
@@ -551,17 +740,46 @@ const ReviewTab: React.FC = () => {
                   height: 150,
                 }}
               >
-                <Tooltip title={`${t("w4ai.review.legendAdopt")} ${p.adopt.toFixed(1)}%`}>
-                  <div style={{ width: 16, height: `${p.adopt}%`, background: "var(--color-success-600)", borderRadius: 3 }} />
+                <Tooltip
+                  title={`${t("w4ai.review.legendAdopt")} ${p.adopt.toFixed(1)}%`}
+                >
+                  <div
+                    style={{
+                      width: 16,
+                      height: `${p.adopt}%`,
+                      background: "var(--color-success-600)",
+                      borderRadius: 3,
+                    }}
+                  />
                 </Tooltip>
-                <Tooltip title={`${t("w4ai.review.legendModify")} ${p.modify.toFixed(1)}%`}>
-                  <div style={{ width: 16, height: `${p.modify}%`, background: "var(--color-warning-600)", borderRadius: 3 }} />
+                <Tooltip
+                  title={`${t("w4ai.review.legendModify")} ${p.modify.toFixed(1)}%`}
+                >
+                  <div
+                    style={{
+                      width: 16,
+                      height: `${p.modify}%`,
+                      background: "var(--color-warning-600)",
+                      borderRadius: 3,
+                    }}
+                  />
                 </Tooltip>
-                <Tooltip title={`${t("w4ai.review.legendReject")} ${p.reject.toFixed(1)}%`}>
-                  <div style={{ width: 16, height: `${p.reject}%`, background: "var(--color-error-600)", borderRadius: 3 }} />
+                <Tooltip
+                  title={`${t("w4ai.review.legendReject")} ${p.reject.toFixed(1)}%`}
+                >
+                  <div
+                    style={{
+                      width: 16,
+                      height: `${p.reject}%`,
+                      background: "var(--color-error-600)",
+                      borderRadius: 3,
+                    }}
+                  />
                 </Tooltip>
               </div>
-              <div style={{ fontSize: 12, color: "#8c8c8c", marginTop: 6 }}>{p.week}</div>
+              <div style={{ fontSize: 12, color: "#8c8c8c", marginTop: 6 }}>
+                {p.week}
+              </div>
             </div>
           ))}
         </div>
@@ -578,12 +796,14 @@ const QcTab: React.FC = () => {
   const checks = useMemo(() => getQcImageChecks(), []);
   const [catalog] = useState<AiModelEntry[]>(() => getAiModelCatalog());
   const drift = useMemo(() => getDriftAlerts(catalog), [catalog]);
-  const [errors, setErrors] = useState<ErrorReviewItem[]>(() => getErrorReviewQueue(catalog));
+  const [errors, setErrors] = useState<ErrorReviewItem[]>(() =>
+    getErrorReviewQueue(catalog),
+  );
 
   const verdictColor: Record<"pass" | "warn" | "fail", string> = {
-    pass: toneToAntd('passed'),
-    warn: toneToAntd('warning'),
-    fail: toneToAntd('failed'),
+    pass: toneToAntd("passed"),
+    warn: toneToAntd("warning"),
+    fail: toneToAntd("failed"),
   };
   const verdictI18n: Record<"pass" | "warn" | "fail", string> = {
     pass: "w4ai.qc.verdict.pass",
@@ -591,13 +811,28 @@ const QcTab: React.FC = () => {
     fail: "w4ai.qc.verdict.fail",
   };
 
-  const setVerdict = useCallback((id: string, verdict: ErrorReviewItem["reviewerVerdict"]) => {
-    setErrors((prev) => prev.map((e) => (e.id === id ? { ...e, reviewerVerdict: verdict } : e)));
-  }, []);
+  const setVerdict = useCallback(
+    (id: string, verdict: ErrorReviewItem["reviewerVerdict"]) => {
+      setErrors((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, reviewerVerdict: verdict } : e)),
+      );
+    },
+    [],
+  );
 
   const checkColumns: TableColumnsType<(typeof checks)[number]> = [
-    { title: t("w4ai.qc.col.study"), dataIndex: "studyId", key: "studyId", width: 150 },
-    { title: t("w4ai.qc.col.patient"), dataIndex: "patientName", key: "patientName", width: 90 },
+    {
+      title: t("w4ai.qc.col.study"),
+      dataIndex: "studyId",
+      key: "studyId",
+      width: 150,
+    },
+    {
+      title: t("w4ai.qc.col.patient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      width: 90,
+    },
     {
       title: t("w4ai.qc.col.modality"),
       key: "modality",
@@ -620,20 +855,33 @@ const QcTab: React.FC = () => {
       dataIndex: col.key,
       key: col.key,
       width: 90,
-      render: (v: number) => <span style={{ color: scoreColor(v), fontWeight: 600 }}>{v}</span>,
+      render: (v: number) => (
+        <span style={{ color: scoreColor(v), fontWeight: 600 }}>{v}</span>
+      ),
     })),
     {
       title: t("w4ai.qc.col.verdict"),
       dataIndex: "verdict",
       key: "verdict",
       width: 90,
-      render: (v: "pass" | "warn" | "fail") => <Tag color={verdictColor[v]}>{t(verdictI18n[v])}</Tag>,
+      render: (v: "pass" | "warn" | "fail") => (
+        <Tag color={verdictColor[v]}>{t(verdictI18n[v])}</Tag>
+      ),
     },
-    { title: t("w4ai.qc.col.note"), dataIndex: "note", key: "note", ellipsis: true },
+    {
+      title: t("w4ai.qc.col.note"),
+      dataIndex: "note",
+      key: "note",
+      ellipsis: true,
+    },
   ];
 
   const driftColumns: TableColumnsType<DriftAlert> = [
-    { title: t("w4ai.review.col.model"), dataIndex: "modelName", key: "modelName" },
+    {
+      title: t("w4ai.review.col.model"),
+      dataIndex: "modelName",
+      key: "modelName",
+    },
     {
       title: t("w4ai.qc.col.metric"),
       key: "metric",
@@ -660,7 +908,9 @@ const QcTab: React.FC = () => {
       key: "delta",
       width: 90,
       render: (v: number) => (
-        <span style={{ color: "var(--color-error-600)", fontWeight: 600 }}>{v.toFixed(1)}%</span>
+        <span style={{ color: "var(--color-error-600)", fontWeight: 600 }}>
+          {v.toFixed(1)}%
+        </span>
       ),
     },
     {
@@ -668,10 +918,22 @@ const QcTab: React.FC = () => {
       dataIndex: "severity",
       key: "severity",
       width: 80,
-      render: (s: DriftAlert["severity"]) => <Tag color={SEVERITY_COLOR[s]}>{t(SEVERITY_I18N[s])}</Tag>,
+      render: (s: DriftAlert["severity"]) => (
+        <Tag color={SEVERITY_COLOR[s]}>{t(SEVERITY_I18N[s])}</Tag>
+      ),
     },
-    { title: t("w4ai.qc.col.detectedAt"), dataIndex: "detectedAt", key: "detectedAt", width: 110 },
-    { title: t("w4ai.qc.col.advice"), dataIndex: "hint", key: "hint", ellipsis: true },
+    {
+      title: t("w4ai.qc.col.detectedAt"),
+      dataIndex: "detectedAt",
+      key: "detectedAt",
+      width: 110,
+    },
+    {
+      title: t("w4ai.qc.col.advice"),
+      dataIndex: "hint",
+      key: "hint",
+      ellipsis: true,
+    },
   ];
 
   const errorColumns: TableColumnsType<ErrorReviewItem> = [
@@ -686,10 +948,30 @@ const QcTab: React.FC = () => {
         </Tag>
       ),
     },
-    { title: t("w4ai.review.col.model"), dataIndex: "modelName", key: "modelName", width: 190 },
-    { title: t("w4ai.qc.col.study"), dataIndex: "studyId", key: "studyId", width: 150 },
-    { title: t("w4ai.qc.col.patient"), dataIndex: "patientName", key: "patientName", width: 90 },
-    { title: t("w4ai.qc.col.finding"), dataIndex: "finding", key: "finding", ellipsis: true },
+    {
+      title: t("w4ai.review.col.model"),
+      dataIndex: "modelName",
+      key: "modelName",
+      width: 190,
+    },
+    {
+      title: t("w4ai.qc.col.study"),
+      dataIndex: "studyId",
+      key: "studyId",
+      width: 150,
+    },
+    {
+      title: t("w4ai.qc.col.patient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      width: 90,
+    },
+    {
+      title: t("w4ai.qc.col.finding"),
+      dataIndex: "finding",
+      key: "finding",
+      ellipsis: true,
+    },
     {
       title: t("w4ai.qc.col.confidence"),
       dataIndex: "confidence",
@@ -703,8 +985,10 @@ const QcTab: React.FC = () => {
       key: "reviewerVerdict",
       width: 110,
       render: (v: ErrorReviewItem["reviewerVerdict"]) => {
-        if (v === "confirmed") return <Tag color="red">{t("w4ai.qc.verdictConfirmed")}</Tag>;
-        if (v === "dismissed") return <Tag color="green">{t("w4ai.qc.verdictDismissed")}</Tag>;
+        if (v === "confirmed")
+          return <Tag color="red">{t("w4ai.qc.verdictConfirmed")}</Tag>;
+        if (v === "dismissed")
+          return <Tag color="green">{t("w4ai.qc.verdictDismissed")}</Tag>;
         return <Tag color="blue">{t("w4ai.qc.verdictPending")}</Tag>;
       },
     },
@@ -852,7 +1136,11 @@ const ReportTab: React.FC = () => {
             </Space>
           }
         >
-          <Space size={12} wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
+          <Space
+            size={12}
+            wrap
+            style={{ marginBottom: "var(--space-3, 12px)" }}
+          >
             <Text>
               <Text type="secondary">{t("w4ai.triage.col.patient")}: </Text>
               {draft.patientName}
@@ -869,7 +1157,7 @@ const ReportTab: React.FC = () => {
               background: "var(--bg-primary, #f8fafc)",
               border: "1px solid var(--border-color, #e2e8f0)",
               borderRadius: 8,
-              padding: 'var(--space-3, 12px)',
+              padding: "var(--space-3, 12px)",
               fontSize: 12,
               lineHeight: 1.8,
               whiteSpace: "pre-wrap",
@@ -878,7 +1166,7 @@ const ReportTab: React.FC = () => {
           >
             {draft.draftText}
           </div>
-          <Space size={16} wrap style={{ marginTop: 'var(--space-3, 12px)' }}>
+          <Space size={16} wrap style={{ marginTop: "var(--space-3, 12px)" }}>
             <Text type="secondary" style={{ fontSize: 12 }}>
               {t("w4ai.report.generatedAt")}: {draft.generatedAt}
             </Text>
@@ -907,23 +1195,37 @@ const ReportTab: React.FC = () => {
                 const isAccepted = accepted.has(s.id);
                 const isEdited = edited.has(s.id);
                 return (
-                  <Card key={s.id} size="small" type="inner" data-testid={`wf-sug-${s.id}`}>
+                  <Card
+                    key={s.id}
+                    size="small"
+                    type="inner"
+                    data-testid={`wf-sug-${s.id}`}
+                  >
                     <Space
                       size={8}
                       wrap
-                      style={{ width: "100%", justifyContent: "space-between", marginBottom: 6 }}
+                      style={{
+                        width: "100%",
+                        justifyContent: "space-between",
+                        marginBottom: 6,
+                      }}
                     >
                       <Space size={6}>
-                        <Tag color={s.section === "findings" ? "blue" : "purple"}>
+                        <Tag
+                          color={s.section === "findings" ? "blue" : "purple"}
+                        >
                           {t(`w4ai.report.section.${s.section}`)}
                         </Tag>
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                          {t("w4ai.report.confidence")}: {s.confidence.toFixed(1)}%
+                          {t("w4ai.report.confidence")}:{" "}
+                          {s.confidence.toFixed(1)}%
                         </Text>
                         {isAccepted ? (
                           <Tag color="green">{t("w4ai.report.adopted")}</Tag>
                         ) : null}
-                        {isEdited ? <Tag color="orange">{t("w4ai.report.edited")}</Tag> : null}
+                        {isEdited ? (
+                          <Tag color="orange">{t("w4ai.report.edited")}</Tag>
+                        ) : null}
                       </Space>
                       <Space size={4}>
                         <ActionButton
@@ -946,16 +1248,26 @@ const ReportTab: React.FC = () => {
                       </Space>
                     </Space>
 
-                    <Paragraph style={{ marginBottom: 'var(--space-2, 8px)' }}>{s.text}</Paragraph>
+                    <Paragraph style={{ marginBottom: "var(--space-2, 8px)" }}>
+                      {s.text}
+                    </Paragraph>
 
                     {s.guardrails.length > 0 ? (
-                      <Space size={[6, 4]} wrap style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                      <Space
+                        size={[6, 4]}
+                        wrap
+                        style={{ marginBottom: "var(--space-2, 8px)" }}
+                      >
                         <Brain size={13} color="var(--color-warning-600)" />
                         {s.guardrails.map((g) => (
                           <Tag
                             key={g.key}
                             color={g.level === "warn" ? "orange" : "blue"}
-                            icon={g.level === "warn" ? <AlertTriangle size={11} /> : undefined}
+                            icon={
+                              g.level === "warn" ? (
+                                <AlertTriangle size={11} />
+                              ) : undefined
+                            }
                           >
                             {t(GUARDRAIL_I18N[g.key])}
                           </Tag>
@@ -964,7 +1276,10 @@ const ReportTab: React.FC = () => {
                     ) : null}
 
                     <div>
-                      <Space size={6} style={{ marginBottom: 'var(--space-1, 4px)' }}>
+                      <Space
+                        size={6}
+                        style={{ marginBottom: "var(--space-1, 4px)" }}
+                      >
                         <Quote size={13} color="var(--color-primary-600)" />
                         <Text type="secondary" style={{ fontSize: 12 }}>
                           {t("w4ai.report.citations")}
@@ -975,7 +1290,11 @@ const ReportTab: React.FC = () => {
                           {t("w4ai.report.noCitation")}
                         </div>
                       ) : (
-                        <Space orientation="vertical" size={4} style={{ width: "100%" }}>
+                        <Space
+                          orientation="vertical"
+                          size={4}
+                          style={{ width: "100%" }}
+                        >
                           {s.citations.map((c) => (
                             <div
                               key={c.id}
@@ -983,7 +1302,7 @@ const ReportTab: React.FC = () => {
                                 fontSize: 12,
                                 color: "#595959",
                                 borderLeft: "2px solid #bfbfbf",
-                                paddingLeft: 'var(--space-2, 8px)',
+                                paddingLeft: "var(--space-2, 8px)",
                               }}
                             >
                               <Tag color="cyan" style={{ marginInlineEnd: 6 }}>
@@ -991,7 +1310,8 @@ const ReportTab: React.FC = () => {
                               </Tag>
                               {c.date} · {c.snippet}
                               <Text type="secondary" style={{ marginLeft: 6 }}>
-                                {t("w4ai.report.similarity")} {(c.similarity * 100).toFixed(0)}%
+                                {t("w4ai.report.similarity")}{" "}
+                                {(c.similarity * 100).toFixed(0)}%
                               </Text>
                             </div>
                           ))}
@@ -1059,7 +1379,13 @@ const AiWorkflowCenterPage: React.FC = () => {
   return (
     <PageContainer testId="ai-workflow-center">
       {/* [v3.0.6.16-2] 分诊队列等数据来自本地确定性种子, 未接后端 */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2, 8px)' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "var(--space-2, 8px)",
+        }}
+      >
         <DataSourceBadge kind="concept" />
       </div>
       <PageHeader

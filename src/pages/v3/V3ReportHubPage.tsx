@@ -1,12 +1,17 @@
 // [v3.0.6.8-50] PR6: v3 报告全栈综合页面
 // @deprecated [v3.0.6.11-104 Wave 5A] 报告书写入口已收敛至 ReportWritePage; 旧路由 /v3-report-hub redirect → /write-report。
 //   其可复用能力(模板/草稿/AI/质控)已由 ReportWritePage 侧栏 Tab 覆盖，本文件保留仅作参考/回退。
-import { reportApi } from '@/services/api/reportApi';
+import { reportApi } from "@/services/api/reportApi";
 import {
-  v3WritingApi, v3DistApi, v3IntegrationApi, v3AiAssistApi,
-  v3QualityReportApi, v3PacsApi, v3AnalyticsApi,
-} from '@/services/api/v3Api';
-import type { ReportDto } from '@/types/dto';
+  v3WritingApi,
+  v3DistApi,
+  v3IntegrationApi,
+  v3AiAssistApi,
+  v3QualityReportApi,
+  v3PacsApi,
+  v3AnalyticsApi,
+} from "@/services/api/v3Api";
+import type { ReportDto } from "@/types/dto";
 import {
   Card,
   Space,
@@ -19,7 +24,12 @@ import {
   List,
   Empty,
 } from "antd";
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+} from "../../components/common";
 import {
   Edit3,
   Send,
@@ -30,13 +40,16 @@ import {
   Layers,
   Database,
   Network,
-} from 'lucide-react';
-import { Inbox } from 'lucide-react'
-import React, { useState, useEffect, useCallback } from 'react';
-import { t } from '../../i18n/appI18n';
+} from "lucide-react";
+import { Inbox } from "lucide-react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
+import { t } from "../../i18n/appI18n";
+import { FilterBar } from "../../components/common/FilterBar";
 
 export const V3ReportHubPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   // 概览
   const [dash, setDash] = useState<any>(null);
   const [reports, setReports] = useState<ReportDto[]>([]);
@@ -66,15 +79,20 @@ export const V3ReportHubPage: React.FC = () => {
   // 加载
   const loadAll = useCallback(async () => {
     try {
-      const d = await v3AnalyticsApi.getDashboard({ period: 'month' });
-      if (d.success) setDash(d.data);      const tplRes = await v3WritingApi.listTemplates();
+      const d = await v3AnalyticsApi.getDashboard({ period: "month" });
+      if (d.success) setDash(d.data);
+      const tplRes = await v3WritingApi.listTemplates();
       if (tplRes.success) {
-        const arr = Array.isArray(tplRes.data) ? tplRes.data : ((tplRes.data as any)?.items ?? []);
+        const arr = Array.isArray(tplRes.data)
+          ? tplRes.data
+          : ((tplRes.data as any)?.items ?? []);
         setTemplates(arr.slice(0, 20));
       }
       const dr = await v3WritingApi.listDrafts();
       if (dr.success) {
-        const arr = Array.isArray(dr.data) ? dr.data : ((dr.data as any)?.items ?? []);
+        const arr = Array.isArray(dr.data)
+          ? dr.data
+          : ((dr.data as any)?.items ?? []);
         setDrafts(arr.slice(0, 20));
       }
       const t2 = await v3DistApi.listTasks();
@@ -91,50 +109,131 @@ export const V3ReportHubPage: React.FC = () => {
       if (qcr.success) setQcReports((qcr.data || []).slice(0, 20));
       const st = await v3PacsApi.listStudies();
       if (st.success) setStudies((st.data || []).slice(0, 20));
-    } catch (e: any) { message.error(e.message); }
+    } catch (e: any) {
+      message.error(e.message);
+    }
   }, []);
-  useEffect(() => { void loadAll(); }, [loadAll]);
+  useEffect(() => {
+    void loadAll();
+  }, [loadAll]);
 
   // [v3.0.6.11-54] Phase 2: 接入 reportApi 真实报告列表
   const [reportPage, setReportPage] = useState(1);
   const [reportTotal, setReportTotal] = useState(0);
-  const REPORT_PAGE_SIZE = 10;
-  const loadReports = useCallback(async (p: number = reportPage) => {
-    setReportsLoading(true);
-    try {
-      // [W4] api 层已映射 page/pageSize → skip/take 并归一化为 { items, total }
-      const res = await reportApi.list({ page: p, pageSize: REPORT_PAGE_SIZE });
-      if (res.success) {
-        const list = res.data?.items ?? [];
-        setReports(list);
-        setReportTotal(res.data?.total ?? res.meta?.total ?? list.length ?? 0);
+  // [v3.0.6.16-6] 最近报告筛选: 关键词 + 状态 + 时间范围
+  const [repKeyword, setRepKeyword] = useState("");
+  const [repFilterValues, setRepFilterValues] = useState<
+    Record<string, string>
+  >({});
+  const [repDateRange, setRepDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
+
+  const filteredReports = useMemo(() => {
+    const kw = repKeyword.trim().toLowerCase();
+    return reports.filter((r) => {
+      const anyR = r as any;
+      const matchKw =
+        !kw ||
+        String(anyR.reportId ?? anyR.id ?? "")
+          .toLowerCase()
+          .includes(kw) ||
+        String(anyR.patientName ?? "")
+          .toLowerCase()
+          .includes(kw) ||
+        String(anyR.examItem ?? anyR.modality ?? "")
+          .toLowerCase()
+          .includes(kw);
+      const matchStatus =
+        !repFilterValues.status ||
+        String(anyR.status ?? "") === repFilterValues.status;
+      let matchDate = true;
+      if (repDateRange && (repDateRange[0] || repDateRange[1])) {
+        const day = dayjs(anyR.reportAt);
+        if (!anyR.reportAt || !day.isValid()) matchDate = false;
+        else {
+          if (repDateRange[0] && day.isBefore(repDateRange[0].startOf("day")))
+            matchDate = false;
+          if (repDateRange[1] && day.isAfter(repDateRange[1].endOf("day")))
+            matchDate = false;
+        }
       }
-    } catch {
-      setReports([]);
-      setReportTotal(0);
-    } finally {
-      setReportsLoading(false);
-    }
-  }, [reportPage]);
-  useEffect(() => { void loadReports(reportPage); }, [loadReports, reportPage]);
+      return matchKw && matchStatus && matchDate;
+    });
+  }, [reports, repKeyword, repFilterValues, repDateRange]);
+
+  const repStatusOptions = useMemo(
+    () =>
+      Array.from(new Set(reports.map((r) => String((r as any).status ?? ""))))
+        .filter(Boolean)
+        .map((v) => ({ value: v, label: v })),
+    [reports],
+  );
+  const REPORT_PAGE_SIZE = 10;
+  const loadReports = useCallback(
+    async (p: number = reportPage) => {
+      setReportsLoading(true);
+      try {
+        // [W4] api 层已映射 page/pageSize → skip/take 并归一化为 { items, total }
+        const res = await reportApi.list({
+          page: p,
+          pageSize: REPORT_PAGE_SIZE,
+        });
+        if (res.success) {
+          const list = res.data?.items ?? [];
+          setReports(list);
+          setReportTotal(
+            res.data?.total ?? res.meta?.total ?? list.length ?? 0,
+          );
+        }
+      } catch {
+        setReports([]);
+        setReportTotal(0);
+      } finally {
+        setReportsLoading(false);
+      }
+    },
+    [reportPage],
+  );
+  useEffect(() => {
+    void loadReports(reportPage);
+  }, [loadReports, reportPage]);
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <Layers size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('v3Hub.title')}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("v3Hub.title")}
+        </span>
         <Tag color="cyan">PR6 (v3.0.6.8-50)</Tag>
-        <Tag color="purple">{t('v3Hub.tagUpgrade')}</Tag>
-        <Tag color="green">{t('v3Hub.tagClients')}</Tag>
+        <Tag color="purple">{t("v3Hub.tagUpgrade")}</Tag>
+        <Tag color="green">{t("v3Hub.tagClients")}</Tag>
       </Space>
 
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t('v3Hub.statTemplates')} value={templates.length} color="primary" />
-        <StatCard title={t('v3Hub.statTasks')} value={tasks.length} color="success" />
-        <StatCard title={t('v3Hub.statFhir')} value={fhirList.length} />
-        <StatCard title={t('v3Hub.statAiDrafts')} value={aiDrafts.length} color="#722ed1" />
-        <StatCard title={t('v3Hub.statWebhooks')} value={webhooks.length} />
-        <StatCard title={t('v3Hub.statQcReports')} value={qcReports.length} />
+      <StatCardGrid
+        minWidth={200}
+        gap={16}
+        style={{ marginBottom: "var(--space-4, 16px)" }}
+      >
+        <StatCard
+          title={t("v3Hub.statTemplates")}
+          value={templates.length}
+          color="primary"
+        />
+        <StatCard
+          title={t("v3Hub.statTasks")}
+          value={tasks.length}
+          color="success"
+        />
+        <StatCard title={t("v3Hub.statFhir")} value={fhirList.length} />
+        <StatCard
+          title={t("v3Hub.statAiDrafts")}
+          value={aiDrafts.length}
+          color="#722ed1"
+        />
+        <StatCard title={t("v3Hub.statWebhooks")} value={webhooks.length} />
+        <StatCard title={t("v3Hub.statQcReports")} value={qcReports.length} />
       </StatCardGrid>
 
       <Tabs
@@ -143,78 +242,212 @@ export const V3ReportHubPage: React.FC = () => {
         type="card"
         items={[
           {
-            key: 'overview',
-            label: <span><BarChart3 size={14} /> {t('v3Hub.tabOverview')}</span>,
+            key: "overview",
+            label: (
+              <span>
+                <BarChart3 size={14} /> {t("v3Hub.tabOverview")}
+              </span>
+            ),
             children: (
               <>
-                <Card title={t('v3Hub.analyticsDash')} size="small">
+                <Card title={t("v3Hub.analyticsDash")} size="small">
                   {dash ? (
                     <StatCardGrid minWidth={200} gap={16}>
-                      <StatCard title={t('v3Hub.statTotalReports')} value={dash.totalReports || 0} />
-                      <StatCard title={t('v3Hub.statReviewed')} value={dash.reviewed || 0} color="success" />
-                      <StatCard title={t('v3Hub.statAvgTat')} value={dash.avgTAT || 0} suffix="h" />
-                      <StatCard title={t('v3Hub.statSignedRate')} value={dash.signedRate || 0} suffix="%" />
-                      <StatCard title={t('v3Hub.statAiAdoption')} value={dash.aiAdoption || 0} suffix="%" color="#722ed1" />
-                      <StatCard title={t('v3Hub.statDistSuccess')} value={dash.distSuccess || 0} suffix="%" />
+                      <StatCard
+                        title={t("v3Hub.statTotalReports")}
+                        value={dash.totalReports || 0}
+                      />
+                      <StatCard
+                        title={t("v3Hub.statReviewed")}
+                        value={dash.reviewed || 0}
+                        color="success"
+                      />
+                      <StatCard
+                        title={t("v3Hub.statAvgTat")}
+                        value={dash.avgTAT || 0}
+                        suffix="h"
+                      />
+                      <StatCard
+                        title={t("v3Hub.statSignedRate")}
+                        value={dash.signedRate || 0}
+                        suffix="%"
+                      />
+                      <StatCard
+                        title={t("v3Hub.statAiAdoption")}
+                        value={dash.aiAdoption || 0}
+                        suffix="%"
+                        color="#722ed1"
+                      />
+                      <StatCard
+                        title={t("v3Hub.statDistSuccess")}
+                        value={dash.distSuccess || 0}
+                        suffix="%"
+                      />
                     </StatCardGrid>
-                  ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('v3Hub.loading')} />}
+                  ) : (
+                    <Empty
+                      image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                      description={t("v3Hub.loading")}
+                    />
+                  )}
                 </Card>
                 <Card
                   size="small"
-                  title={t('v3Hub.recentReports')}
-                  style={{ marginTop: 'var(--space-4, 16px)' }}
-                  extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadReports(reportPage)}>{t('v3Hub.refresh')}</Button>}
+                  title={t("v3Hub.recentReports")}
+                  style={{ marginTop: "var(--space-4, 16px)" }}
+                  extra={
+                    <Button
+                      icon={<RefreshCw size={12} />}
+                      onClick={() => void loadReports(reportPage)}
+                    >
+                      {t("v3Hub.refresh")}
+                    </Button>
+                  }
                 >
-                  <DataTable
-                    rowKey={(r) => r.id ?? r.reportId ?? ''}
-                    loading={reportsLoading}
-                    dataSource={reports}
-                    pagination={{ current: reportPage, pageSize: REPORT_PAGE_SIZE, total: reportTotal, onChange: setReportPage, showSizeChanger: false }}
-                    columns={[
-                      { title: t('v3Hub.colReportNo'), key: 'no', render: (_: unknown, r: any) => r.reportId ?? r.id },
-                      { title: t('v3Hub.colPatient'), key: 'patient', render: (_: unknown, r: any) => r.patientName ?? '-' },
-                      { title: t('v3Hub.colItem'), key: 'item', render: (_: unknown, r: any) => r.examItem ?? r.modality ?? '-' },
-                      { title: t('v3Hub.colStatus'), key: 'status', render: (_: unknown, r: any) => <Tag color={String(r.status ?? '').startsWith('signed') ? 'green' : 'blue'}>{r.status ?? '-'}</Tag> },
-                      { title: t('v3Hub.colTime'), key: 'at', render: (_: unknown, r: any) => r.reportAt ? new Date(r.reportAt).toLocaleDateString() : '-' },
+                  <FilterBar
+                    searchPlaceholder="搜索报告号 / 患者 / 检查项目…"
+                    searchValue={repKeyword}
+                    onSearchChange={setRepKeyword}
+                    dateRange={{
+                      value: repDateRange,
+                      onChange: setRepDateRange,
+                      placeholder: ["开始日期", "结束日期"],
+                    }}
+                    filters={[
+                      {
+                        key: "status",
+                        label: t("v3Hub.colStatus"),
+                        options: repStatusOptions,
+                      },
                     ]}
-                  scroll={{ x: 'max-content' }}
+                    filterValues={repFilterValues}
+                    onFilterChange={(k, v) =>
+                      setRepFilterValues((prev) => ({ ...prev, [k]: v }))
+                    }
+                    onReset={() => {
+                      setRepKeyword("");
+                      setRepFilterValues({});
+                      setRepDateRange(null);
+                    }}
+                    summary={`共 ${filteredReports.length} / ${reports.length} 条 (当前页)`}
+                  />
+                  <DataTable
+                    rowKey={(r) => r.id ?? r.reportId ?? ""}
+                    loading={reportsLoading}
+                    dataSource={filteredReports}
+                    pagination={{
+                      current: reportPage,
+                      pageSize: REPORT_PAGE_SIZE,
+                      total: reportTotal,
+                      onChange: setReportPage,
+                      showSizeChanger: false,
+                    }}
+                    columns={[
+                      {
+                        title: t("v3Hub.colReportNo"),
+                        key: "no",
+                        render: (_: unknown, r: any) => r.reportId ?? r.id,
+                      },
+                      {
+                        title: t("v3Hub.colPatient"),
+                        key: "patient",
+                        render: (_: unknown, r: any) => r.patientName ?? "-",
+                      },
+                      {
+                        title: t("v3Hub.colItem"),
+                        key: "item",
+                        render: (_: unknown, r: any) =>
+                          r.examItem ?? r.modality ?? "-",
+                      },
+                      {
+                        title: t("v3Hub.colStatus"),
+                        key: "status",
+                        render: (_: unknown, r: any) => (
+                          <Tag
+                            color={
+                              String(r.status ?? "").startsWith("signed")
+                                ? "green"
+                                : "blue"
+                            }
+                          >
+                            {r.status ?? "-"}
+                          </Tag>
+                        ),
+                      },
+                      {
+                        title: t("v3Hub.colTime"),
+                        key: "at",
+                        render: (_: unknown, r: any) =>
+                          r.reportAt
+                            ? new Date(r.reportAt).toLocaleDateString()
+                            : "-",
+                      },
+                    ]}
+                    scroll={{ x: "max-content" }}
                   />
                 </Card>
               </>
             ),
           },
           {
-            key: 'writing',
-            label: <span><Edit3 size={14} /> {t('v3Hub.tabWriting')}</span>,
+            key: "writing",
+            label: (
+              <span>
+                <Edit3 size={14} /> {t("v3Hub.tabWriting")}
+              </span>
+            ),
             children: (
               <Card
-                title={t('v3Hub.writingTitle')}
+                title={t("v3Hub.writingTitle")}
                 size="small"
-                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>{t('v3Hub.refresh')}</Button>}
+                extra={
+                  <Button
+                    icon={<RefreshCw size={12} />}
+                    onClick={() => void loadAll()}
+                  >
+                    {t("v3Hub.refresh")}
+                  </Button>
+                }
               >
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Card size="small" title={t('v3Hub.reportTemplates')}>
-                      <List size="small" dataSource={templates} renderItem={tpl => (
-                        <List.Item>
-                          <List.Item.Meta
-                            title={<span>{tpl.name || tpl.id}</span>}
-                            description={<span style={{ fontSize: 11, color: '#999' }}>{tpl.modality || ''} · {tpl.bodyPart || ''}</span>}
-                          />
-                        </List.Item>
-                      )} />
+                    <Card size="small" title={t("v3Hub.reportTemplates")}>
+                      <List
+                        size="small"
+                        dataSource={templates}
+                        renderItem={(tpl) => (
+                          <List.Item>
+                            <List.Item.Meta
+                              title={<span>{tpl.name || tpl.id}</span>}
+                              description={
+                                <span style={{ fontSize: 11, color: "#999" }}>
+                                  {tpl.modality || ""} · {tpl.bodyPart || ""}
+                                </span>
+                              }
+                            />
+                          </List.Item>
+                        )}
+                      />
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card size="small" title={t('v3Hub.drafts')}>
-                      <List size="small" dataSource={drafts} renderItem={d => (
-                        <List.Item>
-                          <List.Item.Meta
-                            title={<span>{d.id || d.reportId}</span>}
-                            description={<span style={{ fontSize: 11, color: '#999' }}>{d.status || ''} · {d.patientName || ''}</span>}
-                          />
-                        </List.Item>
-                      )} />
+                    <Card size="small" title={t("v3Hub.drafts")}>
+                      <List
+                        size="small"
+                        dataSource={drafts}
+                        renderItem={(d) => (
+                          <List.Item>
+                            <List.Item.Meta
+                              title={<span>{d.id || d.reportId}</span>}
+                              description={
+                                <span style={{ fontSize: 11, color: "#999" }}>
+                                  {d.status || ""} · {d.patientName || ""}
+                                </span>
+                              }
+                            />
+                          </List.Item>
+                        )}
+                      />
                     </Card>
                   </Col>
                 </Row>
@@ -222,39 +455,68 @@ export const V3ReportHubPage: React.FC = () => {
             ),
           },
           {
-            key: 'dist',
-            label: <span><Send size={14} /> {t('v3Hub.tabDist')}</span>,
+            key: "dist",
+            label: (
+              <span>
+                <Send size={14} /> {t("v3Hub.tabDist")}
+              </span>
+            ),
             children: (
               <Card
-                title={t('v3Hub.distTitle')}
+                title={t("v3Hub.distTitle")}
                 size="small"
-                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>{t('v3Hub.refresh')}</Button>}
+                extra={
+                  <Button
+                    icon={<RefreshCw size={12} />}
+                    onClick={() => void loadAll()}
+                  >
+                    {t("v3Hub.refresh")}
+                  </Button>
+                }
               >
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Card size="small" title={t('v3Hub.distTasks')}>
-                      <List size="small" dataSource={tasks} renderItem={task => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={<Tag color="blue">{task.channel || '-'}</Tag>}
-                            title={<span>{task.id || task.reportId}</span>}
-                            description={<span style={{ fontSize: 11, color: '#999' }}>{task.status || ''} · {task.recipient || ''}</span>}
-                          />
-                        </List.Item>
-                      )} />
+                    <Card size="small" title={t("v3Hub.distTasks")}>
+                      <List
+                        size="small"
+                        dataSource={tasks}
+                        renderItem={(task) => (
+                          <List.Item>
+                            <List.Item.Meta
+                              avatar={
+                                <Tag color="blue">{task.channel || "-"}</Tag>
+                              }
+                              title={<span>{task.id || task.reportId}</span>}
+                              description={
+                                <span style={{ fontSize: 11, color: "#999" }}>
+                                  {task.status || ""} · {task.recipient || ""}
+                                </span>
+                              }
+                            />
+                          </List.Item>
+                        )}
+                      />
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card size="small" title={t('v3Hub.distChannels')}>
-                      <List size="small" dataSource={channels} renderItem={c => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={<Tag color="green">{c.type || '-'}</Tag>}
-                            title={<span>{c.name}</span>}
-                            description={<span style={{ fontSize: 11, color: '#999' }}>{c.status || ''}</span>}
-                          />
-                        </List.Item>
-                      )} />
+                    <Card size="small" title={t("v3Hub.distChannels")}>
+                      <List
+                        size="small"
+                        dataSource={channels}
+                        renderItem={(c) => (
+                          <List.Item>
+                            <List.Item.Meta
+                              avatar={<Tag color="green">{c.type || "-"}</Tag>}
+                              title={<span>{c.name}</span>}
+                              description={
+                                <span style={{ fontSize: 11, color: "#999" }}>
+                                  {c.status || ""}
+                                </span>
+                              }
+                            />
+                          </List.Item>
+                        )}
+                      />
                     </Card>
                   </Col>
                 </Row>
@@ -262,39 +524,70 @@ export const V3ReportHubPage: React.FC = () => {
             ),
           },
           {
-            key: 'integration',
-            label: <span><Network size={14} /> {t('v3Hub.tabIntegration')}</span>,
+            key: "integration",
+            label: (
+              <span>
+                <Network size={14} /> {t("v3Hub.tabIntegration")}
+              </span>
+            ),
             children: (
               <Card
-                title={t('v3Hub.integrationTitle')}
+                title={t("v3Hub.integrationTitle")}
                 size="small"
-                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>{t('v3Hub.refresh')}</Button>}
+                extra={
+                  <Button
+                    icon={<RefreshCw size={12} />}
+                    onClick={() => void loadAll()}
+                  >
+                    {t("v3Hub.refresh")}
+                  </Button>
+                }
               >
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Card size="small" title={t('v3Hub.fhirResources')}>
-                      <List size="small" dataSource={fhirList} renderItem={f => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={<Tag color="purple">{f.resourceType || '-'}</Tag>}
-                            title={<span>{f.id || f.resourceId}</span>}
-                            description={<span style={{ fontSize: 11, color: '#999' }}>{f.status || ''}</span>}
-                          />
-                        </List.Item>
-                      )} />
+                    <Card size="small" title={t("v3Hub.fhirResources")}>
+                      <List
+                        size="small"
+                        dataSource={fhirList}
+                        renderItem={(f) => (
+                          <List.Item>
+                            <List.Item.Meta
+                              avatar={
+                                <Tag color="purple">
+                                  {f.resourceType || "-"}
+                                </Tag>
+                              }
+                              title={<span>{f.id || f.resourceId}</span>}
+                              description={
+                                <span style={{ fontSize: 11, color: "#999" }}>
+                                  {f.status || ""}
+                                </span>
+                              }
+                            />
+                          </List.Item>
+                        )}
+                      />
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card size="small" title={t('v3Hub.webhooks')}>
-                      <List size="small" dataSource={webhooks} renderItem={w => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={<Tag color="cyan">{w.event || '-'}</Tag>}
-                            title={<span>{w.url || w.endpoint}</span>}
-                            description={<span style={{ fontSize: 11, color: '#999' }}>{w.status || ''}</span>}
-                          />
-                        </List.Item>
-                      )} />
+                    <Card size="small" title={t("v3Hub.webhooks")}>
+                      <List
+                        size="small"
+                        dataSource={webhooks}
+                        renderItem={(w) => (
+                          <List.Item>
+                            <List.Item.Meta
+                              avatar={<Tag color="cyan">{w.event || "-"}</Tag>}
+                              title={<span>{w.url || w.endpoint}</span>}
+                              description={
+                                <span style={{ fontSize: 11, color: "#999" }}>
+                                  {w.status || ""}
+                                </span>
+                              }
+                            />
+                          </List.Item>
+                        )}
+                      />
                     </Card>
                   </Col>
                 </Row>
@@ -302,62 +595,132 @@ export const V3ReportHubPage: React.FC = () => {
             ),
           },
           {
-            key: 'ai',
-            label: <span><Sparkles size={14} /> {t('v3Hub.tabAi')}</span>,
+            key: "ai",
+            label: (
+              <span>
+                <Sparkles size={14} /> {t("v3Hub.tabAi")}
+              </span>
+            ),
             children: (
               <Card
-                title={t('v3Hub.aiTitle')}
+                title={t("v3Hub.aiTitle")}
                 size="small"
-                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>{t('v3Hub.refresh')}</Button>}
+                extra={
+                  <Button
+                    icon={<RefreshCw size={12} />}
+                    onClick={() => void loadAll()}
+                  >
+                    {t("v3Hub.refresh")}
+                  </Button>
+                }
               >
-                <List size="small" dataSource={aiDrafts} renderItem={a => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={<Space><Tag color="purple">{a.riskLevel || 'low'}</Tag><span>{a.id || a.reportId}</span></Space>}
-                      description={<span style={{ fontSize: 11, color: '#999' }}>{t('v3Hub.ddx')} {a.differential?.slice(0, 3)?.join(', ') || '-'}</span>}
-                    />
-                  </List.Item>
-                )} />
+                <List
+                  size="small"
+                  dataSource={aiDrafts}
+                  renderItem={(a) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={
+                          <Space>
+                            <Tag color="purple">{a.riskLevel || "low"}</Tag>
+                            <span>{a.id || a.reportId}</span>
+                          </Space>
+                        }
+                        description={
+                          <span style={{ fontSize: 11, color: "#999" }}>
+                            {t("v3Hub.ddx")}{" "}
+                            {a.differential?.slice(0, 3)?.join(", ") || "-"}
+                          </span>
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
               </Card>
             ),
           },
           {
-            key: 'quality',
-            label: <span><ClipboardList size={14} /> {t('v3Hub.tabQuality')}</span>,
+            key: "quality",
+            label: (
+              <span>
+                <ClipboardList size={14} /> {t("v3Hub.tabQuality")}
+              </span>
+            ),
             children: (
               <Card
-                title={t('v3Hub.qualityTitle')}
+                title={t("v3Hub.qualityTitle")}
                 size="small"
-                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>{t('v3Hub.refresh')}</Button>}
+                extra={
+                  <Button
+                    icon={<RefreshCw size={12} />}
+                    onClick={() => void loadAll()}
+                  >
+                    {t("v3Hub.refresh")}
+                  </Button>
+                }
               >
-                <List size="small" dataSource={qcReports} renderItem={q => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={<Space><Tag color="orange">{q.period || 'month'}</Tag><span>{q.id}</span></Space>}
-                      description={<span style={{ fontSize: 11, color: '#999' }}>{t('v3Hub.totalScore')} {q.score || '-'} · {t('v3Hub.published')} {q.publishedAt?.slice(0, 10) || '-'}</span>}
-                    />
-                  </List.Item>
-                )} />
+                <List
+                  size="small"
+                  dataSource={qcReports}
+                  renderItem={(q) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={
+                          <Space>
+                            <Tag color="orange">{q.period || "month"}</Tag>
+                            <span>{q.id}</span>
+                          </Space>
+                        }
+                        description={
+                          <span style={{ fontSize: 11, color: "#999" }}>
+                            {t("v3Hub.totalScore")} {q.score || "-"} ·{" "}
+                            {t("v3Hub.published")}{" "}
+                            {q.publishedAt?.slice(0, 10) || "-"}
+                          </span>
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
               </Card>
             ),
           },
           {
-            key: 'pacs',
-            label: <span><Database size={14} /> {t('v3Hub.tabPacs')}</span>,
+            key: "pacs",
+            label: (
+              <span>
+                <Database size={14} /> {t("v3Hub.tabPacs")}
+              </span>
+            ),
             children: (
               <Card
-                title={t('v3Hub.pacsTitle')}
+                title={t("v3Hub.pacsTitle")}
                 size="small"
-                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>{t('v3Hub.refresh')}</Button>}
+                extra={
+                  <Button
+                    icon={<RefreshCw size={12} />}
+                    onClick={() => void loadAll()}
+                  >
+                    {t("v3Hub.refresh")}
+                  </Button>
+                }
               >
-                <List size="small" dataSource={studies} renderItem={s => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={<span>{s.studyInstanceUID || s.uid}</span>}
-                      description={<span style={{ fontSize: 11, color: '#999' }}>{s.modality || ''} · {s.patientID || ''}</span>}
-                    />
-                  </List.Item>
-                )} />
+                <List
+                  size="small"
+                  dataSource={studies}
+                  renderItem={(s) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={<span>{s.studyInstanceUID || s.uid}</span>}
+                        description={
+                          <span style={{ fontSize: 11, color: "#999" }}>
+                            {s.modality || ""} · {s.patientID || ""}
+                          </span>
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
               </Card>
             ),
           },

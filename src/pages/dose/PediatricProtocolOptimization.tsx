@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -11,8 +11,12 @@ import {
 import { Info } from "lucide-react";
 import { pediatricProtocols } from "./mockData";
 import type { PediatricProtocol } from "./types";
-import { rdsrApi, type PediatricDoseRecordDto } from "../../services/api/rdsrApi";
+import {
+  rdsrApi,
+  type PediatricDoseRecordDto,
+} from "../../services/api/rdsrApi";
 import { DataTable } from "../../components/common";
+import { FilterBar } from "../../components/common/FilterBar";
 import { LoadingBanner, ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
@@ -27,7 +31,10 @@ const ADULT_VS_PED = [
 ];
 
 // 由 /rdsr/pediatric 实际记录按年龄段派生协议建议参数
-const AGE_PROTOCOL_META: Record<string, { weightMin: number; weightMax: number; kvp: number; mas: number }> = {
+const AGE_PROTOCOL_META: Record<
+  string,
+  { weightMin: number; weightMax: number; kvp: number; mas: number }
+> = {
   "0-5岁": { weightMin: 5, weightMax: 15, kvp: 80, mas: 60 },
   "5-10岁": { weightMin: 15, weightMax: 30, kvp: 100, mas: 80 },
   "10-15岁": { weightMin: 30, weightMax: 50, kvp: 120, mas: 100 },
@@ -45,10 +52,13 @@ function deriveProtocols(rows: PediatricDoseRecordDto[]): PediatricProtocol[] {
   for (const [ageGroup, list] of byAge) {
     if (!AGE_GROUPS.includes(ageGroup)) continue;
     const meta = AGE_PROTOCOL_META[ageGroup]!;
-    const factor = list.reduce((s, r) => s + r.doseReductionFactor, 0) / list.length;
+    const factor =
+      list.reduce((s, r) => s + r.doseReductionFactor, 0) / list.length;
     const itemCounts = new Map<string, number>();
-    for (const r of list) itemCounts.set(r.examItem, (itemCounts.get(r.examItem) ?? 0) + 1);
-    const primaryItem = [...itemCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "CT";
+    for (const r of list)
+      itemCounts.set(r.examItem, (itemCounts.get(r.examItem) ?? 0) + 1);
+    const primaryItem =
+      [...itemCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "CT";
     out.push({
       protocolName: `${primaryItem}协议`,
       ageGroup,
@@ -59,13 +69,16 @@ function deriveProtocols(rows: PediatricDoseRecordDto[]): PediatricProtocol[] {
       doseReductionFactor: Number(factor.toFixed(2)),
     });
   }
-  return out.sort((a, b) => AGE_GROUPS.indexOf(a.ageGroup) - AGE_GROUPS.indexOf(b.ageGroup));
+  return out.sort(
+    (a, b) => AGE_GROUPS.indexOf(a.ageGroup) - AGE_GROUPS.indexOf(b.ageGroup),
+  );
 }
 
 // [G005 W8-Dose] 儿科协议: 由 /rdsr/pediatric 记录派生, 端点不可用/返回空时回退内置演示数据。
 export default function PediatricProtocolOptimization() {
   const [selectedAge, setSelectedAge] = useState("0-5岁");
-  const [protocols, setProtocols] = useState<PediatricProtocol[]>(pediatricProtocols);
+  const [protocols, setProtocols] =
+    useState<PediatricProtocol[]>(pediatricProtocols);
   const [loading, setLoading] = useState(true);
   const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -77,7 +90,12 @@ export default function PediatricProtocolOptimization() {
       setLoadError(null);
       try {
         const res = await rdsrApi.getPediatric();
-        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        if (
+          !cancelled &&
+          res.success &&
+          Array.isArray(res.data) &&
+          res.data.length > 0
+        ) {
           const derived = deriveProtocols(res.data as PediatricDoseRecordDto[]);
           if (derived.length > 0) {
             setProtocols(derived);
@@ -101,31 +119,55 @@ export default function PediatricProtocolOptimization() {
     (p: PediatricProtocol) => p.ageGroup === selectedAge,
   );
 
+  // [v3.0.6.16-6] 协议表关键词筛选 (年龄组已由上方按钮切换)
+  const [keyword, setKeyword] = useState("");
+  const visibleProtocols = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    if (!kw) return filteredProtocols;
+    return filteredProtocols.filter(
+      (p: PediatricProtocol) =>
+        p.protocolName.toLowerCase().includes(kw) ||
+        p.ageGroup.toLowerCase().includes(kw),
+    );
+  }, [filteredProtocols, keyword]);
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
-      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
+      {loadError && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
       {dataSource === "demo" && (
-      <div
-        style={{
-          padding: "8px 12px",
-          background: "#fef3c7",
-          color: "var(--color-warning-600)",
-          borderRadius: 8,
-          fontSize: 12,
-          display: "flex",
-          alignItems: "center",
-          gap: 'var(--space-2, 8px)',
-        }}
-      >
-        <Info size={14} /> {t("w8Dose.pediatricProtocolDemo")}
-      </div>
+        <div
+          style={{
+            padding: "8px 12px",
+            background: "#fef3c7",
+            color: "var(--color-warning-600)",
+            borderRadius: 8,
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <Info size={14} /> {t("w8Dose.pediatricProtocolDemo")}
+        </div>
       )}
       <div
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 'var(--space-5, 20px)',
+          padding: "var(--space-5, 20px)",
           border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
@@ -134,12 +176,25 @@ export default function PediatricProtocolOptimization() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 'var(--space-4, 16px)',
+            marginBottom: "var(--space-4, 16px)",
           }}
         >
           儿科协议优化建议
         </div>
-        <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
+        <FilterBar
+          searchPlaceholder="搜索协议名称 / 年龄组…"
+          searchValue={keyword}
+          onSearchChange={setKeyword}
+          onReset={() => setKeyword("")}
+          summary={`共 ${visibleProtocols.length} 条`}
+        />
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-2, 8px)",
+            marginBottom: "var(--space-4, 16px)",
+          }}
+        >
           {AGE_GROUPS.map((ag) => (
             <button
               key={ag}
@@ -151,7 +206,10 @@ export default function PediatricProtocolOptimization() {
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
-                background: selectedAge === ag ? "var(--color-primary-800)" : "var(--bg-primary, #f8fafc)",
+                background:
+                  selectedAge === ag
+                    ? "var(--color-primary-800)"
+                    : "var(--bg-primary, #f8fafc)",
                 color: selectedAge === ag ? "#fff" : "#64748b",
               }}
             >
@@ -161,26 +219,98 @@ export default function PediatricProtocolOptimization() {
         </div>
         <DataTable
           rowKey={(p) => `${p.ageGroup}-${p.protocolName}`}
-          dataSource={filteredProtocols}
+          dataSource={visibleProtocols}
           showPagination={false}
           showExport={false}
           showDensity={false}
           columns={[
-            { title: "协议名称", dataIndex: "protocolName", key: "protocolName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-            { title: "年龄组", dataIndex: "ageGroup", key: "ageGroup", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
             {
-              title: "体重范围(kg)", key: "weightRange", align: "center",
-              render: (_: unknown, p: PediatricProtocol) => <span style={{ color: 'var(--text-primary, #334155)' }}>{p.weightMin}-{p.weightMax}</span>,
+              title: "协议名称",
+              dataIndex: "protocolName",
+              key: "protocolName",
+              align: "center",
+              render: (v: string) => (
+                <span
+                  style={{ fontWeight: 600, color: "var(--color-primary-800)" }}
+                >
+                  {v}
+                </span>
+              ),
             },
-            { title: "推荐KVP", dataIndex: "recommendedKVP", key: "recommendedKVP", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v} kVp</span> },
-            { title: "推荐mAs", dataIndex: "recommendedMAS", key: "recommendedMAS", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#7c3aed" }}>{v} mAs</span> },
             {
-              title: "剂量折扣", dataIndex: "doseReductionFactor", key: "doseReductionFactor", align: "center",
-              render: (v: number) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "var(--color-primary-800)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>×{v}</span>,
+              title: "年龄组",
+              dataIndex: "ageGroup",
+              key: "ageGroup",
+              align: "center",
+              render: (v: string) => (
+                <span style={{ color: "var(--text-primary, #334155)" }}>
+                  {v}
+                </span>
+              ),
             },
             {
-              title: "说明", key: "note", align: "center",
-              render: (_: unknown, p: PediatricProtocol) => <span style={{ color: 'var(--text-muted, #64748b)' }}>成人剂量×{p.doseReductionFactor}</span>,
+              title: "体重范围(kg)",
+              key: "weightRange",
+              align: "center",
+              render: (_: unknown, p: PediatricProtocol) => (
+                <span style={{ color: "var(--text-primary, #334155)" }}>
+                  {p.weightMin}-{p.weightMax}
+                </span>
+              ),
+            },
+            {
+              title: "推荐KVP",
+              dataIndex: "recommendedKVP",
+              key: "recommendedKVP",
+              align: "center",
+              render: (v: number) => (
+                <span
+                  style={{ fontWeight: 700, color: "var(--color-primary-800)" }}
+                >
+                  {v} kVp
+                </span>
+              ),
+            },
+            {
+              title: "推荐mAs",
+              dataIndex: "recommendedMAS",
+              key: "recommendedMAS",
+              align: "center",
+              render: (v: number) => (
+                <span style={{ fontWeight: 700, color: "#7c3aed" }}>
+                  {v} mAs
+                </span>
+              ),
+            },
+            {
+              title: "剂量折扣",
+              dataIndex: "doseReductionFactor",
+              key: "doseReductionFactor",
+              align: "center",
+              render: (v: number) => (
+                <span
+                  style={{
+                    padding: "2px 8px",
+                    background: "#eff6ff",
+                    color: "var(--color-primary-800)",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  ×{v}
+                </span>
+              ),
+            },
+            {
+              title: "说明",
+              key: "note",
+              align: "center",
+              render: (_: unknown, p: PediatricProtocol) => (
+                <span style={{ color: "var(--text-muted, #64748b)" }}>
+                  成人剂量×{p.doseReductionFactor}
+                </span>
+              ),
             },
           ]}
         />
@@ -190,7 +320,7 @@ export default function PediatricProtocolOptimization() {
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          padding: 'var(--space-5, 20px)',
+          padding: "var(--space-5, 20px)",
           border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
@@ -199,12 +329,16 @@ export default function PediatricProtocolOptimization() {
             fontSize: 12,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 'var(--space-4, 16px)',
+            marginBottom: "var(--space-4, 16px)",
           }}
         >
           成人 vs 儿童剂量对比（CT头部）
         </div>
-        <ChartContainer height={200} state={ADULT_VS_PED.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
+        <ChartContainer
+          height={200}
+          state={ADULT_VS_PED.length > 0 ? "ready" : "empty"}
+          emptyDescription="暂无数据"
+        >
           <BarChart data={ADULT_VS_PED} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />

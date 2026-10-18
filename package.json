@@ -34,7 +34,8 @@
     "guard:api": "node scripts/api-contract-guard.mjs",
     "guard:select": "node scripts/select-guard.mjs",
     "guard:table": "node scripts/table-guard.mjs",
-    "guard:all": "node scripts/ui-guard.mjs && node scripts/table-guard.mjs && node scripts/select-guard.mjs && node scripts/api-contract-guard.mjs"
+    "guard:filter": "node scripts/filter-guard.mjs",
+    "guard:all": "node scripts/ui-guard.mjs && node scripts/table-guard.mjs && node scripts/select-guard.mjs && node scripts/filter-guard.mjs && node scripts/api-contract-guard.mjs"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.0.0",
