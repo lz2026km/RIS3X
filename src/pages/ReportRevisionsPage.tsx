@@ -6,9 +6,10 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { message, Modal, Input, Tag, Typography } from "antd";
+import { Button, message, Modal, Input, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { getCurrentUser } from "../utils/auth";
+import { exportRowsToCsv } from "../utils/exportRowsToCsv";
 import { notificationsApi } from "../services/api/notificationsApi";
 import {
   History,
@@ -778,6 +779,16 @@ export default function ReportRevisionsPage() {
             columns={revisionReportColumns}
             dataSource={reportListData}
             rowKey="id"
+            selectable
+            bulkActions={(_keys, rows) => (
+              <Button
+                size="small"
+                type="primary"
+                onClick={() => exportRowsToCsv(rows, "report-revisions")}
+              >
+                {t("ui4Tables.bulk.exportSelected")}
+              </Button>
+            )}
             showPagination={false}
             emptyText={t("reportRev.emptyRevisions")}
             onRow={(row) => ({

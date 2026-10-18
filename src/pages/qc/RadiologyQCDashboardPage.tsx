@@ -965,8 +965,6 @@ export default function RadiologyQCDashboardPage() {
           rowKey="dept"
           dataSource={drillDeptRows}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           columns={[
             {
               title: t("qcDashboard.dept"),
@@ -2643,8 +2641,6 @@ export default function RadiologyQCDashboardPage() {
                     (a[drillMetric as keyof typeof a] as number),
                 )}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("qcDashboard.rank"),
@@ -2795,8 +2791,6 @@ export default function RadiologyQCDashboardPage() {
                     (a[drillMetric as keyof typeof a] as number),
                 )}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("qcDashboard.dept"),
@@ -3559,8 +3553,6 @@ export default function RadiologyQCDashboardPage() {
               rowKey="id"
               dataSource={filteredDeviceMaster.slice(0, 20)}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("qcDashboard.device"),
@@ -3632,8 +3624,6 @@ export default function RadiologyQCDashboardPage() {
               rowKey="id"
               dataSource={personnelQC.topPerformers.slice(0, 15)}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("qcDashboard.rank"),

@@ -37,6 +37,7 @@ import { AppSelectField } from "../components/common/AppSelectField";
 import { StatusTag } from "../components/common/StatusTag";
 import { t } from "../i18n/appI18n";
 import { PageContainer } from "../components/common";
+import { exportRowsToCsv } from "../utils/exportRowsToCsv";
 
 interface SearchReport extends ReportDto {
   reportDate: string;
@@ -2328,6 +2329,17 @@ export default function ReportSearchPage() {
             columns={resultColumns}
             dataSource={effectiveSortedResults}
             rowKey="id"
+            selectable
+            drillDown={true}
+            bulkActions={(_keys, rows) => (
+              <Button
+                size="small"
+                type="primary"
+                onClick={() => exportRowsToCsv(rows, "report-search")}
+              >
+                {t("ui4Tables.bulk.exportSelected")}
+              </Button>
+            )}
             emptyText={t("reportSearch.noResults")}
             pagination={{
               current: resultPage,

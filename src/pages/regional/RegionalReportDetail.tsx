@@ -2247,20 +2247,23 @@ export const ModalContent: React.FC<ModalContentProps> = ({
                   </div>
                 </div>
               </div>
+              {/* [v3.0.6.16-7] 危急值统计为固定快照, 原时间范围下拉无可筛选数据 -> 改为只读口径显示 */}
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>
                   {t("regionalReport.filterByTimeRange")}
                 </label>
-                <Select
-                  style={{ width: "100%" }}
-                  defaultValue="today"
-                  options={[
-                    { value: "today", label: t("regionalReport.today") },
-                    { value: "week", label: t("regionalReport.week") },
-                    { value: "month", label: t("regionalReport.month") },
-                    { value: "year", label: t("regionalReport.thisYear") },
-                  ]}
-                />
+                <div
+                  style={{
+                    padding: "8px 10px",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    background: "var(--bg-card)",
+                  }}
+                >
+                  {t("regionalReport.today")}
+                </div>
               </div>
             </div>
             <div style={styles.modalFooter}>

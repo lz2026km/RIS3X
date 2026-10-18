@@ -387,8 +387,6 @@ export default function AAPMEUReferenceComparison() {
             rowKey="examType"
             dataSource={filteredRefs}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             columns={[
               {
                 title: "检查类型",

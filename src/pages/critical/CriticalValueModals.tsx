@@ -214,7 +214,8 @@ export const ProcessModal = ({
             <input
               id="cv-process-dept"
               type="text"
-              defaultValue={cv.receivingDepartment}
+              value={cv.receivingDepartment ?? ""}
+              readOnly
               placeholder={t("cvModals.inputProcessDept")}
               aria-label={t("cvModals.processDept")}
               style={{
@@ -1674,8 +1675,6 @@ export const RulesSettingsModal = ({
                 rowKey="id"
                 dataSource={rules}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("cvModals.thDevice"),
@@ -1843,7 +1842,8 @@ export const RulesSettingsModal = ({
                     >
                       <input
                         type="number"
-                        defaultValue={item.minutes}
+                        value={item.minutes}
+                        readOnly
                         aria-label={`${item.label}-${t("cvModals.minutes")}`}
                         style={{
                           width: 60,

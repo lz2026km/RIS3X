@@ -543,8 +543,6 @@ const CardiacSpecialtyPage = () => {
                 rowKey="id"
                 dataSource={filtered}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 emptyText={
                   <Empty
                     image={<Inbox size={48} style={{ opacity: 0.4 }} />}

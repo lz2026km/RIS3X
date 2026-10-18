@@ -19,6 +19,7 @@ import {
 import { Plus, Edit3, Copy, FileText } from "lucide-react";
 import { templatesApi } from "../../services/api/templatesApi";
 import { getCurrentUser } from "../../utils/auth";
+import { exportRowsToCsv } from "../../utils/exportRowsToCsv";
 import { t } from "../../i18n/appI18n";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { ActionButton } from "../../components/common/ActionButton";
@@ -431,6 +432,16 @@ export const EmrTemplatesPage: React.FC = () => {
                 <DataTable
                   dataSource={icdResults}
                   rowKey="code"
+                  selectable
+                  bulkActions={(_keys, rows) => (
+                    <Button
+                      size="small"
+                      type="primary"
+                      onClick={() => exportRowsToCsv(rows, "icd-results")}
+                    >
+                      {t("ui4Tables.bulk.exportSelected")}
+                    </Button>
+                  )}
                   pagination={false}
                   columns={[
                     {

@@ -31,7 +31,7 @@ import {
   Database,
   Search,
 } from "lucide-react";
-import { Inbox } from 'lucide-react'
+import { Inbox } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { usePagination } from "../../../hooks/usePagination";
 import { eyeApi } from "../../../services/api/eyeApi";
@@ -52,7 +52,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
   // 屈光发育曲线
   const [refractionCurve, setRefractionCurve] = useState<any>(null);
   // [G005 2B] 受控分页: 屈光发育历史 (数据可增长)
-  const { pageData: curveHistory, pagination: curveHistoryPagination } = usePagination(refractionCurve?.history ?? [], 10);
+  const { pageData: curveHistory, pagination: curveHistoryPagination } =
+    usePagination(refractionCurve?.history ?? [], 10);
 
   // OK 镜试?
   const [okTrial, setOkTrial] = useState<any>(null);
@@ -65,6 +66,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
   const [orthoOrder, setOrthoOrder] = useState<any>(null);
   const [defocusOrder, setDefocusOrder] = useState<any>(null);
   const [lensType, setLensType] = useState<"DIMS" | "MiSight">("DIMS");
+  const [frameSelection, setFrameSelection] = useState("Ray-Ban Junior");
 
   // 统计
   const [stats, setStats] = useState<any>(null);
@@ -77,10 +79,10 @@ export const OptometryClosedLoopPage: React.FC = () => {
       try {
         const res = await eyeApi.getOptometryStats();
         if (res.success) setStats(res.data);
-        else setLoadError(t('w9.states.error'));
+        else setLoadError(t("w9.states.error"));
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
-        setLoadError(t('w9.states.error'));
+        setLoadError(t("w9.states.error"));
       } finally {
         setLoading(false);
       }
@@ -123,7 +125,11 @@ export const OptometryClosedLoopPage: React.FC = () => {
   // OK 镜试戴
   const handleOkTrial = async () => {
     try {
-      const res = await eyeApi.okTrial({ patientId, trialLensId, fluoresceinPattern });
+      const res = await eyeApi.okTrial({
+        patientId,
+        trialLensId,
+        fluoresceinPattern,
+      });
       if (res.success) {
         setOkTrial(res.data);
         message.success(t("eye.optometry.trialDone"));
@@ -161,7 +167,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
     try {
       const res = await eyeApi.defocusOrder({
         patientId,
-        frameSelection: "Ray-Ban Junior",
+        frameSelection,
         lensType,
       });
       if (res.success) {
@@ -256,12 +262,22 @@ export const OptometryClosedLoopPage: React.FC = () => {
     }
   };
 
-  const { pageData: refPage, pagination: refPagination } = usePagination(refractionRecords, 6);
-  const { pageData: okLensPage, pagination: okLensPagination } = usePagination(okLensRecords, 6);
+  const { pageData: refPage, pagination: refPagination } = usePagination(
+    refractionRecords,
+    6,
+  );
+  const { pageData: okLensPage, pagination: okLensPagination } = usePagination(
+    okLensRecords,
+    6,
+  );
 
   return (
-    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-card)' }}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+    <PageContainer
+      maxWidth="full"
+      padding="var(--space-6, 24px)"
+      style={{ background: "var(--bg-card)" }}
+    >
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <Heart size={20} color="#f5222d" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
           {t("eye.optometry.title")}
@@ -273,12 +289,19 @@ export const OptometryClosedLoopPage: React.FC = () => {
         <Tag color="green">{t("eye.optometry.realBackend")}</Tag>
       </Space>
 
-      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {stats && (
-        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-          <StatCard title={t("eye.optometry.totalPatients")} value={stats.totalPatients} />
+        <StatCardGrid
+          minWidth={200}
+          gap={16}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
+        >
+          <StatCard
+            title={t("eye.optometry.totalPatients")}
+            value={stats.totalPatients}
+          />
           <StatCard
             title={t("eye.optometry.okLensPatients")}
             value={stats.okLensPatients}
@@ -334,7 +357,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 'var(--space-2, 8px)',
+                          marginBottom: "var(--space-2, 8px)",
                           fontWeight: 600,
                         }}
                       >
@@ -387,14 +410,16 @@ export const OptometryClosedLoopPage: React.FC = () => {
                                   ? t("eye.optometry.riskMedium")
                                   : t("eye.optometry.riskLow")
                             }
-                            styles={{ content: { 
-                              color:
-                                screening.myopiaRisk === "high"
-                                  ? "#f5222d"
-                                  : screening.myopiaRisk === "medium"
-                                    ? "#faad14"
-                                    : "#52c41a",
-                             } }}
+                            styles={{
+                              content: {
+                                color:
+                                  screening.myopiaRisk === "high"
+                                    ? "#f5222d"
+                                    : screening.myopiaRisk === "medium"
+                                      ? "#faad14"
+                                      : "#52c41a",
+                              },
+                            }}
                           />
                         </Col>
                         <Col span={8}>
@@ -413,7 +438,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           <Statistic
                             title={t("eye.optometry.hereditaryRisk")}
                             value={
-                              screening.parentRisk === "high" ? t("eye.optometry.riskHigh") : t("eye.optometry.riskLow")
+                              screening.parentRisk === "high"
+                                ? t("eye.optometry.riskHigh")
+                                : t("eye.optometry.riskLow")
                             }
                           />
                         </Col>
@@ -423,7 +450,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                             style={{
                               fontSize: 12,
                               color: "var(--text-secondary)",
-                              marginBottom: 'var(--space-1, 4px)',
+                              marginBottom: "var(--space-1, 4px)",
                             }}
                           >
                             {t("eye.optometry.recommendation")}
@@ -439,14 +466,17 @@ export const OptometryClosedLoopPage: React.FC = () => {
                                     : "info"
                                 }
                                 showIcon
-                                style={{ marginBottom: 'var(--space-1, 4px)' }}
+                                style={{ marginBottom: "var(--space-1, 4px)" }}
                               />
                             ),
                           )}
                         </Col>
                       </Row>
                     ) : (
-                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eye.optometry.clickToScreen")} />
+                      <Empty
+                        image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                        description={t("eye.optometry.clickToScreen")}
+                      />
                     )}
                   </Card>
                 </Col>
@@ -492,7 +522,12 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         />
                       </Col>
                       <Col span={8}>
-                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "var(--text-secondary)",
+                          }}
+                        >
                           {t("eye.optometry.interventionEffect")}
                         </div>
                         <div
@@ -508,35 +543,50 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       <Col span={24}>
                         <Divider style={{ margin: "4px 0" }} />
                         <DataTable
-                          dataSource={curveHistory as Array<Record<string, unknown>>}
+                          dataSource={
+                            curveHistory as Array<Record<string, unknown>>
+                          }
                           rowKey="date"
                           pagination={curveHistoryPagination}
                           columns={[
-                            { title: t("eye.optometry.colDate"), dataIndex: "date" },
-                            { title: t("eye.optometry.colAge"), dataIndex: "age" },
+                            {
+                              title: t("eye.optometry.colDate"),
+                              dataIndex: "date",
+                            },
+                            {
+                              title: t("eye.optometry.colAge"),
+                              dataIndex: "age",
+                            },
                             {
                               title: "RE (DS)",
                               render: (_, r: any) =>
-                                r.rightEye?.sphere?.toFixed(2) ?? '-',
+                                r.rightEye?.sphere?.toFixed(2) ?? "-",
                             },
                             {
                               title: "LE (DS)",
                               render: (_, r: any) =>
-                                r.leftEye?.sphere?.toFixed(2) ?? '-',
+                                r.leftEye?.sphere?.toFixed(2) ?? "-",
                             },
                             {
                               title: "AL (mm)",
-                              render: (_, r: any) => r.axialLength?.toFixed(2) ?? '-',
+                              render: (_, r: any) =>
+                                r.axialLength?.toFixed(2) ?? "-",
                             },
-                            { title: t("eye.optometry.colIntervention"), dataIndex: "intervention" },
+                            {
+                              title: t("eye.optometry.colIntervention"),
+                              dataIndex: "intervention",
+                            },
                           ]}
-                        scroll={{ x: 'max-content' }}
+                          scroll={{ x: "max-content" }}
                         />
                       </Col>
                     </Row>
                   </>
                 ) : (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eye.optometry.clickToRefresh")} />
+                  <Empty
+                    image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                    description={t("eye.optometry.clickToRefresh")}
+                  />
                 )}
               </Card>
             ),
@@ -602,24 +652,38 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         description={okTrial.recommendation}
                         type={okTrial.fit === "optimal" ? "success" : "warning"}
                         showIcon
-                        style={{ marginTop: 'var(--space-2, 8px)' }}
+                        style={{ marginTop: "var(--space-2, 8px)" }}
                       />
                     )}
                     {orthoOrder && (
                       <Card
                         size="small"
                         title={t("eye.optometry.orthoOrder")}
-                        style={{ marginTop: 'var(--space-2, 8px)' }}
+                        style={{ marginTop: "var(--space-2, 8px)" }}
                       >
-                        <div>{t("eye.optometry.brand")}: {orthoOrder.brand}</div>
                         <div>
-                          {t("eye.optometry.baseCurve")}: {orthoOrder.parameters.baseCurve} mm
+                          {t("eye.optometry.brand")}: {orthoOrder.brand}
                         </div>
-                        <div>{t("eye.optometry.cost")}: ¥{orthoOrder.cost.total}</div>
-                        <div>{t("eye.optometry.estimatedDelivery")}: {orthoOrder.estimatedDelivery}</div>
+                        <div>
+                          {t("eye.optometry.baseCurve")}:{" "}
+                          {orthoOrder.parameters.baseCurve} mm
+                        </div>
+                        <div>
+                          {t("eye.optometry.cost")}: ¥{orthoOrder.cost.total}
+                        </div>
+                        <div>
+                          {t("eye.optometry.estimatedDelivery")}:{" "}
+                          {orthoOrder.estimatedDelivery}
+                        </div>
                         <Divider style={{ margin: "4px 0" }} />
-                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                          {t("eye.optometry.followupSchedule")}: {orthoOrder.followupSchedule.join(" / ")}
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          {t("eye.optometry.followupSchedule")}:{" "}
+                          {orthoOrder.followupSchedule.join(" / ")}
                         </div>
                       </Card>
                     )}
@@ -627,7 +691,10 @@ export const OptometryClosedLoopPage: React.FC = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Card title={t("eye.optometry.defocusLensTitle")} size="small">
+                  <Card
+                    title={t("eye.optometry.defocusLensTitle")}
+                    size="small"
+                  >
                     <Form layout="vertical" size="small">
                       <Form.Item label={t("eye.optometry.lensType")}>
                         <Radio.Group
@@ -641,7 +708,10 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         </Radio.Group>
                       </Form.Item>
                       <Form.Item label={t("eye.optometry.frameSelection")}>
-                        <Input defaultValue="Ray-Ban Junior" />
+                        <Input
+                          value={frameSelection}
+                          onChange={(e) => setFrameSelection(e.target.value)}
+                        />
                       </Form.Item>
                       <Button
                         type="primary"
@@ -656,12 +726,21 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       <Card
                         size="small"
                         title={t("eye.optometry.defocusOrder")}
-                        style={{ marginTop: 'var(--space-2, 8px)' }}
+                        style={{ marginTop: "var(--space-2, 8px)" }}
                       >
-                        <div>{t("eye.optometry.lens")}: {defocusOrder.brand}</div>
-                        <div>{t("eye.optometry.efficacy")}: {defocusOrder.efficacy}</div>
-                        <div>{t("eye.optometry.cost")}: ¥{defocusOrder.cost.total}</div>
-                        <div>{t("eye.optometry.estimatedDelivery")}: {defocusOrder.estimatedDelivery}</div>
+                        <div>
+                          {t("eye.optometry.lens")}: {defocusOrder.brand}
+                        </div>
+                        <div>
+                          {t("eye.optometry.efficacy")}: {defocusOrder.efficacy}
+                        </div>
+                        <div>
+                          {t("eye.optometry.cost")}: ¥{defocusOrder.cost.total}
+                        </div>
+                        <div>
+                          {t("eye.optometry.estimatedDelivery")}:{" "}
+                          {defocusOrder.estimatedDelivery}
+                        </div>
                       </Card>
                     )}
                   </Card>
@@ -698,7 +777,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 'var(--space-2, 8px)',
+                          marginBottom: "var(--space-2, 8px)",
                           fontWeight: 600,
                         }}
                       >
@@ -707,17 +786,33 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       <Row gutter={8}>
                         <Col span={8}>
                           <Form.Item label={t("eye.optometry.sphereDs")}>
-                            <InputNumber value={refReSphere} onChange={(v) => setRefReSphere(v || 0)} step={0.25} style={{ width: "100%" }} />
+                            <InputNumber
+                              value={refReSphere}
+                              onChange={(v) => setRefReSphere(v || 0)}
+                              step={0.25}
+                              style={{ width: "100%" }}
+                            />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
                           <Form.Item label={t("eye.optometry.cylinderDc")}>
-                            <InputNumber value={refReCylinder} onChange={(v) => setRefReCylinder(v || 0)} step={0.25} style={{ width: "100%" }} />
+                            <InputNumber
+                              value={refReCylinder}
+                              onChange={(v) => setRefReCylinder(v || 0)}
+                              step={0.25}
+                              style={{ width: "100%" }}
+                            />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
                           <Form.Item label={t("eye.optometry.axisDeg")}>
-                            <InputNumber value={refReAxis} onChange={(v) => setRefReAxis(v || 0)} min={0} max={180} style={{ width: "100%" }} />
+                            <InputNumber
+                              value={refReAxis}
+                              onChange={(v) => setRefReAxis(v || 0)}
+                              min={0}
+                              max={180}
+                              style={{ width: "100%" }}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -725,7 +820,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         style={{
                           fontSize: 12,
                           color: "var(--text-secondary)",
-                          marginBottom: 'var(--space-2, 8px)',
+                          marginBottom: "var(--space-2, 8px)",
                           fontWeight: 600,
                         }}
                       >
@@ -734,17 +829,33 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       <Row gutter={8}>
                         <Col span={8}>
                           <Form.Item label={t("eye.optometry.sphereDs")}>
-                            <InputNumber value={refLeSphere} onChange={(v) => setRefLeSphere(v || 0)} step={0.25} style={{ width: "100%" }} />
+                            <InputNumber
+                              value={refLeSphere}
+                              onChange={(v) => setRefLeSphere(v || 0)}
+                              step={0.25}
+                              style={{ width: "100%" }}
+                            />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
                           <Form.Item label={t("eye.optometry.cylinderDc")}>
-                            <InputNumber value={refLeCylinder} onChange={(v) => setRefLeCylinder(v || 0)} step={0.25} style={{ width: "100%" }} />
+                            <InputNumber
+                              value={refLeCylinder}
+                              onChange={(v) => setRefLeCylinder(v || 0)}
+                              step={0.25}
+                              style={{ width: "100%" }}
+                            />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
                           <Form.Item label={t("eye.optometry.axisDeg")}>
-                            <InputNumber value={refLeAxis} onChange={(v) => setRefLeAxis(v || 0)} min={0} max={180} style={{ width: "100%" }} />
+                            <InputNumber
+                              value={refLeAxis}
+                              onChange={(v) => setRefLeAxis(v || 0)}
+                              min={0}
+                              max={180}
+                              style={{ width: "100%" }}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -762,7 +873,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                   <Card
                     title={t("eye.optometry.orderDetail")}
                     size="small"
-                    style={{ marginTop: 'var(--space-4, 16px)' }}
+                    style={{ marginTop: "var(--space-4, 16px)" }}
                   >
                     <Space.Compact style={{ width: "100%" }}>
                       <Input
@@ -776,23 +887,57 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       </Button>
                     </Space.Compact>
                     {orderDetail && (
-                      <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12 }}>
-                        <Tag color={orderDetail.type === "ortho-k" ? "blue" : "purple"}>
-                          {orderDetail.type === "ortho-k" ? t("eye.optometry.orthoOrder") : t("eye.optometry.defocusOrder")}
+                      <div
+                        style={{
+                          marginTop: "var(--space-3, 12px)",
+                          fontSize: 12,
+                        }}
+                      >
+                        <Tag
+                          color={
+                            orderDetail.type === "ortho-k" ? "blue" : "purple"
+                          }
+                        >
+                          {orderDetail.type === "ortho-k"
+                            ? t("eye.optometry.orthoOrder")
+                            : t("eye.optometry.defocusOrder")}
                         </Tag>
-                        <div>{t("eye.optometry.brand")}: {orderDetail.brand}</div>
-                        <div>{t("eye.optometry.patient")}: {orderDetail.patientName ?? orderDetail.patientId}</div>
-                        <div>{t("eye.optometry.estimatedDelivery")}: {orderDetail.estimatedDelivery}</div>
-                        <div>{t("eye.optometry.cost")}: ¥{orderDetail.cost?.total}</div>
-                        {orderDetail.lensType && <div>{t("eye.optometry.lens")}: {orderDetail.lensType}</div>}
+                        <div>
+                          {t("eye.optometry.brand")}: {orderDetail.brand}
+                        </div>
+                        <div>
+                          {t("eye.optometry.patient")}:{" "}
+                          {orderDetail.patientName ?? orderDetail.patientId}
+                        </div>
+                        <div>
+                          {t("eye.optometry.estimatedDelivery")}:{" "}
+                          {orderDetail.estimatedDelivery}
+                        </div>
+                        <div>
+                          {t("eye.optometry.cost")}: ¥{orderDetail.cost?.total}
+                        </div>
+                        {orderDetail.lensType && (
+                          <div>
+                            {t("eye.optometry.lens")}: {orderDetail.lensType}
+                          </div>
+                        )}
                         {orderDetail.parameters?.baseCurve && (
-                          <div>{t("eye.optometry.baseCurve")}: {orderDetail.parameters.baseCurve} mm</div>
+                          <div>
+                            {t("eye.optometry.baseCurve")}:{" "}
+                            {orderDetail.parameters.baseCurve} mm
+                          </div>
                         )}
                         <Divider style={{ margin: "4px 0" }} />
                         <div style={{ color: "var(--text-secondary)" }}>
                           {orderDetail.followupSchedule
-                            ? t("w9d.optometry.followupPlan", { plan: orderDetail.followupSchedule.join(" / ") })
-                            : t("w9d.optometry.orderedAt", { time: String(orderDetail.orderedAt ?? "").slice(0, 19).replace("T", " ") })}
+                            ? t("w9d.optometry.followupPlan", {
+                                plan: orderDetail.followupSchedule.join(" / "),
+                              })
+                            : t("w9d.optometry.orderedAt", {
+                                time: String(orderDetail.orderedAt ?? "")
+                                  .slice(0, 19)
+                                  .replace("T", " "),
+                              })}
                         </div>
                       </div>
                     )}
@@ -804,15 +949,22 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     title={t("eye.optometry.refractionList")}
                     size="small"
                     extra={<Tag color="blue">{refractionRecords.length}</Tag>}
-                    style={{ marginBottom: 'var(--space-4, 16px)' }}
+                    style={{ marginBottom: "var(--space-4, 16px)" }}
                   >
                     <DataTable
                       rowKey={(r: any) => r.refractionId ?? r.id}
                       dataSource={refPage}
                       pagination={refPagination}
                       columns={[
-                        { title: t("eye.optometry.colDate"), dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
-                        { title: t("eye.optometry.colPatient"), dataIndex: "patientName" },
+                        {
+                          title: t("eye.optometry.colDate"),
+                          dataIndex: "prescribedAt",
+                          render: (v: string) => String(v ?? "").slice(0, 10),
+                        },
+                        {
+                          title: t("eye.optometry.colPatient"),
+                          dataIndex: "patientName",
+                        },
                         {
                           title: "OD",
                           render: (_, r: any) =>
@@ -823,7 +975,11 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           render: (_, r: any) =>
                             `${r.leftEye?.sphere} S / ${r.leftEye?.cylinder} C ×${r.leftEye?.axis}`,
                         },
-                        { title: t("eye.optometry.colType"), dataIndex: "prescriptionType", render: (v: string) => <Tag>{v}</Tag> },
+                        {
+                          title: t("eye.optometry.colType"),
+                          dataIndex: "prescriptionType",
+                          render: (v: string) => <Tag>{v}</Tag>,
+                        },
                       ]}
                       scroll={{ x: "max-content" }}
                     />
@@ -833,18 +989,34 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     title={t("eye.optometry.okLensList")}
                     size="small"
                     extra={<Tag color="blue">{okLensRecords.length}</Tag>}
-                    style={{ marginBottom: 'var(--space-4, 16px)' }}
+                    style={{ marginBottom: "var(--space-4, 16px)" }}
                   >
                     <DataTable
                       rowKey={(r: any) => r.okLensId ?? r.id}
                       dataSource={okLensPage}
                       pagination={okLensPagination}
                       columns={[
-                        { title: t("eye.optometry.colDate"), dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
-                        { title: t("eye.optometry.colPatient"), dataIndex: "patientName" },
-                        { title: t("eye.optometry.colBc"), render: (_, r: any) => r.design?.baseCurve },
-                        { title: t("eye.optometry.colTargetReduction"), render: (_, r: any) => r.design?.targetReduction },
-                        { title: t("eye.optometry.colBrand"), render: (_, r: any) => r.design?.brand },
+                        {
+                          title: t("eye.optometry.colDate"),
+                          dataIndex: "prescribedAt",
+                          render: (v: string) => String(v ?? "").slice(0, 10),
+                        },
+                        {
+                          title: t("eye.optometry.colPatient"),
+                          dataIndex: "patientName",
+                        },
+                        {
+                          title: t("eye.optometry.colBc"),
+                          render: (_, r: any) => r.design?.baseCurve,
+                        },
+                        {
+                          title: t("eye.optometry.colTargetReduction"),
+                          render: (_, r: any) => r.design?.targetReduction,
+                        },
+                        {
+                          title: t("eye.optometry.colBrand"),
+                          render: (_, r: any) => r.design?.brand,
+                        },
                       ]}
                       scroll={{ x: "max-content" }}
                     />
@@ -854,7 +1026,10 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     title={t("eye.optometry.visionSeq")}
                     size="small"
                     extra={
-                      <Button icon={<RefreshCw size={12} />} onClick={() => void loadOptometryRecords()}>
+                      <Button
+                        icon={<RefreshCw size={12} />}
+                        onClick={() => void loadOptometryRecords()}
+                      >
                         {t("eye.common.refresh")}
                       </Button>
                     }
@@ -865,11 +1040,28 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         dataSource={visionSeq.history}
                         pagination={false}
                         columns={[
-                          { title: t("eye.optometry.colDate"), dataIndex: "date" },
-                          { title: "OD (DS)", render: (_, r: any) => r.rightEye?.sphere },
-                          { title: t("eye.optometry.colOdAstigmatism"), render: (_, r: any) => `${r.rightEye?.cylinder} C ×${r.rightEye?.axis}` },
-                          { title: "OS (DS)", render: (_, r: any) => r.leftEye?.sphere },
-                          { title: t("eye.optometry.colOsAstigmatism"), render: (_, r: any) => `${r.leftEye?.cylinder} C ×${r.leftEye?.axis}` },
+                          {
+                            title: t("eye.optometry.colDate"),
+                            dataIndex: "date",
+                          },
+                          {
+                            title: "OD (DS)",
+                            render: (_, r: any) => r.rightEye?.sphere,
+                          },
+                          {
+                            title: t("eye.optometry.colOdAstigmatism"),
+                            render: (_, r: any) =>
+                              `${r.rightEye?.cylinder} C ×${r.rightEye?.axis}`,
+                          },
+                          {
+                            title: "OS (DS)",
+                            render: (_, r: any) => r.leftEye?.sphere,
+                          },
+                          {
+                            title: t("eye.optometry.colOsAstigmatism"),
+                            render: (_, r: any) =>
+                              `${r.leftEye?.cylinder} C ×${r.leftEye?.axis}`,
+                          },
                         ]}
                         scroll={{ x: "max-content" }}
                       />

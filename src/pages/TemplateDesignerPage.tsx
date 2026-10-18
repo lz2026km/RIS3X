@@ -2290,8 +2290,6 @@ export default function TemplateDesignerPage() {
                           rowKey="id"
                           dataSource={allFields}
                           pagination={false}
-                          showExport={false}
-                          showDensity={false}
                           columns={[
                             {
                               title: t("templateDesigner.colField"),

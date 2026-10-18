@@ -29,6 +29,7 @@ import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
 import { DataTable } from "../../components/common";
 import { PageContainer } from "../../components/common";
+import { exportRowsToCsv } from "../../utils/exportRowsToCsv";
 
 const { TextArea } = Input;
 
@@ -479,6 +480,19 @@ export const PixPage: React.FC = () => {
                         scroll={{ x: "max-content" }}
                         dataSource={queryPagination.pageData}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
+                        selectable
+                        drillDown={true}
+                        bulkActions={(_keys, rows) => (
+                          <Button
+                            size="small"
+                            type="primary"
+                            onClick={() =>
+                              exportRowsToCsv(rows, "pix-identities")
+                            }
+                          >
+                            {t("ui4Tables.bulk.exportSelected")}
+                          </Button>
+                        )}
                         pagination={queryPagination.pagination}
                         columns={identitiesColumns}
                       />

@@ -3470,8 +3470,6 @@ export default function ConsultationPage() {
                 rowKey="id"
                 dataSource={mockRecordingArchives}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("consultation.archiveId"),

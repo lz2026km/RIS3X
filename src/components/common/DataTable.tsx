@@ -18,7 +18,7 @@ import type {
   TableColumnGroupType,
 } from "antd";
 import type { ReactNode, CSSProperties } from "react";
-import { Download } from "lucide-react";
+import { AlignJustify, Download } from "lucide-react";
 import "../../styles/data-table.css";
 import { EmptyState } from "./EmptyState";
 // [W14-UX] 列配置/保存视图 + 右键上下文菜单
@@ -631,9 +631,11 @@ export function DataTable<RecordType extends object>({
   contextMenuItems,
   contextMenuTestId,
   showExport = true,
+  showDensity = true,
   exportFileName = "table",
   density: densityProp,
   defaultDensity = "compact",
+  onDensityChange,
   disableAutoNumericAlign = false,
   cellWrap = "ellipsis",
   layoutWidth = 1200,
@@ -659,7 +661,16 @@ export function DataTable<RecordType extends object>({
   rowSelection,
   ...restProps
 }: DataTableProps<RecordType>) {
-  const density = densityProp ?? "compact";
+  // [v3.0.6.16-6] 密度: 受控优先, 非受控写内部 state, 切换后通知外部
+  const [innerDensity, setInnerDensity] =
+    useState<TableDensity>(defaultDensity);
+  const density = densityProp ?? innerDensity;
+  const toggleDensity = useCallback(() => {
+    const next: TableDensity =
+      density === "compact" ? "comfortable" : "compact";
+    if (densityProp === undefined) setInnerDensity(next);
+    onDensityChange?.(next);
+  }, [density, densityProp, onDensityChange]);
 
   const pagination = useMemoPagination(
     showPagination,
@@ -879,6 +890,22 @@ export function DataTable<RecordType extends object>({
           <div style={{ flex: 1 }} />
           {toolbarExtra}
           {resolvedColumnConfigKey && columnConfig.toolbar}
+          {showDensity && (
+            <Tooltip title={t("ui4Tables.density.tooltip")}>
+              <Button
+                size="small"
+                type="text"
+                icon={<AlignJustify size={14} />}
+                onClick={toggleDensity}
+                data-testid="data-table-density"
+                aria-label={t("ui4Tables.density.label")}
+              >
+                {density === "compact"
+                  ? t("ui4Tables.density.compact")
+                  : t("ui4Tables.density.comfortable")}
+              </Button>
+            </Tooltip>
+          )}
           {showExportBtn && (
             <Tooltip title={t("ui4Tables.export.tooltip")}>
               <Button

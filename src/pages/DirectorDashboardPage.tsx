@@ -860,8 +860,6 @@ const DirectorDashboardPage: React.FC = () => {
           rowKey="id"
           dataSource={filteredDoctors}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           columns={[
             {
               title: t("directorDash.colRank"),
@@ -983,8 +981,6 @@ const DirectorDashboardPage: React.FC = () => {
           rowKey="id"
           dataSource={technicians}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           columns={[
             {
               title: t("directorDash.colRank"),
@@ -1184,8 +1180,6 @@ const DirectorDashboardPage: React.FC = () => {
             rowKey="id"
             dataSource={[...devices].sort((a, b) => b.fullRate - a.fullRate)}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             columns={[
               { title: t("directorDash.colDevice"), dataIndex: "name" },
               {
@@ -1242,8 +1236,6 @@ const DirectorDashboardPage: React.FC = () => {
             rowKey="id"
             dataSource={[...devices].sort((a, b) => b.faultRate - a.faultRate)}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             columns={[
               { title: t("directorDash.colDevice"), dataIndex: "name" },
               {
@@ -1311,8 +1303,6 @@ const DirectorDashboardPage: React.FC = () => {
             }))
             .sort((a, b) => b.totalScore - a.totalScore)}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           columns={[
             {
               title: t("directorDash.colRank"),

@@ -1,5 +1,5 @@
 import { t } from "../i18n/appI18n";
-import { Switch, Typography, Alert } from "antd";
+import { Button, Switch, Typography, Alert } from "antd";
 // NOTE: 未解决 - 此文件超过 2000 行（2933行），需要拆分为子组件
 // v3.0.4 重构目标：
 // 1. 提取页面头部 (title + breadcrumb + actions)
@@ -89,6 +89,7 @@ import { PageTemplate } from "../components/common/PageTemplate";
 import { StatusTag } from "../components/common/StatusTag";
 import { SeverityTag } from "../components/common/SeverityTag";
 import { DataTable } from "../components/common/DataTable";
+import { exportRowsToCsv } from "../utils/exportRowsToCsv";
 import { AppSelectField } from "../components/common/AppSelectField";
 import { qcextApi } from "../services/api/qcextApi";
 import { qcAnalyticsApi } from "../services/api/qcAnalyticsApi";
@@ -2651,8 +2652,6 @@ export default function QCPage() {
               rowKey="id"
               dataSource={doctorScoreData}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("qcPage.rank"),
@@ -3299,9 +3298,18 @@ export default function QCPage() {
             <DataTable
               rowKey="id"
               dataSource={filteredReports}
+              selectable
+              drillDown={true}
+              bulkActions={(_keys, rows) => (
+                <Button
+                  size="small"
+                  type="primary"
+                  onClick={() => exportRowsToCsv(rows, "qc-reports")}
+                >
+                  {t("ui4Tables.bulk.exportSelected")}
+                </Button>
+              )}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("qcPage.reportId"),
@@ -3560,8 +3568,6 @@ export default function QCPage() {
               rowKey="id"
               dataSource={imageFiltered}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("qcPage.accessionNo"),
@@ -3971,8 +3977,6 @@ export default function QCPage() {
               rowKey="id"
               dataSource={timeoutData}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("qcPage.accessionNo"),
@@ -4740,8 +4744,6 @@ export default function QCPage() {
                 ...inspectionRecordsData,
               ]}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("qcPage.sampleId"),
@@ -6411,8 +6413,6 @@ export default function QCPage() {
                   rowKey="ranking"
                   dataSource={regionalRanking}
                   showPagination={false}
-                  showExport={false}
-                  showDensity={false}
                   columns={[
                     {
                       title: t("qcPage.rank"),
@@ -8341,8 +8341,6 @@ export default function QCPage() {
                 rowKey="id"
                 dataSource={peerReviewAssignments}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("qcPage.caseId"),
@@ -9345,8 +9343,6 @@ export default function QCPage() {
                   (d) => d.concordance === "concordant",
                 )}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("qcPage.caseId"),
@@ -10068,8 +10064,6 @@ export default function QCPage() {
                   rowKey="id"
                   dataSource={inspectionFindings}
                   showPagination={false}
-                  showExport={false}
-                  showDensity={false}
                   columns={[
                     {
                       title: t("qcPage.date"),

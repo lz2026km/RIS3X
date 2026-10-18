@@ -586,8 +586,6 @@ export default function OpsDashboardPage() {
                 dataSource={filteredOperators}
                 rowKey={(o) => o.operatorName}
                 pagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: "#",

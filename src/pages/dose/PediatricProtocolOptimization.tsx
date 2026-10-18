@@ -221,8 +221,6 @@ export default function PediatricProtocolOptimization() {
           rowKey={(p) => `${p.ageGroup}-${p.protocolName}`}
           dataSource={visibleProtocols}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           columns={[
             {
               title: "协议名称",

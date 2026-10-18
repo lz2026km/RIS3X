@@ -392,8 +392,6 @@ export default function BreastDoseTracking() {
             rowKey="id"
             dataSource={filteredRecords}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             columns={[
               {
                 title: "患者姓名",

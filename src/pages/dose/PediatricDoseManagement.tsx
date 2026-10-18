@@ -408,8 +408,6 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
           rowKey="id"
           dataSource={filtered}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           scroll={{ x: 1200 }}
           columns={[
             {

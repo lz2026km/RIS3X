@@ -29,6 +29,7 @@ import {
   Eye,
 } from "lucide-react";
 import {
+  Button,
   message,
   Switch,
   Modal,
@@ -39,6 +40,7 @@ import {
 } from "antd";
 import { CRITICAL_RULES } from "../data/criticalValueMock";
 import { DataTable } from "../components/common";
+import { exportRowsToCsv } from "../utils/exportRowsToCsv";
 import {
   criticalApi,
   type CriticalStatsDto,
@@ -651,6 +653,17 @@ const CriticalValueCenterPage: React.FC = () => {
           <DataTable
             dataSource={center}
             rowKey="id"
+            selectable
+            drillDown={true}
+            bulkActions={(_keys, rows) => (
+              <Button
+                size="small"
+                type="primary"
+                onClick={() => exportRowsToCsv(rows, "critical-center-events")}
+              >
+                {t("ui4Tables.bulk.exportSelected")}
+              </Button>
+            )}
             pagination={false}
             columns={[
               {

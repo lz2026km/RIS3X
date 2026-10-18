@@ -12,7 +12,6 @@ import {
   Legend,
 } from "recharts";
 import { ChartContainer } from "../../components/charts";
-import { AppSelectField } from "../../components/common/AppSelectField";
 import { t } from "../../i18n/appI18n";
 
 const C = {
@@ -298,29 +297,18 @@ export default function DepartmentFinanceSummary({
               </span>
             </span>
             <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
-              <AppSelectField
+              {/* [v3.0.6.16-7] 演示数据仅覆盖本周口径, 原下拉无可筛选数据 -> 改为只读口径显示 */}
+              <span
                 style={{
                   padding: "4px 8px",
                   border: `1px solid ${C.border}`,
                   borderRadius: 4,
                   fontSize: 12,
+                  color: C.textMid,
                 }}
-                defaultValue={t("deptFinance.thisWeek")}
-                options={[
-                  {
-                    value: t("deptFinance.thisWeek"),
-                    label: t("deptFinance.thisWeek"),
-                  },
-                  {
-                    value: t("deptFinance.thisMonth"),
-                    label: t("deptFinance.thisMonth"),
-                  },
-                  {
-                    value: t("deptFinance.thisQuarter"),
-                    label: t("deptFinance.thisQuarter"),
-                  },
-                ]}
-              />
+              >
+                {t("deptFinance.thisWeek")}
+              </span>
             </div>
           </div>
           <div style={panelBodyStyle}>

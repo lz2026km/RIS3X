@@ -1,4 +1,4 @@
-import { Card, Typography } from "antd";
+import { Button, Card, Typography } from "antd";
 // v3.0.4 重构：拆分为子组件
 // ============================================================
 // G005 放射科RIS系统 - 患者管理 v1.0.0
@@ -14,6 +14,7 @@ import { TrendChart } from "../components/dashboard/TrendChart";
 import { AppText } from "../components/common/AppText";
 import { ErrorBanner, LoadingBanner } from "../components/feedback";
 import { t } from "../i18n/appI18n";
+import { exportRowsToCsv } from "../utils/exportRowsToCsv";
 import {
   Search,
   User,
@@ -2515,6 +2516,16 @@ export default function PatientPage() {
         </div>
         <DataTable<Patient>
           rowKey="id"
+          selectable
+          bulkActions={(_keys, rows) => (
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => exportRowsToCsv(rows, "patients")}
+            >
+              {t("ui4Tables.bulk.exportSelected")}
+            </Button>
+          )}
           loading={loading}
           onRow={(p: Patient) => ({
             style: { cursor: "pointer" },

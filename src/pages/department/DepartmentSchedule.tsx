@@ -533,8 +533,6 @@ export default function DepartmentSchedule() {
             rowKey="staffId"
             dataSource={attendanceRows}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             columns={[
               {
                 title: t("deptSched.colName"),

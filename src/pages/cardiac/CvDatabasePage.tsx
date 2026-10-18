@@ -355,8 +355,6 @@ export default function CvDatabasePage() {
             rowKey="id"
             dataSource={filtered}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             emptyText="未找到病例。"
             columns={[
               {

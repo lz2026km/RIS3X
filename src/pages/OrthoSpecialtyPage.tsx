@@ -696,8 +696,6 @@ const OrthoSpecialtyPage = () => {
               rowKey="id"
               dataSource={filtered}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               emptyText={<AppEmpty variant="no-results" minHeight={160} />}
               columns={[
                 { title: t("ortho.colId"), dataIndex: "id", key: "id" },

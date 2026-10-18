@@ -1031,8 +1031,6 @@ export default function DeviceFaultPage() {
               rowKey="id"
               dataSource={filteredRecords}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("deviceFault.thDevice"),

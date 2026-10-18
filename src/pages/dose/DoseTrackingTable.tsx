@@ -146,8 +146,6 @@ export default function DoseTrackingTable({
             rowKey="id"
             dataSource={visibleRecords}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             fixedHeader={500}
             onRow={(r) => ({
               onClick: () => setSelectedPatient(r),

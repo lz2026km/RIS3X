@@ -1,8 +1,13 @@
 import { usePagination } from "../../hooks/usePagination";
 import { reportApi } from "../../services/api";
 import { srDocumentApi } from "../../services/api/srReportApi";
-import { SrConceptName, SrContentItem, SrDocument, SrSection } from '../../services/api/srReportApi'
-import { EmptyState } from '../../components/common/EmptyState'
+import {
+  SrConceptName,
+  SrContentItem,
+  SrDocument,
+  SrSection,
+} from "../../services/api/srReportApi";
+import { EmptyState } from "../../components/common/EmptyState";
 import {
   Card,
   Tag,
@@ -21,7 +26,12 @@ import {
   Divider,
   message,
 } from "antd";
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+} from "../../components/common";
 import {
   FileText,
   RefreshCw,
@@ -34,7 +44,7 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Inbox } from 'lucide-react'
+import { Inbox } from "lucide-react";
 import { t } from "../../i18n/appI18n";
 
 const { Text, Paragraph } = Typography;
@@ -57,7 +67,10 @@ const SrReportPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [documents, setDocuments] = useState<SrDocument[]>([]);
-  const { pageData: docPageData, pagination: docPagination } = usePagination(documents, 10);
+  const { pageData: docPageData, pagination: docPagination } = usePagination(
+    documents,
+    10,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [detail, setDetail] = useState<SrDocument | null>(null);
@@ -73,7 +86,12 @@ const SrReportPage: React.FC = () => {
     reportId: string;
     templateId: string;
     paragraph: string;
-    measurements: Array<{ name: string; value: string; unit: string; source: string }>;
+    measurements: Array<{
+      name: string;
+      value: string;
+      unit: string;
+      source: string;
+    }>;
   } | null>(null);
 
   const load = useCallback(async () => {
@@ -146,7 +164,9 @@ const SrReportPage: React.FC = () => {
         message.success(
           res.data?.oru?.pushed
             ? t("w9d.srReport.oruPushed", { ack: res.data.oru.ackStatus })
-            : t("w9d.srReport.oruArchived", { controlId: res.data?.oru.controlId ?? "-" }),
+            : t("w9d.srReport.oruArchived", {
+                controlId: res.data?.oru.controlId ?? "-",
+              }),
         );
         void load();
         if (detail?.id === r.id) setDetail(res.data?.document ?? null);
@@ -161,7 +181,9 @@ const SrReportPage: React.FC = () => {
   };
 
   const exportJson = (r: SrDocument) => {
-    const blob = new Blob([JSON.stringify(r, null, 2)], { type: "application/json;charset=utf-8" });
+    const blob = new Blob([JSON.stringify(r, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -213,31 +235,64 @@ const SrReportPage: React.FC = () => {
   const confirmBackfill = () => {
     if (!backfillData) return;
     const esc = (v: unknown): string =>
-      String(v ?? "").replace(/[<>&"']/g, (ch) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" })[ch] ?? ch);
+      String(v ?? "").replace(
+        /[<>&"']/g,
+        (ch) =>
+          ({
+            "<": "&lt;",
+            ">": "&gt;",
+            "&": "&amp;",
+            '"': "&quot;",
+            "'": "&#39;",
+          })[ch] ?? ch,
+      );
     const html = [
       `<h3>${t("w9d.srReport.summaryTitle")}</h3>`,
       `<p>${t("w9d.srReport.sourceLabel")}: SR ${esc(backfillData.srId)} (${esc(backfillData.templateId)})</p>`,
-      `<div>${backfillData.paragraph.split("\n").map((line) => `<p style="margin:2px 0">${esc(line)}</p>`).join("")}</div>`,
+      `<div>${backfillData.paragraph
+        .split("\n")
+        .map((line) => `<p style="margin:2px 0">${esc(line)}</p>`)
+        .join("")}</div>`,
     ].join("\n");
-    window.dispatchEvent(new CustomEvent("report-insert-html", { detail: { html } }));
-    try { window.localStorage.setItem("ris_sr_backfill_pending", html) } catch { /* 忽略 */ }
+    window.dispatchEvent(
+      new CustomEvent("report-insert-html", { detail: { html } }),
+    );
+    try {
+      window.localStorage.setItem("ris_sr_backfill_pending", html);
+    } catch {
+      /* 忽略 */
+    }
     message.success(t("srReport.sentToEditor"));
     setBackfillOpen(false);
-    navigate(`/reports/v3-write?reportId=${encodeURIComponent(backfillData.reportId)}`);
+    navigate(
+      `/reports/v3-write?reportId=${encodeURIComponent(backfillData.reportId)}`,
+    );
   };
 
   // ───────────────────────── 列表 ─────────────────────────
 
   const columns = [
     { title: t("srReport.colId"), dataIndex: "id", key: "id", width: 90 },
-    { title: t("srReport.colPatient"), dataIndex: "patientName", key: "patientName", width: 100 },
-    { title: t("srReport.colReportId"), dataIndex: "reportId", key: "reportId", width: 130 },
+    {
+      title: t("srReport.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      width: 100,
+    },
+    {
+      title: t("srReport.colReportId"),
+      dataIndex: "reportId",
+      key: "reportId",
+      width: 130,
+    },
     {
       title: t("srReport.colTemplate"),
       dataIndex: "templateId",
       key: "templateId",
       width: 110,
-      render: (v: string) => <Tag color={v === "tid1500" ? "cyan" : "blue"}>{v}</Tag>,
+      render: (v: string) => (
+        <Tag color={v === "tid1500" ? "cyan" : "blue"}>{v}</Tag>
+      ),
     },
     {
       title: t("srReport.colStatus"),
@@ -245,7 +300,9 @@ const SrReportPage: React.FC = () => {
       key: "status",
       width: 90,
       render: (v: string) => (
-        <Tag color={statusMeta[v]?.color ?? "default"}>{statusMeta[v]?.label ?? v}</Tag>
+        <Tag color={statusMeta[v]?.color ?? "default"}>
+          {statusMeta[v]?.label ?? v}
+        </Tag>
       ),
     },
     {
@@ -293,7 +350,11 @@ const SrReportPage: React.FC = () => {
           >
             {t("srReport.oruPush")}
           </Button>
-          <Button size="small" icon={<Download size={14} />} onClick={() => exportJson(r)}>
+          <Button
+            size="small"
+            icon={<Download size={14} />}
+            onClick={() => exportJson(r)}
+          >
             JSON
           </Button>
           <Button
@@ -311,26 +372,44 @@ const SrReportPage: React.FC = () => {
   // ───────────────────────── 结构化树渲染 ─────────────────────────
 
   const renderConcept = (c: SrConceptName) => (
-    <Text style={{ fontSize: 11, fontFamily: "monospace", color: 'var(--text-muted, #64748b)' }}>
+    <Text
+      style={{
+        fontSize: 11,
+        fontFamily: "monospace",
+        color: "var(--text-muted, #64748b)",
+      }}
+    >
       {c.scheme}:{c.code}
     </Text>
   );
 
   const renderItem = (item: SrContentItem, depth: number) => (
-    <div key={`${item.conceptName.code}-${item.value}-${depth}`} style={{ marginLeft: depth * 18, marginBottom: 6 }}>
+    <div
+      key={`${item.conceptName.code}-${item.value}-${depth}`}
+      style={{ marginLeft: depth * 18, marginBottom: 6 }}
+    >
       <Space align="start" size={6}>
-        <Tag color={valueTypeTag[item.valueType] ?? "default"} style={{ fontSize: 10, marginRight: 0 }}>
+        <Tag
+          color={valueTypeTag[item.valueType] ?? "default"}
+          style={{ fontSize: 10, marginRight: 0 }}
+        >
           {item.valueType}
         </Tag>
         <div>
           <Space size={6}>
-            <Text style={{ fontSize: 12, fontWeight: 500 }}>{item.conceptName.meaning}</Text>
+            <Text style={{ fontSize: 12, fontWeight: 500 }}>
+              {item.conceptName.meaning}
+            </Text>
             {renderConcept(item.conceptName)}
             {item.relationshipType !== "CONTAINS" && (
               <Tag style={{ fontSize: 10 }}>{item.relationshipType}</Tag>
             )}
           </Space>
-          {item.value && <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{item.value}</div>}
+          {item.value && (
+            <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
+              {item.value}
+            </div>
+          )}
           {item.valueType === "CODE" && item.code && (
             <div style={{ marginTop: 2 }}>
               <Tag color="geekblue" style={{ fontSize: 10 }}>
@@ -345,8 +424,13 @@ const SrReportPage: React.FC = () => {
   );
 
   const renderSection = (s: SrSection) => (
-    <Card size="small" key={s.conceptName.code} title={s.title} style={{ marginBottom: 'var(--space-3, 12px)' }}>
-      <Space size={6} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+    <Card
+      size="small"
+      key={s.conceptName.code}
+      title={s.title}
+      style={{ marginBottom: "var(--space-3, 12px)" }}
+    >
+      <Space size={6} style={{ marginBottom: "var(--space-2, 8px)" }}>
         {renderConcept(s.conceptName)}
       </Space>
       {s.items.length > 0 ? (
@@ -359,10 +443,12 @@ const SrReportPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }} wrap>
         <FileText size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("srReport.title")}</span>
-        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("srReport.title")}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}>
           {t("srReport.subtitle")}
         </span>
         <Button
@@ -373,12 +459,24 @@ const SrReportPage: React.FC = () => {
         >
           {t("srReport.refresh")}
         </Button>
-        <Button size="small" type="primary" onClick={() => setGenerateOpen(true)}>
+        <Button
+          size="small"
+          type="primary"
+          onClick={() => setGenerateOpen(true)}
+        >
           {t("srReport.generateFromReport")}
         </Button>
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t("srReport.statDocs")} value={documents.length} icon={<FileText size={16} />} />
+      <StatCardGrid
+        minWidth={200}
+        gap={16}
+        style={{ marginBottom: "var(--space-4, 16px)" }}
+      >
+        <StatCard
+          title={t("srReport.statDocs")}
+          value={documents.length}
+          icon={<FileText size={16} />}
+        />
         <StatCard
           title={t("srReport.statFinalized")}
           value={documents.filter((d) => d.status === "finalized").length}
@@ -394,9 +492,11 @@ const SrReportPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 'var(--space-4, 16px)' }}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
           title={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
+          action={
+            <Button size="small" onClick={() => void load()}>
+              <RefreshCw size={14} />
               {t("srReport.retry")}
             </Button>
           }
@@ -409,7 +509,7 @@ const SrReportPage: React.FC = () => {
             dataSource={docPageData}
             columns={columns}
             pagination={docPagination}
-          scroll={{ x: 'max-content' }}
+            scroll={{ x: "max-content" }}
           />
         </Spin>
       </Card>
@@ -461,10 +561,16 @@ const SrReportPage: React.FC = () => {
               >
                 {t("srReport.oruPush")}
               </Button>
-              <Button icon={<Download size={14} />} onClick={() => exportJson(detail!)}>
+              <Button
+                icon={<Download size={14} />}
+                onClick={() => exportJson(detail!)}
+              >
                 {t("srReport.exportJson")}
               </Button>
-              <Button icon={<Database size={14} />} onClick={() => void downloadDicom(detail!)}>
+              <Button
+                icon={<Database size={14} />}
+                onClick={() => void downloadDicom(detail!)}
+              >
                 {t("srReport.downloadDicom")}
               </Button>
             </Space>
@@ -479,9 +585,11 @@ const SrReportPage: React.FC = () => {
                 column={2}
                 bordered
                 size="small"
-                style={{ marginBottom: 'var(--space-4, 16px)' }}
+                style={{ marginBottom: "var(--space-4, 16px)" }}
               >
-                <Descriptions.Item label={t("srReport.colId")}>{detail.id}</Descriptions.Item>
+                <Descriptions.Item label={t("srReport.colId")}>
+                  {detail.id}
+                </Descriptions.Item>
                 <Descriptions.Item label={t("srReport.colStatus")}>
                   <Tag color={statusMeta[detail.status]?.color ?? "default"}>
                     {statusMeta[detail.status]?.label ?? detail.status}
@@ -496,7 +604,9 @@ const SrReportPage: React.FC = () => {
                 <Descriptions.Item label={t("srReport.colTemplate")}>
                   {detail.templateId} (TID {detail.tid})
                 </Descriptions.Item>
-                <Descriptions.Item label={t("srReport.modality")}>{detail.modality}</Descriptions.Item>
+                <Descriptions.Item label={t("srReport.modality")}>
+                  {detail.modality}
+                </Descriptions.Item>
                 <Descriptions.Item label={t("srReport.sopClassUid")} span={2}>
                   <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                     {detail.sopClassUid}
@@ -508,7 +618,10 @@ const SrReportPage: React.FC = () => {
                   </Text>
                 </Descriptions.Item>
                 {detail.hl7ControlId && (
-                  <Descriptions.Item label={t("srReport.hl7ControlId")} span={2}>
+                  <Descriptions.Item
+                    label={t("srReport.hl7ControlId")}
+                    span={2}
+                  >
                     <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                       {detail.hl7ControlId}
                     </Text>
@@ -524,7 +637,11 @@ const SrReportPage: React.FC = () => {
               <Divider titlePlacement="left" style={{ margin: "8px 0 16px" }}>
                 {t("srReport.contentTree")} (TID {detail.tid})
               </Divider>
-              <Card size="small" title={t("srReport.context")} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+              <Card
+                size="small"
+                title={t("srReport.context")}
+                style={{ marginBottom: "var(--space-3, 12px)" }}
+              >
                 <Descriptions column={3} size="small">
                   <Descriptions.Item label={t("srReport.colPatient")}>
                     {detail.content?.context?.patient?.name} (
@@ -550,19 +667,23 @@ const SrReportPage: React.FC = () => {
               {detail.content?.sections?.length > 0 ? (
                 detail.content.sections.map(renderSection)
               ) : (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("srReport.noSections")} />
+                <Empty
+                  image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                  description={t("srReport.noSections")}
+                />
               )}
-              {detail.content?.codedEntries && detail.content.codedEntries.length > 0 && (
-                <Card size="small" title={t("srReport.codedEntries")}>
-                  <Space wrap>
-                    {detail.content.codedEntries.map((c, i) => (
-                      <Tag key={i} color="geekblue">
-                        {c.scheme}:{c.code} {c.meaning}
-                      </Tag>
-                    ))}
-                  </Space>
-                </Card>
-              )}
+              {detail.content?.codedEntries &&
+                detail.content.codedEntries.length > 0 && (
+                  <Card size="small" title={t("srReport.codedEntries")}>
+                    <Space wrap>
+                      {detail.content.codedEntries.map((c, i) => (
+                        <Tag key={i} color="geekblue">
+                          {c.scheme}:{c.code} {c.meaning}
+                        </Tag>
+                      ))}
+                    </Space>
+                  </Card>
+                )}
               {detail.hl7Message && (
                 <>
                   <Divider titlePlacement="left" style={{ margin: "16px 0" }}>
@@ -573,7 +694,7 @@ const SrReportPage: React.FC = () => {
                       fontSize: 11,
                       fontFamily: "monospace",
                       background: "var(--bg-card)",
-                      padding: 'var(--space-3, 12px)',
+                      padding: "var(--space-3, 12px)",
                       borderRadius: 8,
                       maxHeight: 220,
                       overflow: "auto",
@@ -593,7 +714,7 @@ const SrReportPage: React.FC = () => {
                   fontSize: 11,
                   fontFamily: "monospace",
                   background: "var(--bg-card)",
-                  padding: 'var(--space-3, 12px)',
+                  padding: "var(--space-3, 12px)",
                   borderRadius: 8,
                   maxHeight: 260,
                   overflow: "auto",
@@ -613,7 +734,9 @@ const SrReportPage: React.FC = () => {
         onCancel={() => setBackfillOpen(false)}
         footer={
           <Space>
-            <Button onClick={() => setBackfillOpen(false)}>{t("srReport.cancel")}</Button>
+            <Button onClick={() => setBackfillOpen(false)}>
+              {t("srReport.cancel")}
+            </Button>
             <Button
               type="primary"
               icon={<ClipboardPen size={14} />}
@@ -629,25 +752,72 @@ const SrReportPage: React.FC = () => {
         <Spin spinning={backfillLoading}>
           {backfillData && (
             <>
-              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 10 }}>
-                {t("srReport.backfillPrefix")} {backfillData.measurements.length} {t("srReport.backfillItems")} (SR {backfillData.srId} · {backfillData.templateId}){t("srReport.backfillSuffix")}
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-muted, #94a3b8)",
+                  marginBottom: 10,
+                }}
+              >
+                {t("srReport.backfillPrefix")}{" "}
+                {backfillData.measurements.length} {t("srReport.backfillItems")}{" "}
+                (SR {backfillData.srId} · {backfillData.templateId})
+                {t("srReport.backfillSuffix")}
               </div>
               {backfillData.measurements.length > 0 && (
                 <DataTable
-                  rowKey={(m, i) => `${m.name}-${m.value}-${i}`}
+                  rowKey={(m) =>
+                    `${m.name}-${m.value}-${m.unit ?? ""}-${m.source ?? ""}`
+                  }
                   dataSource={backfillData.measurements}
                   columns={[
                     { title: t("srReport.measureName"), dataIndex: "name" },
-                    { title: t("srReport.measureValue"), dataIndex: "value", width: 90 },
-                    { title: t("srReport.measureUnit"), dataIndex: "unit", width: 90 },
-                    { title: t("srReport.measureSource"), dataIndex: "source", width: 130, render: (v: string) => <Tag color={v === "measurement-group" ? "cyan" : v === "num-item" ? "blue" : "default"}>{v}</Tag> },
+                    {
+                      title: t("srReport.measureValue"),
+                      dataIndex: "value",
+                      width: 90,
+                    },
+                    {
+                      title: t("srReport.measureUnit"),
+                      dataIndex: "unit",
+                      width: 90,
+                    },
+                    {
+                      title: t("srReport.measureSource"),
+                      dataIndex: "source",
+                      width: 130,
+                      render: (v: string) => (
+                        <Tag
+                          color={
+                            v === "measurement-group"
+                              ? "cyan"
+                              : v === "num-item"
+                                ? "blue"
+                                : "default"
+                          }
+                        >
+                          {v}
+                        </Tag>
+                      ),
+                    },
                   ]}
                   pagination={false}
-                  style={{ marginBottom: 'var(--space-3, 12px)' }}
+                  style={{ marginBottom: "var(--space-3, 12px)" }}
                   scroll={{ x: "max-content" }}
                 />
               )}
-              <div style={{ fontSize: 12, color: 'var(--text-primary, #334155)', lineHeight: 1.8, background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-primary, #334155)",
+                  lineHeight: 1.8,
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: 8,
+                  padding: "12px 14px",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
                 {backfillData.paragraph}
               </div>
             </>
@@ -683,7 +853,9 @@ const GenerateSrModal: React.FC<{
         .filter((r) => r && typeof r === "object" && "id" in r)
         .map((r) => ({
           id: String((r as { id: string }).id),
-          patientName: String((r as { patientName?: string }).patientName ?? ""),
+          patientName: String(
+            (r as { patientName?: string }).patientName ?? "",
+          ),
           findings: String((r as { findings?: string }).findings ?? ""),
           impression: String(
             (r as { impression?: string }).impression ??
@@ -747,13 +919,20 @@ const GenerateSrModal: React.FC<{
       width={720}
     >
       {loadError && !reportsLoading && (
-        <Alert type="warning" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} title={loadError} />
+        <Alert
+          type="warning"
+          showIcon
+          style={{ marginBottom: "var(--space-3, 12px)" }}
+          title={loadError}
+        />
       )}
       <Form form={form} layout="vertical">
         <Form.Item
           label={t("srReport.selectReport")}
           name="reportId"
-          rules={[{ required: true, message: t("srReport.selectReportRequired") }]}
+          rules={[
+            { required: true, message: t("srReport.selectReportRequired") },
+          ]}
         >
           <Select
             loading={reportsLoading}
@@ -767,29 +946,55 @@ const GenerateSrModal: React.FC<{
           />
         </Form.Item>
         {selectedReport && (
-          <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>
-              {selectedReport.patientName} - {t("srReport.findingsLabel")} {selectedReport.findings || t("srReport.emptyPlaceholder")}
+          <Card size="small" style={{ marginBottom: "var(--space-3, 12px)" }}>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted, #64748b)",
+                marginBottom: "var(--space-1, 4px)",
+              }}
+            >
+              {selectedReport.patientName} - {t("srReport.findingsLabel")}{" "}
+              {selectedReport.findings || t("srReport.emptyPlaceholder")}
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
-              {t("srReport.impressionLabel")} {selectedReport.impression || t("srReport.emptyPlaceholder")}
+            <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+              {t("srReport.impressionLabel")}{" "}
+              {selectedReport.impression || t("srReport.emptyPlaceholder")}
             </div>
           </Card>
         )}
-        <Form.Item label={t("srReport.srTemplate")} name="templateId" initialValue="tid1500">
+        <Form.Item
+          label={t("srReport.srTemplate")}
+          name="templateId"
+          initialValue="tid1500"
+        >
           <Radio.Group>
             <Radio value="tid1500">{t("srReport.tid1500")}</Radio>
             <Radio value="tid2000">{t("srReport.tid2000")}</Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item label={t("srReport.findingsOverride")} name="findings">
-          <Input.TextArea rows={2} placeholder={t("srReport.findingsOverridePlaceholder")} />
+          <Input.TextArea
+            rows={2}
+            placeholder={t("srReport.findingsOverridePlaceholder")}
+          />
         </Form.Item>
         <Form.Item label={t("srReport.impressionOverride")} name="impression">
-          <Input.TextArea rows={2} placeholder={t("srReport.impressionOverridePlaceholder")} />
+          <Input.TextArea
+            rows={2}
+            placeholder={t("srReport.impressionOverridePlaceholder")}
+          />
         </Form.Item>
       </Form>
-      <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--text-muted, #94a3b8)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-1, 4px)",
+        }}
+      >
         <ChevronRight size={12} /> {t("srReport.generateHint")}
       </div>
     </Modal>

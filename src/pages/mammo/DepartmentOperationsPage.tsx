@@ -340,7 +340,6 @@ const DepartmentOperationsPage = () => {
         status: "在岗",
         focus: "注射",
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     ],
     [refreshTick],
   );
@@ -395,7 +394,6 @@ const DepartmentOperationsPage = () => {
         patient: "",
         todayCount: 4,
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     ],
     [refreshTick],
   );
@@ -737,8 +735,6 @@ const DepartmentOperationsPage = () => {
             rowKey="id"
             dataSource={filteredQueue}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             columns={[
               { title: t("deptOps.colIndex"), dataIndex: "id", key: "id" },
               {

@@ -651,8 +651,6 @@ function ProjectsTab() {
           dataSource={projects}
           rowKey={(project) => project.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("common.empty.noData")}
           columns={[
             {
@@ -1777,8 +1775,6 @@ function ExtractTab() {
           dataSource={examRecords}
           rowKey={(record) => record.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           scroll={{ x: 1200 }}
           emptyText={t("common.empty.noData")}
           columns={[
@@ -2300,8 +2296,6 @@ function LabelsTab() {
         dataSource={filteredLabels}
         rowKey={(label) => label.id}
         pagination={false}
-        showExport={false}
-        showDensity={false}
         emptyText={t("common.empty.noData")}
         columns={[
           {
@@ -2953,8 +2947,6 @@ function ExportTab() {
           dataSource={exports}
           rowKey={(record) => record.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("common.empty.noData")}
           columns={[
             {
@@ -3456,8 +3448,6 @@ function DeidEngineTab() {
           dataSource={phiTags}
           rowKey={(pt) => pt.tag}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("common.empty.noData")}
           columns={[
             {
@@ -3751,8 +3741,6 @@ function DeidEngineTab() {
             dataSource={deidResult.files}
             rowKey="fileName"
             pagination={false}
-            showExport={false}
-            showDensity={false}
             emptyText={t("common.empty.noData")}
             columns={[
               {
@@ -4358,8 +4346,6 @@ function IRBWorkflowTab() {
           dataSource={submissions}
           rowKey={(s) => s.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("common.empty.noData")}
           columns={[
             {
@@ -5034,24 +5020,19 @@ function ExportPipelineTab() {
             >
               {t("researchPage.dataScope")}
             </label>
-            <Select
-              style={{ width: "100%" }}
-              defaultValue={t("researchPage.scopeAll")}
-              options={[
-                {
-                  value: t("researchPage.scopeAll"),
-                  label: t("researchPage.scopeAll"),
-                },
-                {
-                  value: t("researchPage.scopeSelected"),
-                  label: t("researchPage.scopeSelected"),
-                },
-                {
-                  value: t("researchPage.scopeByDate"),
-                  label: t("researchPage.scopeByDate"),
-                },
-              ]}
-            />
+            {/* [v3.0.6.16-7] 导出范围无对应筛选逻辑 -> 改为只读显示, 不再伪装可交互 */}
+            <div
+              style={{
+                padding: "4px 11px",
+                border: "1px solid var(--border-color)",
+                borderRadius: 6,
+                fontSize: 14,
+                color: "var(--text-secondary)",
+                background: "var(--bg-card)",
+              }}
+            >
+              {t("researchPage.scopeAll")}
+            </div>
           </div>
         </div>
         <div
@@ -5165,8 +5146,6 @@ function ExportPipelineTab() {
           dataSource={auditLog}
           rowKey={(a) => a.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("common.empty.noData")}
           columns={[
             {
@@ -5414,8 +5393,6 @@ function DataQualityTab() {
           dataSource={scores}
           rowKey={(f) => f.field}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("common.empty.noData")}
           columns={[
             {

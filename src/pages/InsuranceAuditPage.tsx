@@ -5,7 +5,10 @@
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
 import { Select } from "antd";
-import { datareportApi, type InsuranceAuditDto as DataReportAuditDto } from "../services/api/datareportApi";
+import {
+  datareportApi,
+  type InsuranceAuditDto as DataReportAuditDto,
+} from "../services/api/datareportApi";
 import { insuranceApi } from "../services/api/insuranceApi";
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
@@ -14,13 +17,62 @@ import { PermissionGate } from "../components/common/PermissionGate";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable } from "../components/common/DataTable";
 import { StatusTag } from "../components/common/StatusTag";
-import { VOUCHER_DATA } from '../data/initialData';
-import { ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle, Search, Filter, RefreshCw, ChevronLeft, ChevronRight, FileText, Pill, Stethoscope, Calendar, MessageSquare, Check, X, Send, BookOpen, ClipboardList, Activity, AlertOctagon, BarChart3, Settings, TrendingUp, Clock3, DollarSign, PieChart as PieChartIcon, AlertCircle, Percent, Upload, Loader2, Plus, ClipboardCheck, Target, Trash2 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { ChartContainer } from '../components/charts';
-import { autoInterval } from '../utils/chartUtils';
-import { t } from '../i18n/appI18n';
-import { t as appT } from '../i18n/appI18n';
+import { VOUCHER_DATA } from "../data/initialData";
+import {
+  ShieldCheck,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Search,
+  Filter,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Pill,
+  Stethoscope,
+  Calendar,
+  MessageSquare,
+  Check,
+  X,
+  Send,
+  BookOpen,
+  ClipboardList,
+  Activity,
+  AlertOctagon,
+  BarChart3,
+  Settings,
+  TrendingUp,
+  Clock3,
+  DollarSign,
+  PieChart as PieChartIcon,
+  AlertCircle,
+  Percent,
+  Upload,
+  Loader2,
+  Plus,
+  ClipboardCheck,
+  Target,
+  Trash2,
+} from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+} from "recharts";
+import { ChartContainer } from "../components/charts";
+import { autoInterval } from "../utils/chartUtils";
+import { t } from "../i18n/appI18n";
+import { t as appT } from "../i18n/appI18n";
 
 // ---------- 类型定义 ----------
 interface PendingAudit {
@@ -2309,8 +2361,18 @@ const deptUsageData = [
   { name: "心内科", value: 20, amount: 98.4, color: "var(--color-error-500)" },
   { name: "神经内科", value: 18, amount: 88.5, color: "#f97316" },
   { name: "呼吸内科", value: 15, amount: 73.8, color: "#eab308" },
-  { name: "消化内科", value: 12, amount: 59.0, color: "var(--color-success-500)" },
-  { name: "肿瘤科", value: 10, amount: 49.2, color: "var(--color-primary-500)" },
+  {
+    name: "消化内科",
+    value: 12,
+    amount: 59.0,
+    color: "var(--color-success-500)",
+  },
+  {
+    name: "肿瘤科",
+    value: 10,
+    amount: 49.2,
+    color: "var(--color-primary-500)",
+  },
   { name: "血管外科", value: 8, amount: 39.4, color: "#8b5cf6" },
   { name: "其他科室", value: 17, amount: 83.6, color: "var(--text-secondary)" },
 ];
@@ -2453,14 +2515,19 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 'var(--space-5, 20px)',
+    marginBottom: "var(--space-5, 20px)",
   },
-  title: { fontSize: 18, fontWeight: 700, color: "var(--color-primary-800)", margin: 0 },
+  title: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: "var(--color-primary-800)",
+    margin: 0,
+  },
   kpiRow: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: 'var(--space-3, 12px)',
-    marginBottom: 'var(--space-5, 20px)',
+    gap: "var(--space-3, 12px)",
+    marginBottom: "var(--space-5, 20px)",
   },
   kpiCard: {
     background: "var(--bg-card)",
@@ -2495,7 +2562,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     gap: 0,
     borderBottom: "2px solid var(--border-color)",
-    marginBottom: 'var(--space-5, 20px)',
+    marginBottom: "var(--space-5, 20px)",
   },
   tab: {
     padding: "12px 24px",
@@ -2509,7 +2576,7 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "all 0.2s",
     display: "flex",
     alignItems: "center",
-    gap: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
   },
   toolbar: {
     display: "flex",
@@ -2520,12 +2587,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "14px 18px",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
   },
   searchBox: {
     display: "flex",
     alignItems: "center",
-    gap: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
     background: "var(--content-bg)",
     border: "1px solid var(--border-color)",
     borderRadius: 8,
@@ -2534,7 +2601,8 @@ const styles: Record<string, React.CSSProperties> = {
     minWidth: 200,
   },
   searchInput: {
-    border: "none", background: "transparent",
+    border: "none",
+    background: "transparent",
     fontSize: 14,
     color: "var(--text-secondary)",
     width: "100%",
@@ -2545,7 +2613,8 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "8px 14px",
     fontSize: 14,
     color: "var(--text-secondary)",
-    background: "var(--content-bg)", cursor: "pointer",
+    background: "var(--content-bg)",
+    cursor: "pointer",
   },
   input: {
     width: "100%",
@@ -2554,7 +2623,8 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid var(--border-color)",
     fontSize: 12,
     fontFamily: "inherit",
-    boxSizing: "border-box", background: "var(--content-bg)",
+    boxSizing: "border-box",
+    background: "var(--content-bg)",
     color: "var(--text-primary)",
   },
   cardList: {
@@ -2573,7 +2643,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 'var(--space-3, 12px)',
+    marginBottom: "var(--space-3, 12px)",
   },
   cardPatient: {
     fontSize: 16,
@@ -2595,8 +2665,8 @@ const styles: Record<string, React.CSSProperties> = {
   cardRow: {
     display: "flex",
     alignItems: "center",
-    gap: 'var(--space-2, 8px)',
-    marginBottom: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
+    marginBottom: "var(--space-2, 8px)",
     fontSize: 12,
     color: "var(--text-secondary)",
   },
@@ -2624,7 +2694,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 4,
     background: "var(--color-info-bg)",
     color: "var(--color-primary)",
-    marginTop: 'var(--space-1, 4px)',
+    marginTop: "var(--space-1, 4px)",
     display: "inline-block",
   },
   cardRestriction: {
@@ -2638,8 +2708,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cardActions: {
     display: "flex",
-    gap: 'var(--space-2, 8px)',
-    marginTop: 'var(--space-3, 12px)',
+    gap: "var(--space-2, 8px)",
+    marginTop: "var(--space-3, 12px)",
   },
   tableWrapper: {
     background: "var(--bg-card)",
@@ -2668,7 +2738,7 @@ const styles: Record<string, React.CSSProperties> = {
   badge: {
     display: "inline-flex",
     alignItems: "center",
-    gap: 'var(--space-1, 4px)',
+    gap: "var(--space-1, 4px)",
     padding: "4px 10px",
     borderRadius: 12,
     fontSize: 12,
@@ -2688,7 +2758,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   btnGroup: {
     display: "flex",
-    gap: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
   },
   btn: {
     display: "flex",
@@ -2722,19 +2792,19 @@ const styles: Record<string, React.CSSProperties> = {
   statsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: 'var(--space-4, 16px)',
-    marginBottom: 'var(--space-6, 24px)',
+    gap: "var(--space-4, 16px)",
+    marginBottom: "var(--space-6, 24px)",
   },
   statCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 'var(--space-5, 20px)',
+    padding: "var(--space-5, 20px)",
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   statTitle: {
     fontSize: 12,
     color: "var(--text-secondary)",
-    marginBottom: 'var(--space-2, 8px)',
+    marginBottom: "var(--space-2, 8px)",
   },
   statValue: {
     fontSize: 30,
@@ -2744,29 +2814,29 @@ const styles: Record<string, React.CSSProperties> = {
   chartCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 'var(--space-5, 20px)',
+    padding: "var(--space-5, 20px)",
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
   },
   chartTitle: {
     fontSize: 14,
     fontWeight: 600,
     color: "var(--color-primary-800)",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
   },
   ruleCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 'var(--space-4, 16px)',
+    padding: "var(--space-4, 16px)",
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 'var(--space-3, 12px)',
+    marginBottom: "var(--space-3, 12px)",
     borderLeft: "4px solid var(--color-primary)",
   },
   ruleHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 'var(--space-2, 8px)',
+    marginBottom: "var(--space-2, 8px)",
   },
   drugTable: {
     width: "100%",
@@ -2793,16 +2863,17 @@ const styles: Record<string, React.CSSProperties> = {
     color: "var(--text-secondary)",
   },
   voucherCard: {
-    background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%)",
+    background:
+      "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%)",
     borderRadius: 12,
     padding: "20px 24px",
     color: "var(--text-inverse)",
-    marginBottom: 'var(--space-5, 20px)',
+    marginBottom: "var(--space-5, 20px)",
   },
   voucherCardTitle: {
     fontSize: 18,
     fontWeight: 700,
-    marginBottom: 'var(--space-1, 4px)',
+    marginBottom: "var(--space-1, 4px)",
   },
   voucherCardSubtitle: {
     fontSize: 12,
@@ -2810,8 +2881,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   voucherStatsRow: {
     display: "flex",
-    gap: 'var(--space-6, 24px)',
-    marginTop: 'var(--space-4, 16px)',
+    gap: "var(--space-6, 24px)",
+    marginTop: "var(--space-4, 16px)",
   },
   voucherStatItem: {
     display: "flex",
@@ -2835,7 +2906,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "14px 18px",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
     border: "1px solid var(--color-info-bg)",
   },
   voucherFilterBtn: {
@@ -2881,7 +2952,7 @@ const styles: Record<string, React.CSSProperties> = {
   voucherStatusBadge: {
     display: "inline-flex",
     alignItems: "center",
-    gap: 'var(--space-1, 4px)',
+    gap: "var(--space-1, 4px)",
     padding: "4px 10px",
     borderRadius: 12,
     fontSize: 12,
@@ -2900,7 +2971,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   pageButtons: {
     display: "flex",
-    gap: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
   },
   pageBtn: {
     display: "flex",
@@ -2926,7 +2997,7 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: "var(--z-toast, 800)",
     display: "flex",
     alignItems: "center",
-    gap: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
     animation: "slideIn 0.3s ease",
   },
   toastSuccess: {
@@ -2956,7 +3027,7 @@ const styles: Record<string, React.CSSProperties> = {
   modal: {
     background: "var(--bg-card)",
     borderRadius: 12,
-    padding: 'var(--space-6, 24px)',
+    padding: "var(--space-6, 24px)",
     minWidth: 360,
     maxWidth: 480,
     boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
@@ -2965,12 +3036,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 16,
     fontWeight: 700,
     color: "var(--color-primary-800)",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
   },
   modalText: {
     fontSize: 14,
     color: "var(--text-secondary)",
-    marginBottom: 'var(--space-5, 20px)',
+    marginBottom: "var(--space-5, 20px)",
   },
   modalActions: {
     display: "flex",
@@ -2979,13 +3050,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
   // 医保基金监控样式
   fundMonitorSection: {
-    marginBottom: 'var(--space-6, 24px)',
+    marginBottom: "var(--space-6, 24px)",
   },
   fundMonitorHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
   },
   fundMonitorTitle: {
     fontSize: 16,
@@ -2993,13 +3064,13 @@ const styles: Record<string, React.CSSProperties> = {
     color: "var(--color-primary-800)",
     display: "flex",
     alignItems: "center",
-    gap: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
   },
   fundKpiRow: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: 'var(--space-3, 12px)',
-    marginBottom: 'var(--space-5, 20px)',
+    gap: "var(--space-3, 12px)",
+    marginBottom: "var(--space-5, 20px)",
   },
   fundKpiCard: {
     background: "var(--bg-card)",
@@ -3033,32 +3104,32 @@ const styles: Record<string, React.CSSProperties> = {
   fundChartRow: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: 'var(--space-4, 16px)',
-    marginBottom: 'var(--space-5, 20px)',
+    gap: "var(--space-4, 16px)",
+    marginBottom: "var(--space-5, 20px)",
   },
   fundChartCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 'var(--space-5, 20px)',
+    padding: "var(--space-5, 20px)",
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   fundChartTitle: {
     fontSize: 14,
     fontWeight: 600,
     color: "var(--color-primary-800)",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
   },
   violationListCard: {
     background: "var(--bg-card)",
     borderRadius: 10,
-    padding: 'var(--space-5, 20px)',
+    padding: "var(--space-5, 20px)",
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    marginBottom: 'var(--space-4, 16px)',
+    marginBottom: "var(--space-4, 16px)",
   },
   violationItem: {
     display: "flex",
     alignItems: "flex-start",
-    gap: 'var(--space-3, 12px)',
+    gap: "var(--space-3, 12px)",
     padding: "12px 0",
     borderBottom: "1px solid var(--border-light)",
   },
@@ -3081,7 +3152,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 'var(--space-1, 4px)',
+    marginBottom: "var(--space-1, 4px)",
   },
   violationType: {
     fontSize: 12,
@@ -3244,7 +3315,12 @@ const PendingAuditCard: React.FC<{
       {audit.restriction}
     </div>
 
-    <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-3, 12px)' }}>
+    <AppText
+      size="sm"
+      color="secondary"
+      as="div"
+      style={{ marginBottom: "var(--space-3, 12px)" }}
+    >
       <Stethoscope size={14} style={{ marginRight: 6 }} />
       {audit.reason}
     </AppText>
@@ -3253,7 +3329,12 @@ const PendingAuditCard: React.FC<{
       <PermissionGate permission="audit.approve">
         <button
           type="button"
-          style={{ ...styles.btn, ...styles.btnSuccess, padding: "6px 14px", fontWeight: 600 }}
+          style={{
+            ...styles.btn,
+            ...styles.btnSuccess,
+            padding: "6px 14px",
+            fontWeight: 600,
+          }}
           onClick={() => onApprove(audit.id)}
         >
           <Check size={16} /> {t("approve")}
@@ -3261,12 +3342,23 @@ const PendingAuditCard: React.FC<{
       </PermissionGate>
       <div
         aria-hidden
-        style={{ width: 1, height: 20, background: "var(--border-default)", margin: "0 4px" }}
+        style={{
+          width: 1,
+          height: 20,
+          background: "var(--border-default)",
+          margin: "0 4px",
+        }}
       />
       <PermissionGate permission="audit.approve">
         <button
           type="button"
-          style={{ ...styles.btn, ...styles.btnDanger, marginLeft: 'var(--space-1, 4px)', padding: "6px 14px", fontWeight: 600 }}
+          style={{
+            ...styles.btn,
+            ...styles.btnDanger,
+            marginLeft: "var(--space-1, 4px)",
+            padding: "6px 14px",
+            fontWeight: 600,
+          }}
           onClick={() => onReject(audit.id)}
         >
           <X size={16} /> {t("reject")}
@@ -3274,14 +3366,22 @@ const PendingAuditCard: React.FC<{
       </PermissionGate>
       <button
         type="button"
-        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 'var(--space-1, 4px)' }}
+        style={{
+          ...styles.btn,
+          ...styles.btnOutline,
+          marginLeft: "var(--space-1, 4px)",
+        }}
         onClick={() => onRequestInfo(audit.id)}
       >
         <MessageSquare size={16} /> {t("requestInfo")}
       </button>
       <button
         type="button"
-        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 'var(--space-1, 4px)' }}
+        style={{
+          ...styles.btn,
+          ...styles.btnOutline,
+          marginLeft: "var(--space-1, 4px)",
+        }}
         onClick={() => onViewDetail(audit.id)}
       >
         <FileText size={16} /> {t("insuranceAudit.detail")}
@@ -3332,7 +3432,9 @@ export default function InsuranceAuditPage() {
   // [W2-B] 保险审计详情 (insuranceApi.getById 优先, datareportApi.getInsuranceAudit 回退)
   const [showAuditDetail, setShowAuditDetail] = useState(false);
   const [auditDetailLoading, setAuditDetailLoading] = useState(false);
-  const [auditDetail, setAuditDetail] = useState<DataReportAuditDto | null>(null);
+  const [auditDetail, setAuditDetail] = useState<DataReportAuditDto | null>(
+    null,
+  );
 
   const handleViewDetail = (id: string) => {
     setAuditDetailLoading(true);
@@ -3353,7 +3455,9 @@ export default function InsuranceAuditPage() {
           setAuditDetail((item as DataReportAuditDto) ?? null);
         } else {
           setToastType("error");
-          setToastMessage(res2.error?.message || t("insuranceAudit.detailLoadFailed"));
+          setToastMessage(
+            res2.error?.message || t("insuranceAudit.detailLoadFailed"),
+          );
         }
       });
     });
@@ -3379,7 +3483,8 @@ export default function InsuranceAuditPage() {
               patientId: d.patientId,
               examType: d.examType || "CT",
               examItem: d.examType || t("insuranceAudit.examTypeImage"),
-              drugName: d.drugName || d.drugCategory || t("insuranceAudit.contrast2"),
+              drugName:
+                d.drugName || d.drugCategory || t("insuranceAudit.contrast2"),
               drugCategory: d.drugCategory || t("insuranceAudit.contrast2"),
               drugSpec: t("insuranceAudit.regularSpec"),
               restriction: t("insuranceAudit.restrictedDrugList"),
@@ -3400,8 +3505,13 @@ export default function InsuranceAuditPage() {
               patientId: d.patientId,
               examType: d.examItem || "CT",
               examItem: d.examItem || t("insuranceAudit.examTypeImage"),
-              drugName: d.contrastAgent || d.anticoagulant || t("insuranceAudit.contrast2"),
-              drugCategory: d.contrastAgent ? t("insuranceAudit.contrast2") : t("insuranceAudit.anticoagulant"),
+              drugName:
+                d.contrastAgent ||
+                d.anticoagulant ||
+                t("insuranceAudit.contrast2"),
+              drugCategory: d.contrastAgent
+                ? t("insuranceAudit.contrast2")
+                : t("insuranceAudit.anticoagulant"),
               drugSpec: t("insuranceAudit.regularSpec"),
               restriction: t("insuranceAudit.restrictedDrugList"),
               reason: d.reason || t("insuranceAudit.statusPending"),
@@ -3415,7 +3525,9 @@ export default function InsuranceAuditPage() {
       if (mapped.length > 0) setPendingAudits(mapped);
       setAuditLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [voucherSearch, setVoucherSearch] = useState("");
@@ -3491,7 +3603,12 @@ export default function InsuranceAuditPage() {
     },
   ];
   const icdCptMapping = [
-    { icd10: "I63.9", description: t("insuranceAudit.diseaseCerebralInfarction"), cpt: "70460", exam: "头颅CT增强" },
+    {
+      icd10: "I63.9",
+      description: t("insuranceAudit.diseaseCerebralInfarction"),
+      cpt: "70460",
+      exam: "头颅CT增强",
+    },
     {
       icd10: "C71.9",
       description: t("insuranceAudit.diseaseBrainMalignancy"),
@@ -3609,7 +3726,11 @@ export default function InsuranceAuditPage() {
       examItem: "冠脉CTA",
       requestedDate: "2026-04-28",
       status: "pending",
-      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.medicalSummary"), t("insuranceAudit.ecg")],
+      docs: [
+        t("insuranceAudit.applicationForm"),
+        t("insuranceAudit.medicalSummary"),
+        t("insuranceAudit.ecg"),
+      ],
       docsCompleted: 2,
       expiryDate: "2026-05-28",
     },
@@ -3620,7 +3741,12 @@ export default function InsuranceAuditPage() {
       examItem: "头颅MRI增强",
       requestedDate: "2026-04-25",
       status: "approved",
-      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.medicalSummary"), t("insuranceAudit.imageReport"), t("insuranceAudit.pathologyReport")],
+      docs: [
+        t("insuranceAudit.applicationForm"),
+        t("insuranceAudit.medicalSummary"),
+        t("insuranceAudit.imageReport"),
+        t("insuranceAudit.pathologyReport"),
+      ],
       docsCompleted: 4,
       expiryDate: "2026-05-25",
     },
@@ -3631,7 +3757,11 @@ export default function InsuranceAuditPage() {
       examItem: "脑血管DSA",
       requestedDate: "2026-04-20",
       status: "denied",
-      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.medicalSummary"), t("insuranceAudit.ctReport")],
+      docs: [
+        t("insuranceAudit.applicationForm"),
+        t("insuranceAudit.medicalSummary"),
+        t("insuranceAudit.ctReport"),
+      ],
       docsCompleted: 3,
       expiryDate: "2026-05-20",
     },
@@ -3642,7 +3772,10 @@ export default function InsuranceAuditPage() {
       examItem: "腹部CT增强",
       requestedDate: "2026-04-30",
       status: "pending",
-      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.liverFunctionReport")],
+      docs: [
+        t("insuranceAudit.applicationForm"),
+        t("insuranceAudit.liverFunctionReport"),
+      ],
       docsCompleted: 1,
       expiryDate: "2026-05-30",
     },
@@ -3701,10 +3834,30 @@ export default function InsuranceAuditPage() {
     },
   ];
   const drgMapping = [
-    { icdStart: "A00", icdEnd: "B99", drg: "A", category: t("insuranceAudit.drgInfectious") },
-    { icdStart: "C00", icdEnd: "D49", drg: "B", category: t("insuranceAudit.drgTumor") },
-    { icdStart: "I60", icdEnd: "I69", drg: "B70", category: t("insuranceAudit.drgCerebrovascular") },
-    { icdStart: "K70", icdEnd: "K77", drg: "H60", category: t("insuranceAudit.drgHepatobiliary") },
+    {
+      icdStart: "A00",
+      icdEnd: "B99",
+      drg: "A",
+      category: t("insuranceAudit.drgInfectious"),
+    },
+    {
+      icdStart: "C00",
+      icdEnd: "D49",
+      drg: "B",
+      category: t("insuranceAudit.drgTumor"),
+    },
+    {
+      icdStart: "I60",
+      icdEnd: "I69",
+      drg: "B70",
+      category: t("insuranceAudit.drgCerebrovascular"),
+    },
+    {
+      icdStart: "K70",
+      icdEnd: "K77",
+      drg: "H60",
+      category: t("insuranceAudit.drgHepatobiliary"),
+    },
   ];
 
   const pageSize = 10;
@@ -3782,7 +3935,9 @@ export default function InsuranceAuditPage() {
     a.download = `insurance-audit-history-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    setToastMessage(t("insuranceAudit.exportedRecords", { count: filteredHistory.length }));
+    setToastMessage(
+      t("insuranceAudit.exportedRecords", { count: filteredHistory.length }),
+    );
   };
 
   // 过滤后的电子凭证数据
@@ -3818,7 +3973,10 @@ export default function InsuranceAuditPage() {
     void insuranceApi.approve(id).then((res) => {
       if (!res.success) {
         setToastType("error");
-        setToastMessage(res.error?.message || t("approveFailed", t("insuranceAudit.approveFailed")));
+        setToastMessage(
+          res.error?.message ||
+            t("approveFailed", t("insuranceAudit.approveFailed")),
+        );
         return;
       }
       setToastType("success");
@@ -3839,7 +3997,9 @@ export default function InsuranceAuditPage() {
 
   const confirmReject = () => {
     if (pendingId) {
-      const reason = rejectReasonText.trim() || t("rejectDefaultReason", t("insuranceAudit.approveFailedReason"));
+      const reason =
+        rejectReasonText.trim() ||
+        t("rejectDefaultReason", t("insuranceAudit.approveFailedReason"));
       setToastType("error");
       setToastMessage(t("rejectedMsg") + `: ${pendingId}`);
       setShowRejectModal(false);
@@ -3851,7 +4011,10 @@ export default function InsuranceAuditPage() {
           setPendingAudits((prev) => prev.filter((a) => a.id !== pendingId));
         } else {
           setToastType("error");
-          setToastMessage(res.error?.message || t("rejectFailed", t("insuranceAudit.rejectFailed")));
+          setToastMessage(
+            res.error?.message ||
+              t("rejectFailed", t("insuranceAudit.rejectFailed")),
+          );
         }
       });
     }
@@ -3916,7 +4079,9 @@ export default function InsuranceAuditPage() {
     setCreating(false);
     if (res.success) {
       setToastType("success");
-      setToastMessage(t('insuranceAudit.recordCreatedToast', { id: res.data.id }));
+      setToastMessage(
+        t("insuranceAudit.recordCreatedToast", { id: res.data.id }),
+      );
       setShowCreateModal(false);
       // 同步刷新待审核列表
       const listRes = await insuranceApi.list();
@@ -3930,8 +4095,13 @@ export default function InsuranceAuditPage() {
               patientId: d.patientId,
               examType: d.examItem || "CT",
               examItem: d.examItem || t("insuranceAudit.examTypeImage"),
-              drugName: d.contrastAgent || d.anticoagulant || t("insuranceAudit.contrast2"),
-              drugCategory: d.contrastAgent ? t("insuranceAudit.contrast2") : t("insuranceAudit.anticoagulant"),
+              drugName:
+                d.contrastAgent ||
+                d.anticoagulant ||
+                t("insuranceAudit.contrast2"),
+              drugCategory: d.contrastAgent
+                ? t("insuranceAudit.contrast2")
+                : t("insuranceAudit.anticoagulant"),
               drugSpec: t("insuranceAudit.regularSpec"),
               restriction: t("insuranceAudit.restrictedDrugList"),
               reason: d.reason || t("insuranceAudit.statusPending"),
@@ -3952,11 +4122,25 @@ export default function InsuranceAuditPage() {
   return (
     <div style={styles.root}>
       <PageHeader
-        icon={<ShieldCheck size={22} style={{ color: "var(--color-primary)" }} />}
+        icon={
+          <ShieldCheck size={22} style={{ color: "var(--color-primary)" }} />
+        }
         title={t("title")}
         subtitle={
           /* [G005 Wave2B P2] statsData/fundTrendData 等大量硬编码 → 部分演示数据徽标 */
-          <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 10, background: "var(--color-warning-bg)", color: "var(--color-warning)", border: "1px solid var(--color-warning-border)", fontWeight: 600 }}>{t("insuranceAudit.partialDemoData")}</span>
+          <span
+            style={{
+              fontSize: 12,
+              padding: "2px 8px",
+              borderRadius: 10,
+              background: "var(--color-warning-bg)",
+              color: "var(--color-warning)",
+              border: "1px solid var(--color-warning-border)",
+              fontWeight: 600,
+            }}
+          >
+            {t("insuranceAudit.partialDemoData")}
+          </span>
         }
       />
 
@@ -4016,7 +4200,13 @@ export default function InsuranceAuditPage() {
             title={t("insuranceAudit.fundBalanceWarning")}
             value={fundMonitorKPI.balanceWarning}
             icon={<AlertTriangle size={22} />}
-            color={fundMonitorKPI.balanceWarning === "正常" ? "success" : fundMonitorKPI.balanceWarning === "警告" ? "warning" : "error"}
+            color={
+              fundMonitorKPI.balanceWarning === "正常"
+                ? "success"
+                : fundMonitorKPI.balanceWarning === "警告"
+                  ? "warning"
+                  : "error"
+            }
           />
           <StatCard
             title={t("insuranceAudit.monthlyViolations")}
@@ -4048,17 +4238,31 @@ export default function InsuranceAuditPage() {
               />
               {t("insuranceAudit.fundTrendRecent30d")}
             </div>
-            <ChartContainer height={220} state={fundTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noFundTrendData")}>
+            <ChartContainer
+              height={220}
+              state={fundTrendData.length === 0 ? "empty" : "ready"}
+              emptyDescription={t("insuranceAudit.noFundTrendData")}
+            >
               <AreaChart data={fundTrendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--border-color)"
+                />
                 <XAxis
                   dataKey="date"
                   tick={{ fontSize: 12 }}
                   stroke="#94a3b8"
                 />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit={t("insuranceAudit.tenThousand")} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  stroke="#94a3b8"
+                  unit={t("insuranceAudit.tenThousand")}
+                />
                 <Tooltip
-                  formatter={(value: number) => [appT("w9a.insuranceAudit.currencyWan", { value }), t("insuranceAudit.usageAmount")]}
+                  formatter={(value: number) => [
+                    appT("w9a.insuranceAudit.currencyWan", { value }),
+                    t("insuranceAudit.usageAmount"),
+                  ]}
                   contentStyle={{
                     borderRadius: 8,
                     border: "1px solid var(--border-color)",
@@ -4098,67 +4302,85 @@ export default function InsuranceAuditPage() {
               />
               {t("insuranceAudit.deptUsageDist")}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-4, 16px)' }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-4, 16px)",
+              }}
+            >
               <div style={{ width: 220, height: 220, flexShrink: 0 }}>
-              <ChartContainer height={220} state={deptUsageData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noDeptDistData")}>
-                <PieChart>
-                  <Pie
-                    data={deptUsageData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={85}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {deptUsageData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number) => [`${value}%`, t("insuranceAudit.share")]}
-                    contentStyle={{
-                      borderRadius: 8,
-                      border: "1px solid var(--border-color)",
-                    }}
-                  />
-                </PieChart>
-              </ChartContainer>
-              <div style={{ flex: 1 }}>
-                {deptUsageData.map((dept, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 'var(--space-2, 8px)',
-                      marginBottom: 'var(--space-2, 8px)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: 2,
-                        background: dept.color,
-                        flexShrink: 0,
+                <ChartContainer
+                  height={220}
+                  state={deptUsageData.length === 0 ? "empty" : "ready"}
+                  emptyDescription={t("insuranceAudit.noDeptDistData")}
+                >
+                  <PieChart>
+                    <Pie
+                      data={deptUsageData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={85}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {deptUsageData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => [
+                        `${value}%`,
+                        t("insuranceAudit.share"),
+                      ]}
+                      contentStyle={{
+                        borderRadius: 8,
+                        border: "1px solid var(--border-color)",
                       }}
                     />
-                    <AppText size="xs" color="secondary" as="div" style={{ flex: 1 }}>
-                      {dept.name}
-                    </AppText>
+                  </PieChart>
+                </ChartContainer>
+                <div style={{ flex: 1 }}>
+                  {deptUsageData.map((dept, idx) => (
                     <div
+                      key={idx}
                       style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: "var(--color-primary-800)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "var(--space-2, 8px)",
+                        marginBottom: "var(--space-2, 8px)",
                       }}
                     >
-                      {dept.value}%
+                      <div
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 2,
+                          background: dept.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <AppText
+                        size="xs"
+                        color="secondary"
+                        as="div"
+                        style={{ flex: 1 }}
+                      >
+                        {dept.name}
+                      </AppText>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: "var(--color-primary-800)",
+                        }}
+                      >
+                        {dept.value}%
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -4179,17 +4401,31 @@ export default function InsuranceAuditPage() {
               />
               {t("insuranceAudit.fundTrendRecent12m")}
             </div>
-            <ChartContainer height={200} state={fundMonthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noMonthlyFundData")}>
+            <ChartContainer
+              height={200}
+              state={fundMonthlyData.length === 0 ? "empty" : "ready"}
+              emptyDescription={t("insuranceAudit.noMonthlyFundData")}
+            >
               <BarChart data={fundMonthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--border-color)"
+                />
                 <XAxis
                   dataKey="month"
                   tick={{ fontSize: 12 }}
                   stroke="#94a3b8"
                 />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit={t("insuranceAudit.tenThousand")} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  stroke="#94a3b8"
+                  unit={t("insuranceAudit.tenThousand")}
+                />
                 <Tooltip
-                  formatter={(value: number) => [appT("w9a.insuranceAudit.currencyWan", { value }), t("insuranceAudit.usageAmount")]}
+                  formatter={(value: number) => [
+                    appT("w9a.insuranceAudit.currencyWan", { value }),
+                    t("insuranceAudit.usageAmount"),
+                  ]}
                   contentStyle={{
                     borderRadius: 8,
                     border: "1px solid var(--border-color)",
@@ -4225,13 +4461,14 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.violationWarning")}
               <span
                 style={{
-                  marginLeft: 'var(--space-2, 8px)',
+                  marginLeft: "var(--space-2, 8px)",
                   fontSize: 12,
                   fontWeight: 400,
                   color: "var(--text-secondary)",
                 }}
               >
-                {t("insuranceAudit.totalPrefix")} {violationAlerts.length} {t("insuranceAudit.items")}
+                {t("insuranceAudit.totalPrefix")} {violationAlerts.length}{" "}
+                {t("insuranceAudit.items")}
               </span>
             </div>
             <div style={{ maxHeight: 200, overflowY: "auto" }}>
@@ -4244,14 +4481,20 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   <div
-                    style={{ ...styles.violationIcon, background: "var(--color-error-bg)" }}
+                    style={{
+                      ...styles.violationIcon,
+                      background: "var(--color-error-bg)",
+                    }}
                   >
                     <AlertOctagon size={16} color="var(--color-error)" />
                   </div>
                   <div style={styles.violationContent}>
                     <div style={styles.violationHeader}>
                       <span
-                        style={{ ...styles.violationType, color: "var(--color-error)" }}
+                        style={{
+                          ...styles.violationType,
+                          color: "var(--color-error)",
+                        }}
                       >
                         {violation.violationType}
                       </span>
@@ -4290,10 +4533,25 @@ export default function InsuranceAuditPage() {
             />
             {t("insuranceAudit.approvalTrendRecent30d")}
           </div>
-            <ChartContainer height={180} state={passRateTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noApprovalTrendData")}>
-              <AreaChart data={passRateTrendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" interval={autoInterval(passRateTrendData.length)} tickFormatter={(v: string) => (v && v.length > 5 ? `${v.slice(5)}` : v)} />
+          <ChartContainer
+            height={180}
+            state={passRateTrendData.length === 0 ? "empty" : "ready"}
+            emptyDescription={t("insuranceAudit.noApprovalTrendData")}
+          >
+            <AreaChart data={passRateTrendData}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--border-color)"
+              />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 12 }}
+                stroke="#94a3b8"
+                interval={autoInterval(passRateTrendData.length)}
+                tickFormatter={(v: string) =>
+                  v && v.length > 5 ? `${v.slice(5)}` : v
+                }
+              />
               <YAxis
                 tick={{ fontSize: 12 }}
                 stroke="#94a3b8"
@@ -4301,8 +4559,14 @@ export default function InsuranceAuditPage() {
                 unit="%"
               />
               <Tooltip
-                formatter={(value: number) => [`${value}%`, t("insuranceAudit.passedRate")]}
-                contentStyle={{ borderRadius: 8, border: "1px solid var(--border-color)" }}
+                formatter={(value: number) => [
+                  `${value}%`,
+                  t("insuranceAudit.passedRate"),
+                ]}
+                contentStyle={{
+                  borderRadius: 8,
+                  border: "1px solid var(--border-color)",
+                }}
               />
               <Area
                 type="monotone"
@@ -4310,7 +4574,7 @@ export default function InsuranceAuditPage() {
                 stroke="#8b5cf6"
                 fill="#f3e8ff"
                 strokeWidth={2}
-                  name={t("insuranceAudit.chartApprovalRate")}
+                name={t("insuranceAudit.chartApprovalRate")}
               />
             </AreaChart>
           </ChartContainer>
@@ -4326,7 +4590,10 @@ export default function InsuranceAuditPage() {
               ...styles.tab,
               ...(activeTab === key ? styles.tabActive : {}),
               ...(activeTab === key
-                ? { color: "var(--color-primary)", borderBottomColor: "var(--color-primary)" }
+                ? {
+                    color: "var(--color-primary)",
+                    borderBottomColor: "var(--color-primary)",
+                  }
                 : {}),
             }}
             onClick={() => setActiveTab(key)}
@@ -4341,7 +4608,7 @@ export default function InsuranceAuditPage() {
                   fontSize: 12,
                   padding: "2px 6px",
                   borderRadius: 10,
-                  marginLeft: 'var(--space-1, 4px)',
+                  marginLeft: "var(--space-1, 4px)",
                 }}
               >
                 {pendingAudits.length}
@@ -4393,9 +4660,14 @@ export default function InsuranceAuditPage() {
                           patientName: d.patientName,
                           patientId: d.patientId,
                           examType: d.examType || "CT",
-                          examItem: d.examType || t("insuranceAudit.examTypeImage"),
-                          drugName: d.drugName || d.drugCategory || t("insuranceAudit.contrast2"),
-                          drugCategory: d.drugCategory || t("insuranceAudit.contrast2"),
+                          examItem:
+                            d.examType || t("insuranceAudit.examTypeImage"),
+                          drugName:
+                            d.drugName ||
+                            d.drugCategory ||
+                            t("insuranceAudit.contrast2"),
+                          drugCategory:
+                            d.drugCategory || t("insuranceAudit.contrast2"),
                           drugSpec: t("insuranceAudit.regularSpec"),
                           restriction: t("insuranceAudit.restrictedDrugList"),
                           reason: d.reason || t("insuranceAudit.statusPending"),
@@ -4422,8 +4694,17 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.newAuditRecord")}
             </button>
             {auditLoading && (
-              <span style={{ fontSize: 12, color: "var(--color-primary)", display: "flex", alignItems: "center", gap: 6 }}>
-                <Loader2 size={14} className="spin" /> {t("insuranceAudit.syncingPlatform")}
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--color-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Loader2 size={14} className="spin" />{" "}
+                {t("insuranceAudit.syncingPlatform")}
               </span>
             )}
           </div>
@@ -4432,11 +4713,17 @@ export default function InsuranceAuditPage() {
             <div role="status" aria-live="polite" style={styles.emptyState}>
               <ClipboardList
                 size={48}
-                style={{ marginBottom: 'var(--space-3, 12px)', opacity: 0.5 }}
+                style={{ marginBottom: "var(--space-3, 12px)", opacity: 0.5 }}
                 aria-hidden
               />
               <div>{t("noPending")}</div>
-              <div style={{ fontSize: 12, marginTop: 'var(--space-1, 4px)', color: "var(--text-secondary)" }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  marginTop: "var(--space-1, 4px)",
+                  color: "var(--text-secondary)",
+                }}
+              >
                 {t("insuranceAudit.noData")}
               </div>
             </div>
@@ -4458,9 +4745,11 @@ export default function InsuranceAuditPage() {
               {pendingTotalPages > 1 && (
                 <div style={styles.pagination}>
                   <div style={styles.pageInfo}>
-                    {t("insuranceAudit.showing")} {(pendingPage - 1) * pageSize + 1} -{" "}
+                    {t("insuranceAudit.showing")}{" "}
+                    {(pendingPage - 1) * pageSize + 1} -{" "}
                     {Math.min(pendingPage * pageSize, filteredPending.length)}{" "}
-                    {t("insuranceAudit.itemsOf")} {filteredPending.length} {t("insuranceAudit.itemsPage")} {pendingPage}/
+                    {t("insuranceAudit.itemsOf")} {filteredPending.length}{" "}
+                    {t("insuranceAudit.itemsPage")} {pendingPage}/
                     {pendingTotalPages} {t("insuranceAudit.pageUnit")}
                   </div>
                   <div style={styles.pageButtons}>
@@ -4485,7 +4774,7 @@ export default function InsuranceAuditPage() {
                         return (
                           <button
                             key={page}
-                            aria-label={t('insuranceAudit.pageAria', { page })}
+                            aria-label={t("insuranceAudit.pageAria", { page })}
                             aria-current={
                               pendingPage === page ? "page" : undefined
                             }
@@ -4550,7 +4839,10 @@ export default function InsuranceAuditPage() {
                 { value: "补充资料", label: t("supplement") },
               ]}
             />
-            <button onClick={handleExportHistory} style={{ ...styles.btn, ...styles.btnOutline }}>
+            <button
+              onClick={handleExportHistory}
+              style={{ ...styles.btn, ...styles.btnOutline }}
+            >
               <Filter size={16} />
               {t("export")}
             </button>
@@ -4561,18 +4853,50 @@ export default function InsuranceAuditPage() {
               dataSource={paginatedHistory}
               rowKey={(record) => String(record.id)}
               pagination={false}
-              showExport={false}
-              showDensity={false}
               scroll={{ x: 1400 }}
               columns={[
-                { title: t("history.auditTime"), dataIndex: "auditTime", key: "auditTime" },
-                { title: t("history.patientName"), dataIndex: "patientName", key: "patientName" },
-                { title: t("history.patientId"), dataIndex: "patientId", key: "patientId" },
-                { title: t("history.examItem"), dataIndex: "examItem", key: "examItem" },
-                { title: t("history.drugName"), dataIndex: "drugName", key: "drugName" },
-                { title: t("history.result"), key: "result", render: (_v, record) => <HistoryResultCell result={record.result} /> },
-                { title: t("history.auditor"), dataIndex: "auditor", key: "auditor" },
-                { title: t("history.notes"), key: "reason", render: (_v, record) => record.reason || "-" },
+                {
+                  title: t("history.auditTime"),
+                  dataIndex: "auditTime",
+                  key: "auditTime",
+                },
+                {
+                  title: t("history.patientName"),
+                  dataIndex: "patientName",
+                  key: "patientName",
+                },
+                {
+                  title: t("history.patientId"),
+                  dataIndex: "patientId",
+                  key: "patientId",
+                },
+                {
+                  title: t("history.examItem"),
+                  dataIndex: "examItem",
+                  key: "examItem",
+                },
+                {
+                  title: t("history.drugName"),
+                  dataIndex: "drugName",
+                  key: "drugName",
+                },
+                {
+                  title: t("history.result"),
+                  key: "result",
+                  render: (_v, record) => (
+                    <HistoryResultCell result={record.result} />
+                  ),
+                },
+                {
+                  title: t("history.auditor"),
+                  dataIndex: "auditor",
+                  key: "auditor",
+                },
+                {
+                  title: t("history.notes"),
+                  key: "reason",
+                  render: (_v, record) => record.reason || "-",
+                },
               ]}
             />
 
@@ -4644,29 +4968,59 @@ export default function InsuranceAuditPage() {
             <div style={styles.statCard}>
               <div style={styles.statTitle}>{t("stats.monthlyTotal")}</div>
               <div style={styles.statValue}>326</div>
-              <TrendingUp size={16} color="var(--color-success)" style={{ marginTop: 'var(--space-2, 8px)' }} />
-              <AppText size="xs" color="success" as="span" style={{ marginLeft: 'var(--space-1, 4px)' }}>
+              <TrendingUp
+                size={16}
+                color="var(--color-success)"
+                style={{ marginTop: "var(--space-2, 8px)" }}
+              />
+              <AppText
+                size="xs"
+                color="success"
+                as="span"
+                style={{ marginLeft: "var(--space-1, 4px)" }}
+              >
                 +12%
               </AppText>
             </div>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>{t("insuranceAudit.statCtEnhance")}</div>
+              <div style={styles.statTitle}>
+                {t("insuranceAudit.statCtEnhance")}
+              </div>
               <div style={styles.statValue}>158</div>
-              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
+              <AppText
+                size="xs"
+                color="secondary"
+                as="div"
+                style={{ marginTop: "var(--space-1, 4px)" }}
+              >
                 {t("insuranceAudit.share485")}
               </AppText>
             </div>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>{t("insuranceAudit.statMriEnhance")}</div>
+              <div style={styles.statTitle}>
+                {t("insuranceAudit.statMriEnhance")}
+              </div>
               <div style={styles.statValue}>98</div>
-              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
+              <AppText
+                size="xs"
+                color="secondary"
+                as="div"
+                style={{ marginTop: "var(--space-1, 4px)" }}
+              >
                 {t("insuranceAudit.share301")}
               </AppText>
             </div>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>{t("insuranceAudit.statDsaAnticoag")}</div>
+              <div style={styles.statTitle}>
+                {t("insuranceAudit.statDsaAnticoag")}
+              </div>
               <div style={styles.statValue}>70</div>
-              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
+              <AppText
+                size="xs"
+                color="secondary"
+                as="div"
+                style={{ marginTop: "var(--space-1, 4px)" }}
+              >
                 {t("insuranceAudit.share215")}
               </AppText>
             </div>
@@ -4676,13 +5030,27 @@ export default function InsuranceAuditPage() {
             <div style={styles.chartTitle}>
               <BarChart3
                 size={18}
-                style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
+                style={{
+                  marginRight: "var(--space-2, 8px)",
+                  verticalAlign: "middle",
+                }}
               />
               {t("insuranceAudit.resultDist")}
             </div>
-            <div style={{ display: "flex", gap: 'var(--space-6, 24px)', flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-6, 24px)",
+                flexWrap: "wrap",
+              }}
+            >
               <div style={{ flex: 1, minWidth: 200 }}>
-                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <AppText
+                  size="sm"
+                  color="secondary"
+                  as="div"
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   {t("insuranceAudit.passedRate")}
                 </AppText>
                 <div
@@ -4700,11 +5068,15 @@ export default function InsuranceAuditPage() {
                       width: "78.5%",
                       display: "flex",
                       alignItems: "center",
-                      paddingLeft: 'var(--space-3, 12px)',
+                      paddingLeft: "var(--space-3, 12px)",
                     }}
                   >
                     <span
-                      style={{ color: "var(--text-inverse)", fontSize: 12, fontWeight: 600 }}
+                      style={{
+                        color: "var(--text-inverse)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
                     >
                       78.5%
                     </span>
@@ -4712,7 +5084,12 @@ export default function InsuranceAuditPage() {
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <AppText
+                  size="sm"
+                  color="secondary"
+                  as="div"
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   {t("insuranceAudit.rejectedRate")}
                 </AppText>
                 <div
@@ -4730,11 +5107,15 @@ export default function InsuranceAuditPage() {
                       width: "12.3%",
                       display: "flex",
                       alignItems: "center",
-                      paddingLeft: 'var(--space-3, 12px)',
+                      paddingLeft: "var(--space-3, 12px)",
                     }}
                   >
                     <span
-                      style={{ color: "var(--text-inverse)", fontSize: 12, fontWeight: 600 }}
+                      style={{
+                        color: "var(--text-inverse)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
                     >
                       12.3%
                     </span>
@@ -4742,7 +5123,12 @@ export default function InsuranceAuditPage() {
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <AppText
+                  size="sm"
+                  color="secondary"
+                  as="div"
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   {t("insuranceAudit.supplementRate")}
                 </AppText>
                 <div
@@ -4760,11 +5146,15 @@ export default function InsuranceAuditPage() {
                       width: "9.2%",
                       display: "flex",
                       alignItems: "center",
-                      paddingLeft: 'var(--space-3, 12px)',
+                      paddingLeft: "var(--space-3, 12px)",
                     }}
                   >
                     <span
-                      style={{ color: "var(--text-inverse)", fontSize: 12, fontWeight: 600 }}
+                      style={{
+                        color: "var(--text-inverse)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
                     >
                       9.2%
                     </span>
@@ -4778,11 +5168,20 @@ export default function InsuranceAuditPage() {
             <div style={styles.chartTitle}>
               <Activity
                 size={18}
-                style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
+                style={{
+                  marginRight: "var(--space-2, 8px)",
+                  verticalAlign: "middle",
+                }}
               />
               {t("insuranceAudit.drugTop5")}
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-3, 12px)",
+              }}
+            >
               {[
                 { name: "碘海醇注射液", count: 68, pct: 21 },
                 { name: "钆双胺注射液", count: 52, pct: 16 },
@@ -4792,12 +5191,26 @@ export default function InsuranceAuditPage() {
               ].map((item, i) => (
                 <div
                   key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-3, 12px)",
+                  }}
                 >
-                  <AppText size="sm" color="secondary" as="div" style={{ width: 24 }}>
+                  <AppText
+                    size="sm"
+                    color="secondary"
+                    as="div"
+                    style={{ width: 24 }}
+                  >
                     {i + 1}
                   </AppText>
-                  <AppText size="sm" color="secondary" as="div" style={{ flex: 1 }}>
+                  <AppText
+                    size="sm"
+                    color="secondary"
+                    as="div"
+                    style={{ flex: 1 }}
+                  >
                     {item.name}
                   </AppText>
                   <div
@@ -4839,38 +5252,50 @@ export default function InsuranceAuditPage() {
         <>
           {/* 蓝色渐变卡片头部 */}
           <div style={styles.voucherCard}>
-            <div style={styles.voucherCardTitle}>{t("insuranceAudit.voucherTitle")}</div>
+            <div style={styles.voucherCardTitle}>
+              {t("insuranceAudit.voucherTitle")}
+            </div>
             <div style={styles.voucherCardSubtitle}>
               {t("insuranceAudit.voucherSubtitle")}
             </div>
             <div style={styles.voucherStatsRow}>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>{voucherStats.total}</div>
-                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherTotal")}</div>
+                <div style={styles.voucherStatLabel}>
+                  {t("insuranceAudit.voucherTotal")}
+                </div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   {voucherStats.invoiced}
                 </div>
-                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherIssued2")}</div>
+                <div style={styles.voucherStatLabel}>
+                  {t("insuranceAudit.voucherIssued2")}
+                </div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   {voucherStats.pending}
                 </div>
-                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherPending2")}</div>
+                <div style={styles.voucherStatLabel}>
+                  {t("insuranceAudit.voucherPending2")}
+                </div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   {voucherStats.cancelled}
                 </div>
-                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherVoided")}</div>
+                <div style={styles.voucherStatLabel}>
+                  {t("insuranceAudit.voucherVoided")}
+                </div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   ¥{voucherStats.totalAmount.toLocaleString()}
                 </div>
-                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherTotalAmount")}</div>
+                <div style={styles.voucherStatLabel}>
+                  {t("insuranceAudit.voucherTotalAmount")}
+                </div>
               </div>
             </div>
           </div>
@@ -4886,8 +5311,13 @@ export default function InsuranceAuditPage() {
                 onChange={(e) => setVoucherSearch(e.target.value)}
               />
             </div>
-            <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
-              {["全部", t("insuranceAudit.voucherIssued2"), t("insuranceAudit.voucherPending2"), t("insuranceAudit.voucherVoided")].map((status) => (
+            <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
+              {[
+                "全部",
+                t("insuranceAudit.voucherIssued2"),
+                t("insuranceAudit.voucherPending2"),
+                t("insuranceAudit.voucherVoided"),
+              ].map((status) => (
                 <button
                   key={status}
                   style={{
@@ -4910,28 +5340,69 @@ export default function InsuranceAuditPage() {
               dataSource={filteredVouchers.slice(0, 50)}
               rowKey={(voucher) => String(voucher.id)}
               pagination={false}
-              showExport={false}
-              showDensity={false}
               scroll={{ x: 1400 }}
               columns={[
-                { title: t("insuranceAudit.voucherId"), dataIndex: "id", key: "id" },
-                { title: t("insuranceAudit.linkedAuditId"), dataIndex: "relatedAuditId", key: "relatedAuditId" },
-                { title: t("insuranceAudit.patientName"), dataIndex: "patientName", key: "patientName" },
-                { title: t("insuranceAudit.patientId"), dataIndex: "patientId", key: "patientId" },
                 {
-                  title: t("insuranceAudit.voucherType"), key: "voucherType",
+                  title: t("insuranceAudit.voucherId"),
+                  dataIndex: "id",
+                  key: "id",
+                },
+                {
+                  title: t("insuranceAudit.linkedAuditId"),
+                  dataIndex: "relatedAuditId",
+                  key: "relatedAuditId",
+                },
+                {
+                  title: t("insuranceAudit.patientName"),
+                  dataIndex: "patientName",
+                  key: "patientName",
+                },
+                {
+                  title: t("insuranceAudit.patientId"),
+                  dataIndex: "patientId",
+                  key: "patientId",
+                },
+                {
+                  title: t("insuranceAudit.voucherType"),
+                  key: "voucherType",
                   render: (_v, voucher) => (
-                    <StatusTag status={voucher.voucherType === "检查费" ? "info" : voucher.voucherType === "药品费" ? "success" : "warning"}>
+                    <StatusTag
+                      status={
+                        voucher.voucherType === "检查费"
+                          ? "info"
+                          : voucher.voucherType === "药品费"
+                            ? "success"
+                            : "warning"
+                      }
+                    >
                       {voucher.voucherType}
                     </StatusTag>
                   ),
                 },
-                { title: t("insuranceAudit.amount"), key: "amount", align: "right" as const, render: (_v, voucher) => `¥${voucher.amount.toFixed(2)}` },
-                { title: t("insuranceAudit.issueTime"), dataIndex: "invoiceTime", key: "invoiceTime" },
                 {
-                  title: t("insuranceAudit.status"), key: "status",
+                  title: t("insuranceAudit.amount"),
+                  key: "amount",
+                  align: "right" as const,
+                  render: (_v, voucher) => `¥${voucher.amount.toFixed(2)}`,
+                },
+                {
+                  title: t("insuranceAudit.issueTime"),
+                  dataIndex: "invoiceTime",
+                  key: "invoiceTime",
+                },
+                {
+                  title: t("insuranceAudit.status"),
+                  key: "status",
                   render: (_v, voucher) => (
-                    <StatusTag status={voucher.status === "已开票" ? "success" : voucher.status === "待开票" ? "pending" : "cancelled"}>
+                    <StatusTag
+                      status={
+                        voucher.status === "已开票"
+                          ? "success"
+                          : voucher.status === "待开票"
+                            ? "pending"
+                            : "cancelled"
+                      }
+                    >
                       {voucher.status === "已开票" && <CheckCircle size={14} />}
                       {voucher.status === "待开票" && <Clock size={14} />}
                       {voucher.status === "已作废" && <XCircle size={14} />}
@@ -4950,40 +5421,53 @@ export default function InsuranceAuditPage() {
               fontSize: 12,
             }}
           >
-            {t("insuranceAudit.showing")} {Math.min(50, filteredVouchers.length)} /{" "}
-            {filteredVouchers.length} {t("insuranceAudit.recordsUnit")}
+            {t("insuranceAudit.showing")}{" "}
+            {Math.min(50, filteredVouchers.length)} / {filteredVouchers.length}{" "}
+            {t("insuranceAudit.recordsUnit")}
           </div>
         </>
       )}
 
       {/* 837理赔 */}
       {activeTab === "claim837" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4, 16px)",
+          }}
+        >
           <div
             style={{
-              background: 'var(--bg-card)',
+              background: "var(--bg-card)",
               borderRadius: 10,
-              padding: 'var(--space-4, 16px)',
+              padding: "var(--space-4, 16px)",
               border: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
               <FileText size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>
                 {t("insuranceAudit.claimsTitle")}
               </span>
             </div>
-            <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+            <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
               <button
                 onClick={() => setClaimBatchMode(!claimBatchMode)}
                 style={{
                   padding: "6px 14px",
                   borderRadius: 6,
                   border: `1px solid ${claimBatchMode ? ACCENT : "var(--border-color)"}`,
-                  background: claimBatchMode ? `${ACCENT}15` : 'var(--bg-card)',
+                  background: claimBatchMode ? `${ACCENT}15` : "var(--bg-card)",
                   color: claimBatchMode ? ACCENT : GRAY,
                   fontSize: 12,
                   fontWeight: 600,
@@ -4994,7 +5478,9 @@ export default function InsuranceAuditPage() {
                 }}
               >
                 <Upload size={14} />
-                {claimBatchMode ? t("insuranceAudit.cancelBatch") : t("insuranceAudit.batchSubmit")}
+                {claimBatchMode
+                  ? t("insuranceAudit.cancelBatch")
+                  : t("insuranceAudit.batchSubmit")}
               </button>
               <button
                 onClick={() => {
@@ -5022,7 +5508,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: 'var(--bg-card)',
+              background: "var(--bg-card)",
               borderRadius: 12,
               border: "1px solid var(--border-color)",
               overflow: "hidden",
@@ -5036,7 +5522,13 @@ export default function InsuranceAuditPage() {
                 borderBottom: "1px solid var(--border-color)",
               }}
             >
-              {["全部", t("insuranceAudit.statusPendingSubmit"), t("insuranceAudit.statusSubmitted"), t("insuranceAudit.statusPaid"), t("insuranceAudit.statusDenied")].map((s) => (
+              {[
+                "全部",
+                t("insuranceAudit.statusPendingSubmit"),
+                t("insuranceAudit.statusSubmitted"),
+                t("insuranceAudit.statusPaid"),
+                t("insuranceAudit.statusDenied"),
+              ].map((s) => (
                 <button
                   key={s}
                   onClick={() => setClaimStatusFilter(s)}
@@ -5044,7 +5536,8 @@ export default function InsuranceAuditPage() {
                     padding: "4px 12px",
                     borderRadius: 16,
                     border: `1px solid ${claimStatusFilter === s ? ACCENT : "var(--border-color)"}`,
-                    background: claimStatusFilter === s ? ACCENT : 'var(--bg-card)',
+                    background:
+                      claimStatusFilter === s ? ACCENT : "var(--bg-card)",
                     color: claimStatusFilter === s ? WHITE : GRAY,
                     fontSize: 12,
                     fontWeight: 600,
@@ -5063,22 +5556,88 @@ export default function InsuranceAuditPage() {
               )}
               rowKey={(c) => String(c.id)}
               pagination={false}
-              showExport={false}
-              showDensity={false}
               scroll={{ x: 1400 }}
               columns={[
-                { title: t("insuranceAudit.claimId"), key: "id", render: (_v, c) => <span style={{ color: GRAY }}>{c.id}</span> },
-                { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, c) => <span style={{ fontWeight: 700, color: PRIMARY }}>{c.patientName}</span> },
-                { title: t("insuranceAudit.examItem2"), key: "examItem", render: (_v, c) => <span style={{ fontSize: 12 }}>{c.examItem}</span> },
-                { title: "ICD-10", key: "icd10", render: (_v, c) => <span style={{ fontFamily: "monospace", fontSize: 12 }}>{c.icd10}</span> },
-                { title: "CPT", key: "cpt", render: (_v, c) => <span style={{ fontFamily: "monospace", fontSize: 12 }}>{c.cpt}</span> },
-                { title: t("insuranceAudit.amount"), key: "amount", align: "right" as const, render: (_v, c) => <span style={{ fontWeight: 700, color: PRIMARY }}>¥{c.amount}</span> },
-                { title: t("insuranceAudit.insurer2"), key: "carrier", render: (_v, c) => <span style={{ fontSize: 12, color: GRAY }}>{c.carrier}</span> },
-                { title: t("insuranceAudit.submitDate"), key: "submitDate", render: (_v, c) => c.submitDate || "-" },
                 {
-                  title: t("insuranceAudit.status"), key: "status",
+                  title: t("insuranceAudit.claimId"),
+                  key: "id",
                   render: (_v, c) => (
-                    <StatusTag status={c.status === "已支付" ? "paid" : c.status === "待提交" ? "pending" : c.status === "被拒" ? "rejected" : "info"}>
+                    <span style={{ color: GRAY }}>{c.id}</span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.patient"),
+                  key: "patientName",
+                  render: (_v, c) => (
+                    <span style={{ fontWeight: 700, color: PRIMARY }}>
+                      {c.patientName}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.examItem2"),
+                  key: "examItem",
+                  render: (_v, c) => (
+                    <span style={{ fontSize: 12 }}>{c.examItem}</span>
+                  ),
+                },
+                {
+                  title: "ICD-10",
+                  key: "icd10",
+                  render: (_v, c) => (
+                    <span style={{ fontFamily: "monospace", fontSize: 12 }}>
+                      {c.icd10}
+                    </span>
+                  ),
+                },
+                {
+                  title: "CPT",
+                  key: "cpt",
+                  render: (_v, c) => (
+                    <span style={{ fontFamily: "monospace", fontSize: 12 }}>
+                      {c.cpt}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.amount"),
+                  key: "amount",
+                  align: "right" as const,
+                  render: (_v, c) => (
+                    <span style={{ fontWeight: 700, color: PRIMARY }}>
+                      ¥{c.amount}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.insurer2"),
+                  key: "carrier",
+                  render: (_v, c) => (
+                    <span style={{ fontSize: 12, color: GRAY }}>
+                      {c.carrier}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.submitDate"),
+                  key: "submitDate",
+                  render: (_v, c) => c.submitDate || "-",
+                },
+                {
+                  title: t("insuranceAudit.status"),
+                  key: "status",
+                  render: (_v, c) => (
+                    <StatusTag
+                      status={
+                        c.status === "已支付"
+                          ? "paid"
+                          : c.status === "待提交"
+                            ? "pending"
+                            : c.status === "被拒"
+                              ? "rejected"
+                              : "info"
+                      }
+                    >
                       {c.status}
                     </StatusTag>
                   ),
@@ -5088,9 +5647,9 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: 'var(--bg-card)',
+              background: "var(--bg-card)",
               borderRadius: 12,
-              padding: 'var(--space-5, 20px)',
+              padding: "var(--space-5, 20px)",
               border: "1px solid var(--border-color)",
             }}
           >
@@ -5108,14 +5667,40 @@ export default function InsuranceAuditPage() {
               dataSource={icdCptMapping}
               rowKey={(m) => m.icd10}
               pagination={false}
-              showExport={false}
-              showDensity={false}
               scroll={{ x: 1400 }}
               columns={[
-                { title: "ICD-10", key: "icd10", render: (_v, m) => <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{m.icd10}</span> },
-                { title: t("insuranceAudit.description"), key: "description", render: (_v, m) => <span style={{ fontSize: 12 }}>{m.description}</span> },
-                { title: "CPT", key: "cpt", render: (_v, m) => <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{m.cpt}</span> },
-                { title: t("insuranceAudit.applicableExam"), key: "exam", render: (_v, m) => <span style={{ fontSize: 12 }}>{m.exam}</span> },
+                {
+                  title: "ICD-10",
+                  key: "icd10",
+                  render: (_v, m) => (
+                    <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
+                      {m.icd10}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.description"),
+                  key: "description",
+                  render: (_v, m) => (
+                    <span style={{ fontSize: 12 }}>{m.description}</span>
+                  ),
+                },
+                {
+                  title: "CPT",
+                  key: "cpt",
+                  render: (_v, m) => (
+                    <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
+                      {m.cpt}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.applicableExam"),
+                  key: "exam",
+                  render: (_v, m) => (
+                    <span style={{ fontSize: 12 }}>{m.exam}</span>
+                  ),
+                },
               ]}
             />
           </div>
@@ -5124,12 +5709,18 @@ export default function InsuranceAuditPage() {
 
       {/* 拒赔管理 */}
       {activeTab === "denial" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4, 16px)",
+          }}
+        >
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 'var(--space-3, 12px)',
+              gap: "var(--space-3, 12px)",
             }}
           >
             {[
@@ -5168,13 +5759,13 @@ export default function InsuranceAuditPage() {
               <div
                 key={card.label}
                 style={{
-                  background: 'var(--bg-card)',
+                  background: "var(--bg-card)",
                   borderRadius: 10,
                   padding: "14px 16px",
                   border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-3, 12px)',
+                  gap: "var(--space-3, 12px)",
                 }}
               >
                 <div
@@ -5196,17 +5787,23 @@ export default function InsuranceAuditPage() {
                   >
                     {card.value}
                   </div>
-                  <AppText size="xs" color="secondary">{card.label}</AppText>
+                  <AppText size="xs" color="secondary">
+                    {card.label}
+                  </AppText>
                 </div>
               </div>
             ))}
           </div>
           <div
-            style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 'var(--space-4, 16px)' }}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "2fr 1fr",
+              gap: "var(--space-4, 16px)",
+            }}
           >
             <div
               style={{
-                background: 'var(--bg-card)',
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 border: "1px solid var(--border-color)",
                 overflow: "hidden",
@@ -5220,7 +5817,13 @@ export default function InsuranceAuditPage() {
                   gap: 6,
                 }}
               >
-                {["全部", t("insuranceAudit.statusPendingAppeal"), t("insuranceAudit.statusAppealing"), t("insuranceAudit.statusApproved"), t("insuranceAudit.statusRejected")].map((s) => (
+                {[
+                  "全部",
+                  t("insuranceAudit.statusPendingAppeal"),
+                  t("insuranceAudit.statusAppealing"),
+                  t("insuranceAudit.statusApproved"),
+                  t("insuranceAudit.statusRejected"),
+                ].map((s) => (
                   <button
                     key={s}
                     onClick={() => setDenialAppealFilter(s)}
@@ -5228,7 +5831,8 @@ export default function InsuranceAuditPage() {
                       padding: "4px 12px",
                       borderRadius: 16,
                       border: `1px solid ${denialAppealFilter === s ? ACCENT : "var(--border-color)"}`,
-                      background: denialAppealFilter === s ? ACCENT : 'var(--bg-card)',
+                      background:
+                        denialAppealFilter === s ? ACCENT : "var(--bg-card)",
                       color: denialAppealFilter === s ? WHITE : GRAY,
                       fontSize: 12,
                       fontWeight: 600,
@@ -5247,20 +5851,68 @@ export default function InsuranceAuditPage() {
                 )}
                 rowKey={(d) => String(d.id)}
                 pagination={false}
-                showExport={false}
-                showDensity={false}
                 scroll={{ x: 1400 }}
                 columns={[
-                  { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, d) => <span style={{ fontWeight: 600, color: PRIMARY }}>{d.patientName}</span> },
-                  { title: t("insuranceAudit.exam"), key: "examItem", render: (_v, d) => <span style={{ fontSize: 12 }}>{d.examItem}</span> },
-                  { title: t("insuranceAudit.denialReason"), key: "denialReason", render: (_v, d) => <span style={{ fontSize: 12 }}>{denialReasonLabels[d.denialReason] || d.denialReason}</span> },
-                  { title: t("insuranceAudit.reasonNote"), key: "description", render: (_v, d) => <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{d.description}</span> },
-                  { title: t("insuranceAudit.amount"), key: "amount", align: "right" as const, render: (_v, d) => <span style={{ fontWeight: 700 }}>¥{d.amount}</span> },
                   {
-                    title: t("insuranceAudit.appealStatus"), key: "appealStatus",
+                    title: t("insuranceAudit.patient"),
+                    key: "patientName",
+                    render: (_v, d) => (
+                      <span style={{ fontWeight: 600, color: PRIMARY }}>
+                        {d.patientName}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.exam"),
+                    key: "examItem",
+                    render: (_v, d) => (
+                      <span style={{ fontSize: 12 }}>{d.examItem}</span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.denialReason"),
+                    key: "denialReason",
+                    render: (_v, d) => (
+                      <span style={{ fontSize: 12 }}>
+                        {denialReasonLabels[d.denialReason] || d.denialReason}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.reasonNote"),
+                    key: "description",
+                    render: (_v, d) => (
+                      <span
+                        style={{ fontSize: 12, color: "var(--text-secondary)" }}
+                      >
+                        {d.description}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.amount"),
+                    key: "amount",
+                    align: "right" as const,
+                    render: (_v, d) => (
+                      <span style={{ fontWeight: 700 }}>¥{d.amount}</span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.appealStatus"),
+                    key: "appealStatus",
                     render: (_v, d) => (
                       <>
-                        <StatusTag status={d.appealStatus === "已通过" ? "approved" : d.appealStatus === "申诉中" ? "info" : d.appealStatus === "已拒绝" ? "rejected" : "pending"}>
+                        <StatusTag
+                          status={
+                            d.appealStatus === "已通过"
+                              ? "approved"
+                              : d.appealStatus === "申诉中"
+                                ? "info"
+                                : d.appealStatus === "已拒绝"
+                                  ? "rejected"
+                                  : "pending"
+                          }
+                        >
                           {d.appealStatus === "待申诉"
                             ? t("insuranceAudit.statusPendingAppeal")
                             : d.appealStatus === "申诉中"
@@ -5273,14 +5925,16 @@ export default function InsuranceAuditPage() {
                           <button
                             onClick={() => {
                               setToastType("success");
-                              setToastMessage(t("insuranceAudit.appealLetterGenerated"));
+                              setToastMessage(
+                                t("insuranceAudit.appealLetterGenerated"),
+                              );
                             }}
                             style={{
                               marginLeft: 6,
                               padding: "2px 8px",
                               borderRadius: 4,
                               border: "1px solid var(--border-color)",
-                              background: 'var(--bg-card)',
+                              background: "var(--bg-card)",
                               color: ACCENT,
                               fontSize: 12,
                               cursor: "pointer",
@@ -5297,9 +5951,9 @@ export default function InsuranceAuditPage() {
             </div>
             <div
               style={{
-                background: 'var(--bg-card)',
+                background: "var(--bg-card)",
                 borderRadius: 12,
-                padding: 'var(--space-4, 16px)',
+                padding: "var(--space-4, 16px)",
                 border: "1px solid var(--border-color)",
               }}
             >
@@ -5313,10 +5967,24 @@ export default function InsuranceAuditPage() {
               >
                 {t("insuranceAudit.denialRateTrend")}
               </h3>
-              <ChartContainer height={180} state={denialRateTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noDenialTrendData")}>
+              <ChartContainer
+                height={180}
+                state={denialRateTrend.length === 0 ? "empty" : "ready"}
+                emptyDescription={t("insuranceAudit.noDenialTrendData")}
+              >
                 <AreaChart data={denialRateTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} interval={autoInterval(denialRateTrend.length)} tickFormatter={(v: string) => (v && v.length > 6 ? `${v.slice(0, 6)}…` : v)} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--border-light)"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12 }}
+                    interval={autoInterval(denialRateTrend.length)}
+                    tickFormatter={(v: string) =>
+                      v && v.length > 6 ? `${v.slice(0, 6)}…` : v
+                    }
+                  />
                   <YAxis domain={[0, 20]} tick={{ fontSize: 12 }} unit="%" />
                   <Tooltip />
                   <Area
@@ -5331,7 +5999,7 @@ export default function InsuranceAuditPage() {
               </ChartContainer>
               <div
                 style={{
-                  marginTop: 'var(--space-3, 12px)',
+                  marginTop: "var(--space-3, 12px)",
                   display: "flex",
                   flexDirection: "column",
                   gap: 6,
@@ -5352,7 +6020,9 @@ export default function InsuranceAuditPage() {
                         borderRadius: 4,
                       }}
                     >
-                      <AppText size="xs" color="secondary" as="span">{label}</AppText>
+                      <AppText size="xs" color="secondary" as="span">
+                        {label}
+                      </AppText>
                       <span
                         style={{
                           fontSize: 12,
@@ -5373,12 +6043,18 @@ export default function InsuranceAuditPage() {
 
       {/* 预授权 */}
       {activeTab === "preAuth" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4, 16px)",
+          }}
+        >
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 'var(--space-3, 12px)',
+              gap: "var(--space-3, 12px)",
             }}
           >
             {[
@@ -5415,13 +6091,13 @@ export default function InsuranceAuditPage() {
               <div
                 key={card.label}
                 style={{
-                  background: 'var(--bg-card)',
+                  background: "var(--bg-card)",
                   borderRadius: 10,
                   padding: "14px 16px",
                   border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-3, 12px)',
+                  gap: "var(--space-3, 12px)",
                 }}
               >
                 <div
@@ -5443,16 +6119,18 @@ export default function InsuranceAuditPage() {
                   >
                     {card.value}
                   </div>
-                  <AppText size="xs" color="secondary">{card.label}</AppText>
+                  <AppText size="xs" color="secondary">
+                    {card.label}
+                  </AppText>
                 </div>
               </div>
             ))}
           </div>
           <div
             style={{
-              background: 'var(--bg-card)',
+              background: "var(--bg-card)",
               borderRadius: 10,
-              padding: 'var(--space-3, 12px)',
+              padding: "var(--space-3, 12px)",
               border: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
@@ -5468,7 +6146,7 @@ export default function InsuranceAuditPage() {
                     padding: "4px 12px",
                     borderRadius: 16,
                     border: `1px solid ${preAuthFilter === s ? ACCENT : "var(--border-color)"}`,
-                    background: preAuthFilter === s ? ACCENT : 'var(--bg-card)',
+                    background: preAuthFilter === s ? ACCENT : "var(--bg-card)",
                     color: preAuthFilter === s ? WHITE : GRAY,
                     fontSize: 12,
                     fontWeight: 600,
@@ -5508,7 +6186,13 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.newPreauth")}
             </button>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-3, 12px)' }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
             {preAuthData
               .filter(
                 (p) => preAuthFilter === "全部" || p.status === preAuthFilter,
@@ -5521,7 +6205,11 @@ export default function InsuranceAuditPage() {
                       ? DANGER
                       : WARNING;
                 const statusToneKey =
-                  p.status === "approved" ? "approved" : p.status === "denied" ? "rejected" : "pending";
+                  p.status === "approved"
+                    ? "approved"
+                    : p.status === "denied"
+                      ? "rejected"
+                      : "pending";
                 const statusLabel =
                   p.status === "pending"
                     ? t("insuranceAudit.preauthPending")
@@ -5532,9 +6220,9 @@ export default function InsuranceAuditPage() {
                   <div
                     key={p.id}
                     style={{
-                      background: 'var(--bg-card)',
+                      background: "var(--bg-card)",
                       borderRadius: 10,
-                      padding: 'var(--space-4, 16px)',
+                      padding: "var(--space-4, 16px)",
                       border: `1px solid ${statusColor}30`,
                       borderLeft: `4px solid ${statusColor}`,
                     }}
@@ -5551,7 +6239,7 @@ export default function InsuranceAuditPage() {
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 'var(--space-2, 8px)',
+                          gap: "var(--space-2, 8px)",
                         }}
                       >
                         <span style={{ fontWeight: 700, color: PRIMARY }}>
@@ -5564,11 +6252,13 @@ export default function InsuranceAuditPage() {
                       <div
                         style={{
                           display: "flex",
-                          gap: 'var(--space-2, 8px)',
+                          gap: "var(--space-2, 8px)",
                           alignItems: "center",
                         }}
                       >
-                        <StatusTag status={statusToneKey} size="md">{statusLabel}</StatusTag>
+                        <StatusTag status={statusToneKey} size="md">
+                          {statusLabel}
+                        </StatusTag>
                         {p.status === "pending" && (
                           <>
                             <PermissionGate permission="audit.approve">
@@ -5576,7 +6266,9 @@ export default function InsuranceAuditPage() {
                                 type="button"
                                 onClick={() => {
                                   setToastType("success");
-                                  setToastMessage(t("insuranceAudit.preauthApprovedMsg"));
+                                  setToastMessage(
+                                    t("insuranceAudit.preauthApprovedMsg"),
+                                  );
                                 }}
                                 style={{
                                   padding: "6px 14px",
@@ -5597,7 +6289,9 @@ export default function InsuranceAuditPage() {
                                 type="button"
                                 onClick={() => {
                                   setToastType("error");
-                                  setToastMessage(t("insuranceAudit.preauthRejectedMsg"));
+                                  setToastMessage(
+                                    t("insuranceAudit.preauthRejectedMsg"),
+                                  );
                                 }}
                                 style={{
                                   padding: "6px 14px",
@@ -5608,7 +6302,7 @@ export default function InsuranceAuditPage() {
                                   fontSize: 12,
                                   fontWeight: 600,
                                   cursor: "pointer",
-                                  marginLeft: 'var(--space-1, 4px)',
+                                  marginLeft: "var(--space-1, 4px)",
                                 }}
                               >
                                 {t("insuranceAudit.reject")}
@@ -5622,13 +6316,15 @@ export default function InsuranceAuditPage() {
                       style={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
-                        gap: 'var(--space-2, 8px)',
-                        marginBottom: 'var(--space-2, 8px)',
+                        gap: "var(--space-2, 8px)",
+                        marginBottom: "var(--space-2, 8px)",
                       }}
                     >
                       <AppText size="xs" color="secondary" as="div">
                         {t("insuranceAudit.examLabel")}{" "}
-                        <span style={{ color: "var(--text-secondary)" }}>{p.examItem}</span>
+                        <span style={{ color: "var(--text-secondary)" }}>
+                          {p.examItem}
+                        </span>
                       </AppText>
                       <AppText size="xs" color="secondary" as="div">
                         {t("insuranceAudit.requestDateLabel")}{" "}
@@ -5638,8 +6334,14 @@ export default function InsuranceAuditPage() {
                       </AppText>
                     </div>
                     <div>
-                      <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 6 }}>
-                        {t("insuranceAudit.requiredMaterials")}{p.docsCompleted}/{p.docs.length})
+                      <AppText
+                        size="xs"
+                        color="secondary"
+                        as="div"
+                        style={{ marginBottom: 6 }}
+                      >
+                        {t("insuranceAudit.requiredMaterials")}
+                        {p.docsCompleted}/{p.docs.length})
                       </AppText>
                       <div
                         style={{ display: "flex", gap: 6, flexWrap: "wrap" }}
@@ -5653,7 +6355,9 @@ export default function InsuranceAuditPage() {
                               fontSize: 12,
                               fontWeight: 600,
                               background:
-                                i < p.docsCompleted ? "var(--color-success-bg)" : "var(--content-bg)",
+                                i < p.docsCompleted
+                                  ? "var(--color-success-bg)"
+                                  : "var(--content-bg)",
                               color: i < p.docsCompleted ? SUCCESS : GRAY,
                             }}
                           >
@@ -5665,7 +6369,7 @@ export default function InsuranceAuditPage() {
                     {p.expiryDate && (
                       <div
                         style={{
-                          marginTop: 'var(--space-2, 8px)',
+                          marginTop: "var(--space-2, 8px)",
                           fontSize: 12,
                           color:
                             new Date(p.expiryDate) < new Date()
@@ -5673,7 +6377,7 @@ export default function InsuranceAuditPage() {
                               : WARNING,
                           display: "flex",
                           alignItems: "center",
-                          gap: 'var(--space-1, 4px)',
+                          gap: "var(--space-1, 4px)",
                         }}
                       >
                         <Clock size={11} />
@@ -5689,12 +6393,18 @@ export default function InsuranceAuditPage() {
 
       {/* DRG校验 */}
       {activeTab === "drg" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4, 16px)",
+          }}
+        >
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 'var(--space-3, 12px)',
+              gap: "var(--space-3, 12px)",
             }}
           >
             {[
@@ -5733,13 +6443,13 @@ export default function InsuranceAuditPage() {
               <div
                 key={card.label}
                 style={{
-                  background: 'var(--bg-card)',
+                  background: "var(--bg-card)",
                   borderRadius: 10,
                   padding: "14px 16px",
                   border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-3, 12px)',
+                  gap: "var(--space-3, 12px)",
                 }}
               >
                 <div
@@ -5761,14 +6471,16 @@ export default function InsuranceAuditPage() {
                   >
                     {card.value}
                   </div>
-                  <AppText size="xs" color="secondary">{card.label}</AppText>
+                  <AppText size="xs" color="secondary">
+                    {card.label}
+                  </AppText>
                 </div>
               </div>
             ))}
           </div>
           <div
             style={{
-              background: 'var(--bg-card)',
+              background: "var(--bg-card)",
               borderRadius: 12,
               border: "1px solid var(--border-color)",
               overflow: "hidden",
@@ -5778,39 +6490,99 @@ export default function InsuranceAuditPage() {
               dataSource={drgData}
               rowKey={(d) => String(d.id)}
               pagination={false}
-              showExport={false}
-              showDensity={false}
               scroll={{ x: 1400 }}
               columns={[
-                { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, d) => <span style={{ fontWeight: 600, color: PRIMARY }}>{d.patientName}</span> },
-                { title: t("insuranceAudit.drgIcdCode"), key: "icdCodes", render: (_v, d) => <span style={{ fontFamily: "monospace", fontSize: 12 }}>{d.icdCodes}</span> },
                 {
-                  title: t("insuranceAudit.drgGroup"), key: "drgCode",
+                  title: t("insuranceAudit.patient"),
+                  key: "patientName",
+                  render: (_v, d) => (
+                    <span style={{ fontWeight: 600, color: PRIMARY }}>
+                      {d.patientName}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.drgIcdCode"),
+                  key: "icdCodes",
+                  render: (_v, d) => (
+                    <span style={{ fontFamily: "monospace", fontSize: 12 }}>
+                      {d.icdCodes}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("insuranceAudit.drgGroup"),
+                  key: "drgCode",
                   render: (_v, d) => (
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.drgCode}</div>
-                      <div style={{ fontSize: 12, color: GRAY }}>{d.drgName}</div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: PRIMARY,
+                        }}
+                      >
+                        {d.drgCode}
+                      </div>
+                      <div style={{ fontSize: 12, color: GRAY }}>
+                        {d.drgName}
+                      </div>
                     </div>
                   ),
                 },
-                { title: t("insuranceAudit.drgExpectedCost"), key: "expectedCost", align: "right" as const, render: (_v, d) => `¥${d.expectedCost.toLocaleString()}` },
-                { title: t("insuranceAudit.drgActualCost"), key: "actualCost", align: "right" as const, render: (_v, d) => `¥${d.actualCost.toLocaleString()}` },
                 {
-                  title: t("insuranceAudit.drgCostDeviation"), key: "costDiff", align: "right" as const,
+                  title: t("insuranceAudit.drgExpectedCost"),
+                  key: "expectedCost",
+                  align: "right" as const,
+                  render: (_v, d) => `¥${d.expectedCost.toLocaleString()}`,
+                },
+                {
+                  title: t("insuranceAudit.drgActualCost"),
+                  key: "actualCost",
+                  align: "right" as const,
+                  render: (_v, d) => `¥${d.actualCost.toLocaleString()}`,
+                },
+                {
+                  title: t("insuranceAudit.drgCostDeviation"),
+                  key: "costDiff",
+                  align: "right" as const,
                   render: (_v, d) => {
-                    const costDiff = (((d.actualCost - d.expectedCost) / d.expectedCost) * 100).toFixed(1);
-                    const diffColor = parseFloat(costDiff) > 10 ? DANGER : parseFloat(costDiff) < -10 ? SUCCESS : GRAY;
-                    return <span style={{ fontWeight: 700, color: diffColor }}>{costDiff}%</span>;
+                    const costDiff = (
+                      ((d.actualCost - d.expectedCost) / d.expectedCost) *
+                      100
+                    ).toFixed(1);
+                    const diffColor =
+                      parseFloat(costDiff) > 10
+                        ? DANGER
+                        : parseFloat(costDiff) < -10
+                          ? SUCCESS
+                          : GRAY;
+                    return (
+                      <span style={{ fontWeight: 700, color: diffColor }}>
+                        {costDiff}%
+                      </span>
+                    );
                   },
                 },
                 {
-                  title: t("insuranceAudit.abnormal"), key: "outlier",
-                  render: (_v, d) => d.outlier ? <AlertTriangle size={14} color={WARNING} /> : <CheckCircle size={14} color={SUCCESS} />,
+                  title: t("insuranceAudit.abnormal"),
+                  key: "outlier",
+                  render: (_v, d) =>
+                    d.outlier ? (
+                      <AlertTriangle size={14} color={WARNING} />
+                    ) : (
+                      <CheckCircle size={14} color={SUCCESS} />
+                    ),
                 },
                 {
-                  title: t("insuranceAudit.validationScore"), key: "validationScore",
+                  title: t("insuranceAudit.validationScore"),
+                  key: "validationScore",
                   render: (_v, d) => (
-                    <StatusTag status={d.validationScore >= 80 ? 'success' : 'warning'}>{d.validationScore}</StatusTag>
+                    <StatusTag
+                      status={d.validationScore >= 80 ? "success" : "warning"}
+                    >
+                      {d.validationScore}
+                    </StatusTag>
                   ),
                 },
               ]}
@@ -5818,9 +6590,9 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: 'var(--bg-card)',
+              background: "var(--bg-card)",
               borderRadius: 12,
-              padding: 'var(--space-5, 20px)',
+              padding: "var(--space-5, 20px)",
               border: "1px solid var(--border-color)",
             }}
           >
@@ -5838,7 +6610,7 @@ export default function InsuranceAuditPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(4, 1fr)",
-                gap: 'var(--space-3, 12px)',
+                gap: "var(--space-3, 12px)",
               }}
             >
               {drgMapping.map((m) => (
@@ -5847,7 +6619,7 @@ export default function InsuranceAuditPage() {
                   style={{
                     background: "var(--content-bg)",
                     borderRadius: 8,
-                    padding: 'var(--space-3, 12px)',
+                    padding: "var(--space-3, 12px)",
                     border: "1px solid var(--border-color)",
                   }}
                 >
@@ -5859,7 +6631,12 @@ export default function InsuranceAuditPage() {
                   <AppText size="xs" color="secondary" as="div">
                     ICD: {m.icdStart}-{m.icdEnd}
                   </AppText>
-                  <AppText size="xs" color="secondary" as="div" style={{ marginTop: 'var(--space-1, 4px)' }}>
+                  <AppText
+                    size="xs"
+                    color="secondary"
+                    as="div"
+                    style={{ marginTop: "var(--space-1, 4px)" }}
+                  >
                     {m.category}
                   </AppText>
                 </div>
@@ -5884,7 +6661,10 @@ export default function InsuranceAuditPage() {
               >
                 <BookOpen
                   size={18}
-                  style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
+                  style={{
+                    marginRight: "var(--space-2, 8px)",
+                    verticalAlign: "middle",
+                  }}
                 />
                 {t("insuranceAudit.indicationRules")}
               </h3>
@@ -5901,8 +6681,10 @@ export default function InsuranceAuditPage() {
                   try {
                     return JSON.parse(
                       localStorage.getItem("g005_insurance_rules") || "[]",
-                    )
-                  } catch { return [] }
+                    );
+                  } catch {
+                    return [];
+                  }
                 })();
                 rules.push({
                   id: Date.now(),
@@ -5934,9 +6716,19 @@ export default function InsuranceAuditPage() {
           {indicationRulesState.map((rule) => (
             <div key={rule.id} style={styles.ruleCard}>
               <div style={styles.ruleHeader}>
-                <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-2, 8px)",
+                  }}
+                >
                   <span
-                    style={{ fontSize: 14, fontWeight: 600, color: "var(--color-primary-800)" }}
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: "var(--color-primary-800)",
+                    }}
                   >
                     {rule.examName}
                   </span>
@@ -5951,7 +6743,8 @@ export default function InsuranceAuditPage() {
                   </span>
                 </div>
                 <div style={styles.btnGroup}>
-                  <button aria-label="查看详情"
+                  <button
+                    aria-label="查看详情"
                     type="button"
                     onClick={() =>
                       window.open(`/api/rules/${rule.id}/detail`, "_blank")
@@ -5973,7 +6766,13 @@ export default function InsuranceAuditPage() {
                   </PermissionGate>
                 </div>
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 'var(--space-2, 8px)' }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginBottom: "var(--space-2, 8px)",
+                }}
+              >
                 <Pill size={14} style={{ marginRight: 6 }} />
                 <strong>{t("insuranceAudit.drugLabel")}</strong> {rule.drugName}
               </div>
@@ -5984,7 +6783,7 @@ export default function InsuranceAuditPage() {
                   background: "var(--color-warning-bg)",
                   borderRadius: 6,
                   color: "var(--color-warning)",
-                  marginBottom: 'var(--space-2, 8px)',
+                  marginBottom: "var(--space-2, 8px)",
                 }}
               >
                 <ShieldCheck size={14} style={{ marginRight: 6 }} />
@@ -5996,18 +6795,21 @@ export default function InsuranceAuditPage() {
             </div>
           ))}
 
-          <div style={{ marginTop: 'var(--space-6, 24px)' }}>
+          <div style={{ marginTop: "var(--space-6, 24px)" }}>
             <h3
               style={{
                 fontSize: 14,
                 fontWeight: 600,
                 color: "var(--color-primary-800)",
-                marginBottom: 'var(--space-3, 12px)',
+                marginBottom: "var(--space-3, 12px)",
               }}
             >
               <Filter
                 size={18}
-                style={{ marginRight: 'var(--space-2, 8px)', verticalAlign: "middle" }}
+                style={{
+                  marginRight: "var(--space-2, 8px)",
+                  verticalAlign: "middle",
+                }}
               />
               {t("insuranceAudit.restrictedDrugLibrary")}
             </h3>
@@ -6016,22 +6818,62 @@ export default function InsuranceAuditPage() {
                 dataSource={restrictedDrugs}
                 rowKey={(drug) => String(drug.id)}
                 pagination={false}
-                showExport={false}
-                showDensity={false}
                 scroll={{ x: 1400 }}
                 columns={[
-                  { title: t("insuranceAudit.drugName"), key: "name", render: (_v, drug) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{drug.name}</span> },
                   {
-                    title: t("insuranceAudit.category"), key: "category",
+                    title: t("insuranceAudit.drugName"),
+                    key: "name",
+                    render: (_v, drug) => (
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          color: "var(--color-primary-800)",
+                        }}
+                      >
+                        {drug.name}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.category"),
+                    key: "category",
                     render: (_v, drug) => (
                       <StatusTag status="info" bordered={false}>
                         {drug.category}
                       </StatusTag>
                     ),
                   },
-                  { title: t("insuranceAudit.insuranceRestriction"), key: "restriction", render: (_v, drug) => <span style={{ color: "var(--color-error)", fontSize: 12 }}>{drug.restriction}</span> },
-                  { title: t("insuranceAudit.applicableExam"), key: "applicableExams", render: (_v, drug) => <span style={{ fontSize: 12 }}>{drug.applicableExams}</span> },
-                  { title: t("insuranceAudit.cautions"), key: "notes", render: (_v, drug) => <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{drug.notes}</span> },
+                  {
+                    title: t("insuranceAudit.insuranceRestriction"),
+                    key: "restriction",
+                    render: (_v, drug) => (
+                      <span
+                        style={{ color: "var(--color-error)", fontSize: 12 }}
+                      >
+                        {drug.restriction}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.applicableExam"),
+                    key: "applicableExams",
+                    render: (_v, drug) => (
+                      <span style={{ fontSize: 12 }}>
+                        {drug.applicableExams}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t("insuranceAudit.cautions"),
+                    key: "notes",
+                    render: (_v, drug) => (
+                      <span
+                        style={{ fontSize: 12, color: "var(--text-secondary)" }}
+                      >
+                        {drug.notes}
+                      </span>
+                    ),
+                  },
                 ]}
               />
             </div>
@@ -6066,13 +6908,26 @@ export default function InsuranceAuditPage() {
           style={styles.modalOverlay}
           onClick={() => setShowAuditDetail(false)}
         >
-          <div style={{ ...styles.modal, width: 560, maxWidth: "92vw" }} onClick={(e) => e.stopPropagation()}>
+          <div
+            style={{ ...styles.modal, width: 560, maxWidth: "92vw" }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={styles.modalTitle}>
-              <FileText size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
+              <FileText
+                size={16}
+                style={{ marginRight: 6, verticalAlign: "middle" }}
+              />
               {t("insuranceAudit.auditDetailTitle")}
             </div>
             {auditDetailLoading ? (
-              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
+              <div
+                style={{
+                  padding: "32px 0",
+                  textAlign: "center",
+                  color: "var(--text-secondary)",
+                  fontSize: 12,
+                }}
+              >
                 {t("insuranceAudit.detailLoading")}
               </div>
             ) : auditDetail ? (
@@ -6086,59 +6941,89 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.auditNoLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.auditNoLabel")}
+                    </span>
                     <b>{auditDetail.id ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.patientLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.patientLabel")}
+                    </span>
                     <b>{auditDetail.patientName ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.patientIdLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.patientIdLabel")}
+                    </span>
                     <b>{auditDetail.patientId ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.examTypeLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.examTypeLabel")}
+                    </span>
                     <b>{auditDetail.examType ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.drugLabel2")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.drugLabel2")}
+                    </span>
                     <b>{auditDetail.drugName ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.drugCategoryLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.drugCategoryLabel")}
+                    </span>
                     <b>{auditDetail.drugCategory ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.submitTimeLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.submitTimeLabel")}
+                    </span>
                     <b>{auditDetail.submitTime || "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.statusLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.statusLabel")}
+                    </span>
                     <span
                       style={{
                         ...styles.badge,
-                        background: (auditDetail.status || "").startsWith("REJ") || (auditDetail.status || "").toLowerCase() === "rejected"
-                          ? "var(--color-error-bg)"
-                          : (auditDetail.status || "").startsWith("APP") || (auditDetail.status || "").toLowerCase() === "approved"
-                            ? "var(--color-success-bg)"
-                            : "var(--color-warning-bg)",
-                        color: (auditDetail.status || "").startsWith("REJ") || (auditDetail.status || "").toLowerCase() === "rejected"
-                          ? "var(--color-error)"
-                          : (auditDetail.status || "").startsWith("APP") || (auditDetail.status || "").toLowerCase() === "approved"
-                            ? "var(--color-success)"
-                            : "var(--color-warning)",
+                        background:
+                          (auditDetail.status || "").startsWith("REJ") ||
+                          (auditDetail.status || "").toLowerCase() ===
+                            "rejected"
+                            ? "var(--color-error-bg)"
+                            : (auditDetail.status || "").startsWith("APP") ||
+                                (auditDetail.status || "").toLowerCase() ===
+                                  "approved"
+                              ? "var(--color-success-bg)"
+                              : "var(--color-warning-bg)",
+                        color:
+                          (auditDetail.status || "").startsWith("REJ") ||
+                          (auditDetail.status || "").toLowerCase() ===
+                            "rejected"
+                            ? "var(--color-error)"
+                            : (auditDetail.status || "").startsWith("APP") ||
+                                (auditDetail.status || "").toLowerCase() ===
+                                  "approved"
+                              ? "var(--color-success)"
+                              : "var(--color-warning)",
                       }}
                     >
                       {auditDetail.status ?? "-"}
                     </span>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.auditorLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.auditorLabel")}
+                    </span>
                     <b>{auditDetail.auditor || "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.auditTimeLabel")}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {t("insuranceAudit.auditTimeLabel")}
+                    </span>
                     <b>{auditDetail.auditTime || "-"}</b>
                   </div>
                 </div>
@@ -6146,23 +7031,43 @@ export default function InsuranceAuditPage() {
                   <div
                     style={{
                       marginTop: 14,
-                      padding: 'var(--space-3, 12px)',
+                      padding: "var(--space-3, 12px)",
                       background: "var(--bg-card)",
                       borderRadius: 8,
                       fontSize: 12,
                     }}
                   >
-                    <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 'var(--space-1, 4px)' }}>
-                      {t("insuranceAudit.auditResultLabel")}{auditDetail.result || "-"}
+                    <div
+                      style={{
+                        fontWeight: 600,
+                        color: "var(--text-primary)",
+                        marginBottom: "var(--space-1, 4px)",
+                      }}
+                    >
+                      {t("insuranceAudit.auditResultLabel")}
+                      {auditDetail.result || "-"}
                     </div>
-                    <div style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                      {t("insuranceAudit.reasonLabel")}{auditDetail.reason || "-"}
+                    <div
+                      style={{
+                        color: "var(--text-secondary)",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {t("insuranceAudit.reasonLabel")}
+                      {auditDetail.reason || "-"}
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
+              <div
+                style={{
+                  padding: "32px 0",
+                  textAlign: "center",
+                  color: "var(--text-secondary)",
+                  fontSize: 12,
+                }}
+              >
                 {t("insuranceAudit.recordNotFound")}
               </div>
             )}
@@ -6196,8 +7101,15 @@ export default function InsuranceAuditPage() {
               placeholder={t("insuranceAudit.rejectReasonRequired")}
               rows={3}
               style={{
-                width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)",
-                fontSize: 12, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 'var(--space-3, 12px)', resize: "vertical",
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid var(--border-color)",
+                fontSize: 12,
+                fontFamily: "inherit",
+                boxSizing: "border-box",
+                marginBottom: "var(--space-3, 12px)",
+                resize: "vertical",
               }}
             />
             <div style={styles.modalActions}>
@@ -6252,7 +7164,9 @@ export default function InsuranceAuditPage() {
       <ConfirmDialog
         open={!!ruleToDelete}
         title={t("insuranceAudit.deleteRuleConfirm")}
-        message={t("insuranceAudit.ruleDeletedConfirm", { name: ruleToDelete?.examName })}
+        message={t("insuranceAudit.ruleDeletedConfirm", {
+          name: ruleToDelete?.examName,
+        })}
         confirmText={t("insuranceAudit.delete")}
         variant="danger"
         onCancel={() => setRuleToDelete(null)}
@@ -6262,7 +7176,9 @@ export default function InsuranceAuditPage() {
               prev.filter((r) => r.id !== ruleToDelete.id),
             );
             setToastType("success");
-            setToastMessage(t("insuranceAudit.ruleDeleted", { name: ruleToDelete.examName }));
+            setToastMessage(
+              t("insuranceAudit.ruleDeleted", { name: ruleToDelete.examName }),
+            );
             setRuleToDelete(null);
           }
         }}
@@ -6277,75 +7193,163 @@ export default function InsuranceAuditPage() {
           style={styles.modalOverlay}
           onClick={() => !creating && setShowCreateModal(false)}
         >
-          <div style={{ ...styles.modal, width: 520, maxWidth: "92vw" }} onClick={(e) => e.stopPropagation()}>
+          <div
+            style={{ ...styles.modal, width: 520, maxWidth: "92vw" }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={styles.modalTitle}>
-              <Plus size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
+              <Plus
+                size={16}
+                style={{ marginRight: 6, verticalAlign: "middle" }}
+              />
               {t("insuranceAudit.newRecordTitle")}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", fontSize: 12 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "10px 16px",
+                fontSize: 12,
+              }}
+            >
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.patientIdRequired")}</div>
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("insuranceAudit.patientIdRequired")}
+                </div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.patientIdPlaceholder")}
                   value={createForm.patientId}
-                  onChange={(e) => setCreateForm({ ...createForm, patientId: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, patientId: e.target.value })
+                  }
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.patientNameRequired")}</div>
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("insuranceAudit.patientNameRequired")}
+                </div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.patientName")}
                   value={createForm.patientName}
-                  onChange={(e) => setCreateForm({ ...createForm, patientName: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({
+                      ...createForm,
+                      patientName: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.examItem2")}</div>
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("insuranceAudit.examItem2")}
+                </div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.examItemPlaceholder")}
                   value={createForm.examItem}
-                  onChange={(e) => setCreateForm({ ...createForm, examItem: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, examItem: e.target.value })
+                  }
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.contrast2")}</div>
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("insuranceAudit.contrast2")}
+                </div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.contrastPlaceholder")}
                   value={createForm.contrastAgent}
-                  onChange={(e) => setCreateForm({ ...createForm, contrastAgent: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({
+                      ...createForm,
+                      contrastAgent: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.anticoagulant")}</div>
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("insuranceAudit.anticoagulant")}
+                </div>
                 <input
                   style={styles.input}
                   placeholder={t("insuranceAudit.anticoagulantPlaceholder")}
                   value={createForm.anticoagulant}
-                  onChange={(e) => setCreateForm({ ...createForm, anticoagulant: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({
+                      ...createForm,
+                      anticoagulant: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.amountYuan")}</div>
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("insuranceAudit.amountYuan")}
+                </div>
                 <input
                   style={styles.input}
                   type="number"
                   placeholder="0"
                   value={createForm.amount || ""}
-                  onChange={(e) => setCreateForm({ ...createForm, amount: Number(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setCreateForm({
+                      ...createForm,
+                      amount: Number(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <div style={{ color: "var(--text-secondary)", marginBottom: 'var(--space-1, 4px)' }}>{t("insuranceAudit.applyReason")}</div>
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("insuranceAudit.applyReason")}
+                </div>
                 <textarea
                   rows={2}
                   style={{ ...styles.input, resize: "vertical" }}
                   placeholder={t("insuranceAudit.applyReasonPlaceholder")}
                   value={createForm.reason}
-                  onChange={(e) => setCreateForm({ ...createForm, reason: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, reason: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -6362,7 +7366,9 @@ export default function InsuranceAuditPage() {
                 onClick={() => void handleCreateAudit()}
                 disabled={creating}
               >
-                {creating ? t("insuranceAudit.submitting") : t("insuranceAudit.submitAudit")}
+                {creating
+                  ? t("insuranceAudit.submitting")
+                  : t("insuranceAudit.submitAudit")}
               </button>
             </div>
           </div>

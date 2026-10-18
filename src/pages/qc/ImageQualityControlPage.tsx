@@ -2,9 +2,16 @@
  * G005 v3.0.6.11-75 W3-1 - 影像质控专项页
  * qcImageAiApi 真实评分(scoreV2) + 评分列表(listResults) + 统计(getStatsV2) + 设备影像等级
  */
-import { DEVICE_MASTER, DEVICES_BY_MODALITY } from '../../data/master'
-import { qcImageAiApi, type QcImageAiResult, type QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
-import { RETAKE_REASON_OPTIONS, worklistApi } from '../../services/api/worklistApi'
+import { DEVICE_MASTER, DEVICES_BY_MODALITY } from "../../data/master";
+import {
+  qcImageAiApi,
+  type QcImageAiResult,
+  type QcImageAiStatsV2,
+} from "../../services/api/qcImageAiApi";
+import {
+  RETAKE_REASON_OPTIONS,
+  worklistApi,
+} from "../../services/api/worklistApi";
 import {
   Card,
   Row,
@@ -22,330 +29,780 @@ import {
   Modal,
   type TableProps,
 } from "antd";
-import { Camera, Activity, AlertTriangle, CheckCircle, ScanLine, RefreshCw, XCircle } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { PageHeader } from '../../components/common/PageHeader'
-import { StatCard, StatCardGrid } from '../../components/common/StatCard'
-import { EmptyState } from '../../components/common/EmptyState'
-import { AppText } from '../../components/common/AppText'
-import { THEME_TOKENS } from '../../components/common/ThemeTokens'
-import { t } from '../../i18n/appI18n'
+import {
+  Camera,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  ScanLine,
+  RefreshCw,
+  XCircle,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { PageHeader } from "../../components/common/PageHeader";
+import { StatCard, StatCardGrid } from "../../components/common/StatCard";
+import { EmptyState } from "../../components/common/EmptyState";
+import { AppText } from "../../components/common/AppText";
+import { THEME_TOKENS } from "../../components/common/ThemeTokens";
+import { t } from "../../i18n/appI18n";
 import { PageContainer } from "../../components/common";
 
-const MODALITY_OPTIONS = ['CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => ({ label: m, value: m }))
+const MODALITY_OPTIONS = ["CT", "MR", "DR", "US", "MG", "DSA"].map((m) => ({
+  label: m,
+  value: m,
+}));
 const STATUS_META: Record<string, { color: string; labelKey: string }> = {
-  pending: { color: 'warning', labelKey: 'imageQualityControl.statusPending' },
-  reviewed: { color: 'blue', labelKey: 'imageQualityControl.statusReviewed' },
-  accepted: { color: 'success', labelKey: 'imageQualityControl.statusAccepted' },
-  rejected: { color: 'error', labelKey: 'imageQualityControl.statusRejected' },
-}
+  pending: { color: "warning", labelKey: "imageQualityControl.statusPending" },
+  reviewed: { color: "blue", labelKey: "imageQualityControl.statusReviewed" },
+  accepted: {
+    color: "success",
+    labelKey: "imageQualityControl.statusAccepted",
+  },
+  rejected: { color: "error", labelKey: "imageQualityControl.statusRejected" },
+};
 
 export default function ImageQualityControlPage() {
-  const [modality, setModality] = useState<string>('all')
-  const [results, setResults] = useState<QcImageAiResult[]>([])
-  const [statsV2, setStatsV2] = useState<QcImageAiStatsV2 | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [modality, setModality] = useState<string>("all");
+  const [results, setResults] = useState<QcImageAiResult[]>([]);
+  const [statsV2, setStatsV2] = useState<QcImageAiStatsV2 | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [instanceId, setInstanceId] = useState('')
-  const [scoreModality, setScoreModality] = useState('CT')
-  const [operatorId, setOperatorId] = useState('')
-  const [scoring, setScoring] = useState(false)
+  const [instanceId, setInstanceId] = useState("");
+  const [scoreModality, setScoreModality] = useState("CT");
+  const [operatorId, setOperatorId] = useState("");
+  const [scoring, setScoring] = useState(false);
   // [W2-C] 受控分页
-  const [resultPage, setResultPage] = useState(1)
+  const [resultPage, setResultPage] = useState(1);
   // [v3.0.6.11-92 Wave1B P0] 质控回写 busy key (质控通过/驳回 → worklistApi.updateState)
-  const [qcBusy, setQcBusy] = useState('')
+  const [qcBusy, setQcBusy] = useState("");
 
   // [v3.0.6.11-92 Wave1B P0] 质控通过/驳回 → 写回 exam 状态 (通过 → IMAGE_READY 图像可用, 驳回 → QC_REJECT)
-  const handleQc = async (r: QcImageAiResult, state: 'IMAGE_READY' | 'QC_REJECT') => {
-    const key = `${r.id}:${state === 'IMAGE_READY' ? 'pass' : 'reject'}`
-    if (qcBusy) return
-    setQcBusy(key)
+  const handleQc = async (
+    r: QcImageAiResult,
+    state: "IMAGE_READY" | "QC_REJECT",
+  ) => {
+    const key = `${r.id}:${state === "IMAGE_READY" ? "pass" : "reject"}`;
+    if (qcBusy) return;
+    setQcBusy(key);
     try {
       const res = await worklistApi.updateState(
         r.studyId,
         state,
-        state === 'QC_REJECT' ? `影像质控驳回: AI 评分 ${r.score}/${r.maxScore}` : '影像质控通过',
-      )
+        state === "QC_REJECT"
+          ? `影像质控驳回: AI 评分 ${r.score}/${r.maxScore}`
+          : "影像质控通过",
+      );
       if (res.success) {
-        message.success(state === 'IMAGE_READY' ? t('imageQualityControl.qcPassedMsg', { studyId: r.studyId }) : t('imageQualityControl.qcRejectedMsg', { studyId: r.studyId }))
-        setResults(prev => prev.map(x => (x.id === r.id ? { ...x, status: state === 'IMAGE_READY' ? 'accepted' : 'rejected' } : x)))
-        void load()
+        message.success(
+          state === "IMAGE_READY"
+            ? t("imageQualityControl.qcPassedMsg", { studyId: r.studyId })
+            : t("imageQualityControl.qcRejectedMsg", { studyId: r.studyId }),
+        );
+        setResults((prev) =>
+          prev.map((x) =>
+            x.id === r.id
+              ? {
+                  ...x,
+                  status: state === "IMAGE_READY" ? "accepted" : "rejected",
+                }
+              : x,
+          ),
+        );
+        void load();
       } else {
-        message.error(res.error?.message ?? t('imageQualityControl.qcActionFailed'))
+        message.error(
+          res.error?.message ?? t("imageQualityControl.qcActionFailed"),
+        );
       }
     } catch (e) {
-      message.error(e instanceof Error ? e.message : t('imageQualityControl.qcActionFailed'))
+      message.error(
+        e instanceof Error
+          ? e.message
+          : t("imageQualityControl.qcActionFailed"),
+      );
     } finally {
-      setQcBusy('')
+      setQcBusy("");
     }
-  }
+  };
 
   // [v3.0.6.11-95 Wave 1A P1] 驳回后重拍登记: QC_REJECT → IN_PROGRESS (后端 retakeCount +1, 备注"重拍第 N 次")
   // [v3.0.6.11-100 Wave 1B] + 重拍原因下拉 (retakeReason 传递, 重拍率统计原因维度)
-  const [retakeTarget, setRetakeTarget] = useState<QcImageAiResult | null>(null)
-  const [retakeReason, setRetakeReason] = useState<string | undefined>(undefined)
-  const [retakeConfirmOpen, setRetakeConfirmOpen] = useState(false)
+  const [retakeTarget, setRetakeTarget] = useState<QcImageAiResult | null>(
+    null,
+  );
+  const [retakeReason, setRetakeReason] = useState<string | undefined>(
+    undefined,
+  );
+  const [retakeConfirmOpen, setRetakeConfirmOpen] = useState(false);
 
   const openRetakeModal = (r: QcImageAiResult) => {
-    setRetakeTarget(r)
-    setRetakeReason(undefined)
-    setRetakeConfirmOpen(true)
-  }
+    setRetakeTarget(r);
+    setRetakeReason(undefined);
+    setRetakeConfirmOpen(true);
+  };
 
   const handleRetake = async (r: QcImageAiResult) => {
-    const key = `${r.id}:retake`
-    if (qcBusy) return
-    setQcBusy(key)
+    const key = `${r.id}:retake`;
+    if (qcBusy) return;
+    setQcBusy(key);
     try {
       // [W6] 重拍登记门禁: QC_REJECT 后提交重拍申请, 审批通过前不得流转 IN_PROGRESS
-      const res = await worklistApi.requestRetake(r.studyId, { reason: retakeReason, note: '影像质控重拍申请' })
+      const res = await worklistApi.requestRetake(r.studyId, {
+        reason: retakeReason,
+        note: "影像质控重拍申请",
+      });
       if (res.success) {
-        message.success(t('w6Workflow.retake.requested'))
-        setResults(prev => prev.map(x => (x.id === r.id ? { ...x, status: 'pending' } : x)))
-        setRetakeConfirmOpen(false)
-        setRetakeTarget(null)
-        void load()
+        message.success(t("w6Workflow.retake.requested"));
+        setResults((prev) =>
+          prev.map((x) => (x.id === r.id ? { ...x, status: "pending" } : x)),
+        );
+        setRetakeConfirmOpen(false);
+        setRetakeTarget(null);
+        void load();
       } else {
-        message.error(res.error?.message ?? t('imageQualityControl.retakeRegisterFailed'))
+        message.error(
+          res.error?.message ?? t("imageQualityControl.retakeRegisterFailed"),
+        );
       }
     } catch (e) {
-      message.error(e instanceof Error ? e.message : t('imageQualityControl.retakeRegisterFailed'))
+      message.error(
+        e instanceof Error
+          ? e.message
+          : t("imageQualityControl.retakeRegisterFailed"),
+      );
     } finally {
-      setQcBusy('')
+      setQcBusy("");
     }
-  }
+  };
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
     try {
       const [listRes, statsRes] = await Promise.all([
-        qcImageAiApi.listResults(modality === 'all' ? undefined : { modality }),
-        qcImageAiApi.getStatsV2(modality === 'all' ? undefined : { modality }),
-      ])
-      if (listRes.success && Array.isArray(listRes.data)) setResults(listRes.data as unknown as QcImageAiResult[])
-      else setError(listRes.error?.message ?? t('imageQualityControl.scoreListLoadFailed'))
-      if (statsRes.success && statsRes.data) setStatsV2(statsRes.data)
+        qcImageAiApi.listResults(modality === "all" ? undefined : { modality }),
+        qcImageAiApi.getStatsV2(modality === "all" ? undefined : { modality }),
+      ]);
+      if (listRes.success && Array.isArray(listRes.data))
+        setResults(listRes.data as unknown as QcImageAiResult[]);
+      else
+        setError(
+          listRes.error?.message ??
+            t("imageQualityControl.scoreListLoadFailed"),
+        );
+      if (statsRes.success && statsRes.data) setStatsV2(statsRes.data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t('imageQualityControl.qcDataLoadFailed'))
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("imageQualityControl.qcDataLoadFailed"),
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [modality])
+  }, [modality]);
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const deviceStats = useMemo(() => {
-    const filtered = modality === 'all' ? DEVICE_MASTER : DEVICES_BY_MODALITY[modality as keyof typeof DEVICES_BY_MODALITY] || []
-    const grade = (g: string) => filtered.filter((d) => d.imageQualityGrade === g).length
-    const total = filtered.length
-    const doseCompliant = filtered.filter((d) => d.doseComplianceRate >= 90).length
-    return { a: grade('A'), b: grade('B'), c: grade('C'), d: grade('D'), total, doseCompliant }
-  }, [modality])
+    const filtered =
+      modality === "all"
+        ? DEVICE_MASTER
+        : DEVICES_BY_MODALITY[modality as keyof typeof DEVICES_BY_MODALITY] ||
+          [];
+    const grade = (g: string) =>
+      filtered.filter((d) => d.imageQualityGrade === g).length;
+    const total = filtered.length;
+    const doseCompliant = filtered.filter(
+      (d) => d.doseComplianceRate >= 90,
+    ).length;
+    return {
+      a: grade("A"),
+      b: grade("B"),
+      c: grade("C"),
+      d: grade("D"),
+      total,
+      doseCompliant,
+    };
+  }, [modality]);
 
   const handleScore = async () => {
     if (!instanceId.trim()) {
-      message.warning(t('imageQualityControl.enterInstanceId'))
-      return
+      message.warning(t("imageQualityControl.enterInstanceId"));
+      return;
     }
-    setScoring(true)
+    setScoring(true);
     try {
       const res = await qcImageAiApi.scoreV2({
         instanceId: instanceId.trim(),
         modality: scoreModality,
         artifactScores: { motion: 4, metal: 4, ring: 4 },
         positioningScores: { setup: 4, rotation: 4, offset: 4 },
-        exposure: { value: '正常', score: 4 },
+        exposure: { value: "正常", score: 4 },
         overall: 4,
         operatorId: operatorId.trim() || undefined,
-      })
+      });
       if (res.success) {
-        message.success(t('imageQualityControl.scoreDoneMsg', { score: res.data.overall }))
-        setInstanceId('')
-        void load()
+        message.success(
+          t("imageQualityControl.scoreDoneMsg", { score: res.data.overall }),
+        );
+        setInstanceId("");
+        void load();
       } else {
-        message.error(res.error?.message ?? t('imageQualityControl.scoreFailed'))
+        message.error(
+          res.error?.message ?? t("imageQualityControl.scoreFailed"),
+        );
       }
     } catch (e) {
-      message.error(e instanceof Error ? e.message : t('imageQualityControl.scoreFailed'))
+      message.error(
+        e instanceof Error ? e.message : t("imageQualityControl.scoreFailed"),
+      );
     } finally {
-      setScoring(false)
+      setScoring(false);
     }
-  }
+  };
 
-  const columns: TableProps<QcImageAiResult>['columns'] = [
-    { title: t('imageQualityControl.colStudyId'), dataIndex: 'studyId', width: 150, ellipsis: true, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
-    { title: t('imageQualityControl.colPatient'), dataIndex: 'patientName', width: 90 },
-    { title: t('imageQualityControl.colModality'), dataIndex: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: t('imageQualityControl.colDevice'), dataIndex: 'device', width: 130, ellipsis: true },
-    { title: t('imageQualityControl.colExamDate'), dataIndex: 'examDate', width: 100 },
-    { title: t('imageQualityControl.colAiScore'), dataIndex: 'score', width: 130, render: (v: number, r: QcImageAiResult) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Progress percent={Math.round((v / (r.maxScore || 5)) * 100)} size="small" style={{ flex: 1, margin: 0 }} strokeColor={v >= 4 ? '#10b981' : v >= 3 ? 'var(--color-warning-500)' : 'var(--color-error-500)'} />
+  const columns: TableProps<QcImageAiResult>["columns"] = [
+    {
+      title: t("imageQualityControl.colStudyId"),
+      dataIndex: "studyId",
+      width: 150,
+      ellipsis: true,
+      render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code>,
+    },
+    {
+      title: t("imageQualityControl.colPatient"),
+      dataIndex: "patientName",
+      width: 90,
+    },
+    {
+      title: t("imageQualityControl.colModality"),
+      dataIndex: "modality",
+      width: 70,
+      render: (v: string) => <Tag color="blue">{v}</Tag>,
+    },
+    {
+      title: t("imageQualityControl.colDevice"),
+      dataIndex: "device",
+      width: 130,
+      ellipsis: true,
+    },
+    {
+      title: t("imageQualityControl.colExamDate"),
+      dataIndex: "examDate",
+      width: 100,
+    },
+    {
+      title: t("imageQualityControl.colAiScore"),
+      dataIndex: "score",
+      width: 130,
+      render: (v: number, r: QcImageAiResult) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Progress
+            percent={Math.round((v / (r.maxScore || 5)) * 100)}
+            size="small"
+            style={{ flex: 1, margin: 0 }}
+            strokeColor={
+              v >= 4
+                ? "#10b981"
+                : v >= 3
+                  ? "var(--color-warning-500)"
+                  : "var(--color-error-500)"
+            }
+          />
           <span style={{ fontSize: 12, fontWeight: 600 }}>{v}</span>
         </div>
-      ) },
-    { title: t('imageQualityControl.colIssues'), key: 'issues', width: 70, render: (_: unknown, r: QcImageAiResult) => <Tag color="orange">{r.issues?.length ?? 0}</Tag> },
-    { title: t('imageQualityControl.colStatus'), dataIndex: 'status', width: 90, render: (v: string) => <Tag color={STATUS_META[v]?.color}>{STATUS_META[v]?.labelKey ? t(STATUS_META[v].labelKey) : v}</Tag> },
+      ),
+    },
     {
-      title: t('imageQualityControl.colQcWriteback'), key: 'qc', width: 190, fixed: 'right',
+      title: t("imageQualityControl.colIssues"),
+      key: "issues",
+      width: 70,
+      render: (_: unknown, r: QcImageAiResult) => (
+        <Tag color="orange">{r.issues?.length ?? 0}</Tag>
+      ),
+    },
+    {
+      title: t("imageQualityControl.colStatus"),
+      dataIndex: "status",
+      width: 90,
+      render: (v: string) => (
+        <Tag color={STATUS_META[v]?.color}>
+          {STATUS_META[v]?.labelKey ? t(STATUS_META[v].labelKey) : v}
+        </Tag>
+      ),
+    },
+    {
+      title: t("imageQualityControl.colQcWriteback"),
+      key: "qc",
+      width: 190,
+      fixed: "right",
       render: (_: unknown, r: QcImageAiResult) => (
         <Space size={4}>
-          <Button size="small" type="primary" ghost icon={<CheckCircle size={12} />} loading={qcBusy === `${r.id}:pass`} onClick={() => void handleQc(r, 'IMAGE_READY')}>{t('imageQualityControl.pass')}</Button>
-          <Button size="small" danger ghost icon={<XCircle size={12} />} loading={qcBusy === `${r.id}:reject`} onClick={() => void handleQc(r, 'QC_REJECT')}>{t('imageQualityControl.reject')}</Button>
+          <Button
+            size="small"
+            type="primary"
+            ghost
+            icon={<CheckCircle size={12} />}
+            loading={qcBusy === `${r.id}:pass`}
+            onClick={() => void handleQc(r, "IMAGE_READY")}
+          >
+            {t("imageQualityControl.pass")}
+          </Button>
+          <Button
+            size="small"
+            danger
+            ghost
+            icon={<XCircle size={12} />}
+            loading={qcBusy === `${r.id}:reject`}
+            onClick={() => void handleQc(r, "QC_REJECT")}
+          >
+            {t("imageQualityControl.reject")}
+          </Button>
           {/* [v3.0.6.11-95 Wave 1A P1] 驳回后提供重拍登记: QC_REJECT → IN_PROGRESS */}
-          {r.status === 'rejected' && (
-            <Button size="small" danger icon={<RefreshCw size={12} />} loading={qcBusy === `${r.id}:retake`} onClick={() => openRetakeModal(r)}>{t('imageQualityControl.retakeRegister')}</Button>
+          {r.status === "rejected" && (
+            <Button
+              size="small"
+              danger
+              icon={<RefreshCw size={12} />}
+              loading={qcBusy === `${r.id}:retake`}
+              onClick={() => openRetakeModal(r)}
+            >
+              {t("imageQualityControl.retakeRegister")}
+            </Button>
           )}
         </Space>
       ),
     },
-  ]
+  ];
 
   return (
-    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
+    <PageContainer
+      maxWidth="full"
+      padding="var(--space-6, 24px)"
+      style={{ background: "var(--bg-primary)" }}
+    >
       <PageHeader
         icon={<Camera size={20} color="var(--color-primary-500)" />}
-        title={t('imageQualityControl.title')}
-        subtitle={t('imageQualityControl.subtitle')}
+        title={t("imageQualityControl.title")}
+        subtitle={t("imageQualityControl.subtitle")}
         actions={
           <>
             <Tag color="cyan">v3.0.6.11-75</Tag>
-            <Tag color="geekblue">{t('imageQualityControl.subtitle')}</Tag>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('imageQualityControl.refresh')}</Button>
+            <Tag color="geekblue">{t("imageQualityControl.subtitle")}</Tag>
+            <Button
+              size="small"
+              icon={<RefreshCw size={12} />}
+              onClick={() => void load()}
+            >
+              {t("imageQualityControl.refresh")}
+            </Button>
           </>
         }
       />
 
       {error && (
-        <Alert type="error" showIcon message={t('imageQualityControl.loadFailed')} description={error} style={{ marginBottom: 'var(--space-4, 16px)' }}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('imageQualityControl.retry')}</Button>} />
+        <Alert
+          type="error"
+          showIcon
+          message={t("imageQualityControl.loadFailed")}
+          description={error}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
+          action={
+            <Button size="small" onClick={() => void load()}>
+              <RefreshCw size={14} /> {t("imageQualityControl.retry")}
+            </Button>
+          }
+        />
       )}
 
-      <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
-        {['all', 'CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => (
-          <button key={m} onClick={() => setModality(m)}
-            style={{ padding: '6px 14px', background: modality === m ? 'var(--color-primary-800)' : 'var(--bg-card)', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? 'var(--color-primary-800)' : 'var(--border-color)'), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-            {m === 'all' ? t('imageQualityControl.all') : m}
+      <div
+        style={{
+          marginBottom: "var(--space-4, 16px)",
+          display: "flex",
+          gap: "var(--space-2, 8px)",
+          flexWrap: "wrap",
+        }}
+      >
+        {["all", "CT", "MR", "DR", "US", "MG", "DSA"].map((m) => (
+          <button
+            key={m}
+            onClick={() => setModality(m)}
+            style={{
+              padding: "6px 14px",
+              background:
+                modality === m ? "var(--color-primary-800)" : "var(--bg-card)",
+              color: modality === m ? "#fff" : "#475569",
+              border:
+                "1px solid " +
+                (modality === m
+                  ? "var(--color-primary-800)"
+                  : "var(--border-color)"),
+              borderRadius: 6,
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            {m === "all" ? t("imageQualityControl.all") : m}
           </button>
         ))}
       </div>
 
-      <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t('imageQualityControl.statGradeA')} value={deviceStats.a} icon={<CheckCircle size={16} />} color="success" loading={loading} />
-        <StatCard title={t('imageQualityControl.statGradeB')} value={deviceStats.b} icon={<Activity size={16} />} color="info" loading={loading} />
-        <StatCard title={t('imageQualityControl.statGradeC')} value={deviceStats.c} icon={<AlertTriangle size={16} />} color="warning" loading={loading} />
-        <StatCard title={t('imageQualityControl.statGradeD')} value={deviceStats.d} icon={<AlertTriangle size={16} />} color="error" loading={loading} />
-        <StatCard title={t('imageQualityControl.statAvgScore')} value={statsV2?.avgOverall ?? 0} suffix="/5" color="#7c3aed" loading={loading} />
-        <StatCard title={t('imageQualityControl.statTotalScores')} value={statsV2?.totalScores ?? 0} icon={<ScanLine size={16} />} color="primary" loading={loading} />
+      <StatCardGrid
+        minWidth={150}
+        gap={12}
+        style={{ marginBottom: "var(--space-4, 16px)" }}
+      >
+        <StatCard
+          title={t("imageQualityControl.statGradeA")}
+          value={deviceStats.a}
+          icon={<CheckCircle size={16} />}
+          color="success"
+          loading={loading}
+        />
+        <StatCard
+          title={t("imageQualityControl.statGradeB")}
+          value={deviceStats.b}
+          icon={<Activity size={16} />}
+          color="info"
+          loading={loading}
+        />
+        <StatCard
+          title={t("imageQualityControl.statGradeC")}
+          value={deviceStats.c}
+          icon={<AlertTriangle size={16} />}
+          color="warning"
+          loading={loading}
+        />
+        <StatCard
+          title={t("imageQualityControl.statGradeD")}
+          value={deviceStats.d}
+          icon={<AlertTriangle size={16} />}
+          color="error"
+          loading={loading}
+        />
+        <StatCard
+          title={t("imageQualityControl.statAvgScore")}
+          value={statsV2?.avgOverall ?? 0}
+          suffix="/5"
+          color="#7c3aed"
+          loading={loading}
+        />
+        <StatCard
+          title={t("imageQualityControl.statTotalScores")}
+          value={statsV2?.totalScores ?? 0}
+          icon={<ScanLine size={16} />}
+          color="primary"
+          loading={loading}
+        />
       </StatCardGrid>
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={8}>
-          <Card size="small" title={<Space><ScanLine size={14} />{t('imageQualityControl.aiScoreCard')}</Space>} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-            <Space direction="vertical" size={8} style={{ width: '100%' }}>
-              <Input placeholder={t('imageQualityControl.instanceIdPlaceholder')} value={instanceId} onChange={(e) => setInstanceId(e.target.value)} />
-              <Select style={{ width: '100%' }} options={MODALITY_OPTIONS} value={scoreModality} onChange={setScoreModality} />
-              <Input placeholder={t('imageQualityControl.operatorIdPlaceholder')} value={operatorId} onChange={(e) => setOperatorId(e.target.value)} />
-              <Button type="primary" block onClick={handleScore} loading={scoring}>
-                {scoring ? t('imageQualityControl.scoring') : t('imageQualityControl.startScoring')}
+          <Card
+            size="small"
+            title={
+              <Space>
+                <ScanLine size={14} />
+                {t("imageQualityControl.aiScoreCard")}
+              </Space>
+            }
+            style={{ marginBottom: "var(--space-4, 16px)" }}
+          >
+            <Space direction="vertical" size={8} style={{ width: "100%" }}>
+              <Input
+                placeholder={t("imageQualityControl.instanceIdPlaceholder")}
+                value={instanceId}
+                onChange={(e) => setInstanceId(e.target.value)}
+              />
+              <Select
+                style={{ width: "100%" }}
+                options={MODALITY_OPTIONS}
+                value={scoreModality}
+                onChange={setScoreModality}
+              />
+              <Input
+                placeholder={t("imageQualityControl.operatorIdPlaceholder")}
+                value={operatorId}
+                onChange={(e) => setOperatorId(e.target.value)}
+              />
+              <Button
+                type="primary"
+                block
+                onClick={handleScore}
+                loading={scoring}
+              >
+                {scoring
+                  ? t("imageQualityControl.scoring")
+                  : t("imageQualityControl.startScoring")}
               </Button>
               <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>
-                {t('imageQualityControl.scoreDimensions')}
+                {t("imageQualityControl.scoreDimensions")}
               </div>
             </Space>
           </Card>
 
-          <Card size="small" title={t('imageQualityControl.scoreStatsCard')}>
-            {loading ? <Spin /> : statsV2 ? (
-              <Space direction="vertical" size={6} style={{ width: '100%' }}>
+          <Card size="small" title={t("imageQualityControl.scoreStatsCard")}>
+            {loading ? (
+              <Spin />
+            ) : statsV2 ? (
+              <Space direction="vertical" size={6} style={{ width: "100%" }}>
                 <Row gutter={8}>
-                  <Col span={12}><Statistic title={t('imageQualityControl.artifactScore')} value={statsV2.avgArtifactOverall ?? 0} suffix="/5" valueStyle={{ fontSize: 16 }} /></Col>
-                  <Col span={12}><Statistic title={t('imageQualityControl.positioningScore')} value={statsV2.avgPositioningOverall ?? 0} suffix="/5" valueStyle={{ fontSize: 16 }} /></Col>
+                  <Col span={12}>
+                    <Statistic
+                      title={t("imageQualityControl.artifactScore")}
+                      value={statsV2.avgArtifactOverall ?? 0}
+                      suffix="/5"
+                      valueStyle={{ fontSize: 16 }}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title={t("imageQualityControl.positioningScore")}
+                      value={statsV2.avgPositioningOverall ?? 0}
+                      suffix="/5"
+                      valueStyle={{ fontSize: 16 }}
+                    />
+                  </Col>
                 </Row>
                 <Row gutter={8}>
-                  <Col span={12}><Statistic title={t('imageQualityControl.exposureScore')} value={statsV2.avgExposureScore ?? 0} suffix="/5" valueStyle={{ fontSize: 16 }} /></Col>
-                  <Col span={12}><Statistic title={t('imageQualityControl.overallScore')} value={statsV2.avgOverall ?? 0} suffix="/5" valueStyle={{ fontSize: 16, color: '#7c3aed' }} /></Col>
+                  <Col span={12}>
+                    <Statistic
+                      title={t("imageQualityControl.exposureScore")}
+                      value={statsV2.avgExposureScore ?? 0}
+                      suffix="/5"
+                      valueStyle={{ fontSize: 16 }}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title={t("imageQualityControl.overallScore")}
+                      value={statsV2.avgOverall ?? 0}
+                      suffix="/5"
+                      valueStyle={{ fontSize: 16, color: "#7c3aed" }}
+                    />
+                  </Col>
                 </Row>
               </Space>
-            ) : <EmptyState description={t('imageQualityControl.noScoreStats')} />}
+            ) : (
+              <EmptyState description={t("imageQualityControl.noScoreStats")} />
+            )}
           </Card>
         </Col>
 
         <Col xs={24} lg={16}>
-          <Card size="small" title={t('imageQualityControl.scoreRecordsCard')} extra={<Tag>{t('imageQualityControl.recordsCount', { count: results.length })}</Tag>}>
+          <Card
+            size="small"
+            title={t("imageQualityControl.scoreRecordsCard")}
+            extra={
+              <Tag>
+                {t("imageQualityControl.recordsCount", {
+                  count: results.length,
+                })}
+              </Tag>
+            }
+          >
             {loading ? (
-              <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin size="large" /></div>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "var(--space-10, 40px)",
+                }}
+              >
+                <Spin size="large" />
+              </div>
             ) : results.length === 0 ? (
-              <EmptyState description={t('imageQualityControl.noScoreRecords')} />
+              <EmptyState
+                description={t("imageQualityControl.noScoreRecords")}
+              />
             ) : (
-              <DataTable rowKey="id" dataSource={results} columns={columns} pagination={{ current: resultPage, pageSize: 8, total: results.length, onChange: setResultPage, showSizeChanger: false, showTotal: (total) => t('imageQualityControl.totalItems', { total }) }} scroll={{ x: 900 }} />
+              <DataTable
+                rowKey="id"
+                dataSource={results}
+                columns={columns}
+                pagination={{
+                  current: resultPage,
+                  pageSize: 8,
+                  total: results.length,
+                  onChange: setResultPage,
+                  showSizeChanger: false,
+                  showTotal: (total) =>
+                    t("imageQualityControl.totalItems", { total }),
+                }}
+                scroll={{ x: 900 }}
+              />
             )}
           </Card>
         </Col>
       </Row>
 
-      <Card size="small" title={t('imageQualityControl.deviceDetailCard')} style={{ marginTop: 'var(--space-4, 16px)' }}>
+      <Card
+        size="small"
+        title={t("imageQualityControl.deviceDetailCard")}
+        style={{ marginTop: "var(--space-4, 16px)" }}
+      >
         <DataTable
           rowKey="id"
           dataSource={DEVICE_MASTER.slice(0, 30)}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           columns={[
-            { title: t('imageQualityControl.thDeviceId'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{v}</span> },
-            { title: t('imageQualityControl.thType'), dataIndex: 'modality', key: 'modality' },
-            { title: t('imageQualityControl.thBrandModel'), key: 'brandModel', render: (_: unknown, d) => <>{d.brand} {d.model}</> },
             {
-              title: t('imageQualityControl.thImageGrade'), dataIndex: 'imageQualityGrade', key: 'imageQualityGrade',
+              title: t("imageQualityControl.thDeviceId"),
+              dataIndex: "id",
+              key: "id",
               render: (v: string) => (
-                <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: v === 'A' ? 'var(--color-success-bg)' : v === 'D' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: v === 'A' ? '#065f46' : v === 'D' ? '#991b1b' : '#92400e' }}>
-                  {t('imageQualityControl.gradeSuffix', { grade: v })}
+                <span style={{ fontFamily: "monospace", fontSize: 11 }}>
+                  {v}
                 </span>
               ),
             },
             {
-              title: t('imageQualityControl.thDoseCompliance'), dataIndex: 'doseComplianceRate', key: 'doseComplianceRate',
+              title: t("imageQualityControl.thType"),
+              dataIndex: "modality",
+              key: "modality",
+            },
+            {
+              title: t("imageQualityControl.thBrandModel"),
+              key: "brandModel",
+              render: (_: unknown, d) => (
+                <>
+                  {d.brand} {d.model}
+                </>
+              ),
+            },
+            {
+              title: t("imageQualityControl.thImageGrade"),
+              dataIndex: "imageQualityGrade",
+              key: "imageQualityGrade",
+              render: (v: string) => (
+                <span
+                  style={{
+                    padding: "3px 10px",
+                    borderRadius: 4,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    background:
+                      v === "A"
+                        ? "var(--color-success-bg)"
+                        : v === "D"
+                          ? "var(--color-error-bg)"
+                          : "var(--color-warning-bg)",
+                    color:
+                      v === "A" ? "#065f46" : v === "D" ? "#991b1b" : "#92400e",
+                  }}
+                >
+                  {t("imageQualityControl.gradeSuffix", { grade: v })}
+                </span>
+              ),
+            },
+            {
+              title: t("imageQualityControl.thDoseCompliance"),
+              dataIndex: "doseComplianceRate",
+              key: "doseComplianceRate",
               render: (v: number) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-                  <div style={{ width: 60, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ width: `${v}%`, height: '100%', background: v >= 90 ? '#10b981' : v >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }} />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-1, 4px)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 60,
+                      height: 6,
+                      background: "var(--border-color)",
+                      borderRadius: 3,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${v}%`,
+                        height: "100%",
+                        background:
+                          v >= 90
+                            ? "#10b981"
+                            : v >= 80
+                              ? "var(--color-warning-500)"
+                              : "var(--color-error-600)",
+                      }}
+                    />
                   </div>
-                  <span style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{v}%</span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "var(--text-secondary, #475569)",
+                    }}
+                  >
+                    {v}%
+                  </span>
                 </div>
               ),
             },
-            { title: t('imageQualityControl.thMonthlyScans'), dataIndex: 'monthlyScans', key: 'monthlyScans' },
-            { title: t('imageQualityControl.thDefectRate'), dataIndex: 'defectRate', key: 'defectRate', render: (v: number) => <>{v}%</> },
+            {
+              title: t("imageQualityControl.thMonthlyScans"),
+              dataIndex: "monthlyScans",
+              key: "monthlyScans",
+            },
+            {
+              title: t("imageQualityControl.thDefectRate"),
+              dataIndex: "defectRate",
+              key: "defectRate",
+              render: (v: number) => <>{v}%</>,
+            },
           ]}
         />
       </Card>
 
       {/* [v3.0.6.11-100 Wave 1B] 重拍登记确认 Modal: 原因下拉 (retakeReason) */}
       <Modal
-        title={t('imageQualityControl.retakeModalTitle', { patient: retakeTarget?.patientName ?? '', studyId: retakeTarget?.studyId ?? '' })}
+        title={t("imageQualityControl.retakeModalTitle", {
+          patient: retakeTarget?.patientName ?? "",
+          studyId: retakeTarget?.studyId ?? "",
+        })}
         open={retakeConfirmOpen}
         onCancel={() => setRetakeConfirmOpen(false)}
         onOk={() => retakeTarget && void handleRetake(retakeTarget)}
-        okText={qcBusy ? t('imageQualityControl.registering') : t('imageQualityControl.confirmRetakeRegister')}
-        okButtonProps={{ loading: qcBusy === `${retakeTarget?.id}:retake`, danger: true }}
-        cancelText={t('imageQualityControl.cancel')}
+        okText={
+          qcBusy
+            ? t("imageQualityControl.registering")
+            : t("imageQualityControl.confirmRetakeRegister")
+        }
+        okButtonProps={{
+          loading: qcBusy === `${retakeTarget?.id}:retake`,
+          danger: true,
+        }}
+        cancelText={t("imageQualityControl.cancel")}
       >
-        <AppText size="sm" color="secondary" style={{ marginBottom: 'var(--space-3, 12px)', display: 'block' }}>
-          {t('imageQualityControl.retakeHint')}
+        <AppText
+          size="sm"
+          color="secondary"
+          style={{ marginBottom: "var(--space-3, 12px)", display: "block" }}
+        >
+          {t("imageQualityControl.retakeHint")}
         </AppText>
-        <AppText size="xs" color="muted" style={{ marginBottom: 6, display: 'block' }}>{t('imageQualityControl.retakeReasonLabel')}</AppText>
+        <AppText
+          size="xs"
+          color="muted"
+          style={{ marginBottom: 6, display: "block" }}
+        >
+          {t("imageQualityControl.retakeReasonLabel")}
+        </AppText>
         <Select
-          style={{ width: '100%' }}
-          placeholder={t('imageQualityControl.retakeReasonPlaceholder')}
+          style={{ width: "100%" }}
+          placeholder={t("imageQualityControl.retakeReasonPlaceholder")}
           options={RETAKE_REASON_OPTIONS}
           value={retakeReason}
           onChange={setRetakeReason}
         />
       </Modal>
     </PageContainer>
-  )
+  );
 }
 
 import { DataTable } from "../../components/common";

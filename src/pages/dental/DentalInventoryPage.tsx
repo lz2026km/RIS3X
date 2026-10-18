@@ -22,6 +22,7 @@ import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { ActionButton } from "../../components/common/ActionButton";
 import { ErrorBanner } from "../../components/feedback";
 import { DataTable } from "../../components/common";
+import { exportRowsToCsv } from "../../utils/exportRowsToCsv";
 
 // 确定性 seed 回退 (API 不可用时展示, 与 MSW 字段对齐)
 const SEED_INVENTORY: any[] = [
@@ -391,6 +392,16 @@ export const DentalInventoryPage: React.FC = () => {
         <DataTable
           dataSource={pageData}
           rowKey="id"
+          selectable
+          bulkActions={(_keys, rows) => (
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => exportRowsToCsv(rows, "dental-inventory")}
+            >
+              {t("ui4Tables.bulk.exportSelected")}
+            </Button>
+          )}
           pagination={pagination}
           columns={[
             { title: "ID", dataIndex: "id", width: 110 },

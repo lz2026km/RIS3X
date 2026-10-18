@@ -34,7 +34,12 @@ import {
 import React, { useState, useEffect, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+} from "../../components/common";
 
 const { Text } = Typography;
 
@@ -70,7 +75,10 @@ const LungCadPage: React.FC = () => {
   const [radsLoading, setRadsLoading] = useState(false);
   const [radsResult, setRadsResult] = useState<RadsScore | null>(null);
   const [radsHistory, setRadsHistory] = useState<RadsHistoryEntry[]>([]);
-  const [radsStats, setRadsStats] = useState<{ total: number; byType: Record<string, number> } | null>(null);
+  const [radsStats, setRadsStats] = useState<{
+    total: number;
+    byType: Record<string, number>;
+  } | null>(null);
   const [radsForm] = Form.useForm();
 
   const load = useCallback(async () => {
@@ -98,7 +106,12 @@ const LungCadPage: React.FC = () => {
       const modelVersion = results[0]?.modelVersion ?? "lungcad-v3.2.1";
       const res = await aiDiagnosisApi.retrainModel(modelVersion);
       if (res.success) {
-        message.success(t("w9d.fracture.retrainSubmitted", { version: res.data?.modelVersion, status: res.data?.status }));
+        message.success(
+          t("w9d.fracture.retrainSubmitted", {
+            version: res.data?.modelVersion,
+            status: res.data?.status,
+          }),
+        );
       } else {
         message.error(res.error?.message ?? t("lungCad.retrainFailed"));
       }
@@ -119,14 +132,28 @@ const LungCadPage: React.FC = () => {
         "lung-cad",
       );
       if (res.success) {
-        message.success(status === "confirmed" ? t("w9d.lungCad.batchConfirmed", { count: selectedRowKeys.length }) : t("w9d.lungCad.batchRejected", { count: selectedRowKeys.length }));
+        message.success(
+          status === "confirmed"
+            ? t("w9d.lungCad.batchConfirmed", { count: selectedRowKeys.length })
+            : t("w9d.lungCad.batchRejected", { count: selectedRowKeys.length }),
+        );
         setSelectedRowKeys([]);
         await load();
       } else {
-        message.error(res.error?.message ?? (status === "confirmed" ? t("w9d.lungCad.batchConfirmFailed") : t("w9d.lungCad.batchRejectFailed")));
+        message.error(
+          res.error?.message ??
+            (status === "confirmed"
+              ? t("w9d.lungCad.batchConfirmFailed")
+              : t("w9d.lungCad.batchRejectFailed")),
+        );
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? (status === "confirmed" ? t("w9d.lungCad.batchConfirmFailed") : t("w9d.lungCad.batchRejectFailed")));
+      message.error(
+        (e as Error)?.message ??
+          (status === "confirmed"
+            ? t("w9d.lungCad.batchConfirmFailed")
+            : t("w9d.lungCad.batchRejectFailed")),
+      );
     } finally {
       setBatchLoading(false);
     }
@@ -185,7 +212,9 @@ const LungCadPage: React.FC = () => {
     if (!radsTarget) return;
     setRadsLoading(true);
     try {
-      const res = await radsApi.getHistory(radsTarget.patientName || radsTarget.studyId);
+      const res = await radsApi.getHistory(
+        radsTarget.patientName || radsTarget.studyId,
+      );
       if (res.success) setRadsHistory(res.data ?? []);
       else message.error(res.error?.message || t("aiRads.historyFail"));
     } finally {
@@ -195,14 +224,27 @@ const LungCadPage: React.FC = () => {
 
   const columns = [
     { title: t("lungCad.colStudyId"), dataIndex: "studyId", key: "studyId" },
-    { title: t("lungCad.colPatient"), dataIndex: "patientName", key: "patientName" },
+    {
+      title: t("lungCad.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+    },
     { title: t("lungCad.colModality"), dataIndex: "modality", key: "modality" },
-    { title: t("lungCad.colNoduleCount"), dataIndex: "noduleCount", key: "noduleCount" },
+    {
+      title: t("lungCad.colNoduleCount"),
+      dataIndex: "noduleCount",
+      key: "noduleCount",
+    },
     {
       title: t("lungCad.colOverallRisk"),
       dataIndex: "overallRisk",
       key: "overallRisk",
-      render: (v?: string) => (v ? <Tag color={riskColor[v] ?? "default"}>{t(riskLabel[v] ?? v)}</Tag> : <span>-</span>),
+      render: (v?: string) =>
+        v ? (
+          <Tag color={riskColor[v] ?? "default"}>{t(riskLabel[v] ?? v)}</Tag>
+        ) : (
+          <span>-</span>
+        ),
     },
     {
       title: t("lungCad.colStatus"),
@@ -238,7 +280,11 @@ const LungCadPage: React.FC = () => {
             size="small"
             icon={<Eye size={14} />}
             data-testid={`goto-viewer-${r.id}`}
-            onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
+            onClick={() =>
+              navigate(
+                `/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`,
+              )
+            }
           >
             {t("lungCad.gotoViewer")}
           </Button>
@@ -259,9 +305,11 @@ const LungCadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <Crosshair size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("lungCad.title")}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("lungCad.title")}
+        </span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
@@ -278,30 +326,12 @@ const LungCadPage: React.FC = () => {
         >
           {t("lungCad.retrainModel")}
         </Button>
-        {selectedRowKeys.length > 0 && (
-          <>
-            <Button
-              size="small"
-              type="primary"
-              icon={<Check size={14} />}
-              loading={batchLoading}
-              onClick={() => void handleBatch("confirmed")}
-            >
-              {t("lungCad.batchConfirm", { count: selectedRowKeys.length })}
-            </Button>
-            <Button
-              size="small"
-              danger
-              icon={<X size={14} />}
-              loading={batchLoading}
-              onClick={() => void handleBatch("rejected")}
-            >
-              {t("lungCad.batchReject", { count: selectedRowKeys.length })}
-            </Button>
-          </>
-        )}
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <StatCardGrid
+        minWidth={200}
+        gap={16}
+        style={{ marginBottom: "var(--space-4, 16px)" }}
+      >
         <StatCard
           title={t("lungCad.statTotal")}
           value={results.length}
@@ -312,8 +342,7 @@ const LungCadPage: React.FC = () => {
           title={t("lungCad.statHighRisk")}
           value={
             results.filter(
-              (r) =>
-                r.overallRisk === "high" || r.overallRisk === "very_high",
+              (r) => r.overallRisk === "high" || r.overallRisk === "very_high",
             ).length
           }
           icon={<AlertTriangle size={18} />}
@@ -348,9 +377,11 @@ const LungCadPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 'var(--space-4, 16px)' }}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
           title={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
+          action={
+            <Button size="small" onClick={() => void load()}>
+              <RefreshCw size={14} />
               {t("lungCad.retry")}
             </Button>
           }
@@ -363,11 +394,32 @@ const LungCadPage: React.FC = () => {
             dataSource={resultPagination.pageData}
             columns={columns}
             pagination={resultPagination.pagination}
-            rowSelection={{
-              selectedRowKeys,
-              onChange: (keys) => setSelectedRowKeys(keys),
-            }}
-          scroll={{ x: 'max-content' }}
+            selectable
+            selectedRowKeys={selectedRowKeys}
+            onSelectionChange={(keys) => setSelectedRowKeys(keys)}
+            bulkActions={() => (
+              <>
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<Check size={14} />}
+                  loading={batchLoading}
+                  onClick={() => void handleBatch("confirmed")}
+                >
+                  {t("lungCad.batchConfirm", { count: selectedRowKeys.length })}
+                </Button>
+                <Button
+                  size="small"
+                  danger
+                  icon={<X size={14} />}
+                  loading={batchLoading}
+                  onClick={() => void handleBatch("rejected")}
+                >
+                  {t("lungCad.batchReject", { count: selectedRowKeys.length })}
+                </Button>
+              </>
+            )}
+            scroll={{ x: "max-content" }}
           />
         </Spin>
       </Card>
@@ -383,7 +435,7 @@ const LungCadPage: React.FC = () => {
             <DataTable
               rowKey="id"
               dataSource={nodulePagination.pageData}
-              scroll={{ x: 'max-content' }}
+              scroll={{ x: "max-content" }}
               pagination={nodulePagination.pagination}
               columns={[
                 {
@@ -398,10 +450,24 @@ const LungCadPage: React.FC = () => {
                       y: number;
                       z: number;
                     },
-                  ) => t("w9d.lungCad.sliceLocation", { slice: n.sliceLocation, x: n.x, y: n.y, z: n.z }),
+                  ) =>
+                    t("w9d.lungCad.sliceLocation", {
+                      slice: n.sliceLocation,
+                      x: n.x,
+                      y: n.y,
+                      z: n.z,
+                    }),
                 },
-                { title: t("lungCad.colDiameter"), dataIndex: "diameter", key: "diameter" },
-                { title: t("lungCad.colDensity"), dataIndex: "density", key: "density" },
+                {
+                  title: t("lungCad.colDiameter"),
+                  dataIndex: "diameter",
+                  key: "diameter",
+                },
+                {
+                  title: t("lungCad.colDensity"),
+                  dataIndex: "density",
+                  key: "density",
+                },
                 {
                   title: t("lungCad.colMalignancyRisk"),
                   dataIndex: "malignancyRisk",
@@ -410,7 +476,7 @@ const LungCadPage: React.FC = () => {
                 },
               ]}
             />
-            <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
+            <Card size="small" style={{ marginTop: "var(--space-4, 16px)" }}>
               <Text strong>{t("lungCad.recommendationLabel")} </Text>
               <Text>{selected.recommendation}</Text>
             </Card>
@@ -435,7 +501,7 @@ const LungCadPage: React.FC = () => {
       >
         {radsTarget && (
           <>
-            <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <Space wrap style={{ marginBottom: "var(--space-3, 12px)" }}>
               <Button
                 type="primary"
                 icon={<Sparkles size={14} />}
@@ -456,10 +522,18 @@ const LungCadPage: React.FC = () => {
             </Space>
             <Form form={radsForm} layout="vertical">
               <Space wrap>
-                <Form.Item name="noduleSizeMm" label={t("aiRads.f.noduleSize")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <Form.Item
+                  name="noduleSizeMm"
+                  label={t("aiRads.f.noduleSize")}
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   <InputNumber min={1} max={50} style={{ width: 140 }} />
                 </Form.Item>
-                <Form.Item name="spiculatedMargin" label={t("aiRads.f.spiculatedMargin")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <Form.Item
+                  name="spiculatedMargin"
+                  label={t("aiRads.f.spiculatedMargin")}
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   <Select
                     style={{ width: 120 }}
                     options={[
@@ -468,7 +542,11 @@ const LungCadPage: React.FC = () => {
                     ]}
                   />
                 </Form.Item>
-                <Form.Item name="solidComponent" label={t("aiRads.f.solidComponent")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <Form.Item
+                  name="solidComponent"
+                  label={t("aiRads.f.solidComponent")}
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   <Select
                     style={{ width: 120 }}
                     options={[
@@ -479,15 +557,28 @@ const LungCadPage: React.FC = () => {
                 </Form.Item>
               </Space>
             </Form>
-            <RadsScoring result={radsResult} history={radsHistory} loading={radsLoading} />
+            <RadsScoring
+              result={radsResult}
+              history={radsHistory}
+              loading={radsLoading}
+            />
             {radsHistory.length > 0 && (
-              <Card size="small" style={{ marginTop: 'var(--space-3, 12px)' }} title={t("historyTrend")}>
+              <Card
+                size="small"
+                style={{ marginTop: "var(--space-3, 12px)" }}
+                title={t("historyTrend")}
+              >
                 <DataTable<RadsHistoryEntry>
                   rowKey={(r) => `${r.date}-${r.category}-${r.score}`}
                   dataSource={radsHistory}
                   pagination={{ pageSize: 5, showSizeChanger: false }}
                   columns={[
-                    { title: t("common.table.date"), dataIndex: "date", key: "date", width: 110 },
+                    {
+                      title: t("common.table.date"),
+                      dataIndex: "date",
+                      key: "date",
+                      width: 110,
+                    },
                     {
                       title: t("common.table.type"),
                       dataIndex: "category",

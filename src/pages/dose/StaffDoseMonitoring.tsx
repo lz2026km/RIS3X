@@ -321,8 +321,6 @@ export default function StaffDoseMonitoring() {
             rowKey="id"
             dataSource={filteredRecords}
             showPagination={false}
-            showExport={false}
-            showDensity={false}
             columns={[
               {
                 title: "姓名",

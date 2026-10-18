@@ -17,6 +17,7 @@ export default {
     // [v3.0.6.16-6] 批量操作条 + 行钻取
     "ui4Tables.bulk.selected": "已选 {n} 项",
     "ui4Tables.bulk.clear": "取消选择",
+    "ui4Tables.bulk.exportSelected": "导出所选",
     "ui4Tables.drillDown.title": "记录详情",
   },
   en: {
@@ -31,6 +32,7 @@ export default {
     "ui4Tables.empty": "No data",
     "ui4Tables.bulk.selected": "{n} selected",
     "ui4Tables.bulk.clear": "Clear selection",
+    "ui4Tables.bulk.exportSelected": "Export selected",
     "ui4Tables.drillDown.title": "Record Detail",
   },
 };

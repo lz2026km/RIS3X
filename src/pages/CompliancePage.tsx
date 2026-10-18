@@ -436,8 +436,6 @@ export default function CompliancePage() {
                 rowKey="id"
                 dataSource={filteredDetails}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: "模块",

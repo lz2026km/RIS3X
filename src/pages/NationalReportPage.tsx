@@ -2035,8 +2035,6 @@ const SubmissionAuditTrail = () => {
           rowKey="id"
           dataSource={submissionHistory}
           showPagination={false}
-          showExport={false}
-          showDensity={false}
           onRow={(record) => ({
             onClick: () => setSelectedSubmission(record),
             style: { cursor: "pointer" },
@@ -3705,8 +3703,6 @@ export default function NationalReportPage() {
                 rowKey="id"
                 dataSource={filteredExamData}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("nationalReport.thModality"),
@@ -3777,8 +3773,6 @@ export default function NationalReportPage() {
                 rowKey="id"
                 dataSource={filteredDoseData}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 scroll={{ x: 1200 }}
                 columns={[
                   {
@@ -3878,8 +3872,6 @@ export default function NationalReportPage() {
                 rowKey="id"
                 dataSource={qualityData}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 scroll={{ x: 1200 }}
                 columns={[
                   {
@@ -4012,8 +4004,6 @@ export default function NationalReportPage() {
                 rowKey="id"
                 dataSource={reportLogs}
                 showPagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("nationalReport.thReportType"),

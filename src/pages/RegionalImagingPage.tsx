@@ -90,8 +90,6 @@ const ApplicationList: React.FC = () => {
         dataSource={apps}
         rowKey={(app) => app.id}
         pagination={false}
-        showExport={false}
-        showDensity={false}
         emptyText={t("regionalImaging.noSharingData")}
         columns={[
           { title: t("regionalImaging.appId"), dataIndex: "id", key: "id" },
@@ -297,8 +295,6 @@ const ReceiveList: React.FC = () => {
         dataSource={apps.filter((a) => a.status === "pending")}
         rowKey={(app) => app.id}
         pagination={false}
-        showExport={false}
-        showDensity={false}
         emptyText={t("regionalImaging.noSharingData")}
         columns={[
           { title: t("regionalImaging.appId"), dataIndex: "id", key: "id" },
@@ -414,8 +410,6 @@ const ConsultationRequests: React.FC = () => {
         dataSource={consultations}
         rowKey={(con) => con.id}
         pagination={false}
-        showExport={false}
-        showDensity={false}
         emptyText={t("regionalImaging.noSharingData")}
         columns={[
           { title: t("regionalImaging.consultId"), dataIndex: "id", key: "id" },
@@ -684,8 +678,6 @@ const AccessRecords: React.FC = () => {
         dataSource={records}
         rowKey={(rec) => rec.id}
         pagination={false}
-        showExport={false}
-        showDensity={false}
         emptyText={t("regionalImaging.noSharingData")}
         columns={[
           { title: t("regionalImaging.recordId"), dataIndex: "id", key: "id" },
@@ -934,8 +926,6 @@ const CrossInstitutionQuery: React.FC = () => {
             dataSource={results}
             rowKey={(r) => r.id}
             pagination={false}
-            showExport={false}
-            showDensity={false}
             emptyText={t("regionalImaging.noSharingData")}
             columns={[
               {
@@ -1271,8 +1261,6 @@ const XDSIntegration: React.FC = () => {
             dataSource={docs}
             rowKey={(d) => d.id}
             pagination={false}
-            showExport={false}
-            showDensity={false}
             emptyText={t("regionalImaging.noSharingData")}
             columns={[
               {
@@ -1351,8 +1339,6 @@ const XDSIntegration: React.FC = () => {
           dataSource={auditTrail}
           rowKey={(a) => a.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("regionalImaging.noSharingData")}
           columns={[
             {
@@ -1653,8 +1639,6 @@ const RegionalSharing: React.FC = () => {
           dataSource={items}
           rowKey={(it) => it.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("regionalImaging.noSharingData")}
           columns={[
             {
@@ -1887,8 +1871,6 @@ const DepartmentSchedule: React.FC = () => {
           dataSource={visible}
           rowKey={(s) => s.id}
           pagination={false}
-          showExport={false}
-          showDensity={false}
           emptyText={t("regionalImaging.noScheduleData")}
           columns={[
             {

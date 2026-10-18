@@ -259,30 +259,6 @@ const FractureCadPage: React.FC = () => {
         >
           {t("w9d.fracture.retrain")}
         </Button>
-        {selectedRowKeys.length > 0 && (
-          <>
-            <Button
-              size="small"
-              type="primary"
-              icon={<Check size={14} />}
-              loading={batchLoading}
-              onClick={() => void handleBatch("confirmed")}
-            >
-              {t("w9d.fracture.batchConfirm", {
-                count: selectedRowKeys.length,
-              })}
-            </Button>
-            <Button
-              size="small"
-              danger
-              icon={<X size={14} />}
-              loading={batchLoading}
-              onClick={() => void handleBatch("rejected")}
-            >
-              {t("w9d.fracture.batchReject", { count: selectedRowKeys.length })}
-            </Button>
-          </>
-        )}
       </Space>
       <StatCardGrid
         minWidth={200}
@@ -355,10 +331,35 @@ const FractureCadPage: React.FC = () => {
             dataSource={filteredResults}
             columns={columns}
             pagination={false}
-            rowSelection={{
-              selectedRowKeys,
-              onChange: (keys) => setSelectedRowKeys(keys),
-            }}
+            selectable
+            selectedRowKeys={selectedRowKeys}
+            onSelectionChange={(keys) => setSelectedRowKeys(keys)}
+            bulkActions={() => (
+              <>
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<Check size={14} />}
+                  loading={batchLoading}
+                  onClick={() => void handleBatch("confirmed")}
+                >
+                  {t("w9d.fracture.batchConfirm", {
+                    count: selectedRowKeys.length,
+                  })}
+                </Button>
+                <Button
+                  size="small"
+                  danger
+                  icon={<X size={14} />}
+                  loading={batchLoading}
+                  onClick={() => void handleBatch("rejected")}
+                >
+                  {t("w9d.fracture.batchReject", {
+                    count: selectedRowKeys.length,
+                  })}
+                </Button>
+              </>
+            )}
             scroll={{ x: "max-content" }}
           />
         </Spin>

@@ -17,10 +17,24 @@ import {
   InputNumber,
   Select,
 } from "antd";
-import { Activity, RefreshCw, Cpu, Eye, Check, X, Sparkles, History } from "lucide-react";
+import {
+  Activity,
+  RefreshCw,
+  Cpu,
+  Eye,
+  Check,
+  X,
+  Sparkles,
+  History,
+} from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+} from "../../components/common";
 
 const biRadsColor: Record<string, string> = {
   "2": "green",
@@ -32,12 +46,23 @@ const biRadsColor: Record<string, string> = {
 };
 
 // [W-D7] BI-RADS 评分征象选项 (POST /ai/cad/rads/breast)
-const MASS_SHAPE_OPTIONS = ["round", "oval", "irregular"].map((v) => ({ value: v, label: v }));
-const MASS_MARGIN_OPTIONS = ["circumscribed", "obscured", "spiculated", "microlobulated"].map((v) => ({
+const MASS_SHAPE_OPTIONS = ["round", "oval", "irregular"].map((v) => ({
   value: v,
   label: v,
 }));
-const BI_RADS_OPTIONS = ["2", "3", "4a", "4b", "4c", "5"].map((v) => ({ value: v, label: `BI-RADS ${v}` }));
+const MASS_MARGIN_OPTIONS = [
+  "circumscribed",
+  "obscured",
+  "spiculated",
+  "microlobulated",
+].map((v) => ({
+  value: v,
+  label: v,
+}));
+const BI_RADS_OPTIONS = ["2", "3", "4a", "4b", "4c", "5"].map((v) => ({
+  value: v,
+  label: `BI-RADS ${v}`,
+}));
 
 const BreastCadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -53,14 +78,18 @@ const BreastCadPage: React.FC = () => {
   const [radsLoading, setRadsLoading] = useState(false);
   const [radsResult, setRadsResult] = useState<RadsScore | null>(null);
   const [radsHistory, setRadsHistory] = useState<RadsHistoryEntry[]>([]);
-  const [radsStats, setRadsStats] = useState<{ total: number; byType: Record<string, number> } | null>(null);
+  const [radsStats, setRadsStats] = useState<{
+    total: number;
+    byType: Record<string, number>;
+  } | null>(null);
   const [radsForm] = Form.useForm();
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await aiDiagnosisApi.listResults<BreastCadResult>("breast-cad");
+      const res =
+        await aiDiagnosisApi.listResults<BreastCadResult>("breast-cad");
       if (res.success) {
         setResults(res.data ?? []);
       } else {
@@ -81,7 +110,12 @@ const BreastCadPage: React.FC = () => {
       const modelVersion = results[0]?.modelVersion ?? "breastcad-v2.8.0";
       const res = await aiDiagnosisApi.retrainModel(modelVersion);
       if (res.success) {
-        message.success(t("w9d.breast.retrainSubmitted", { version: res.data?.modelVersion ?? "", status: res.data?.status ?? "" }));
+        message.success(
+          t("w9d.breast.retrainSubmitted", {
+            version: res.data?.modelVersion ?? "",
+            status: res.data?.status ?? "",
+          }),
+        );
       } else {
         message.error(res.error?.message ?? t("w9d.breast.retrainFailed"));
       }
@@ -102,14 +136,35 @@ const BreastCadPage: React.FC = () => {
         "breast-cad",
       );
       if (res.success) {
-        message.success(t(status === "confirmed" ? "w9d.breast.batchConfirmed" : "w9d.breast.batchRejected", { count: selectedRowKeys.length }));
+        message.success(
+          t(
+            status === "confirmed"
+              ? "w9d.breast.batchConfirmed"
+              : "w9d.breast.batchRejected",
+            { count: selectedRowKeys.length },
+          ),
+        );
         setSelectedRowKeys([]);
         await load();
       } else {
-        message.error(res.error?.message ?? t(status === "confirmed" ? "w9d.breast.batchConfirmFailed" : "w9d.breast.batchRejectFailed"));
+        message.error(
+          res.error?.message ??
+            t(
+              status === "confirmed"
+                ? "w9d.breast.batchConfirmFailed"
+                : "w9d.breast.batchRejectFailed",
+            ),
+        );
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? t(status === "confirmed" ? "w9d.breast.batchConfirmFailed" : "w9d.breast.batchRejectFailed"));
+      message.error(
+        (e as Error)?.message ??
+          t(
+            status === "confirmed"
+              ? "w9d.breast.batchConfirmFailed"
+              : "w9d.breast.batchRejectFailed",
+          ),
+      );
     } finally {
       setBatchLoading(false);
     }
@@ -140,7 +195,9 @@ const BreastCadPage: React.FC = () => {
       massSizeMm: first ? Math.max(1, Math.round(first.width)) : 10,
       massShape: first?.shape ?? "irregular",
       massMargin: first?.margin ?? "spiculated",
-      biradsCategory: BI_RADS_OPTIONS.some((o) => o.value === r.overallBiRads) ? r.overallBiRads : "3",
+      biradsCategory: BI_RADS_OPTIONS.some((o) => o.value === r.overallBiRads)
+        ? r.overallBiRads
+        : "3",
     });
     setRadsOpen(true);
   };
@@ -166,7 +223,9 @@ const BreastCadPage: React.FC = () => {
     if (!radsTarget) return;
     setRadsLoading(true);
     try {
-      const res = await radsApi.getHistory(radsTarget.patientName || radsTarget.studyId);
+      const res = await radsApi.getHistory(
+        radsTarget.patientName || radsTarget.studyId,
+      );
       if (res.success) setRadsHistory(res.data ?? []);
       else message.error(res.error?.message || t("aiRads.historyFail"));
     } finally {
@@ -176,8 +235,16 @@ const BreastCadPage: React.FC = () => {
 
   const columns = [
     { title: t("w9d.breast.colStudyId"), dataIndex: "studyId", key: "studyId" },
-    { title: t("w9d.breast.colPatient"), dataIndex: "patientName", key: "patientName" },
-    { title: t("w9d.breast.colLesionCount"), dataIndex: "lesionCount", key: "lesionCount" },
+    {
+      title: t("w9d.breast.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+    },
+    {
+      title: t("w9d.breast.colLesionCount"),
+      dataIndex: "lesionCount",
+      key: "lesionCount",
+    },
     {
       title: "BI-RADS",
       dataIndex: "overallBiRads",
@@ -207,7 +274,11 @@ const BreastCadPage: React.FC = () => {
             size="small"
             icon={<Eye size={14} />}
             data-testid={`goto-viewer-${r.id}`}
-            onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
+            onClick={() =>
+              navigate(
+                `/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`,
+              )
+            }
           >
             {t("w9d.breast.gotoViewer")}
           </Button>
@@ -228,9 +299,11 @@ const BreastCadPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
         <Activity size={20} color="var(--color-primary-600)" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.breast.title")}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>
+          {t("w9d.breast.title")}
+        </span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
@@ -247,31 +320,18 @@ const BreastCadPage: React.FC = () => {
         >
           {t("w9d.breast.retrain")}
         </Button>
-        {selectedRowKeys.length > 0 && (
-          <>
-            <Button
-              size="small"
-              type="primary"
-              icon={<Check size={14} />}
-              loading={batchLoading}
-              onClick={() => void handleBatch("confirmed")}
-            >
-              {t("w9d.breast.batchConfirm", { count: selectedRowKeys.length })}
-            </Button>
-            <Button
-              size="small"
-              danger
-              icon={<X size={14} />}
-              loading={batchLoading}
-              onClick={() => void handleBatch("rejected")}
-            >
-              {t("w9d.breast.batchReject", { count: selectedRowKeys.length })}
-            </Button>
-          </>
-        )}
       </Space>
-      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <StatCard title={t("w9d.breast.statTotal")} value={results.length} color="primary" icon={<Activity size={18} />} />
+      <StatCardGrid
+        minWidth={200}
+        gap={16}
+        style={{ marginBottom: "var(--space-4, 16px)" }}
+      >
+        <StatCard
+          title={t("w9d.breast.statTotal")}
+          value={results.length}
+          color="primary"
+          icon={<Activity size={18} />}
+        />
         <StatCard
           title="BI-RADS 4+"
           value={
@@ -299,9 +359,11 @@ const BreastCadPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          style={{ marginBottom: 'var(--space-4, 16px)' }}
+          style={{ marginBottom: "var(--space-4, 16px)" }}
           title={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
+          action={
+            <Button size="small" onClick={() => void load()}>
+              <RefreshCw size={14} />
               {t("w9d.breast.retry")}
             </Button>
           }
@@ -314,11 +376,36 @@ const BreastCadPage: React.FC = () => {
             dataSource={results}
             columns={columns}
             pagination={false}
-            rowSelection={{
-              selectedRowKeys,
-              onChange: (keys) => setSelectedRowKeys(keys),
-            }}
-          scroll={{ x: 'max-content' }}
+            selectable
+            selectedRowKeys={selectedRowKeys}
+            onSelectionChange={(keys) => setSelectedRowKeys(keys)}
+            bulkActions={() => (
+              <>
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<Check size={14} />}
+                  loading={batchLoading}
+                  onClick={() => void handleBatch("confirmed")}
+                >
+                  {t("w9d.breast.batchConfirm", {
+                    count: selectedRowKeys.length,
+                  })}
+                </Button>
+                <Button
+                  size="small"
+                  danger
+                  icon={<X size={14} />}
+                  loading={batchLoading}
+                  onClick={() => void handleBatch("rejected")}
+                >
+                  {t("w9d.breast.batchReject", {
+                    count: selectedRowKeys.length,
+                  })}
+                </Button>
+              </>
+            )}
+            scroll={{ x: "max-content" }}
           />
         </Spin>
       </Card>
@@ -340,7 +427,7 @@ const BreastCadPage: React.FC = () => {
       >
         {radsTarget && (
           <>
-            <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <Space wrap style={{ marginBottom: "var(--space-3, 12px)" }}>
               <Button
                 type="primary"
                 icon={<Sparkles size={14} />}
@@ -361,29 +448,61 @@ const BreastCadPage: React.FC = () => {
             </Space>
             <Form form={radsForm} layout="vertical">
               <Space wrap>
-                <Form.Item name="massSizeMm" label={t("aiRads.f.lesionSize")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <Form.Item
+                  name="massSizeMm"
+                  label={t("aiRads.f.lesionSize")}
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   <InputNumber min={1} max={100} style={{ width: 140 }} />
                 </Form.Item>
-                <Form.Item name="massShape" label={t("aiRads.f.shape")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <Form.Item
+                  name="massShape"
+                  label={t("aiRads.f.shape")}
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   <Select style={{ width: 150 }} options={MASS_SHAPE_OPTIONS} />
                 </Form.Item>
-                <Form.Item name="massMargin" label={t("aiRads.f.margins")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
-                  <Select style={{ width: 170 }} options={MASS_MARGIN_OPTIONS} />
+                <Form.Item
+                  name="massMargin"
+                  label={t("aiRads.f.margins")}
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
+                  <Select
+                    style={{ width: 170 }}
+                    options={MASS_MARGIN_OPTIONS}
+                  />
                 </Form.Item>
-                <Form.Item name="biradsCategory" label={t("aiRads.col.level")} style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                <Form.Item
+                  name="biradsCategory"
+                  label={t("aiRads.col.level")}
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
                   <Select style={{ width: 140 }} options={BI_RADS_OPTIONS} />
                 </Form.Item>
               </Space>
             </Form>
-            <RadsScoring result={radsResult} history={radsHistory} loading={radsLoading} />
+            <RadsScoring
+              result={radsResult}
+              history={radsHistory}
+              loading={radsLoading}
+            />
             {radsHistory.length > 0 && (
-              <Card size="small" style={{ marginTop: 'var(--space-3, 12px)' }} title={t("historyTrend")}>
+              <Card
+                size="small"
+                style={{ marginTop: "var(--space-3, 12px)" }}
+                title={t("historyTrend")}
+              >
                 <DataTable<RadsHistoryEntry>
                   rowKey={(r) => `${r.date}-${r.category}-${r.score}`}
                   dataSource={radsHistory}
                   pagination={{ pageSize: 5, showSizeChanger: false }}
                   columns={[
-                    { title: t("common.table.date"), dataIndex: "date", key: "date", width: 110 },
+                    {
+                      title: t("common.table.date"),
+                      dataIndex: "date",
+                      key: "date",
+                      width: 110,
+                    },
                     {
                       title: t("common.table.type"),
                       dataIndex: "category",

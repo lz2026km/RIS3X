@@ -278,8 +278,6 @@ export function DeviceMgmtDashboard({
                   rowKey="room"
                   dataSource={rooms?.items ?? []}
                   showPagination={false}
-                  showExport={false}
-                  showDensity={false}
                   emptyText={t("deviceMgmtBoard.noData")}
                   columns={[
                     {

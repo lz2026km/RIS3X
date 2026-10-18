@@ -29,11 +29,16 @@ import {
   Layers,
 } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Inbox } from 'lucide-react'
+import { Inbox } from "lucide-react";
 import { t } from "../../i18n/appI18n";
-import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import {
+  DataTable,
+  PageContainer,
+  StatCard,
+  StatCardGrid,
+} from "../../components/common";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 interface ModalityTatRow {
   modality: string;
@@ -59,9 +64,21 @@ const TAT_LEVEL_CONFIG: Record<
   { color: string; bg: string; label: string }
 > = {
   excellent: { color: "#059669", bg: "#d1fae5", label: "优秀 (≤15min)" },
-  normal: { color: "var(--color-primary-600)", bg: "#dbeafe", label: "正常 (15-30min)" },
-  warning: { color: "var(--color-warning-600)", bg: "#fef3c7", label: "预警 (30-60min)" },
-  critical: { color: "var(--color-error-600)", bg: "#fee2e2", label: "超时 (>60min)" },
+  normal: {
+    color: "var(--color-primary-600)",
+    bg: "#dbeafe",
+    label: "正常 (15-30min)",
+  },
+  warning: {
+    color: "var(--color-warning-600)",
+    bg: "#fef3c7",
+    label: "预警 (30-60min)",
+  },
+  critical: {
+    color: "var(--color-error-600)",
+    bg: "#fee2e2",
+    label: "超时 (>60min)",
+  },
 };
 
 function tatLevel(minutes: number): TatLevel {
@@ -83,13 +100,17 @@ export default function TatDashboardPage() {
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   const [selectedModality, setSelectedModality] = useState<string>("");
   // [Wave1B P2] 多维分析: olapApi.listCubes / drillDown / getChartData
-  const [cubes, setCubes] = useState<{ id: string; name: string; dimensions: string[]; measures: string[] }[]>([]);
+  const [cubes, setCubes] = useState<
+    { id: string; name: string; dimensions: string[]; measures: string[] }[]
+  >([]);
   const [selectedCube, setSelectedCube] = useState<string>("");
   const [drillDimension, setDrillDimension] = useState<string>("modality");
   const [drillValue, setDrillValue] = useState<string>("");
   const [drillMeasures, setDrillMeasures] = useState<string[]>(["exam_count"]);
   const [drillRows, setDrillRows] = useState<Record<string, unknown>[]>([]);
-  const [drillColumns, setDrillColumns] = useState<Array<{ code: string; name: string }>>([]);
+  const [drillColumns, setDrillColumns] = useState<
+    Array<{ code: string; name: string }>
+  >([]);
   const [drillLoading, setDrillLoading] = useState(false);
   const [drillError, setDrillError] = useState("");
 
@@ -98,9 +119,12 @@ export default function TatDashboardPage() {
       const res = await olapApi.listCubes();
       if (res.success && Array.isArray(res.data)) {
         setCubes(res.data);
-        if (res.data.length > 0) setSelectedCube((prev) => prev || (res.data[0]?.id ?? ""));
+        if (res.data.length > 0)
+          setSelectedCube((prev) => prev || (res.data[0]?.id ?? ""));
       }
-    } catch { /* 立方体不可用不阻断 */ }
+    } catch {
+      /* 立方体不可用不阻断 */
+    }
   }, []);
 
   useEffect(() => {
@@ -109,11 +133,11 @@ export default function TatDashboardPage() {
 
   const handleDrillDown = async () => {
     if (!selectedCube) {
-      message.warning(t('tatDashboard.selectCube'));
+      message.warning(t("tatDashboard.selectCube"));
       return;
     }
     if (!drillValue.trim()) {
-      message.warning(t('tatDashboard.enterDrillValue'));
+      message.warning(t("tatDashboard.enterDrillValue"));
       return;
     }
     setDrillLoading(true);
@@ -127,14 +151,16 @@ export default function TatDashboardPage() {
       });
       if (res.success && res.data && Array.isArray(res.data.rows)) {
         setDrillRows(res.data.rows);
-        setDrillColumns(Array.isArray(res.data.columns) ? res.data.columns : []);
+        setDrillColumns(
+          Array.isArray(res.data.columns) ? res.data.columns : [],
+        );
       } else {
-        setDrillError(res.error?.message ?? t('tatDashboard.drillFailed'));
+        setDrillError(res.error?.message ?? t("tatDashboard.drillFailed"));
         setDrillRows([]);
         setDrillColumns([]);
       }
     } catch (e) {
-      setDrillError((e as Error)?.message ?? t('tatDashboard.drillFailed'));
+      setDrillError((e as Error)?.message ?? t("tatDashboard.drillFailed"));
       setDrillRows([]);
       setDrillColumns([]);
     } finally {
@@ -143,8 +169,12 @@ export default function TatDashboardPage() {
   };
 
   const selectedCubeMeta = cubes.find((c) => c.id === selectedCube);
-  const chartMeasure = drillMeasures[0] ?? drillColumns[0]?.code ?? "exam_count";
-  const drillChartMax = Math.max(...drillRows.map((r) => Number(r[chartMeasure]) || 0), 1);
+  const chartMeasure =
+    drillMeasures[0] ?? drillColumns[0]?.code ?? "exam_count";
+  const drillChartMax = Math.max(
+    ...drillRows.map((r) => Number(r[chartMeasure]) || 0),
+    1,
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -185,7 +215,7 @@ export default function TatDashboardPage() {
             .sort((a, b) => b.examCount - a.examCount),
         );
       } else {
-        setError(aggRes.error?.message ?? t('tatDashboard.summaryLoadFailed'));
+        setError(aggRes.error?.message ?? t("tatDashboard.summaryLoadFailed"));
       }
       if (
         docRes.success &&
@@ -206,11 +236,13 @@ export default function TatDashboardPage() {
         );
       } else {
         setError(
-          (prev) => prev || (docRes.error?.message ?? t('tatDashboard.doctorLoadFailed')),
+          (prev) =>
+            prev ||
+            (docRes.error?.message ?? t("tatDashboard.doctorLoadFailed")),
         );
       }
     } catch (e) {
-      setError((e as Error)?.message ?? t('tatDashboard.loadFailed'));
+      setError((e as Error)?.message ?? t("tatDashboard.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -288,26 +320,47 @@ export default function TatDashboardPage() {
       };
       const lines: string[] = ["设备,检查数,报告数,平均TAT(min),按时完成率(%)"];
       for (const r of filteredModalityRows) {
-        lines.push([r.modality, r.examCount, r.reportCount, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
+        lines.push(
+          [
+            r.modality,
+            r.examCount,
+            r.reportCount,
+            r.avgTatMinutes,
+            r.timelyRate,
+          ]
+            .map(esc)
+            .join(","),
+        );
       }
       lines.push("");
       lines.push("医生,检查数,平均TAT(min),按时完成率(%)");
       for (const r of filteredDoctorRows) {
-        lines.push([r.doctor, r.count, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
+        lines.push(
+          [r.doctor, r.count, r.avgTatMinutes, r.timelyRate].map(esc).join(","),
+        );
       }
-      const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const blob = new Blob(["\uFEFF" + lines.join("\n")], {
+        type: "text/csv;charset=utf-8",
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `TAT报表_${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      message.success(`已导出 ${filteredModalityRows.length} 设备 + ${filteredDoctorRows.length} 医生 TAT 数据`);
+      message.success(
+        `已导出 ${filteredModalityRows.length} 设备 + ${filteredDoctorRows.length} 医生 TAT 数据`,
+      );
     };
     try {
       const res = await olapApi.exportCsv({
         dimensions: ["modality", "doctor"],
-        measures: ["exam_count", "report_count", "avg_report_time", "report_timely_rate"],
+        measures: [
+          "exam_count",
+          "report_count",
+          "avg_report_time",
+          "report_timely_rate",
+        ],
         limit: 500,
       });
       if (res.success && res.data && (res.data as Blob).size > 0) {
@@ -318,7 +371,9 @@ export default function TatDashboardPage() {
         a.download = `TAT报表_${new Date().toISOString().slice(0, 10)}.csv`;
         a.click();
         URL.revokeObjectURL(url);
-        message.success(`已通过 /olap/export/csv 导出 (${(blob.size / 1024).toFixed(1)} KB)`);
+        message.success(
+          `已通过 /olap/export/csv 导出 (${(blob.size / 1024).toFixed(1)} KB)`,
+        );
         return;
       }
       buildLocal();
@@ -331,20 +386,24 @@ export default function TatDashboardPage() {
 
   const columns: ColumnsType<ModalityTatRow> = [
     {
-      title: t('tatDashboard.colModality'),
+      title: t("tatDashboard.colModality"),
       dataIndex: "modality",
       key: "modality",
       render: (v: string) => <Tag color="blue">{v}</Tag>,
     },
     {
-      title: t('tatDashboard.colExamCount'),
+      title: t("tatDashboard.colExamCount"),
       dataIndex: "examCount",
       key: "examCount",
       sorter: (a, b) => (a.examCount ?? 0) - (b.examCount ?? 0),
     },
-    { title: t('tatDashboard.colReportCount'), dataIndex: "reportCount", key: "reportCount" },
     {
-      title: t('tatDashboard.colAvgTat'),
+      title: t("tatDashboard.colReportCount"),
+      dataIndex: "reportCount",
+      key: "reportCount",
+    },
+    {
+      title: t("tatDashboard.colAvgTat"),
       dataIndex: "avgTatMinutes",
       key: "avgTatMinutes",
       width: 100,
@@ -368,7 +427,7 @@ export default function TatDashboardPage() {
       },
     },
     {
-      title: t('tatDashboard.colTimelyRate'),
+      title: t("tatDashboard.colTimelyRate"),
       dataIndex: "timelyRate",
       key: "timelyRate",
       width: 130,
@@ -377,7 +436,13 @@ export default function TatDashboardPage() {
           <Progress
             percent={v}
             size="small"
-            strokeColor={v >= 80 ? "#059669" : v >= 60 ? "var(--color-warning-600)" : "var(--color-error-600)"}
+            strokeColor={
+              v >= 80
+                ? "#059669"
+                : v >= 60
+                  ? "var(--color-warning-600)"
+                  : "var(--color-error-600)"
+            }
           />
         ) : (
           "-"
@@ -389,14 +454,14 @@ export default function TatDashboardPage() {
     <PageContainer
       maxWidth="fluid"
       padding={0}
-      style={{ paddingBottom: 'var(--space-6, 24px)' }}
+      style={{ paddingBottom: "var(--space-6, 24px)" }}
     >
       <div
         style={{
           background: "var(--bg-card)",
           padding: "20px 24px",
           borderBottom: "1px solid var(--border-color)",
-          marginBottom: 'var(--space-5, 20px)',
+          marginBottom: "var(--space-5, 20px)",
         }}
       >
         <div
@@ -417,9 +482,15 @@ export default function TatDashboardPage() {
               }}
             >
               <Clock size={24} />
-              {t('tatDashboard.title')}
+              {t("tatDashboard.title")}
             </Title>
-            <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', margin: 0 }}>
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted, #64748b)",
+                margin: 0,
+              }}
+            >
               Turnaround Time Analytics Dashboard · OLAP 实时统计
             </p>
           </div>
@@ -427,7 +498,7 @@ export default function TatDashboardPage() {
             <Select
               value={selectedDoctor || undefined}
               onChange={(v) => setSelectedDoctor(v || "")}
-              placeholder={t('tatDashboard.allDoctors')}
+              placeholder={t("tatDashboard.allDoctors")}
               allowClear
               style={{ width: 140 }}
               options={doctorRows.map((d) => ({
@@ -438,7 +509,7 @@ export default function TatDashboardPage() {
             <Select
               value={selectedModality || undefined}
               onChange={(v) => setSelectedModality(v || "")}
-              placeholder={t('tatDashboard.allModalities')}
+              placeholder={t("tatDashboard.allModalities")}
               allowClear
               style={{ width: 120 }}
               options={MODALITIES.map((m) => ({ value: m, label: m }))}
@@ -448,9 +519,16 @@ export default function TatDashboardPage() {
               loading={loading}
               onClick={() => void load()}
             >
-              {t('tatDashboard.refresh')}
+              {t("tatDashboard.refresh")}
             </Button>
-            <Button icon={<Download size={14} />} loading={exporting} disabled={exporting} onClick={handleExport}>{t('tatDashboard.export')}</Button>
+            <Button
+              icon={<Download size={14} />}
+              loading={exporting}
+              disabled={exporting}
+              onClick={handleExport}
+            >
+              {t("tatDashboard.export")}
+            </Button>
           </Space>
         </div>
       </div>
@@ -460,62 +538,100 @@ export default function TatDashboardPage() {
           <Alert
             type="error"
             showIcon
-            style={{ marginBottom: 'var(--space-4, 16px)' }}
+            style={{ marginBottom: "var(--space-4, 16px)" }}
             title={error}
-            action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-                {t('tatDashboard.retry')}
+            action={
+              <Button size="small" onClick={() => void load()}>
+                <RefreshCw size={14} />
+                {t("tatDashboard.retry")}
               </Button>
             }
           />
         )}
         <Spin spinning={loading}>
-          <StatCardGrid style={{ marginBottom: 'var(--space-5, 20px)' }}>
+          <StatCardGrid style={{ marginBottom: "var(--space-5, 20px)" }}>
             <StatCard
-              title={t('tatDashboard.avgTat')}
+              title={t("tatDashboard.avgTat")}
               value={stats.avgTat}
               suffix="min"
-              icon={stats.avgTat <= 30 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
-              color={stats.avgTat <= 30 ? "success" : stats.avgTat <= 60 ? "warning" : "error"}
+              icon={
+                stats.avgTat <= 30 ? (
+                  <TrendingUp size={18} />
+                ) : (
+                  <TrendingDown size={18} />
+                )
+              }
+              color={
+                stats.avgTat <= 30
+                  ? "success"
+                  : stats.avgTat <= 60
+                    ? "warning"
+                    : "error"
+              }
             />
             <StatCard
-              title={t('tatDashboard.onTimeRate')}
+              title={t("tatDashboard.onTimeRate")}
               value={stats.onTimeRate}
               suffix="%"
-              icon={stats.onTimeRate >= 80 ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
-              color={stats.onTimeRate >= 80 ? "success" : stats.onTimeRate >= 60 ? "warning" : "error"}
+              icon={
+                stats.onTimeRate >= 80 ? (
+                  <CheckCircle size={18} />
+                ) : (
+                  <AlertTriangle size={18} />
+                )
+              }
+              color={
+                stats.onTimeRate >= 80
+                  ? "success"
+                  : stats.onTimeRate >= 60
+                    ? "warning"
+                    : "error"
+              }
             />
             <StatCard
-              title={t('tatDashboard.completionRate')}
+              title={t("tatDashboard.completionRate")}
               value={stats.completionRate}
               suffix="%"
               icon={<Activity size={18} />}
               color="var(--color-primary-800)"
             />
             <StatCard
-              title={t('tatDashboard.totalExams')}
+              title={t("tatDashboard.totalExams")}
               value={stats.total}
               icon={<BarChart3 size={18} />}
               color="var(--color-primary-800)"
             />
           </StatCardGrid>
 
-          <Row gutter={16} style={{ marginBottom: 'var(--space-5, 20px)' }}>
+          <Row gutter={16} style={{ marginBottom: "var(--space-5, 20px)" }}>
             <Col span={12}>
               <Card
-                title={t('tatDashboard.modalityDistribution')}
+                title={t("tatDashboard.modalityDistribution")}
                 size="small"
                 style={{ borderRadius: 8 }}
                 extra={
-                  <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
-                    {t('tatDashboard.byModalityAvg')}
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-muted, #94a3b8)",
+                    }}
+                  >
+                    {t("tatDashboard.byModalityAvg")}
                   </span>
                 }
               >
                 {modalityRows.length === 0 ? (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} />
+                  <Empty
+                    image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                    description={t("tatDashboard.noData")}
+                  />
                 ) : (
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-2, 8px)",
+                    }}
                   >
                     {modalityRows.map((d, i) => (
                       <div
@@ -530,7 +646,7 @@ export default function TatDashboardPage() {
                           style={{
                             width: 44,
                             fontSize: 12,
-                            color: 'var(--text-muted, #64748b)',
+                            color: "var(--text-muted, #64748b)",
                             textAlign: "right",
                           }}
                         >
@@ -562,13 +678,17 @@ export default function TatDashboardPage() {
                             width: 40,
                             fontSize: 12,
                             fontWeight: 600,
-                            color: 'var(--text-primary, #334155)',
+                            color: "var(--text-primary, #334155)",
                           }}
                         >
                           {d.examCount}
                         </span>
                         <span
-                          style={{ width: 60, fontSize: 12, color: 'var(--text-muted, #64748b)' }}
+                          style={{
+                            width: 60,
+                            fontSize: 12,
+                            color: "var(--text-muted, #64748b)",
+                          }}
                         >
                           {d.avgTatMinutes > 0 ? `${d.avgTatMinutes}min` : "-"}
                         </span>
@@ -580,20 +700,32 @@ export default function TatDashboardPage() {
             </Col>
             <Col span={12}>
               <Card
-                title={t('tatDashboard.doctorRanking')}
+                title={t("tatDashboard.doctorRanking")}
                 size="small"
                 style={{ borderRadius: 8 }}
                 extra={
-                  <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
-                    {t('tatDashboard.lowerBetter')}
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-muted, #94a3b8)",
+                    }}
+                  >
+                    {t("tatDashboard.lowerBetter")}
                   </span>
                 }
               >
                 {filteredDoctorRows.length === 0 ? (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} />
+                  <Empty
+                    image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                    description={t("tatDashboard.noData")}
+                  />
                 ) : (
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-2, 8px)",
+                    }}
                   >
                     {filteredDoctorRows.map((d, i) => (
                       <div
@@ -608,7 +740,7 @@ export default function TatDashboardPage() {
                           style={{
                             width: 80,
                             fontSize: 12,
-                            color: 'var(--text-primary, #334155)',
+                            color: "var(--text-primary, #334155)",
                             fontWeight: 600,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -625,8 +757,16 @@ export default function TatDashboardPage() {
                               marginBottom: 2,
                             }}
                           >
-                            <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
-                              {d.count}{t('tatDashboard.caseUnit')} · {t('tatDashboard.timelyRateLabel')} {d.timelyRate}%
+                            <span
+                              style={{
+                                fontSize: 11,
+                                color: "var(--text-muted, #64748b)",
+                              }}
+                            >
+                              {d.count}
+                              {t("tatDashboard.caseUnit")} ·{" "}
+                              {t("tatDashboard.timelyRateLabel")} {d.timelyRate}
+                              %
                             </span>
                             <span
                               style={{
@@ -667,15 +807,23 @@ export default function TatDashboardPage() {
           </Row>
 
           <Card
-            title={t('tatDashboard.modalityDetail')}
+            title={t("tatDashboard.modalityDetail")}
             size="small"
             style={{ borderRadius: 8 }}
             extra={
               <Space>
-                <Tag color="green">{t('tatDashboard.excellent')}: {stats.excellent}</Tag>
-                <Tag color="blue">{t('tatDashboard.normal')}: {stats.normal}</Tag>
-                <Tag color="orange">{t('tatDashboard.warning')}: {stats.warning}</Tag>
-                <Tag color="red">{t('tatDashboard.critical')}: {stats.critical}</Tag>
+                <Tag color="green">
+                  {t("tatDashboard.excellent")}: {stats.excellent}
+                </Tag>
+                <Tag color="blue">
+                  {t("tatDashboard.normal")}: {stats.normal}
+                </Tag>
+                <Tag color="orange">
+                  {t("tatDashboard.warning")}: {stats.warning}
+                </Tag>
+                <Tag color="red">
+                  {t("tatDashboard.critical")}: {stats.critical}
+                </Tag>
               </Space>
             }
           >
@@ -685,39 +833,75 @@ export default function TatDashboardPage() {
               rowKey="modality"
               pagination={false}
               scroll={{ x: 700 }}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} /> }}
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                    description={t("tatDashboard.noData")}
+                  />
+                ),
+              }}
             />
           </Card>
 
           {/* [Wave1B P2] 多维分析: olapApi.listCubes + drillDown + 柱状图 (简化版) */}
           <Card
-            title={<Space><Layers size={16} />{t('tatDashboard.olapTitle')}</Space>}
+            title={
+              <Space>
+                <Layers size={16} />
+                {t("tatDashboard.olapTitle")}
+              </Space>
+            }
             size="small"
-            style={{ borderRadius: 8, marginTop: 'var(--space-4, 16px)' }}
+            style={{ borderRadius: 8, marginTop: "var(--space-4, 16px)" }}
             extra={
               <Space>
-                <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadCubes()}>{t('tatDashboard.refreshCubes')}</Button>
-                <Button size="small" type="primary" icon={<BarChart3 size={12} />} loading={drillLoading} onClick={() => void handleDrillDown()}>{t('tatDashboard.drill')}</Button>
+                <Button
+                  size="small"
+                  icon={<RefreshCw size={12} />}
+                  onClick={() => void loadCubes()}
+                >
+                  {t("tatDashboard.refreshCubes")}
+                </Button>
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<BarChart3 size={12} />}
+                  loading={drillLoading}
+                  onClick={() => void handleDrillDown()}
+                >
+                  {t("tatDashboard.drill")}
+                </Button>
               </Space>
             }
           >
-            <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <Space wrap style={{ marginBottom: "var(--space-3, 12px)" }}>
               <Select
                 style={{ width: 220 }}
-                placeholder={t('tatDashboard.selectCubePlaceholder')}
+                placeholder={t("tatDashboard.selectCubePlaceholder")}
                 value={selectedCube || undefined}
                 onChange={setSelectedCube}
-                options={cubes.map((c) => ({ value: c.id, label: c.name || c.id }))}
+                options={cubes.map((c) => ({
+                  value: c.id,
+                  label: c.name || c.id,
+                }))}
               />
               <Select
                 style={{ width: 160 }}
                 value={drillDimension}
                 onChange={setDrillDimension}
-                options={(selectedCubeMeta?.dimensions ?? ["modality", "doctor", "department", "date"]).map((d) => ({ value: d, label: d }))}
+                options={(
+                  selectedCubeMeta?.dimensions ?? [
+                    "modality",
+                    "doctor",
+                    "department",
+                    "date",
+                  ]
+                ).map((d) => ({ value: d, label: d }))}
               />
               <Input
                 style={{ width: 140 }}
-                placeholder={t('tatDashboard.dimensionValuePlaceholder')}
+                placeholder={t("tatDashboard.dimensionValuePlaceholder")}
                 value={drillValue}
                 onChange={(e) => setDrillValue(e.target.value)}
                 onPressEnter={() => void handleDrillDown()}
@@ -725,46 +909,155 @@ export default function TatDashboardPage() {
               <Select
                 style={{ width: 200 }}
                 mode="multiple"
-                placeholder={t('tatDashboard.measures')}
+                placeholder={t("tatDashboard.measures")}
                 value={drillMeasures}
                 onChange={setDrillMeasures}
-                options={(selectedCubeMeta?.measures ?? ["exam_count", "report_count", "avg_report_time", "report_timely_rate"]).map((m) => ({ value: m, label: m }))}
+                options={(
+                  selectedCubeMeta?.measures ?? [
+                    "exam_count",
+                    "report_count",
+                    "avg_report_time",
+                    "report_timely_rate",
+                  ]
+                ).map((m) => ({ value: m, label: m }))}
               />
             </Space>
-            {drillError && <Alert type="error" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} message={drillError} />}
+            {drillError && (
+              <Alert
+                type="error"
+                showIcon
+                style={{ marginBottom: "var(--space-3, 12px)" }}
+                message={drillError}
+              />
+            )}
             {drillRows.length === 0 && !drillError ? (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.drillHint')} />
+              <Empty
+                image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                description={t("tatDashboard.drillHint")}
+              />
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 'var(--space-4, 16px)' }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1.6fr",
+                  gap: "var(--space-4, 16px)",
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{t('tatDashboard.barChart')}: {chartMeasure}</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-muted, #64748b)",
+                      marginBottom: "var(--space-2, 8px)",
+                    }}
+                  >
+                    {t("tatDashboard.barChart")}: {chartMeasure}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-2, 8px)",
+                    }}
+                  >
                     {drillRows.slice(0, 15).map((r, i) => {
-                      const label = String(r[drillColumns[0]?.code ?? "dimension"] ?? r.dimension ?? `行${i + 1}`)
-                      const val = Number(r[chartMeasure]) || 0
+                      const label = String(
+                        r[drillColumns[0]?.code ?? "dimension"] ??
+                          r.dimension ??
+                          `行${i + 1}`,
+                      );
+                      const val = Number(r[chartMeasure]) || 0;
                       return (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
-                          <span style={{ width: 90, fontSize: 12, color: 'var(--text-primary, #334155)', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
-                          <div style={{ flex: 1, height: 16, background: "var(--bg-primary)", borderRadius: 4, overflow: "hidden" }}>
-                            <div style={{ width: `${(val / drillChartMax) * 100}%`, height: "100%", background: "var(--color-primary-600)", borderRadius: 4, transition: "width 0.3s" }} />
+                        <div
+                          key={i}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--space-2, 8px)",
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 90,
+                              fontSize: 12,
+                              color: "var(--text-primary, #334155)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {label}
+                          </span>
+                          <div
+                            style={{
+                              flex: 1,
+                              height: 16,
+                              background: "var(--bg-primary)",
+                              borderRadius: 4,
+                              overflow: "hidden",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${(val / drillChartMax) * 100}%`,
+                                height: "100%",
+                                background: "var(--color-primary-600)",
+                                borderRadius: 4,
+                                transition: "width 0.3s",
+                              }}
+                            />
                           </div>
-                          <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', textAlign: "right" }}>{val}</span>
+                          <span
+                            style={{
+                              width: 60,
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: "var(--text-primary, #334155)",
+                              textAlign: "right",
+                            }}
+                          >
+                            {val}
+                          </span>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
                 <div style={{ overflowX: "auto" }}>
                   <DataTable
-                    rowKey={(r, i) => String(r.dimension ?? r[drillDimension] ?? i)}
+                    rowKey={(r) =>
+                      String(
+                        r.dimension ?? r[drillDimension] ?? JSON.stringify(r),
+                      )
+                    }
                     dataSource={drillRows}
                     pagination={false}
                     scroll={{ x: 560 }}
                     columns={[
                       ...(drillColumns.length > 0
-                        ? drillColumns.map((c) => ({ title: c.name || c.code, key: c.code, dataIndex: c.code }))
-                        : [{ title: t('tatDashboard.dimension'), key: "dimension", render: (_: unknown, r: Record<string, unknown>) => String(r.dimension ?? r[drillDimension] ?? "-") }]),
-                      { title: chartMeasure, key: chartMeasure, render: (_: unknown, r: Record<string, unknown>) => Number(r[chartMeasure]) || 0 },
+                        ? drillColumns.map((c) => ({
+                            title: c.name || c.code,
+                            key: c.code,
+                            dataIndex: c.code,
+                          }))
+                        : [
+                            {
+                              title: t("tatDashboard.dimension"),
+                              key: "dimension",
+                              render: (
+                                _: unknown,
+                                r: Record<string, unknown>,
+                              ) =>
+                                String(r.dimension ?? r[drillDimension] ?? "-"),
+                            },
+                          ]),
+                      {
+                        title: chartMeasure,
+                        key: chartMeasure,
+                        render: (_: unknown, r: Record<string, unknown>) =>
+                          Number(r[chartMeasure]) || 0,
+                      },
                     ]}
                   />
                 </div>

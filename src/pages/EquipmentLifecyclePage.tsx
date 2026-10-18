@@ -2166,7 +2166,7 @@ export default function EquipmentLifecyclePage() {
             <DataTable<any>
               columns={planColumns}
               dataSource={planRows}
-              rowKey={(r: any, i) => String(r.id ?? i)}
+              rowKey="id"
               emptyText={t("equipLifecycle.noMaintPlans")}
             />
           </Card>
@@ -2191,7 +2191,7 @@ export default function EquipmentLifecyclePage() {
           <DataTable<any>
             columns={recordColumns}
             dataSource={recordRows}
-            rowKey={(r: any, i) => String(r.id ?? i)}
+            rowKey="id"
             emptyText={t("equipLifecycle.noMaintRecords")}
           />
           {/* 成本汇总 */}

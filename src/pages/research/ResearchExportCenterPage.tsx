@@ -662,8 +662,6 @@ export default function ResearchExportCenterPage() {
                       rowKey="id"
                       dataSource={dataset.preview}
                       pagination={false}
-                      showExport={false}
-                      showDensity={false}
                       columns={[
                         {
                           title: "患者",

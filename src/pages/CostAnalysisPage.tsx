@@ -2493,8 +2493,6 @@ export default function CostAnalysisPage() {
               dataSource={filteredDrgData}
               rowKey={(d) => d.code}
               pagination={false}
-              showExport={false}
-              showDensity={false}
               columns={[
                 {
                   title: t("costAnalysis.drgCode"),
@@ -3575,8 +3573,6 @@ export default function CostAnalysisPage() {
                 dataSource={filteredClaims}
                 rowKey={(c) => c.id}
                 pagination={false}
-                showExport={false}
-                showDensity={false}
                 columns={[
                   {
                     title: t("costAnalysis.claimNo"),

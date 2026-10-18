@@ -751,8 +751,6 @@ export default function AppointmentCalendar(props: Props) {
               rowKey="id"
               dataSource={filteredListAppointments}
               showPagination={false}
-              showExport={false}
-              showDensity={false}
               onRow={(apt) => ({
                 onClick: () => openDetail(apt),
                 onContextMenu: (e) => {
