@@ -1,40 +1,69 @@
-import { Card } from 'antd'
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { useFocusTrap } from '../a11y/SkipLink'
-import { useNavigate } from 'react-router-dom'
+import { Card } from "antd";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useFocusTrap } from "../a11y/SkipLink";
+import { useNavigate } from "react-router-dom";
 import {
-  ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
-  Printer, X, Monitor, CheckCircle, Play, UserCheck, Stethoscope,
-  Download, CloudDownload, CheckCircle2, Clock, SlidersHorizontal, History,
-  LayoutDashboard, Table2, Users,
-} from 'lucide-react'
+  ClipboardList,
+  Wifi,
+  LayoutList,
+  LayoutGrid,
+  Kanban,
+  RefreshCw,
+  Printer,
+  X,
+  Monitor,
+  CheckCircle,
+  Play,
+  UserCheck,
+  Stethoscope,
+  Download,
+  CloudDownload,
+  CheckCircle2,
+  Clock,
+  SlidersHorizontal,
+  History,
+  LayoutDashboard,
+  Table2,
+  Users,
+  Workflow,
+} from "lucide-react";
+import { AreaChart, Area } from "recharts";
+import { DndContext, DragOverlay, type DragEndEvent } from "@dnd-kit/core";
 import {
-  AreaChart, Area,
-} from 'recharts'
-import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
-import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
-import { api, examApi, patientApi, reportApi, worklistApi, userApi } from '../services/api'
+  initialRadiologyExams,
+  initialModalityDevices,
+  initialExamRooms,
+  initialUsers,
+} from "../data/initialData";
+import {
+  api,
+  examApi,
+  patientApi,
+  reportApi,
+  worklistApi,
+  userApi,
+} from "../services/api";
 import type {
   WorklistOverviewDto,
   WorklistModalityItemDto,
   WorklistTechnicianStatsDto,
-} from '../services/api/worklistApi'
-import { dicomDimseApi, dicomWebApi } from '../services/api/dicomApi'
-import { ChartContainer } from '../components/charts'
-import { invalidateApiCacheByPrefix } from '../services/api/client'
-import { realtime } from '../services/realtime'
-import { t } from '../i18n/appI18n'
-import { createActor } from 'xstate'
-import { examMachine } from '../machines/examMachine'
-import { POLL_INTERVAL_MS } from '../config/examStatusMapping'
-import type { RadiologyExam, ExamStatus } from '../types'
-import type { ExamDto, ReportDto, UserDto } from '../types/dto'
-import { worklistSmartApi } from '../services/api/worklistSmartApi'
+} from "../services/api/worklistApi";
+import { dicomDimseApi, dicomWebApi } from "../services/api/dicomApi";
+import { ChartContainer } from "../components/charts";
+import { invalidateApiCacheByPrefix } from "../services/api/client";
+import { realtime } from "../services/realtime";
+import { t } from "../i18n/appI18n";
+import { createActor } from "xstate";
+import { examMachine } from "../machines/examMachine";
+import { POLL_INTERVAL_MS } from "../config/examStatusMapping";
+import type { RadiologyExam, ExamStatus } from "../types";
+import type { ExamDto, ReportDto, UserDto } from "../types/dto";
+import { worklistSmartApi } from "../services/api/worklistSmartApi";
 import {
   displayExamStatus,
   normalizeExamStatus,
   EXAM_STATUS_TO_CN,
-} from '../utils/statusMaps'
+} from "../utils/statusMaps";
 
 import {
   FilterBar,
@@ -46,225 +75,428 @@ import {
   KanbanView,
   DetailDrawer,
   RequisitionDrawer,
-} from './worklist'
-import type { FilterState, BatchState } from './worklist'
-import { PageTemplate } from '../components/common/PageTemplate'
-import { LoadingBanner, ErrorBanner } from '../components/feedback'
-import BatchActionBar from '../components/batch/BatchActionBar'
-import { AppButton } from '../components/common/AppButton'
-import { ActionButton } from '../components/common/ActionButton'
-import { PageHeader } from '../components/common/PageHeader'
-import { EmptyState } from '../components/common/EmptyState'
-import { useOperationLog } from '../hooks/useOperationLog'
-import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from '../hooks/useKeyboardShortcuts'
-import { SmartSortPanel } from '../components/worklist/SmartSortPanel'
-import { SortCompareModal } from '../components/worklist/SortCompareModal'
-import TimeoutVerifyModal from '../components/worklist/TimeoutVerifyModal'
+} from "./worklist";
+import type { FilterState, BatchState } from "./worklist";
+import { PageTemplate } from "../components/common/PageTemplate";
+import { LoadingBanner, ErrorBanner } from "../components/feedback";
+import BatchActionBar from "../components/batch/BatchActionBar";
+import { AppButton } from "../components/common/AppButton";
+import { ActionButton } from "../components/common/ActionButton";
+import { PageHeader } from "../components/common/PageHeader";
+import { EmptyState } from "../components/common/EmptyState";
+import { useOperationLog } from "../hooks/useOperationLog";
+import {
+  useKeyboardShortcuts,
+  useNavigationShortcuts,
+  SHORTCUTS,
+} from "../hooks/useKeyboardShortcuts";
+import { SmartSortPanel } from "../components/worklist/SmartSortPanel";
+import { SortCompareModal } from "../components/worklist/SortCompareModal";
+import TimeoutVerifyModal from "../components/worklist/TimeoutVerifyModal";
+// [v3.0.6.16] v3 检查工作流看板挂载 (此前仅被测试引用)
+import { ExamWorkflowBoard } from "../components/v3/exam/ExamWorkflowBoard";
+import type { ExamWorklistItem } from "../components/v3/exam/ExamWorkflowBoard";
 
 // ============================================================
 // 类型定义
 // ============================================================
-type ViewMode = 'list' | 'card' | 'kanban'
+type ViewMode = "list" | "card" | "kanban" | "workflow";
+
+// [v3.0.6.16] v3 工作流看板: 阶段 → 检查状态 映射 (advance 走既有 transitionExamTo)
+const WORKFLOW_STAGE_TO_STATUS: Record<ExamWorklistItem["stage"], string> = {
+  SCHEDULED: "SCHEDULED",
+  CHECKING_IN: "ARRIVED",
+  IN_EXAM: "IN_PROGRESS",
+  POST_EXAM: "IMAGE_READY",
+  REPORT_PENDING: "PENDING_REPORT",
+  REPORT_IN_REVIEW: "COMPLETED",
+  REPORT_APPROVED: "COMPLETED",
+  RELEASED: "COMPLETED",
+};
+
+const toWorkflowStage = (status: string): ExamWorklistItem["stage"] => {
+  const s = normalizeExamStatus(status);
+  if (s === "ARRIVED") return "CHECKING_IN";
+  if (s === "IN_PROGRESS" || s === "PAUSED" || s === "QC_REJECT")
+    return "IN_EXAM";
+  if (s === "IMAGE_READY" || s === "QC_PASS") return "POST_EXAM";
+  if (s === "PENDING_REPORT") return "REPORT_PENDING";
+  if (s === "COMPLETED") return "REPORT_APPROVED";
+  if (s === "CANCELLED") return "RELEASED";
+  return "SCHEDULED";
+};
+
+const toWorkflowPriority = (priority: string): ExamWorklistItem["priority"] => {
+  if (priority === "危重") return "STAT";
+  if (priority === "紧急" || priority === "会诊") return "URGENT";
+  return "ROUTINE";
+};
 
 interface CheckInState {
-  barcodeInput: string
-  lastScanned: string | null
-  isProcessing: boolean
+  barcodeInput: string;
+  lastScanned: string | null;
+  isProcessing: boolean;
 }
 
 interface SLAInfo {
-  elapsedMinutes: number
-  status: 'normal' | 'warning' | 'critical'
-  color: string
-  label: string
+  elapsedMinutes: number;
+  status: "normal" | "warning" | "critical";
+  color: string;
+  label: string;
 }
 
-const initialCheckIn: CheckInState = { barcodeInput: '', lastScanned: null, isProcessing: false }
+const initialCheckIn: CheckInState = {
+  barcodeInput: "",
+  lastScanned: null,
+  isProcessing: false,
+};
 
 // ============================================================
 // 数据适配: 后端 Exam / mock 记录 → RadiologyExam
 // 状态统一归一化为英文规范值 (SCHEDULED/ARRIVED/IN_PROGRESS/COMPLETED/CANCELLED)
 // ============================================================
 function toRadiologyExam(item: Record<string, unknown>): RadiologyExam {
-  const patient = (item.patient ?? {}) as Record<string, unknown>
-  const device = (item.device ?? {}) as Record<string, unknown>
-  const rawStatus = String(item.state ?? item.status ?? 'SCHEDULED')
-  const createdAt = String(item.createdAt ?? item.createdTime ?? item.examAt ?? new Date().toISOString())
+  const patient = (item.patient ?? {}) as Record<string, unknown>;
+  const device = (item.device ?? {}) as Record<string, unknown>;
+  const rawStatus = String(item.state ?? item.status ?? "SCHEDULED");
+  const createdAt = String(
+    item.createdAt ??
+      item.createdTime ??
+      item.examAt ??
+      new Date().toISOString(),
+  );
   return {
-    id: String(item.id ?? item.reportId ?? item.examId ?? ''),
-    patientId: String(item.patientId ?? patient.id ?? ''),
-    patientName: String(patient.name ?? patient.patientName ?? item.patientName ?? t('worklistPage.unknownPatient')),
-    gender: (patient.gender ?? item.gender ?? t('worklistPage.other')) as RadiologyExam['gender'],
+    id: String(item.id ?? item.reportId ?? item.examId ?? ""),
+    patientId: String(item.patientId ?? patient.id ?? ""),
+    patientName: String(
+      patient.name ??
+        patient.patientName ??
+        item.patientName ??
+        t("worklistPage.unknownPatient"),
+    ),
+    gender: (patient.gender ??
+      item.gender ??
+      t("worklistPage.other")) as RadiologyExam["gender"],
     age: Number(patient.age ?? item.patientAge ?? item.age ?? 0),
-    patientType: (item.patientType ?? patient.patientType ?? '门诊') as RadiologyExam['patientType'],
-    examItemId: String(item.examItemId ?? item.examItemCode ?? ''),
-    examItemName: String(item.examItem ?? item.examItemName ?? item.examName ?? item.accessionNumber ?? t('worklistPage.exam')),
-    modality: (item.modality ?? 'CT') as RadiologyExam['modality'],
-    bodyPart: (item.bodyPart ?? '胸部') as RadiologyExam['bodyPart'],
-    examDate: String(item.scheduledAt ?? item.examAt ?? item.examDate ?? ''),
+    patientType: (item.patientType ??
+      patient.patientType ??
+      "门诊") as RadiologyExam["patientType"],
+    examItemId: String(item.examItemId ?? item.examItemCode ?? ""),
+    examItemName: String(
+      item.examItem ??
+        item.examItemName ??
+        item.examName ??
+        item.accessionNumber ??
+        t("worklistPage.exam"),
+    ),
+    modality: (item.modality ?? "CT") as RadiologyExam["modality"],
+    bodyPart: (item.bodyPart ?? "胸部") as RadiologyExam["bodyPart"],
+    examDate: String(item.scheduledAt ?? item.examAt ?? item.examDate ?? ""),
     examTime: item.examTime ? String(item.examTime) : undefined,
     scheduledTime: item.scheduledTime ? String(item.scheduledTime) : undefined,
-    priority: (item.priority ?? '普通') as RadiologyExam['priority'],
-    clinicalDiagnosis: item.clinicalDiagnosis ? String(item.clinicalDiagnosis) : undefined,
-    technologistId: item.technicianId || item.technologistId ? String(item.technicianId ?? item.technologistId) : undefined,
-    radiologistId: item.reportDoctorId || item.radiologistId ? String(item.reportDoctorId ?? item.radiologistId) : undefined,
-    radiologistName: item.reportDoctorName || item.radiologistName ? String(item.reportDoctorName ?? item.radiologistName) : undefined,
-    referringDoctorId: item.referringDoctorId ? String(item.referringDoctorId) : undefined,
-    referringDoctorName: item.referringDoctorName ?? item.referringPhysician ? String(item.referringDoctorName ?? item.referringPhysician) : undefined,
-    referringDoctorDept: item.referringDoctorDept ? String(item.referringDoctorDept) : undefined,
-    thumbnailUrl: item.thumbnailUrl ?? item.thumbnail ?? item.thumbUrl ? String(item.thumbnailUrl ?? item.thumbnail ?? item.thumbUrl) : undefined,
+    priority: (item.priority ?? "普通") as RadiologyExam["priority"],
+    clinicalDiagnosis: item.clinicalDiagnosis
+      ? String(item.clinicalDiagnosis)
+      : undefined,
+    technologistId:
+      item.technicianId || item.technologistId
+        ? String(item.technicianId ?? item.technologistId)
+        : undefined,
+    radiologistId:
+      item.reportDoctorId || item.radiologistId
+        ? String(item.reportDoctorId ?? item.radiologistId)
+        : undefined,
+    radiologistName:
+      item.reportDoctorName || item.radiologistName
+        ? String(item.reportDoctorName ?? item.radiologistName)
+        : undefined,
+    referringDoctorId: item.referringDoctorId
+      ? String(item.referringDoctorId)
+      : undefined,
+    referringDoctorName:
+      (item.referringDoctorName ?? item.referringPhysician)
+        ? String(item.referringDoctorName ?? item.referringPhysician)
+        : undefined,
+    referringDoctorDept: item.referringDoctorDept
+      ? String(item.referringDoctorDept)
+      : undefined,
+    thumbnailUrl:
+      (item.thumbnailUrl ?? item.thumbnail ?? item.thumbUrl)
+        ? String(item.thumbnailUrl ?? item.thumbnail ?? item.thumbUrl)
+        : undefined,
     deviceId: item.deviceId ? String(item.deviceId) : undefined,
-    deviceName: device.name ? String(device.name) : item.deviceName ? String(item.deviceName) : undefined,
+    deviceName: device.name
+      ? String(device.name)
+      : item.deviceName
+        ? String(item.deviceName)
+        : undefined,
     roomId: item.roomId ? String(item.roomId) : undefined,
     status: normalizeExamStatus(rawStatus) as ExamStatus,
     imagesAcquired: Number(item.imageCount ?? item.imagesAcquired ?? 0),
-    accessionNumber: String(item.accessionNumber ?? ''),
-    criticalFinding: Boolean(item.hasCriticalValue ?? item.criticalFinding ?? false),
+    accessionNumber: String(item.accessionNumber ?? ""),
+    criticalFinding: Boolean(
+      item.hasCriticalValue ?? item.criticalFinding ?? false,
+    ),
     // [W6] Time-Out 门禁 + 重拍审批状态透出
-    timeoutVerified: item.timeoutVerified === undefined ? undefined : Boolean(item.timeoutVerified),
-    retakeStatus: (item.retakeStatus ?? null) as RadiologyExam['retakeStatus'],
+    timeoutVerified:
+      item.timeoutVerified === undefined
+        ? undefined
+        : Boolean(item.timeoutVerified),
+    retakeStatus: (item.retakeStatus ?? null) as RadiologyExam["retakeStatus"],
     createdTime: createdAt,
-    updatedTime: String(item.updatedAt ?? item.updatedTime ?? ''),
-  }
+    updatedTime: String(item.updatedAt ?? item.updatedTime ?? ""),
+  };
 }
 
 function extractExamItems(raw: unknown): unknown[] | null {
-  if (Array.isArray(raw)) return raw
-  if (raw && typeof raw === 'object') {
-    const obj = raw as Record<string, unknown>
-    if (Array.isArray(obj.items)) return obj.items
-    if (Array.isArray(obj.data)) return obj.data
-    if (Array.isArray(obj.records)) return obj.records
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    if (Array.isArray(obj.items)) return obj.items;
+    if (Array.isArray(obj.data)) return obj.data;
+    if (Array.isArray(obj.records)) return obj.records;
   }
-  return null
+  return null;
 }
 
 // ============================================================
 // examMachine 集成辅助
 // ============================================================
 const EXAM_STATUS_TO_MACHINE: Record<string, string> = {
-  'SCHEDULED': 'scheduled',
-  'ARRIVED': 'arrived',
-  'IN_PROGRESS': 'inProgress',
-  'COMPLETED': 'completed',
-  'CANCELLED': 'cancelled',
-}
+  SCHEDULED: "scheduled",
+  ARRIVED: "arrived",
+  IN_PROGRESS: "inProgress",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+};
 
-function replayExamActorTo(exam: RadiologyExam, targetEvent: { type: string; reason?: string; by: string; imagesAcquired?: number; technologistId?: string }) {
-  const initial = EXAM_STATUS_TO_MACHINE[exam.status] ?? 'scheduled'
+function replayExamActorTo(
+  exam: RadiologyExam,
+  targetEvent: {
+    type: string;
+    reason?: string;
+    by: string;
+    imagesAcquired?: number;
+    technologistId?: string;
+  },
+) {
+  const initial = EXAM_STATUS_TO_MACHINE[exam.status] ?? "scheduled";
   const actor = createActor(examMachine, {
     input: {
       examId: exam.id,
       patientId: exam.patientId,
       modality: exam.modality,
       bodyPart: exam.bodyPart,
-      orderedBy: exam.technologistId ?? 'system',
+      orderedBy: exam.technologistId ?? "system",
     },
-  })
-  actor.start()
-  const pathToCurrent: Array<{ type: string; [k: string]: unknown }> = []
-  if (['arrived', 'inProgress', 'paused', 'completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived', 'cancelled', 'qcReject'].includes(initial)) {
-    pathToCurrent.push({ type: 'APPROVE_ORDER', by: 'system' })
+  });
+  actor.start();
+  const pathToCurrent: Array<{ type: string; [k: string]: unknown }> = [];
+  if (
+    [
+      "arrived",
+      "inProgress",
+      "paused",
+      "completed",
+      "imageAvailable",
+      "pendingReport",
+      "reported",
+      "published",
+      "archived",
+      "cancelled",
+      "qcReject",
+    ].includes(initial)
+  ) {
+    pathToCurrent.push({ type: "APPROVE_ORDER", by: "system" });
   }
-  if (['arrived', 'inProgress', 'paused', 'completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived', 'cancelled'].includes(initial)) {
-    pathToCurrent.push({ type: 'REGISTER', roomId: exam.roomId ?? 'R-?', deviceId: exam.deviceId ?? 'D-?', by: 'system' })
+  if (
+    [
+      "arrived",
+      "inProgress",
+      "paused",
+      "completed",
+      "imageAvailable",
+      "pendingReport",
+      "reported",
+      "published",
+      "archived",
+      "cancelled",
+    ].includes(initial)
+  ) {
+    pathToCurrent.push({
+      type: "REGISTER",
+      roomId: exam.roomId ?? "R-?",
+      deviceId: exam.deviceId ?? "D-?",
+      by: "system",
+    });
   }
-  if (['inProgress', 'paused', 'completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived', 'cancelled'].includes(initial)) {
-    pathToCurrent.push({ type: 'ARRIVE', by: 'system' })
-    pathToCurrent.push({ type: 'START_EXAM', by: 'system', technologistId: exam.technologistId ?? 'system' })
+  if (
+    [
+      "inProgress",
+      "paused",
+      "completed",
+      "imageAvailable",
+      "pendingReport",
+      "reported",
+      "published",
+      "archived",
+      "cancelled",
+    ].includes(initial)
+  ) {
+    pathToCurrent.push({ type: "ARRIVE", by: "system" });
+    pathToCurrent.push({
+      type: "START_EXAM",
+      by: "system",
+      technologistId: exam.technologistId ?? "system",
+    });
   }
-  if (['completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived'].includes(initial)) {
-    pathToCurrent.push({ type: 'COMPLETE_EXAM', imagesAcquired: exam.imagesAcquired ?? 0, by: 'system' })
+  if (
+    [
+      "completed",
+      "imageAvailable",
+      "pendingReport",
+      "reported",
+      "published",
+      "archived",
+    ].includes(initial)
+  ) {
+    pathToCurrent.push({
+      type: "COMPLETE_EXAM",
+      imagesAcquired: exam.imagesAcquired ?? 0,
+      by: "system",
+    });
   }
-  if (['imageAvailable', 'pendingReport', 'reported', 'published', 'archived'].includes(initial)) {
-    pathToCurrent.push({ type: 'IMAGES_READY', imageCount: exam.imagesAcquired ?? 0, by: 'system' })
+  if (
+    [
+      "imageAvailable",
+      "pendingReport",
+      "reported",
+      "published",
+      "archived",
+    ].includes(initial)
+  ) {
+    pathToCurrent.push({
+      type: "IMAGES_READY",
+      imageCount: exam.imagesAcquired ?? 0,
+      by: "system",
+    });
   }
-  if (['pendingReport', 'reported', 'published', 'archived'].includes(initial)) {
-    pathToCurrent.push({ type: 'QC_PASS', by: 'system' })
+  if (
+    ["pendingReport", "reported", "published", "archived"].includes(initial)
+  ) {
+    pathToCurrent.push({ type: "QC_PASS", by: "system" });
   }
-  if (['reported', 'published', 'archived'].includes(initial)) {
-    pathToCurrent.push({ type: 'MARK_REPORTED', by: 'system' })
+  if (["reported", "published", "archived"].includes(initial)) {
+    pathToCurrent.push({ type: "MARK_REPORTED", by: "system" });
   }
-  if (['published', 'archived'].includes(initial)) {
-    pathToCurrent.push({ type: 'PUBLISH', by: 'system' })
+  if (["published", "archived"].includes(initial)) {
+    pathToCurrent.push({ type: "PUBLISH", by: "system" });
   }
-  if (['archived'].includes(initial)) {
-    pathToCurrent.push({ type: 'ARCHIVE', by: 'system' })
+  if (["archived"].includes(initial)) {
+    pathToCurrent.push({ type: "ARCHIVE", by: "system" });
   }
-  if (initial === 'paused') {
-    pathToCurrent.push({ type: 'PAUSE_EXAM', reason: 'replay', by: 'system' })
+  if (initial === "paused") {
+    pathToCurrent.push({ type: "PAUSE_EXAM", reason: "replay", by: "system" });
   }
-  if (initial === 'cancelled') {
-    pathToCurrent.push({ type: 'CANCEL', reason: 'replay', by: 'system' })
+  if (initial === "cancelled") {
+    pathToCurrent.push({ type: "CANCEL", reason: "replay", by: "system" });
   }
-  for (const ev of pathToCurrent) actor.send(ev as never)
-  actor.send(targetEvent as never)
-  actor.stop()
+  for (const ev of pathToCurrent) actor.send(ev as never);
+  actor.send(targetEvent as never);
+  actor.stop();
 }
 
 // ============================================================
 // SLA 辅助
 // ============================================================
-const SLA_CLOSED_STATUSES = new Set(['COMPLETED', 'CANCELLED'])
+const SLA_CLOSED_STATUSES = new Set(["COMPLETED", "CANCELLED"]);
 
 const isClosedExam = (exam: RadiologyExam): boolean =>
-  SLA_CLOSED_STATUSES.has(normalizeExamStatus(exam.status))
+  SLA_CLOSED_STATUSES.has(normalizeExamStatus(exam.status));
 
 // CLOSED exams (completed/cancelled) use actual TAT (completedAt|updatedAt - created);
 // OPEN exams keep accruing from now - created. Invalid times fall back to 0 (never NaN).
 const getSLAElapsedMinutes = (exam: RadiologyExam): number => {
-  const created = new Date(exam.createdTime).getTime()
-  if (!Number.isFinite(created) || created <= 0) return 0
-  let end = Date.now()
+  const created = new Date(exam.createdTime).getTime();
+  if (!Number.isFinite(created) || created <= 0) return 0;
+  let end = Date.now();
   if (isClosedExam(exam)) {
-    const updated = new Date(exam.updatedTime).getTime()
-    if (!Number.isFinite(updated) || updated < created) return 0
-    end = updated
+    const updated = new Date(exam.updatedTime).getTime();
+    if (!Number.isFinite(updated) || updated < created) return 0;
+    end = updated;
   }
-  const elapsed = Math.floor((end - created) / 60000)
-  return Number.isFinite(elapsed) && elapsed > 0 ? elapsed : 0
-}
+  const elapsed = Math.floor((end - created) / 60000);
+  return Number.isFinite(elapsed) && elapsed > 0 ? elapsed : 0;
+};
 
 const getSLAInfo = (exam: RadiologyExam): SLAInfo => {
   try {
-    const elapsedMinutes = getSLAElapsedMinutes(exam)
-    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: 'var(--color-error-600)', label: '>60min' }
-    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: 'var(--color-warning-600)', label: '30-60min' }
-    return { elapsedMinutes, status: 'normal', color: '#059669', label: '<30min' }
+    const elapsedMinutes = getSLAElapsedMinutes(exam);
+    if (elapsedMinutes > 60)
+      return {
+        elapsedMinutes,
+        status: "critical",
+        color: "var(--color-error-600)",
+        label: ">60min",
+      };
+    if (elapsedMinutes > 30)
+      return {
+        elapsedMinutes,
+        status: "warning",
+        color: "var(--color-warning-600)",
+        label: "30-60min",
+      };
+    return {
+      elapsedMinutes,
+      status: "normal",
+      color: "#059669",
+      label: "<30min",
+    };
   } catch {
-    return { elapsedMinutes: 0, status: 'normal', color: '#059669', label: '<30min' }
+    return {
+      elapsedMinutes: 0,
+      status: "normal",
+      color: "#059669",
+      label: "<30min",
+    };
   }
-}
+};
 
 const playSLASound = () => {
   try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.frequency.value = 880
-    osc.type = 'sine'
-    gain.gain.setValueAtTime(0.3, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
-    osc.start(ctx.currentTime)
-    osc.stop(ctx.currentTime + 0.5)
-  } catch { /* Web Audio not available */ }
-}
+    const ctx = new (
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext
+    )();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    osc.type = "sine";
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch {
+    /* Web Audio not available */
+  }
+};
 
 // ============================================================
 // MiniSparkline — deterministic, derived from the exam dataset
 // (no shared hardcoded series; seeded fallback when a window is empty)
 // ============================================================
 function seededSparkline(seed: number, len = 8): { value: number }[] {
-  let s = (seed >>> 0) || 1
+  let s = seed >>> 0 || 1;
   const next = () => {
-    s = (s * 1664525 + 1013904223) >>> 0
-    return s / 4294967296
-  }
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
   return Array.from({ length: len }, (_, i) => ({
     value: Math.round((6 + i * 1.5 + next() * 12) * 10) / 10,
-  }))
+  }));
 }
 
 function buildSparkline(
@@ -273,306 +505,459 @@ function buildSparkline(
   seed: number,
   days = 8,
 ): { value: number }[] {
-  const base = new Date()
-  base.setHours(0, 0, 0, 0)
-  const idxByKey = new Map<string, number>()
-  const buckets = new Array<number>(days).fill(0)
+  const base = new Date();
+  base.setHours(0, 0, 0, 0);
+  const idxByKey = new Map<string, number>();
+  const buckets = new Array<number>(days).fill(0);
   for (let i = days - 1; i >= 0; i -= 1) {
-    const d = new Date(base.getTime() - i * 86400000)
-    idxByKey.set(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`, days - 1 - i)
+    const d = new Date(base.getTime() - i * 86400000);
+    idxByKey.set(
+      `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
+      days - 1 - i,
+    );
   }
-  exams.forEach(e => {
-    if (!predicate(e)) return
-    const dt = new Date(e.examDate || e.createdTime)
-    if (!Number.isFinite(dt.getTime())) return
-    const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`
-    const idx = idxByKey.get(key)
-    if (idx !== undefined) buckets[idx] = (buckets[idx] ?? 0) + 1
-  })
-  const total = buckets.reduce((s, v) => s + v, 0)
-  if (total === 0) return seededSparkline(seed, days)
-  return buckets.map(v => ({ value: v }))
+  exams.forEach((e) => {
+    if (!predicate(e)) return;
+    const dt = new Date(e.examDate || e.createdTime);
+    if (!Number.isFinite(dt.getTime())) return;
+    const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
+    const idx = idxByKey.get(key);
+    if (idx !== undefined) buckets[idx] = (buckets[idx] ?? 0) + 1;
+  });
+  const total = buckets.reduce((s, v) => s + v, 0);
+  if (total === 0) return seededSparkline(seed, days);
+  return buckets.map((v) => ({ value: v }));
 }
 
-function MiniSparkline({ data, color }: { data: { value: number }[]; color: string }) {
-  const chartData = data.length > 0 ? data : seededSparkline(color.length)
+function MiniSparkline({
+  data,
+  color,
+}: {
+  data: { value: number }[];
+  color: string;
+}) {
+  const chartData = data.length > 0 ? data : seededSparkline(color.length);
   return (
     <div style={{ width: 100, height: 40 }}>
-      <ChartContainer type="sparkline" height={40} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription="">
+      <ChartContainer
+        type="sparkline"
+        height={40}
+        state={chartData.length === 0 ? "empty" : "ready"}
+        emptyDescription=""
+      >
         <AreaChart data={chartData}>
           <defs>
-            <linearGradient id={`sparkGrad-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+            <linearGradient
+              id={`sparkGrad-${color.replace("#", "")}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
               <stop offset="0%" stopColor={color} stopOpacity={0.3} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <Area type="monotone" dataKey="value" stroke={color} fill={`url(#sparkGrad-${color.replace('#', '')})`} strokeWidth={1.5} dot={false} />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke={color}
+            fill={`url(#sparkGrad-${color.replace("#", "")})`}
+            strokeWidth={1.5}
+            dot={false}
+          />
         </AreaChart>
       </ChartContainer>
     </div>
-  )
+  );
 }
 
 // ============================================================
 // 主组件
 // ============================================================
 export default function WorklistPage() {
-  const { log } = useOperationLog('worklist')
+  const { log } = useOperationLog("worklist");
   // [G005 放射流程P0] 详情抽屉"书写报告"→ 跳转完整书写页 (保留内联快速弹窗组件不动)
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // [G005 v3.0.6.11-99 Wave 10E-1] 视图切换记忆: viewMode 持久化到 localStorage
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     try {
-      const saved = localStorage.getItem('worklist-view-mode')
-      if (saved === 'list' || saved === 'card' || saved === 'kanban') return saved
-    } catch { /* localStorage 不可用 */ }
-    return 'list'
-  })
+      const saved = localStorage.getItem("worklist-view-mode");
+      if (
+        saved === "list" ||
+        saved === "card" ||
+        saved === "kanban" ||
+        saved === "workflow"
+      )
+        return saved;
+    } catch {
+      /* localStorage 不可用 */
+    }
+    return "list";
+  });
   useEffect(() => {
-    try { localStorage.setItem('worklist-view-mode', viewMode) } catch { /* ignore */ }
-  }, [viewMode])
+    try {
+      localStorage.setItem("worklist-view-mode", viewMode);
+    } catch {
+      /* ignore */
+    }
+  }, [viewMode]);
 
   const [filters, setFilters] = useState<FilterState>(() => {
     const today = new Date();
     const sevenDaysAgo = new Date(today.getTime() - 7 * 86400000);
     return {
-      search: '',
-      dateStart: sevenDaysAgo.toISOString().split('T')[0] ?? '',
-      dateEnd: today.toISOString().split('T')[0] ?? '',
+      search: "",
+      dateStart: sevenDaysAgo.toISOString().split("T")[0] ?? "",
+      dateEnd: today.toISOString().split("T")[0] ?? "",
       modalities: [],
       patientTypes: [],
       priorities: [],
       statuses: [],
-      doctorId: '',
+      doctorId: "",
     };
-  })
+  });
 
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const [exams, setExams] = useState<RadiologyExam[]>([])
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
+  const [exams, setExams] = useState<RadiologyExam[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [smartSortEnabled, setSmartSortEnabled] = useState(false)
-  const [smartExplanations, setSmartExplanations] = useState<Array<{ id: string; text: string; score: number }>>([])
-  const [showSortCompare, setShowSortCompare] = useState(false)
-  const [sortCompareItems, setSortCompareItems] = useState<Array<{ exam: RadiologyExam; beforeRank: number; afterRank: number; score?: number; reasons?: string[] }>>([])
+  const [smartSortEnabled, setSmartSortEnabled] = useState(false);
+  const [smartExplanations, setSmartExplanations] = useState<
+    Array<{ id: string; text: string; score: number }>
+  >([]);
+  const [showSortCompare, setShowSortCompare] = useState(false);
+  const [sortCompareItems, setSortCompareItems] = useState<
+    Array<{
+      exam: RadiologyExam;
+      beforeRank: number;
+      afterRank: number;
+      score?: number;
+      reasons?: string[];
+    }>
+  >([]);
 
   // ============================================================
   // 数据加载: examApi.list(后端 /exams) 为主, mock /worklist 兜底,
   // 本地 initialData 最后兜底; 状态统一归一化为英文规范值
   // ============================================================
-  const mountedRef = useRef(true)
+  const mountedRef = useRef(true);
 
   const fetchExams = useCallback(async (): Promise<RadiologyExam[]> => {
-    const res = await examApi.list({})
-    if (!mountedRef.current) return []
-    const raw = res.data as unknown
-    const items = extractExamItems(raw)
+    const res = await examApi.list({});
+    if (!mountedRef.current) return [];
+    const raw = res.data as unknown;
+    const items = extractExamItems(raw);
     if (res.success && items !== null) {
-      return items.map(item => toRadiologyExam((item ?? {}) as Record<string, unknown>))
+      return items.map((item) =>
+        toRadiologyExam((item ?? {}) as Record<string, unknown>),
+      );
     }
     // mock 兜底: mock 后端无 /exams, 分页拉取 /worklist (MAX_PAGE_SIZE=200)
-    const collected: unknown[] = []
-    let total = Infinity
+    const collected: unknown[] = [];
+    let total = Infinity;
     for (let page = 1; page <= 6 && collected.length < total; page += 1) {
-      if (!mountedRef.current) break
-      const wl = await worklistApi.list({ page: page, pageSize: 200 })
-      const wlRaw = wl.data as unknown
-      const wlItems = extractExamItems(wlRaw)
-      if (!wl.success || wlItems === null) break
-      collected.push(...wlItems)
+      if (!mountedRef.current) break;
+      const wl = await worklistApi.list({ page: page, pageSize: 200 });
+      const wlRaw = wl.data as unknown;
+      const wlItems = extractExamItems(wlRaw);
+      if (!wl.success || wlItems === null) break;
+      collected.push(...wlItems);
       // [W4] getList 归一化后 total 位于 data.total (旧 meta.total 兜底保留)
-      if (wl.data && typeof wl.data.total === 'number') {
-        total = wl.data.total
-      } else if (wlRaw && typeof wlRaw === 'object') {
-        const meta = (wlRaw as { meta?: { total?: number } }).meta
-        if (typeof meta?.total === 'number') total = meta.total
+      if (wl.data && typeof wl.data.total === "number") {
+        total = wl.data.total;
+      } else if (wlRaw && typeof wlRaw === "object") {
+        const meta = (wlRaw as { meta?: { total?: number } }).meta;
+        if (typeof meta?.total === "number") total = meta.total;
       }
     }
     if (collected.length > 0) {
-      return collected.map(item => toRadiologyExam((item ?? {}) as Record<string, unknown>))
+      return collected.map((item) =>
+        toRadiologyExam((item ?? {}) as Record<string, unknown>),
+      );
     }
-    return initialRadiologyExams.map(e => ({ ...e, status: normalizeExamStatus(e.status) as ExamStatus }))
-  }, [])
+    return initialRadiologyExams.map((e) => ({
+      ...e,
+      status: normalizeExamStatus(e.status) as ExamStatus,
+    }));
+  }, []);
 
   const fetchOnce = useCallback(async () => {
-    if (!mountedRef.current) return
+    if (!mountedRef.current) return;
     try {
-      const list = await fetchExams()
-      if (!mountedRef.current) return
-      setExams(list)
-      setLoadError(null)
-      setLoading(false)
+      const list = await fetchExams();
+      if (!mountedRef.current) return;
+      setExams(list);
+      setLoadError(null);
+      setLoading(false);
     } catch (err: unknown) {
-      if (!mountedRef.current) return
-      setLoadError(err instanceof Error ? err.message : t('worklistPage.pollingFailed'))
-      setLoading(false)
+      if (!mountedRef.current) return;
+      setLoadError(
+        err instanceof Error ? err.message : t("worklistPage.pollingFailed"),
+      );
+      setLoading(false);
     }
-  }, [fetchExams])
+  }, [fetchExams]);
 
   useEffect(() => {
-    mountedRef.current = true
-    let timer: ReturnType<typeof setInterval> | null = null
-    let isHidden = typeof document !== 'undefined' && document.visibilityState === 'hidden'
+    mountedRef.current = true;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    let isHidden =
+      typeof document !== "undefined" && document.visibilityState === "hidden";
 
     const startTimer = () => {
-      if (timer) return
-      if (isHidden) return
-      timer = setInterval(() => { void fetchOnce() }, POLL_INTERVAL_MS)
-    }
+      if (timer) return;
+      if (isHidden) return;
+      timer = setInterval(() => {
+        void fetchOnce();
+      }, POLL_INTERVAL_MS);
+    };
 
     const stopTimer = () => {
-      if (timer) { clearInterval(timer); timer = null }
-    }
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
 
     const onVisibilityChange = () => {
-      isHidden = document.visibilityState === 'hidden'
+      isHidden = document.visibilityState === "hidden";
       if (isHidden) {
-        stopTimer()
+        stopTimer();
       } else {
-        setLoading(false)
-        void fetchOnce()
-        startTimer()
+        setLoading(false);
+        void fetchOnce();
+        startTimer();
       }
-    }
+    };
 
-    setLoading(true)
-    void fetchOnce()
-    startTimer()
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', onVisibilityChange)
+    setLoading(true);
+    void fetchOnce();
+    startTimer();
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", onVisibilityChange);
     }
 
     return () => {
-      mountedRef.current = false
-      stopTimer()
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', onVisibilityChange)
+      mountedRef.current = false;
+      stopTimer();
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", onVisibilityChange);
       }
-    }
-  }, [fetchOnce])
+    };
+  }, [fetchOnce]);
 
   // ---- B7. 批量操作动态 (本地活动流, localStorage 持久化最近 30 条) ----
-  const [batchActivity, setBatchActivity] = useState<Array<{ time: string; action: string; count: number; source: 'api' | 'local' }>>(() => {
+  const [batchActivity, setBatchActivity] = useState<
+    Array<{
+      time: string;
+      action: string;
+      count: number;
+      source: "api" | "local";
+    }>
+  >(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('worklist-batch-activity') || '[]')
-      return Array.isArray(saved) ? saved : []
-    } catch { return [] }
-  })
-  const recordBatchActivity = useCallback((action: string, count: number, source: 'api' | 'local') => {
-    setBatchActivity(prev => {
-      const next = [{ time: new Date().toISOString(), action, count, source }, ...prev].slice(0, 30)
-      try { localStorage.setItem('worklist-batch-activity', JSON.stringify(next)) } catch { /* ignore */ }
-      return next
-    })
-  }, [])
+      const saved = JSON.parse(
+        localStorage.getItem("worklist-batch-activity") || "[]",
+      );
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
+  const recordBatchActivity = useCallback(
+    (action: string, count: number, source: "api" | "local") => {
+      setBatchActivity((prev) => {
+        const next = [
+          { time: new Date().toISOString(), action, count, source },
+          ...prev,
+        ].slice(0, 30);
+        try {
+          localStorage.setItem("worklist-batch-activity", JSON.stringify(next));
+        } catch {
+          /* ignore */
+        }
+        return next;
+      });
+    },
+    [],
+  );
   const clearBatchActivity = useCallback(() => {
-    setBatchActivity([])
-    try { localStorage.removeItem('worklist-batch-activity') } catch { /* ignore */ }
-  }, [])
+    setBatchActivity([]);
+    try {
+      localStorage.removeItem("worklist-batch-activity");
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const [batch, setBatch] = useState<BatchState>({
     selectedIds: new Set(),
     operation: null,
-    priorityValue: '普通',
-    roomValue: '',
-  })
+    priorityValue: "普通",
+    roomValue: "",
+  });
 
   // [W2-1] 报告医生/技师候选列表: 优先 userApi.list(后端 /users), 失败回退本地 initialUsers
   useEffect(() => {
-    let cancelled = false
-    setDoctorOptionsLoading(true)
+    let cancelled = false;
+    setDoctorOptionsLoading(true);
     const fallback = () => {
-      if (cancelled) return
+      if (cancelled) return;
       setDoctorOptions(
         initialUsers
-          .filter(u => u.role === 'radiologist' || u.role === '医生')
-          .map(u => ({ id: u.id, name: u.name, title: u.title ?? '' }))
-      )
-    }
-    userApi.list(0, 100).then(res => {
-      if (cancelled) return
-      const raw = res.data as unknown
-      const items = Array.isArray(raw)
-        ? raw
-        : ((raw as { items?: unknown[] } | null)?.items ?? [])
-      if (res.success && items.length > 0) {
-        setDoctorOptions(
-          (items as UserDto[]).map(u => ({
-            id: u.id,
-            name: u.fullName ?? u.id,
-            title: String(u.role ?? ''),
-          }))
-        )
-      } else {
-        fallback()
-      }
-    }).catch(fallback).finally(() => {
-      if (!cancelled) setDoctorOptionsLoading(false)
-    })
-    return () => { cancelled = true }
-  }, [])
+          .filter((u) => u.role === "radiologist" || u.role === "医生")
+          .map((u) => ({ id: u.id, name: u.name, title: u.title ?? "" })),
+      );
+    };
+    userApi
+      .list(0, 100)
+      .then((res) => {
+        if (cancelled) return;
+        const raw = res.data as unknown;
+        const items = Array.isArray(raw)
+          ? raw
+          : ((raw as { items?: unknown[] } | null)?.items ?? []);
+        if (res.success && items.length > 0) {
+          setDoctorOptions(
+            (items as UserDto[]).map((u) => ({
+              id: u.id,
+              name: u.fullName ?? u.id,
+              title: String(u.role ?? ""),
+            })),
+          );
+        } else {
+          fallback();
+        }
+      })
+      .catch(fallback)
+      .finally(() => {
+        if (!cancelled) setDoctorOptionsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const [selectedExam, setSelectedExam] = useState<RadiologyExam | null>(null)
-  const [historyDrawerTab, setHistoryDrawerTab] = useState<'info' | 'images' | 'history' | 'log'>('info')
+  const [selectedExam, setSelectedExam] = useState<RadiologyExam | null>(null);
+  const [historyDrawerTab, setHistoryDrawerTab] = useState<
+    "info" | "images" | "history" | "log"
+  >("info");
 
-  const [patientInfoModalExam, setPatientInfoModalExam] = useState<RadiologyExam | null>(null)
-  const [patientForm, setPatientForm] = useState<{ name: string; gender: string; age: string; patientType: string } | null>(null)
-  const [deviceSelectModalExam, setDeviceSelectModalExam] = useState<RadiologyExam | null>(null)
-  const [doctorSelectModalExam, setDoctorSelectModalExam] = useState<RadiologyExam | null>(null)
-  const [doctorOptions, setDoctorOptions] = useState<Array<{ id: string; name: string; title: string }>>([])
-  const [doctorOptionsLoading, setDoctorOptionsLoading] = useState(false)
-  const [requisitionExam, setRequisitionExam] = useState<RadiologyExam | null>(null)
-  const [reportModalExam, setReportModalExam] = useState<RadiologyExam | null>(null)
-  const [reportForm, setReportForm] = useState<{ findings: string; conclusion: string } | null>(null)
-  const [confirmModalConfig, setConfirmModalConfig] = useState<{ open: boolean; title: string; message: string; variant?: 'danger'; onConfirm: () => void } | null>(null)
-  const [batchResultModalData, setBatchResultModalData] = useState<{ open: boolean; action: string; count: number; results: string[] } | null>(null)
-  const [printPreviewModalData, setPrintPreviewModalData] = useState<{ open: boolean; examIds: string[] } | null>(null)
+  const [patientInfoModalExam, setPatientInfoModalExam] =
+    useState<RadiologyExam | null>(null);
+  const [patientForm, setPatientForm] = useState<{
+    name: string;
+    gender: string;
+    age: string;
+    patientType: string;
+  } | null>(null);
+  const [deviceSelectModalExam, setDeviceSelectModalExam] =
+    useState<RadiologyExam | null>(null);
+  const [doctorSelectModalExam, setDoctorSelectModalExam] =
+    useState<RadiologyExam | null>(null);
+  const [doctorOptions, setDoctorOptions] = useState<
+    Array<{ id: string; name: string; title: string }>
+  >([]);
+  const [doctorOptionsLoading, setDoctorOptionsLoading] = useState(false);
+  const [requisitionExam, setRequisitionExam] = useState<RadiologyExam | null>(
+    null,
+  );
+  const [reportModalExam, setReportModalExam] = useState<RadiologyExam | null>(
+    null,
+  );
+  const [reportForm, setReportForm] = useState<{
+    findings: string;
+    conclusion: string;
+  } | null>(null);
+  const [confirmModalConfig, setConfirmModalConfig] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant?: "danger";
+    onConfirm: () => void;
+  } | null>(null);
+  const [batchResultModalData, setBatchResultModalData] = useState<{
+    open: boolean;
+    action: string;
+    count: number;
+    results: string[];
+  } | null>(null);
+  const [printPreviewModalData, setPrintPreviewModalData] = useState<{
+    open: boolean;
+    examIds: string[];
+  } | null>(null);
   // [W6] 检查前核对 (Time-Out) 门禁: 未核对时弹窗, 完成后才放行开始检查
-  const [timeoutExam, setTimeoutExam] = useState<RadiologyExam | null>(null)
+  const [timeoutExam, setTimeoutExam] = useState<RadiologyExam | null>(null);
 
-  const [checkIn, setCheckIn] = useState<CheckInState>(initialCheckIn)
+  const [checkIn, setCheckIn] = useState<CheckInState>(initialCheckIn);
 
   // [W1-B] 工作量/状态分布: GET /worklist/stats (worklistApi.getStats)
-  const [serverStats, setServerStats] = useState<{ total: number; byStatus: Record<string, number> } | null>(null)
+  const [serverStats, setServerStats] = useState<{
+    total: number;
+    byStatus: Record<string, number>;
+  } | null>(null);
   const fetchServerStats = useCallback(async () => {
     try {
-      const res = await worklistApi.getStats()
+      const res = await worklistApi.getStats();
       if (res.success && res.data) {
-        setServerStats({ total: Number(res.data.total ?? 0), byStatus: res.data.byStatus ?? {} })
+        setServerStats({
+          total: Number(res.data.total ?? 0),
+          byStatus: res.data.byStatus ?? {},
+        });
       }
-    } catch { /* 统计不可用不阻断 */ }
-  }, [])
-  useEffect(() => { void fetchServerStats() }, [fetchServerStats])
+    } catch {
+      /* 统计不可用不阻断 */
+    }
+  }, []);
+  useEffect(() => {
+    void fetchServerStats();
+  }, [fetchServerStats]);
 
   // [v3.0.6.11-103 Wave 1B] 今日总览 / 模态分组 / 技师明细:
   //   GET /worklist/overview · GET /worklist/by-modality · GET /worklist/technician-stats
-  const [overview, setOverview] = useState<WorklistOverviewDto | null>(null)
-  const [byModality, setByModality] = useState<WorklistModalityItemDto[]>([])
-  const [technicianStats, setTechnicianStats] = useState<WorklistTechnicianStatsDto | null>(null)
+  const [overview, setOverview] = useState<WorklistOverviewDto | null>(null);
+  const [byModality, setByModality] = useState<WorklistModalityItemDto[]>([]);
+  const [technicianStats, setTechnicianStats] =
+    useState<WorklistTechnicianStatsDto | null>(null);
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     Promise.all([
       worklistApi.getOverview(),
       worklistApi.getByModality(),
       worklistApi.getTechnicianStats(),
-    ]).then(([ov, bm, ts]) => {
-      if (cancelled) return
-      if (ov.success && ov.data) setOverview(ov.data)
-      if (bm.success && Array.isArray(bm.data?.items)) setByModality(bm.data!.items)
-      if (ts.success && ts.data) setTechnicianStats(ts.data)
-    }).catch(() => { /* 总览/明细不可用不阻断 */ })
-    return () => { cancelled = true }
-  }, [])
+    ])
+      .then(([ov, bm, ts]) => {
+        if (cancelled) return;
+        if (ov.success && ov.data) setOverview(ov.data);
+        if (bm.success && Array.isArray(bm.data?.items))
+          setByModality(bm.data!.items);
+        if (ts.success && ts.data) setTechnicianStats(ts.data);
+      })
+      .catch(() => {
+        /* 总览/明细不可用不阻断 */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: FilterState }>>(() => {
-    try { return JSON.parse(localStorage.getItem('worklist-filter-presets') || '[]') }
-    catch { return [] }
-  })
-  const [showSavePreset, setShowSavePreset] = useState(false)
-  const [savePresetName, setSavePresetName] = useState('')
+  const [filterPresets, setFilterPresets] = useState<
+    Array<{ name: string; filters: FilterState }>
+  >(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("worklist-filter-presets") || "[]",
+      );
+    } catch {
+      return [];
+    }
+  });
+  const [showSavePreset, setShowSavePreset] = useState(false);
+  const [savePresetName, setSavePresetName] = useState("");
 
   const patientInfoFocusRef = useFocusTrap(!!patientInfoModalExam);
   const deviceSelectFocusRef = useFocusTrap(!!deviceSelectModalExam);
@@ -582,118 +967,177 @@ export default function WorklistPage() {
   const batchResultFocusRef = useFocusTrap(!!batchResultModalData?.open);
   const printPreviewFocusRef = useFocusTrap(!!printPreviewModalData?.open);
 
-  const applyPreset = useCallback((preset: { name: string; filters: FilterState }) => {
-    setFilters(preset.filters)
-  }, [])
+  const applyPreset = useCallback(
+    (preset: { name: string; filters: FilterState }) => {
+      setFilters(preset.filters);
+    },
+    [],
+  );
 
   const saveCurrentPreset = useCallback(() => {
-    if (!savePresetName.trim()) return
-    const newPresets = [...filterPresets, { name: savePresetName.trim(), filters: { ...filters } }]
-    setFilterPresets(newPresets)
-    localStorage.setItem('worklist-filter-presets', JSON.stringify(newPresets))
-    setSavePresetName('')
-    setShowSavePreset(false)
-  }, [savePresetName, filters, filterPresets])
+    if (!savePresetName.trim()) return;
+    const newPresets = [
+      ...filterPresets,
+      { name: savePresetName.trim(), filters: { ...filters } },
+    ];
+    setFilterPresets(newPresets);
+    localStorage.setItem("worklist-filter-presets", JSON.stringify(newPresets));
+    setSavePresetName("");
+    setShowSavePreset(false);
+  }, [savePresetName, filters, filterPresets]);
 
-  const deletePreset = useCallback((index: number) => {
-    const newPresets = filterPresets.filter((_, i) => i !== index)
-    setFilterPresets(newPresets)
-    localStorage.setItem('worklist-filter-presets', JSON.stringify(newPresets))
-  }, [filterPresets])
+  const deletePreset = useCallback(
+    (index: number) => {
+      const newPresets = filterPresets.filter((_, i) => i !== index);
+      setFilterPresets(newPresets);
+      localStorage.setItem(
+        "worklist-filter-presets",
+        JSON.stringify(newPresets),
+      );
+    },
+    [filterPresets],
+  );
 
   // ============================================================
   // 真实操作: 签到 / 开始 / 完成 / 取消 (后端 POST /worklist/:id/*)
   // ============================================================
   const refreshAfterMutation = useCallback(async () => {
-    await invalidateApiCacheByPrefix('/worklist')
-    await invalidateApiCacheByPrefix('/exams')
-    void fetchOnce()
-  }, [fetchOnce])
+    await invalidateApiCacheByPrefix("/worklist");
+    await invalidateApiCacheByPrefix("/exams");
+    void fetchOnce();
+  }, [fetchOnce]);
 
   // [W4-2] 实时推送: 其他端 (签到/开始/完成/危急值/报告状态) 变化时自动刷新; 轮询保留兜底
   useEffect(() => {
-    realtime.connect()
-    const offRefresh = realtime.subscribe('worklist-refresh', () => {
-      void refreshAfterMutation()
-    })
+    realtime.connect();
+    const offRefresh = realtime.subscribe("worklist-refresh", () => {
+      void refreshAfterMutation();
+    });
     return () => {
-      offRefresh()
-    }
-  }, [refreshAfterMutation])
+      offRefresh();
+    };
+  }, [refreshAfterMutation]);
 
   const handleCheckIn = async (barcode: string) => {
-    setCheckIn({ barcodeInput: barcode, lastScanned: barcode, isProcessing: true })
+    setCheckIn({
+      barcodeInput: barcode,
+      lastScanned: barcode,
+      isProcessing: true,
+    });
     try {
-      const matchedExam = exams.find(e => e.accessionNumber === barcode || e.id === barcode || e.patientId === barcode)
+      const matchedExam = exams.find(
+        (e) =>
+          e.accessionNumber === barcode ||
+          e.id === barcode ||
+          e.patientId === barcode,
+      );
       if (!matchedExam) {
-        setCheckIn(prev => ({ ...prev, isProcessing: false }))
-        return
+        setCheckIn((prev) => ({ ...prev, isProcessing: false }));
+        return;
       }
-      if (!['SCHEDULED', 'ARRIVED'].includes(normalizeExamStatus(matchedExam.status))) {
-        setCheckIn(prev => ({ ...prev, isProcessing: false }))
+      if (
+        !["SCHEDULED", "ARRIVED"].includes(
+          normalizeExamStatus(matchedExam.status),
+        )
+      ) {
+        setCheckIn((prev) => ({ ...prev, isProcessing: false }));
         setConfirmModalConfig({
           open: true,
-          title: t('worklistPage.checkin.failTitle'),
-          message: t('worklistPage.msg.cannotCheckIn', { exam: matchedExam.accessionNumber || matchedExam.id, status: displayExamStatus(matchedExam.status) }),
+          title: t("worklistPage.checkin.failTitle"),
+          message: t("worklistPage.msg.cannotCheckIn", {
+            exam: matchedExam.accessionNumber || matchedExam.id,
+            status: displayExamStatus(matchedExam.status),
+          }),
           onConfirm: () => setConfirmModalConfig(null),
-        })
-        return
+        });
+        return;
       }
-      const res = await examApi.checkIn(matchedExam.id)
+      const res = await examApi.checkIn(matchedExam.id);
       if (res.success) {
-        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: 'ARRIVED' as ExamStatus } : e))
-        log('checkin', matchedExam.id)
-        void refreshAfterMutation()
+        setExams((prev) =>
+          prev.map((e) =>
+            e.id === matchedExam.id
+              ? { ...e, status: "ARRIVED" as ExamStatus }
+              : e,
+          ),
+        );
+        log("checkin", matchedExam.id);
+        void refreshAfterMutation();
       } else {
         setConfirmModalConfig({
           open: true,
-          title: t('worklistPage.checkin.failTitle'),
-          message: res.error?.message ?? t('worklistPage.checkin.failMsg'),
+          title: t("worklistPage.checkin.failTitle"),
+          message: res.error?.message ?? t("worklistPage.checkin.failMsg"),
           onConfirm: () => setConfirmModalConfig(null),
-        })
+        });
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: t('worklistPage.checkin.failTitle'),
-        message: err instanceof Error ? err.message : t('worklistPage.checkin.failMsg'),
+        title: t("worklistPage.checkin.failTitle"),
+        message:
+          err instanceof Error
+            ? err.message
+            : t("worklistPage.checkin.failMsg"),
         onConfirm: () => setConfirmModalConfig(null),
-      })
+      });
     } finally {
-      setCheckIn(prev => ({ ...prev, isProcessing: false }))
+      setCheckIn((prev) => ({ ...prev, isProcessing: false }));
     }
-  }
+  };
 
   const handlePrintLabel = () => {
     if (selectedIds.size === 0) {
-      setConfirmModalConfig({ open: true, title: t('worklistPage.msg.tip'), message: t('worklistPage.msg.selectPrintItems'), onConfirm: () => setConfirmModalConfig(null) })
-      return
+      setConfirmModalConfig({
+        open: true,
+        title: t("worklistPage.msg.tip"),
+        message: t("worklistPage.msg.selectPrintItems"),
+        onConfirm: () => setConfirmModalConfig(null),
+      });
+      return;
     }
-    setPrintPreviewModalData({ open: true, examIds: Array.from(selectedIds) })
-  }
+    setPrintPreviewModalData({ open: true, examIds: Array.from(selectedIds) });
+  };
 
-  const filtersKey = `${filters.search}|${filters.dateStart}|${filters.dateEnd}|${filters.modalities?.join(',')}|${filters.patientTypes?.join(',')}|${filters.priorities?.join(',')}|${filters.statuses?.join(',')}|${filters.doctorId ?? ''}`
+  const filtersKey = `${filters.search}|${filters.dateStart}|${filters.dateEnd}|${filters.modalities?.join(",")}|${filters.patientTypes?.join(",")}|${filters.priorities?.join(",")}|${filters.statuses?.join(",")}|${filters.doctorId ?? ""}`;
   const filteredExams = useMemo(() => {
-    return exams.filter(exam => {
+    return exams.filter((exam) => {
       if (filters.search) {
-        const searchLower = filters.search.toLowerCase()
+        const searchLower = filters.search.toLowerCase();
         const matchSearch =
           exam.patientName.toLowerCase().includes(searchLower) ||
           exam.accessionNumber.toLowerCase().includes(searchLower) ||
-          exam.examItemName.toLowerCase().includes(searchLower)
-        if (!matchSearch) return false
+          exam.examItemName.toLowerCase().includes(searchLower);
+        if (!matchSearch) return false;
       }
-      if (filters.dateStart && exam.examDate < filters.dateStart) return false
-      if (filters.dateEnd && exam.examDate > filters.dateEnd) return false
-      if (filters.modalities.length > 0 && !filters.modalities.includes(exam.modality)) return false
-      if (filters.patientTypes.length > 0 && !filters.patientTypes.includes(exam.patientType)) return false
-      if (filters.priorities.length > 0 && !filters.priorities.includes(exam.priority)) return false
-      if (filters.statuses.length > 0 && !filters.statuses.includes(normalizeExamStatus(exam.status))) return false
+      if (filters.dateStart && exam.examDate < filters.dateStart) return false;
+      if (filters.dateEnd && exam.examDate > filters.dateEnd) return false;
+      if (
+        filters.modalities.length > 0 &&
+        !filters.modalities.includes(exam.modality)
+      )
+        return false;
+      if (
+        filters.patientTypes.length > 0 &&
+        !filters.patientTypes.includes(exam.patientType)
+      )
+        return false;
+      if (
+        filters.priorities.length > 0 &&
+        !filters.priorities.includes(exam.priority)
+      )
+        return false;
+      if (
+        filters.statuses.length > 0 &&
+        !filters.statuses.includes(normalizeExamStatus(exam.status))
+      )
+        return false;
       // [v3.0.6.11-95 Wave2B P1] 医生筛选改比 radiologistId (分配报告医生写入 radiologistId, 见 assignDoctor)
-      if (filters.doctorId && exam.radiologistId !== filters.doctorId) return false
-      return true
-    })
-  }, [exams, filtersKey])
+      if (filters.doctorId && exam.radiologistId !== filters.doctorId)
+        return false;
+      return true;
+    });
+  }, [exams, filtersKey]);
 
   // ============================================================
   // [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取 (工作列表 prefetch)
@@ -702,95 +1146,160 @@ export default function WorklistPage() {
   //  - 行内「预取」状态列: 按 GET /dicom-web/prefetch/status 结果渲染
   //  - studyUid 以检查记录 id 近似 (工作列表数据源无 studyInstanceUID)
   // ============================================================
-  const [prefetchStatusMap, setPrefetchStatusMap] = useState<Record<string, 'cached' | 'queued' | 'none'>>({})
-  const [prefetchStats, setPrefetchStats] = useState<{ total: number; cached: number; pending: number } | null>(null)
-  const [prefetchBusy, setPrefetchBusy] = useState(false)
-  const [prefetchMsg, setPrefetchMsg] = useState<string | null>(null)
-  const [savingPatientInfo, setSavingPatientInfo] = useState(false)
-  const [submittingReport, setSubmittingReport] = useState(false)
-  const prefetchMsgTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [prefetchStatusMap, setPrefetchStatusMap] = useState<
+    Record<string, "cached" | "queued" | "none">
+  >({});
+  const [prefetchStats, setPrefetchStats] = useState<{
+    total: number;
+    cached: number;
+    pending: number;
+  } | null>(null);
+  const [prefetchBusy, setPrefetchBusy] = useState(false);
+  const [prefetchMsg, setPrefetchMsg] = useState<string | null>(null);
+  const [savingPatientInfo, setSavingPatientInfo] = useState(false);
+  const [submittingReport, setSubmittingReport] = useState(false);
+  const prefetchMsgTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showPrefetchMsg = useCallback((msg: string) => {
-    setPrefetchMsg(msg)
-    if (prefetchMsgTimer.current) clearTimeout(prefetchMsgTimer.current)
-    prefetchMsgTimer.current = setTimeout(() => setPrefetchMsg(null), 5000)
-  }, [])
+    setPrefetchMsg(msg);
+    if (prefetchMsgTimer.current) clearTimeout(prefetchMsgTimer.current);
+    prefetchMsgTimer.current = setTimeout(() => setPrefetchMsg(null), 5000);
+  }, []);
 
-  useEffect(() => () => {
-    if (prefetchMsgTimer.current) clearTimeout(prefetchMsgTimer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (prefetchMsgTimer.current) clearTimeout(prefetchMsgTimer.current);
+    },
+    [],
+  );
 
   const refreshPrefetchStatus = useCallback(async () => {
     try {
-      await invalidateApiCacheByPrefix('/dicom-web/prefetch')
-      const res = await dicomWebApi.prefetchStatus()
+      await invalidateApiCacheByPrefix("/dicom-web/prefetch");
+      const res = await dicomWebApi.prefetchStatus();
       if (res.success && res.data) {
-        const map: Record<string, 'cached' | 'queued' | 'none'> = {}
-        for (const s of res.data.studies ?? []) map[s.studyUid] = s.status
-        setPrefetchStatusMap(map)
-        setPrefetchStats({ total: res.data.total, cached: res.data.cached, pending: res.data.pending })
+        const map: Record<string, "cached" | "queued" | "none"> = {};
+        for (const s of res.data.studies ?? []) map[s.studyUid] = s.status;
+        setPrefetchStatusMap(map);
+        setPrefetchStats({
+          total: res.data.total,
+          cached: res.data.cached,
+          pending: res.data.pending,
+        });
       }
-    } catch { /* 预取状态不可用不阻断 */ }
-  }, [])
+    } catch {
+      /* 预取状态不可用不阻断 */
+    }
+  }, []);
 
-  useEffect(() => { void refreshPrefetchStatus() }, [refreshPrefetchStatus])
+  useEffect(() => {
+    void refreshPrefetchStatus();
+  }, [refreshPrefetchStatus]);
 
   // ============================================================
   // [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE worklist 联动: 行内「传输」状态列
   // 从 dicomDimseApi.listTransfers 派生 examId/检查号 → 队列状态映射
   // ============================================================
-  const [transferStatusMap, setTransferStatusMap] = useState<Record<string, string>>({})
+  const [transferStatusMap, setTransferStatusMap] = useState<
+    Record<string, string>
+  >({});
 
   const refreshTransferStatus = useCallback(async () => {
     try {
-      await invalidateApiCacheByPrefix('/dicom-dimse/transfers')
-      const res = await dicomDimseApi.listTransfers()
+      await invalidateApiCacheByPrefix("/dicom-dimse/transfers");
+      const res = await dicomDimseApi.listTransfers();
       if (res.success && Array.isArray(res.data)) {
-        const map: Record<string, string> = {}
+        const map: Record<string, string> = {};
         for (const t of res.data) {
-          if (t.examId) map[t.examId] = t.status
-          if (t.accessionNumber) map[t.accessionNumber] = t.status
+          if (t.examId) map[t.examId] = t.status;
+          if (t.accessionNumber) map[t.accessionNumber] = t.status;
         }
-        setTransferStatusMap(map)
+        setTransferStatusMap(map);
       }
-    } catch { /* 传输队列不可用不阻断 */ }
-  }, [])
-
-  useEffect(() => { void refreshTransferStatus() }, [refreshTransferStatus])
-
-  const handlePrefetch = useCallback(async (scope: 'selected' | 'all') => {
-    if (prefetchBusy) return
-    const source = scope === 'selected'
-      ? exams.filter(e => selectedIds.has(e.id))
-      : filteredExams.length > 0 ? filteredExams : exams
-    const studyUids = source.map(e => e.id).filter(Boolean)
-    if (studyUids.length === 0) {
-      showPrefetchMsg(scope === 'selected' ? t('worklistPage.prefetch.selectFirst') : t('worklistPage.prefetch.emptyList'))
-      return
+    } catch {
+      /* 传输队列不可用不阻断 */
     }
-    setPrefetchBusy(true)
-    try {
-      const res = await dicomWebApi.prefetch(studyUids)
-      if (res.success && res.data) {
-        showPrefetchMsg(t('worklistPage.prefetchSubmitted', { queued: res.data.queued, cached: res.data.cached }))
-      } else {
-        showPrefetchMsg(res.error?.message ?? t('worklistPage.prefetch.failed'))
+  }, []);
+
+  useEffect(() => {
+    void refreshTransferStatus();
+  }, [refreshTransferStatus]);
+
+  const handlePrefetch = useCallback(
+    async (scope: "selected" | "all") => {
+      if (prefetchBusy) return;
+      const source =
+        scope === "selected"
+          ? exams.filter((e) => selectedIds.has(e.id))
+          : filteredExams.length > 0
+            ? filteredExams
+            : exams;
+      const studyUids = source.map((e) => e.id).filter(Boolean);
+      if (studyUids.length === 0) {
+        showPrefetchMsg(
+          scope === "selected"
+            ? t("worklistPage.prefetch.selectFirst")
+            : t("worklistPage.prefetch.emptyList"),
+        );
+        return;
       }
-      await refreshPrefetchStatus()
-    } catch (err) {
-      showPrefetchMsg(err instanceof Error ? err.message : t('worklistPage.prefetch.serviceUnavailable'))
-    } finally {
-      setPrefetchBusy(false)
-      setTimeout(() => { void refreshPrefetchStatus() }, 3000)
-    }
-  }, [prefetchBusy, exams, filteredExams, selectedIds, refreshPrefetchStatus, showPrefetchMsg])
+      setPrefetchBusy(true);
+      try {
+        const res = await dicomWebApi.prefetch(studyUids);
+        if (res.success && res.data) {
+          showPrefetchMsg(
+            t("worklistPage.prefetchSubmitted", {
+              queued: res.data.queued,
+              cached: res.data.cached,
+            }),
+          );
+        } else {
+          showPrefetchMsg(
+            res.error?.message ?? t("worklistPage.prefetch.failed"),
+          );
+        }
+        await refreshPrefetchStatus();
+      } catch (err) {
+        showPrefetchMsg(
+          err instanceof Error
+            ? err.message
+            : t("worklistPage.prefetch.serviceUnavailable"),
+        );
+      } finally {
+        setPrefetchBusy(false);
+        setTimeout(() => {
+          void refreshPrefetchStatus();
+        }, 3000);
+      }
+    },
+    [
+      prefetchBusy,
+      exams,
+      filteredExams,
+      selectedIds,
+      refreshPrefetchStatus,
+      showPrefetchMsg,
+    ],
+  );
 
   const computeSmartScoreInput = useCallback((exam: RadiologyExam) => {
-    const waitMs = exam.createdTime ? Date.now() - new Date(exam.createdTime).getTime() : 0
-    const waitingMinutes = Math.max(0, Math.floor(waitMs / 60000))
-    const urgencyMap: Record<string, number> = { '危重': 3, '紧急': 2, '会诊': 1, '普通': 0 }
-    const urgency = urgencyMap[exam.priority] ?? 0
-    const age = typeof exam.age === 'number' ? exam.age : (exam.age ? parseInt(String(exam.age), 10) || 0 : 0)
+    const waitMs = exam.createdTime
+      ? Date.now() - new Date(exam.createdTime).getTime()
+      : 0;
+    const waitingMinutes = Math.max(0, Math.floor(waitMs / 60000));
+    const urgencyMap: Record<string, number> = {
+      危重: 3,
+      紧急: 2,
+      会诊: 1,
+      普通: 0,
+    };
+    const urgency = urgencyMap[exam.priority] ?? 0;
+    const age =
+      typeof exam.age === "number"
+        ? exam.age
+        : exam.age
+          ? parseInt(String(exam.age), 10) || 0
+          : 0;
     return {
       id: exam.id,
       urgency,
@@ -801,85 +1310,179 @@ export default function WorklistPage() {
       patientType: exam.patientType,
       priority: exam.priority,
       criticalFinding: exam.criticalFinding ?? false,
-    }
-  }, [])
+    };
+  }, []);
 
-  const [smartSortedIds, setSmartSortedIds] = useState<string[] | null>(null)
+  const [smartSortedIds, setSmartSortedIds] = useState<string[] | null>(null);
 
   useEffect(() => {
     if (!smartSortEnabled || filteredExams.length === 0) {
-      setSmartSortedIds(null)
-      return
+      setSmartSortedIds(null);
+      return;
     }
-    let cancelled = false
-    const inputs = filteredExams.map(computeSmartScoreInput)
-    worklistSmartApi.reorder(inputs).then(res => {
-      if (cancelled) return
-      if (res.success && Array.isArray(res.data)) {
-        setSmartSortedIds(res.data.map((r: { id: string }) => r.id))
-        const explanations = res.data.slice(0, 20).map((r: { id: string; score: number; reasons: string[] }) => ({
-          id: r.id,
-          text: `${filteredExams.find(e => e.id === r.id)?.patientName ?? ''} ${filteredExams.find(e => e.id === r.id)?.examItemName ?? ''} → ${r.reasons.join('、') || ''}`,
-          score: r.score,
-        }))
-        setSmartExplanations(explanations)
-      } else {
-        setSmartSortedIds(null)
-      }
-    }).catch(() => { if (!cancelled) setSmartSortedIds(null) })
-    return () => { cancelled = true }
-  }, [filteredExams, smartSortEnabled, computeSmartScoreInput])
+    let cancelled = false;
+    const inputs = filteredExams.map(computeSmartScoreInput);
+    worklistSmartApi
+      .reorder(inputs)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data)) {
+          setSmartSortedIds(res.data.map((r: { id: string }) => r.id));
+          const explanations = res.data
+            .slice(0, 20)
+            .map((r: { id: string; score: number; reasons: string[] }) => ({
+              id: r.id,
+              text: `${filteredExams.find((e) => e.id === r.id)?.patientName ?? ""} ${filteredExams.find((e) => e.id === r.id)?.examItemName ?? ""} → ${r.reasons.join("、") || ""}`,
+              score: r.score,
+            }));
+          setSmartExplanations(explanations);
+        } else {
+          setSmartSortedIds(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setSmartSortedIds(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [filteredExams, smartSortEnabled, computeSmartScoreInput]);
 
   const smartOrderedExams = useMemo(() => {
-    if (!smartSortEnabled || !smartSortedIds) return filteredExams
-    const idOrder = new Map(smartSortedIds.map((id, idx) => [id, idx]))
-    return [...filteredExams].sort((a, b) => (idOrder.get(a.id) ?? 9999) - (idOrder.get(b.id) ?? 9999))
-  }, [filteredExams, smartSortEnabled, smartSortedIds])
+    if (!smartSortEnabled || !smartSortedIds) return filteredExams;
+    const idOrder = new Map(smartSortedIds.map((id, idx) => [id, idx]));
+    return [...filteredExams].sort(
+      (a, b) => (idOrder.get(a.id) ?? 9999) - (idOrder.get(b.id) ?? 9999),
+    );
+  }, [filteredExams, smartSortEnabled, smartSortedIds]);
 
-  const handleToggleSmartSort = useCallback((enabled: boolean) => {
-    setSmartSortEnabled(enabled)
-    if (enabled && filteredExams.length > 0) {
-      const inputs = filteredExams.map(computeSmartScoreInput)
-      worklistSmartApi.reorder(inputs).then(res => {
-        if (res.success && Array.isArray(res.data)) {
-          const items = res.data.map((r: { id: string; score: number; rank: number; beforeRank: number }) => {
-            const exam = filteredExams.find(e => e.id === r.id)!
-            return { exam, beforeRank: r.beforeRank, afterRank: r.rank, score: r.score }
+  // [v3.0.6.16] v3 工作流看板数据适配: RadiologyExam → ExamWorklistItem
+  const workflowItems: ExamWorklistItem[] = useMemo(
+    () =>
+      smartOrderedExams.map((e) => ({
+        id: e.id,
+        patientName: e.patientName,
+        patientId: e.patientId,
+        modality: String(e.modality),
+        bodyPart: e.bodyPart ? String(e.bodyPart) : undefined,
+        stage: toWorkflowStage(String(e.status)),
+        priority: toWorkflowPriority(String(e.priority)),
+        technician: e.technologistName,
+        radiologist: e.radiologistName,
+        scheduledAt: e.scheduledTime ?? e.examDate,
+        device: e.deviceName,
+        clinicalInfo: e.clinicalHistory ?? e.clinicalDiagnosis,
+        critical: Boolean(e.criticalFinding),
+      })),
+    [smartOrderedExams],
+  );
+
+  const handleToggleSmartSort = useCallback(
+    (enabled: boolean) => {
+      setSmartSortEnabled(enabled);
+      if (enabled && filteredExams.length > 0) {
+        const inputs = filteredExams.map(computeSmartScoreInput);
+        worklistSmartApi
+          .reorder(inputs)
+          .then((res) => {
+            if (res.success && Array.isArray(res.data)) {
+              const items = res.data.map(
+                (r: {
+                  id: string;
+                  score: number;
+                  rank: number;
+                  beforeRank: number;
+                }) => {
+                  const exam = filteredExams.find((e) => e.id === r.id)!;
+                  return {
+                    exam,
+                    beforeRank: r.beforeRank,
+                    afterRank: r.rank,
+                    score: r.score,
+                  };
+                },
+              );
+              setSortCompareItems(items);
+            }
           })
-          setSortCompareItems(items)
-        }
-      }).catch(() => { /* ignore */ })
-    }
-  }, [filteredExams, computeSmartScoreInput])
+          .catch(() => {
+            /* ignore */
+          });
+      }
+    },
+    [filteredExams, computeSmartScoreInput],
+  );
 
-  const slaCriticalExams = useMemo(() => filteredExams.filter(e => getSLAInfo(e).status === 'critical'), [filteredExams])
+  const slaCriticalExams = useMemo(
+    () => filteredExams.filter((e) => getSLAInfo(e).status === "critical"),
+    [filteredExams],
+  );
 
-  const prevCriticalCount = useRef(0)
+  const prevCriticalCount = useRef(0);
   useEffect(() => {
-    if (slaCriticalExams.length > prevCriticalCount.current && prevCriticalCount.current > 0) {
-      playSLASound()
+    if (
+      slaCriticalExams.length > prevCriticalCount.current &&
+      prevCriticalCount.current > 0
+    ) {
+      playSLASound();
     }
-    prevCriticalCount.current = slaCriticalExams.length
-  }, [slaCriticalExams.length])
+    prevCriticalCount.current = slaCriticalExams.length;
+  }, [slaCriticalExams.length]);
 
   // 统计卡: 全量数据 + EXAM_STATUS_MAP 英文值统计
   const stats = useMemo(() => {
-    const statusOf = (e: RadiologyExam) => normalizeExamStatus(e.status)
+    const statusOf = (e: RadiologyExam) => normalizeExamStatus(e.status);
     return {
       total: exams.length,
-      critical: exams.filter(e => e.priority === '危重' || e.priority === '紧急').length,
-      waiting: exams.filter(e => statusOf(e) === 'SCHEDULED' || statusOf(e) === 'ARRIVED').length,
-      inProgress: exams.filter(e => statusOf(e) === 'IN_PROGRESS').length,
-      completed: exams.filter(e => statusOf(e) === 'COMPLETED').length,
-      pending: exams.filter(e => ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'].includes(statusOf(e))).length,
-    }
-  }, [exams])
+      critical: exams.filter(
+        (e) => e.priority === "危重" || e.priority === "紧急",
+      ).length,
+      waiting: exams.filter(
+        (e) => statusOf(e) === "SCHEDULED" || statusOf(e) === "ARRIVED",
+      ).length,
+      inProgress: exams.filter((e) => statusOf(e) === "IN_PROGRESS").length,
+      completed: exams.filter((e) => statusOf(e) === "COMPLETED").length,
+      pending: exams.filter((e) =>
+        ["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(statusOf(e)),
+      ).length,
+    };
+  }, [exams]);
 
   // KPI 卡迷你趋势: 每卡独立序列 (优先按 examDate 真实派生, 空窗则确定性种子)
-  const sparkTotal = useMemo(() => buildSparkline(exams, () => true, 0x5701), [exams])
-  const sparkCritical = useMemo(() => buildSparkline(exams, e => e.priority === '危重' || e.priority === '紧急', 0x5702), [exams])
-  const sparkPending = useMemo(() => buildSparkline(exams, e => ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'].includes(normalizeExamStatus(e.status)), 0x5703), [exams])
-  const sparkCompleted = useMemo(() => buildSparkline(exams, e => normalizeExamStatus(e.status) === 'COMPLETED', 0x5704), [exams])
+  const sparkTotal = useMemo(
+    () => buildSparkline(exams, () => true, 0x5701),
+    [exams],
+  );
+  const sparkCritical = useMemo(
+    () =>
+      buildSparkline(
+        exams,
+        (e) => e.priority === "危重" || e.priority === "紧急",
+        0x5702,
+      ),
+    [exams],
+  );
+  const sparkPending = useMemo(
+    () =>
+      buildSparkline(
+        exams,
+        (e) =>
+          ["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(
+            normalizeExamStatus(e.status),
+          ),
+        0x5703,
+      ),
+    [exams],
+  );
+  const sparkCompleted = useMemo(
+    () =>
+      buildSparkline(
+        exams,
+        (e) => normalizeExamStatus(e.status) === "COMPLETED",
+        0x5704,
+      ),
+    [exams],
+  );
 
   // ============================================================
   // [G005 v3.0.6.11-99 Wave 10E-1] 工作台深化区块
@@ -888,227 +1491,365 @@ export default function WorklistPage() {
   //   B3. 今日进度条 (完成/总数)
   //   B4. 批量操作扩展卡 (今日已签/已开始计数)
   // ============================================================
-  const dataSourceIsReal = !loadError && !loading
+  const dataSourceIsReal = !loadError && !loading;
 
   // ---- B1. 列配置面板 (localStorage) ----
-  const WORKLIST_COLUMNS: Array<{ key: string; label: string; default: boolean }> = [
-    { key: 'priority', label: t('worklistPage.col.priority'), default: true },
-    { key: 'patientName', label: t('worklistPage.col.patientName'), default: true },
-    { key: 'demographics', label: t('worklistPage.col.demographics'), default: true },
-    { key: 'examItemName', label: t('worklistPage.col.examItemName'), default: true },
-    { key: 'device', label: t('worklistPage.col.device'), default: true },
-    { key: 'roomId', label: t('worklistPage.col.roomId'), default: false },
-    { key: 'images', label: t('worklistPage.col.images'), default: true },
-    { key: 'prefetch', label: t('worklistPage.col.prefetch'), default: false },
-    { key: 'transfer', label: t('worklistPage.col.transfer'), default: false },
-    { key: 'patientType', label: t('worklistPage.col.patientType'), default: true },
-    { key: 'status', label: t('worklistPage.col.status'), default: true },
-    { key: 'criticalFinding', label: t('worklistPage.col.criticalFinding'), default: true },
-    { key: 'technologistName', label: t('worklistPage.col.technologistName'), default: false },
-    { key: 'radiologistId', label: t('worklistPage.col.radiologistId'), default: true },
-    { key: 'createdTime', label: t('worklistPage.col.createdTime'), default: true },
-    { key: 'sla', label: 'SLA', default: true },
-    { key: 'actions', label: t('worklistPage.col.actions'), default: true },
-  ]
-  const [showColumnConfig, setShowColumnConfig] = useState(false)
-  const [columnConfig, setColumnConfig] = useState<Record<string, boolean>>(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('worklist-column-config') || 'null')
-      if (saved && typeof saved === 'object') return { ...saved }
-    } catch { /* ignore */ }
-    return {}
-  })
+  const WORKLIST_COLUMNS: Array<{
+    key: string;
+    label: string;
+    default: boolean;
+  }> = [
+    { key: "priority", label: t("worklistPage.col.priority"), default: true },
+    {
+      key: "patientName",
+      label: t("worklistPage.col.patientName"),
+      default: true,
+    },
+    {
+      key: "demographics",
+      label: t("worklistPage.col.demographics"),
+      default: true,
+    },
+    {
+      key: "examItemName",
+      label: t("worklistPage.col.examItemName"),
+      default: true,
+    },
+    { key: "device", label: t("worklistPage.col.device"), default: true },
+    { key: "roomId", label: t("worklistPage.col.roomId"), default: false },
+    { key: "images", label: t("worklistPage.col.images"), default: true },
+    { key: "prefetch", label: t("worklistPage.col.prefetch"), default: false },
+    { key: "transfer", label: t("worklistPage.col.transfer"), default: false },
+    {
+      key: "patientType",
+      label: t("worklistPage.col.patientType"),
+      default: true,
+    },
+    { key: "status", label: t("worklistPage.col.status"), default: true },
+    {
+      key: "criticalFinding",
+      label: t("worklistPage.col.criticalFinding"),
+      default: true,
+    },
+    {
+      key: "technologistName",
+      label: t("worklistPage.col.technologistName"),
+      default: false,
+    },
+    {
+      key: "radiologistId",
+      label: t("worklistPage.col.radiologistId"),
+      default: true,
+    },
+    {
+      key: "createdTime",
+      label: t("worklistPage.col.createdTime"),
+      default: true,
+    },
+    { key: "sla", label: "SLA", default: true },
+    { key: "actions", label: t("worklistPage.col.actions"), default: true },
+  ];
+  const [showColumnConfig, setShowColumnConfig] = useState(false);
+  const [columnConfig, setColumnConfig] = useState<Record<string, boolean>>(
+    () => {
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem("worklist-column-config") || "null",
+        );
+        if (saved && typeof saved === "object") return { ...saved };
+      } catch {
+        /* ignore */
+      }
+      return {};
+    },
+  );
   useEffect(() => {
-    try { localStorage.setItem('worklist-column-config', JSON.stringify(columnConfig)) } catch { /* ignore */ }
-  }, [columnConfig])
+    try {
+      localStorage.setItem(
+        "worklist-column-config",
+        JSON.stringify(columnConfig),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [columnConfig]);
   const visibleColumns = useMemo(() => {
-    const map = columnConfig
-    return WORKLIST_COLUMNS.filter(c => (c.key in map ? map[c.key] : c.default)).map(c => c.key)
-  }, [columnConfig])
-  const hiddenColumnKeys = useMemo(() => WORKLIST_COLUMNS.map(c => c.key).filter(k => !visibleColumns.includes(k)), [visibleColumns])
-  const toggleColumn = (key: string) => setColumnConfig(prev => ({ ...prev, [key]: !(key in prev ? prev[key] : true) }))
+    const map = columnConfig;
+    return WORKLIST_COLUMNS.filter((c) =>
+      c.key in map ? map[c.key] : c.default,
+    ).map((c) => c.key);
+  }, [columnConfig]);
+  const hiddenColumnKeys = useMemo(
+    () =>
+      WORKLIST_COLUMNS.map((c) => c.key).filter(
+        (k) => !visibleColumns.includes(k),
+      ),
+    [visibleColumns],
+  );
+  const toggleColumn = (key: string) =>
+    setColumnConfig((prev) => ({
+      ...prev,
+      [key]: !(key in prev ? prev[key] : true),
+    }));
   const resetColumnConfig = () => {
-    setColumnConfig({})
-    setShowColumnConfig(false)  }
-  const allColumnsShown = hiddenColumnKeys.length === 0
+    setColumnConfig({});
+    setShowColumnConfig(false);
+  };
+  const allColumnsShown = hiddenColumnKeys.length === 0;
 
   // ---- B1b. [W14-UX] 命名保存视图 (列配置 + 过滤集合, localStorage 持久化) ----
-  const [savedColumnViews, setSavedColumnViews] = useState<Array<{ name: string; config: Record<string, boolean>; filters?: FilterState }>>(() => {
+  const [savedColumnViews, setSavedColumnViews] = useState<
+    Array<{
+      name: string;
+      config: Record<string, boolean>;
+      filters?: FilterState;
+    }>
+  >(() => {
     try {
-      const raw = JSON.parse(localStorage.getItem('worklist-column-views') || '[]')
-      return Array.isArray(raw) ? raw : []
-    } catch { return [] }
-  })
-  const [columnViewName, setColumnViewName] = useState('')
+      const raw = JSON.parse(
+        localStorage.getItem("worklist-column-views") || "[]",
+      );
+      return Array.isArray(raw) ? raw : [];
+    } catch {
+      return [];
+    }
+  });
+  const [columnViewName, setColumnViewName] = useState("");
   useEffect(() => {
-    try { localStorage.setItem('worklist-column-views', JSON.stringify(savedColumnViews)) } catch { /* ignore */ }
-  }, [savedColumnViews])
+    try {
+      localStorage.setItem(
+        "worklist-column-views",
+        JSON.stringify(savedColumnViews),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [savedColumnViews]);
   const saveColumnView = () => {
-    const name = columnViewName.trim()
-    if (!name) return
-    setSavedColumnViews(prev => [...prev.filter(v => v.name !== name), { name, config: columnConfig, filters }])
-    setColumnViewName('')
-  }
+    const name = columnViewName.trim();
+    if (!name) return;
+    setSavedColumnViews((prev) => [
+      ...prev.filter((v) => v.name !== name),
+      { name, config: columnConfig, filters },
+    ]);
+    setColumnViewName("");
+  };
   const applyColumnView = (name: string) => {
-    const v = savedColumnViews.find(x => x.name === name)
-    if (!v) return
-    setColumnConfig(v.config)
-    if (v.filters) setFilters(v.filters)
-  }
+    const v = savedColumnViews.find((x) => x.name === name);
+    if (!v) return;
+    setColumnConfig(v.config);
+    if (v.filters) setFilters(v.filters);
+  };
   const removeColumnView = (name: string) => {
-    setSavedColumnViews(prev => prev.filter(v => v.name !== name))
-  }
+    setSavedColumnViews((prev) => prev.filter((v) => v.name !== name));
+  };
 
   // ---- B2. SLA 分析卡 (超时分布直方图) ----
   const slaBuckets = useMemo(() => {
-    const buckets = { lt30: 0, m30to60: 0, gt60: 0 }
-    filteredExams.forEach(e => {
-      const info = getSLAInfo(e)
-      if (info.status === 'critical') buckets.gt60 += 1
-      else if (info.status === 'warning') buckets.m30to60 += 1
-      else buckets.lt30 += 1
-    })
-    const total = Math.max(1, filteredExams.length)
+    const buckets = { lt30: 0, m30to60: 0, gt60: 0 };
+    filteredExams.forEach((e) => {
+      const info = getSLAInfo(e);
+      if (info.status === "critical") buckets.gt60 += 1;
+      else if (info.status === "warning") buckets.m30to60 += 1;
+      else buckets.lt30 += 1;
+    });
+    const total = Math.max(1, filteredExams.length);
     return [
-      { name: '<30min', value: buckets.lt30, pct: Math.round((buckets.lt30 / total) * 100), color: '#059669' },
-      { name: '30-60min', value: buckets.m30to60, pct: Math.round((buckets.m30to60 / total) * 100), color: 'var(--color-warning-600)' },
-      { name: '>60min', value: buckets.gt60, pct: Math.round((buckets.gt60 / total) * 100), color: 'var(--color-error-600)' },
-    ]
-  }, [filteredExams])
+      {
+        name: "<30min",
+        value: buckets.lt30,
+        pct: Math.round((buckets.lt30 / total) * 100),
+        color: "#059669",
+      },
+      {
+        name: "30-60min",
+        value: buckets.m30to60,
+        pct: Math.round((buckets.m30to60 / total) * 100),
+        color: "var(--color-warning-600)",
+      },
+      {
+        name: ">60min",
+        value: buckets.gt60,
+        pct: Math.round((buckets.gt60 / total) * 100),
+        color: "var(--color-error-600)",
+      },
+    ];
+  }, [filteredExams]);
   const avgWaitMinutes = useMemo(() => {
-    if (filteredExams.length === 0) return 0
-    const sum = filteredExams.reduce((acc, e) => acc + getSLAElapsedMinutes(e), 0)
-    return Math.round(sum / filteredExams.length)
-  }, [filteredExams])
+    if (filteredExams.length === 0) return 0;
+    const sum = filteredExams.reduce(
+      (acc, e) => acc + getSLAElapsedMinutes(e),
+      0,
+    );
+    return Math.round(sum / filteredExams.length);
+  }, [filteredExams]);
   const slaExceedRate = useMemo(() => {
-    if (filteredExams.length === 0) return 0
-    return Math.round((slaBuckets.reduce((s, b) => s + (b.name !== '<30min' ? b.value : 0), 0) / filteredExams.length) * 100)
-  }, [filteredExams, slaBuckets])
+    if (filteredExams.length === 0) return 0;
+    return Math.round(
+      (slaBuckets.reduce((s, b) => s + (b.name !== "<30min" ? b.value : 0), 0) /
+        filteredExams.length) *
+        100,
+    );
+  }, [filteredExams, slaBuckets]);
 
   // ---- B2.5 近 7 日 SLA 趋势: 按结案日 (updatedTime) 聚合已结案检查的超期率 ----
   //   超期率 = 当日已结案且超期数 / 当日已结案数 (分母 0 时为 0)
   const slaTrend7d = useMemo(() => {
-    const days: Array<{ date: string; overdue: number; total: number; rate: number }> = []
+    const days: Array<{
+      date: string;
+      overdue: number;
+      total: number;
+      rate: number;
+    }> = [];
     for (let i = 6; i >= 0; i -= 1) {
-      const d = new Date(Date.now() - i * 86400000)
-      const key = d.toISOString().slice(0, 10)
-      days.push({ date: key, overdue: 0, total: 0, rate: 0 })
+      const d = new Date(Date.now() - i * 86400000);
+      const key = d.toISOString().slice(0, 10);
+      days.push({ date: key, overdue: 0, total: 0, rate: 0 });
     }
-    const dayIndex = (iso: string) => days.findIndex(d => d.date === (iso || '').slice(0, 10))
-    exams.forEach(e => {
-      if (!isClosedExam(e)) return
-      const idx = dayIndex(e.updatedTime)
-      if (idx < 0) return
-      const slot = days[idx]
-      if (!slot) return
-      slot.total += 1
-      if (getSLAInfo(e).status !== 'normal') slot.overdue += 1
-    })
-    days.forEach(d => { d.rate = d.total > 0 ? Math.round((d.overdue / d.total) * 100) : 0 })
-    return days.map(d => ({
+    const dayIndex = (iso: string) =>
+      days.findIndex((d) => d.date === (iso || "").slice(0, 10));
+    exams.forEach((e) => {
+      if (!isClosedExam(e)) return;
+      const idx = dayIndex(e.updatedTime);
+      if (idx < 0) return;
+      const slot = days[idx];
+      if (!slot) return;
+      slot.total += 1;
+      if (getSLAInfo(e).status !== "normal") slot.overdue += 1;
+    });
+    days.forEach((d) => {
+      d.rate = d.total > 0 ? Math.round((d.overdue / d.total) * 100) : 0;
+    });
+    return days.map((d) => ({
       day: `${Number(d.date.slice(5, 7))}/${Number(d.date.slice(8, 10))}`,
       rate: d.rate,
       overdue: d.overdue,
       total: d.total,
-    }))
-  }, [exams])
-  const slaTrendPeak = useMemo(() => slaTrend7d.reduce((best, d) => (d.rate > best.rate ? d : best), slaTrend7d[0] ?? { day: '-', rate: 0, overdue: 0, total: 0 }), [slaTrend7d])
+    }));
+  }, [exams]);
+  const slaTrendPeak = useMemo(
+    () =>
+      slaTrend7d.reduce(
+        (best, d) => (d.rate > best.rate ? d : best),
+        slaTrend7d[0] ?? { day: "-", rate: 0, overdue: 0, total: 0 },
+      ),
+    [slaTrend7d],
+  );
 
   // ---- B3. 今日进度 (完成/总数) ----
   const todayProgress = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10)
-    const todayExams = exams.filter(e => (e.examDate || '').slice(0, 10) === today)
-    const done = todayExams.filter(e => normalizeExamStatus(e.status) === 'COMPLETED').length
+    const today = new Date().toISOString().slice(0, 10);
+    const todayExams = exams.filter(
+      (e) => (e.examDate || "").slice(0, 10) === today,
+    );
+    const done = todayExams.filter(
+      (e) => normalizeExamStatus(e.status) === "COMPLETED",
+    ).length;
     return {
       total: todayExams.length,
       done,
-      percent: todayExams.length > 0 ? Math.round((done / todayExams.length) * 100) : 0,
+      percent:
+        todayExams.length > 0
+          ? Math.round((done / todayExams.length) * 100)
+          : 0,
       pending: todayExams.length - done,
-    }
-  }, [exams])
+    };
+  }, [exams]);
 
   // ---- B4. 批量操作扩展卡: 今日已签/已开始计数 ----
   const todayBatchCounts = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10)
-    let checkedIn = 0
-    let started = 0
-    exams.forEach(e => {
-      if ((e.examDate || '').slice(0, 10) !== today) return
-      const st = normalizeExamStatus(e.status)
-      if (st === 'ARRIVED') checkedIn += 1
-      if (st === 'IN_PROGRESS' || st === 'COMPLETED') started += 1
-    })
+    const today = new Date().toISOString().slice(0, 10);
+    let checkedIn = 0;
+    let started = 0;
+    exams.forEach((e) => {
+      if ((e.examDate || "").slice(0, 10) !== today) return;
+      const st = normalizeExamStatus(e.status);
+      if (st === "ARRIVED") checkedIn += 1;
+      if (st === "IN_PROGRESS" || st === "COMPLETED") started += 1;
+    });
     // 服务端统计合并 (worklistApi.getStats → completedToday)
-    const serverCompleted = serverStats ? Number((serverStats as { completedToday?: number }).completedToday ?? 0) : 0
-    return { checkedIn, started, serverCompleted }
-  }, [exams, serverStats])
+    const serverCompleted = serverStats
+      ? Number((serverStats as { completedToday?: number }).completedToday ?? 0)
+      : 0;
+    return { checkedIn, started, serverCompleted };
+  }, [exams, serverStats]);
 
   // ---- B5. 模态 SLA 概况 (各模态超期/待办计数 + 平均等待派生) ----
   const modalitySla = useMemo(() => {
-    const map: Record<string, { modality: string; total: number; critical: number; waitSum: number }> = {}
-    filteredExams.forEach(e => {
-      const m = e.modality || t('worklistPage.other')
-      const info = getSLAInfo(e)
-      const slot = map[m] ?? { modality: m, total: 0, critical: 0, waitSum: 0 }
-      slot.total += 1
-      slot.waitSum += info.elapsedMinutes
-      if (info.status !== 'normal') slot.critical += 1
-      map[m] = slot
-    })
+    const map: Record<
+      string,
+      { modality: string; total: number; critical: number; waitSum: number }
+    > = {};
+    filteredExams.forEach((e) => {
+      const m = e.modality || t("worklistPage.other");
+      const info = getSLAInfo(e);
+      const slot = map[m] ?? { modality: m, total: 0, critical: 0, waitSum: 0 };
+      slot.total += 1;
+      slot.waitSum += info.elapsedMinutes;
+      if (info.status !== "normal") slot.critical += 1;
+      map[m] = slot;
+    });
     return Object.values(map)
-      .map(s => ({ modality: s.modality, total: s.total, critical: s.critical, avgWait: s.total > 0 ? Math.round(s.waitSum / s.total) : 0 }))
+      .map((s) => ({
+        modality: s.modality,
+        total: s.total,
+        critical: s.critical,
+        avgWait: s.total > 0 ? Math.round(s.waitSum / s.total) : 0,
+      }))
       .sort((a, b) => b.total - a.total)
-      .slice(0, 6)
-  }, [filteredExams])
+      .slice(0, 6);
+  }, [filteredExams]);
 
   // ---- B6. 今日小时分布 (按 createdTime 小时聚合) ----
   const todayHourly = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10)
-    const hours: Array<{ hour: string; count: number }> = []
+    const today = new Date().toISOString().slice(0, 10);
+    const hours: Array<{ hour: string; count: number }> = [];
     for (let h = 7; h <= 20; h += 1) {
-      hours.push({ hour: `${h}时`, count: 0 })
+      hours.push({ hour: `${h}时`, count: 0 });
     }
-    exams.forEach(e => {
-      if ((e.examDate || '').slice(0, 10) !== today) return
-      const t = e.createdTime ? new Date(e.createdTime).getHours() : -1
+    exams.forEach((e) => {
+      if ((e.examDate || "").slice(0, 10) !== today) return;
+      const t = e.createdTime ? new Date(e.createdTime).getHours() : -1;
       if (t >= 7 && t <= 20) {
-        const slot = hours[t - 7]
-        if (slot) slot.count += 1
+        const slot = hours[t - 7];
+        if (slot) slot.count += 1;
       }
-    })
-    const peak = hours.reduce((best, h) => (h.count > best.count ? h : best), hours[0] ?? { hour: '-', count: 0 })
-    return { hours, peakHour: peak.hour, peakCount: peak.count }
-  }, [exams])
+    });
+    const peak = hours.reduce(
+      (best, h) => (h.count > best.count ? h : best),
+      hours[0] ?? { hour: "-", count: 0 },
+    );
+    return { hours, peakHour: peak.hour, peakCount: peak.count };
+  }, [exams]);
 
   const resetFilters = () => {
     const today = new Date();
     const sevenDaysAgo = new Date(today.getTime() - 7 * 86400000);
     setFilters({
-      search: '',
-      dateStart: sevenDaysAgo.toISOString().split('T')[0] ?? '',
-      dateEnd: today.toISOString().split('T')[0] ?? '',
+      search: "",
+      dateStart: sevenDaysAgo.toISOString().split("T")[0] ?? "",
+      dateEnd: today.toISOString().split("T")[0] ?? "",
       modalities: [],
       patientTypes: [],
       priorities: [],
       statuses: [],
-      doctorId: '',
-    })
-  }
-
+      doctorId: "",
+    });
+  };
 
   const clearSelection = () => {
-    setSelectedIds(new Set())
-  }
+    setSelectedIds(new Set());
+  };
 
   const resetBatchSelection = () => {
-    clearSelection()
+    clearSelection();
     setBatch({
       selectedIds: new Set(),
       operation: null,
-      priorityValue: '普通',
-      roomValue: '',
-    })
-  }
+      priorityValue: "普通",
+      roomValue: "",
+    });
+  };
 
   // ============================================================
   // 批量操作 (改优先级/分配检查室) → 真实后端调用 + 列表刷新
@@ -1117,85 +1858,130 @@ export default function WorklistPage() {
   //   - print/export: 保留原前端行为 (打印预览 / 模拟导出)
   // ============================================================
   const executeBatchOperation = async () => {
-    if (selectedIds.size === 0) return
-    const action = batch.operation || 'print'
-    const ids = Array.from(selectedIds)
+    if (selectedIds.size === 0) return;
+    const action = batch.operation || "print";
+    const ids = Array.from(selectedIds);
     const actionLabels: Record<string, string> = {
-      priority: t('worklistPage.actionLabel.priority', { value: batch.priorityValue }),
-      room: t('worklistPage.actionLabel.room', { name: initialExamRooms.find(r => r.id === batch.roomValue)?.name || '-' }),
-      print: t('worklistPage.actionLabel.print'),
-      export: t('worklistPage.actionLabel.export'),
-    }
+      priority: t("worklistPage.actionLabel.priority", {
+        value: batch.priorityValue,
+      }),
+      room: t("worklistPage.actionLabel.room", {
+        name:
+          initialExamRooms.find((r) => r.id === batch.roomValue)?.name || "-",
+      }),
+      print: t("worklistPage.actionLabel.print"),
+      export: t("worklistPage.actionLabel.export"),
+    };
 
-    if (action === 'print') {
-      setPrintPreviewModalData({ open: true, examIds: ids })
-      resetBatchSelection()
-      return
+    if (action === "print") {
+      setPrintPreviewModalData({ open: true, examIds: ids });
+      resetBatchSelection();
+      return;
     }
-    if (action === 'export') {
-      recordBatchActivity(t('worklistPage.actionLabel.export'), ids.length, 'local')
+    if (action === "export") {
+      recordBatchActivity(
+        t("worklistPage.actionLabel.export"),
+        ids.length,
+        "local",
+      );
       setBatchResultModalData({
         open: true,
         action: actionLabels[action] || action,
         count: ids.length,
-        results: [t('worklistPage.batchExecuted', { count: ids.length, action: actionLabels[action] || action })],
-      })
-      resetBatchSelection()
-      return
+        results: [
+          t("worklistPage.batchExecuted", {
+            count: ids.length,
+            action: actionLabels[action] || action,
+          }),
+        ],
+      });
+      resetBatchSelection();
+      return;
     }
 
     // 真实批量操作 (priority / room)
-    const results: string[] = []
-    let okCount = 0
-    let failCount = 0
+    const results: string[] = [];
+    let okCount = 0;
+    let failCount = 0;
     try {
-      if (action === 'room') {
-        recordBatchActivity(t('worklistPage.actionLabel.roomAssign'), ids.length, 'api')
+      if (action === "room") {
+        recordBatchActivity(
+          t("worklistPage.actionLabel.roomAssign"),
+          ids.length,
+          "api",
+        );
         // [W4] 后端 AssignBodySchema 仅接受 doctorId/deviceId (roomId 不被接受, 之前也被 zod 剥离)
-        const res = await worklistApi.batchAssign(ids, {})
+        const res = await worklistApi.batchAssign(ids, {});
         if (res.success) {
-          okCount = Number((res.data as { updated?: number } | null)?.updated ?? ids.length)
-          results.push(t('worklistPage.roomAssigned'))
-          ids.forEach(id => log('batch_assign_room', id, { roomId: batch.roomValue }))
+          okCount = Number(
+            (res.data as { updated?: number } | null)?.updated ?? ids.length,
+          );
+          results.push(t("worklistPage.roomAssigned"));
+          ids.forEach((id) =>
+            log("batch_assign_room", id, { roomId: batch.roomValue }),
+          );
         } else {
-          failCount = ids.length
-          results.push(res.error?.message ?? t('worklistPage.roomAssignFailed'))
+          failCount = ids.length;
+          results.push(
+            res.error?.message ?? t("worklistPage.roomAssignFailed"),
+          );
         }
       } else {
-        recordBatchActivity(t('worklistPage.actionLabel.priorityChange'), ids.length, 'api')
+        recordBatchActivity(
+          t("worklistPage.actionLabel.priorityChange"),
+          ids.length,
+          "api",
+        );
         for (const id of ids) {
           try {
-            const res = await worklistApi.updatePriority(id, batch.priorityValue)
+            const res = await worklistApi.updatePriority(
+              id,
+              batch.priorityValue,
+            );
             if (res.success) {
-              okCount += 1
-              log('batch_update_priority', id, { priority: batch.priorityValue })
+              okCount += 1;
+              log("batch_update_priority", id, {
+                priority: batch.priorityValue,
+              });
             } else {
-              failCount += 1
-              results.push(`${id}: ${res.error?.message ?? t('worklistPage.failed')}`)
+              failCount += 1;
+              results.push(
+                `${id}: ${res.error?.message ?? t("worklistPage.failed")}`,
+              );
             }
           } catch (err) {
-            failCount += 1
-            results.push(`${id}: ${err instanceof Error ? err.message : t('worklistPage.failed')}`)
+            failCount += 1;
+            results.push(
+              `${id}: ${err instanceof Error ? err.message : t("worklistPage.failed")}`,
+            );
           }
         }
       }
     } catch (err) {
-      failCount = ids.length
-      results.push(err instanceof Error ? err.message : t('worklistPage.batchFailed'))
+      failCount = ids.length;
+      results.push(
+        err instanceof Error ? err.message : t("worklistPage.batchFailed"),
+      );
     }
 
-    await refreshAfterMutation()
+    await refreshAfterMutation();
     setBatchResultModalData({
       open: true,
       action: actionLabels[action] || action,
       count: ids.length,
       results: [
-        t('worklistPage.batchSuccessRefreshed', { ok: okCount, failSuffix: failCount > 0 ? t('worklistPage.batchFailSuffix', { fail: failCount }) : '' }),
+        t("worklistPage.batchSuccessRefreshed", {
+          ok: okCount,
+          failSuffix:
+            failCount > 0
+              ? t("worklistPage.batchFailSuffix", { fail: failCount })
+              : "",
+        }),
         ...results.slice(0, 20),
       ],
-    })
-    resetBatchSelection()
-  }
+    });
+    resetBatchSelection();
+  };
 
   // ============================================================
   // 批量操作 (签到 / 开始 / 完成 / 取消) → 真实后端调用
@@ -1203,427 +1989,609 @@ export default function WorklistPage() {
   //   POST /worklist/batch-checkin|start|complete { ids[] } → { succeeded[], failed[] }
   //   取消无批量端点, 保留逐条
   // ============================================================
-  const runBatchApiAction = useCallback(async (action: string, ids: string[]) => {
-    const results: string[] = []
-    let okCount = 0
-    let failCount = 0
-    const labels: Record<string, string> = {
-      assign: t('worklistPage.batch.assign'),
-      start: t('worklistPage.batch.start'),
-      complete: t('worklistPage.batch.complete'),
-      cancel: t('worklistPage.batch.cancel'),
-    }
-    try {
-      if (action === 'assign' || action === 'start' || action === 'complete') {
-        const batch = action === 'assign'
-          ? await worklistApi.batchCheckIn(ids)
-          : action === 'start'
-            ? await worklistApi.batchStart(ids)
-            : await worklistApi.batchComplete(ids)
-        if (batch.success) {
-          const data = (batch.data ?? { succeeded: [], failed: [] }) as { succeeded?: Array<{ id: string }>; failed?: Array<{ id: string; message: string }> }
-          okCount = data.succeeded?.length ?? 0
-          failCount = data.failed?.length ?? 0
-          ;(data.failed ?? []).slice(0, 20).forEach(f => results.push(`${f.id}: ${f.message}`))
-          ;(data.succeeded ?? []).forEach(s => log(action, s.id))
+  const runBatchApiAction = useCallback(
+    async (action: string, ids: string[]) => {
+      const results: string[] = [];
+      let okCount = 0;
+      let failCount = 0;
+      const labels: Record<string, string> = {
+        assign: t("worklistPage.batch.assign"),
+        start: t("worklistPage.batch.start"),
+        complete: t("worklistPage.batch.complete"),
+        cancel: t("worklistPage.batch.cancel"),
+      };
+      try {
+        if (
+          action === "assign" ||
+          action === "start" ||
+          action === "complete"
+        ) {
+          const batch =
+            action === "assign"
+              ? await worklistApi.batchCheckIn(ids)
+              : action === "start"
+                ? await worklistApi.batchStart(ids)
+                : await worklistApi.batchComplete(ids);
+          if (batch.success) {
+            const data = (batch.data ?? { succeeded: [], failed: [] }) as {
+              succeeded?: Array<{ id: string }>;
+              failed?: Array<{ id: string; message: string }>;
+            };
+            okCount = data.succeeded?.length ?? 0;
+            failCount = data.failed?.length ?? 0;
+            (data.failed ?? [])
+              .slice(0, 20)
+              .forEach((f) => results.push(`${f.id}: ${f.message}`));
+            (data.succeeded ?? []).forEach((s) => log(action, s.id));
+          } else {
+            failCount = ids.length;
+            results.push(
+              batch.error?.message ??
+                t("worklistPage.batchActionFailed", {
+                  action: labels[action] ?? action,
+                }),
+            );
+          }
         } else {
-          failCount = ids.length
-          results.push(batch.error?.message ?? t('worklistPage.batchActionFailed', { action: labels[action] ?? action }))
-        }
-      } else {
-        for (const id of ids) {
-          let res: { success: boolean; error?: { message?: string } }
-          try {
-            res = await examApi.cancel(id, t('worklistPage.batch.cancel'))
-            if (res.success) {
-              okCount += 1
-              log(action, id)
-            } else {
-              failCount += 1
-              results.push(`${id}: ${res.error?.message ?? t('worklistPage.failed')}`)
+          for (const id of ids) {
+            let res: { success: boolean; error?: { message?: string } };
+            try {
+              res = await examApi.cancel(id, t("worklistPage.batch.cancel"));
+              if (res.success) {
+                okCount += 1;
+                log(action, id);
+              } else {
+                failCount += 1;
+                results.push(
+                  `${id}: ${res.error?.message ?? t("worklistPage.failed")}`,
+                );
+              }
+            } catch (err) {
+              failCount += 1;
+              results.push(
+                `${id}: ${err instanceof Error ? err.message : t("worklistPage.failed")}`,
+              );
             }
-          } catch (err) {
-            failCount += 1
-            results.push(`${id}: ${err instanceof Error ? err.message : t('worklistPage.failed')}`)
           }
         }
+      } catch (err) {
+        failCount = ids.length;
+        results.push(
+          err instanceof Error
+            ? err.message
+            : t("worklistPage.batchActionFailed", {
+                action: labels[action] ?? action,
+              }),
+        );
       }
-    } catch (err) {
-      failCount = ids.length
-      results.push(err instanceof Error ? err.message : t('worklistPage.batchActionFailed', { action: labels[action] ?? action }))
-    }
-    await refreshAfterMutation()
-    setBatchResultModalData({
-      open: true,
-      action: labels[action] ?? action,
-      count: ids.length,
-      results: [
-        t('worklistPage.batchSuccessSimple', { ok: okCount, failSuffix: failCount > 0 ? t('worklistPage.batchFailSuffix', { fail: failCount }) : '' }),
-        ...results.slice(0, 20),
-      ],
-    })
-    clearSelection()
-    setBatch({
-      selectedIds: new Set(),
-      operation: null,
-      priorityValue: '普通',
-      roomValue: '',
-    })
-  }, [log, refreshAfterMutation])
+      await refreshAfterMutation();
+      setBatchResultModalData({
+        open: true,
+        action: labels[action] ?? action,
+        count: ids.length,
+        results: [
+          t("worklistPage.batchSuccessSimple", {
+            ok: okCount,
+            failSuffix:
+              failCount > 0
+                ? t("worklistPage.batchFailSuffix", { fail: failCount })
+                : "",
+          }),
+          ...results.slice(0, 20),
+        ],
+      });
+      clearSelection();
+      setBatch({
+        selectedIds: new Set(),
+        operation: null,
+        priorityValue: "普通",
+        roomValue: "",
+      });
+    },
+    [log, refreshAfterMutation],
+  );
 
-  const handleBatchAction = useCallback((action: string) => {
-    if (selectedIds.size === 0) return
-    const ids = Array.from(selectedIds)
-    recordBatchActivity(action, ids.length, 'api')
-    void runBatchApiAction(action, ids)
-  }, [selectedIds, runBatchApiAction, recordBatchActivity])
+  const handleBatchAction = useCallback(
+    (action: string) => {
+      if (selectedIds.size === 0) return;
+      const ids = Array.from(selectedIds);
+      recordBatchActivity(action, ids.length, "api");
+      void runBatchApiAction(action, ids);
+    },
+    [selectedIds, runBatchApiAction, recordBatchActivity],
+  );
 
-  const batchActionQuick = useCallback((action: string) => {
-    if (selectedIds.size === 0) {
-      setConfirmModalConfig({ open: true, title: t('worklistPage.msg.tip'), message: t('worklistPage.msg.selectForBatch'), onConfirm: () => setConfirmModalConfig(null) })
-      return
-    }
-    handleBatchAction(action)
-  }, [selectedIds, handleBatchAction])
+  const batchActionQuick = useCallback(
+    (action: string) => {
+      if (selectedIds.size === 0) {
+        setConfirmModalConfig({
+          open: true,
+          title: t("worklistPage.msg.tip"),
+          message: t("worklistPage.msg.selectForBatch"),
+          onConfirm: () => setConfirmModalConfig(null),
+        });
+        return;
+      }
+      handleBatchAction(action);
+    },
+    [selectedIds, handleBatchAction],
+  );
 
   // ============================================================
   // 修改患者信息 → patientApi.update (后端 PATCH /patients/:id)
   // ============================================================
-  const genderToEn = (g: string): string => (g === '男' ? 'MALE' : g === '女' ? 'FEMALE' : 'OTHER')
+  const genderToEn = (g: string): string =>
+    g === "男" ? "MALE" : g === "女" ? "FEMALE" : "OTHER";
   const typeToEn = (t: string): string =>
-    t === '住院' ? 'INPATIENT' : t === '急诊' ? 'EMERGENCY' : t === '体检' ? 'PHYSICAL' : 'OUTPATIENT'
+    t === "住院"
+      ? "INPATIENT"
+      : t === "急诊"
+        ? "EMERGENCY"
+        : t === "体检"
+          ? "PHYSICAL"
+          : "OUTPATIENT";
 
   const savePatientInfo = async () => {
-    const exam = patientInfoModalExam
-    if (!exam || !patientForm) return
-    setSavingPatientInfo(true)
+    const exam = patientInfoModalExam;
+    if (!exam || !patientForm) return;
+    setSavingPatientInfo(true);
     try {
       const payload: Record<string, string> = {
         name: patientForm.name,
         gender: genderToEn(patientForm.gender),
         type: typeToEn(patientForm.patientType),
-      }
-      let res = await patientApi.update(exam.patientId, payload)
+      };
+      let res = await patientApi.update(exam.patientId, payload);
       if (!res.success) {
         // mock 兜底: mock 后端仅提供 PUT /patients/:id
-        res = await api.put(`/patients/${exam.patientId}`, payload)
+        res = await api.put(`/patients/${exam.patientId}`, payload);
       }
       if (res.success) {
-        setExams(prev => prev.map(e => e.id === exam.id ? {
-          ...e,
-          patientName: patientForm.name,
-          gender: patientForm.gender as RadiologyExam['gender'],
-          age: Number(patientForm.age) || e.age,
-          patientType: patientForm.patientType as RadiologyExam['patientType'],
-        } : e))
-        setPatientInfoModalExam(null)
-        setPatientForm(null)
-        log('edit_patient_info', exam.id)
-        void refreshAfterMutation()
+        setExams((prev) =>
+          prev.map((e) =>
+            e.id === exam.id
+              ? {
+                  ...e,
+                  patientName: patientForm.name,
+                  gender: patientForm.gender as RadiologyExam["gender"],
+                  age: Number(patientForm.age) || e.age,
+                  patientType:
+                    patientForm.patientType as RadiologyExam["patientType"],
+                }
+              : e,
+          ),
+        );
+        setPatientInfoModalExam(null);
+        setPatientForm(null);
+        log("edit_patient_info", exam.id);
+        void refreshAfterMutation();
       } else {
         setConfirmModalConfig({
           open: true,
-          title: t('worklistPage.msg.saveFailed'),
-          message: res.error?.message ?? t('worklistPage.msg.editPatientFailed'),
+          title: t("worklistPage.msg.saveFailed"),
+          message:
+            res.error?.message ?? t("worklistPage.msg.editPatientFailed"),
           onConfirm: () => setConfirmModalConfig(null),
-        })
+        });
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: t('worklistPage.msg.saveFailed'),
-        message: err instanceof Error ? err.message : t('worklistPage.msg.editPatientFailed'),
+        title: t("worklistPage.msg.saveFailed"),
+        message:
+          err instanceof Error
+            ? err.message
+            : t("worklistPage.msg.editPatientFailed"),
         onConfirm: () => setConfirmModalConfig(null),
-      })
+      });
     } finally {
-      setSavingPatientInfo(false)
+      setSavingPatientInfo(false);
     }
-  }
+  };
 
   // ============================================================
   // 分配设备 → examApi.update(deviceId) (后端 PATCH /exams/:id)
   // ============================================================
   const assignDevice = async (exam: RadiologyExam, deviceId: string) => {
     try {
-      let res = await examApi.update(exam.id, { deviceId })
+      let res = await examApi.update(exam.id, { deviceId });
       if (!res.success) {
-        const fb = await api.put<ExamDto>(`/worklist/${exam.id}`, { deviceId })
-        res = fb
+        const fb = await api.put<ExamDto>(`/worklist/${exam.id}`, { deviceId });
+        res = fb;
       }
       if (res.success) {
-        setExams(prev => prev.map(e => e.id === exam.id ? {
-          ...e,
-          deviceId,
-          deviceName: initialModalityDevices.find(d => d.id === deviceId)?.name ?? e.deviceName,
-        } : e))
-        setDeviceSelectModalExam(null)
-        log('assign_device', exam.id, { deviceId })
-        void refreshAfterMutation()
+        setExams((prev) =>
+          prev.map((e) =>
+            e.id === exam.id
+              ? {
+                  ...e,
+                  deviceId,
+                  deviceName:
+                    initialModalityDevices.find((d) => d.id === deviceId)
+                      ?.name ?? e.deviceName,
+                }
+              : e,
+          ),
+        );
+        setDeviceSelectModalExam(null);
+        log("assign_device", exam.id, { deviceId });
+        void refreshAfterMutation();
       } else {
         setConfirmModalConfig({
           open: true,
-          title: t('worklistPage.msg.operationFailed'),
-          message: res.error?.message ?? t('worklistPage.msg.assignDeviceFailed'),
+          title: t("worklistPage.msg.operationFailed"),
+          message:
+            res.error?.message ?? t("worklistPage.msg.assignDeviceFailed"),
           onConfirm: () => setConfirmModalConfig(null),
-        })
+        });
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: t('worklistPage.msg.operationFailed'),
-        message: err instanceof Error ? err.message : t('worklistPage.msg.assignDeviceFailed'),
+        title: t("worklistPage.msg.operationFailed"),
+        message:
+          err instanceof Error
+            ? err.message
+            : t("worklistPage.msg.assignDeviceFailed"),
         onConfirm: () => setConfirmModalConfig(null),
-      })
+      });
     }
-  }
+  };
 
   // ============================================================
   // 分配报告医生/技师 → worklistApi.assign (后端 POST /worklist/:id/assign)
   // ============================================================
   const assignDoctor = async (exam: RadiologyExam, doctorId: string) => {
     try {
-      const res = await worklistApi.assign(exam.id, { doctorId })
+      const res = await worklistApi.assign(exam.id, { doctorId });
       if (res.success) {
-        const doctor = doctorOptions.find(d => d.id === doctorId)
-        setExams(prev => prev.map(e => e.id === exam.id ? {
-          ...e,
-          radiologistId: doctorId,
-          radiologistName: doctor?.name ?? e.radiologistName,
-        } : e))
-        setDoctorSelectModalExam(null)
-        log('assign_doctor', exam.id, { doctorId })
-        void refreshAfterMutation()
+        const doctor = doctorOptions.find((d) => d.id === doctorId);
+        setExams((prev) =>
+          prev.map((e) =>
+            e.id === exam.id
+              ? {
+                  ...e,
+                  radiologistId: doctorId,
+                  radiologistName: doctor?.name ?? e.radiologistName,
+                }
+              : e,
+          ),
+        );
+        setDoctorSelectModalExam(null);
+        log("assign_doctor", exam.id, { doctorId });
+        void refreshAfterMutation();
       } else {
         setConfirmModalConfig({
           open: true,
-          title: t('worklistPage.msg.operationFailed'),
-          message: res.error?.message ?? t('worklistPage.msg.assignDoctorFailed'),
+          title: t("worklistPage.msg.operationFailed"),
+          message:
+            res.error?.message ?? t("worklistPage.msg.assignDoctorFailed"),
           onConfirm: () => setConfirmModalConfig(null),
-        })
+        });
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: t('worklistPage.msg.operationFailed'),
-        message: err instanceof Error ? err.message : t('worklistPage.msg.assignDoctorFailed'),
+        title: t("worklistPage.msg.operationFailed"),
+        message:
+          err instanceof Error
+            ? err.message
+            : t("worklistPage.msg.assignDoctorFailed"),
         onConfirm: () => setConfirmModalConfig(null),
-      })
+      });
     }
-  }
+  };
 
   // 危急值跳转 → /critical-value?search=患者名&patientId=&examId=
-  const handleCriticalValueClick = useCallback((exam: RadiologyExam) => {
-    const params = new URLSearchParams()
-    if (exam.patientName) params.set('search', exam.patientName)
-    if (exam.patientId) params.set('patientId', exam.patientId)
-    if (exam.id) params.set('examId', exam.id)
-    if (exam.accessionNumber) params.set('accessionNumber', exam.accessionNumber)
-    log('critical_value_jump', exam.id)
-    window.location.href = `/critical-value?${params.toString()}`
-  }, [log])
+  const handleCriticalValueClick = useCallback(
+    (exam: RadiologyExam) => {
+      const params = new URLSearchParams();
+      if (exam.patientName) params.set("search", exam.patientName);
+      if (exam.patientId) params.set("patientId", exam.patientId);
+      if (exam.id) params.set("examId", exam.id);
+      if (exam.accessionNumber)
+        params.set("accessionNumber", exam.accessionNumber);
+      log("critical_value_jump", exam.id);
+      window.location.href = `/critical-value?${params.toString()}`;
+    },
+    [log],
+  );
 
   // ============================================================
   // 提交报告 → reportApi.create (后端 POST /reports)
   // ============================================================
   const submitReport = async () => {
-    const exam = reportModalExam
-    if (!exam || !reportForm) return
-    setSubmittingReport(true)
+    const exam = reportModalExam;
+    if (!exam || !reportForm) return;
+    setSubmittingReport(true);
     try {
       const payload: Partial<ReportDto> & { conclusion?: string } = {
         patientId: exam.patientId,
         examId: exam.id,
         findings: reportForm.findings,
         conclusion: reportForm.conclusion,
-      }
-      const res = await reportApi.create(payload)
+      };
+      const res = await reportApi.create(payload);
       if (res.success) {
-        setReportModalExam(null)
-        setReportForm(null)
-        log('submit_report', exam.id)
-        void refreshAfterMutation()
+        setReportModalExam(null);
+        setReportForm(null);
+        log("submit_report", exam.id);
+        void refreshAfterMutation();
       } else {
         setConfirmModalConfig({
           open: true,
-          title: t('worklistPage.msg.operationFailed'),
-          message: res.error?.message ?? t('worklistPage.msg.submitFailed'),
+          title: t("worklistPage.msg.operationFailed"),
+          message: res.error?.message ?? t("worklistPage.msg.submitFailed"),
           onConfirm: () => setConfirmModalConfig(null),
-        })
+        });
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: t('worklistPage.msg.operationFailed'),
-        message: err instanceof Error ? err.message : t('worklistPage.msg.submitFailed'),
+        title: t("worklistPage.msg.operationFailed"),
+        message:
+          err instanceof Error
+            ? err.message
+            : t("worklistPage.msg.submitFailed"),
         onConfirm: () => setConfirmModalConfig(null),
-      })
+      });
     } finally {
-      setSubmittingReport(false)
+      setSubmittingReport(false);
     }
-  }
+  };
 
   const handleRefresh = () => {
-    const btn = document.activeElement as HTMLButtonElement | null
+    const btn = document.activeElement as HTMLButtonElement | null;
     if (btn) {
-      btn.style.opacity = '0.7'
-      btn.disabled = true
+      btn.style.opacity = "0.7";
+      btn.disabled = true;
       setTimeout(() => {
-        btn.style.opacity = '1'
-        btn.disabled = false
-      }, 1000)
+        btn.style.opacity = "1";
+        btn.disabled = false;
+      }, 1000);
     }
-    setLoading(true)
-    void fetchOnce()
-  }
+    setLoading(true);
+    void fetchOnce();
+  };
 
   const handlePrintSelected = () => {
     if (selectedIds.size === 0) {
       setConfirmModalConfig({
         open: true,
-        title: t('worklistPage.msg.tip'),
-        message: t('worklistPage.msg.selectPrintReports'),
-        onConfirm: () => setConfirmModalConfig(null)
-      })
-      return
+        title: t("worklistPage.msg.tip"),
+        message: t("worklistPage.msg.selectPrintReports"),
+        onConfirm: () => setConfirmModalConfig(null),
+      });
+      return;
     }
     setPrintPreviewModalData({
       open: true,
-      examIds: Array.from(selectedIds)
-    })
-  }
+      examIds: Array.from(selectedIds),
+    });
+  };
 
-  const ViewModeButton = ({ mode, icon, label }: { mode: ViewMode; icon: React.ReactNode; label: React.ReactNode }) => (
+  const ViewModeButton = ({
+    mode,
+    icon,
+    label,
+  }: {
+    mode: ViewMode;
+    icon: React.ReactNode;
+    label: React.ReactNode;
+  }) => (
     <AppButton
       variant={viewMode === mode ? "primary" : "default"}
       size="compact"
       onClick={() => setViewMode(mode)}
-      style={viewMode === mode ? undefined : { color: 'var(--text-secondary)' }}
+      style={viewMode === mode ? undefined : { color: "var(--text-secondary)" }}
     >
       {icon}
       {label}
     </AppButton>
-  )
+  );
 
   // ============================================================
   // 单条真实操作: 开始 / 取消 / 看板拖拽转移
   // ============================================================
-  const transitionExamTo = useCallback(async (exam: RadiologyExam, target: string, opts?: { skipTimeout?: boolean }) => {
-    const from = normalizeExamStatus(exam.status)
-    if (from === target) return
-    // [W6] 检查前核对 (Time-Out) 门禁: 后端要求 timeoutVerified=true 才能 start
-    if (target === 'IN_PROGRESS' && !opts?.skipTimeout && exam.timeoutVerified === false) {
-      setTimeoutExam(exam)
-      return
-    }
-    let res: { success: boolean; error?: { message?: string } }
-    try {
-      if (target === 'ARRIVED') {
-        res = await examApi.checkIn(exam.id)
-      } else if (target === 'IN_PROGRESS') {
-        res = await examApi.start(exam.id)
-      } else if (target === 'COMPLETED') {
-        res = await examApi.complete(exam.id)
-      } else if (target === 'CANCELLED') {
-        res = await examApi.cancel(exam.id, '看板拖拽取消')
-      } else {
-        return
+  const transitionExamTo = useCallback(
+    async (
+      exam: RadiologyExam,
+      target: string,
+      opts?: { skipTimeout?: boolean },
+    ) => {
+      const from = normalizeExamStatus(exam.status);
+      if (from === target) return;
+      // [W6] 检查前核对 (Time-Out) 门禁: 后端要求 timeoutVerified=true 才能 start
+      if (
+        target === "IN_PROGRESS" &&
+        !opts?.skipTimeout &&
+        exam.timeoutVerified === false
+      ) {
+        setTimeoutExam(exam);
+        return;
       }
-      if (res.success) {
-        log(`status_${target.toLowerCase()}`, exam.id, { from })
-        void refreshAfterMutation()
-      } else if (target === 'IN_PROGRESS' && (res.error?.message ?? '').includes('TIMEOUT_NOT_VERIFIED')) {
-        // [W6] 后端门禁兜底: 未核对时弹 Time-Out 弹窗
-        setTimeoutExam(exam)
-      } else {
+      let res: { success: boolean; error?: { message?: string } };
+      try {
+        if (target === "ARRIVED") {
+          res = await examApi.checkIn(exam.id);
+        } else if (target === "IN_PROGRESS") {
+          res = await examApi.start(exam.id);
+        } else if (target === "COMPLETED") {
+          res = await examApi.complete(exam.id);
+        } else if (target === "CANCELLED") {
+          res = await examApi.cancel(exam.id, "看板拖拽取消");
+        } else {
+          return;
+        }
+        if (res.success) {
+          log(`status_${target.toLowerCase()}`, exam.id, { from });
+          void refreshAfterMutation();
+        } else if (
+          target === "IN_PROGRESS" &&
+          (res.error?.message ?? "").includes("TIMEOUT_NOT_VERIFIED")
+        ) {
+          // [W6] 后端门禁兜底: 未核对时弹 Time-Out 弹窗
+          setTimeoutExam(exam);
+        } else {
+          setConfirmModalConfig({
+            open: true,
+            title: t("worklistPage.msg.operationFailed"),
+            message:
+              res.error?.message ??
+              t("worklistPage.cannotSwitchStatus", {
+                status: EXAM_STATUS_TO_CN[target] ?? target,
+              }),
+            onConfirm: () => setConfirmModalConfig(null),
+          });
+          void refreshAfterMutation();
+        }
+      } catch (err) {
         setConfirmModalConfig({
           open: true,
-          title: t('worklistPage.msg.operationFailed'),
-          message: res.error?.message ?? t('worklistPage.cannotSwitchStatus', { status: EXAM_STATUS_TO_CN[target] ?? target }),
+          title: t("worklistPage.msg.operationFailed"),
+          message:
+            err instanceof Error
+              ? err.message
+              : t("worklistPage.msg.statusSwitchFailed"),
           onConfirm: () => setConfirmModalConfig(null),
-        })
-        void refreshAfterMutation()
+        });
+        void refreshAfterMutation();
       }
-    } catch (err) {
+    },
+    [log, refreshAfterMutation],
+  );
+
+  const handleStartExam = useCallback(
+    (exam: RadiologyExam) => {
       setConfirmModalConfig({
         open: true,
-        title: t('worklistPage.msg.operationFailed'),
-        message: err instanceof Error ? err.message : t('worklistPage.msg.statusSwitchFailed'),
-        onConfirm: () => setConfirmModalConfig(null),
-      })
-      void refreshAfterMutation()
-    }
-  }, [log, refreshAfterMutation])
-
-  const handleStartExam = useCallback((exam: RadiologyExam) => {
-    setConfirmModalConfig({
-      open: true,
-      title: t('worklistPage.msg.startExam'),
-      message: t('worklistPage.confirmStart', { patient: exam.patientName, exam: exam.examItemName }),
-      onConfirm: () => {
-        replayExamActorTo(exam, { type: 'START_EXAM', by: exam.technologistId ?? 'system', technologistId: exam.technologistId ?? 'system', imagesAcquired: 0 })
-        setConfirmModalConfig(null)
-        void transitionExamTo(exam, 'IN_PROGRESS')
-      }
-    })
-  }, [transitionExamTo])
+        title: t("worklistPage.msg.startExam"),
+        message: t("worklistPage.confirmStart", {
+          patient: exam.patientName,
+          exam: exam.examItemName,
+        }),
+        onConfirm: () => {
+          replayExamActorTo(exam, {
+            type: "START_EXAM",
+            by: exam.technologistId ?? "system",
+            technologistId: exam.technologistId ?? "system",
+            imagesAcquired: 0,
+          });
+          setConfirmModalConfig(null);
+          void transitionExamTo(exam, "IN_PROGRESS");
+        },
+      });
+    },
+    [transitionExamTo],
+  );
 
   // [W6] Time-Out 核对通过 → 以已核对状态重新发起开始检查
   const handleTimeoutVerified = useCallback(() => {
-    const target = timeoutExam
-    setTimeoutExam(null)
-    if (target) void transitionExamTo(target, 'IN_PROGRESS', { skipTimeout: true })
-  }, [timeoutExam, transitionExamTo])
+    const target = timeoutExam;
+    setTimeoutExam(null);
+    if (target)
+      void transitionExamTo(target, "IN_PROGRESS", { skipTimeout: true });
+  }, [timeoutExam, transitionExamTo]);
 
-  const handleCancelExam = useCallback((exam: RadiologyExam) => {
-    setConfirmModalConfig({
-      open: true,
-      title: t('worklistPage.msg.cancelExam'),
-      message: t('worklistPage.confirmCancel', { patient: exam.patientName }),
-      variant: 'danger',
-      onConfirm: () => {
-        replayExamActorTo(exam, { type: 'CANCEL', reason: t('worklistPage.techCancel'), by: exam.technologistId ?? 'system', imagesAcquired: 0 })
-        setConfirmModalConfig(null)
-        void transitionExamTo(exam, 'CANCELLED')
-      }
-    })
-  }, [transitionExamTo])
+  const handleCancelExam = useCallback(
+    (exam: RadiologyExam) => {
+      setConfirmModalConfig({
+        open: true,
+        title: t("worklistPage.msg.cancelExam"),
+        message: t("worklistPage.confirmCancel", { patient: exam.patientName }),
+        variant: "danger",
+        onConfirm: () => {
+          replayExamActorTo(exam, {
+            type: "CANCEL",
+            reason: t("worklistPage.techCancel"),
+            by: exam.technologistId ?? "system",
+            imagesAcquired: 0,
+          });
+          setConfirmModalConfig(null);
+          void transitionExamTo(exam, "CANCELLED");
+        },
+      });
+    },
+    [transitionExamTo],
+  );
 
   // 批量操作 (走真实 API)
-  const logBatchAction = useCallback((action: string) => {
-    handleBatchAction(action)
-  }, [handleBatchAction])
+  const logBatchAction = useCallback(
+    (action: string) => {
+      handleBatchAction(action);
+    },
+    [handleBatchAction],
+  );
 
   // Enhanced batch actions
   const enhancedBatchActions = [
-    { key: 'assign', label: t('worklistPage.batch.signin'), icon: <UserCheck size={14} />, confirm: t('worklistPage.batch.confirmSignin') },
-    { key: 'start', label: t('worklistPage.batch.start'), icon: <Play size={14} />, confirm: t('worklistPage.batch.confirmStart') },
-    { key: 'complete', label: t('worklistPage.batch.complete'), icon: <CheckCircle size={14} />, confirm: t('worklistPage.batch.confirmComplete') },
-    { key: 'cancel', label: t('worklistPage.batch.cancel'), icon: <X size={14} />, confirm: t('worklistPage.batch.confirmCancel') },
-  ]
+    {
+      key: "assign",
+      label: t("worklistPage.batch.signin"),
+      icon: <UserCheck size={14} />,
+      confirm: t("worklistPage.batch.confirmSignin"),
+    },
+    {
+      key: "start",
+      label: t("worklistPage.batch.start"),
+      icon: <Play size={14} />,
+      confirm: t("worklistPage.batch.confirmStart"),
+    },
+    {
+      key: "complete",
+      label: t("worklistPage.batch.complete"),
+      icon: <CheckCircle size={14} />,
+      confirm: t("worklistPage.batch.confirmComplete"),
+    },
+    {
+      key: "cancel",
+      label: t("worklistPage.batch.cancel"),
+      icon: <X size={14} />,
+      confirm: t("worklistPage.batch.confirmCancel"),
+    },
+  ];
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
     SHORTCUTS.REFRESH(() => handleRefresh()),
     SHORTCUTS.SUBMIT(() => {
       if (confirmModalConfig?.open) {
-        confirmModalConfig.onConfirm()
-        setConfirmModalConfig(null)
+        confirmModalConfig.onConfirm();
+        setConfirmModalConfig(null);
       }
     }),
     SHORTCUTS.CANCEL(() => {
-      setConfirmModalConfig(null)
-      setBatchResultModalData(null)
-      setPrintPreviewModalData(null)
-      setSelectedExam(null)
-      setDoctorSelectModalExam(null)
-      setRequisitionExam(null)
+      setConfirmModalConfig(null);
+      setBatchResultModalData(null);
+      setPrintPreviewModalData(null);
+      setSelectedExam(null);
+      setDoctorSelectModalExam(null);
+      setRequisitionExam(null);
     }),
-  ])
+  ]);
   useNavigationShortcuts([
-    { sequence: ['g', 'w'], action: () => { window.location.href = '/worklist' }, description: t('worklistPage.nav.worklist') },
-    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams' }, description: t('worklistPage.nav.exams') },
-    { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: t('worklistPage.nav.reports') },
-  ])
+    {
+      sequence: ["g", "w"],
+      action: () => {
+        window.location.href = "/worklist";
+      },
+      description: t("worklistPage.nav.worklist"),
+    },
+    {
+      sequence: ["g", "e"],
+      action: () => {
+        window.location.href = "/exams";
+      },
+      description: t("worklistPage.nav.exams"),
+    },
+    {
+      sequence: ["g", "r"],
+      action: () => {
+        window.location.href = "/reports";
+      },
+      description: t("worklistPage.nav.reports"),
+    },
+  ]);
 
   return (
     <PageTemplate
@@ -1636,62 +2604,92 @@ export default function WorklistPage() {
       onRetry={() => void fetchOnce()}
       testId="worklist-page"
     >
-      {loading && <LoadingBanner message={t('worklist.loadingApi')} />}
+      {loading && <LoadingBanner message={t("worklist.loadingApi")} />}
       {loadError && !loading && (
-        <ErrorBanner message={`${loadError} (t('worklistPage.errorFallback')`} onRetry={() => void fetchOnce()} retryLabel={t('w9.states.retry')} />
+        <ErrorBanner
+          message={`${loadError} (t('worklistPage.errorFallback')`}
+          onRetry={() => void fetchOnce()}
+          retryLabel={t("w9.states.retry")}
+        />
       )}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 'var(--space-5, 20px)',
-      }}>
-    <PageHeader
-      variant="flex"
-      icon={<ClipboardList size={24} />}
-      title={t('worklistPage.header.title')}
-      subtitle={
-        <>
-          <span>{t('worklistPage.header.subtitle.dicom')}</span>
-          <span style={{ color: '#cbd5e1' }}>·</span>
-          <span>{t('worklistPage.header.subtitle.his')}</span>
-          <span style={{ color: '#cbd5e1' }}>·</span>
-          <span>{t('worklistPage.header.subtitle.realtime')}</span>
-        </>
-      }
-      breadcrumb={[
-        { label: t('worklistPage.header.breadcrumb.home'), onClick: () => navigate('/') },
-        { label: t('worklistPage.header.breadcrumb.worklist') },
-      ]}
-      style={{ marginBottom: 0 }}
-    />
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 12px',
-            background: 'var(--color-success-bg)',
-            borderRadius: 8,
-            fontSize: 12,
-            color: '#059669',
-            fontWeight: 500,
-            border: '1px solid #d1fae5',
-          }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: "var(--space-5, 20px)",
+        }}
+      >
+        <PageHeader
+          variant="flex"
+          icon={<ClipboardList size={24} />}
+          title={t("worklistPage.header.title")}
+          subtitle={
+            <>
+              <span>{t("worklistPage.header.subtitle.dicom")}</span>
+              <span style={{ color: "#cbd5e1" }}>·</span>
+              <span>{t("worklistPage.header.subtitle.his")}</span>
+              <span style={{ color: "#cbd5e1" }}>·</span>
+              <span>{t("worklistPage.header.subtitle.realtime")}</span>
+            </>
+          }
+          breadcrumb={[
+            {
+              label: t("worklistPage.header.breadcrumb.home"),
+              onClick: () => navigate("/"),
+            },
+            { label: t("worklistPage.header.breadcrumb.worklist") },
+          ]}
+          style={{ marginBottom: 0 }}
+        />
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              background: "var(--color-success-bg)",
+              borderRadius: 8,
+              fontSize: 12,
+              color: "#059669",
+              fontWeight: 500,
+              border: "1px solid #d1fae5",
+            }}
+          >
             <Wifi size={12} />
-            {t('worklistPage.dicomConnected')}
+            {t("worklistPage.dicomConnected")}
           </div>
 
-          <div style={{
-            display: 'flex',
-            background: 'var(--bg-card)',
-            borderRadius: 8,
-            border: '1px solid var(--border-color)',
-            overflow: 'hidden',
-          }}>
-            <ViewModeButton mode="list" icon={<LayoutList size={14} />} label={t('worklistPage.viewMode.list')} />
-            <ViewModeButton mode="card" icon={<LayoutGrid size={14} />} label={t('worklistPage.viewMode.card')} />
-            <ViewModeButton mode="kanban" icon={<Kanban size={14} />} label={t('worklistPage.viewMode.kanban')} />
+          <div
+            style={{
+              display: "flex",
+              background: "var(--bg-card)",
+              borderRadius: 8,
+              border: "1px solid var(--border-color)",
+              overflow: "hidden",
+            }}
+          >
+            <ViewModeButton
+              mode="list"
+              icon={<LayoutList size={14} />}
+              label={t("worklistPage.viewMode.list")}
+            />
+            <ViewModeButton
+              mode="card"
+              icon={<LayoutGrid size={14} />}
+              label={t("worklistPage.viewMode.card")}
+            />
+            <ViewModeButton
+              mode="kanban"
+              icon={<Kanban size={14} />}
+              label={t("worklistPage.viewMode.kanban")}
+            />
+            <ViewModeButton
+              mode="workflow"
+              icon={<Workflow size={14} />}
+              label={t("worklistPage.viewMode.workflow")}
+            />
           </div>
 
           {/* [G005 v3.0.6.11-99 Wave 10E-1] 列配置面板入口 */}
@@ -1700,43 +2698,58 @@ export default function WorklistPage() {
             size="compact"
             onClick={() => setShowColumnConfig(true)}
             icon={<LayoutList size={12} />}
-            title={allColumnsShown ? t('worklistPage.configureColumns') : t('worklistPage.hiddenColumns', { count: hiddenColumnKeys.length })}
+            title={
+              allColumnsShown
+                ? t("worklistPage.configureColumns")
+                : t("worklistPage.hiddenColumns", {
+                    count: hiddenColumnKeys.length,
+                  })
+            }
             testId="column-config-btn"
           >
-            {t('worklistPage.columnConfig.title')}{!allColumnsShown && <span style={{ color: 'var(--color-warning-600)', marginLeft: 'var(--space-1, 4px)' }}>({hiddenColumnKeys.length})</span>}
+            {t("worklistPage.columnConfig.title")}
+            {!allColumnsShown && (
+              <span
+                style={{
+                  color: "var(--color-warning-600)",
+                  marginLeft: "var(--space-1, 4px)",
+                }}
+              >
+                ({hiddenColumnKeys.length})
+              </span>
+            )}
           </AppButton>
 
-          <ActionButton
-            action="refresh"
-            size="compact"
-            onClick={handleRefresh}
-          >
-            {t('worklistPage.refreshList')}
+          <ActionButton action="refresh" size="compact" onClick={handleRefresh}>
+            {t("worklistPage.refreshList")}
           </ActionButton>
 
           {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取按钮 (勾选行或全部) */}
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
             <AppButton
               variant="default"
               size="compact"
-              onClick={() => void handlePrefetch('selected')}
+              onClick={() => void handlePrefetch("selected")}
               disabled={prefetchBusy}
               icon={<Download size={12} />}
               testId="prefetch-selected"
-              title={t('worklistPage.prefetchSelectedTitle', { count: selectedIds.size })}
+              title={t("worklistPage.prefetchSelectedTitle", {
+                count: selectedIds.size,
+              })}
             >
-              {t('worklistPage.btn.prefetch')}{selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
+              {t("worklistPage.btn.prefetch")}
+              {selectedIds.size > 0 ? `(${selectedIds.size})` : ""}
             </AppButton>
             <AppButton
               variant="default"
               size="compact"
-              onClick={() => void handlePrefetch('all')}
+              onClick={() => void handlePrefetch("all")}
               disabled={prefetchBusy}
               icon={<CloudDownload size={12} />}
               testId="prefetch-all"
-              title={t('worklistPage.prefetchAllTitle')}
+              title={t("worklistPage.prefetchAllTitle")}
             >
-              {t('worklistPage.prefetchAll')}
+              {t("worklistPage.prefetchAll")}
             </AppButton>
           </div>
         </div>
@@ -1744,41 +2757,124 @@ export default function WorklistPage() {
 
       {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 预取状态指示条: cached/total 进度 + 完成 Tag */}
       {prefetchStats && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)',
-          background: 'var(--bg-card)', border: '1px solid var(--border-color)',
-          borderRadius: 12, padding: '10px 16px', marginBottom: 'var(--space-3, 12px)', fontSize: 12,
-        }} data-testid="prefetch-status-bar">
-          <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-            <CloudDownload size={13} /> {t('worklistPage.prefetch.title')}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3, 12px)",
+            background: "var(--bg-card)",
+            border: "1px solid var(--border-color)",
+            borderRadius: 12,
+            padding: "10px 16px",
+            marginBottom: "var(--space-3, 12px)",
+            fontSize: 12,
+          }}
+          data-testid="prefetch-status-bar"
+        >
+          <span
+            style={{
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
+            <CloudDownload size={13} /> {t("worklistPage.prefetch.title")}
           </span>
-          <div style={{ flex: 1, minWidth: 160, background: 'var(--bg-deep)', borderRadius: 999, height: 8, overflow: 'hidden', position: 'relative' }}>
-            <div style={{
-              height: '100%', width: `${prefetchStats.total > 0 ? Math.round((prefetchStats.cached / prefetchStats.total) * 100) : 0}%`,
-              background: prefetchStats.pending > 0 ? 'var(--color-primary-500)' : 'var(--color-success-500)', transition: 'width 0.4s',
-            }} />
+          <div
+            style={{
+              flex: 1,
+              minWidth: 160,
+              background: "var(--bg-deep)",
+              borderRadius: 999,
+              height: 8,
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${prefetchStats.total > 0 ? Math.round((prefetchStats.cached / prefetchStats.total) * 100) : 0}%`,
+                background:
+                  prefetchStats.pending > 0
+                    ? "var(--color-primary-500)"
+                    : "var(--color-success-500)",
+                transition: "width 0.4s",
+              }}
+            />
           </div>
-          <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-            {t('worklistPage.prefetch.cached')} <b style={{ color: prefetchStats.pending > 0 ? 'var(--color-primary-600)' : '#059669' }}>{prefetchStats.cached}</b>/{prefetchStats.total}
-            {prefetchStats.pending > 0 && <span style={{ color: 'var(--color-warning-600)', marginLeft: 6 }}>{t('worklistPage.prefetch.queuing')} {prefetchStats.pending}</span>}
+          <span
+            style={{ color: "var(--text-secondary)", whiteSpace: "nowrap" }}
+          >
+            {t("worklistPage.prefetch.cached")}{" "}
+            <b
+              style={{
+                color:
+                  prefetchStats.pending > 0
+                    ? "var(--color-primary-600)"
+                    : "#059669",
+              }}
+            >
+              {prefetchStats.cached}
+            </b>
+            /{prefetchStats.total}
+            {prefetchStats.pending > 0 && (
+              <span
+                style={{ color: "var(--color-warning-600)", marginLeft: 6 }}
+              >
+                {t("worklistPage.prefetch.queuing")} {prefetchStats.pending}
+              </span>
+            )}
           </span>
           {prefetchStats.pending === 0 && prefetchStats.total > 0 && (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '2px 10px', borderRadius: 999,
-              background: '#dcfce7', color: '#059669', fontWeight: 700, whiteSpace: 'nowrap',
-            }} data-testid="prefetch-done-tag">
-              <CheckCircle2 size={12} /> {t('worklistPage.prefetch.done')}
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+                padding: "2px 10px",
+                borderRadius: 999,
+                background: "#dcfce7",
+                color: "#059669",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+              }}
+              data-testid="prefetch-done-tag"
+            >
+              <CheckCircle2 size={12} /> {t("worklistPage.prefetch.done")}
             </span>
           )}
-          {prefetchBusy && <span style={{ color: 'var(--text-muted, #64748b)', whiteSpace: 'nowrap' }}>{t('worklistPage.prefetch.submitting')}</span>}
+          {prefetchBusy && (
+            <span
+              style={{
+                color: "var(--text-muted, #64748b)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t("worklistPage.prefetch.submitting")}
+            </span>
+          )}
         </div>
       )}
       {prefetchMsg && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8,
-          padding: '8px 14px', marginBottom: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--color-primary-800)',
-        }} data-testid="prefetch-msg" role="status">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: "#eff6ff",
+            border: "1px solid #bfdbfe",
+            borderRadius: 8,
+            padding: "8px 14px",
+            marginBottom: "var(--space-3, 12px)",
+            fontSize: 12,
+            color: "var(--color-primary-800)",
+          }}
+          data-testid="prefetch-msg"
+          role="status"
+        >
           <CheckCircle size={13} /> {prefetchMsg}
         </div>
       )}
@@ -1790,99 +2886,268 @@ export default function WorklistPage() {
         isProcessing={checkIn.isProcessing}
       />
 
-      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <QuickFilters currentFilters={filters} onApply={(partial) => setFilters(f => ({ ...f, ...partial }))} />
+      <div style={{ marginBottom: "var(--space-4, 16px)" }}>
+        <QuickFilters
+          currentFilters={filters}
+          onApply={(partial) => setFilters((f) => ({ ...f, ...partial }))}
+        />
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 'var(--space-4, 16px)',
-        marginBottom: 'var(--space-5, 20px)',
-      }}>
-        <Card bordered={false}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-5, 20px)",
+        }}
+      >
+        <Card
+          bordered={false}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: [] }))}
+          onKeyDown={(e) =>
+            e.key === "Enter" && setFilters((f) => ({ ...f, statuses: [] }))
+          }
           style={{
-          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          cursor: 'pointer',
-        }}
-          onClick={() => setFilters(f => ({ ...f, statuses: [] }))}
-         styles={{ body: { padding: 0 } }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "16px 20px",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            cursor: "pointer",
+          }}
+          onClick={() => setFilters((f) => ({ ...f, statuses: [] }))}
+          styles={{ body: { padding: 0 } }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
             <div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1 }}>{stats.total}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('worklistPage.stats.totalExams')}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                {t('worklistPage.stats.waiting')}: {stats.waiting}
+              <div
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: "var(--color-primary-800)",
+                  lineHeight: 1,
+                }}
+              >
+                {stats.total}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                {t("worklistPage.stats.totalExams")}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: 2,
+                }}
+              >
+                {t("worklistPage.stats.waiting")}: {stats.waiting}
               </div>
             </div>
             <MiniSparkline data={sparkTotal} color="var(--color-primary-500)" />
           </div>
         </Card>
-        <Card bordered={false}
+        <Card
+          bordered={false}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, priorities: ['危重', '紧急'] }))}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            setFilters((f) => ({ ...f, priorities: ["危重", "紧急"] }))
+          }
           style={{
-          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          cursor: 'pointer',
-        }}
-          onClick={() => setFilters(f => ({ ...f, priorities: ['危重', '紧急'] }))}
-         styles={{ body: { padding: 0 } }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "16px 20px",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setFilters((f) => ({ ...f, priorities: ["危重", "紧急"] }))
+          }
+          styles={{ body: { padding: 0 } }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
             <div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-error-600)', lineHeight: 1 }}>{stats.critical}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('worklistPage.stats.criticalUrgent')}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                {t('worklistPage.stats.slaOverdue')}: {slaCriticalExams.length}
+              <div
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: "var(--color-error-600)",
+                  lineHeight: 1,
+                }}
+              >
+                {stats.critical}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                {t("worklistPage.stats.criticalUrgent")}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: 2,
+                }}
+              >
+                {t("worklistPage.stats.slaOverdue")}: {slaCriticalExams.length}
               </div>
             </div>
-            <MiniSparkline data={sparkCritical} color="var(--color-error-600)" />
+            <MiniSparkline
+              data={sparkCritical}
+              color="var(--color-error-600)"
+            />
           </div>
         </Card>
-        <Card bordered={false}
+        <Card
+          bordered={false}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'] }))}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            setFilters((f) => ({
+              ...f,
+              statuses: ["SCHEDULED", "ARRIVED", "IN_PROGRESS"],
+            }))
+          }
           style={{
-          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          cursor: 'pointer',
-        }}
-          onClick={() => setFilters(f => ({ ...f, statuses: ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'] }))}
-         styles={{ body: { padding: 0 } }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "16px 20px",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setFilters((f) => ({
+              ...f,
+              statuses: ["SCHEDULED", "ARRIVED", "IN_PROGRESS"],
+            }))
+          }
+          styles={{ body: { padding: 0 } }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
             <div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-warning-600)', lineHeight: 1 }}>{stats.pending}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('worklistPage.stats.pending')}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                {t('worklistPage.stats.avgWait')}: {avgWaitMinutes}min
+              <div
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: "var(--color-warning-600)",
+                  lineHeight: 1,
+                }}
+              >
+                {stats.pending}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                {t("worklistPage.stats.pending")}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: 2,
+                }}
+              >
+                {t("worklistPage.stats.avgWait")}: {avgWaitMinutes}min
               </div>
             </div>
-            <MiniSparkline data={sparkPending} color="var(--color-warning-600)" />
+            <MiniSparkline
+              data={sparkPending}
+              color="var(--color-warning-600)"
+            />
           </div>
         </Card>
-        <Card bordered={false}
+        <Card
+          bordered={false}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['COMPLETED'] }))}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            setFilters((f) => ({ ...f, statuses: ["COMPLETED"] }))
+          }
           style={{
-          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          cursor: 'pointer',
-        }}
-          onClick={() => setFilters(f => ({ ...f, statuses: ['COMPLETED'] }))}
-         styles={{ body: { padding: 0 } }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "16px 20px",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            cursor: "pointer",
+          }}
+          onClick={() => setFilters((f) => ({ ...f, statuses: ["COMPLETED"] }))}
+          styles={{ body: { padding: 0 } }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
             <div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 'var(--space-1, 4px)' }}>{t('worklistPage.stats.completed')}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                {t('worklistPage.stats.inProgress')}: {stats.inProgress}{t('worklistPage.stats.items')}
+              <div
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: "#059669",
+                  lineHeight: 1,
+                }}
+              >
+                {stats.completed}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                {t("worklistPage.stats.completed")}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginTop: 2,
+                }}
+              >
+                {t("worklistPage.stats.inProgress")}: {stats.inProgress}
+                {t("worklistPage.stats.items")}
               </div>
             </div>
             <MiniSparkline data={sparkCompleted} color="#059669" />
@@ -1891,55 +3156,190 @@ export default function WorklistPage() {
       </div>
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] B2. SLA 分析卡: 超时分布直方图 + 平均等待 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '2fr 1fr 1fr',
-        gap: 'var(--space-4, 16px)',
-        marginBottom: 'var(--space-4, 16px)',
-      }} data-testid="sla-analysis-card">
-        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={13} /> {t('worklistPage.sla.title')}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr 1fr",
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-4, 16px)",
+        }}
+        data-testid="sla-analysis-card"
+      >
+        <Card
+          bordered={false}
+          styles={{ body: { padding: 0 } }}
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            border: "1px solid var(--border-color)",
+            padding: "14px 18px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Clock size={13} /> {t("worklistPage.sla.title")}
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              {t('worklistPage.sla.avgWait')} <b style={{ color: avgWaitMinutes > 30 ? 'var(--color-warning-600)' : '#059669' }}>{avgWaitMinutes}</b> min
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              {t("worklistPage.sla.avgWait")}{" "}
+              <b
+                style={{
+                  color:
+                    avgWaitMinutes > 30
+                      ? "var(--color-warning-600)"
+                      : "#059669",
+                }}
+              >
+                {avgWaitMinutes}
+              </b>{" "}
+              min
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 96 }}>
-            {slaBuckets.map(b => (
-              <div key={b.name} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: b.color }}>{b.value}</span>
-                <div style={{
-                  width: '70%', height: `${Math.max(6, b.value)}px`, minHeight: 4, maxHeight: 60,
-                  background: b.color, borderRadius: '4px 4px 0 0', transition: 'height 0.3s',
-                }} />
-                <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{b.name}</span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              gap: 18,
+              height: 96,
+            }}
+          >
+            {slaBuckets.map((b) => (
+              <div
+                key={b.name}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 800, color: b.color }}>
+                  {b.value}
+                </span>
+                <div
+                  style={{
+                    width: "70%",
+                    height: `${Math.max(6, b.value)}px`,
+                    minHeight: 4,
+                    maxHeight: 60,
+                    background: b.color,
+                    borderRadius: "4px 4px 0 0",
+                    transition: "height 0.3s",
+                  }}
+                />
+                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                  {b.name}
+                </span>
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>
-            <span>{t('worklistPage.sla.exceedRate')} <b style={{ color: slaExceedRate > 30 ? 'var(--color-error-600)' : '#059669' }}>{slaExceedRate}%</b></span>
-            <span>{t('worklistPage.sla.threshold')}</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "var(--space-2, 8px)",
+              fontSize: 11,
+              color: "var(--text-secondary)",
+            }}
+          >
+            <span>
+              {t("worklistPage.sla.exceedRate")}{" "}
+              <b
+                style={{
+                  color:
+                    slaExceedRate > 30 ? "var(--color-error-600)" : "#059669",
+                }}
+              >
+                {slaExceedRate}%
+              </b>
+            </span>
+            <span>{t("worklistPage.sla.threshold")}</span>
           </div>
           {/* 近 7 日超时率迷你趋势 */}
-          <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px dashed var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('worklistPage.sla.last7days')}</span>
-              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                {t('worklistPage.sla.peak')} <b style={{ color: 'var(--color-warning-600)' }}>{slaTrendPeak.day}</b> {slaTrendPeak.rate}%
+          <div
+            style={{
+              marginTop: 10,
+              paddingTop: 10,
+              borderTop: "1px dashed var(--border-color)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 6,
+              }}
+            >
+              <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                {t("worklistPage.sla.last7days")}
+              </span>
+              <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                {t("worklistPage.sla.peak")}{" "}
+                <b style={{ color: "var(--color-warning-600)" }}>
+                  {slaTrendPeak.day}
+                </b>{" "}
+                {slaTrendPeak.rate}%
               </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 34 }}>
-              {slaTrend7d.map(d => (
-                <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }} title={t('worklistPage.slaTrendTip', { day: d.day, overdue: d.overdue, total: d.total })}>
-                  <div style={{
-                    width: '72%', height: Math.max(2, Math.round((d.rate / 100) * 28)), borderRadius: 2,
-                    background: d.rate > 50 ? 'var(--color-error-600)' : d.rate > 25 ? 'var(--color-warning-600)' : 'var(--color-success-500)',
-                  }} />
-                  <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{d.day}</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-end",
+                gap: 3,
+                height: 34,
+              }}
+            >
+              {slaTrend7d.map((d) => (
+                <div
+                  key={d.day}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
+                  }}
+                  title={t("worklistPage.slaTrendTip", {
+                    day: d.day,
+                    overdue: d.overdue,
+                    total: d.total,
+                  })}
+                >
+                  <div
+                    style={{
+                      width: "72%",
+                      height: Math.max(2, Math.round((d.rate / 100) * 28)),
+                      borderRadius: 2,
+                      background:
+                        d.rate > 50
+                          ? "var(--color-error-600)"
+                          : d.rate > 25
+                            ? "var(--color-warning-600)"
+                            : "var(--color-success-500)",
+                    }}
+                  />
+                  <span
+                    style={{ fontSize: 10, color: "var(--text-secondary)" }}
+                  >
+                    {d.day}
+                  </span>
                 </div>
               ))}
             </div>
@@ -1947,131 +3347,452 @@ export default function WorklistPage() {
         </Card>
 
         {/* B3. 今日进度条 */}
-        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-        }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle2 size={13} /> {t('worklistPage.todayProgress.title')}
+        <Card
+          bordered={false}
+          styles={{ body: { padding: 0 } }}
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            border: "1px solid var(--border-color)",
+            padding: "14px 18px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <CheckCircle2 size={13} /> {t("worklistPage.todayProgress.title")}
           </div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: '#059669', lineHeight: 1 }}>
+          <div
+            style={{
+              fontSize: 24,
+              fontWeight: 800,
+              color: "#059669",
+              lineHeight: 1,
+            }}
+          >
             {todayProgress.percent}%
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 10px' }}>
-            {t('worklistPage.todayProgress.done')} <b style={{ color: '#059669' }}>{todayProgress.done}</b> / {todayProgress.total} {t('worklistPage.stats.items')}
-            {todayProgress.pending > 0 && <span style={{ color: 'var(--color-warning-600)' }}> · {t('worklistPage.todayProgress.pending')} {todayProgress.pending}</span>}
+          <div
+            style={{
+              fontSize: 12,
+              color: "var(--text-secondary)",
+              margin: "6px 0 10px",
+            }}
+          >
+            {t("worklistPage.todayProgress.done")}{" "}
+            <b style={{ color: "#059669" }}>{todayProgress.done}</b> /{" "}
+            {todayProgress.total} {t("worklistPage.stats.items")}
+            {todayProgress.pending > 0 && (
+              <span style={{ color: "var(--color-warning-600)" }}>
+                {" "}
+                · {t("worklistPage.todayProgress.pending")}{" "}
+                {todayProgress.pending}
+              </span>
+            )}
           </div>
-          <div style={{ height: 8, borderRadius: 999, background: 'var(--bg-deep)', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', width: `${todayProgress.percent}%`, borderRadius: 999,
-              background: todayProgress.percent >= 80 ? 'var(--color-success-500)' : 'var(--color-primary-500)', transition: 'width 0.5s',
-            }} />
+          <div
+            style={{
+              height: 8,
+              borderRadius: 999,
+              background: "var(--bg-deep)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${todayProgress.percent}%`,
+                borderRadius: 999,
+                background:
+                  todayProgress.percent >= 80
+                    ? "var(--color-success-500)"
+                    : "var(--color-primary-500)",
+                transition: "width 0.5s",
+              }}
+            />
           </div>
         </Card>
 
         {/* B4. 批量操作扩展卡 */}
-        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-        }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <UserCheck size={13} /> {t('worklistPage.todayBatch.title')}
+        <Card
+          bordered={false}
+          styles={{ body: { padding: 0 } }}
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            border: "1px solid var(--border-color)",
+            padding: "14px 18px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <UserCheck size={13} /> {t("worklistPage.todayBatch.title")}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 10, marginBottom: 'var(--space-3, 12px)' }}>
-            <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '8px 10px' }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-primary-600)', lineHeight: 1.2 }}>{todayBatchCounts.checkedIn}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{t('worklistPage.todayBatch.checkedIn')}</div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: 10,
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            <div
+              style={{
+                background: "var(--color-info-bg)",
+                borderRadius: 8,
+                padding: "8px 10px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  color: "var(--color-primary-600)",
+                  lineHeight: 1.2,
+                }}
+              >
+                {todayBatchCounts.checkedIn}
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "var(--text-secondary)",
+                  marginTop: 2,
+                }}
+              >
+                {t("worklistPage.todayBatch.checkedIn")}
+              </div>
             </div>
-            <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '8px 10px' }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#059669', lineHeight: 1.2 }}>{todayBatchCounts.started}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{t('worklistPage.todayBatch.started')}</div>
+            <div
+              style={{
+                background: "var(--color-success-bg)",
+                borderRadius: 8,
+                padding: "8px 10px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  color: "#059669",
+                  lineHeight: 1.2,
+                }}
+              >
+                {todayBatchCounts.started}
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "var(--text-secondary)",
+                  marginTop: 2,
+                }}
+              >
+                {t("worklistPage.todayBatch.started")}
+              </div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <AppButton variant="default" size="compact" icon={<UserCheck size={11} />} onClick={() => batchActionQuick('assign')}>{t('worklistPage.todayBatch.signin')}</AppButton>
-            <AppButton variant="default" size="compact" icon={<Play size={11} />} onClick={() => batchActionQuick('start')}>{t('worklistPage.todayBatch.start')}</AppButton>
-            <AppButton variant="default" size="compact" icon={<CheckCircle size={11} />} onClick={() => batchActionQuick('complete')}>{t('worklistPage.todayBatch.complete')}</AppButton>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <AppButton
+              variant="default"
+              size="compact"
+              icon={<UserCheck size={11} />}
+              onClick={() => batchActionQuick("assign")}
+            >
+              {t("worklistPage.todayBatch.signin")}
+            </AppButton>
+            <AppButton
+              variant="default"
+              size="compact"
+              icon={<Play size={11} />}
+              onClick={() => batchActionQuick("start")}
+            >
+              {t("worklistPage.todayBatch.start")}
+            </AppButton>
+            <AppButton
+              variant="default"
+              size="compact"
+              icon={<CheckCircle size={11} />}
+              onClick={() => batchActionQuick("complete")}
+            >
+              {t("worklistPage.todayBatch.complete")}
+            </AppButton>
           </div>
-          {serverStats && Number((serverStats as { completedToday?: number }).completedToday ?? 0) > 0 && (
-            <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-secondary)' }}>
-              {t('worklistPage.todayBatch.serverCompleted')}: <b style={{ color: '#059669' }}>{todayBatchCounts.serverCompleted}</b>
-            </div>
-          )}
+          {serverStats &&
+            Number(
+              (serverStats as { completedToday?: number }).completedToday ?? 0,
+            ) > 0 && (
+              <div
+                style={{
+                  marginTop: "var(--space-2, 8px)",
+                  fontSize: 11,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {t("worklistPage.todayBatch.serverCompleted")}:{" "}
+                <b style={{ color: "#059669" }}>
+                  {todayBatchCounts.serverCompleted}
+                </b>
+              </div>
+            )}
         </Card>
       </div>
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] B5/B6/B7. 模态 SLA + 今日小时分布 + 批量动态 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: 'var(--space-4, 16px)',
-        marginBottom: 'var(--space-4, 16px)',
-      }} data-testid="worklist-deep-row2">
-        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-        }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Monitor size={13} /> {t('worklistPage.modalitySla.title')}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-4, 16px)",
+        }}
+        data-testid="worklist-deep-row2"
+      >
+        <Card
+          bordered={false}
+          styles={{ body: { padding: 0 } }}
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            border: "1px solid var(--border-color)",
+            padding: "14px 18px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Monitor size={13} /> {t("worklistPage.modalitySla.title")}
           </div>
           {modalitySla.length === 0 ? (
-            <EmptyState type="nodata" style={{ padding: '12px 0', gap: 6 }} />
+            <EmptyState type="nodata" style={{ padding: "12px 0", gap: 6 }} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
-              {modalitySla.map(m => {
-                const rate = m.total > 0 ? Math.round((m.critical / m.total) * 100) : 0
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
+              {modalitySla.map((m) => {
+                const rate =
+                  m.total > 0 ? Math.round((m.critical / m.total) * 100) : 0;
                 return (
-                  <div key={m.modality} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-                    <span style={{ width: 40, fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{m.modality}</span>
-                    <div style={{ flex: 1, height: 8, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${rate}%`, height: '100%', borderRadius: 999,
-                        background: rate > 50 ? 'var(--color-error-600)' : rate > 25 ? 'var(--color-warning-600)' : 'var(--color-success-500)', transition: 'width 0.4s',
-                      }} />
+                  <div
+                    key={m.modality}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-2, 8px)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 40,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      {m.modality}
+                    </span>
+                    <div
+                      style={{
+                        flex: 1,
+                        height: 8,
+                        background: "var(--bg-deep)",
+                        borderRadius: 999,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${rate}%`,
+                          height: "100%",
+                          borderRadius: 999,
+                          background:
+                            rate > 50
+                              ? "var(--color-error-600)"
+                              : rate > 25
+                                ? "var(--color-warning-600)"
+                                : "var(--color-success-500)",
+                          transition: "width 0.4s",
+                        }}
+                      />
                     </div>
-                    <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 110, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      {t('worklistPage.modalitySlaLine', { total: m.total, critical: m.critical, rate })}
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-secondary)",
+                        width: 110,
+                        textAlign: "right",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {t("worklistPage.modalitySlaLine", {
+                        total: m.total,
+                        critical: m.critical,
+                        rate,
+                      })}
                     </span>
                   </div>
-                )
+                );
               })}
             </div>
           )}
         </Card>
 
-        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-        }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <ClipboardList size={13} /> {t('worklistPage.hourly.title')} {t('worklistPage.hourRange')}
+        <Card
+          bordered={false}
+          styles={{ body: { padding: 0 } }}
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            border: "1px solid var(--border-color)",
+            padding: "14px 18px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <ClipboardList size={13} /> {t("worklistPage.hourly.title")}{" "}
+            {t("worklistPage.hourRange")}
             {todayHourly.peakCount > 0 && (
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
-                {t('worklistPage.hourly.peak')} <b style={{ color: 'var(--color-warning-600)' }}>{todayHourly.peakHour}</b> {t('worklistPage.itemsCount', { count: todayHourly.peakCount })}
+              <span
+                style={{
+                  marginLeft: "auto",
+                  fontSize: 11,
+                  color: "var(--text-secondary)",
+                  fontWeight: 400,
+                }}
+              >
+                {t("worklistPage.hourly.peak")}{" "}
+                <b style={{ color: "var(--color-warning-600)" }}>
+                  {todayHourly.peakHour}
+                </b>{" "}
+                {t("worklistPage.itemsCount", { count: todayHourly.peakCount })}
               </span>
             )}
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-1, 4px)', height: 110 }}>
-            {todayHourly.hours.map(h => {
-              const max = todayHourly.peakCount || 1
-              const hgt = h.count > 0 ? Math.max(6, Math.round((h.count / max) * 96)) : 3
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              gap: "var(--space-1, 4px)",
+              height: 110,
+            }}
+          >
+            {todayHourly.hours.map((h) => {
+              const max = todayHourly.peakCount || 1;
+              const hgt =
+                h.count > 0 ? Math.max(6, Math.round((h.count / max) * 96)) : 3;
               return (
-                <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                  <span style={{ fontSize: 10, color: h.count > 0 ? 'var(--color-primary-800)' : 'var(--text-secondary)', fontWeight: 600 }}>{h.count}</span>
-                  <div style={{
-                    width: '78%', height: hgt, borderRadius: '3px 3px 0 0',
-                    background: h.hour === todayHourly.peakHour && h.count > 0 ? 'var(--color-warning-600)' : 'var(--color-primary-500)',
-                    opacity: h.count > 0 ? 0.75 + (h.count / max) * 0.25 : 0.25,
-                  }} />
-                  <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{h.hour.replace('时', '')}</span>
+                <div
+                  key={h.hour}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 3,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color:
+                        h.count > 0
+                          ? "var(--color-primary-800)"
+                          : "var(--text-secondary)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {h.count}
+                  </span>
+                  <div
+                    style={{
+                      width: "78%",
+                      height: hgt,
+                      borderRadius: "3px 3px 0 0",
+                      background:
+                        h.hour === todayHourly.peakHour && h.count > 0
+                          ? "var(--color-warning-600)"
+                          : "var(--color-primary-500)",
+                      opacity:
+                        h.count > 0 ? 0.75 + (h.count / max) * 0.25 : 0.25,
+                    }}
+                  />
+                  <span
+                    style={{ fontSize: 10, color: "var(--text-secondary)" }}
+                  >
+                    {h.hour.replace("时", "")}
+                  </span>
                 </div>
-              )
+              );
             })}
           </div>
         </Card>
 
-        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <History size={13} /> {t('worklistPage.batchActivity.title')}
+        <Card
+          bordered={false}
+          styles={{ body: { padding: 0 } }}
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            border: "1px solid var(--border-color)",
+            padding: "14px 18px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 10,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <History size={13} /> {t("worklistPage.batchActivity.title")}
             </div>
             {batchActivity.length > 0 && (
               <ActionButton
@@ -2080,29 +3801,100 @@ export default function WorklistPage() {
                 size="compact"
                 onClick={clearBatchActivity}
               >
-                {t('worklistPage.batchActivity.clear')}
+                {t("worklistPage.batchActivity.clear")}
               </ActionButton>
             )}
           </div>
           {batchActivity.length === 0 ? (
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>
-               {t('worklistPage.noBatchRecords')}
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-secondary)",
+                padding: "16px 0",
+                textAlign: "center",
+              }}
+            >
+              {t("worklistPage.noBatchRecords")}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 150, overflow: 'auto' }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+                maxHeight: 150,
+                overflow: "auto",
+              }}
+            >
               {batchActivity.map((a, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, padding: '6px 8px', background: 'var(--content-bg)', borderRadius: 6 }}>
-                  <span style={{
-                    padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap',
-                    background: a.source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                    color: a.source === 'api' ? '#059669' : 'var(--color-warning-600)',
-                  }}>{a.source === 'api' ? 'API' : t('worklistPage.local')}</span>
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    {a.action === 'assign' ? t('worklistPage.batch.assign') : a.action === 'start' ? t('worklistPage.batch.start') : a.action === 'complete' ? t('worklistPage.batch.complete') : a.action === 'cancel' ? t('worklistPage.batch.cancel') : a.action}
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-2, 8px)",
+                    fontSize: 12,
+                    padding: "6px 8px",
+                    background: "var(--content-bg)",
+                    borderRadius: 6,
+                  }}
+                >
+                  <span
+                    style={{
+                      padding: "1px 6px",
+                      borderRadius: 4,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      whiteSpace: "nowrap",
+                      background:
+                        a.source === "api"
+                          ? "var(--color-success-bg)"
+                          : "var(--color-warning-bg)",
+                      color:
+                        a.source === "api"
+                          ? "#059669"
+                          : "var(--color-warning-600)",
+                    }}
+                  >
+                    {a.source === "api" ? "API" : t("worklistPage.local")}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)', marginLeft: 'auto', whiteSpace: 'nowrap' }}>{t('worklistPage.itemsCount', { count: a.count })}</span>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: 11, whiteSpace: 'nowrap' }}>
-                    {new Date(a.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                  <span
+                    style={{
+                      color: "var(--text-primary)",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {a.action === "assign"
+                      ? t("worklistPage.batch.assign")
+                      : a.action === "start"
+                        ? t("worklistPage.batch.start")
+                        : a.action === "complete"
+                          ? t("worklistPage.batch.complete")
+                          : a.action === "cancel"
+                            ? t("worklistPage.batch.cancel")
+                            : a.action}
+                  </span>
+                  <span
+                    style={{
+                      color: "var(--text-secondary)",
+                      marginLeft: "auto",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {t("worklistPage.itemsCount", { count: a.count })}
+                  </span>
+                  <span
+                    style={{
+                      color: "var(--text-secondary)",
+                      fontSize: 11,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {new Date(a.time).toLocaleTimeString("zh-CN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </span>
                 </div>
               ))}
@@ -2112,35 +3904,71 @@ export default function WorklistPage() {
       </div>
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 数据源徽标 */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)', fontSize: 12,
-        padding: '6px 12px', borderRadius: 8,
-        background: dataSourceIsReal ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-        color: dataSourceIsReal ? '#059669' : 'var(--color-warning-600)',
-        border: `1px solid ${dataSourceIsReal ? '#bbf7d0' : '#fde68a'}`,
-      }} data-testid="worklist-data-source-badge">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-4, 16px)",
+          fontSize: 12,
+          padding: "6px 12px",
+          borderRadius: 8,
+          background: dataSourceIsReal
+            ? "var(--color-success-bg)"
+            : "var(--color-warning-bg)",
+          color: dataSourceIsReal ? "#059669" : "var(--color-warning-600)",
+          border: `1px solid ${dataSourceIsReal ? "#bbf7d0" : "#fde68a"}`,
+        }}
+        data-testid="worklist-data-source-badge"
+      >
         <Wifi size={12} />
-        {dataSourceIsReal ? t('worklistPage.dataSourceReal') : t('worklistPage.dataSourceFallback')}
+        {dataSourceIsReal
+          ? t("worklistPage.dataSourceReal")
+          : t("worklistPage.dataSourceFallback")}
       </div>
 
       {/* [W1-B] 服务器状态分布: GET /worklist/stats */}
       {serverStats && (
-        <Card bordered={false} style={{
-          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-          background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12,
-          padding: '10px 16px', marginBottom: 'var(--space-4, 16px)', fontSize: 12,
-        }} styles={{ body: { padding: 0 } }}>
-          <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.serverStats')}</span>
-          <span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.total')} <b style={{ color: 'var(--text-primary)' }}>{serverStats.total}</b></span>
+        <Card
+          bordered={false}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+            background: "var(--bg-card)",
+            border: "1px solid var(--border-color)",
+            borderRadius: 12,
+            padding: "10px 16px",
+            marginBottom: "var(--space-4, 16px)",
+            fontSize: 12,
+          }}
+          styles={{ body: { padding: 0 } }}
+        >
+          <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>
+            {t("worklistPage.serverStats")}
+          </span>
+          <span style={{ color: "var(--text-secondary)" }}>
+            {t("worklistPage.total")}{" "}
+            <b style={{ color: "var(--text-primary)" }}>{serverStats.total}</b>
+          </span>
           {Object.entries(serverStats.byStatus ?? {}).map(([status, count]) => (
-            <span key={status} style={{
-              padding: '2px 10px', borderRadius: 999, background: 'var(--bg-card)', color: 'var(--text-secondary)',
-            }}>
+            <span
+              key={status}
+              style={{
+                padding: "2px 10px",
+                borderRadius: 999,
+                background: "var(--bg-card)",
+                color: "var(--text-secondary)",
+              }}
+            >
               {status}: <b>{count}</b>
             </span>
           ))}
           {Object.keys(serverStats.byStatus ?? {}).length === 0 && (
-            <span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.noStatusDistData')}</span>
+            <span style={{ color: "var(--text-secondary)" }}>
+              {t("worklistPage.noStatusDistData")}
+            </span>
           )}
         </Card>
       )}
@@ -2148,64 +3976,185 @@ export default function WorklistPage() {
       {/* [v3.0.6.11-103 Wave 1B] 今日总览 / 模态分组 / 技师明细:
           GET /worklist/overview · GET /worklist/by-modality · GET /worklist/technician-stats */}
       {(overview || byModality.length > 0 || technicianStats) && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: 'var(--space-4, 16px)',
-          marginBottom: 'var(--space-4, 16px)',
-        }} data-testid="worklist-overview-panel">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: "var(--space-4, 16px)",
+            marginBottom: "var(--space-4, 16px)",
+          }}
+          data-testid="worklist-overview-panel"
+        >
           {/* 今日总览 */}
-          <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-            background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <LayoutDashboard size={13} /> {t('worklist.overview.title')}
+          <Card
+            bordered={false}
+            styles={{ body: { padding: 0 } }}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              border: "1px solid var(--border-color)",
+              padding: "14px 18px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+                marginBottom: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <LayoutDashboard size={13} /> {t("worklist.overview.title")}
               {overview?.date && (
-                <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{overview.date}</span>
+                <span
+                  style={{
+                    marginLeft: "auto",
+                    fontSize: 11,
+                    color: "var(--text-secondary)",
+                    fontWeight: 400,
+                  }}
+                >
+                  {overview.date}
+                </span>
               )}
             </div>
             {!overview ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('worklistPage.noData')}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  padding: "16px 0",
+                  textAlign: "center",
+                }}
+              >
+                {t("worklistPage.noData")}
+              </div>
             ) : (
               <div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                    gap: "var(--space-2, 8px)",
+                    marginBottom: 10,
+                  }}
+                >
                   {[
-                    [t('worklist.overview.todayExams'), `${overview.todayTotal}`],
-                    [t('worklist.overview.todayCompleted'), `${overview.completedToday}`],
-                    [t('worklist.overview.completedRate'), `${overview.completedRate}%`],
-                    [t('worklist.overview.avgDuration'), `${overview.avgDurationMin}min`],
+                    [
+                      t("worklist.overview.todayExams"),
+                      `${overview.todayTotal}`,
+                    ],
+                    [
+                      t("worklist.overview.todayCompleted"),
+                      `${overview.completedToday}`,
+                    ],
+                    [
+                      t("worklist.overview.completedRate"),
+                      `${overview.completedRate}%`,
+                    ],
+                    [
+                      t("worklist.overview.avgDuration"),
+                      `${overview.avgDurationMin}min`,
+                    ],
                   ].map(([label, value]) => (
-                    <div key={label} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '8px 10px' }}>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.2 }}>{value}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{label}</div>
+                    <div
+                      key={label}
+                      style={{
+                        background: "var(--content-bg)",
+                        borderRadius: 8,
+                        padding: "8px 10px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 800,
+                          color: "var(--color-primary-800)",
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {value}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-secondary)",
+                          marginTop: 2,
+                        }}
+                      >
+                        {label}
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'flex-end', height: 44, marginBottom: 'var(--space-2, 8px)' }}>
-                  {(overview.byHour ?? []).filter(h => {
-                    const hour = Number(h.hour.slice(0, 2))
-                    return hour >= 8 && hour <= 20
-                  }).map(h => (
-                    <div key={h.hour} title={t('worklistPage.hourCountTip', { hour: h.hour, count: h.count })} style={{
-                      flex: 1, height: `${Math.max(3, Math.min(100, Math.round((h.count / Math.max(1, Math.max(...(overview.byHour ?? []).map(x => x.count), 1))) * 100)))}%`,
-                      background: 'var(--color-primary-500)', borderRadius: '2px 2px 0 0', opacity: 0.75,
-                    }} />
-                  ))}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "var(--space-1, 4px)",
+                    alignItems: "flex-end",
+                    height: 44,
+                    marginBottom: "var(--space-2, 8px)",
+                  }}
+                >
+                  {(overview.byHour ?? [])
+                    .filter((h) => {
+                      const hour = Number(h.hour.slice(0, 2));
+                      return hour >= 8 && hour <= 20;
+                    })
+                    .map((h) => (
+                      <div
+                        key={h.hour}
+                        title={t("worklistPage.hourCountTip", {
+                          hour: h.hour,
+                          count: h.count,
+                        })}
+                        style={{
+                          flex: 1,
+                          height: `${Math.max(3, Math.min(100, Math.round((h.count / Math.max(1, Math.max(...(overview.byHour ?? []).map((x) => x.count), 1))) * 100)))}%`,
+                          background: "var(--color-primary-500)",
+                          borderRadius: "2px 2px 0 0",
+                          opacity: 0.75,
+                        }}
+                      />
+                    ))}
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {Object.entries(overview.byStatus ?? {}).map(([status, count]) => (
-                    <span key={status} style={{
-                      padding: '2px 10px', borderRadius: 999, background: 'var(--content-bg)',
-                      color: 'var(--text-secondary)', fontSize: 11,
-                    }}>
-                      {status}: <b>{count}</b>
-                    </span>
-                  ))}
-                  {Object.keys(overview.byStatus ?? {}).length === 0 && (
-                    <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('worklistPage.noStatusDist')}</span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {Object.entries(overview.byStatus ?? {}).map(
+                    ([status, count]) => (
+                      <span
+                        key={status}
+                        style={{
+                          padding: "2px 10px",
+                          borderRadius: 999,
+                          background: "var(--content-bg)",
+                          color: "var(--text-secondary)",
+                          fontSize: 11,
+                        }}
+                      >
+                        {status}: <b>{count}</b>
+                      </span>
+                    ),
                   )}
-                  <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
-                    {t('worklist.overview.peakHour', { hour: overview.peakHour })}
+                  {Object.keys(overview.byStatus ?? {}).length === 0 && (
+                    <span
+                      style={{ fontSize: 11, color: "var(--text-secondary)" }}
+                    >
+                      {t("worklistPage.noStatusDist")}
+                    </span>
+                  )}
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "var(--text-secondary)",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    {t("worklist.overview.peakHour", {
+                      hour: overview.peakHour,
+                    })}
                   </span>
                 </div>
               </div>
@@ -2213,92 +4162,312 @@ export default function WorklistPage() {
           </Card>
 
           {/* 模态分组 */}
-          <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-            background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Table2 size={13} /> {t('worklist.byModality.title')}
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
+          <Card
+            bordered={false}
+            styles={{ body: { padding: 0 } }}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              border: "1px solid var(--border-color)",
+              padding: "14px 18px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+                marginBottom: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Table2 size={13} /> {t("worklist.byModality.title")}
+              <span
+                style={{
+                  marginLeft: "auto",
+                  fontSize: 11,
+                  color: "var(--text-secondary)",
+                  fontWeight: 400,
+                }}
+              >
                 GET /worklist/by-modality
               </span>
             </div>
             {byModality.length === 0 ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('worklistPage.noData')}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  padding: "16px 0",
+                  textAlign: "center",
+                }}
+              >
+                {t("worklistPage.noData")}
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
-                {byModality.map(m => {
-                  const maxTotal = Math.max(1, ...byModality.map(x => x.total))
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
+                {byModality.map((m) => {
+                  const maxTotal = Math.max(
+                    1,
+                    ...byModality.map((x) => x.total),
+                  );
                   return (
-                    <div key={m.modality} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-                      <span style={{ width: 40, fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{m.modality}</span>
-                      <div style={{ flex: 1, height: 8, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
-                        <div style={{
-                          width: `${Math.round((m.total / maxTotal) * 100)}%`, height: '100%', borderRadius: 999,
-                          background: m.inProgress > 0 ? 'var(--color-warning-600)' : 'var(--color-primary-500)', transition: 'width 0.4s',
-                        }} />
-                      </div>
-                      <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 150, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        {t('worklistPage.modalityLine', { total: m.total, inProgress: m.inProgress, todayCompleted: m.todayCompleted })}
+                    <div
+                      key={m.modality}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "var(--space-2, 8px)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 40,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: "var(--text-primary)",
+                        }}
+                      >
+                        {m.modality}
                       </span>
-                      <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 60, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        {t('worklist.byModality.avgDuration', { min: m.avgDurationMin })}
+                      <div
+                        style={{
+                          flex: 1,
+                          height: 8,
+                          background: "var(--bg-deep)",
+                          borderRadius: 999,
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${Math.round((m.total / maxTotal) * 100)}%`,
+                            height: "100%",
+                            borderRadius: 999,
+                            background:
+                              m.inProgress > 0
+                                ? "var(--color-warning-600)"
+                                : "var(--color-primary-500)",
+                            transition: "width 0.4s",
+                          }}
+                        />
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-secondary)",
+                          width: 150,
+                          textAlign: "right",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {t("worklistPage.modalityLine", {
+                          total: m.total,
+                          inProgress: m.inProgress,
+                          todayCompleted: m.todayCompleted,
+                        })}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-secondary)",
+                          width: 60,
+                          textAlign: "right",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {t("worklist.byModality.avgDuration", {
+                          min: m.avgDurationMin,
+                        })}
                       </span>
                     </div>
-                  )
+                  );
                 })}
               </div>
             )}
           </Card>
 
           {/* 技师维度明细 */}
-          <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
-            background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Users size={13} /> {t('worklist.technicianStats.title')}
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
+          <Card
+            bordered={false}
+            styles={{ body: { padding: 0 } }}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              border: "1px solid var(--border-color)",
+              padding: "14px 18px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+                marginBottom: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Users size={13} /> {t("worklist.technicianStats.title")}
+              <span
+                style={{
+                  marginLeft: "auto",
+                  fontSize: 11,
+                  color: "var(--text-secondary)",
+                  fontWeight: 400,
+                }}
+              >
                 GET /worklist/technician-stats
               </span>
             </div>
-            {!technicianStats || (technicianStats.technicians ?? []).length === 0 ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('worklistPage.noData')}</div>
+            {!technicianStats ||
+            (technicianStats.technicians ?? []).length === 0 ? (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  padding: "16px 0",
+                  textAlign: "center",
+                }}
+              >
+                {t("worklistPage.noData")}
+              </div>
             ) : (
               <div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-                  <span style={{
-                    padding: '2px 10px', borderRadius: 999, background: 'var(--color-success-bg)',
-                    color: '#059669', fontSize: 11,
-                  }}>{t('worklist.technicianStats.completed', { count: technicianStats.summary?.totalCompleted })}</span>
-                  <span style={{
-                    padding: '2px 10px', borderRadius: 999, background: 'var(--color-warning-bg)',
-                    color: 'var(--color-warning-600)', fontSize: 11,
-                  }}>{t('worklist.technicianStats.retake', { count: technicianStats.summary?.totalRetake, rate: technicianStats.summary?.retakeRate })}</span>
-                  <span style={{
-                    padding: '2px 10px', borderRadius: 999, background: 'var(--color-info-bg)',
-                    color: 'var(--color-primary-600)', fontSize: 11,
-                  }}>{t('worklist.technicianStats.avg', { min: technicianStats.summary?.avgDurationMin, count: technicianStats.summary?.technicianCount })}</span>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 6,
+                    flexWrap: "wrap",
+                    marginBottom: 10,
+                  }}
+                >
+                  <span
+                    style={{
+                      padding: "2px 10px",
+                      borderRadius: 999,
+                      background: "var(--color-success-bg)",
+                      color: "#059669",
+                      fontSize: 11,
+                    }}
+                  >
+                    {t("worklist.technicianStats.completed", {
+                      count: technicianStats.summary?.totalCompleted,
+                    })}
+                  </span>
+                  <span
+                    style={{
+                      padding: "2px 10px",
+                      borderRadius: 999,
+                      background: "var(--color-warning-bg)",
+                      color: "var(--color-warning-600)",
+                      fontSize: 11,
+                    }}
+                  >
+                    {t("worklist.technicianStats.retake", {
+                      count: technicianStats.summary?.totalRetake,
+                      rate: technicianStats.summary?.retakeRate,
+                    })}
+                  </span>
+                  <span
+                    style={{
+                      padding: "2px 10px",
+                      borderRadius: 999,
+                      background: "var(--color-info-bg)",
+                      color: "var(--color-primary-600)",
+                      fontSize: 11,
+                    }}
+                  >
+                    {t("worklist.technicianStats.avg", {
+                      min: technicianStats.summary?.avgDurationMin,
+                      count: technicianStats.summary?.technicianCount,
+                    })}
+                  </span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                  {technicianStats.technicians.slice(0, 6).map(tech => {
-                    const maxDone = Math.max(1, ...technicianStats.technicians.map(x => x.completedCount))
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 7 }}
+                >
+                  {technicianStats.technicians.slice(0, 6).map((tech) => {
+                    const maxDone = Math.max(
+                      1,
+                      ...technicianStats.technicians.map(
+                        (x) => x.completedCount,
+                      ),
+                    );
                     return (
-                      <div key={tech.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-                        <span style={{ width: 56, fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tech.name}</span>
-                        <div style={{ flex: 1, height: 7, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
-                          <div style={{
-                            width: `${Math.round((tech.completedCount / maxDone) * 100)}%`, height: '100%', borderRadius: 999,
-                            background: tech.retakeCount > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)', transition: 'width 0.4s',
-                          }} />
+                      <div
+                        key={tech.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-2, 8px)",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 56,
+                            fontSize: 12,
+                            color: "var(--text-secondary)",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {tech.name}
+                        </span>
+                        <div
+                          style={{
+                            flex: 1,
+                            height: 7,
+                            background: "var(--bg-deep)",
+                            borderRadius: 999,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${Math.round((tech.completedCount / maxDone) * 100)}%`,
+                              height: "100%",
+                              borderRadius: 999,
+                              background:
+                                tech.retakeCount > 0
+                                  ? "var(--color-warning-500)"
+                                  : "var(--color-success-500)",
+                              transition: "width 0.4s",
+                            }}
+                          />
                         </div>
-                        <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 130, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                          {t('worklist.technicianStats.row', {
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "var(--text-secondary)",
+                            width: 130,
+                            textAlign: "right",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {t("worklist.technicianStats.row", {
                             done: tech.completedCount,
                             min: tech.avgDurationMin,
-                            retake: tech.retakeCount > 0 ? t('worklist.technicianStats.retakeSuffix', { count: tech.retakeCount }) : '',
+                            retake:
+                              tech.retakeCount > 0
+                                ? t("worklist.technicianStats.retakeSuffix", {
+                                    count: tech.retakeCount,
+                                  })
+                                : "",
                           })}
                         </span>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -2342,62 +4511,103 @@ export default function WorklistPage() {
         onCompare={() => setShowSortCompare(true)}
       />
 
-      {viewMode === 'list' && (
+      {viewMode === "list" && (
         <ListView
           exams={smartOrderedExams}
           selectedIds={selectedIds}
           onSelect={setSelectedIds}
-          onRowClick={(exam) => { setHistoryDrawerTab('info'); setSelectedExam(exam) }}
+          onRowClick={(exam) => {
+            setHistoryDrawerTab("info");
+            setSelectedExam(exam);
+          }}
           loading={loading}
           onAssignDoctor={setDoctorSelectModalExam}
           onViewRequisition={setRequisitionExam}
-          onViewHistory={(exam) => { setHistoryDrawerTab('history'); setSelectedExam(exam) }}
+          onViewHistory={(exam) => {
+            setHistoryDrawerTab("history");
+            setSelectedExam(exam);
+          }}
           onCriticalValueClick={handleCriticalValueClick}
           prefetchStatus={prefetchStatusMap}
           transferStatus={transferStatusMap}
           hiddenColumns={hiddenColumnKeys}
           contextActions={{
-            onView: (exam) => { setHistoryDrawerTab('info'); setSelectedExam(exam) },
+            onView: (exam) => {
+              setHistoryDrawerTab("info");
+              setSelectedExam(exam);
+            },
             onAssign: (exam) => setDoctorSelectModalExam(exam),
-            onPrint: (exam) => setPrintPreviewModalData({ open: true, examIds: [exam.id] }),
-            onExport: (exam) => setBatchResultModalData({
-              open: true,
-              action: t('worklistPage.actionLabel.export'),
-              count: 1,
-              results: [exam.accessionNumber ?? exam.id],
-            }),
+            onPrint: (exam) =>
+              setPrintPreviewModalData({ open: true, examIds: [exam.id] }),
+            onExport: (exam) =>
+              setBatchResultModalData({
+                open: true,
+                action: t("worklistPage.actionLabel.export"),
+                count: 1,
+                results: [exam.accessionNumber ?? exam.id],
+              }),
             onCritical: handleCriticalValueClick,
-            onReschedule: (exam) => { void transitionExamTo(exam, 'SCHEDULED') },
+            onReschedule: (exam) => {
+              void transitionExamTo(exam, "SCHEDULED");
+            },
             onCancel: handleCancelExam,
           }}
         />
       )}
 
-      {viewMode === 'card' && (
+      {viewMode === "card" && (
         <CardView
           exams={smartOrderedExams}
           selectedIds={selectedIds}
           onSelect={setSelectedIds}
-          onRowClick={(exam) => { setHistoryDrawerTab('info'); setSelectedExam(exam) }}
+          onRowClick={(exam) => {
+            setHistoryDrawerTab("info");
+            setSelectedExam(exam);
+          }}
         />
       )}
 
-      {viewMode === 'kanban' && (
-        <DndContext onDragEnd={(event: DragEndEvent) => {
-          const examId = String(event.active.id)
-          const targetStatus = String(event.over?.id || '')
-          const exam = exams.find(e => e.id === examId)
-          if (targetStatus && exam) {
-            log('drag_status_change', examId, { from: event.active.id, to: targetStatus })
-            void transitionExamTo(exam, targetStatus)
-          }
-        }}>
-          <KanbanView
-            exams={smartOrderedExams}
-            onRowClick={setSelectedExam}
-          />
+      {viewMode === "kanban" && (
+        <DndContext
+          onDragEnd={(event: DragEndEvent) => {
+            const examId = String(event.active.id);
+            const targetStatus = String(event.over?.id || "");
+            const exam = exams.find((e) => e.id === examId);
+            if (targetStatus && exam) {
+              log("drag_status_change", examId, {
+                from: event.active.id,
+                to: targetStatus,
+              });
+              void transitionExamTo(exam, targetStatus);
+            }
+          }}
+        >
+          <KanbanView exams={smartOrderedExams} onRowClick={setSelectedExam} />
           <DragOverlay />
         </DndContext>
+      )}
+
+      {/* [v3.0.6.16] v3 检查工作流看板 (ExamWorkflowBoard) */}
+      {viewMode === "workflow" && (
+        <ExamWorkflowBoard
+          items={workflowItems}
+          onView={(id) => {
+            const exam = exams.find((e) => e.id === id);
+            if (exam) {
+              setHistoryDrawerTab("info");
+              setSelectedExam(exam);
+            }
+          }}
+          onAssign={(id) => {
+            const exam = exams.find((e) => e.id === id);
+            if (exam) setDoctorSelectModalExam(exam);
+          }}
+          onAdvance={(id, toStage) => {
+            const exam = exams.find((e) => e.id === id);
+            const target = WORKFLOW_STAGE_TO_STATUS[toStage];
+            if (exam && target) void transitionExamTo(exam, target);
+          }}
+        />
       )}
 
       <DetailDrawer
@@ -2405,15 +4615,22 @@ export default function WorklistPage() {
         onClose={() => setSelectedExam(null)}
         initialTab={historyDrawerTab}
         onEditInfo={(exam) => {
-          setPatientInfoModalExam(exam)
-          setPatientForm({ name: exam.patientName, gender: exam.gender, age: String(exam.age), patientType: exam.patientType })
+          setPatientInfoModalExam(exam);
+          setPatientForm({
+            name: exam.patientName,
+            gender: exam.gender,
+            age: String(exam.age),
+            patientType: exam.patientType,
+          });
         }}
         onAssignDevice={(exam) => setDeviceSelectModalExam(exam)}
         onAssignDoctor={(exam) => setDoctorSelectModalExam(exam)}
         onViewRequisition={(exam) => setRequisitionExam(exam)}
         onWriteReport={(exam) => {
           // [G005 放射流程P0] 检查→报告: 改跳完整书写页 (原内联弹窗保留组件不删)
-          navigate(`/reports/v3-write?examId=${encodeURIComponent(exam.id)}&patientId=${encodeURIComponent(exam.patientId)}`)
+          navigate(
+            `/reports/v3-write?examId=${encodeURIComponent(exam.id)}&patientId=${encodeURIComponent(exam.patientId)}`,
+          );
         }}
         onStartExam={handleStartExam}
         onCancelExam={handleCancelExam}
@@ -2425,21 +4642,28 @@ export default function WorklistPage() {
         onClose={() => setRequisitionExam(null)}
       />
 
-      <div style={{
-        position: 'fixed',
-        bottom: 24,
-        right: 24,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-        zIndex: 50,
-      }}>
+      <div
+        style={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          zIndex: 50,
+        }}
+      >
         <AppButton
           variant="default"
           size="compact"
           onClick={handlePrintSelected}
-          style={{ width: 48, height: 48, borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-          title={t('worklistPage.printSelectedReports')}
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 12,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          }}
+          title={t("worklistPage.printSelectedReports")}
         >
           <Printer size={20} />
         </AppButton>
@@ -2448,19 +4672,32 @@ export default function WorklistPage() {
           variant="primary"
           size="compact"
           onClick={handleRefresh}
-          style={{ width: 48, height: 48, borderRadius: 12, boxShadow: '0 4px 12px rgba(30,58,95,0.3)' }}
-          title={t('worklistPage.refreshData')}
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 12,
+            boxShadow: "0 4px 12px rgba(30,58,95,0.3)",
+          }}
+          title={t("worklistPage.refreshData")}
           testId="fab-refresh"
         >
           <RefreshCw size={20} />
         </AppButton>
       </div>
 
-      <div style={{
-        marginTop: 'var(--space-5, 20px)', padding: '12px 0', textAlign: 'center',
-        fontSize: 12, color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)',
-      }}>
-        {t('worklistPage.footer', { date: new Date().toLocaleDateString('zh-CN') })}
+      <div
+        style={{
+          marginTop: "var(--space-5, 20px)",
+          padding: "12px 0",
+          textAlign: "center",
+          fontSize: 12,
+          color: "var(--text-secondary)",
+          borderTop: "1px solid var(--border-color)",
+        }}
+      >
+        {t("worklistPage.footer", {
+          date: new Date().toLocaleDateString("zh-CN"),
+        })}
       </div>
 
       {patientInfoModalExam && (
@@ -2468,18 +4705,54 @@ export default function WorklistPage() {
           ref={patientInfoFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={t('worklistPage.editPatientInfo')}
+          aria-label={t("worklistPage.editPatientInfo")}
           style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setPatientInfoModalExam(null); }}
-          onClick={() => setPatientInfoModalExam(null)}>
-          <Card bordered={false} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.patientInfo.title')}</h3>
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setPatientInfoModalExam(null);
+          }}
+          onClick={() => setPatientInfoModalExam(null)}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 480,
+              maxHeight: "80vh",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                }}
+              >
+                {t("worklistPage.patientInfo.title")}
+              </h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2487,15 +4760,108 @@ export default function WorklistPage() {
                 onClick={() => setPatientInfoModalExam(null)}
               />
             </div>
-            <div style={{ display: 'grid', gap: 'var(--space-3, 12px)' }}>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.name')}</span><input value={patientForm?.name ?? ''} onChange={e => setPatientForm(f => f ? { ...f, name: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.gender')}</span><input value={patientForm?.gender ?? ''} onChange={e => setPatientForm(f => f ? { ...f, gender: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.age')}</span><input value={patientForm?.age ?? ''} onChange={e => setPatientForm(f => f ? { ...f, age: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.type')}</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+            <div style={{ display: "grid", gap: "var(--space-3, 12px)" }}>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.patientInfo.name")}
+                </span>
+                <input
+                  value={patientForm?.name ?? ""}
+                  onChange={(e) =>
+                    setPatientForm((f) =>
+                      f ? { ...f, name: e.target.value } : f,
+                    )
+                  }
+                  style={{
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    width: "100%",
+                  }}
+                />
+              </div>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.patientInfo.gender")}
+                </span>
+                <input
+                  value={patientForm?.gender ?? ""}
+                  onChange={(e) =>
+                    setPatientForm((f) =>
+                      f ? { ...f, gender: e.target.value } : f,
+                    )
+                  }
+                  style={{
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    width: "100%",
+                  }}
+                />
+              </div>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.patientInfo.age")}
+                </span>
+                <input
+                  value={patientForm?.age ?? ""}
+                  onChange={(e) =>
+                    setPatientForm((f) =>
+                      f ? { ...f, age: e.target.value } : f,
+                    )
+                  }
+                  style={{
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    width: "100%",
+                  }}
+                />
+              </div>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.patientInfo.type")}
+                </span>
+                <input
+                  value={patientForm?.patientType ?? ""}
+                  onChange={(e) =>
+                    setPatientForm((f) =>
+                      f ? { ...f, patientType: e.target.value } : f,
+                    )
+                  }
+                  style={{
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    width: "100%",
+                  }}
+                />
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)', justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setPatientInfoModalExam(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
-              <ActionButton action="save" size="compact" loading={savingPatientInfo} disabled={savingPatientInfo} onClick={() => void savePatientInfo()}>{t('worklistPage.patientInfo.save')}</ActionButton>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-2, 8px)",
+                marginTop: "var(--space-4, 16px)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <ActionButton
+                action="cancel"
+                size="compact"
+                onClick={() => setPatientInfoModalExam(null)}
+              >
+                {t("worklistPage.confirm.cancel")}
+              </ActionButton>
+              <ActionButton
+                action="save"
+                size="compact"
+                loading={savingPatientInfo}
+                disabled={savingPatientInfo}
+                onClick={() => void savePatientInfo()}
+              >
+                {t("worklistPage.patientInfo.save")}
+              </ActionButton>
             </div>
           </Card>
         </div>
@@ -2506,18 +4872,54 @@ export default function WorklistPage() {
           ref={deviceSelectFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={t('worklistPage.assignDevice')}
+          aria-label={t("worklistPage.assignDevice")}
           style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setDeviceSelectModalExam(null); }}
-          onClick={() => setDeviceSelectModalExam(null)}>
-          <Card bordered={false} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 400, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.deviceSelect.title')}</h3>
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setDeviceSelectModalExam(null);
+          }}
+          onClick={() => setDeviceSelectModalExam(null)}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 400,
+              maxHeight: "80vh",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                }}
+              >
+                {t("worklistPage.deviceSelect.title")}
+              </h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2525,23 +4927,57 @@ export default function WorklistPage() {
                 onClick={() => setDeviceSelectModalExam(null)}
               />
             </div>
-            <div style={{ marginBottom: 'var(--space-4, 16px)', color: 'var(--text-secondary)', fontSize: 12 }}>{t('worklistPage.deviceSelect.currentExam')}{deviceSelectModalExam.examItemName}</div>
-            <div style={{ display: 'grid', gap: 'var(--space-2, 8px)' }}>
-              {initialModalityDevices.filter(d => d.modality === deviceSelectModalExam.modality).map(device => (
-                <div
-                  key={device.id}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && void assignDevice(deviceSelectModalExam, device.id)}
-                  style={{
-                  padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)'
-                }} onClick={() => void assignDevice(deviceSelectModalExam, device.id)}>
-                  <Monitor size={16} style={{ color: 'var(--color-primary-800)' }} />
-                  <span style={{ fontSize: 12 }}>{device.name}</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>{device.status}</span>
-                </div>
-              ))}
+            <div
+              style={{
+                marginBottom: "var(--space-4, 16px)",
+                color: "var(--text-secondary)",
+                fontSize: 12,
+              }}
+            >
+              {t("worklistPage.deviceSelect.currentExam")}
+              {deviceSelectModalExam.examItemName}
+            </div>
+            <div style={{ display: "grid", gap: "var(--space-2, 8px)" }}>
+              {initialModalityDevices
+                .filter((d) => d.modality === deviceSelectModalExam.modality)
+                .map((device) => (
+                  <div
+                    key={device.id}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      void assignDevice(deviceSelectModalExam, device.id)
+                    }
+                    style={{
+                      padding: "var(--space-3, 12px)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-2, 8px)",
+                    }}
+                    onClick={() =>
+                      void assignDevice(deviceSelectModalExam, device.id)
+                    }
+                  >
+                    <Monitor
+                      size={16}
+                      style={{ color: "var(--color-primary-800)" }}
+                    />
+                    <span style={{ fontSize: 12 }}>{device.name}</span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-secondary)",
+                        marginLeft: "auto",
+                      }}
+                    >
+                      {device.status}
+                    </span>
+                  </div>
+                ))}
             </div>
           </Card>
         </div>
@@ -2552,18 +4988,54 @@ export default function WorklistPage() {
           ref={doctorSelectFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={t('worklistPage.assignDoctor')}
+          aria-label={t("worklistPage.assignDoctor")}
           style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setDoctorSelectModalExam(null); }}
-          onClick={() => setDoctorSelectModalExam(null)}>
-          <Card bordered={false} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 420, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.doctorSelect.title')}</h3>
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setDoctorSelectModalExam(null);
+          }}
+          onClick={() => setDoctorSelectModalExam(null)}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 420,
+              maxHeight: "80vh",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                }}
+              >
+                {t("worklistPage.doctorSelect.title")}
+              </h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2571,42 +5043,105 @@ export default function WorklistPage() {
                 onClick={() => setDoctorSelectModalExam(null)}
               />
             </div>
-            <div style={{ marginBottom: 'var(--space-4, 16px)', color: 'var(--text-secondary)', fontSize: 12 }}>
-              {t('worklistPage.doctorSelect.currentExam')}{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
-              <span style={{ marginLeft: 'var(--space-2, 8px)', color: 'var(--text-secondary)', fontSize: 12 }}>
-                {t('worklistPage.doctorSelect.currentDoctor')}{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : t('worklistPage.unassigned'))}
+            <div
+              style={{
+                marginBottom: "var(--space-4, 16px)",
+                color: "var(--text-secondary)",
+                fontSize: 12,
+              }}
+            >
+              {t("worklistPage.doctorSelect.currentExam")}
+              {doctorSelectModalExam.examItemName}（
+              {doctorSelectModalExam.patientName}）
+              <span
+                style={{
+                  marginLeft: "var(--space-2, 8px)",
+                  color: "var(--text-secondary)",
+                  fontSize: 12,
+                }}
+              >
+                {t("worklistPage.doctorSelect.currentDoctor")}
+                {doctorSelectModalExam.radiologistName ||
+                  (doctorSelectModalExam.radiologistId
+                    ? doctorSelectModalExam.radiologistId
+                    : t("worklistPage.unassigned"))}
               </span>
             </div>
             {doctorOptionsLoading && (
-              <div style={{ padding: 'var(--space-3, 12px)', fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{t('worklistPage.doctorSelect.loading')}</div>
-            )}
-            {!doctorOptionsLoading && doctorOptions.length === 0 && (
-              <div style={{ padding: 'var(--space-3, 12px)', fontSize: 12, color: '#b45309', textAlign: 'center' }}>
-                {t('worklistPage.noDoctorList')}
+              <div
+                style={{
+                  padding: "var(--space-3, 12px)",
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  textAlign: "center",
+                }}
+              >
+                {t("worklistPage.doctorSelect.loading")}
               </div>
             )}
-            <div style={{ display: 'grid', gap: 'var(--space-2, 8px)' }}>
-              {doctorOptions.map(doctor => {
-                const isAssigned = doctorSelectModalExam.radiologistId === doctor.id
+            {!doctorOptionsLoading && doctorOptions.length === 0 && (
+              <div
+                style={{
+                  padding: "var(--space-3, 12px)",
+                  fontSize: 12,
+                  color: "#b45309",
+                  textAlign: "center",
+                }}
+              >
+                {t("worklistPage.noDoctorList")}
+              </div>
+            )}
+            <div style={{ display: "grid", gap: "var(--space-2, 8px)" }}>
+              {doctorOptions.map((doctor) => {
+                const isAssigned =
+                  doctorSelectModalExam.radiologistId === doctor.id;
                 return (
                   <div
                     key={doctor.id}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && void assignDoctor(doctorSelectModalExam, doctor.id)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      void assignDoctor(doctorSelectModalExam, doctor.id)
+                    }
                     style={{
-                      padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
-                      background: isAssigned ? '#f0f7ff' : 'var(--bg-card, #ffffff)',
-                    }} onClick={() => void assignDoctor(doctorSelectModalExam, doctor.id)}>
-                    <Stethoscope size={16} style={{ color: 'var(--color-primary-800)' }} />
-                    <span style={{ fontSize: 12, fontWeight: 600 }}>{doctor.name}</span>
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
-                      {doctor.title || t('worklistPage.doctorSelect.radioDoctor')}
-                      {isAssigned ? ` · ${t('worklistPage.doctorSelect.assigned')}` : ''}
+                      padding: "var(--space-3, 12px)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-2, 8px)",
+                      background: isAssigned
+                        ? "#f0f7ff"
+                        : "var(--bg-card, #ffffff)",
+                    }}
+                    onClick={() =>
+                      void assignDoctor(doctorSelectModalExam, doctor.id)
+                    }
+                  >
+                    <Stethoscope
+                      size={16}
+                      style={{ color: "var(--color-primary-800)" }}
+                    />
+                    <span style={{ fontSize: 12, fontWeight: 600 }}>
+                      {doctor.name}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-secondary)",
+                        marginLeft: "auto",
+                      }}
+                    >
+                      {doctor.title ||
+                        t("worklistPage.doctorSelect.radioDoctor")}
+                      {isAssigned
+                        ? ` · ${t("worklistPage.doctorSelect.assigned")}`
+                        : ""}
                     </span>
                   </div>
-                )
+                );
               })}
             </div>
           </Card>
@@ -2618,19 +5153,59 @@ export default function WorklistPage() {
           ref={reportFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? t('worklistPage.report.writeReport') : t('worklistPage.report.viewReport')}
+          aria-label={
+            normalizeExamStatus(reportModalExam.status) === "COMPLETED"
+              ? t("worklistPage.report.writeReport")
+              : t("worklistPage.report.viewReport")
+          }
           style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setReportModalExam(null); }}
-          onClick={() => setReportModalExam(null)}>
-          <Card bordered={false} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 600, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>
-                {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? t('worklistPage.report.writeReport') : t('worklistPage.report.viewReport')}
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setReportModalExam(null);
+          }}
+          onClick={() => setReportModalExam(null)}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 600,
+              maxHeight: "80vh",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                }}
+              >
+                {normalizeExamStatus(reportModalExam.status) === "COMPLETED"
+                  ? t("worklistPage.report.writeReport")
+                  : t("worklistPage.report.viewReport")}
               </h3>
               <ActionButton
                 action="cancel"
@@ -2639,16 +5214,96 @@ export default function WorklistPage() {
                 onClick={() => setReportModalExam(null)}
               />
             </div>
-            <div style={{ display: 'grid', gap: 'var(--space-3, 12px)' }}>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.patient')}</span>{reportModalExam.patientName}{t('worklistPage.report.patientInfo', { gender: reportModalExam.gender, age: reportModalExam.age })}</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.examItem')}</span>{reportModalExam.examItemName}</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.clinicalDiag')}</span>{reportModalExam.clinicalDiagnosis}</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.findings')}</span><textarea value={reportForm?.findings ?? ''} onChange={e => setReportForm(f => f ? { ...f, findings: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder={t('worklistPage.report.findingsPlaceholder')} /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.diagnosis')}</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder={t('worklistPage.report.diagnosisPlaceholder')} /></div>
+            <div style={{ display: "grid", gap: "var(--space-3, 12px)" }}>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.report.patient")}
+                </span>
+                {reportModalExam.patientName}
+                {t("worklistPage.report.patientInfo", {
+                  gender: reportModalExam.gender,
+                  age: reportModalExam.age,
+                })}
+              </div>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.report.examItem")}
+                </span>
+                {reportModalExam.examItemName}
+              </div>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.report.clinicalDiag")}
+                </span>
+                {reportModalExam.clinicalDiagnosis}
+              </div>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.report.findings")}
+                </span>
+                <textarea
+                  value={reportForm?.findings ?? ""}
+                  onChange={(e) =>
+                    setReportForm((f) =>
+                      f ? { ...f, findings: e.target.value } : f,
+                    )
+                  }
+                  style={{
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    width: "100%",
+                    height: 80,
+                  }}
+                  placeholder={t("worklistPage.report.findingsPlaceholder")}
+                />
+              </div>
+              <div>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {t("worklistPage.report.diagnosis")}
+                </span>
+                <textarea
+                  value={reportForm?.conclusion ?? ""}
+                  onChange={(e) =>
+                    setReportForm((f) =>
+                      f ? { ...f, conclusion: e.target.value } : f,
+                    )
+                  }
+                  style={{
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    width: "100%",
+                    height: 60,
+                  }}
+                  placeholder={t("worklistPage.report.diagnosisPlaceholder")}
+                />
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)', justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setReportModalExam(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
-              <ActionButton action="submit" size="compact" loading={submittingReport} disabled={submittingReport} onClick={() => void submitReport()}>{t('worklistPage.report.submit')}</ActionButton>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-2, 8px)",
+                marginTop: "var(--space-4, 16px)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <ActionButton
+                action="cancel"
+                size="compact"
+                onClick={() => setReportModalExam(null)}
+              >
+                {t("worklistPage.confirm.cancel")}
+              </ActionButton>
+              <ActionButton
+                action="submit"
+                size="compact"
+                loading={submittingReport}
+                disabled={submittingReport}
+                onClick={() => void submitReport()}
+              >
+                {t("worklistPage.report.submit")}
+              </ActionButton>
             </div>
           </Card>
         </div>
@@ -2661,21 +5316,76 @@ export default function WorklistPage() {
           aria-modal="true"
           aria-label={confirmModalConfig.title}
           style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setConfirmModalConfig(null); }}>
-          <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 400 }} styles={{ body: { padding: 0 } }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{confirmModalConfig.title}</h3>
-            <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--text-secondary)' }}>{confirmModalConfig.message}</p>
-            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setConfirmModalConfig(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setConfirmModalConfig(null);
+          }}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 400,
+            }}
+            styles={{ body: { padding: 0 } }}
+          >
+            <h3
+              style={{
+                margin: "0 0 12px",
+                fontSize: 16,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+              }}
+            >
+              {confirmModalConfig.title}
+            </h3>
+            <p
+              style={{
+                margin: "0 0 20px",
+                fontSize: 14,
+                color: "var(--text-secondary)",
+              }}
+            >
+              {confirmModalConfig.message}
+            </p>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-2, 8px)",
+                justifyContent: "flex-end",
+              }}
+            >
               <ActionButton
-                action={confirmModalConfig.variant === 'danger' ? 'delete' : 'submit'}
-                variant={confirmModalConfig.variant === 'danger' ? 'danger' : 'primary'}
+                action="cancel"
+                size="compact"
+                onClick={() => setConfirmModalConfig(null)}
+              >
+                {t("worklistPage.confirm.cancel")}
+              </ActionButton>
+              <ActionButton
+                action={
+                  confirmModalConfig.variant === "danger" ? "delete" : "submit"
+                }
+                variant={
+                  confirmModalConfig.variant === "danger" ? "danger" : "primary"
+                }
                 size="compact"
                 onClick={confirmModalConfig.onConfirm}
-              >{t('worklistPage.confirm.confirm')}</ActionButton>
+              >
+                {t("worklistPage.confirm.confirm")}
+              </ActionButton>
             </div>
           </Card>
         </div>
@@ -2693,18 +5403,52 @@ export default function WorklistPage() {
           ref={batchResultFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={t('worklistPage.batchResult')}
+          aria-label={t("worklistPage.batchResult")}
           style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setBatchResultModalData(null); }}
-          onClick={() => setBatchResultModalData(null)}>
-          <Card bordered={false} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 480
-          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.batchResult.title')}</h3>
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setBatchResultModalData(null);
+          }}
+          onClick={() => setBatchResultModalData(null)}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 480,
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                }}
+              >
+                {t("worklistPage.batchResult.title")}
+              </h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2712,18 +5456,64 @@ export default function WorklistPage() {
                 onClick={() => setBatchResultModalData(null)}
               />
             </div>
-            <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-4, 16px)', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0' }}>
-              <CheckCircle size={20} style={{ color: 'var(--color-success-500)', marginBottom: 'var(--space-2, 8px)' }} />
-              <div style={{ fontSize: 14, color: '#166534' }}>{t('worklistPage.batchResult.done')}</div>
-              <div style={{ fontSize: 12, color: '#15803d', marginTop: 'var(--space-1, 4px)' }}>{batchResultModalData.results[0]}</div>
+            <div
+              style={{
+                marginBottom: "var(--space-4, 16px)",
+                padding: "var(--space-4, 16px)",
+                background: "var(--color-success-bg)",
+                borderRadius: 8,
+                border: "1px solid #bbf7d0",
+              }}
+            >
+              <CheckCircle
+                size={20}
+                style={{
+                  color: "var(--color-success-500)",
+                  marginBottom: "var(--space-2, 8px)",
+                }}
+              />
+              <div style={{ fontSize: 14, color: "#166534" }}>
+                {t("worklistPage.batchResult.done")}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#15803d",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              >
+                {batchResultModalData.results[0]}
+              </div>
               {batchResultModalData.results.length > 1 && (
-                <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#b45309', maxHeight: 120, overflow: 'auto' }}>
-                  {batchResultModalData.results.slice(1).map((r, i) => <div key={i}>{r}</div>)}
+                <div
+                  style={{
+                    marginTop: "var(--space-2, 8px)",
+                    fontSize: 12,
+                    color: "#b45309",
+                    maxHeight: 120,
+                    overflow: "auto",
+                  }}
+                >
+                  {batchResultModalData.results.slice(1).map((r, i) => (
+                    <div key={i}>{r}</div>
+                  ))}
                 </div>
               )}
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
-              <ActionButton action="submit" size="compact" onClick={() => setBatchResultModalData(null)}>{t('worklistPage.batchResult.ok')}</ActionButton>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-2, 8px)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <ActionButton
+                action="submit"
+                size="compact"
+                onClick={() => setBatchResultModalData(null)}
+              >
+                {t("worklistPage.batchResult.ok")}
+              </ActionButton>
             </div>
           </Card>
         </div>
@@ -2734,18 +5524,54 @@ export default function WorklistPage() {
           ref={printPreviewFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={t('worklistPage.printPreview')}
+          aria-label={t("worklistPage.printPreview")}
           style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setPrintPreviewModalData(null); }}
-          onClick={() => setPrintPreviewModalData(null)}>
-          <Card bordered={false} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 600, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.printPreview.title')}</h3>
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setPrintPreviewModalData(null);
+          }}
+          onClick={() => setPrintPreviewModalData(null)}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 600,
+              maxHeight: "80vh",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                }}
+              >
+                {t("worklistPage.printPreview.title")}
+              </h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2753,18 +5579,64 @@ export default function WorklistPage() {
                 onClick={() => setPrintPreviewModalData(null)}
               />
             </div>
-            <div style={{ marginBottom: 'var(--space-4, 16px)', fontSize: 12, color: 'var(--text-secondary)' }}>
-              {t('worklistPage.printPreview.count', { count: printPreviewModalData.examIds.length })}
+            <div
+              style={{
+                marginBottom: "var(--space-4, 16px)",
+                fontSize: 12,
+                color: "var(--text-secondary)",
+              }}
+            >
+              {t("worklistPage.printPreview.count", {
+                count: printPreviewModalData.examIds.length,
+              })}
             </div>
-            <div style={{ background: 'var(--content-bg)', padding: 'var(--space-4, 16px)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 'var(--space-4, 16px)' }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-2, 8px)' }}>{t('worklistPage.printPreview.content')}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                {t('worklistPage.printPreview.reportList')}: {printPreviewModalData.examIds.join(', ')}
+            <div
+              style={{
+                background: "var(--content-bg)",
+                padding: "var(--space-4, 16px)",
+                borderRadius: 8,
+                border: "1px solid var(--border-color)",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-secondary)",
+                  marginBottom: "var(--space-2, 8px)",
+                }}
+              >
+                {t("worklistPage.printPreview.content")}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                {t("worklistPage.printPreview.reportList")}:{" "}
+                {printPreviewModalData.examIds.join(", ")}
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setPrintPreviewModalData(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
-              <ActionButton action="print" size="compact" onClick={() => { window.print(); setPrintPreviewModalData(null) }}>{t('worklistPage.printPreview.print')}</ActionButton>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-2, 8px)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <ActionButton
+                action="cancel"
+                size="compact"
+                onClick={() => setPrintPreviewModalData(null)}
+              >
+                {t("worklistPage.confirm.cancel")}
+              </ActionButton>
+              <ActionButton
+                action="print"
+                size="compact"
+                onClick={() => {
+                  window.print();
+                  setPrintPreviewModalData(null);
+                }}
+              >
+                {t("worklistPage.printPreview.print")}
+              </ActionButton>
             </div>
           </Card>
         </div>
@@ -2782,52 +5654,169 @@ export default function WorklistPage() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={t('worklistPage.columnConfig')}
+          aria-label={t("worklistPage.columnConfig")}
           style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
           }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setShowColumnConfig(false); }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setShowColumnConfig(false);
+          }}
           onClick={() => setShowColumnConfig(false)}
         >
-          <Card bordered={false} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 520, maxHeight: '80vh', overflow: 'auto',
-          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <SlidersHorizontal size={16} /> {t('worklistPage.columnConfig.panelTitle')}
+          <Card
+            bordered={false}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 12,
+              padding: "var(--space-6, 24px)",
+              width: 520,
+              maxHeight: "80vh",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <SlidersHorizontal size={16} />{" "}
+                {t("worklistPage.columnConfig.panelTitle")}
               </h3>
               <ActionButton
                 action="cancel"
                 variant="text"
                 size="compact"
-                aria-label={t('worklistPage.close')}
+                aria-label={t("worklistPage.close")}
                 onClick={() => setShowColumnConfig(false)}
               />
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-3, 12px)' }}>
-               {t('worklistPage.columnConfigHint')}
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-secondary)",
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
+              {t("worklistPage.columnConfigHint")}
             </div>
             {/* [W14-UX] 命名保存视图 */}
-            <div style={{ borderTop: '1px solid var(--border-subtle, rgba(0,0,0,0.08))', paddingTop: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6 }}>{t('w14Ux.views.title')}</div>
-              <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
+            <div
+              style={{
+                borderTop: "1px solid var(--border-subtle, rgba(0,0,0,0.08))",
+                paddingTop: "var(--space-3, 12px)",
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--color-primary-800)",
+                  marginBottom: 6,
+                }}
+              >
+                {t("w14Ux.views.title")}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 6,
+                  marginBottom: "var(--space-2, 8px)",
+                }}
+              >
                 <input
                   value={columnViewName}
                   onChange={(e) => setColumnViewName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') saveColumnView() }}
-                  placeholder={t('w14Ux.views.namePlaceholder')}
-                  aria-label={t('w14Ux.views.namePlaceholder')}
-                  style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveColumnView();
+                  }}
+                  placeholder={t("w14Ux.views.namePlaceholder")}
+                  aria-label={t("w14Ux.views.namePlaceholder")}
+                  style={{
+                    flex: 1,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid var(--border-color)",
+                    fontSize: 12,
+                    background: "var(--bg-card)",
+                    color: "var(--text-primary)",
+                  }}
                 />
-                <ActionButton action="create" size="compact" onClick={saveColumnView}>{t('w14Ux.views.saveShort')}</ActionButton>
+                <ActionButton
+                  action="create"
+                  size="compact"
+                  onClick={saveColumnView}
+                >
+                  {t("w14Ux.views.saveShort")}
+                </ActionButton>
               </div>
               {savedColumnViews.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {savedColumnViews.map(v => (
-                    <span key={v.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '3px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12 }}>
-                      <button type="button" onClick={() => applyColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--color-primary-800)', fontWeight: 600, fontSize: 12 }}>{v.name}</button>
-                      <button type="button" aria-label={`${t('w14Ux.views.delete')}: ${v.name}`} onClick={() => removeColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--color-error-600)', display: 'flex' }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {savedColumnViews.map((v) => (
+                    <span
+                      key={v.name}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "var(--space-1, 4px)",
+                        padding: "3px 8px",
+                        borderRadius: 6,
+                        border: "1px solid var(--border-color)",
+                        background: "var(--bg-card)",
+                        fontSize: 12,
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => applyColumnView(v.name)}
+                        style={{
+                          border: "none",
+                          background: "none",
+                          cursor: "pointer",
+                          color: "var(--color-primary-800)",
+                          fontWeight: 600,
+                          fontSize: 12,
+                        }}
+                      >
+                        {v.name}
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`${t("w14Ux.views.delete")}: ${v.name}`}
+                        onClick={() => removeColumnView(v.name)}
+                        style={{
+                          border: "none",
+                          background: "none",
+                          cursor: "pointer",
+                          color: "var(--color-error-600)",
+                          display: "flex",
+                        }}
+                      >
                         <X size={11} />
                       </button>
                     </span>
@@ -2835,34 +5824,92 @@ export default function WorklistPage() {
                 </div>
               )}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 6, marginBottom: 'var(--space-4, 16px)' }}>
-              {WORKLIST_COLUMNS.map(c => {
-                const isOn = c.key in columnConfig ? columnConfig[c.key] : c.default
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: 6,
+                marginBottom: "var(--space-4, 16px)",
+              }}
+            >
+              {WORKLIST_COLUMNS.map((c) => {
+                const isOn =
+                  c.key in columnConfig ? columnConfig[c.key] : c.default;
                 return (
-                  <label key={c.key} style={{
-                    display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '8px 10px', borderRadius: 8,
-                    border: `1px solid ${isOn ? '#bfdbfe' : 'var(--border-color)'}`,
-                    background: isOn ? '#eff6ff' : 'var(--bg-card)', cursor: 'pointer', fontSize: 12,
-                  }}>
+                  <label
+                    key={c.key}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-2, 8px)",
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: `1px solid ${isOn ? "#bfdbfe" : "var(--border-color)"}`,
+                      background: isOn ? "#eff6ff" : "var(--bg-card)",
+                      cursor: "pointer",
+                      fontSize: 12,
+                    }}
+                  >
                     <input
                       type="checkbox"
                       checked={isOn}
                       onChange={() => toggleColumn(c.key)}
-                      style={{ accentColor: 'var(--color-primary-800)', cursor: 'pointer' }}
+                      style={{
+                        accentColor: "var(--color-primary-800)",
+                        cursor: "pointer",
+                      }}
                     />
-                    <span style={{ color: isOn ? 'var(--color-primary-800)' : 'var(--text-secondary)', fontWeight: isOn ? 600 : 400 }}>{c.label}</span>
-                    {c.key === 'actions' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>{t('worklistPage.columnConfig.alwaysShow')}</span>}
+                    <span
+                      style={{
+                        color: isOn
+                          ? "var(--color-primary-800)"
+                          : "var(--text-secondary)",
+                        fontWeight: isOn ? 600 : 400,
+                      }}
+                    >
+                      {c.label}
+                    </span>
+                    {c.key === "actions" && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-secondary)",
+                          marginLeft: "auto",
+                        }}
+                      >
+                        {t("worklistPage.columnConfig.alwaysShow")}
+                      </span>
+                    )}
                   </label>
-                )
+                );
               })}
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', justifyContent: 'flex-end' }}>
-              <ActionButton action="refresh" variant="default" size="compact" onClick={resetColumnConfig}>{t('worklistPage.btn.resetDefault')}</ActionButton>
-              <ActionButton action="submit" size="compact" onClick={() => setShowColumnConfig(false)}>{t('worklistPage.btn.apply')}</ActionButton>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-2, 8px)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <ActionButton
+                action="refresh"
+                variant="default"
+                size="compact"
+                onClick={resetColumnConfig}
+              >
+                {t("worklistPage.btn.resetDefault")}
+              </ActionButton>
+              <ActionButton
+                action="submit"
+                size="compact"
+                onClick={() => setShowColumnConfig(false)}
+              >
+                {t("worklistPage.btn.apply")}
+              </ActionButton>
             </div>
           </Card>
         </div>
       )}
     </PageTemplate>
-  )
+  );
 }

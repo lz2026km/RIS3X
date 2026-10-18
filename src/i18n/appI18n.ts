@@ -9161,6 +9161,8 @@ export const translations: Translations = {
     "critical.tab5Step": "5步闭环",
     "critical.tabAlert": "告警列表",
     "critical.tabStats": "统计大屏",
+    // [G005 v3.0.6.12] 升级统计仪表盘 Tab
+    "critical.tabV3Stats": "升级统计",
     "critical.flowSuccess": "步骤推进成功",
     "critical.flowFail": "步骤操作失败",
     "qcDashboard.reportCount": "报告量",
@@ -11660,6 +11662,7 @@ export const translations: Translations = {
     "worklistPage.viewMode.list": "列表",
     "worklistPage.viewMode.card": "卡片",
     "worklistPage.viewMode.kanban": "看板",
+    "worklistPage.viewMode.workflow": "工作流",
     "worklistPage.columnConfig.title": "列配置",
     "worklistPage.columnConfig.panelTitle": "列表列配置",
     "worklistPage.columnConfig.hint":
@@ -12161,6 +12164,11 @@ export const translations: Translations = {
     "patientPage.patientDetailTab": "患者详情",
     "patientPage.newOrEdit": "新建/编辑",
     "patientPage.patientAnalytics": "患者分析",
+    "patientPage.profile360Tab": "患者360",
+    "patientPage.mergeToolTab": "患者合并",
+    "patientPage.profile360SelectHint":
+      "请先在患者列表中选择一位患者以查看 360° 视图",
+    "patientPage.mergeSuccess": "患者已合并: {{remove}} → {{keep}}",
     "patientPage.pmiSearch": "PMI搜索",
     "patientPage.batchImport": "批量导入",
     "patientPage.export": "导出",
@@ -29138,6 +29146,8 @@ export const translations: Translations = {
     "mobileApp.tab.notifications": "消息",
     "mobileApp.tab.profile": "我的",
     "mobileApp.tab.login": "登录",
+    // [G005 v3.0.6.12] 移动端危急值确认失败
+    "mobileApp.ackFailed": "危急值确认失败",
     "mobileApp.imageSuffix": "影像",
     "mobileApp.imageLoading": "影像加载中...",
     "mobileApp.dicomPreview": "DICOM 影像预览",
@@ -29493,6 +29503,10 @@ export const translations: Translations = {
     "rqiReport.empty": "暂无上报批次",
     "rqiReport.loading": "加载中...",
     "rqiReport.dash": "-",
+    // [v3.0.6.16] v3 组件挂载新增: 运营中心 KPI 大盘/实时看板 + 设备管理 Tab
+    "opsCenter.tabKpi": "KPI 大盘",
+    "opsCenter.tabRealtime": "实时运营",
+    "w11Device.tabDeviceMgmt": "设备管理",
   },
   "en-US": {
     // [v3.0.6.11-106 Wave 10D] Page i18n batch (20 pages)
@@ -38914,6 +38928,8 @@ export const translations: Translations = {
     "critical.tab5Step": "5-Step Closed Loop",
     "critical.tabAlert": "Alert List",
     "critical.tabStats": "Statistics",
+    // [G005 v3.0.6.12] escalation stats dashboard tab
+    "critical.tabV3Stats": "Escalation Stats",
     "critical.flowSuccess": "Step advanced",
     "critical.flowFail": "Step action failed",
     "qcDashboard.reportCount": "Reports",
@@ -41525,6 +41541,7 @@ export const translations: Translations = {
     "worklistPage.viewMode.list": "List",
     "worklistPage.viewMode.card": "Card",
     "worklistPage.viewMode.kanban": "Kanban",
+    "worklistPage.viewMode.workflow": "Workflow",
     "worklistPage.columnConfig.title": "Column Config",
     "worklistPage.columnConfig.panelTitle": "List Column Configuration",
     "worklistPage.columnConfig.hint":
@@ -41929,6 +41946,11 @@ export const translations: Translations = {
     "patientPage.patientDetailTab": "Patient Detail",
     "patientPage.newOrEdit": "New / Edit",
     "patientPage.patientAnalytics": "Patient Analytics",
+    "patientPage.profile360Tab": "Profile 360",
+    "patientPage.mergeToolTab": "Patient Merge",
+    "patientPage.profile360SelectHint":
+      "Select a patient from the list to view the 360° profile",
+    "patientPage.mergeSuccess": "Patient merged: {{remove}} → {{keep}}",
     "patientPage.patientSubtitle":
       "Patient Records · Visit History · Allergy Management · Data Analysis",
     "patientPage.patientDetail": "Patient Details",
@@ -59502,6 +59524,8 @@ export const translations: Translations = {
     "mobileApp.tab.notifications": "Messages",
     "mobileApp.tab.profile": "Profile",
     "mobileApp.tab.login": "Login",
+    // [G005 v3.0.6.12] mobile critical value ack failure
+    "mobileApp.ackFailed": "Failed to acknowledge critical value",
     "mobileApp.imageSuffix": "Images",
     "mobileApp.imageLoading": "Loading images...",
     "mobileApp.dicomPreview": "DICOM Image Preview",
@@ -59865,6 +59889,10 @@ export const translations: Translations = {
     "rqiReport.empty": "No report batches",
     "rqiReport.loading": "Loading...",
     "rqiReport.dash": "-",
+    // [v3.0.6.16] v3 组件挂载新增: 运营中心 KPI 大盘/实时看板 + 设备管理 Tab
+    "opsCenter.tabKpi": "KPI Board",
+    "opsCenter.tabRealtime": "Realtime Ops",
+    "w11Device.tabDeviceMgmt": "Device Management",
   },
 };
 

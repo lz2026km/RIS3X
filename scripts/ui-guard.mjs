@@ -94,11 +94,11 @@ const BUDGET = {
   antdTable: 0,
   outlineNone: 0,
   viewportHeight: 0,
-  hexTotal: 5628, // 只减不增 (已排除 var() 回退值; 真正的硬编码 hex)
+  hexTotal: 5459, // 只减不增 (已排除 var() 回退值; 真正的硬编码 hex)
   mojibake: 0,
-  clickableNoRole: 151, // 只减不增 (行级统计; 剩余多为遮罩/包装)
+  clickableNoRole: 139, // 只减不增 (行级统计; 剩余多为遮罩/包装)
   nativeTable: 26, // 只减不增 (剩余为打印/热力图/日历模板)
-  offScaleFont: 42, // 只减不增 (仅允许设计刻度 10/11/12/14/16/18/20/24/30/36/48)
+  offScaleFont: 38, // 只减不增 (仅允许设计刻度 10/11/12/14/16/18/20/24/30/36/48)
   rawHeading: 13, // 只减不增 (剩余为打印 HTML 模板串)
   spacingTokens: 0, // 只减不增 (已刻度的数字间距应全部令牌化为 var(--space-N))
   tableComponentsBare: 0, // 只减不增 (src/components 内禁止裸 <Table>; v3.0.6.15-5 已清零)

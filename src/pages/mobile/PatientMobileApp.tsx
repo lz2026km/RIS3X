@@ -1,39 +1,65 @@
-import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, Bell, BellOff, Phone, Lock, MessageSquare, Smartphone, CreditCard, X } from 'lucide-react'
-import { pushService } from '../../services/mobile/push/PushService'
-import { wechatPay } from '../../services/wechatPay'
-import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto, type PortalImageStudyDto } from '../../services/api/patientPortalApi'
-import { reportApi } from '../../services/api/reportApi'
-import { Card, message } from 'antd'
-import { t } from '../../i18n/appI18n'
+import { useState, useEffect, useRef } from "react";
+import {
+  ChevronRight,
+  Bell,
+  BellOff,
+  Phone,
+  Lock,
+  MessageSquare,
+  Smartphone,
+  CreditCard,
+  X,
+} from "lucide-react";
+import { pushService } from "../../services/mobile/push/PushService";
+import { wechatPay } from "../../services/wechatPay";
+import {
+  patientPortalApi,
+  type PortalPatientDto,
+  type PortalClinicalDataDto,
+  type PortalImageStudyDto,
+} from "../../services/api/patientPortalApi";
+import { reportApi } from "../../services/api/reportApi";
+import { Card, message } from "antd";
+import { t } from "../../i18n/appI18n";
+// [G005 v3.0.6.12] V3 移动端医生工作列表 + 危急值响应
+import {
+  MobileWorklist,
+  type MobileWorklistItem,
+} from "../../components/v3/mobile/MobileWorklist";
+import {
+  MobileCriticalResponse,
+  type MobileCriticalItem,
+} from "../../components/v3/mobile/MobileCriticalResponse";
+import { mobileApi } from "../../services/api/mobileApi";
+import { useNetworkStatus } from "../../hooks/useNetworkStatus";
 
 // ===== Types =====
 export interface MobileUser {
-  id: string
-  name: string
-  avatar: string
-  verified: boolean
-  phone: string
+  id: string;
+  name: string;
+  avatar: string;
+  verified: boolean;
+  phone: string;
 }
 
 export interface MobileReport {
-  id: string
-  examType: string
-  examDate: string
-  status: 'ready' | 'pending'
-  doctorName?: string
-  hospitalName?: string
-  hasImages: boolean
-  pdfUrl?: string
+  id: string;
+  examType: string;
+  examDate: string;
+  status: "ready" | "pending";
+  doctorName?: string;
+  hospitalName?: string;
+  hasImages: boolean;
+  pdfUrl?: string;
 }
 
 export interface MobileNotification {
-  id: string
-  title: string
-  body: string
-  type: 'report' | 'appointment' | 'system' | 'promotion'
-  read: boolean
-  time: string
+  id: string;
+  title: string;
+  body: string;
+  type: "report" | "appointment" | "system" | "promotion";
+  read: boolean;
+  time: string;
 }
 
 // ===== Mock Data Removed =====
@@ -41,99 +67,207 @@ export interface MobileNotification {
 
 // ===== Styles =====
 const s = {
-  wrapper: { maxWidth: 380, margin: '0 auto', background: 'var(--bg-primary)', minHeight: 700, borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', fontFamily: '-apple-system, sans-serif' },
-  header: { background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', color: '#fff', padding: '20px 16px 16px' },
-  headerTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' },
-  userRow: { display: 'flex', alignItems: 'center', gap: 10 },
-  avatar: { width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 },
+  wrapper: {
+    maxWidth: 380,
+    margin: "0 auto",
+    background: "var(--bg-primary)",
+    minHeight: 700,
+    borderRadius: 24,
+    overflow: "hidden",
+    boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+    fontFamily: "-apple-system, sans-serif",
+  },
+  header: {
+    background:
+      "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
+    color: "#fff",
+    padding: "20px 16px 16px",
+  },
+  headerTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-4, 16px)",
+  },
+  userRow: { display: "flex", alignItems: "center", gap: 10 },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.2)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 18,
+  },
   userName: { fontSize: 16, fontWeight: 700 },
-  verifiedBadge: { fontSize: 12, background: '#059669', padding: '2px 6px', borderRadius: 8, color: '#fff' },
-  content: { padding: 'var(--space-4, 16px)' },
-  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', marginBottom: 'var(--space-3, 12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid var(--border-color)' },
-  cardTitle: { fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-3, 12px)' },
+  verifiedBadge: {
+    fontSize: 12,
+    background: "#059669",
+    padding: "2px 6px",
+    borderRadius: 8,
+    color: "#fff",
+  },
+  content: { padding: "var(--space-4, 16px)" },
+  card: {
+    background: "var(--bg-card)",
+    borderRadius: 12,
+    padding: "var(--space-4, 16px)",
+    marginBottom: "var(--space-3, 12px)",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+    border: "1px solid var(--border-color)",
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "var(--text-primary)",
+    marginBottom: "var(--space-3, 12px)",
+  },
   badge: (status: string) => ({
-    padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-    background: status === 'ready' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-    color: status === 'ready' ? 'var(--color-success)' : 'var(--color-warning)',
+    padding: "2px 8px",
+    borderRadius: 4,
+    fontSize: 12,
+    fontWeight: 600,
+    background:
+      status === "ready"
+        ? "var(--color-success-bg)"
+        : "var(--color-warning-bg)",
+    color: status === "ready" ? "var(--color-success)" : "var(--color-warning)",
   }),
   tab: (active: boolean) => ({
-    flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-    color: active ? 'var(--color-primary-800)' : '#94a3b8', borderBottom: active ? '2px solid var(--color-primary-800)' : '2px solid transparent',
+    flex: 1,
+    padding: "8px 0",
+    textAlign: "center" as const,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+    color: active ? "var(--color-primary-800)" : "#94a3b8",
+    borderBottom: active
+      ? "2px solid var(--color-primary-800)"
+      : "2px solid transparent",
   }),
-  nav: { display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' },
+  nav: {
+    display: "flex",
+    background: "var(--bg-card)",
+    borderTop: "1px solid var(--border-color)",
+    padding: "6px 0",
+  },
   navItem: (active: boolean) => ({
-    flex: 1, textAlign: 'center' as const, padding: '4px 0', fontSize: 12, color: active ? 'var(--color-primary-800)' : '#94a3b8', cursor: 'pointer' as const, fontWeight: active ? 700 : 400,
+    flex: 1,
+    textAlign: "center" as const,
+    padding: "4px 0",
+    fontSize: 12,
+    color: active ? "var(--color-primary-800)" : "#94a3b8",
+    cursor: "pointer" as const,
+    fontWeight: active ? 700 : 400,
   }),
-}
+};
 
 // ===== Component =====
-const SMS_COUNTDOWN_SECONDS = 60
-const SMS_RESEND_COOLDOWN_MS = 1000
+const SMS_COUNTDOWN_SECONDS = 60;
+const SMS_RESEND_COOLDOWN_MS = 1000;
 
 export default function PatientMobileApp() {
-  const [activeTab, setActiveTab] = useState<'home' | 'reports' | 'notifications' | 'profile' | 'login'>('home')
-  const [selectedReport, setSelectedReport] = useState<MobileReport | null>(null)
-  const [pushEnabled, setPushEnabled] = useState(pushService.permission === 'granted')
-  const [smsCountdown, setSmsCountdown] = useState(0)
-  const [phoneInput, setPhoneInput] = useState('')
-  const [smsCode, setSmsCode] = useState('')
-  const [loginState, setLoginState] = useState<'idle' | 'sending' | 'verifying' | 'success' | 'error'>('idle')
-  const [loginError, setLoginError] = useState<string | null>(null)
-  const [payingReportId, setPayingReportId] = useState<string | null>(null)
-  const [payState, setPayState] = useState<'idle' | 'invoking' | 'success' | 'failed'>('idle')
-  const [payError, setPayError] = useState<string | null>(null)
-  const countdownRef = useRef<number | null>(null)
-  const [downloadingPdf, setDownloadingPdf] = useState(false)
-  const [imageViewer, setImageViewer] = useState<{ report: MobileReport; study: PortalImageStudyDto | null } | null>(null)
-  const [imageLoading, setImageLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<
+    | "home"
+    | "reports"
+    | "worklist"
+    | "critical"
+    | "notifications"
+    | "profile"
+    | "login"
+  >("home");
+  const [selectedReport, setSelectedReport] = useState<MobileReport | null>(
+    null,
+  );
+  const [pushEnabled, setPushEnabled] = useState(
+    pushService.permission === "granted",
+  );
+  const [smsCountdown, setSmsCountdown] = useState(0);
+  const [phoneInput, setPhoneInput] = useState("");
+  const [smsCode, setSmsCode] = useState("");
+  const [loginState, setLoginState] = useState<
+    "idle" | "sending" | "verifying" | "success" | "error"
+  >("idle");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [payingReportId, setPayingReportId] = useState<string | null>(null);
+  const [payState, setPayState] = useState<
+    "idle" | "invoking" | "success" | "failed"
+  >("idle");
+  const [payError, setPayError] = useState<string | null>(null);
+  const countdownRef = useRef<number | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [imageViewer, setImageViewer] = useState<{
+    report: MobileReport;
+    study: PortalImageStudyDto | null;
+  } | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
 
   const handleDownloadPdf = async (report: MobileReport) => {
-    setDownloadingPdf(true)
+    setDownloadingPdf(true);
     try {
-      const res = await reportApi.exportReport(report.id, 'pdf')
+      const res = await reportApi.exportReport(report.id, "pdf");
       if (res.success && res.data?.downloadUrl) {
-        const a = document.createElement('a')
-        a.href = res.data.downloadUrl
-        a.download = `报告_${report.examType}_${report.examDate}.pdf`
-        a.target = '_blank'
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        setSelectedReport(null)
-        return
+        const a = document.createElement("a");
+        a.href = res.data.downloadUrl;
+        a.download = `报告_${report.examType}_${report.examDate}.pdf`;
+        a.target = "_blank";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setSelectedReport(null);
+        return;
       }
-      const win = window.open('', '_blank')
+      const win = window.open("", "_blank");
       if (win) {
-        win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>检查报告 - ${report.examType}</title><style>body{font-family:SimSun,serif;padding:32px;max-width:640px;margin:0 auto}h1{font-size:18px}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #999;padding:8px}@media print{body{margin:0}}</style></head><body><h1>数字影像检查报告</h1><table><tr><td>检查项目</td><td>${report.examType}</td></tr><tr><td>检查日期</td><td>${report.examDate}</td></tr><tr><td>检查医生</td><td>${report.doctorName || '-'}</td></tr></table><p>检查描述：双肺野清晰，肺纹理走行自然。</p><p>诊断意见：未见明显异常。</p></body></html>`)
-        win.document.close()
-        win.focus()
-        win.print()
-        return
+        win.document.write(
+          `<!doctype html><html><head><meta charset="utf-8"><title>检查报告 - ${report.examType}</title><style>body{font-family:SimSun,serif;padding:32px;max-width:640px;margin:0 auto}h1{font-size:18px}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #999;padding:8px}@media print{body{margin:0}}</style></head><body><h1>数字影像检查报告</h1><table><tr><td>检查项目</td><td>${report.examType}</td></tr><tr><td>检查日期</td><td>${report.examDate}</td></tr><tr><td>检查医生</td><td>${report.doctorName || "-"}</td></tr></table><p>检查描述：双肺野清晰，肺纹理走行自然。</p><p>诊断意见：未见明显异常。</p></body></html>`,
+        );
+        win.document.close();
+        win.focus();
+        win.print();
+        return;
       }
-      message.error(t('mobileApp.exportUnavailable'))
+      message.error(t("mobileApp.exportUnavailable"));
     } catch {
-      message.error(t('mobileApp.exportFailed'))
+      message.error(t("mobileApp.exportFailed"));
     } finally {
-      setDownloadingPdf(false)
+      setDownloadingPdf(false);
     }
-  }
+  };
 
   const handleViewImages = async (report: MobileReport) => {
-    setImageViewer({ report, study: null })
-    setImageLoading(true)
+    setImageViewer({ report, study: null });
+    setImageLoading(true);
     try {
-      const res = await patientPortalApi.listImages(report.id)
-      setImageViewer({ report, study: res.success ? res.data : null })
+      const res = await patientPortalApi.listImages(report.id);
+      setImageViewer({ report, study: res.success ? res.data : null });
     } catch {
-      setImageViewer({ report, study: null })
+      setImageViewer({ report, study: null });
     } finally {
-      setImageLoading(false)
+      setImageLoading(false);
     }
-  }
+  };
 
-  const [mobileUser, setMobileUser] = useState<MobileUser>({ id: 'P001', name: t('mobileApp.loading'), avatar: '', verified: false, phone: '' })
-  const [mobileReports, setMobileReports] = useState<MobileReport[]>([])
-  const [mobileNotifications, setMobileNotifications] = useState<MobileNotification[]>([])
+  const [mobileUser, setMobileUser] = useState<MobileUser>({
+    id: "P001",
+    name: t("mobileApp.loading"),
+    avatar: "",
+    verified: false,
+    phone: "",
+  });
+  const [mobileReports, setMobileReports] = useState<MobileReport[]>([]);
+  const [mobileNotifications, setMobileNotifications] = useState<
+    MobileNotification[]
+  >([]);
+  // [G005 v3.0.6.12] V3 移动端工作列表 / 危急值响应数据
+  const [mobileWorklist, setMobileWorklist] = useState<MobileWorklistItem[]>(
+    [],
+  );
+  const [mobileCritical, setMobileCritical] = useState<MobileCriticalItem[]>(
+    [],
+  );
+  const { isOnline } = useNetworkStatus();
 
   useEffect(() => {
     const fetchMobileData = async () => {
@@ -142,121 +276,132 @@ export default function PatientMobileApp() {
           patientPortalApi.getPatientMobile(),
           patientPortalApi.listClinicalData(),
           patientPortalApi.listEducation(),
-        ])
+        ]);
 
-        if (userRes.status === 'fulfilled' && userRes.value.success) {
-          const data = userRes.value.data as unknown as PortalPatientDto[]
+        if (userRes.status === "fulfilled" && userRes.value.success) {
+          const data = userRes.value.data as unknown as PortalPatientDto[];
           if (Array.isArray(data) && data.length > 0) {
-            const p = data[0]!
+            const p = data[0]!;
             setMobileUser({
-              id: p.id || 'P001',
-              name: p.name || t('mobileApp.unknown'),
-              avatar: '',
+              id: p.id || "P001",
+              name: p.name || t("mobileApp.unknown"),
+              avatar: "",
               verified: true,
-              phone: p.phone ? `${p.phone.slice(0, 3)}****${p.phone.slice(-4)}` : '***',
-            })
+              phone: p.phone
+                ? `${p.phone.slice(0, 3)}****${p.phone.slice(-4)}`
+                : "***",
+            });
           }
         }
 
-        if (reportsRes.status === 'fulfilled' && reportsRes.value.success) {
-          const data = reportsRes.value.data as PortalClinicalDataDto[]
+        if (reportsRes.status === "fulfilled" && reportsRes.value.success) {
+          const data = reportsRes.value.data as PortalClinicalDataDto[];
           if (Array.isArray(data)) {
-            setMobileReports(data.map(d => ({
-              id: d.id,
-              examType: d.examType || '',
-              examDate: d.examDate || '',
-              status: d.reportStatus === '已完成' ? 'ready' as const : 'pending' as const,
-              doctorName: '',
-              hospitalName: '',
-              hasImages: true,
-            })))
+            setMobileReports(
+              data.map((d) => ({
+                id: d.id,
+                examType: d.examType || "",
+                examDate: d.examDate || "",
+                status:
+                  d.reportStatus === "已完成"
+                    ? ("ready" as const)
+                    : ("pending" as const),
+                doctorName: "",
+                hospitalName: "",
+                hasImages: true,
+              })),
+            );
           }
         }
 
-        if (notifRes.status === 'fulfilled' && notifRes.value.success) {
-          const data = notifRes.value.data as unknown as any[]
+        if (notifRes.status === "fulfilled" && notifRes.value.success) {
+          const data = notifRes.value.data as unknown as any[];
           if (Array.isArray(data)) {
-            setMobileNotifications(data.map((n, i) => ({
-              id: n.id || `N${i + 1}`,
-              title: n.label || n.key || t('mobileApp.notification'),
-              body: n.value || '',
-              type: 'system' as const,
-              read: false,
-              time: new Date().toLocaleString('zh-CN'),
-            })))
+            setMobileNotifications(
+              data.map((n, i) => ({
+                id: n.id || `N${i + 1}`,
+                title: n.label || n.key || t("mobileApp.notification"),
+                body: n.value || "",
+                type: "system" as const,
+                read: false,
+                time: new Date().toLocaleString("zh-CN"),
+              })),
+            );
           }
         }
       } catch {
         // Silent fail - default values will be shown
       }
-    }
-    fetchMobileData()
-  }, [])
+    };
+    fetchMobileData();
+  }, []);
 
   useEffect(() => {
-    if (pushService.permission === 'default') {
-      pushService.requestPermission().then(p => setPushEnabled(p === 'granted'))
+    if (pushService.permission === "default") {
+      pushService
+        .requestPermission()
+        .then((p) => setPushEnabled(p === "granted"));
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     return () => {
-      if (countdownRef.current) window.clearInterval(countdownRef.current)
-    }
-  }, [])
+      if (countdownRef.current) window.clearInterval(countdownRef.current);
+    };
+  }, []);
 
   const startSmsCountdown = (seconds: number) => {
-    if (countdownRef.current) window.clearInterval(countdownRef.current)
-    setSmsCountdown(seconds)
+    if (countdownRef.current) window.clearInterval(countdownRef.current);
+    setSmsCountdown(seconds);
     countdownRef.current = window.setInterval(() => {
-      setSmsCountdown(prev => {
+      setSmsCountdown((prev) => {
         if (prev <= 1) {
           if (countdownRef.current) {
-            window.clearInterval(countdownRef.current)
-            countdownRef.current = null
+            window.clearInterval(countdownRef.current);
+            countdownRef.current = null;
           }
-          return 0
+          return 0;
         }
-        return prev - 1
-      })
-    }, 1000)
-  }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const sendSmsCode = async () => {
     if (!/^1[3-9]\d{9}$/.test(phoneInput)) {
-      setLoginError(t('mobileApp.invalidPhone'))
-      return
+      setLoginError(t("mobileApp.invalidPhone"));
+      return;
     }
-    setLoginError(null)
-    setLoginState('sending')
-    await new Promise(r => setTimeout(r, SMS_RESEND_COOLDOWN_MS))
-    setLoginState('verifying')
-    startSmsCountdown(SMS_COUNTDOWN_SECONDS)
-  }
+    setLoginError(null);
+    setLoginState("sending");
+    await new Promise((r) => setTimeout(r, SMS_RESEND_COOLDOWN_MS));
+    setLoginState("verifying");
+    startSmsCountdown(SMS_COUNTDOWN_SECONDS);
+  };
 
   const verifySmsCode = async () => {
     if (smsCode.length !== 6) {
-      setLoginError(t('mobileApp.codeLength'))
-      return
+      setLoginError(t("mobileApp.codeLength"));
+      return;
     }
-    setLoginError(null)
-    setLoginState('verifying')
-    await new Promise(r => setTimeout(r, 500))
-    if (smsCode === '000000') {
-      setLoginError(t('mobileApp.codeError'))
-      setLoginState('error')
-      return
+    setLoginError(null);
+    setLoginState("verifying");
+    await new Promise((r) => setTimeout(r, 500));
+    if (smsCode === "000000") {
+      setLoginError(t("mobileApp.codeError"));
+      setLoginState("error");
+      return;
     }
-    setLoginState('success')
-    setActiveTab('home')
-  }
+    setLoginState("success");
+    setActiveTab("home");
+  };
 
   const handleWechatPay = async (report: MobileReport) => {
-    setPayingReportId(report.id)
-    setPayState('invoking')
-    setPayError(null)
-    const orderNo = `RPT-${report.id}-${Date.now()}`
-    const totalFee = 5000
+    setPayingReportId(report.id);
+    setPayState("invoking");
+    setPayError(null);
+    const orderNo = `RPT-${report.id}-${Date.now()}`;
+    const totalFee = 5000;
     const r = await wechatPay.jsapiPay({
       outTradeNo: orderNo,
       totalFee,
@@ -264,151 +409,580 @@ export default function PatientMobileApp() {
       openId: mobileUser.id,
       patientId: mobileUser.id,
       onSuccess: (res) => {
-        setPayState('success')
+        setPayState("success");
         if (pushEnabled) {
-          pushService.sendLocalNotification({ title: t('mobileApp.paySuccess'), body: `订单 ${orderNo} 已完成,交易号 ${res.transactionId}` })
+          pushService.sendLocalNotification({
+            title: t("mobileApp.paySuccess"),
+            body: `订单 ${orderNo} 已完成,交易号 ${res.transactionId}`,
+          });
         }
       },
       onFail: (err) => {
-        setPayState('failed')
-        setPayError(err.message)
+        setPayState("failed");
+        setPayError(err.message);
       },
-    })
+    });
     if (!r.success) {
-      setPayState('failed')
-      setPayError(r.error?.message || t('mobileApp.payOrderFailed'))
+      setPayState("failed");
+      setPayError(r.error?.message || t("mobileApp.payOrderFailed"));
     }
-  }
+  };
 
   const togglePush = async () => {
     if (pushEnabled) {
-      await pushService.unsubscribe()
-      setPushEnabled(false)
+      await pushService.unsubscribe();
+      setPushEnabled(false);
     } else {
-      const perm = await pushService.requestPermission()
-      if (perm === 'granted') {
-        pushService.sendLocalNotification({ title: 'G005 RIS', body: t('mobileApp.notifyEnabled') })
-        setPushEnabled(true)
+      const perm = await pushService.requestPermission();
+      if (perm === "granted") {
+        pushService.sendLocalNotification({
+          title: "G005 RIS",
+          body: t("mobileApp.notifyEnabled"),
+        });
+        setPushEnabled(true);
       }
     }
-  }
+  };
+
+  // [G005 v3.0.6.12] V3 移动端工作列表 (GET /mobile/worklist)
+  const loadMobileWorklist = async () => {
+    try {
+      const res = await mobileApi.getWorklist();
+      if (res.success && Array.isArray(res.data)) {
+        setMobileWorklist(
+          res.data.map((w) => ({
+            id: w.id,
+            patientName: w.patientName,
+            patientId: w.patientId,
+            modality: w.modality,
+            bodyPart: w.bodyPart || undefined,
+            studyDate: w.scheduledAt ? w.scheduledAt.slice(0, 10) : "",
+            studyTime: w.scheduledAt ? w.scheduledAt.slice(11, 16) : "",
+            state:
+              w.status === "reported"
+                ? ("APPROVED" as const)
+                : w.status === "reading"
+                  ? ("IN_REVIEW" as const)
+                  : ("PENDING" as const),
+            priority:
+              w.urgency === "critical"
+                ? ("STAT" as const)
+                : w.urgency === "urgent"
+                  ? ("URGENT" as const)
+                  : ("ROUTINE" as const),
+            critical: w.urgency === "critical",
+          })),
+        );
+      }
+    } catch {
+      // 工作列表接口不可用时保持空态
+    }
+  };
+
+  // [G005 v3.0.6.12] V3 移动端危急值响应 (GET /mobile/critical-values)
+  const loadMobileCritical = async () => {
+    try {
+      const res = await mobileApi.getCriticalValues();
+      if (res.success && Array.isArray(res.data)) {
+        setMobileCritical(
+          res.data.map((c) => ({
+            id: c.id,
+            patientName: c.patientName,
+            patientId: c.accessionNumber || c.id,
+            age: c.age ?? 0,
+            gender:
+              c.gender === "男" || c.gender === "M"
+                ? ("M" as const)
+                : ("F" as const),
+            modality: c.modality || "-",
+            finding: c.description,
+            category:
+              c.severity.includes("危及生命") ||
+              c.severity.toUpperCase().includes("LIFE")
+                ? ("LIFE_THREATENING" as const)
+                : c.severity.includes("紧急") ||
+                    c.severity.toUpperCase().includes("URGENT")
+                  ? ("URGENT" as const)
+                  : ("IMPORTANT" as const),
+            triggeredAt: c.createdAt || "",
+            triggeredBy: c.notifiedTo || "",
+            state: c.ackedAt
+              ? ("ACKED" as const)
+              : c.state.toUpperCase().includes("NOTIFIED")
+                ? ("NOTIFIED" as const)
+                : c.state.toUpperCase().includes("COMPLETE")
+                  ? ("COMPLETED" as const)
+                  : ("PENDING" as const),
+            recipientName: c.notifiedTo || "-",
+            recipientDept: "",
+          })),
+        );
+      }
+    } catch {
+      // 危急值接口不可用时保持空态
+    }
+  };
+
+  useEffect(() => {
+    void loadMobileWorklist();
+    void loadMobileCritical();
+  }, []);
+
+  // [G005 v3.0.6.12] 危急值确认 (POST /mobile/critical-values/:id/ack)
+  const handleAckCritical = async (id: string, responder: string) => {
+    try {
+      const res = await mobileApi.ackCriticalValue(id, responder);
+      if (res.success) {
+        setMobileCritical((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, state: "ACKED" } : c)),
+        );
+      } else {
+        message.error(res.error?.message ?? t("mobileApp.ackFailed"));
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("mobileApp.ackFailed"));
+    }
+  };
 
   const renderHome = () => (
     <>
       {/* Banner */}
-      <Card bordered={false} style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }} styles={{ body: { padding: 0 } }}>
-        <div style={{ fontSize: 12, color: 'var(--color-primary-800)', fontWeight: 600 }}>{t('mobileApp.welcomeBack')}</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: '4px 0' }}>{mobileUser.name}</div>
-        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('mobileApp.newReports', { count: mobileReports.filter(r => r.status === 'ready').length })}</div>
+      <Card
+        bordered={false}
+        style={{
+          ...s.card,
+          background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+          border: "none",
+        }}
+        styles={{ body: { padding: 0 } }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            color: "var(--color-primary-800)",
+            fontWeight: 600,
+          }}
+        >
+          {t("mobileApp.welcomeBack")}
+        </div>
+        <div
+          style={{
+            fontSize: 20,
+            fontWeight: 700,
+            color: "var(--color-primary-800)",
+            margin: "4px 0",
+          }}
+        >
+          {mobileUser.name}
+        </div>
+        <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+          {t("mobileApp.newReports", {
+            count: mobileReports.filter((r) => r.status === "ready").length,
+          })}
+        </div>
       </Card>
 
       {/* Quick Actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "var(--space-2, 8px)",
+          marginBottom: "var(--space-3, 12px)",
+        }}
+      >
         {[
-          { icon: '', labelKey: 'mobileApp.action.myReports', tab: 'reports' as const },
-          { icon: '', labelKey: 'mobileApp.action.viewImages', tab: 'reports' as const },
-          { icon: '', labelKey: 'mobileApp.action.messageCenter', tab: 'notifications' as const },
-        ].map(action => (
-          <div key={action.labelKey} role="button" tabIndex={0} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-3, 12px)', textAlign: 'center', border: '1px solid var(--border-color)', cursor: 'pointer' }}
+          {
+            icon: "",
+            labelKey: "mobileApp.action.myReports",
+            tab: "reports" as const,
+          },
+          {
+            icon: "",
+            labelKey: "mobileApp.action.viewImages",
+            tab: "reports" as const,
+          },
+          {
+            icon: "",
+            labelKey: "mobileApp.action.messageCenter",
+            tab: "notifications" as const,
+          },
+        ].map((action) => (
+          <div
+            key={action.labelKey}
+            role="button"
+            tabIndex={0}
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 10,
+              padding: "var(--space-3, 12px)",
+              textAlign: "center",
+              border: "1px solid var(--border-color)",
+              cursor: "pointer",
+            }}
             onClick={() => setActiveTab(action.tab)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(action.tab) } }}>
-            <div style={{ fontSize: 24, marginBottom: 'var(--space-1, 4px)' }}>{action.icon}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t(action.labelKey)}</div>
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setActiveTab(action.tab);
+              }
+            }}
+          >
+            <div style={{ fontSize: 24, marginBottom: "var(--space-1, 4px)" }}>
+              {action.icon}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+              {t(action.labelKey)}
+            </div>
           </div>
         ))}
       </div>
 
       {/* Recent Reports */}
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
-          <div style={s.cardTitle}>{t('mobileApp.recentReports')}</div>
-          <span role="button" tabIndex={0} style={{ fontSize: 12, color: 'var(--color-primary-500)', cursor: 'pointer' }} onClick={() => setActiveTab('reports')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('reports') } }}>{t('mobileApp.viewAll')}</span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "var(--space-3, 12px)",
+          }}
+        >
+          <div style={s.cardTitle}>{t("mobileApp.recentReports")}</div>
+          <span
+            role="button"
+            tabIndex={0}
+            style={{
+              fontSize: 12,
+              color: "var(--color-primary-500)",
+              cursor: "pointer",
+            }}
+            onClick={() => setActiveTab("reports")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setActiveTab("reports");
+              }
+            }}
+          >
+            {t("mobileApp.viewAll")}
+          </span>
         </div>
-        {mobileReports.slice(0, 2).map(r => (
-          <div key={r.id} role="button" tabIndex={0} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
+        {mobileReports.slice(0, 2).map((r) => (
+          <div
+            key={r.id}
+            role="button"
+            tabIndex={0}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "10px 0",
+              borderBottom: "1px solid var(--border-color)",
+              cursor: "pointer",
+            }}
             onClick={() => setSelectedReport(r)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setSelectedReport(r);
+              }
+            }}
+          >
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{r.examType}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.examDate}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "var(--text-primary, #1e293b)",
+                }}
+              >
+                {r.examType}
+              </div>
+              <div
+                style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
+              >
+                {r.examDate}
+              </div>
             </div>
-            <span style={s.badge(r.status)}>{r.status === 'ready' ? t('mobileApp.status.ready') : t('mobileApp.status.pending')}</span>
+            <span style={s.badge(r.status)}>
+              {r.status === "ready"
+                ? t("mobileApp.status.ready")
+                : t("mobileApp.status.pending")}
+            </span>
           </div>
         ))}
       </Card>
 
       {/* Notifications Preview */}
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
-          <div style={s.cardTitle}>{t('mobileApp.messages')}</div>
-          <span role="button" tabIndex={0} style={{ fontSize: 12, color: 'var(--color-primary-500)', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('notifications') } }}>{t('mobileApp.viewAll')}</span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "var(--space-3, 12px)",
+          }}
+        >
+          <div style={s.cardTitle}>{t("mobileApp.messages")}</div>
+          <span
+            role="button"
+            tabIndex={0}
+            style={{
+              fontSize: 12,
+              color: "var(--color-primary-500)",
+              cursor: "pointer",
+            }}
+            onClick={() => setActiveTab("notifications")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setActiveTab("notifications");
+              }
+            }}
+          >
+            {t("mobileApp.viewAll")}
+          </span>
         </div>
-        {mobileNotifications.filter(n => !n.read).slice(0, 2).map(n => (
-          <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-primary-500)', marginTop: 'var(--space-1, 4px)', flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{n.title}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{n.body}</div>
+        {mobileNotifications
+          .filter((n) => !n.read)
+          .slice(0, 2)
+          .map((n) => (
+            <div
+              key={n.id}
+              style={{
+                display: "flex",
+                gap: 10,
+                padding: "8px 0",
+                borderBottom: "1px solid var(--border-color)",
+              }}
+            >
+              <div
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--color-primary-500)",
+                  marginTop: "var(--space-1, 4px)",
+                  flexShrink: 0,
+                }}
+              />
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {n.title}
+                </div>
+                <div
+                  style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
+                >
+                  {n.body}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </Card>
     </>
-  )
+  );
 
   const renderReports = () => (
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       {selectedReport ? (
         <div>
-          <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--color-primary-500)', marginBottom: 'var(--space-3, 12px)', padding: 0 }} onClick={() => setSelectedReport(null)}>
-            {t('mobileApp.backToList')}
+          <button
+            style={{
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              fontSize: 12,
+              color: "var(--color-primary-500)",
+              marginBottom: "var(--space-3, 12px)",
+              padding: 0,
+            }}
+            onClick={() => setSelectedReport(null)}
+          >
+            {t("mobileApp.backToList")}
           </button>
-          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-1, 4px)' }}>{selectedReport.examType}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 'var(--space-3, 12px)' }}>{selectedReport.examDate} · {selectedReport.doctorName}</div>
-          <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 'var(--space-4, 16px)' }}>
+          <div
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: "var(--text-primary)",
+              marginBottom: "var(--space-1, 4px)",
+            }}
+          >
+            {selectedReport.examType}
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: "var(--text-muted, #94a3b8)",
+              marginBottom: "var(--space-3, 12px)",
+            }}
+          >
+            {selectedReport.examDate} · {selectedReport.doctorName}
+          </div>
+          <div
+            style={{
+              padding: "var(--space-3, 12px)",
+              background: "var(--bg-card)",
+              borderRadius: 8,
+              fontSize: 12,
+              color: "var(--text-secondary)",
+              lineHeight: 1.6,
+              marginBottom: "var(--space-4, 16px)",
+            }}
+          >
             检查描述：双肺野清晰，肺纹理走行自然。\n诊断意见：未见明显异常。
           </div>
-          <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
-            <button onClick={() => void handleDownloadPdf(selectedReport)} disabled={downloadingPdf} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: downloadingPdf ? '#93c5fd' : 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: downloadingPdf ? 'wait' : 'pointer' }}>{downloadingPdf ? t('mobileApp.exporting') : t('mobileApp.downloadPdf')}</button>
-            <button onClick={() => void handleViewImages(selectedReport)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('mobileApp.viewImagesBtn')}</button>
+          <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
+            <button
+              onClick={() => void handleDownloadPdf(selectedReport)}
+              disabled={downloadingPdf}
+              style={{
+                flex: 1,
+                padding: "8px 0",
+                borderRadius: 8,
+                border: "none",
+                background: downloadingPdf
+                  ? "#93c5fd"
+                  : "var(--color-primary-500)",
+                color: "#fff",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: downloadingPdf ? "wait" : "pointer",
+              }}
+            >
+              {downloadingPdf
+                ? t("mobileApp.exporting")
+                : t("mobileApp.downloadPdf")}
+            </button>
+            <button
+              onClick={() => void handleViewImages(selectedReport)}
+              style={{
+                flex: 1,
+                padding: "8px 0",
+                borderRadius: 8,
+                border: "none",
+                background: "#059669",
+                color: "#fff",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {t("mobileApp.viewImagesBtn")}
+            </button>
           </div>
-          <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bae6fd' }}>
-            <div style={{ fontSize: 12, color: '#0369a1', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
-              <CreditCard size={12} /> {t('mobileApp.reviewFee')}
+          <div
+            style={{
+              marginTop: "var(--space-3, 12px)",
+              padding: 10,
+              background: "#f0f9ff",
+              borderRadius: 8,
+              border: "1px solid #bae6fd",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                color: "#0369a1",
+                marginBottom: 6,
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
+              <CreditCard size={12} /> {t("mobileApp.reviewFee")}
             </div>
             <button
               onClick={() => handleWechatPay(selectedReport)}
-              disabled={payState === 'invoking' || (payingReportId === selectedReport.id && payState === 'success')}
+              disabled={
+                payState === "invoking" ||
+                (payingReportId === selectedReport.id && payState === "success")
+              }
               style={{
-                width: '100%',
-                padding: '8px 0',
+                width: "100%",
+                padding: "8px 0",
                 borderRadius: 8,
-                border: 'none',
-                background: payState === 'success' && payingReportId === selectedReport.id ? '#94a3b8' : payState === 'invoking' ? '#cbd5e1' : '#07c160',
-                color: '#fff',
+                border: "none",
+                background:
+                  payState === "success" && payingReportId === selectedReport.id
+                    ? "#94a3b8"
+                    : payState === "invoking"
+                      ? "#cbd5e1"
+                      : "#07c160",
+                color: "#fff",
                 fontSize: 12,
                 fontWeight: 600,
-                cursor: payState === 'invoking' ? 'not-allowed' : 'pointer',
+                cursor: payState === "invoking" ? "not-allowed" : "pointer",
               }}
             >
-              {payState === 'idle' && t('mobileApp.wechatPay')}
-              {payState === 'invoking' && t('mobileApp.invokingPay')}
-              {payState === 'success' && payingReportId === selectedReport.id && t('mobileApp.paySuccessMark')}
-              {payState === 'failed' && (payError || t('mobileApp.payRetry'))}
+              {payState === "idle" && t("mobileApp.wechatPay")}
+              {payState === "invoking" && t("mobileApp.invokingPay")}
+              {payState === "success" &&
+                payingReportId === selectedReport.id &&
+                t("mobileApp.paySuccessMark")}
+              {payState === "failed" && (payError || t("mobileApp.payRetry"))}
             </button>
           </div>
         </div>
       ) : (
         <>
-          <div style={s.cardTitle}>{t('mobileApp.examReports')}</div>
-          {mobileReports.map(r => (
-            <div key={r.id} role="button" tabIndex={0} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setSelectedReport(r)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
+          <div style={s.cardTitle}>{t("mobileApp.examReports")}</div>
+          {mobileReports.map((r) => (
+            <div
+              key={r.id}
+              role="button"
+              tabIndex={0}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "12px 0",
+                borderBottom: "1px solid var(--border-color)",
+                cursor: "pointer",
+              }}
+              onClick={() => setSelectedReport(r)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedReport(r);
+                }
+              }}
+            >
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.examType}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.examDate}</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {r.examType}
+                </div>
+                <div
+                  style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
+                >
+                  {r.examDate}
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-                <span style={s.badge(r.status)}>{r.status === 'ready' ? t('mobileApp.status.ready') : t('mobileApp.status.pending')}</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
+                <span style={s.badge(r.status)}>
+                  {r.status === "ready"
+                    ? t("mobileApp.status.ready")
+                    : t("mobileApp.status.pending")}
+                </span>
                 <ChevronRight size={14} color="#94a3b8" />
               </div>
             </div>
@@ -416,139 +990,347 @@ export default function PatientMobileApp() {
         </>
       )}
     </Card>
-  )
+  );
 
   const renderNotifications = () => (
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-      <div style={s.cardTitle}>{t('mobileApp.action.messageCenter')}</div>
-      {mobileNotifications.map(n => (
-        <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? 'var(--border-color)' : 'var(--color-primary-500)', marginTop: 5, flexShrink: 0 }} />
+      <div style={s.cardTitle}>{t("mobileApp.action.messageCenter")}</div>
+      {mobileNotifications.map((n) => (
+        <div
+          key={n.id}
+          style={{
+            display: "flex",
+            gap: 10,
+            padding: "10px 0",
+            borderBottom: "1px solid var(--border-color)",
+          }}
+        >
+          <div
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: n.read
+                ? "var(--border-color)"
+                : "var(--color-primary-500)",
+              marginTop: 5,
+              flexShrink: 0,
+            }}
+          />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{n.title}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{n.body}</div>
-            <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 'var(--space-1, 4px)' }}>{n.time}</div>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: "var(--text-primary, #1e293b)",
+              }}
+            >
+              {n.title}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted, #94a3b8)",
+                marginTop: 2,
+              }}
+            >
+              {n.body}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "#cbd5e1",
+                marginTop: "var(--space-1, 4px)",
+              }}
+            >
+              {n.time}
+            </div>
           </div>
         </div>
       ))}
     </Card>
-  )
+  );
+
+  // [G005 v3.0.6.12] V3 移动端视图: 工作列表 + 危急值响应
+  const renderWorklist = () => (
+    <MobileWorklist
+      items={mobileWorklist}
+      offline={!isOnline}
+      onRefresh={loadMobileWorklist}
+    />
+  );
+
+  const renderCritical = () => (
+    <MobileCriticalResponse
+      items={mobileCritical}
+      currentUser={mobileUser.name}
+      offline={!isOnline}
+      onAck={handleAckCritical}
+    />
+  );
 
   const renderProfile = () => (
     <div>
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
-          <div style={{ ...s.avatar, width: 56, height: 56, fontSize: 24, background: 'var(--color-info-bg)' }}>{mobileUser.avatar}</div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3, 12px)",
+            marginBottom: "var(--space-4, 16px)",
+          }}
+        >
+          <div
+            style={{
+              ...s.avatar,
+              width: 56,
+              height: 56,
+              fontSize: 24,
+              background: "var(--color-info-bg)",
+            }}
+          >
+            {mobileUser.avatar}
+          </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{mobileUser.name}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>{mobileUser.phone}</div>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: "var(--text-primary)",
+              }}
+            >
+              {mobileUser.name}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted, #64748b)",
+                marginTop: 2,
+              }}
+            >
+              {mobileUser.phone}
+            </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
-          <span style={s.verifiedBadge}>{t('mobileApp.profile.verified')}</span>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
+          <span style={s.verifiedBadge}>{t("mobileApp.profile.verified")}</span>
         </div>
-        <div style={{ marginTop: 'var(--space-3, 12px)', fontSize: 12, color: loginState === 'success' ? '#059669' : '#94a3b8' }}>
-          {t('mobileApp.loginStatus')} {loginState === 'success' ? t('mobileApp.smsVerified') : t('mobileApp.notLoggedIn')}
-          {loginState !== 'success' && (
-            <button onClick={() => setActiveTab('login')} style={{ marginLeft: 'var(--space-2, 8px)', border: 'none', background: 'var(--color-primary-500)', color: '#fff', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
-              {t('mobileApp.goLogin')}
+        <div
+          style={{
+            marginTop: "var(--space-3, 12px)",
+            fontSize: 12,
+            color: loginState === "success" ? "#059669" : "#94a3b8",
+          }}
+        >
+          {t("mobileApp.loginStatus")}{" "}
+          {loginState === "success"
+            ? t("mobileApp.smsVerified")
+            : t("mobileApp.notLoggedIn")}
+          {loginState !== "success" && (
+            <button
+              onClick={() => setActiveTab("login")}
+              style={{
+                marginLeft: "var(--space-2, 8px)",
+                border: "none",
+                background: "var(--color-primary-500)",
+                color: "#fff",
+                padding: "4px 10px",
+                borderRadius: 6,
+                fontSize: 12,
+                cursor: "pointer",
+              }}
+            >
+              {t("mobileApp.goLogin")}
             </button>
           )}
         </div>
       </Card>
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         {[
-          { icon: '', labelKey: 'mobileApp.profile.security' },
-          { icon: '', labelKey: 'mobileApp.profile.devices' },
-          { icon: '', labelKey: 'mobileApp.profile.settings' },
-          { icon: '', labelKey: 'mobileApp.profile.about' },
+          { icon: "", labelKey: "mobileApp.profile.security" },
+          { icon: "", labelKey: "mobileApp.profile.devices" },
+          { icon: "", labelKey: "mobileApp.profile.settings" },
+          { icon: "", labelKey: "mobileApp.profile.about" },
         ].map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--border-color)' : 'none', cursor: 'pointer' }}>
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "10px 0",
+              borderBottom: i < 3 ? "1px solid var(--border-color)" : "none",
+              cursor: "pointer",
+            }}
+          >
             <span style={{ marginRight: 10, fontSize: 16 }}>{item.icon}</span>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)', flex: 1 }}>{t(item.labelKey)}</span>
+            <span
+              style={{ fontSize: 12, color: "var(--text-secondary)", flex: 1 }}
+            >
+              {t(item.labelKey)}
+            </span>
             <ChevronRight size={14} color="#94a3b8" />
           </div>
         ))}
       </Card>
     </div>
-  )
+  );
 
   const renderLogin = () => (
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-      <div style={{ ...s.cardTitle, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Smartphone size={16} color="var(--color-primary-800)" /> {t('mobileApp.phoneLogin')}
+      <div
+        style={{
+          ...s.cardTitle,
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        <Smartphone size={16} color="var(--color-primary-800)" />{" "}
+        {t("mobileApp.phoneLogin")}
       </div>
-      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-3, 12px)' }}>
-        {t('mobileApp.phoneLoginHint')}
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--text-muted, #64748b)",
+          marginBottom: "var(--space-3, 12px)",
+        }}
+      >
+        {t("mobileApp.phoneLoginHint")}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '10px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 8, marginBottom: 10 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          padding: "10px 12px",
+          border: "1px solid var(--border-color, #cbd5e1)",
+          borderRadius: 8,
+          marginBottom: 10,
+        }}
+      >
         <Phone size={14} color="#64748b" />
         <input
           value={phoneInput}
-          onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 11))}
-          placeholder={t('mobileApp.phonePlaceholder')}
-          style={{ flex: 1, border: 'none', fontSize: 14, background: 'transparent' }}
+          onChange={(e) =>
+            setPhoneInput(e.target.value.replace(/\D/g, "").slice(0, 11))
+          }
+          placeholder={t("mobileApp.phonePlaceholder")}
+          style={{
+            flex: 1,
+            border: "none",
+            fontSize: 14,
+            background: "transparent",
+          }}
           inputMode="numeric"
         />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '10px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 8, marginBottom: 10 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2, 8px)",
+          padding: "10px 12px",
+          border: "1px solid var(--border-color, #cbd5e1)",
+          borderRadius: 8,
+          marginBottom: 10,
+        }}
+      >
         <MessageSquare size={14} color="#64748b" />
         <input
           value={smsCode}
-          onChange={e => setSmsCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          placeholder={t('mobileApp.smsPlaceholder')}
-          style={{ flex: 1, border: 'none', fontSize: 14, background: 'transparent' }}
+          onChange={(e) =>
+            setSmsCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+          }
+          placeholder={t("mobileApp.smsPlaceholder")}
+          style={{
+            flex: 1,
+            border: "none",
+            fontSize: 14,
+            background: "transparent",
+          }}
           inputMode="numeric"
         />
         <button
           onClick={sendSmsCode}
-          disabled={smsCountdown > 0 || loginState === 'sending'}
+          disabled={smsCountdown > 0 || loginState === "sending"}
           style={{
-            border: 'none',
-            background: smsCountdown > 0 ? '#e2e8f0' : 'var(--color-primary-500)',
-            color: smsCountdown > 0 ? '#94a3b8' : '#fff',
-            padding: '6px 10px',
+            border: "none",
+            background:
+              smsCountdown > 0 ? "#e2e8f0" : "var(--color-primary-500)",
+            color: smsCountdown > 0 ? "#94a3b8" : "#fff",
+            padding: "6px 10px",
             borderRadius: 6,
             fontSize: 12,
-            cursor: smsCountdown > 0 ? 'not-allowed' : 'pointer',
+            cursor: smsCountdown > 0 ? "not-allowed" : "pointer",
             minWidth: 90,
           }}
         >
-          {smsCountdown > 0 ? `${smsCountdown}s 后重发` : t('mobileApp.getSmsCode')}
+          {smsCountdown > 0
+            ? `${smsCountdown}s 后重发`
+            : t("mobileApp.getSmsCode")}
         </button>
       </div>
-      {loginError && <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginBottom: 'var(--space-2, 8px)' }}>{loginError}</div>}
+      {loginError && (
+        <div
+          style={{
+            fontSize: 12,
+            color: "var(--color-error-600)",
+            marginBottom: "var(--space-2, 8px)",
+          }}
+        >
+          {loginError}
+        </div>
+      )}
       <button
         onClick={verifySmsCode}
-        disabled={loginState === 'verifying'}
+        disabled={loginState === "verifying"}
         style={{
-          width: '100%',
-          padding: '10px 0',
+          width: "100%",
+          padding: "10px 0",
           borderRadius: 8,
-          border: 'none',
-          background: loginState === 'verifying' ? '#94a3b8' : '#059669',
-          color: '#fff',
+          border: "none",
+          background: loginState === "verifying" ? "#94a3b8" : "#059669",
+          color: "#fff",
           fontSize: 14,
           fontWeight: 600,
-          cursor: loginState === 'verifying' ? 'not-allowed' : 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          cursor: loginState === "verifying" ? "not-allowed" : "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           gap: 6,
         }}
       >
-        <Lock size={14} /> {loginState === 'verifying' ? t('mobileApp.verifying') : t('mobileApp.login')}
+        <Lock size={14} />{" "}
+        {loginState === "verifying"
+          ? t("mobileApp.verifying")
+          : t("mobileApp.login")}
       </button>
-      <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-muted, #94a3b8)', textAlign: 'center' }}>
-        {t('mobileApp.agreement')}
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          color: "var(--text-muted, #94a3b8)",
+          textAlign: "center",
+        }}
+      >
+        {t("mobileApp.agreement")}
       </div>
     </Card>
-  )
+  );
 
   return (
     <div style={s.wrapper}>
       {/* Status Bar */}
-      <div style={{ background: 'var(--color-primary-800)', color: '#fff', padding: '6px 16px', fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
+      <div
+        style={{
+          background: "var(--color-primary-800)",
+          color: "#fff",
+          padding: "6px 16px",
+          fontSize: 12,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <span>9:41</span>
         <span>100%</span>
       </div>
@@ -559,40 +1341,132 @@ export default function PatientMobileApp() {
             <div style={s.avatar}></div>
             <div>
               <div style={s.userName}>{mobileUser.name}</div>
-              <span style={s.verifiedBadge}>{t('mobileApp.verified')}</span>
+              <span style={s.verifiedBadge}>{t("mobileApp.verified")}</span>
             </div>
           </div>
-          <span role="button" tabIndex={0} aria-label={pushEnabled ? t('mobileApp.disablePush') : t('mobileApp.enablePush')} style={{ fontSize: 20, cursor: 'pointer' }} onClick={togglePush} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePush() } }} title={pushEnabled ? t('mobileApp.disablePush') : t('mobileApp.enablePush')}>
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label={
+              pushEnabled
+                ? t("mobileApp.disablePush")
+                : t("mobileApp.enablePush")
+            }
+            style={{ fontSize: 20, cursor: "pointer" }}
+            onClick={togglePush}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                togglePush();
+              }
+            }}
+            title={
+              pushEnabled
+                ? t("mobileApp.disablePush")
+                : t("mobileApp.enablePush")
+            }
+          >
             {pushEnabled ? <Bell size={20} /> : <BellOff size={20} />}
           </span>
         </div>
         {/* Tab Bar */}
-        <div style={{ display: 'flex', marginTop: 'var(--space-2, 8px)' }}>
-          {(['home', 'reports', 'notifications', 'profile', 'login'] as const).map(tabKey => (
-            <div key={tabKey} role="button" tabIndex={0} style={s.tab(activeTab === tabKey)} onClick={() => setActiveTab(tabKey)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(tabKey) } }}>
-              {tabKey === 'home' ? t('mobileApp.tab.home') : tabKey === 'reports' ? t('mobileApp.tab.reports') : tabKey === 'notifications' ? t('mobileApp.tab.notifications') : tabKey === 'profile' ? t('mobileApp.tab.profile') : t('mobileApp.tab.login')}
+        <div style={{ display: "flex", marginTop: "var(--space-2, 8px)" }}>
+          {(
+            [
+              "home",
+              "reports",
+              "worklist",
+              "critical",
+              "notifications",
+              "profile",
+              "login",
+            ] as const
+          ).map((tabKey) => (
+            <div
+              key={tabKey}
+              role="button"
+              tabIndex={0}
+              style={s.tab(activeTab === tabKey)}
+              onClick={() => setActiveTab(tabKey)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActiveTab(tabKey);
+                }
+              }}
+            >
+              {tabKey === "home"
+                ? t("mobileApp.tab.home")
+                : tabKey === "reports"
+                  ? t("mobileApp.tab.reports")
+                  : tabKey === "worklist"
+                    ? t("docMobile.tab.worklist")
+                    : tabKey === "critical"
+                      ? t("docMobile.tab.critical")
+                      : tabKey === "notifications"
+                        ? t("mobileApp.tab.notifications")
+                        : tabKey === "profile"
+                          ? t("mobileApp.tab.profile")
+                          : t("mobileApp.tab.login")}
             </div>
           ))}
         </div>
       </div>
       {/* Content */}
       <div style={s.content}>
-        {activeTab === 'home' && renderHome()}
-        {activeTab === 'reports' && renderReports()}
-        {activeTab === 'notifications' && renderNotifications()}
-        {activeTab === 'profile' && renderProfile()}
-        {activeTab === 'login' && renderLogin()}
+        {activeTab === "home" && renderHome()}
+        {activeTab === "reports" && renderReports()}
+        {/* [G005 v3.0.6.12] V3 移动端视图: 工作列表 + 危急值响应 */}
+        {activeTab === "worklist" && renderWorklist()}
+        {activeTab === "critical" && renderCritical()}
+        {activeTab === "notifications" && renderNotifications()}
+        {activeTab === "profile" && renderProfile()}
+        {activeTab === "login" && renderLogin()}
       </div>
       {/* Bottom Nav */}
       <div style={s.nav}>
         {[
-          { key: 'home' as const, icon: '', labelKey: 'mobileApp.tab.home' },
-          { key: 'reports' as const, icon: '', labelKey: 'mobileApp.tab.reports' },
-          { key: 'notifications' as const, icon: '', labelKey: 'mobileApp.tab.notifications' },
-          { key: 'profile' as const, icon: '', labelKey: 'mobileApp.tab.profile' },
-          { key: 'login' as const, icon: '', labelKey: 'mobileApp.tab.login' },
-        ].map(n => (
-          <div key={n.key} role="button" tabIndex={0} style={s.navItem(activeTab === n.key)} onClick={() => setActiveTab(n.key)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(n.key) } }}>
+          { key: "home" as const, icon: "", labelKey: "mobileApp.tab.home" },
+          {
+            key: "reports" as const,
+            icon: "",
+            labelKey: "mobileApp.tab.reports",
+          },
+          {
+            key: "worklist" as const,
+            icon: "",
+            labelKey: "docMobile.tab.worklist",
+          },
+          {
+            key: "critical" as const,
+            icon: "",
+            labelKey: "docMobile.tab.critical",
+          },
+          {
+            key: "notifications" as const,
+            icon: "",
+            labelKey: "mobileApp.tab.notifications",
+          },
+          {
+            key: "profile" as const,
+            icon: "",
+            labelKey: "mobileApp.tab.profile",
+          },
+          { key: "login" as const, icon: "", labelKey: "mobileApp.tab.login" },
+        ].map((n) => (
+          <div
+            key={n.key}
+            role="button"
+            tabIndex={0}
+            style={s.navItem(activeTab === n.key)}
+            onClick={() => setActiveTab(n.key)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setActiveTab(n.key);
+              }
+            }}
+          >
             <div style={{ fontSize: 18 }}>{n.icon}</div>
             <div>{t(n.labelKey)}</div>
           </div>
@@ -601,28 +1475,152 @@ export default function PatientMobileApp() {
 
       {/* 影像查看弹层 */}
       {imageViewer && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={() => setImageViewer(null)}>
-          <div style={{ maxWidth: 420, width: '92%', background: '#0f172a', borderRadius: 16, padding: 'var(--space-4, 16px)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
-              <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{imageViewer.report.examType} {t('mobileApp.imageSuffix')}</span>
-              <button aria-label="关闭" onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #94a3b8)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(15,23,42,0.92)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+          onClick={() => setImageViewer(null)}
+        >
+          <div
+            style={{
+              maxWidth: 420,
+              width: "92%",
+              background: "#0f172a",
+              borderRadius: 16,
+              padding: "var(--space-4, 16px)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
+              <span style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>
+                {imageViewer.report.examType} {t("mobileApp.imageSuffix")}
+              </span>
+              <button
+                aria-label="关闭"
+                onClick={() => setImageViewer(null)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-muted, #94a3b8)",
+                  cursor: "pointer",
+                  padding: "var(--space-1, 4px)",
+                }}
+              >
+                <X size={18} />
+              </button>
             </div>
             {imageLoading ? (
-              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('mobileApp.imageLoading')}</div>
+              <div
+                style={{
+                  height: 260,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--text-muted, #64748b)",
+                  fontSize: 12,
+                }}
+              >
+                {t("mobileApp.imageLoading")}
+              </div>
             ) : (
               <>
-                <div style={{ height: 260, background: 'linear-gradient(135deg,#1e293b,#0f172a)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #334155' }}>
-                  <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-                    <div style={{ fontSize: 36, marginBottom: 'var(--space-2, 8px)' }}></div>
-                    <div style={{ fontSize: 12 }}>{imageViewer.report.examType} · {imageViewer.report.examDate}</div>
-                    <div style={{ fontSize: 11, marginTop: 6, color: 'rgba(255,255,255,0.4)' }}>
-                      {imageViewer.study ? `序列 ${imageViewer.study.series?.length ?? 0} 组 · ${imageViewer.study.studyInstanceUid?.slice(0, 12) ?? ''}...` : t('mobileApp.dicomPreview')}
+                <div
+                  style={{
+                    height: 260,
+                    background: "linear-gradient(135deg,#1e293b,#0f172a)",
+                    borderRadius: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "1px solid #334155",
+                  }}
+                >
+                  <div
+                    style={{
+                      textAlign: "center",
+                      color: "rgba(255,255,255,0.6)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 36,
+                        marginBottom: "var(--space-2, 8px)",
+                      }}
+                    ></div>
+                    <div style={{ fontSize: 12 }}>
+                      {imageViewer.report.examType} ·{" "}
+                      {imageViewer.report.examDate}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        marginTop: 6,
+                        color: "rgba(255,255,255,0.4)",
+                      }}
+                    >
+                      {imageViewer.study
+                        ? `序列 ${imageViewer.study.series?.length ?? 0} 组 · ${imageViewer.study.studyInstanceUid?.slice(0, 12) ?? ""}...`
+                        : t("mobileApp.dicomPreview")}
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-3, 12px)' }}>
-                  <button onClick={() => setImageViewer(null)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 12, cursor: 'pointer' }}>{t('mobileApp.close')}</button>
-                  <button onClick={() => void document.documentElement.requestFullscreen?.().catch(() => {})} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, cursor: 'pointer' }}>{t('mobileApp.fullscreen')}</button>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "var(--space-2, 8px)",
+                    marginTop: "var(--space-3, 12px)",
+                  }}
+                >
+                  <button
+                    onClick={() => setImageViewer(null)}
+                    style={{
+                      flex: 1,
+                      padding: "8px 0",
+                      borderRadius: 8,
+                      border: "1px solid #334155",
+                      background: "transparent",
+                      color: "#cbd5e1",
+                      fontSize: 12,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {t("mobileApp.close")}
+                  </button>
+                  <button
+                    onClick={() =>
+                      void document.documentElement
+                        .requestFullscreen?.()
+                        .catch(() => {})
+                    }
+                    style={{
+                      flex: 1,
+                      padding: "8px 0",
+                      borderRadius: 8,
+                      border: "none",
+                      background: "var(--color-primary-500)",
+                      color: "#fff",
+                      fontSize: 12,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {t("mobileApp.fullscreen")}
+                  </button>
                 </div>
               </>
             )}
@@ -630,5 +1628,5 @@ export default function PatientMobileApp() {
         </div>
       )}
     </div>
-  )
+  );
 }

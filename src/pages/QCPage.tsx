@@ -46,6 +46,7 @@ import {
   BarChart2,
   ClipboardCheck,
   ClipboardList,
+  FileCheck2,
   Users,
   Activity,
   User,
@@ -102,6 +103,8 @@ import DepartmentQualityPage from "./quality/DepartmentQualityPage";
 import RqiIndicatorPage from "./qc/RqiIndicatorPage";
 // [G005 W9-QC] 统一质控评分台 Tab: 内嵌量表+40指标+PDCA+抽查双盲+互评+设备质控 (深链 /qc?tab=scoringCenter)
 import QualityScoringCenterPage from "./qc/QualityScoringCenterPage";
+// [v3.0.6.11-106 Wave 6B] 报告质控 V2 面板: 多维智能评分 (F4) + 缺陷识别 + 双人复核任务流
+import ReportQcV2Panel from "../components/report/v3/R3.QUALITY/ReportQcV2Panel";
 
 const { Title } = Typography;
 
@@ -240,6 +243,12 @@ const TABS = [
     key: "scoringCenter",
     label: t("qcPage.qcScoringCenter"),
     icon: <Gauge size={15} />,
+  },
+  // [v3.0.6.11-106 Wave 6B] 报告质控 V2: 多维智能评分 + 缺陷识别 + 双人复核任务流
+  {
+    key: "reportQcV2",
+    label: t("reportQcV2.title"),
+    icon: <FileCheck2 size={15} />,
   },
 ];
 
@@ -11330,6 +11339,21 @@ export default function QCPage() {
           }}
         >
           <QualityScoringCenterPage />
+        </div>
+      )}
+
+      {/* [v3.0.6.11-106 Wave 6B] 报告质控 V2: 多维智能评分 + 缺陷识别 + 双人复核任务流; 深链 /qc?tab=reportQcV2 */}
+      {activeTab === "reportQcV2" && (
+        <div
+          data-testid="qc-embedded-report-qc-v2"
+          style={{
+            background: "var(--bg-card)",
+            borderRadius: 12,
+            padding: "var(--space-1, 4px)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <ReportQcV2Panel />
         </div>
       )}
 

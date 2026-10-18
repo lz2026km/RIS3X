@@ -28,7 +28,35 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { Menu, X, Radio, Activity, Bell, ChevronRight, Search, Sun, Moon, Contrast, Settings, LayoutDashboard, Users, FileText, ShieldCheck, GitBranch, Printer, Sparkles, Network, UserCheck, BarChart3, DollarSign, FileSpreadsheet, Eye, LayoutGrid, Package, Stethoscope } from "lucide-react";
+import {
+  Menu,
+  X,
+  Radio,
+  Activity,
+  Bell,
+  ChevronRight,
+  Search,
+  Sun,
+  Moon,
+  Contrast,
+  Settings,
+  LayoutDashboard,
+  Users,
+  FileText,
+  ShieldCheck,
+  GitBranch,
+  Printer,
+  Sparkles,
+  Network,
+  UserCheck,
+  BarChart3,
+  DollarSign,
+  FileSpreadsheet,
+  Eye,
+  LayoutGrid,
+  Package,
+  Stethoscope,
+} from "lucide-react";
 import { Badge, Drawer } from "antd";
 import { BrandMark } from "../components/common/BrandMark";
 import {
@@ -58,6 +86,8 @@ import { useGlobalShortcuts } from "../hooks/useGlobalShortcuts";
 import { ShortcutHelpModal } from "../components/common/ShortcutHelpModal";
 import { SettingsPanel } from "../components/feedback/SettingsPanel";
 import { NetworkOfflineBanner } from "../components/feedback/NetworkOfflineBanner";
+// [G005 v3.0.6.12] 全局路由加载骨架屏 (feedback/Toast AppSkeleton)
+import { AppSkeleton } from "../components/feedback/Toast";
 import { SkipLink } from "../a11y/SkipLink";
 import { DemoFallbackBanner } from "../components/feedback/DemoFallbackBanner";
 // [W1-B] 铃铛未读数: notificationsApi.getUnread (GET /notifications/unread/:userId)
@@ -65,41 +95,6 @@ import { notificationsApi } from "../services/api/notificationsApi";
 
 const NavigateCtx = createContext<(path: string) => void>(() => {});
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx);
-
-function Loading() {
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: "var(--z-modal, 500)" as unknown as number,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--bg-primary, #0f172a)",
-        color: "var(--text-muted, #64748b)",
-        fontSize: 14,
-        gap: 12,
-      }}
-    >
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          border: "3px solid var(--border-color, #334155)",
-          borderTopColor: "var(--color-primary-500, var(--color-primary-500))",
-          borderRadius: "50%",
-          animation: "spin 0.8s linear infinite",
-        }}
-      />
-      <style>{"@keyframes spin { to { transform: rotate(360deg); } }"}</style>
-      {t("app.loading")}
-    </div>
-  );
-}
 
 function useSidebarItems(role: Role): SidebarSection[] {
   return useMemo(
@@ -237,7 +232,8 @@ const s: Record<string, React.CSSProperties> = {
   logoIcon: {
     width: 32,
     height: 32,
-    background: "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700))",
+    background:
+      "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700))",
     borderRadius: 8,
     display: "flex",
     alignItems: "center",
@@ -270,7 +266,8 @@ const s: Record<string, React.CSSProperties> = {
   avatar: {
     width: 28,
     height: 28,
-    background: "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700))",
+    background:
+      "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700))",
     borderRadius: 6,
     display: "flex",
     alignItems: "center",
@@ -376,9 +373,7 @@ const navItemStyle = (active: boolean, open: boolean): React.CSSProperties => ({
 });
 
 const breadcrumbItemStyle = (current: boolean): React.CSSProperties => ({
-  color: current
-    ? "var(--text-header, #f1f5f9)"
-    : "var(--text-muted, #64748b)",
+  color: current ? "var(--text-header, #f1f5f9)" : "var(--text-muted, #64748b)",
   fontWeight: current ? 600 : 400,
   cursor: current ? "default" : "pointer",
   textDecoration: "none",
@@ -604,7 +599,10 @@ export function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   // [UI-5] 侧栏激活态改为前缀匹配 (详情路由高亮父级) — 最长匹配优先, 精确匹配天然胜出
-  const activePath = useMemo(() => computeActivePath(location.pathname), [location.pathname]);
+  const activePath = useMemo(
+    () => computeActivePath(location.pathname),
+    [location.pathname],
+  );
   const isActive = (path: string) => activePath === path;
   const { isOnline } = useNetworkStatus();
   const { user, isAuthenticated } = useAuth();
@@ -615,11 +613,14 @@ export function AppLayout() {
 
   // [W14-UX] 全局快捷键 (导航序列键 g+x / Ctrl+K 搜索 / Alt+T 主题 / ? 与 F1 帮助)
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const { shortcuts: globalShortcuts, helpOpen, closeHelp } = useGlobalShortcuts({
+  const {
+    shortcuts: globalShortcuts,
+    helpOpen,
+    closeHelp,
+  } = useGlobalShortcuts({
     navigate,
     onToggleTheme: cycleTheme,
-    onRefresh: () =>
-      window.dispatchEvent(new CustomEvent("g005:refresh")),
+    onRefresh: () => window.dispatchEvent(new CustomEvent("g005:refresh")),
     onSearch: () => {
       setSearchOpen(true);
       requestAnimationFrame(() => searchInputRef.current?.focus());
@@ -673,20 +674,34 @@ export function AppLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const canReadUnread = useMemo(() => {
     const role = String(user?.role ?? "");
-    return role === "ADMIN" || role === "DIRECTOR" || role === "管理员" || role === "主任";
+    return (
+      role === "ADMIN" ||
+      role === "DIRECTOR" ||
+      role === "管理员" ||
+      role === "主任"
+    );
   }, [user?.role]);
   useEffect(() => {
     const uid = user?.id;
     if (!uid || !canReadUnread) return;
     let cancelled = false;
     const loadUnread = () => {
-      notificationsApi.getUnread(uid).then(res => {
-        if (!cancelled && res.success && res.data) setUnreadCount(Number(res.data.unread ?? 0));
-      }).catch(() => { /* 未读数不可用不阻断 */ });
+      notificationsApi
+        .getUnread(uid)
+        .then((res) => {
+          if (!cancelled && res.success && res.data)
+            setUnreadCount(Number(res.data.unread ?? 0));
+        })
+        .catch(() => {
+          /* 未读数不可用不阻断 */
+        });
     };
     loadUnread();
     const iv = setInterval(loadUnread, 60000);
-    return () => { cancelled = true; clearInterval(iv); };
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
   }, [user?.id, canReadUnread]);
 
   if (!isAuthenticated || !user) {
@@ -724,7 +739,11 @@ export function AppLayout() {
   const renderSidebarContent = (open: boolean, closeFn?: () => void) => (
     <>
       <div style={s.logoWrap}>
-        <BrandMark size={open ? 32 : 28} title={t("ui5Shell.brandMark")} testId="brand-mark" />
+        <BrandMark
+          size={open ? 32 : 28}
+          title={t("ui5Shell.brandMark")}
+          testId="brand-mark"
+        />
         {open && (
           <div style={{ minWidth: 0, overflow: "hidden" }}>
             <div
@@ -760,16 +779,14 @@ export function AppLayout() {
       <nav style={s.nav} aria-label={t("app.nav")}>
         {filteredItems.map((section, idx) => (
           <div key={idx} style={{ marginBottom: 16 }}>
-            <div
-              style={sectionTitleStyle(open)}
-              aria-hidden={!open}
-            >
+            <div style={sectionTitleStyle(open)} aria-hidden={!open}>
               <span
                 style={{
                   width: 3,
                   height: 12,
                   borderRadius: 2,
-                  background: "var(--color-primary-500, var(--color-primary-500))",
+                  background:
+                    "var(--color-primary-500, var(--color-primary-500))",
                   flexShrink: 0,
                   opacity: open ? 1 : 0,
                 }}
@@ -863,7 +880,11 @@ export function AppLayout() {
   return (
     <div style={{ ...s.root, direction }}>
       <SkipLink />
-      <ShortcutHelpModal open={helpOpen} onClose={closeHelp} shortcuts={globalShortcuts} />
+      <ShortcutHelpModal
+        open={helpOpen}
+        onClose={closeHelp}
+        shortcuts={globalShortcuts}
+      />
       <NavigateCtx.Provider value={navigate}>
         <aside
           className="app-sidebar no-print"
@@ -885,12 +906,19 @@ export function AppLayout() {
           width={272}
           closable={false}
           rootClassName="app-sidebar-drawer"
-          styles={{ body: { padding: 0, background: "var(--bg-sidebar, #172554)" } }}
+          styles={{
+            body: { padding: 0, background: "var(--bg-sidebar, #172554)" },
+          }}
           title={null}
         >
           <div
             className="app-sidebar no-print"
-            style={{ ...s.sidebar, width: "100%", height: "100%", borderRight: "none" }}
+            style={{
+              ...s.sidebar,
+              width: "100%",
+              height: "100%",
+              borderRight: "none",
+            }}
             aria-label={t("ui5Shell.navDrawer")}
           >
             {renderSidebarContent(true, closeDrawer)}
@@ -978,8 +1006,12 @@ export function AppLayout() {
                   setSearchQuery(e.target.value);
                   setSearchOpen(true);
                 }}
-                placeholder={t("app.searchPlaceholder") || "搜索患者/检查号/报告..."}
-                aria-label={t("app.searchPlaceholder") || "搜索患者/检查号/报告"}
+                placeholder={
+                  t("app.searchPlaceholder") || "搜索患者/检查号/报告..."
+                }
+                aria-label={
+                  t("app.searchPlaceholder") || "搜索患者/检查号/报告"
+                }
                 style={{
                   width: 240,
                   height: 32,
@@ -993,11 +1025,13 @@ export function AppLayout() {
                   transition: "border-color 0.15s",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-primary-500, var(--color-primary-500))";
+                  e.currentTarget.style.borderColor =
+                    "var(--color-primary-500, var(--color-primary-500))";
                   setSearchOpen(true);
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "var(--border-color, #334155)";
+                  e.currentTarget.style.borderColor =
+                    "var(--border-color, #334155)";
                   setSearchOpen(false);
                 }}
                 onKeyDown={(e) => {
@@ -1050,7 +1084,8 @@ export function AppLayout() {
                         display: "flex",
                         alignItems: "center",
                         gap: 8,
-                        borderBottom: "1px solid var(--border-subtle, rgba(0,0,0,0.06))",
+                        borderBottom:
+                          "1px solid var(--border-subtle, rgba(0,0,0,0.06))",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background =
@@ -1062,7 +1097,10 @@ export function AppLayout() {
                     >
                       <Search
                         size={12}
-                        style={{ color: "var(--text-muted, #94a3b8)", flexShrink: 0 }}
+                        style={{
+                          color: "var(--text-muted, #94a3b8)",
+                          flexShrink: 0,
+                        }}
                       />
                       <span style={{ whiteSpace: "nowrap" }}>{r.label}</span>
                       <span
@@ -1099,7 +1137,10 @@ export function AppLayout() {
                 color: "var(--text-muted, #94a3b8)",
               }}
             >
-              <Activity size={14} style={{ color: "var(--color-success-500)" }} />
+              <Activity
+                size={14}
+                style={{ color: "var(--color-success-500)" }}
+              />
               <span>{t("app.systemStatus")}</span>
             </div>
             <button
@@ -1167,7 +1208,8 @@ export function AppLayout() {
           role="main"
         >
           <h1 className="sr-only">{`${t("app.title")} - ${sectionTitle || t("app.hospital")}`}</h1>
-          <React.Suspense fallback={<Loading />}>
+          {/* [G005 v3.0.6.12] 路由懒加载占位: feedback/Toast.AppSkeleton */}
+          <React.Suspense fallback={<AppSkeleton />}>
             <Routes>
               {routes.map((r) => (
                 <Route key={r.path} path={r.path} element={r.element} />

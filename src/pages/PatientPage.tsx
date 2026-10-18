@@ -1,4 +1,4 @@
-import { Card, Typography } from 'antd'
+import { Card, Typography } from "antd";
 // v3.0.4 重构：拆分为子组件
 // ============================================================
 // G005 放射科RIS系统 - 患者管理 v1.0.0
@@ -13,11 +13,44 @@ import { DashboardCard } from "../components/dashboard/DashboardCard";
 import { TrendChart } from "../components/dashboard/TrendChart";
 import { AppText } from "../components/common/AppText";
 import { ErrorBanner, LoadingBanner } from "../components/feedback";
-import { t } from '../i18n/appI18n';
-import { Search, User, Phone, AlertCircle, X, Eye, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
+import { t } from "../i18n/appI18n";
+import {
+  Search,
+  User,
+  Phone,
+  AlertCircle,
+  X,
+  Eye,
+  Upload,
+  Users,
+  UserCheck,
+  Clock,
+  Activity,
+  Heart,
+  AlertTriangle,
+  CheckCircle,
+  TrendingUp,
+  PieChart,
+  Stethoscope,
+  Shield,
+  CreditCard,
+  History,
+  PlusCircle,
+  UserPlus,
+  Link,
+  Target,
+  Gauge,
+  Percent,
+  FileSearch,
+  Layers3,
+} from "lucide-react";
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
 import { patientApi } from "../services/api";
-import type { PatientImportRow, PatientOverviewDto, PatientAgeBucket } from "../services/api";
+import type {
+  PatientImportRow,
+  PatientOverviewDto,
+  PatientAgeBucket,
+} from "../services/api";
 import type { Patient } from "../types";
 import { useRBAC } from "../hooks/useRBAC";
 import { useAuth } from "../hooks/useAuth";
@@ -39,7 +72,30 @@ import type {
   PMISearchResult,
   ToastInfo,
 } from "./patient";
-import { getPatientExams, findDuplicatePatients, searchPMIPatients, usePinyinSearch } from './patient';
+import {
+  getPatientExams,
+  findDuplicatePatients,
+  searchPMIPatients,
+  usePinyinSearch,
+  getBirthDateFromIdCard,
+} from "./patient";
+import { normalizeExamStatus } from "../utils/statusMaps";
+// [v3.0.6.16] v3 患者模块挂载: 患者合并 / 患者 360 视图 (此前仅被测试引用)
+import {
+  PatientMergeTool,
+  similarity,
+} from "../components/v3/patient/PatientMergeTool";
+import type {
+  PatientCandidate,
+  PatientDuplicateMatch,
+} from "../components/v3/patient/PatientMergeTool";
+import { PatientProfile360 } from "../components/v3/patient/PatientProfile360";
+import type {
+  PatientExam as V3PatientExam,
+  PatientProfile as V3PatientProfile,
+  PatientReport as V3PatientReport,
+  PatientTimelineEvent as V3PatientTimelineEvent,
+} from "../components/v3/patient/PatientProfile360";
 
 // ==================== 子组件：统计卡片 (统一公共 StatCard) ====================
 interface StatCardProps {
@@ -80,10 +136,12 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 'var(--space-2, 8px)',
+        gap: "var(--space-2, 8px)",
         padding: "10px 20px",
         border: "none",
-        borderBottom: isActive ? "3px solid var(--color-primary-800)" : "3px solid transparent",
+        borderBottom: isActive
+          ? "3px solid var(--color-primary-800)"
+          : "3px solid transparent",
         background: "none",
         cursor: "pointer",
         fontSize: 12,
@@ -119,26 +177,34 @@ interface PieChartSimpleProps {
 function PieChartSimple({ data, title }: PieChartSimpleProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0);
   return (
-    <Card bordered={false}
+    <Card
+      bordered={false}
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid var(--border-color)",
-        padding: 'var(--space-5, 20px)',
+        padding: "var(--space-5, 20px)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
-     styles={{ body: { padding: 0 } }}>
+      styles={{ body: { padding: 0 } }}
+    >
       <div
         style={{
           fontSize: 14,
           fontWeight: 700,
           color: "var(--color-primary-800)",
-          marginBottom: 'var(--space-4, 16px)',
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
         {title}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-5, 20px)' }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-5, 20px)",
+        }}
+      >
         <div style={{ position: "relative", width: 120, height: 120 }}>
           <svg viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
             {data
@@ -191,8 +257,8 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 'var(--space-2, 8px)',
-                marginBottom: 'var(--space-2, 8px)',
+                gap: "var(--space-2, 8px)",
+                marginBottom: "var(--space-2, 8px)",
               }}
             >
               <div
@@ -206,7 +272,12 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
               <AppText size="xs" color="secondary" as="div" style={{ flex: 1 }}>
                 {d.label}
               </AppText>
-              <AppText size="xs" weight={700} as="div" style={{ color: "var(--color-primary-800)" }}>
+              <AppText
+                size="xs"
+                weight={700}
+                as="div"
+                style={{ color: "var(--color-primary-800)" }}
+              >
                 {d.value}
               </AppText>
               <div
@@ -237,27 +308,34 @@ interface BarChartSimpleProps {
 function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
   const maxValue = Math.max(...data.map((d) => d.value), 1);
   return (
-    <Card bordered={false}
+    <Card
+      bordered={false}
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid var(--border-color)",
-        padding: 'var(--space-5, 20px)',
+        padding: "var(--space-5, 20px)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
-     styles={{ body: { padding: 0 } }}>
+      styles={{ body: { padding: 0 } }}
+    >
       <div
         style={{
           fontSize: 14,
           fontWeight: 700,
           color: "var(--color-primary-800)",
-          marginBottom: 'var(--space-4, 16px)',
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
         {title}
       </div>
       <div
-        style={{ display: "flex", alignItems: "flex-end", gap: 'var(--space-2, 8px)', height: 140 }}
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          gap: "var(--space-2, 8px)",
+          height: 140,
+        }}
       >
         {data.map((d, i) => (
           <div
@@ -267,10 +345,15 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 'var(--space-1, 4px)',
+              gap: "var(--space-1, 4px)",
             }}
           >
-            <AppText size="xs" weight={700} as="div" style={{ color: "var(--color-primary-800)" }}>
+            <AppText
+              size="xs"
+              weight={700}
+              as="div"
+              style={{ color: "var(--color-primary-800)" }}
+            >
               {d.value}
             </AppText>
             <div
@@ -282,7 +365,12 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
                 minHeight: 4,
               }}
             />
-            <AppText size="xs" color="secondary" as="div" style={{ textAlign: "center" }}>
+            <AppText
+              size="xs"
+              color="secondary"
+              as="div"
+              style={{ textAlign: "center" }}
+            >
               {d.label}
             </AppText>
           </div>
@@ -294,7 +382,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
             textAlign: "center",
             fontSize: 12,
             color: "var(--text-secondary)",
-            marginTop: 'var(--space-2, 8px)',
+            marginTop: "var(--space-2, 8px)",
           }}
         >
           {xLabel}
@@ -303,6 +391,39 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
     </Card>
   );
 }
+
+// ==================== v3 组件适配 (PatientMergeTool / PatientProfile360) ====================
+const toV3Candidate = (p: Patient): PatientCandidate => ({
+  id: p.id,
+  name: p.name,
+  gender: p.gender === "男" ? "M" : p.gender === "女" ? "F" : "O",
+  birthDate: getBirthDateFromIdCard(p.idCard),
+  age: p.age,
+  idCard: p.idCard,
+  phone: p.phone,
+  address: p.address,
+  lastVisit: p.lastExamDate,
+  visitCount: p.totalExamCount || 0,
+});
+
+const toV3ExamStatus = (status: string): V3PatientExam["status"] => {
+  const s = normalizeExamStatus(status);
+  if (
+    s === "IN_PROGRESS" ||
+    s === "PAUSED" ||
+    s === "IMAGE_READY" ||
+    s === "QC_REJECT" ||
+    s === "QC_PASS" ||
+    s === "PENDING_REPORT"
+  )
+    return "IN_PROGRESS";
+  if (s === "COMPLETED") return "COMPLETED";
+  if (s === "CANCELLED") return "CANCELLED";
+  return "SCHEDULED";
+};
+
+const splitV3List = (v?: string) =>
+  v && v !== "无" ? v.split(/[、,，;；\s]+/).filter(Boolean) : [];
 
 // ==================== 主组件 ====================
 export default function PatientPage() {
@@ -407,10 +528,67 @@ export default function PatientPage() {
     () =>
       duplicatePatients.filter(
         (d) =>
-          !dismissedDuplicateIds.has(d.patients?.[0]?.id ?? '') &&
-          !dismissedDuplicateIds.has(d.patients?.[1]?.id ?? ''),
+          !dismissedDuplicateIds.has(d.patients?.[0]?.id ?? "") &&
+          !dismissedDuplicateIds.has(d.patients?.[1]?.id ?? ""),
       ),
     [duplicatePatients, dismissedDuplicateIds],
+  );
+
+  // [v3.0.6.16] v3 患者合并工具数据适配: DuplicateMatch → PatientDuplicateMatch
+  const v3MergeDuplicates = useMemo<PatientDuplicateMatch[]>(
+    () =>
+      duplicatePatients.map((d) => {
+        const source = toV3Candidate(d.patients[0]!);
+        const match = toV3Candidate(d.patients[1]!);
+        return {
+          source,
+          match,
+          score: d.score,
+          nameScore: similarity(source.name, match.name),
+          idCardScore: similarity(source.idCard ?? "", match.idCard ?? ""),
+          phoneScore: similarity(source.phone ?? "", match.phone ?? ""),
+          birthDateScore: similarity(source.birthDate, match.birthDate),
+          genderScore: source.gender === match.gender ? 100 : 0,
+          addressScore: similarity(source.address ?? "", match.address ?? ""),
+          matchedFields: d.matchedFields,
+        };
+      }),
+    [duplicatePatients],
+  );
+
+  const handleV3Merge = useCallback(
+    async (keepId: string, removeId: string) => {
+      try {
+        const res = await patientApi.merge(removeId, keepId);
+        if (!res.success)
+          throw new Error(res.error?.message ?? t("patientPage.deleteFailed"));
+        setPatients((prev) => prev.filter((p) => p.id !== removeId));
+        setToast({
+          show: true,
+          type: "success",
+          message: t("patientPage.mergeSuccess", {
+            keep: keepId,
+            remove: removeId,
+          }),
+        });
+      } catch (e) {
+        setToast({
+          show: true,
+          type: "error",
+          message: (e as Error)?.message ?? t("patientPage.deleteFailed"),
+        });
+      }
+    },
+    [],
+  );
+
+  const handleV3DismissDuplicate = useCallback(
+    (sourceId: string, matchId: string) => {
+      setDismissedDuplicateIds((prev) =>
+        new Set(prev).add(sourceId).add(matchId),
+      );
+    },
+    [],
   );
 
   const [filterPresets, setFilterPresets] = useState<
@@ -485,7 +663,7 @@ export default function PatientPage() {
         setLoadError(null);
       } else {
         setPatients(initialPatients as unknown as Patient[]);
-        setLoadError(t('patientPage.apiUnavailable'));
+        setLoadError(t("patientPage.apiUnavailable"));
       }
       setLoading(false);
     })();
@@ -503,51 +681,68 @@ export default function PatientPage() {
     monthlyNew: 58,
     active: 42,
     activeRate: 12.9,
-    typeDistribution: { OUTPATIENT: 262, INPATIENT: 38, EMERGENCY: 14, PHYSICAL: 12 },
+    typeDistribution: {
+      OUTPATIENT: 262,
+      INPATIENT: 38,
+      EMERGENCY: 14,
+      PHYSICAL: 12,
+    },
     genderDistribution: { MALE: 168, FEMALE: 158 },
-  }
+  };
   const DEMO_AGE_DIST: PatientAgeBucket[] = [
-    { bucket: '0-17', count: 14, male: 8, female: 6 },
-    { bucket: '18-30', count: 42, male: 20, female: 22 },
-    { bucket: '31-45', count: 78, male: 41, female: 37 },
-    { bucket: '46-60', count: 95, male: 50, female: 45 },
-    { bucket: '61-75', count: 72, male: 38, female: 34 },
-    { bucket: '76+', count: 25, male: 11, female: 14 },
-  ]
-  const [patientOverview, setPatientOverview] = useState<PatientOverviewDto>(DEMO_PATIENT_OVERVIEW)
-  const [ageDistribution, setAgeDistribution] = useState<PatientAgeBucket[]>(DEMO_AGE_DIST)
-  const [statsSource, setStatsSource] = useState<'real' | 'demo'>('demo')
-  const [statsLoading, setStatsLoading] = useState(false)
-  const [statsError, setStatsError] = useState<string | null>(null)
+    { bucket: "0-17", count: 14, male: 8, female: 6 },
+    { bucket: "18-30", count: 42, male: 20, female: 22 },
+    { bucket: "31-45", count: 78, male: 41, female: 37 },
+    { bucket: "46-60", count: 95, male: 50, female: 45 },
+    { bucket: "61-75", count: 72, male: 38, female: 34 },
+    { bucket: "76+", count: 25, male: 11, female: 14 },
+  ];
+  const [patientOverview, setPatientOverview] = useState<PatientOverviewDto>(
+    DEMO_PATIENT_OVERVIEW,
+  );
+  const [ageDistribution, setAgeDistribution] =
+    useState<PatientAgeBucket[]>(DEMO_AGE_DIST);
+  const [statsSource, setStatsSource] = useState<"real" | "demo">("demo");
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   const loadPatientStats = useCallback(async () => {
-    setStatsLoading(true)
-    setStatsError(null)
+    setStatsLoading(true);
+    setStatsError(null);
     try {
       const [ovRes, ageRes] = await Promise.allSettled([
         patientApi.overview(),
         patientApi.ageDistribution(),
-      ])
-      let anyReal = false
-      if (ovRes.status === 'fulfilled' && ovRes.value.success && ovRes.value.data) {
-        setPatientOverview(ovRes.value.data)
-        anyReal = true
+      ]);
+      let anyReal = false;
+      if (
+        ovRes.status === "fulfilled" &&
+        ovRes.value.success &&
+        ovRes.value.data
+      ) {
+        setPatientOverview(ovRes.value.data);
+        anyReal = true;
       }
-      if (ageRes.status === 'fulfilled' && ageRes.value.success && Array.isArray(ageRes.value.data?.items)) {
-        setAgeDistribution(ageRes.value.data.items)
-        anyReal = true
+      if (
+        ageRes.status === "fulfilled" &&
+        ageRes.value.success &&
+        Array.isArray(ageRes.value.data?.items)
+      ) {
+        setAgeDistribution(ageRes.value.data.items);
+        anyReal = true;
       }
-      setStatsSource(anyReal ? 'real' : 'demo')
+      setStatsSource(anyReal ? "real" : "demo");
     } catch (e) {
-      setStatsSource('demo')
-      setStatsError((e as Error)?.message ?? t('patientPage.apiUnavailable'))
+      setStatsSource("demo");
+      setStatsError((e as Error)?.message ?? t("patientPage.apiUnavailable"));
     } finally {
-      setStatsLoading(false)
+      setStatsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
-  useEffect(() => { void loadPatientStats() }, [loadPatientStats]);
+  useEffect(() => {
+    void loadPatientStats();
+  }, [loadPatientStats]);
 
   // [W2-4] 深链: /patients/:id → 自动选中并打开详情
   useEffect(() => {
@@ -561,17 +756,23 @@ export default function PatientPage() {
       setSelectedPatient({
         id: String(d.id ?? d.patientId ?? routePatientId),
         name: String(d.name ?? d.patientName ?? ""),
-        gender: (String(d.gender ?? "男").includes("女") ? "女" : "男") as Patient["gender"],
+        gender: (String(d.gender ?? "男").includes("女")
+          ? "女"
+          : "男") as Patient["gender"],
         age: Number(d.age ?? 0),
         idCard: String(d.idCard ?? ""),
         phone: String(d.phone ?? ""),
         address: String(d.address ?? ""),
         emergencyContact: String(d.emergencyContact ?? ""),
         emergencyPhone: String(d.emergencyPhone ?? ""),
-        patientType: (["门诊", "住院", "体检", "急诊"].includes(pType) ? pType : "门诊") as Patient["patientType"],
+        patientType: (["门诊", "住院", "体检", "急诊"].includes(pType)
+          ? pType
+          : "门诊") as Patient["patientType"],
         allergyHistory: String(d.allergyHistory ?? "无"),
         medicalHistory: String(d.medicalHistory ?? ""),
-        registrationDate: String((d.registeredAt ?? d.registrationDate ?? "").toString()).slice(0, 10),
+        registrationDate: String(
+          (d.registeredAt ?? d.registrationDate ?? "").toString(),
+        ).slice(0, 10),
         totalExamCount: Number(d.totalExamCount ?? 0),
         insuranceType: String(d.insuranceType ?? ""),
         bedNumber: String(d.bedNumber ?? ""),
@@ -732,14 +933,38 @@ export default function PatientPage() {
     });
 
     const typeDistribution = [
-      { label: t("w9c.patient.typeOutpatient"), value: outpatients, color: "var(--color-primary-500)" },
-      { label: t("w9c.patient.typeInpatient"), value: inpatients, color: "#8b5cf6" },
-      { label: t("w9c.patient.typePhysical"), value: healthCheck, color: "var(--color-info-500)" },
-      { label: t("w9c.patient.typeEmergency"), value: emergency, color: "var(--color-warning-500)" },
+      {
+        label: t("w9c.patient.typeOutpatient"),
+        value: outpatients,
+        color: "var(--color-primary-500)",
+      },
+      {
+        label: t("w9c.patient.typeInpatient"),
+        value: inpatients,
+        color: "#8b5cf6",
+      },
+      {
+        label: t("w9c.patient.typePhysical"),
+        value: healthCheck,
+        color: "var(--color-info-500)",
+      },
+      {
+        label: t("w9c.patient.typeEmergency"),
+        value: emergency,
+        color: "var(--color-warning-500)",
+      },
     ];
     const genderDistribution = [
-      { label: t("w9c.patient.genderMale"), value: males, color: "var(--color-primary-500)" },
-      { label: t("w9c.patient.genderFemale"), value: females, color: "#ec4899" },
+      {
+        label: t("w9c.patient.genderMale"),
+        value: males,
+        color: "var(--color-primary-500)",
+      },
+      {
+        label: t("w9c.patient.genderFemale"),
+        value: females,
+        color: "#ec4899",
+      },
     ];
     const returnRate = (
       (patients.filter((p) => p.totalExamCount > 1).length / totalPatients) *
@@ -752,7 +977,13 @@ export default function PatientPage() {
       const c = p.totalExamCount || 1;
       freqMap[c] = (freqMap[c] || 0) + 1;
     });
-    const colors = ["var(--color-primary-500)", "#8b5cf6", "var(--color-info-500)", "#10b981", "var(--color-warning-500)"];
+    const colors = [
+      "var(--color-primary-500)",
+      "#8b5cf6",
+      "var(--color-info-500)",
+      "#10b981",
+      "var(--color-warning-500)",
+    ];
     Object.keys(freqMap)
       .sort((a, b) => parseInt(a) - parseInt(b))
       .forEach((key, i) => {
@@ -784,24 +1015,30 @@ export default function PatientPage() {
   // 表单验证
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof PatientFormData, string>> = {};
-    if (!formData.name.trim()) errors.name = t('patientPage.errNameRequired');
-    if (!formData.idCard.trim()) errors.idCard = t('patientPage.errIdCardRequired');
+    if (!formData.name.trim()) errors.name = t("patientPage.errNameRequired");
+    if (!formData.idCard.trim())
+      errors.idCard = t("patientPage.errIdCardRequired");
     else if (formData.idCard.length !== 18)
-      errors.idCard = t('patientPage.errIdCardFormat');
-    if (!formData.phone.trim()) errors.phone = t('patientPage.errPhoneRequired');
+      errors.idCard = t("patientPage.errIdCardFormat");
+    if (!formData.phone.trim())
+      errors.phone = t("patientPage.errPhoneRequired");
     else if (!/^1[3-9]\d{9}$/.test(formData.phone))
-      errors.phone = t('patientPage.errPhoneFormat');
+      errors.phone = t("patientPage.errPhoneFormat");
     if (!formData.emergencyContact.trim())
-      errors.emergencyContact = t('patientPage.errContactNameRequired');
+      errors.emergencyContact = t("patientPage.errContactNameRequired");
     if (!formData.emergencyPhone.trim())
-      errors.emergencyPhone = t('patientPage.errContactPhoneRequired');
+      errors.emergencyPhone = t("patientPage.errContactPhoneRequired");
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSavePatient = () => {
     if (!validateForm()) return;
-    setToast({ show: true, type: "success", message: t('patientPage.saveSuccess') });
+    setToast({
+      show: true,
+      type: "success",
+      message: t("patientPage.saveSuccess"),
+    });
     setActiveTab("list");
     setSelectedPatientForEdit(null);
   };
@@ -859,8 +1096,13 @@ export default function PatientPage() {
   const handleDeletePatient = async (patient: Patient) => {
     try {
       const res = await patientApi.delete(patient.id);
-      if (!res.success) throw new Error(res.error?.message ?? t('patientPage.deleteFailed'));
-      setToast({ show: true, type: "success", message: t('patientPage.deleteSuccess', { name: patient.name }) });
+      if (!res.success)
+        throw new Error(res.error?.message ?? t("patientPage.deleteFailed"));
+      setToast({
+        show: true,
+        type: "success",
+        message: t("patientPage.deleteSuccess", { name: patient.name }),
+      });
       setPatients((prev) => prev.filter((p) => p.id !== patient.id));
       if (selectedPatient?.id === patient.id) {
         setSelectedPatient(null);
@@ -869,10 +1111,15 @@ export default function PatientPage() {
       void (async () => {
         const r = await patientApi.list({});
         const list = r.data?.items ?? [];
-        if (r.success && Array.isArray(list) && list.length > 0) setPatients(list as Patient[]);
+        if (r.success && Array.isArray(list) && list.length > 0)
+          setPatients(list as Patient[]);
       })();
     } catch (e) {
-      setToast({ show: true, type: "error", message: (e as Error)?.message ?? t('patientPage.deleteFailed') });
+      setToast({
+        show: true,
+        type: "error",
+        message: (e as Error)?.message ?? t("patientPage.deleteFailed"),
+      });
     }
   };
 
@@ -888,26 +1135,32 @@ export default function PatientPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = res.data.filename || `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
+        link.download =
+          res.data.filename ||
+          `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
         link.click();
         URL.revokeObjectURL(url);
-        setToast({ show: true, type: "success", message: t('patientPage.exportedCount', { count: res.data.count }) });
+        setToast({
+          show: true,
+          type: "success",
+          message: t("patientPage.exportedCount", { count: res.data.count }),
+        });
         return;
       }
-      throw new Error(res.error?.message ?? t('patientPage.exportFailed'));
+      throw new Error(res.error?.message ?? t("patientPage.exportFailed"));
     } catch {
       const csvContent = [
         [
-          t('patientPage.patientId'),
-          t('patientPage.name'),
-          t('patientPage.gender'),
-          t('patientPage.age'),
-          t('patientPage.idCard'),
-          t('patientPage.phone'),
-          t('patientPage.type'),
-          t('patientPage.allergyHistory'),
-          t('patientPage.registrationDate'),
-          t('patientPage.cumulativeExam'),
+          t("patientPage.patientId"),
+          t("patientPage.name"),
+          t("patientPage.gender"),
+          t("patientPage.age"),
+          t("patientPage.idCard"),
+          t("patientPage.phone"),
+          t("patientPage.type"),
+          t("patientPage.allergyHistory"),
+          t("patientPage.registrationDate"),
+          t("patientPage.cumulativeExam"),
         ].join(","),
         ...filteredPatients.map((p) =>
           [
@@ -932,7 +1185,13 @@ export default function PatientPage() {
       link.href = url;
       link.download = `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
       link.click();
-      setToast({ show: true, type: "success", message: t('patientPage.exportedCountLocal', { count: filteredPatients.length }) });
+      setToast({
+        show: true,
+        type: "success",
+        message: t("patientPage.exportedCountLocal", {
+          count: filteredPatients.length,
+        }),
+      });
     } finally {
       setExporting(false);
     }
@@ -952,7 +1211,9 @@ export default function PatientPage() {
     }
     const lines = trimmed.split(/\r?\n/).filter((l) => l.trim());
     if (lines.length < 2) return [];
-    const header = lines[0]!.split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+    const header = lines[0]!
+      .split(",")
+      .map((h) => h.trim().replace(/^"|"$/g, ""));
     return lines.slice(1).map((line) => {
       const cells = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
       const row: Record<string, string> = {};
@@ -970,7 +1231,11 @@ export default function PatientPage() {
   const handleImportSubmit = async () => {
     const rows = parseImportText(importText);
     if (rows.length === 0) {
-      setToast({ show: true, type: "error", message: t('patientPage.importNotParsed') });
+      setToast({
+        show: true,
+        type: "error",
+        message: t("patientPage.importNotParsed"),
+      });
       return;
     }
     setImporting(true);
@@ -982,19 +1247,31 @@ export default function PatientPage() {
         setToast({
           show: true,
           type: res.data.errors.length > 0 ? "info" : "success",
-          message: `${t('patientPage.importComplete')} ${res.data.imported} / ${t('patientPage.importSkip')} ${res.data.skipped} / ${t('patientPage.importFail')} ${res.data.errors.length}`,
+          message: `${t("patientPage.importComplete")} ${res.data.imported} / ${t("patientPage.importSkip")} ${res.data.skipped} / ${t("patientPage.importFail")} ${res.data.errors.length}`,
         });
       } else {
-        setToast({ show: true, type: "error", message: res.error?.message ?? t('patientPage.importFail') });
+        setToast({
+          show: true,
+          type: "error",
+          message: res.error?.message ?? t("patientPage.importFail"),
+        });
       }
     } catch (e) {
-      setToast({ show: true, type: "error", message: t('patientPage.importError') + ": " + ((e as Error)?.message ?? String(e)) });
+      setToast({
+        show: true,
+        type: "error",
+        message:
+          t("patientPage.importError") +
+          ": " +
+          ((e as Error)?.message ?? String(e)),
+      });
     } finally {
       setImporting(false);
       void (async () => {
         const r = await patientApi.list({});
         const list = r.data?.items ?? [];
-        if (r.success && Array.isArray(list) && list.length > 0) setPatients(list as Patient[]);
+        if (r.success && Array.isArray(list) && list.length > 0)
+          setPatients(list as Patient[]);
       })();
     }
   };
@@ -1036,7 +1313,7 @@ export default function PatientPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 'var(--space-6, 24px)',
+        padding: "var(--space-6, 24px)",
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClosePMIPanel();
@@ -1062,14 +1339,21 @@ export default function PatientPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
+            background:
+              "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
             <Target size={24} color="#fff" />
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>
-                {t('patientPage.pmiSearchTitle')}
+                {t("patientPage.pmiSearchTitle")}
               </div>
               <div
                 style={{
@@ -1078,11 +1362,12 @@ export default function PatientPage() {
                   marginTop: 2,
                 }}
               >
-                {t('patientPage.pmiSearchSubtitle')}
+                {t("patientPage.pmiSearchSubtitle")}
               </div>
             </div>
           </div>
-          <button aria-label="关闭"
+          <button
+            aria-label="关闭"
             onClick={handleClosePMIPanel}
             style={{
               width: 36,
@@ -1101,7 +1386,7 @@ export default function PatientPage() {
         </div>
         <div
           style={{
-            padding: 'var(--space-5, 20px)',
+            padding: "var(--space-5, 20px)",
             borderBottom: "1px solid var(--border-color)",
             background: "var(--content-bg)",
           }}
@@ -1109,17 +1394,27 @@ export default function PatientPage() {
           <div
             style={{
               display: "flex",
-              gap: 'var(--space-3, 12px)',
+              gap: "var(--space-3, 12px)",
               background: "var(--bg-card)",
               borderRadius: 10,
               border: "2px solid var(--color-primary-800)",
-              boxShadow: pmiSearchFocused ? "0 0 0 4px rgba(30,64,175,0.18)" : "none",
+              boxShadow: pmiSearchFocused
+                ? "0 0 0 4px rgba(30,64,175,0.18)"
+                : "none",
               transition: "box-shadow 0.15s",
               padding: "12px 16px",
             }}
           >
-            <Search size={20} style={{ color: "var(--color-primary-800)", flexShrink: 0 }} />
-            <FieldGate field="patientName" permission="patient.view" resourceType="patient" mode="disable">
+            <Search
+              size={20}
+              style={{ color: "var(--color-primary-800)", flexShrink: 0 }}
+            />
+            <FieldGate
+              field="patientName"
+              permission="patient.view"
+              resourceType="patient"
+              mode="disable"
+            >
               <input
                 value={pmiSearchQuery}
                 onChange={(e) => handlePMISearch(e.target.value)}
@@ -1129,13 +1424,15 @@ export default function PatientPage() {
                 autoFocus
                 style={{
                   flex: 1,
-                  border: "none", fontSize: 14,
+                  border: "none",
+                  fontSize: 14,
                   background: "transparent",
                 }}
               />
             </FieldGate>
             {pmiSearchQuery && (
-              <button aria-label="关闭"
+              <button
+                aria-label="关闭"
                 onClick={() => {
                   setPmiSearchQuery("");
                   setPmiSearchResults([]);
@@ -1158,33 +1455,51 @@ export default function PatientPage() {
             style={{
               fontSize: 12,
               color: "var(--text-secondary)",
-              marginTop: 'var(--space-2, 8px)',
+              marginTop: "var(--space-2, 8px)",
               display: "flex",
-              gap: 'var(--space-4, 16px)',
+              gap: "var(--space-4, 16px)",
             }}
           >
-            <span>{t('patientPage.pmiSupportFuzzy')}</span>
+            <span>{t("patientPage.pmiSupportFuzzy")}</span>
             <span>·</span>
-            <span>{t('patientPage.pmiFields')}</span>
+            <span>{t("patientPage.pmiFields")}</span>
             <span>·</span>
-            <span>{t('patientPage.pmiShowConfidence')}</span>
+            <span>{t("patientPage.pmiShowConfidence")}</span>
           </div>
         </div>
-        <div style={{ flex: 1, overflow: "auto", padding: 'var(--space-4, 16px)' }}>
+        <div
+          style={{ flex: 1, overflow: "auto", padding: "var(--space-4, 16px)" }}
+        >
           {pmiSearchResults.length === 0 && pmiSearchQuery && (
-            <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: "var(--text-secondary)" }}>
-              <Search size={32} color="#cbd5e1" style={{ marginBottom: 'var(--space-2, 8px)' }} />
-              <div>{t('patientPage.pmiNoResult')}</div>
+            <div
+              style={{
+                textAlign: "center",
+                padding: "var(--space-10, 40px)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              <Search
+                size={32}
+                color="#cbd5e1"
+                style={{ marginBottom: "var(--space-2, 8px)" }}
+              />
+              <div>{t("patientPage.pmiNoResult")}</div>
             </div>
           )}
           {pmiSearchResults.length === 0 && !pmiSearchQuery && (
-            <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: "var(--text-secondary)" }}>
+            <div
+              style={{
+                textAlign: "center",
+                padding: "var(--space-10, 40px)",
+                color: "var(--text-secondary)",
+              }}
+            >
               <FileSearch
                 size={32}
                 color="#cbd5e1"
-                style={{ marginBottom: 'var(--space-2, 8px)' }}
+                style={{ marginBottom: "var(--space-2, 8px)" }}
               />
-              <div>{t('patientPage.pmiEmptyHint')}</div>
+              <div>{t("patientPage.pmiEmptyHint")}</div>
             </div>
           )}
           {pmiSearchResults.map((result) => (
@@ -1195,8 +1510,8 @@ export default function PatientPage() {
                 background: "var(--bg-card)",
                 border: "1px solid var(--border-color)",
                 borderRadius: 10,
-                padding: 'var(--space-4, 16px)',
-                marginBottom: 'var(--space-3, 12px)',
+                padding: "var(--space-4, 16px)",
+                marginBottom: "var(--space-3, 12px)",
                 cursor: "pointer",
                 transition: "all 0.2s",
               }}
@@ -1213,8 +1528,8 @@ export default function PatientPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-3, 12px)',
-                  marginBottom: 'var(--space-3, 12px)',
+                  gap: "var(--space-3, 12px)",
+                  marginBottom: "var(--space-3, 12px)",
                 }}
               >
                 <div
@@ -1239,7 +1554,11 @@ export default function PatientPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-2, 8px)",
+                    }}
                   >
                     <span
                       style={{
@@ -1258,10 +1577,14 @@ export default function PatientPage() {
                         fontWeight: 600,
                         background:
                           result.gender === "男" ? "#dbeafe" : "#fce7f3",
-                        color: result.gender === "男" ? "var(--color-primary-800)" : "#be185d",
+                        color:
+                          result.gender === "男"
+                            ? "var(--color-primary-800)"
+                            : "#be185d",
                       }}
                     >
-                      {result.gender} · {result.age}{t('patientPage.ageUnit')}
+                      {result.gender} · {result.age}
+                      {t("patientPage.ageUnit")}
                     </span>
                     <span
                       style={{
@@ -1276,7 +1599,13 @@ export default function PatientPage() {
                       {result.patientType}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 'var(--space-1, 4px)' }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-secondary)",
+                      marginTop: "var(--space-1, 4px)",
+                    }}
+                  >
                     {result.idCard} · {result.phone}
                   </div>
                 </div>
@@ -1295,7 +1624,9 @@ export default function PatientPage() {
                   >
                     {result.confidence}%
                   </div>
-                  <AppText size="xs" color="secondary" as="div">{t('patientPage.matchConfidence')}</AppText>
+                  <AppText size="xs" color="secondary" as="div">
+                    {t("patientPage.matchConfidence")}
+                  </AppText>
                 </div>
               </div>
               <div
@@ -1303,7 +1634,7 @@ export default function PatientPage() {
                   display: "grid",
                   gridTemplateColumns: "repeat(4, 1fr)",
                   gap: 10,
-                  marginBottom: 'var(--space-3, 12px)',
+                  marginBottom: "var(--space-3, 12px)",
                 }}
               >
                 <div
@@ -1313,8 +1644,13 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
-                    {t('patientPage.pmiIndexId')}
+                  <AppText
+                    size="xs"
+                    color="secondary"
+                    as="div"
+                    style={{ marginBottom: 2 }}
+                  >
+                    {t("patientPage.pmiIndexId")}
                   </AppText>
                   <div
                     style={{
@@ -1334,11 +1670,20 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
-                    {t('patientPage.insuranceType')}
+                  <AppText
+                    size="xs"
+                    color="secondary"
+                    as="div"
+                    style={{ marginBottom: 2 }}
+                  >
+                    {t("patientPage.insuranceType")}
                   </AppText>
                   <div
-                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)" }}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                    }}
                   >
                     {result.insuranceType}
                   </div>
@@ -1350,13 +1695,22 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
-                    {t('patientPage.cumulativeExam')}
+                  <AppText
+                    size="xs"
+                    color="secondary"
+                    as="div"
+                    style={{ marginBottom: 2 }}
+                  >
+                    {t("patientPage.cumulativeExam")}
                   </AppText>
                   <div
-                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)" }}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                    }}
                   >
-                    {result.examStats.totalExams} {t('patientPage.timesUnit')}
+                    {result.examStats.totalExams} {t("patientPage.timesUnit")}
                   </div>
                 </div>
                 <div
@@ -1366,8 +1720,13 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
-                    {t('patientPage.positiveRate')}
+                  <AppText
+                    size="xs"
+                    color="secondary"
+                    as="div"
+                    style={{ marginBottom: 2 }}
+                  >
+                    {t("patientPage.positiveRate")}
                   </AppText>
                   <div
                     style={{
@@ -1383,7 +1742,13 @@ export default function PatientPage() {
                   </div>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-3, 12px)",
+                }}
+              >
                 <div
                   style={{
                     display: "flex",
@@ -1392,8 +1757,10 @@ export default function PatientPage() {
                     flex: 1,
                   }}
                 >
-                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    {t('patientPage.matchFields')}
+                  <span
+                    style={{ fontSize: 12, color: "var(--text-secondary)" }}
+                  >
+                    {t("patientPage.matchFields")}
                   </span>
                   {result.matchFields.map((f) => (
                     <span
@@ -1417,7 +1784,7 @@ export default function PatientPage() {
                   >
                     <Link size={12} color="var(--color-warning-500)" />
                     <AppText size="xs" weight={600} color="warning" as="span">
-                      {t('patientPage.hasMergeHistory')}
+                      {t("patientPage.hasMergeHistory")}
                     </AppText>
                   </div>
                 )}
@@ -1425,8 +1792,8 @@ export default function PatientPage() {
               {result.hasMergeHistory && (
                 <div
                   style={{
-                    marginTop: 'var(--space-3, 12px)',
-                    padding: 'var(--space-3, 12px)',
+                    marginTop: "var(--space-3, 12px)",
+                    padding: "var(--space-3, 12px)",
                     background: "var(--color-warning-bg)",
                     borderRadius: 8,
                     border: "1px solid #fde68a",
@@ -1437,12 +1804,17 @@ export default function PatientPage() {
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
-                      marginBottom: 'var(--space-2, 8px)',
+                      marginBottom: "var(--space-2, 8px)",
                     }}
                   >
                     <History size={14} color="var(--color-warning-500)" />
-                    <AppText size="xs" weight={700} as="span" style={{ color: "#92400e" }}>
-                      {t('patientPage.patientMergeHistory')}
+                    <AppText
+                      size="xs"
+                      weight={700}
+                      as="span"
+                      style={{ color: "#92400e" }}
+                    >
+                      {t("patientPage.patientMergeHistory")}
                     </AppText>
                   </div>
                   {result.mergeHistory.map((m, i) => (
@@ -1451,13 +1823,13 @@ export default function PatientPage() {
                       style={{
                         fontSize: 12,
                         color: "#92400e",
-                        marginBottom: 'var(--space-1, 4px)',
+                        marginBottom: "var(--space-1, 4px)",
                       }}
                     >
                       {m.mergedDate} · {m.reason}
                       {m.mergedFromId && (
-                        <span style={{ marginLeft: 'var(--space-2, 8px)' }}>
-                          {t('patientPage.mergedFrom', { id: m.mergedFromId })}
+                        <span style={{ marginLeft: "var(--space-2, 8px)" }}>
+                          {t("patientPage.mergedFrom", { id: m.mergedFromId })}
                         </span>
                       )}
                     </div>
@@ -1473,24 +1845,32 @@ export default function PatientPage() {
 
   // PMI患者基本信息卡片
   const renderPMIPatientCard = (result: PMISearchResult) => (
-    <Card bordered={false}
+    <Card
+      bordered={false}
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid var(--border-color)",
-        padding: 'var(--space-5, 20px)',
+        padding: "var(--space-5, 20px)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
-     styles={{ body: { padding: 0 } }}>
+      styles={{ body: { padding: 0 } }}
+    >
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 'var(--space-4, 16px)',
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3, 12px)",
+          }}
+        >
           <div
             style={{
               width: 56,
@@ -1511,11 +1891,23 @@ export default function PatientPage() {
             {result.name.slice(0, 1)}
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--color-primary-800)" }}>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: "var(--color-primary-800)",
+              }}
+            >
               {result.name}
             </div>
-            <AppText size="xs" color="secondary" as="div" style={{ marginTop: 2 }}>
-              {result.gender} · {result.age}{t('patientPage.ageUnit')} · {result.patientType}
+            <AppText
+              size="xs"
+              color="secondary"
+              as="div"
+              style={{ marginTop: 2 }}
+            >
+              {result.gender} · {result.age}
+              {t("patientPage.ageUnit")} · {result.patientType}
             </AppText>
             <div
               style={{
@@ -1529,7 +1921,13 @@ export default function PatientPage() {
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
           <div style={{ textAlign: "center" }}>
             <div
               style={{
@@ -1545,9 +1943,12 @@ export default function PatientPage() {
             >
               {result.confidence}%
             </div>
-            <AppText size="xs" color="secondary" as="div">{t('patientPage.matchConfidence')}</AppText>
+            <AppText size="xs" color="secondary" as="div">
+              {t("patientPage.matchConfidence")}
+            </AppText>
           </div>
-          <button aria-label="关闭"
+          <button
+            aria-label="关闭"
             onClick={handleClosePMIPanel}
             style={{
               width: 32,
@@ -1569,67 +1970,106 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 'var(--space-3, 12px)',
-          marginBottom: 'var(--space-4, 16px)',
+          gap: "var(--space-3, 12px)",
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
-        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
+        <div
+          style={{
+            padding: "var(--space-3, 12px)",
+            background: "var(--content-bg)",
+            borderRadius: 8,
+          }}
+        >
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 'var(--space-1, 4px)',
+              marginBottom: "var(--space-1, 4px)",
             }}
           >
             <CreditCard size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">{t('patientPage.idCard')}</AppText>
+            <AppText size="xs" color="secondary" as="span">
+              {t("patientPage.idCard")}
+            </AppText>
           </div>
-          <AppText size="xs" color="secondary" as="div" style={{ fontFamily: "monospace" }}>
+          <AppText
+            size="xs"
+            color="secondary"
+            as="div"
+            style={{ fontFamily: "monospace" }}
+          >
             {result.idCard}
           </AppText>
         </div>
-        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
+        <div
+          style={{
+            padding: "var(--space-3, 12px)",
+            background: "var(--content-bg)",
+            borderRadius: 8,
+          }}
+        >
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 'var(--space-1, 4px)',
+              marginBottom: "var(--space-1, 4px)",
             }}
           >
             <Phone size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">{t('patientPage.phone')}</AppText>
+            <AppText size="xs" color="secondary" as="span">
+              {t("patientPage.phone")}
+            </AppText>
           </div>
-          <AppText size="xs" color="secondary" as="div">{result.phone}</AppText>
+          <AppText size="xs" color="secondary" as="div">
+            {result.phone}
+          </AppText>
         </div>
-        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
+        <div
+          style={{
+            padding: "var(--space-3, 12px)",
+            background: "var(--content-bg)",
+            borderRadius: 8,
+          }}
+        >
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 'var(--space-1, 4px)',
+              marginBottom: "var(--space-1, 4px)",
             }}
           >
             <Shield size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">{t('patientPage.insuranceType')}</AppText>
+            <AppText size="xs" color="secondary" as="span">
+              {t("patientPage.insuranceType")}
+            </AppText>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.insuranceType}
           </div>
         </div>
-        <div style={{ padding: 'var(--space-3, 12px)', background: "var(--content-bg)", borderRadius: 8 }}>
+        <div
+          style={{
+            padding: "var(--space-3, 12px)",
+            background: "var(--content-bg)",
+            borderRadius: 8,
+          }}
+        >
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 'var(--space-1, 4px)',
+              marginBottom: "var(--space-1, 4px)",
             }}
           >
             <User size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">{t('patientPage.visitType')}</AppText>
+            <AppText size="xs" color="secondary" as="span">
+              {t("patientPage.visitType")}
+            </AppText>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.patientType}
@@ -1640,63 +2080,96 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 'var(--space-3, 12px)',
+          gap: "var(--space-3, 12px)",
         }}
       >
         <div
           style={{
-            padding: 'var(--space-4, 16px)',
+            padding: "var(--space-4, 16px)",
             background: "var(--color-info-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
         >
-          <Gauge size={24} color="var(--color-primary-500)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
-          <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary-800)" }}>
+          <Gauge
+            size={24}
+            color="var(--color-primary-500)"
+            style={{ marginBottom: "var(--space-2, 8px)" }}
+          />
+          <div
+            style={{
+              fontSize: 30,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+            }}
+          >
             {result.examStats.totalExams}
           </div>
-          <AppText size="xs" color="secondary" as="div">{t('patientPage.totalExamTimes')}</AppText>
+          <AppText size="xs" color="secondary" as="div">
+            {t("patientPage.totalExamTimes")}
+          </AppText>
         </div>
         <div
           style={{
-            padding: 'var(--space-4, 16px)',
+            padding: "var(--space-4, 16px)",
             background: "var(--color-success-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
         >
-          <Percent size={24} color="var(--color-success-600)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
+          <Percent
+            size={24}
+            color="var(--color-success-600)"
+            style={{ marginBottom: "var(--space-2, 8px)" }}
+          />
           <div
             style={{
               fontSize: 30,
               fontWeight: 700,
-              color: result.examStats.positiveRate > 30 ? "var(--color-error-600)" : "var(--color-success-600)",
+              color:
+                result.examStats.positiveRate > 30
+                  ? "var(--color-error-600)"
+                  : "var(--color-success-600)",
             }}
           >
             {result.examStats.positiveRate}%
           </div>
-          <AppText size="xs" color="secondary" as="div">{t('patientPage.positiveRate')}</AppText>
+          <AppText size="xs" color="secondary" as="div">
+            {t("patientPage.positiveRate")}
+          </AppText>
         </div>
         <div
           style={{
-            padding: 'var(--space-4, 16px)',
+            padding: "var(--space-4, 16px)",
             background: "var(--content-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
         >
-          <Clock size={24} color="var(--text-secondary)" style={{ marginBottom: 'var(--space-2, 8px)' }} />
-          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary-800)" }}>
+          <Clock
+            size={24}
+            color="var(--text-secondary)"
+            style={{ marginBottom: "var(--space-2, 8px)" }}
+          />
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+            }}
+          >
             {result.examStats.lastExamDate}
           </div>
-          <AppText size="xs" color="secondary" as="div">{t('patientPage.lastExamDate')}</AppText>
+          <AppText size="xs" color="secondary" as="div">
+            {t("patientPage.lastExamDate")}
+          </AppText>
         </div>
       </div>
       {result.hasMergeHistory && (
         <div
           style={{
-            marginTop: 'var(--space-4, 16px)',
-            padding: 'var(--space-4, 16px)',
+            marginTop: "var(--space-4, 16px)",
+            padding: "var(--space-4, 16px)",
             background: "var(--color-warning-bg)",
             borderRadius: 10,
             border: "1px solid #fde68a",
@@ -1706,13 +2179,13 @@ export default function PatientPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-2, 8px)',
-              marginBottom: 'var(--space-3, 12px)',
+              gap: "var(--space-2, 8px)",
+              marginBottom: "var(--space-3, 12px)",
             }}
           >
             <History size={16} color="var(--color-warning-500)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: "#92400e" }}>
-              {t('patientPage.patientMergeHistory')}
+              {t("patientPage.patientMergeHistory")}
             </span>
             <span
               style={{
@@ -1724,7 +2197,7 @@ export default function PatientPage() {
                 color: "#fff",
               }}
             >
-              {result.mergeHistory.length} {t('patientPage.recordsCount')}
+              {result.mergeHistory.length} {t("patientPage.recordsCount")}
             </span>
           </div>
           {result.mergeHistory.map((m, i) => (
@@ -1734,7 +2207,7 @@ export default function PatientPage() {
                 padding: "10px 12px",
                 background: "var(--bg-card)",
                 borderRadius: 6,
-                marginBottom: 'var(--space-2, 8px)',
+                marginBottom: "var(--space-2, 8px)",
                 border: "1px solid #fde68a",
               }}
             >
@@ -1742,8 +2215,8 @@ export default function PatientPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 'var(--space-2, 8px)',
-                  marginBottom: 'var(--space-1, 4px)',
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-1, 4px)",
                 }}
               >
                 <span
@@ -1758,17 +2231,17 @@ export default function PatientPage() {
               <AppText size="xs" color="secondary" as="div">
                 {m.mergedFromId && (
                   <span>
-                    {t('patientPage.mergedFromPrefix')}{" "}
+                    {t("patientPage.mergedFromPrefix")}{" "}
                     <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
                       {m.mergedFromId}
                     </span>{" "}
-                    {t('patientPage.mergedFromSuffix')}
+                    {t("patientPage.mergedFromSuffix")}
                   </span>
                 )}
                 {m.mergedToId && m.mergedToId !== result.patientId && (
                   <span>
                     {" "}
-                    {t('patientPage.mergedToPrefix')}{" "}
+                    {t("patientPage.mergedToPrefix")}{" "}
                     <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
                       {m.mergedToId}
                     </span>
@@ -1786,13 +2259,25 @@ export default function PatientPage() {
   const renderPatientAnalytics = () => (
     <>
       {/* [v3.0.6.11-104 Wave 2B] 患者总览 (GET /patients/overview) */}
-      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
+      <div style={{ marginBottom: "var(--space-4, 16px)" }}>
         <DashboardCard
-          title={`${t("patientPage.overviewCard")} · ${statsSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}`}
+          title={`${t("patientPage.overviewCard")} · ${statsSource === "real" ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}`}
           icon={<Users size={14} />}
           extra={
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-              {statsLoading && <span style={{ fontSize: 12, color: 'var(--color-warning-600)' }}>{t("examPage.syncing")}</span>}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2, 8px)",
+              }}
+            >
+              {statsLoading && (
+                <span
+                  style={{ fontSize: 12, color: "var(--color-warning-600)" }}
+                >
+                  {t("examPage.syncing")}
+                </span>
+              )}
               <ActionButton
                 action="refresh"
                 size="compact"
@@ -1807,27 +2292,84 @@ export default function PatientPage() {
           skeletonRows={2}
           testId="patient-overview-card"
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3, 12px)' }}>
-            <StatCard label={t("patientPage.overviewTotal")} value={patientOverview.total} icon={<Users size={22} />} color="var(--color-primary-800)" bgColor="#eff6ff" />
-            <StatCard label={t("patientPage.overviewTodayNew")} value={patientOverview.todayNew} icon={<PlusCircle size={22} />} color="var(--color-success-600)" bgColor="#f0fdf4" />
-            <StatCard label={t("patientPage.overviewMonthlyNew")} value={patientOverview.monthlyNew} icon={<TrendingUp size={22} />} color="#0ea5e9" bgColor="#f0f9ff" />
-            <StatCard label={t("patientPage.overviewActive")} value={patientOverview.active} icon={<Activity size={22} />} color="#8b5cf6" bgColor="#f5f3ff" />
-            <StatCard label={t("patientPage.overviewActiveRate")} value={`${patientOverview.activeRate}%`} icon={<Percent size={22} />} color="var(--color-warning-500)" bgColor="#fffbeb" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
+            <StatCard
+              label={t("patientPage.overviewTotal")}
+              value={patientOverview.total}
+              icon={<Users size={22} />}
+              color="var(--color-primary-800)"
+              bgColor="#eff6ff"
+            />
+            <StatCard
+              label={t("patientPage.overviewTodayNew")}
+              value={patientOverview.todayNew}
+              icon={<PlusCircle size={22} />}
+              color="var(--color-success-600)"
+              bgColor="#f0fdf4"
+            />
+            <StatCard
+              label={t("patientPage.overviewMonthlyNew")}
+              value={patientOverview.monthlyNew}
+              icon={<TrendingUp size={22} />}
+              color="#0ea5e9"
+              bgColor="#f0f9ff"
+            />
+            <StatCard
+              label={t("patientPage.overviewActive")}
+              value={patientOverview.active}
+              icon={<Activity size={22} />}
+              color="#8b5cf6"
+              bgColor="#f5f3ff"
+            />
+            <StatCard
+              label={t("patientPage.overviewActiveRate")}
+              value={`${patientOverview.activeRate}%`}
+              icon={<Percent size={22} />}
+              color="var(--color-warning-500)"
+              bgColor="#fffbeb"
+            />
           </div>
         </DashboardCard>
       </div>
 
       {/* [v3.0.6.11-104 Wave 2B] 年龄分布 (GET /patients/age-distribution) */}
-      <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <DashboardCard title={t("patientPage.ageDistributionStat")} icon={<PieChart size={14} />} testId="patient-age-distribution-card">
+      <div style={{ marginBottom: "var(--space-4, 16px)" }}>
+        <DashboardCard
+          title={t("patientPage.ageDistributionStat")}
+          icon={<PieChart size={14} />}
+          testId="patient-age-distribution-card"
+        >
           <TrendChart
             type="bar"
-            data={ageDistribution.map((b) => ({ bucket: b.bucket, total: b.count, male: b.male, female: b.female }))}
+            data={ageDistribution.map((b) => ({
+              bucket: b.bucket,
+              total: b.count,
+              male: b.male,
+              female: b.female,
+            }))}
             xKey="bucket"
             series={[
-              { key: 'total', name: t("patientPage.overviewTotal"), color: 'var(--color-primary-600)' },
-              { key: 'male', name: t("patientPage.ageMale"), color: 'var(--color-info-600)' },
-              { key: 'female', name: t("patientPage.ageFemale"), color: '#db2777' },
+              {
+                key: "total",
+                name: t("patientPage.overviewTotal"),
+                color: "var(--color-primary-600)",
+              },
+              {
+                key: "male",
+                name: t("patientPage.ageMale"),
+                color: "var(--color-info-600)",
+              },
+              {
+                key: "female",
+                name: t("patientPage.ageFemale"),
+                color: "#db2777",
+              },
             ]}
             height={220}
             testId="patient-age-distribution-chart"
@@ -1839,8 +2381,8 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 'var(--space-4, 16px)',
-          marginBottom: 'var(--space-4, 16px)',
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
         <StatCard
@@ -1876,8 +2418,8 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 'var(--space-4, 16px)',
-          marginBottom: 'var(--space-4, 16px)',
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
         <StatCard
@@ -1913,22 +2455,25 @@ export default function PatientPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: 'var(--space-4, 16px)',
-          marginBottom: 'var(--space-4, 16px)',
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
         <PieChartSimple
           data={statistics.typeDistribution}
           title={t("patientPage.patientTypeDistribution")}
         />
-        <PieChartSimple data={statistics.genderDistribution} title={t("patientPage.genderDistribution")} />
+        <PieChartSimple
+          data={statistics.genderDistribution}
+          title={t("patientPage.genderDistribution")}
+        />
       </div>
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: 'var(--space-4, 16px)',
-          marginBottom: 'var(--space-4, 16px)',
+          gap: "var(--space-4, 16px)",
+          marginBottom: "var(--space-4, 16px)",
         }}
       >
         <BarChartSimple
@@ -1942,26 +2487,29 @@ export default function PatientPage() {
           xLabel={t("patientPage.examTimes")}
         />
       </div>
-      <Card bordered={false}
+      <Card
+        bordered={false}
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
           border: "1px solid var(--border-color)",
-          padding: 'var(--space-5, 20px)',
+          padding: "var(--space-5, 20px)",
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
-       styles={{ body: { padding: 0 } }} size="small">
+        styles={{ body: { padding: 0 } }}
+        size="small"
+      >
         <div
           style={{
             fontSize: 14,
             fontWeight: 700,
             color: "var(--color-primary-800)",
-            marginBottom: 'var(--space-4, 16px)',
+            marginBottom: "var(--space-4, 16px)",
           }}
         >
-          {t('patientPage.patientDetail')} (
+          {t("patientPage.patientDetail")} (
           <span style={{ fontWeight: 400, color: "var(--text-secondary)" }}>
-            {t('patientPage.clickToViewDetail')}
+            {t("patientPage.clickToViewDetail")}
           </span>
           )
         </div>
@@ -1976,45 +2524,209 @@ export default function PatientPage() {
             },
           })}
           columns={[
-            { title: t('patientPage.patientId'), dataIndex: 'id', key: 'id', width: 130, sorter: (a: Patient, b: Patient) => a.id.localeCompare(b.id), render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
-            { title: t('patientPage.name'), dataIndex: 'name', key: 'name', sorter: (a: Patient, b: Patient) => a.name.localeCompare(b.name), render: (v: string, p: Patient) => (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-                <div style={{
-                  width: 24, height: 24, borderRadius: '50%',
-                  background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 12, fontWeight: 700,
-                  color: p.gender === "男" ? "var(--color-primary-800)" : "#be185d",
-                }}>{v.slice(0, 1)}</div>
-                <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span>
-              </div>
-            ) },
-            { title: t('patientPage.gender'), dataIndex: 'gender', key: 'gender', width: 80, align: 'center', render: (v: string) => (<span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: v === "男" ? "#dbeafe" : "#fce7f3", color: v === "男" ? "var(--color-primary-800)" : "#be185d" }}>{v}</span>) },
-            { title: t('patientPage.age'), dataIndex: 'age', key: 'age', width: 80, align: 'center', sorter: (a: Patient, b: Patient) => (a.age || 0) - (b.age || 0), render: (v: number) => <span style={{ color: "var(--text-secondary)" }}>{v}{t('patientPage.ageUnit')}</span> },
-            { title: t('patientPage.type'), dataIndex: 'patientType', key: 'patientType', width: 90, align: 'center', render: (v: string) => (<span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: "var(--content-bg)", color: "var(--text-secondary)" }}>{v}</span>) },
-            { title: t('patientPage.allergyHistory'), dataIndex: 'allergyHistory', key: 'allergyHistory', render: (v: string) => (v && v !== "无" ? (<span style={{ color: "var(--color-error-600)", fontWeight: 600, fontSize: 12 }}>{v}</span>) : (<span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{t('patientPage.noAllergy')}</span>)) },
-            { title: t('patientPage.cumulativeExam'), dataIndex: 'totalExamCount', key: 'totalExamCount', width: 100, align: 'center', sorter: (a: Patient, b: Patient) => (a.totalExamCount || 0) - (b.totalExamCount || 0), render: (v: number) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v || 0}</span> },
-            { title: t('patientPage.lastExam'), dataIndex: 'lastExamDate', key: 'lastExamDate', width: 110, align: 'center', render: (v: string) => <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{v || "-"}</span> },
-            { title: t('patientPage.actions'), key: 'actions', width: 150, render: (_: unknown, p: Patient) => (
-              <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
-                <ActionButton
-                  action="refresh"
-                  size="compact"
-                  aria-label={t('patientPage.viewPatientAria', { name: p.name })}
-                  onClick={(e) => { e.stopPropagation(); handleViewPatient(p); }}
+            {
+              title: t("patientPage.patientId"),
+              dataIndex: "id",
+              key: "id",
+              width: 130,
+              sorter: (a: Patient, b: Patient) => a.id.localeCompare(b.id),
+              render: (v: string) => (
+                <span
+                  style={{
+                    fontFamily: "monospace",
+                    fontSize: 12,
+                    color: "var(--text-secondary)",
+                  }}
                 >
-                  {t('patientPage.detail')}
-                </ActionButton>
-                <ActionButton
-                  action="edit"
-                  size="compact"
-                  aria-label={t('patientPage.editPatientAria', { name: p.name })}
-                  onClick={(e) => { e.stopPropagation(); handleEditPatient(p); }}
+                  {v}
+                </span>
+              ),
+            },
+            {
+              title: t("patientPage.name"),
+              dataIndex: "name",
+              key: "name",
+              sorter: (a: Patient, b: Patient) => a.name.localeCompare(b.name),
+              render: (v: string, p: Patient) => (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-2, 8px)",
+                  }}
                 >
-                  {t('patientPage.edit')}
-                </ActionButton>
-              </div>
-            ) },
+                  <div
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: "50%",
+                      background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color:
+                        p.gender === "男"
+                          ? "var(--color-primary-800)"
+                          : "#be185d",
+                    }}
+                  >
+                    {v.slice(0, 1)}
+                  </div>
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      color: "var(--color-primary-800)",
+                    }}
+                  >
+                    {v}
+                  </span>
+                </div>
+              ),
+            },
+            {
+              title: t("patientPage.gender"),
+              dataIndex: "gender",
+              key: "gender",
+              width: 80,
+              align: "center",
+              render: (v: string) => (
+                <span
+                  style={{
+                    padding: "2px 6px",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: v === "男" ? "#dbeafe" : "#fce7f3",
+                    color: v === "男" ? "var(--color-primary-800)" : "#be185d",
+                  }}
+                >
+                  {v}
+                </span>
+              ),
+            },
+            {
+              title: t("patientPage.age"),
+              dataIndex: "age",
+              key: "age",
+              width: 80,
+              align: "center",
+              sorter: (a: Patient, b: Patient) => (a.age || 0) - (b.age || 0),
+              render: (v: number) => (
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {v}
+                  {t("patientPage.ageUnit")}
+                </span>
+              ),
+            },
+            {
+              title: t("patientPage.type"),
+              dataIndex: "patientType",
+              key: "patientType",
+              width: 90,
+              align: "center",
+              render: (v: string) => (
+                <span
+                  style={{
+                    padding: "2px 6px",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: "var(--content-bg)",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  {v}
+                </span>
+              ),
+            },
+            {
+              title: t("patientPage.allergyHistory"),
+              dataIndex: "allergyHistory",
+              key: "allergyHistory",
+              render: (v: string) =>
+                v && v !== "无" ? (
+                  <span
+                    style={{
+                      color: "var(--color-error-600)",
+                      fontWeight: 600,
+                      fontSize: 12,
+                    }}
+                  >
+                    {v}
+                  </span>
+                ) : (
+                  <span
+                    style={{ color: "var(--text-secondary)", fontSize: 12 }}
+                  >
+                    {t("patientPage.noAllergy")}
+                  </span>
+                ),
+            },
+            {
+              title: t("patientPage.cumulativeExam"),
+              dataIndex: "totalExamCount",
+              key: "totalExamCount",
+              width: 100,
+              align: "center",
+              sorter: (a: Patient, b: Patient) =>
+                (a.totalExamCount || 0) - (b.totalExamCount || 0),
+              render: (v: number) => (
+                <span
+                  style={{ fontWeight: 600, color: "var(--color-primary-800)" }}
+                >
+                  {v || 0}
+                </span>
+              ),
+            },
+            {
+              title: t("patientPage.lastExam"),
+              dataIndex: "lastExamDate",
+              key: "lastExamDate",
+              width: 110,
+              align: "center",
+              render: (v: string) => (
+                <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>
+                  {v || "-"}
+                </span>
+              ),
+            },
+            {
+              title: t("patientPage.actions"),
+              key: "actions",
+              width: 150,
+              render: (_: unknown, p: Patient) => (
+                <div style={{ display: "flex", gap: "var(--space-1, 4px)" }}>
+                  <ActionButton
+                    action="refresh"
+                    size="compact"
+                    aria-label={t("patientPage.viewPatientAria", {
+                      name: p.name,
+                    })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewPatient(p);
+                    }}
+                  >
+                    {t("patientPage.detail")}
+                  </ActionButton>
+                  <ActionButton
+                    action="edit"
+                    size="compact"
+                    aria-label={t("patientPage.editPatientAria", {
+                      name: p.name,
+                    })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditPatient(p);
+                    }}
+                  >
+                    {t("patientPage.edit")}
+                  </ActionButton>
+                </div>
+              ),
+            },
           ]}
           dataSource={patients}
         />
@@ -2022,14 +2734,116 @@ export default function PatientPage() {
     </>
   );
 
+  // ==================== 渲染：标签页5 - 患者 360° 视图 (v3 PatientProfile360) ====================
+  const renderPatientProfile360 = () => {
+    if (!selectedPatient) {
+      return (
+        <Card
+          bordered={false}
+          styles={{
+            body: {
+              padding: "var(--space-10, 40px)",
+              textAlign: "center",
+              color: "var(--text-secondary)",
+            },
+          }}
+        >
+          {t("patientPage.profile360SelectHint")}
+        </Card>
+      );
+    }
+    const profileExams = getPatientExams(selectedPatient.id, exams);
+    const v3Patient: V3PatientProfile = {
+      id: selectedPatient.id,
+      name: selectedPatient.name,
+      gender:
+        selectedPatient.gender === "男"
+          ? "M"
+          : selectedPatient.gender === "女"
+            ? "F"
+            : "O",
+      birthDate: getBirthDateFromIdCard(selectedPatient.idCard),
+      age: selectedPatient.age,
+      idCard: selectedPatient.idCard,
+      phone: selectedPatient.phone,
+      address: selectedPatient.address,
+      allergy: splitV3List(selectedPatient.allergyHistory),
+      chronicDiseases: splitV3List(selectedPatient.medicalHistory),
+      insurance: selectedPatient.insuranceType || undefined,
+      emergencyContact: selectedPatient.emergencyContact
+        ? {
+            name: selectedPatient.emergencyContact,
+            phone: selectedPatient.emergencyPhone,
+            relation: "",
+          }
+        : undefined,
+    };
+    const v3Exams: V3PatientExam[] = profileExams.map((e) => ({
+      id: e.id,
+      modality: e.modality,
+      bodyPart: e.bodyPart,
+      studyDate: e.examDate,
+      studyTime: e.examTime ?? "",
+      status: toV3ExamStatus(String(e.status)),
+      doctor: e.radiologistName,
+      critical: Boolean(e.criticalFinding),
+    }));
+    const v3Reports: V3PatientReport[] = profileExams
+      .filter((e) => e.reportId || e.reportTime)
+      .map((e) => ({
+        id: e.reportId ?? `${e.id}-report`,
+        examId: e.id,
+        modality: e.modality,
+        bodyPart: e.bodyPart,
+        conclusion: e.impression ?? e.diagnosis ?? "-",
+        author: e.radiologistName ?? "-",
+        reportDate: e.reportTime ?? e.examDate,
+        verified: Boolean(e.publishedTime),
+      }));
+    const v3Timeline: V3PatientTimelineEvent[] = [...profileExams]
+      .sort((a, b) => String(b.examDate).localeCompare(String(a.examDate)))
+      .map((e) => ({
+        id: e.id,
+        type: e.criticalFinding ? "CRITICAL" : "EXAM",
+        at: `${e.examDate}${e.examTime ? ` ${e.examTime}` : ""}`,
+        title: `${e.modality} · ${e.bodyPart}`,
+        description: e.examItemName ?? e.clinicalDiagnosis ?? "",
+      }));
+    return (
+      <PatientProfile360
+        patient={v3Patient}
+        exams={v3Exams}
+        reports={v3Reports}
+        timeline={v3Timeline}
+      />
+    );
+  };
+
+  // ==================== 渲染：标签页6 - 患者合并 (v3 PatientMergeTool) ====================
+  const renderPatientMergeTool = () => (
+    <PatientMergeTool
+      duplicates={v3MergeDuplicates}
+      onMerge={(keepId, removeId) => void handleV3Merge(keepId, removeId)}
+      onDismiss={handleV3DismissDuplicate}
+    />
+  );
+
   // ==================== 主渲染 ====================
   return (
-    <PageTemplate background="slate" maxWidth="standard" showHeader={false} loading={loading} error={loadError} onRetry={() => setReloadTick(n => n + 1)} testId="patient-page">
+    <PageTemplate
+      background="slate"
+      maxWidth="standard"
+      showHeader={false}
+      loading={loading}
+      error={loadError}
+      onRetry={() => setReloadTick((n) => n + 1)}
+      testId="patient-page"
+    >
       {accessDenied && (
         <div
           style={{
-            padding: 'var(--space-6, 24px)',
-            marginBottom: 'var(--space-4, 16px)',
+            padding: "var(--space-6, 24px)",
+            marginBottom: "var(--space-4, 16px)",
             background: "var(--color-error-bg)",
             border: "1px solid #fca5a5",
             color: "#7f1d1d",
@@ -2037,17 +2851,23 @@ export default function PatientPage() {
             fontSize: 14,
           }}
         >
-          {t('patientPage.accessDenied')}
+          {t("patientPage.accessDenied")}
         </div>
       )}
-      {loading && <LoadingBanner message={t('w9.states.loading')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
+      {loadError && !loading && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 'var(--space-5, 20px)',
+          marginBottom: "var(--space-5, 20px)",
         }}
       >
         <div>
@@ -2057,31 +2877,33 @@ export default function PatientPage() {
               margin: "0 0 4px",
               display: "flex",
               alignItems: "center",
-              gap: 'var(--space-2, 8px)',
+              gap: "var(--space-2, 8px)",
             }}
           >
             <Stethoscope size={22} color="var(--color-primary-800)" />
-            {t('patientPage.patientManagement')}
+            {t("patientPage.patientManagement")}
           </Typography.Title>
-          <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
-            {t('patientPage.patientSubtitle')}
+          <p
+            style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}
+          >
+            {t("patientPage.patientSubtitle")}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+        <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
           <ActionButton
             action="refresh"
             size="compact"
             icon={<Target size={14} />}
             onClick={() => setShowPMIPanel(true)}
           >
-            {t('patientPage.pmiSearch')}
+            {t("patientPage.pmiSearch")}
           </ActionButton>
           <ActionButton
             action="import"
             size="compact"
             onClick={() => setShowImportModal(true)}
           >
-            {t('patientPage.batchImport')}
+            {t("patientPage.batchImport")}
           </ActionButton>
           <ActionButton
             action="export"
@@ -2090,7 +2912,7 @@ export default function PatientPage() {
             disabled={exporting}
             onClick={() => void handleExport()}
           >
-            {t('patientPage.export')}
+            {t("patientPage.export")}
           </ActionButton>
           <ActionButton
             action="create"
@@ -2099,7 +2921,7 @@ export default function PatientPage() {
             style={{ background: "#059669", borderColor: "#059669" }}
             onClick={() => setShowRegistrationWizard(true)}
           >
-            {t('patientPage.registrationWizard')}
+            {t("patientPage.registrationWizard")}
           </ActionButton>
           <PermissionGate permission="patient.create">
             <ActionButton
@@ -2108,7 +2930,7 @@ export default function PatientPage() {
               icon={<UserPlus size={14} />}
               onClick={handleNewPatient}
             >
-              {t('patientPage.newPatient')}
+              {t("patientPage.newPatient")}
             </ActionButton>
           </PermissionGate>
         </div>
@@ -2135,7 +2957,7 @@ export default function PatientPage() {
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             display: "flex",
             alignItems: "center",
-            gap: 'var(--space-2, 8px)',
+            gap: "var(--space-2, 8px)",
             animation: "fadeIn 0.3s ease",
           }}
         >
@@ -2151,8 +2973,8 @@ export default function PatientPage() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 'var(--space-3, 12px)',
-            marginBottom: 'var(--space-4, 16px)',
+            gap: "var(--space-3, 12px)",
+            marginBottom: "var(--space-4, 16px)",
           }}
         >
           <StatCard
@@ -2189,9 +3011,9 @@ export default function PatientPage() {
       <div
         style={{
           display: "flex",
-          gap: 'var(--space-1, 4px)',
+          gap: "var(--space-1, 4px)",
           borderBottom: "1px solid var(--border-color)",
-          marginBottom: 'var(--space-4, 16px)',
+          marginBottom: "var(--space-4, 16px)",
           background: "var(--bg-card)",
           borderRadius: "12px 12px 0 0",
           padding: "0 8px",
@@ -2226,6 +3048,22 @@ export default function PatientPage() {
           icon={<PieChart size={16} />}
           isActive={activeTab === "analytics"}
           onClick={() => setActiveTab("analytics")}
+        />
+        <TabButton
+          tabKey={"profile360" as TabKey}
+          label={t("patientPage.profile360Tab")}
+          icon={<Heart size={16} />}
+          isActive={activeTab === ("profile360" as TabKey)}
+          onClick={() => setActiveTab("profile360" as TabKey)}
+          badge={selectedPatient ? 1 : undefined}
+        />
+        <TabButton
+          tabKey={"merge" as TabKey}
+          label={t("patientPage.mergeToolTab")}
+          icon={<Link size={16} />}
+          isActive={activeTab === ("merge" as TabKey)}
+          onClick={() => setActiveTab("merge" as TabKey)}
+          badge={visibleDuplicates.length || undefined}
         />
       </div>
 
@@ -2306,6 +3144,8 @@ export default function PatientPage() {
           />
         )}
         {activeTab === "analytics" && renderPatientAnalytics()}
+        {activeTab === ("profile360" as TabKey) && renderPatientProfile360()}
+        {activeTab === ("merge" as TabKey) && renderPatientMergeTool()}
       </div>
 
       <RegistrationWizard
@@ -2335,14 +3175,16 @@ export default function PatientPage() {
           setToast({
             show: true,
             type: "success",
-            message: t('patientPage.registerSuccessName', { name: newPatient.name }),
+            message: t("patientPage.registerSuccessName", {
+              name: newPatient.name,
+            }),
           });
         }}
       />
 
       {showPMIPanel && renderPMISearchPanel()}
       {pmiSelectedResult && !showPMIPanel && (
-        <div style={{ marginTop: 'var(--space-4, 16px)' }}>
+        <div style={{ marginTop: "var(--space-4, 16px)" }}>
           {renderPMIPatientCard(pmiSelectedResult)}
         </div>
       )}
@@ -2361,7 +3203,7 @@ export default function PatientPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 'var(--space-6, 24px)',
+            padding: "var(--space-6, 24px)",
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowImportModal(false);
@@ -2393,10 +3235,11 @@ export default function PatientPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <Upload size={18} color="#fff" />
                 <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
-                  {t('patientPage.batchImportTitle')}
+                  {t("patientPage.batchImportTitle")}
                 </span>
               </div>
-              <button aria-label="关闭"
+              <button
+                aria-label="关闭"
                 onClick={() => setShowImportModal(false)}
                 style={{
                   background: "rgba(255,255,255,0.15)",
@@ -2412,7 +3255,13 @@ export default function PatientPage() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ padding: 'var(--space-5, 20px)', overflowY: "auto", flex: 1 }}>
+            <div
+              style={{
+                padding: "var(--space-5, 20px)",
+                overflowY: "auto",
+                flex: 1,
+              }}
+            >
               <div
                 style={{
                   fontSize: 12,
@@ -2420,12 +3269,16 @@ export default function PatientPage() {
                   marginBottom: 10,
                   lineHeight: 1.8,
                 }}
-                dangerouslySetInnerHTML={{ __html: t('patientPage.importHint') }}
+                dangerouslySetInnerHTML={{
+                  __html: t("patientPage.importHint"),
+                }}
               />
               <textarea
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
-                placeholder={'[\n  { "name": "张三", "gender": "男", "age": 45, "idCard": "110101199001011234", "phone": "13800138000", "type": "门诊" }\n]'}
+                placeholder={
+                  '[\n  { "name": "张三", "gender": "男", "age": 45, "idCard": "110101199001011234", "phone": "13800138000", "type": "门诊" }\n]'
+                }
                 rows={8}
                 style={{
                   width: "100%",
@@ -2435,7 +3288,8 @@ export default function PatientPage() {
                   borderRadius: 8,
                   fontSize: 12,
                   fontFamily: "monospace",
-                  resize: "vertical", }}
+                  resize: "vertical",
+                }}
               />
               <div style={{ marginTop: 10 }}>
                 <label
@@ -2453,7 +3307,7 @@ export default function PatientPage() {
                   }}
                 >
                   <Upload size={13} />
-                  {t('patientPage.uploadFile')}
+                  {t("patientPage.uploadFile")}
                   <input
                     type="file"
                     accept=".csv,.json,text/csv,application/json"
@@ -2468,21 +3322,47 @@ export default function PatientPage() {
               {importResult && (
                 <div
                   style={{
-                    marginTop: 'var(--space-3, 12px)',
+                    marginTop: "var(--space-3, 12px)",
                     borderRadius: 8,
                     padding: "12px 14px",
                     border: "1px solid",
-                    borderColor: importResult.errors.length > 0 ? "#fde68a" : "#bbf7d0",
-                    background: importResult.errors.length > 0 ? "var(--color-warning-bg, #fffbeb)" : "var(--color-success-bg, #f0fdf4)",
+                    borderColor:
+                      importResult.errors.length > 0 ? "#fde68a" : "#bbf7d0",
+                    background:
+                      importResult.errors.length > 0
+                        ? "var(--color-warning-bg, #fffbeb)"
+                        : "var(--color-success-bg, #f0fdf4)",
                   }}
                 >
-                  <div style={{ fontSize: 12, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
-                    {t('patientPage.importComplete')}: {t('patientPage.success')} {importResult.imported} / {t('patientPage.importSkip')} {importResult.skipped} / {t('patientPage.importFail')} {importResult.errors.length}
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color:
+                        importResult.errors.length > 0 ? "#92400e" : "#166534",
+                    }}
+                  >
+                    {t("patientPage.importComplete")}:{" "}
+                    {t("patientPage.success")} {importResult.imported} /{" "}
+                    {t("patientPage.importSkip")} {importResult.skipped} /{" "}
+                    {t("patientPage.importFail")} {importResult.errors.length}
                   </div>
                   {importResult.errors.length > 0 && (
-                    <div style={{ marginTop: 6, maxHeight: 120, overflowY: "auto" }}>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        maxHeight: 120,
+                        overflowY: "auto",
+                      }}
+                    >
                       {importResult.errors.map((err, i) => (
-                        <div key={i} style={{ fontSize: 12, color: "var(--color-warning-600)" }}>
+                        <div
+                          key={i}
+                          style={{
+                            fontSize: 12,
+                            color: "var(--color-warning-600)",
+                          }}
+                        >
                           • {err.message}
                         </div>
                       ))}
@@ -2500,8 +3380,11 @@ export default function PatientPage() {
                 gap: 10,
               }}
             >
-              <ActionButton action="cancel" onClick={() => setShowImportModal(false)}>
-                {t('patientPage.close')}
+              <ActionButton
+                action="cancel"
+                onClick={() => setShowImportModal(false)}
+              >
+                {t("patientPage.close")}
               </ActionButton>
               <ActionButton
                 action="import"
@@ -2509,7 +3392,9 @@ export default function PatientPage() {
                 disabled={importing || !importText.trim()}
                 onClick={() => void handleImportSubmit()}
               >
-                {importing ? t('patientPage.importing') : t('patientPage.startImport')}
+                {importing
+                  ? t("patientPage.importing")
+                  : t("patientPage.startImport")}
               </ActionButton>
             </div>
           </div>
