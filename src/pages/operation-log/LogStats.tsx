@@ -1371,29 +1371,42 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
 // UserActivityHeatmap
 // ============================================================
 function UserActivityHeatmap({ logs }: { logs: OperationLog[] }) {
+  // [v3.0.6.16-6] 修复: 此前用 Math.random() 生成 7x24 热力值 —— 每次渲染都变,
+  // 且与真实操作日志毫无关系 (客户看到的是一张随机的图)。改为按 logs[].timestamp
+  // 的「星期 × 小时」真实计数; 无数据时全 0 并在标题旁说明。
   const heatmapData = useMemo(() => {
     const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+    const grid = new Map<string, number>();
+    for (const log of logs) {
+      const ts = new Date(log.timestamp);
+      if (Number.isNaN(ts.getTime())) continue;
+      // getDay(): 0=周日 … 6=周六 → 转成以周一为首
+      const dayIndex = (ts.getDay() + 6) % 7;
+      const key = `${dayIndex}-${ts.getHours()}`;
+      grid.set(key, (grid.get(key) ?? 0) + 1);
+    }
     const data: { day: string; hour: number; value: number }[] = [];
     days.forEach((day, dayIndex) => {
       for (let hour = 0; hour < 24; hour++) {
-        let value = Math.floor(Math.random() * 20);
-        if (hour >= 8 && hour <= 17 && dayIndex < 5) {
-          value = Math.floor(Math.random() * 40) + 20;
-        } else if (hour >= 9 && hour <= 11 && dayIndex < 5) {
-          value = Math.floor(Math.random() * 50) + 40;
-        }
-        data.push({ day, hour, value });
+        data.push({ day, hour, value: grid.get(`${dayIndex}-${hour}`) ?? 0 });
       }
     });
     return data;
-  }, []);
+  }, [logs]);
+
+  const maxValue = useMemo(
+    () => heatmapData.reduce((m, d) => Math.max(m, d.value), 0),
+    [heatmapData],
+  );
 
   const getHeatColor = (value: number) => {
-    if (value < 10) return "#f0f9ff";
-    if (value < 20) return "#bae6fd";
-    if (value < 30) return "#38bdf8";
-    if (value < 40) return "#0ea5e9";
-    if (value < 50) return "#0284c7";
+    if (value <= 0) return "var(--color-gray-100, #f1f5f9)";
+    if (maxValue <= 0) return "var(--color-gray-100, #f1f5f9)";
+    const ratio = value / maxValue;
+    if (ratio < 0.2) return "#bae6fd";
+    if (ratio < 0.4) return "#38bdf8";
+    if (ratio < 0.6) return "#0ea5e9";
+    if (ratio < 0.8) return "#0284c7";
     return "#0369a1";
   };
 
