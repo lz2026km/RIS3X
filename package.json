@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.16-5",
-  "description": "G005 Radiology RIS v3.0.6.16-5 - Table Density & Column-Width Normalization (row height 231px→37px)",
+  "version": "3.0.6.16-6",
+  "description": "G005 Radiology RIS v3.0.6.16-6 - Table Density & Column-Width Normalization (row height 231px→37px)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
@@ -35,7 +35,8 @@
     "guard:select": "node scripts/select-guard.mjs",
     "guard:table": "node scripts/table-guard.mjs",
     "guard:filter": "node scripts/filter-guard.mjs",
-    "guard:all": "node scripts/ui-guard.mjs && node scripts/table-guard.mjs && node scripts/select-guard.mjs && node scripts/filter-guard.mjs && node scripts/api-contract-guard.mjs"
+    "guard:demo": "node scripts/demo-guard.mjs",
+    "guard:all": "node scripts/ui-guard.mjs && node scripts/table-guard.mjs && node scripts/select-guard.mjs && node scripts/filter-guard.mjs && node scripts/demo-guard.mjs && node scripts/api-contract-guard.mjs"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.0.0",

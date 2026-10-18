@@ -1,9 +1,133 @@
+## v3.0.6.16-6 (2026-10-18) — 商业演示版整改（假控件清零 / 组件全挂载 / 表格四能力 / 原生下拉归零 / 零筛选归零）
+
+> **背景**: 面向「可销售的专业等级」，本轮以「客户实际点得到、点了有反应、反应是真的」为验收标准，
+> 系统性清理"看着有、用不了"的部分。
+> **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 6 套全过 / 后端 tsc 0 / jest 359 suites 3807 tests /
+> E2E 抽样 60+ 路由全绿。
+> **门禁新增 3 套**: `guard:filter`（表格页筛选能力）、`guard:demo`（演示构建 MSW 覆盖）、
+> 并扩展 `guard:select`（原生 `<select>` 预算 0）、`guard:ui`（原生 `<button>` 预算）。
+
+### 本轮 4 项指标（基线 `v3.0.6.16-5` / 4950e8dc）
+
+| 指标         | 数值                                                                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| ① 增加行数   | **+189,200 / -53,146**（git 统计；**含 lint-staged `eslint --fix` 一次性格式重排**，纯格式化占比很高，语义新增见 ②） |
+| ② 增加功能   | **11 项**（下表逐项列出）                                                                                            |
+| ③ 增加文件数 | **+10 新增 / -1 删除**（净 +9）                                                                                      |
+| ④ 总代码行数 | **1,506,664 行**（src 非测试 1,351,624 + backend/src 144,890 + scripts 7,887 + e2e 2,263）                           |
+
+② 新增功能明细:
+
+| #   | 功能                             | 说明                                                                                                                                                      |
+| --- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | 报告分发模块（真实后端）         | Prisma `DistTask` + migration 23 + `/dist/tasks`(列表/创建/重试) + `/dist/channels`；页面 3 处裸 fetch 收口                                               |
+| 2   | 眼科报告 AI 辅助（真实后端）     | `/eye/report/ai/continue\|rewrite\|feedback` + `/nlp/extract` + `/voice/transcribe`；确定性规则引擎（`engine: 'rule-based'`），ASR 未配置时如实报错不伪造 |
+| 3   | 医联体转诊 / 报告共享 / 站点 SLA | `regional` 3 个真实端点 + 页面接线                                                                                                                        |
+| 4   | 表格四项能力（672 表一次性获得） | 自动排序 `autoSort` / 批量操作 `selectable+bulkActions` / 行钻取 `drillDown` / 骨架屏 `AppSkeleton`                                                       |
+| 5   | 筛选栏对标 6 维                  | `FilterBar` 扩展时间范围 + 重置 + 结果计数；46 个零筛选表格页全部接入                                                                                     |
+| 6   | 假成功写操作清零                 | 库存删除 / PIX 映射删除 / 移动端通知已读删除 / EMR 模板复制 / 口腔治疗删除 / DICOM SR 模板 CRUD 全部落真后端                                              |
+| 7   | 质控登记表单真实化               | 抽样 → `POST /qc-ext/defect`；问题 → `POST /qc-analytics/loop/items`（含必填校验与真实落库回显）                                                          |
+| 8   | 16 个已完工未挂载组件接线        | 报告域 6 + 患者/设备/运营 6 + 危急值/移动/基建 4                                                                                                          |
+| 9   | 原生 `<select>` 全量归零         | 216 → 0，统一 `AppSelectField`（label 保证 / 搜索 / 键盘可达）                                                                                            |
+| 10  | 原生 `<button>` 状态语义统一     | `design-system.css` 一次性补 hover/active/disabled/focus-visible（1859 处覆盖）                                                                           |
+| 11  | 演示回退与契约守卫强化           | 演示构建 MSW 覆盖率守卫（0 未覆盖）、筛选能力守卫、原生控件预算                                                                                           |
+
+### 1. 假控件 / 假成功清零（客户点得到的都是真的）
+
+- **删除类**: 库存项（补 `DELETE /dental/inventory/:id`）、PIX 映射（补 `GET/DELETE /ihe/pix/mappings[/:key]`）、
+  移动端通知（改用真实 `notificationsApi.markRead/markAllRead/delete`）、EMR 模板复制（改 `templatesApi.clone`）、
+  口腔治疗删除、DICOM SR 模板增改删 —— 此前均为「只改本地 state + 弹绿勾」，刷新即复活。
+- **裸 fetch 收口 11 处**: `ReportDeliveryPage`(3) / `MedicalAlliancePage`(1) / `RegionalReportList`(2) /
+  `AiReportWriterPage`(5) —— 裸 fetch 绕过统一 client，导致拦截器、鉴权、演示回退、契约门禁全部失效，
+  也是"死端点看不见"的根因。
+- **质控登记表单**: 此前内容区写着「表单内容(模拟)」，点确定只弹绿勾不落库；现为真实表单
+  （报告编号/缺陷类型/描述/严重度/上报人 与 关联缺陷/标题/负责人 两套），提交失败如实显示后端错误。
+- **假陈述横幅清理**: 移除「后端未实现」等已不成立的页面提示；眼科 AI 徽标从「演示模拟」改为如实的「规则引擎」。
+
+### 2. 组件全挂载（16 个已完工组件此前用户永远看不到）
+
+- **报告域**: `AiAssistantPanel` / `AIDraftPanelV2` / `CollaborativeReportEditor` /
+  `SecondReadPanel` / `ConsultationV2Panel` / `PeerReviewPanel` / `ReportQcTaskBoardPanel`
+  → `ReportWritePage` 侧栏 Tab；`TemplateLibraryPanelV2` / `TemplateApprovalPanelV2`
+  → `ReportTemplateManagerPage`；`ReportQcV2Panel` → `QCPage` 新 Tab。
+- **患者/设备/运营**: `PatientMergeTool` / `PatientProfile360` → `PatientPage`；
+  `DeviceManagement` → `DeviceOpsCenterPage`；`KpiDashboard` / `RealtimeOpsDashboard` → `OperationsCenterPage`；
+  `ExamWorkflowBoard` → `WorklistPage` 新视图。
+- **危急值/移动/基建**: `CriticalValuePanelV2` → `CriticalValueCenterPage`；
+  `CriticalStatsDashboard` → `CriticalValuePage`；`MobileWorklist` / `MobileCriticalResponse` → `PatientMobileApp`；
+  `Toast.AppSkeleton` → `AppLayout` 路由 Suspense fallback。
+- **删除死包装页** `ReportV2Page.tsx`：其注释谎称「子面板已供 ReportWritePage 复用」，实际无人引用；
+  现已真正并入 `ReportWritePage`，`/report-v2/workbench → /write-report` 重定向保持不变。
+- 未挂载组件复扫: **17 → 1**（仅剩文件内已标注 `@deprecated` 的 `Chart.tsx`）。
+
+### 3. 表格能力全量补齐（672 张 `<DataTable>` 一次性获得）
+
+- **自动排序 `autoSort`**（默认开）: 按首行数据推断列类型自动挂 sorter（数字数值比较 / 字符串 zh-CN 数字感知）；
+  单列 `sorter: false` 或整表 `disableAutoSort` 退出。
+- **批量操作 `selectable` + `bulkActions`**: 勾选列 + 选中即出现的批量操作条（含「已选 N 项 / 取消选择」），
+  支持受控 `selectedRowKeys` / `onSelectionChange`。
+- **行钻取 `drillDown`**: 整行可点开详情抽屉（内置展示全部标量字段），传函数则交给调用方自定义；
+  已有 `onClick` 的行不覆盖。
+- **加载态统一** 为 `AppSkeleton`（与 AppLayout 路由 fallback 同一组件）。
+
+### 4. 筛选能力对标 6 维（零筛选表格页 46 → 0）
+
+- `FilterBar` 扩展为 6 维企业级筛选栏: 时间范围（`RangePicker`）/ 关键词 / 状态 / 类型 / 科室 / 人员，
+  另加 `extra` 业务字段槽位、`onReset` 重置按钮、`summary` 结果计数。
+- 46 个"有表格但完全无法筛选"的页面全部接入（剂量 7 / 安全 2 / 质控 2 / AI 4 / 心血管 2 / CDS 3 /
+  口腔 2 / 设备 1 / DICOM 1 / 眼科 1 / HL7 1 / IHE 1 / 集成 1 / 合规与运营 16）。
+- 筛选选项一律取自数据 distinct 值（不硬编码猜测枚举）；时间比较用 `dayjs` 日界，无效日期判为不匹配；
+  过滤全部走 `useMemo`，KPI 卡片与图表不受影响。
+- 顺带修复: `AiWorkflowCenterPage` 上/下移按钮原用渲染索引，过滤后会错位 → 改为按真实队列位置解析。
+
+### 5. 原生控件归零与统一
+
+- **原生 `<select>` 216 → 0**: 77 个文件（页面 71 + 共享组件 6）统一为 `AppSelectField`；
+  占位 `<option value="">` 改 `placeholder`，需要"全部"语义的补 `allowClear`；
+  数值型保留 `Number()` 转换；`multiple` → `mode="multiple"`。
+  迁移中修复 `ViewportArea` 考试跳转回调签名（`ChangeEvent` → value）并同步唯一调用点。
+- **原生 `<button>` 1859 处**: 不做逐点替换（内联样式已贴合设计令牌，替换属高风险纯装饰改动），
+  改为在 `design-system.css` 统一补状态语义 —— hover/active 亮度反馈、`focus-visible` 焦点环、
+  disabled 的 `not-allowed` + 透明度、过渡动画；用 `:not([class*='ant-'])` 与
+  `data-no-ds-normalize` 逃生舱避免影响 antd 组件；原生 `input/textarea` 同步补焦点环。
+
+### 6. 演示构建可信度（新增 `guard:demo`）
+
+- 演示版跑 MSW 无真实后端，故对演示版而言「后端有路由」不等于「点得到」——
+  本守卫以 **MSW handler 覆盖** 为判据，逐条对账 1,626 个前端调用路径。
+- 修复守卫自身 3 处解析缺陷后（跨行常量、链式模板常量、`http.post(IDENT)` 裸标识符、注释污染），
+  未覆盖数 **6 → 0**：补齐 OLAP 5 个端点与 OCSP 2 个端点的 MSW 兜底。
+
+### 7. 顺带修复的真实缺陷
+
+- **`TemplateDesignerPage` 404**: 页面把 URL `:id` 直接当后端模板 id 用，
+  内置种子模板（`tpl-chest-ct-001…`）与无效链接（`TMP001`）都会打 `/templates/<id>` 得 404。
+  改为用一次 `list()`（必然 200）判定该 id 是否真在后端模板库，不可写则走 `create` 落地新模板；
+  克隆按钮同样只在 id 真实存在时才调 `clone` 端点。
+- **`UserActivityHeatmap` 随机数据**: 此前用 `Math.random()` 生成 7×24 热力值（每次渲染都变、与真实日志无关），
+  改为按 `logs[].timestamp` 的「星期 × 小时」真实计数，颜色按当前最大值归一化。
+
+### 8. 门禁预算（只减不增）
+
+| 守卫           | 项目                   | 变化                            |
+| -------------- | ---------------------- | ------------------------------- |
+| `guard:select` | `nativeSelect`         | 新增，预算 **0**                |
+| `guard:select` | `rawDateInput`         | 120 → **0**                     |
+| `guard:select` | `labelLessOptions`     | 4 → **2**                       |
+| `guard:ui`     | `hexTotal`             | 5628 → **5459**                 |
+| `guard:ui`     | `clickableNoRole`      | 151 → **139**                   |
+| `guard:ui`     | `offScaleFont`         | 42 → **38**                     |
+| `guard:ui`     | `nativeButton`         | 新增，预算 **1859**（锁定现状） |
+| `guard:filter` | `filterlessTableFiles` | 新增，预算 **0**                |
+| `guard:demo`   | `demoUncoveredCalls`   | 新增，预算 **0**                |
+
 ## v3.0.6.16-5 (2026-10-16) — 五项遗留全清（DICOM 加载器 / 日期控件 / 压缩接线 / 契约守卫 / 回退可见）
 
 > **背景**: 收口前四轮审查遗留的 5 项。
 > **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 69/69 全绿。
 
 ### 1. 修复 `/eye/pacs/real-viewer` DICOM image loader（长期遗留缺陷）
+
 - **根因**: cornerstone 用 `imageId.split(':')[0]` 取 scheme。页面把 imageId 构造为
   `frame-1`（无冒号），scheme 被解析为 `frame-1`，而 loader 注册的是 `frame`
   → `No image loader found for scheme 'frame-1'` → 视口空白（E2E 唯一持续失败路由）。
@@ -11,20 +135,24 @@
 - **结果**: `/eye/pacs/real-viewer` pass=true，pageErrors=[]。
 
 ### 2. 全部 83 处裸日期输入迁移为 antd `DatePicker`（`rawDateInput` 83 → **0**）
+
 - 覆盖 4 类 onChange 形态（直接 setter / 对象展开 / 计算属性 / 函数式更新），
   另人工处理 6 处异构写法（回调 prop、块体 onChange、嵌套对象、共享 handler、`set` setter）。
 - `datetime-local` → `DatePicker showTime`；移除已失效的深色主题 `input[type=date]` CSS。
 
 ### 3. `PostProcessingPage` 接入真实 `dicom/compress` 后端（concept → hybrid）
+
 - 新增「压缩后处理」面板：实例列表 / 目标传输语法 / 创建转码任务 / 任务状态与压缩比 / 统计，
   全部走真实后端端点（此前整页仅本地合成像素，标 concept）。
 
 ### 4. `api-contract-guard` 精度修复 — 死调用 33 → **0**
+
 - 修掉 5 个解析缺陷：模板花括号不平衡、反引号嵌套截断、前缀常量未解析、注释污染、
   `@Post()` 空前缀未收录。MSW 侧同样解析前缀常量（误报 586 → 36）。
 - **结论**: 前端 api 层已 100% 有后端路由覆盖。预算收紧为 `deadCalls=0 / realDeadCalls=0`。
 
 ### 5. 演示数据回退不再静默（生产环境全局横幅）
+
 - `client.ts` 新增回退登记表（仅生产登记、按 url+code 去重）；`request()` 两处失败分支接入。
 - 新增 `DemoFallbackBanner`：生产环境一旦接口失败即显式告知"当前 N 个数据源可能显示演示数据"，
   可展开查看受影响端点，支持关闭；演示环境不渲染。挂载于 `AppLayout`。
@@ -35,6 +163,7 @@
 > **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 13 项全绿 / E2E 相关路由 2/2 全绿。
 
 ### IheConnectathonPage 部分真实化（concept → hybrid）
+
 - 此前整页完全不调后端, 服务状态与归属域均为本地硬编码展示。
 - 后端 `ihe` 模块实际已实现 `GET /ihe/status` 与 `GET /ihe/affinity-domain`,
   前端 `integrationApi` 也早有 `iheApi.getStatus()` / `getAffinityDomain()` 封装, 但本页未使用。
@@ -44,6 +173,7 @@
   故数据来源标识由 `concept` 调整为 `hybrid`(部分真实 + 本地模拟)。
 
 ### 未做(明确留待专项)
+
 - `PostProcessingPage` 的"后处理"是 canvas 像素预览, 后端 `dicom/compress` 是压缩转码任务,
   领域不同, 直接接线需重构而非改接线, 本轮仅保留 `concept` 标识。
 
@@ -55,6 +185,7 @@
 > **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 40/40 全绿。
 
 ### 日期控件统一
+
 - **31 处**非表单(筛选栏 / 工具条)的裸 `<input type="date">` 迁移为 antd `DatePicker`,
   覆盖 15 个文件: `TechSchedulePage`(6)、`SchedulePage`(5)、`DepartmentSchedule`(4)、
   `ResearchPage`(4)、`AIQCPage`/`ReportSearchPage`/`DepartmentPage`/`ReportHeader`/
@@ -65,6 +196,7 @@
 - 剩余 42 处位于 `Form.Item` 内, 提交时值形态需从 Dayjs 转字符串, 留待专项一轮。
 
 ### 数据来源标识全覆盖
+
 - 补齐 5 个零后端接线页面: `PostProcessingPage`(合成像素)、
   `PanoramicAnnotatorPage`(标注演示)、`OfflineReportsPage`(静态数据) → `concept`;
   `IolCalculatorPage`、`ClinicalCalculatorHubPage`(公式计算) → `computed`。
@@ -78,6 +210,7 @@
 > **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 14/14 全绿。
 
 ### 设备下拉真实化
+
 - `DeviceOpsCenterPage` 工单设备选择: 由写死 8 台(CT-01/MR-01/…) 改为 `deviceApi.list`
   真实设备清单(自动过滤已报废设备), 修复机构新增/报废设备后选不到、
   提交不存在的 deviceId。
@@ -85,11 +218,13 @@
   NCT/Goldmann/iCare/TonoPen), 非机构主数据, 加入 `select-guard` 豁免名单。
 
 ### 日期区间控件
+
 - `WorklistToolbar`(检查日期) 与 `PatientSearchPanel`(建档日期) 的成对裸
   `<input type="date">` 合并为 antd `RangePicker`: 支持快捷区间、locale 跟随、
   站内样式一致。
 
 ### 数据来源标识（诚实披露）
+
 - 新增 `components/common/DataSourceBadge`: `backend`(不渲染) / `hybrid` /
   `computed` / `concept` 四态 + Tooltip 说明口径。
 - 应用到 `AiQuantCenterPage`、`IheConnectathonPage`、`AiWorkflowCenterPage` ——
@@ -103,6 +238,7 @@
 > **验证**: 前端 tsc 0 / vitest 47 文件 831 测试 / guard 4 套全绿 / E2E 相关路由 16/16 全绿。
 
 ### 人员下拉真实化（新增 useStaff / AppStaffField）
+
 - 审查发现 12 文件 / ≈25 个下拉把医生/护士/技师写死, 机构新增人员后永远看不到,
   提交的 ID 在系统中并不存在。
 - 新增 `hooks/useStaff.ts`(消费 `GET /users`, module 级缓存 + 订阅 +
@@ -111,16 +247,19 @@
   `RegistrationWorkstationPage` 护士(派发回填真实姓名)。
 
 ### 手输/写死下拉改真实数据源（新增 usePatients / AppPatientField）
+
 - `CosignSchedule`: 临时授权的模态/科室由 `Input` 手输(拼错即授权失效)改为下拉。
 - `PeerReviewPanel`: 缺陷编码由纯自由输入接入真实缺陷库(修复随手敲编码致统计失真)。
 - `SchedulingCenterPage`: 患者(6 写死姓名, 且拿姓名当主键)→ 远程检索;
   检查项目 → 后端字典; 检查室 → `appointmentApi.getRooms()`; 模态 → 单一真源。
 
 ### 停止伪造成功
+
 - `QCPage`「新增质控抽样 / 问题追踪」弹窗: 此前点"确定"只弹"成功"绿勾却不落库,
   改为明确告知端点未实现并禁用"确定"。
 
 ### 搜索可用性
+
 - 15 处 `<Select showSearch>` 补 `optionFilterProp="label"`(此前按 value 过滤,
   中文名搜不到)。
 
@@ -154,6 +293,7 @@
 ### 批次 1 — 表格列宽算法 T1–T6（修正上轮引入的回归）
 
 只改 `DataTable.tsx` / `ProTable.tsx`, 收益覆盖 679 表:
+
 - **T1** `scroll.x` 无条件覆盖(原只替换 `max-content`, 41 处字面量数字导致列被压到 ~78px)
 - **T2** water-filling 加权分配(原 MAX 截断后剩余空间丢弃 → 61 表永久留白)
 - **T3** 去掉 `Math.max(cw, MIN*n)` 反向撑爆(13 表)
@@ -193,6 +333,7 @@
 > tsc **0** / vitest **47 文件 831 测试** / `guard:ui` **13 项** / E2E **0 失败**。
 
 ### 批次 A — 基础设施统一
+
 - **A1 `styles/data-table.css`**
   - 单元格 `white-space: nowrap`（此前仅 `th` 有，td 无约束 → render 列长文本换行、行高 36px~120px 混杂）
   - **关键修复** `td > * { line-height: 1.4 }` — 切断徽标 line-height 正反馈，行高回归 ~37px
@@ -207,16 +348,19 @@
 - **A3** 标记确需多行的列：`<br>` 单元格、标签流（flexWrap）→ `className="dt-wrap"`
 
 ### 批次 B — ProTable 对齐（10 处调用）
+
 - `size` 默认 `middle`→`small`；移除硬编码 `scroll.x='max-content'`
 - 复用 DataTable 的 ellipsis / 斑马纹 / 列宽归一（此前三者全缺 → 与 645 处 DataTable 视觉不一致）
 - 工具栏 padding 16px→8px 12px；原生 `<button>`→antd `<Button size="small">`；分页器精简
 
 ### 批次 C — 24 处裸 `<Table>` 收口到 `<DataTable>`
+
 - `components/report/**`：CriticalValuePanelV2(3)、ReportQcV2Panel(4)、QualityDimensionCard(3)、
   ReportExportCenterPanelV2(3)、TemplateLibraryPanelV2(3)、TemplateApprovalPanelV2(2)、
   IHEXDSRegistry(2)、PatientReportPortal/DicomSRExporter/CriticalEscalationV2/ReviewWorkloadStats(各1)
 
 ### 批次 D — 防回退加固 `scripts/ui-guard.mjs`
+
 - walk 扩展至 `src/components`（此前 components 完全未检查，24 处裸表长期失守）
 - 新增 3 项只减不增预算：`tableComponentsBare`(0) / `maxContentScroll`(339) / `scrollYNumeric`(44)
 
@@ -233,6 +377,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试 0 失败** / `guard:ui` 全绿；入口求值次数 2→1。
 
 ### 修复
+
 - `vite.config.ts`：移除 `version-stamp` 对 `/assets/*.js|css` 的 `?v=` 重写（资源文件名本身已含内容哈希，缓存失效由文件名负责，`?v=` 纯冗余且有害）
 - `index.html`：`<noscript>` 与 `#loading-placeholder` 移出 `#root`，使 React 容器专属于 React（避免容器内含外部子节点）
 - `src/services/mockBackend/w5MissingHandlers.ts`：4 个 audit handler 对齐 DTO（`overview`/`high-risk`/`action-trend`/`user-activity`），修复 `highRisk.actions.length` 崩溃；`DOCTORS` 仅 3 项时按取模取值
@@ -245,6 +390,7 @@
 > **验证**: 线上 23 路由实测 21 通过 + 1 flaky + 1 重跑通过；前端 tsc **0** / vitest **47 文件 831 测试**
 
 ### 修复
+
 - `.env.production`：`VITE_API_MODE=mock` + `VITE_USE_MSW=true`（演示站**自带 MSW mock 后端**，无需外部服务即可完整演示；已注释说明真实后端部署时如何改回）
 - E2E `click-all-pages` 增加 **GitHub Pages 深链接 SPA 404 回退判据**：
   - 文档导航 404 不计入资源错误（`404.html` 客户端重定向恢复属平台特性）
@@ -257,22 +403,26 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / `guard:ui` 全绿
 
 ### W1 表格核心
+
 - `data-table.css` 21 个选择器反转修复（密度/斑马纹/nowrap/`dt-num`/分页对齐全局生效）
 - 新增 `src/utils/format.ts`（`fmtNum`/`fmtDate`/`fmtPct`/`fmtToFixed` 空值安全工具）
 - EyeRIS 5 表 `pageSize` 3/4/5→10 + 移除死 size changer
 - 3 处页面崩溃修复：`OptometryClosedLoopPage`（`r.rightEye?.sphere?.toFixed`）、`QcImageAiPage`、`PrintManagementPage`（`p.deptCost?.CT?.toFixed`）
 
 ### W2 表格比例
+
 - `scroll.x` 与列宽和匹配：Worklist 1800→2200、PatientTable 1150→1400、ExamPage 补 `x:1620`、QcAnalytics 6 处过冲→精确和
 - 操作列 300-360→180 图标化（Worklist/AiModelRegistry/VNADashboard/AiWorkflowCenter）
 - 59 个数字列补 `align:"right"`；54 个 ≥8 列裸表补 `scroll.x`；560px 单列→ellipsis
 
 ### W3 表格正确性
+
 - `ReportTableView` 状态筛选/排序词表统一
 - `DepartmentPage` 伪造成分移除（改显示 "-" 或隐藏）
 - 10 处索引 rowKey → 业务键；28 处 sorter 补 `?? 0`；16 处裸 Table 补 locale
 
 ### W4 前后端契约
+
 - `api.getList` 归一化器采纳（8 API + ~55 调用点），消除 `{items}` vs `{success,data}` 二义
 - 5 处请求形状修复（gender 枚举、报告字段、worklist roomId）
 - CSRF token 流修复（不再发送随机 UUID）
@@ -284,6 +434,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 后端 tsc **0** / `guard:ui` 全绿
 
 ### P0/P1 BUG 修复
+
 - **B-01** `DicomViewerSubComponents` `require('three')` → ESM import（VR/MIP 模式整页崩溃修复）
 - **B-02** `RealDicomViewerPage` 注册 `frame-` image loader（消除 2 个 unhandled rejection + 白屏）
 - **B-03** `dicomSamples` 热链 ohif.org → 本地 DICOM 样例（消除 CORS 阻断）
@@ -293,6 +444,7 @@
 - **B-17~19** PatientMergeTool 绑定恢复、FinalCheckList `blockers!` 修复、TermLibrary `useCount` 重命名
 
 ### 演示数据扩充（关联性核心）
+
 - **ID 命名空间统一**：`idAlias.ts` 753 条映射（`P001`/`P100001`/`p-1001`/`P2026xxxxx` → master `P0000xx`）；`store.ts` 注入 `sanitizePatientIds`；`initialData.ts` 220 条预约 ID 重写；**11,908 条记录 0 非 master patientId**
 - **确定性 RNG**：`deterministicSeed.ts`（mulberry32 + FNV-1a）；`initialData` 66 处、dental 29 处、eye 6 处 `Math.random` 移除
 - **急诊链路**：ai-triage 30 例（ESI 1-5、NIHSS/GCS）、smart-mwl 60 条（35 设备 AE title、MPPS 状态）、emergency-channel 15 条（创伤/卒中/STEMI 门-影像时间）
@@ -308,22 +460,27 @@
 > **验证**: tsc **0** / vitest **47 文件 831 测试** / 核心路由 E2E 8/8 通过 / `guard:ui` 全绿
 
 ### K-1 DataTable 核心
+
 - **工具栏按需显示**：仅 `toolbar/toolbarExtra/columnConfigKey` 显式传入时渲染（−42px/表 × 645 处）；密度 Segmented 移除（受控 `density` prop 仍可用）
 - **`scroll.x` 移除硬编码** `"max-content"` → 默认 `undefined`（消除横向滚动条 ~15px + "宽"症状）
 - **分页器**：`showSizeChanger` 默认 `false`；CSS `margin: 8px 16px`
 - **空态/加载**：空态 `padding: 12px 16px`；Skeleton 行数 8→4
 
 ### K-2 密度令牌真正生效
+
 - `Provider.tsx` Table 补 `cellPaddingBlockSM: 6, cellPaddingInlineSM: 10`（token 路径直接生效）
 - `data-table.css` 选择器升级 `.ant-table-wrapper .data-table`（提权）；列头 padding 8→6px
 
 ### K-3 Card 包裹优化
+
 - **109 个**包裹 DataTable 的 `Card` → `size="small"`（head 30px / body 12px）
 
 ### K-4 容器默认
+
 - `PageContainer` / `PageTemplate` 默认 `padding` 24→16（上下省 16px）
 
 ### K-5 scroll.y 预算修正
+
 - `WorklistListView` `100vh-400px`→`320px`；`ExamPage` `100vh-420px`→`340px`（消除双滚动条）
 
 **合计：每张表节省 ~100-140px，一屏多显示 3-4 行。**
@@ -333,6 +490,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；全量 **409 路由** E2E：390 通过、9 flaky 重试通过、10 已知外部依赖缺陷（非本次回归）
 
 ### 全量 E2E 结果（409 路由）
+
 - **390 通过**（含全部 4 个新页：不良事件/RCA、报告检索 V2、报告对比 V2、HL7 控制台）
 - **9 flaky**（重试通过）：reports、cds/management、critical-alert、ai-qc、quality/department、quality-control、critical-value-center、qc-dashboard、critical-value?tab=alert
 - **10 已知外部依赖缺陷**（非本次改动）：
@@ -344,6 +502,7 @@
   - publish 网络抖动（ERR_NETWORK_CHANGED）
 
 ### 五波次累计（v3.0.6.13-9 → v3.0.6.13-13）
+
 - **W-A**：7 假服务接真 API、10 死调用修复、7 死筛选器、29 alert→message、C-ECHO 接真端点
 - **W-B**：325 按钮 aria-label、182 处暗色令牌化、75 按钮 loading、20 页错误重试、组件内 14 表迁移
 - **W-C**：91 页 PageContainer、122 处 h3/h4→Title、38 处 Card 嵌套、212 处 Modal 宽度归一、宽表省略号
@@ -355,12 +514,14 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
 
 ### 4 个新页
+
 - **不良事件/RCA 看板** (`/safety/adverse-events`)：KPI、事件列表/筛选/详情抽屉/创建、RCA 关联时间线、RCA 创建
 - **报告语义检索 V2** (`/report-search-v2`)：结构化/NL 双模式搜索、结果高亮、聚合标签、KPI
 - **报告对比 V2** (`/report-compare-v2`)：双报告选择、预设、并排/统一 diff、字段级对比
 - **HL7 消息控制台** (`/hl7/console`)：ORU/ORM/DFT 发送、MLLP 启停/TLS、白名单管理、消息日志、统计
 
 ### 16 个面板（接入已有页面）
+
 - 质控量表引擎（QualityScoringCenter）· 设备 QC（QcAnalytics）· 双盲抽样批次（DualRead）
 - 知情同意签署/验证（ConsentEducation）· 对比剂外渗（AdverseReaction）· 通知渠道模板+手动触发（PatientServiceCenter）
 - 证书/HSM/OCSP（CertificateCenter）· 质控指标计算+仪表盘切换（RqiIndicator）· RWS 规则引擎+国标对照（ReportRules）
@@ -368,6 +529,7 @@
 - 诊室/候补/提醒/绿色通道（Appointment）· 审计链看板（Audit）· OLAP 探索器（DataReportCenter）· 技师排班规则（TechSchedule）
 
 ### 7 处阉割项接通或降级
+
 - 全部按真实后端接线（如 `/quality/rubric` 单量表模型、`/tech-v2/rotation/generate` 等），无假成功提示
 
 ## v3.0.6.13-11 (2026-10-10) — 排版密度（W-C）
@@ -375,6 +537,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
 
 ### 排版/密度整改
+
 - **PageContainer 收养**：91 路由页根壳 `<div style={{padding}}>` → `<PageContainer>`（裸 div 根壳 132→41）；viewer 全幅页豁免
 - **标题体系**：122 处裸 `<h3>/<h4>/<h5>` → `Typography.Title`（6 文件：QCPage 51、SchedulePage 24、SelfServicePortal 20、ConsultationPage 18、WorklistPage 8、AIQCPage 1）；移除内联 fontSize/fontWeight/color
 - **Card 嵌套**：38 处 Card-in-Card → `type="inner"` 或 `<div>`（10 文件）
@@ -387,17 +550,21 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿（hex 降至 5,464）
 
 ### a11y
+
 - **325 个图标按钮**补 `aria-label`（~130 文件）：关闭 114、删除 44+、编辑/查看/上传/下载/播放/缩放等
 - 5 处字形图标 → CSS dot / lucide（`▼▣●●`）
 
 ### 暗色主题
+
 - **182 处**硬编码浅色背景/边框 → 令牌（93 文件）：`#fffbeb→--color-warning-bg`、`#fff→--bg-card`、`#e2e8f0→--border-color` 等；`COLORS` 常量已为令牌
 
 ### 可靠性
+
 - **75 个异步按钮**补 `loading+disabled`（34 文件）：提交/导出/打印/审批类
 - **20 页**错误态补重试（`ErrorBanner onRetry` + `reloadTick`）
 
 ### 表格/图标收尾
+
 - 组件内 **14 张裸 antd Table** → `DataTable`（8 文件）；`CosignSchedule` 4 张接 `loading`
 - 6 文件 `@ant-design/icons` → lucide；`src` 内 antd-icons 引用清零
 
@@ -406,6 +573,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功 / 30 路由 E2E 通过（仅已知时序伪报）；`guard:ui` 全绿（hex 预算排除 var 回退后收紧至 5,628）
 
 ### 假服务 → 真 API
+
 - `RegionalReportServiceWire`：7 个 `delay+toast` 假服务 → 4 个接真端点（创建/接受会诊、同步、统计、导出 CSV 真实 Blob 下载）+ 3 个后端缺失项改为诚实失败
 - `ConsultationPage.handleReject` → `consultationApi.cancel(id)` 真实调用 + `rejectingId` loading 态
 - `ConsultationPage` 截图/下载 → 真实 canvas/blob 或诚实禁用（Tooltip 说明）
@@ -416,9 +584,11 @@
 - `AIQCPage` 确认质检 → 诚实禁用（后端无确认端点）
 
 ### 10 处 404 死调用修复
+
 - `search/client.ts` → `/report-search-v2/search|meta`；`TemplateDesignerPage` 克隆 → `/templates/:id/clone`（端点存在）；`followUpService` → `/followups`；`documentService` → `/files/upload`；`FhirServerPage` → `/fhir/r4/{type}`；`triageApi` PUT 已正确
 
 ### 7 处死筛选器 + 29 处 alert
+
 - CriticalValue 时间/日期、Statistics 设备类型、Cost 时间范围、Dictionary FHIR 搜索、CaseLibrary 关键词、Appointment 搜索、PrintManagement 介质/份数 → 全部接线
 - 9 文件 29 处 `window.alert` → `message.warning/error/info`
 
@@ -427,6 +597,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 核心路由 E2E 通过；`guard:ui` 全绿
 
 ### UI-E3 中性色语义化（上下文感知）
+
 - **文本色**（`color:` 属性上下文）1,272 处 → 语义令牌（**浅色主题精确相等**，暗色自动跟随）：
   - `#1e293b/#334155` → `--text-primary`；`#475569` → `--text-secondary`；`#64748b/#94a3b8` → `--text-muted`
 - **边框色**（`border*:` 属性上下文）185 处 → `--border-color`（`#e2e8f0/#cbd5e1/#e5e7eb`）
@@ -438,6 +609,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；核心路由 E2E 通过；`guard:ui` 全绿（新增 spacingTokens 预算）
 
 ### UI-D2b 间距令牌化
+
 - **12,013 处**内联数字间距（`marginTop/marginBottom/margin/padding*/gap/rowGap/columnGap`，值在 `--space` 刻度 4/8/12/16/20/24/32/40/48/64/80/96 内）→ `var(--space-N, Npx)`，覆盖 **606 文件**
 - 仅替换 JS 对象上下文（后视 `[,}]`/`}）保护，模板串 CSS `padding: 16px` 不受影响）；非刻度值（1/2/3/5/6/7…共 4,282 处）保留
 - 密度语义收归 design-system：主题/密度调整只需改 `--space-*` 一处
@@ -450,6 +622,7 @@
 > **验证**: 修复后两路由 ~2.5–3.2s 正常渲染（text 9 → 3108/3444）；tsc **0** / vitest **47 文件 831 测试** / `guard:ui` 全绿
 
 ### 修复
+
 - `ConfigBootstrapper`：新增 **3s 宽限期**，超时即放行应用（console 警告），配置消费方自行降级，不再整站阻塞
 - `useGradingScales`：返回 `... | null`（配置未就绪不抛错）
 - `GradingScalePicker`：适配空配置（`module?.scales`），避免解构 `null` 触发渲染期异常
@@ -461,6 +634,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
 
 ### 版本源统一（E2E 发现侧边栏仍显示 `3.0.6.12-8`）
+
 - `.env.development` / `.env.production` / `.env.example` / `backend/.env.example`：`VITE_APP_VERSION`、`VITE_RELEASE`、标题注释 → `3.0.6.13-5`
 - `src/utils/appInfo.ts` 回退版本 `3.0.6.11-79` → `3.0.6.13-5`
 - `package.json` / `backend/package.json` / `index.html`（title + `__appVersion`）同步
@@ -471,12 +645,15 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；E2E `/schedule`、`/ops/tech-schedule` 修复通过；`guard:ui` 全绿
 
 ### UI-C2 标题体系统一
+
 - **115 处裸 `<h1>/<h2>` → `Typography.Title`**（92 文件；页面题 `level=4`，弹窗/卡片题 `level=5`）；移除内联 `fontSize/fontWeight/color`，交由主题字体体系管理；13 处打印 HTML 模板串豁免（入预算冻结）
 
 ### 崩溃修复（E2E 发现）
+
 - `/schedule`、`/ops/tech-schedule` 因 `useUndoToast` 在 Provider 之外抛错被 ErrorBoundary 整页捕获；改为**无 Provider 时优雅降级**（撤销提示静默禁用，不再崩溃）
 
 ### 守则
+
 - `guard:ui` 新增 `rawHeading` 预算（13，只减不增）
 
 ## v3.0.6.13-3 (2026-10-10) — 品牌/语义色令牌化（hex 13,390 → 8,395）
@@ -485,6 +662,7 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；12 路由 E2E 通过；`guard:ui` 全绿
 
 ### UI-E2 品牌/语义色令牌化
+
 - **6,020 处**硬编码 hex → CSS 令牌（588 文件）：`#1e40af→--color-primary-800`、`#2563eb/#1d4ed8/#3b82f6→primary-600/700/500`、`#dc2626/#ef4444→error-600/500`、`#d97706/#f59e0b/#fbbf24→warning-600/500/400`、`#16a34a/#22c55e→success-600/500`、`#0891b2/#06b6d4→info-600/500`
 - 仅映射 `:root` **单一定义**的色阶（灰度梯度在暗色下反转，保留不动）；跳过 canvas/图表绘制行（`ctx/strokeStyle/fillStyle/getContext/document.write`）避免 `var()` 在 canvas 失效
 - `guard:ui` hex 预算 13,390 → **8,395**（只减不增）
@@ -495,11 +673,13 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；9 路由 E2E 通过；`guard:ui` 全绿
 
 ### UI-A2 原生表格迁移
+
 - **110 张原生 HTML `<table>` → `DataTable`**（77 文件中的 51 个；含 StatisticsPage 7、BreastSpecialty 5、CvOperations/EquipmentLifecycle/GreenIT/OperationsCenter/PatientDetailPanel/TechWorkbench 各 4 等）
 - 跳过 26 张（打印/邮件/导出 HTML 模板串、热力图、日历/甘特矩阵、colSpan 复杂表、动态表头）——`guard:ui` 冻结为预算上限
 - 保留格式化/徽标/按钮/宽度/对齐/行点击/`data-testid`；`colSpan` 空态行 → `emptyText`
 
 ### UI-D2 字号令牌化
+
 - **2,775 处**脱离设计刻度的内联 `fontSize`（13/15/17/22/26/28/32/34/38/40/42/44/7/8/9/12.5）→ 标准刻度 `10/11/12/14/16/18/20/24/30/36/48`（388 文件）；剩余 36 处为装饰性大字号
 - `guard:ui` 新增 `nativeTable`(26) 与 `offScaleFont`(42) 预算；hex 预算 13,654 → **13,390**；`clickableNoRole` 改为行级判定并收紧至 **151**
 
@@ -510,14 +690,17 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；7 路由 E2E 通过；`guard:ui` 全绿
 
 ### UI-B2 暗色主题正确性
+
 - 28 页移除硬编码浅色字面量（`#fff/#ffffff/white/#f5f5f5/#fafafa/#f0f0f0`、`WHITE` 常量）→ `var(--bg-card/--bg-primary/--border-default/--text-*)`，暗色主题不再白块
 - 31 个 GitHub-暗色锁定页（safety/cds/rcm/cost/contrast/ops/quality 等）**1279 处** `#0d1117/#161b22/#21262d/#30363d/#8b949e/#f0f6fc` → 主题令牌（保留深色回退值），浅色/高对比主题可用
 
 ### UI-E 语义色唯一来源（statusTokens）
+
 - 33 页本地 `SEVERITY_COLORS` / `STATUS_COLORS` / `*_STATUS_META` 等映射改为由 `src/theme/statusTokens.ts` 派生（`severityToAntd/severityColor/statusColor/toneToAntd`），调用点不变
 - 收敛漂移色（4 种成功绿 / 2 种警告橙 → 令牌）；保留图表系列/装饰色不动
 
 ### UI-B2 可访问性（键盘）
+
 - 53 处可点击 `div/span` 补 `role="button"` + `tabIndex={0}` + Enter/Space 激活（共享同一 handler），图标按钮补 `aria-label`
 - 修复 `ResearchPage` 进度弹窗缺 Escape 关闭（新增 `role="dialog"` + Escape）
 - `guard:ui` 新增 `clickableNoRole` 预算（289，只减不增）
@@ -529,24 +712,30 @@
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；3 投诉页 E2E 通过；`guard:ui` 全绿
 
 ### UI-A 表格统一（核心）
+
 - 318 张裸 antd `<Table>`（151 文件）→ 统一 `DataTable`：默认 **compact** 密度、空态 `EmptyState`、加载骨架、分页 `10/20/50/100 + 共 N 条`、`scroll.x` 自适应、数值列右对齐 `tabular-nums`、斑马纹、导出/列显隐/右键
 - `common/index.ts` 补齐 `DataTable` 桶导出；ESLint 禁止 `src/pages` 再出现裸 `<Table>`
 - 尾差修复：`<DataTable<T>>` 泛型标签属性清理、`dataSource` 空值兜底、重复导入合并
 
 ### UI-B 可访问性
+
 - 移除 **394 处 `outline:none`** 焦点抑制，恢复 `:focus-visible` 焦点环
 
 ### UI-C 页面外壳
+
 - 移除 **146 处 `minHeight:'100vh'`**（内容区已滚动导致幽灵滚动条）；`PageContainer`/`PageTemplate` 默认 `minHeight` → `100%`
 
 ### UI-D 排版节奏原语
+
 - 新增 `PageSection`（flex column + gap 令牌，替代散落的 `marginBottom: 16`），已入 `common` 桶导出
 
 ### UI-F 图标
+
 - 统一 lucide：移除死图标层 `common/Icon.tsx`（Tabler 封装，0 引用）及桶导出与 `@tabler/icons-react` 依赖
 - 清理 6 处 emoji/字形图标（▭ ◯ ✎ ★ ⚑ → 语义 lucide 图标）
 
 ### UI-G 防回退守则
+
 - 新增 `scripts/ui-guard.mjs` + `pnpm guard:ui`：裸 antd 表=0、`outline:none`=0、`100vh`=0、乱码=0、硬编码色预算只降不升
 - ESLint 页面层禁止裸 antd `<Table>`
 
@@ -558,14 +747,17 @@
 > **范围**: KPI 组件收敛 + ~130 页迁移 + 页面外壳令牌化；前端 tsc **0** / vitest **47 文件 831 测试** 0 失败 / vite build 成功；后端 tsc 0 / **357 suites 3770 tests**
 
 ### K-0 组件收敛（唯一权威）
+
 - `common/StatCard` 扩展 `prefix`/`precision`/`formatter`/`sparkline`/`trend.goodWhenDown`，对齐 antd `Statistic` 语义，迁移零改写
 - `StatCardGrid` 自适应网格（auto-fit `minmax`）：任意数量 KPI → **等宽等高**（根治不均匀/不协调）
 - `dashboard/KpiCard` 收敛为 `common/StatCard` 别名，消除双 KPI 组件并存
 
 ### K-1 三页直改（用户反馈）
+
 - `/triage/worklist`、`/triage/dashboard`、`/registration`：裸 `<Statistic>` 卡 → `StatCardGrid`+`StatCard`；修复 7:17 / 5/5/5/4/5 / 6/6/12 失衡列宽；去硬编码 `#f5f5f5`+`100vh` → `PageContainer`
 
 ### K-2/K-4/K-5 全站迁移
+
 - ~130 个页面独立 KPI 行 → `StatCardGrid`+`StatCard`（内联于 Descriptions/表单/弹窗的 `Statistic` 按设计保留）
 - 硬编码浅色页壳 → `PageContainer`（令牌背景，自动适配深浅色）
 - ~11 处页面本地 `KpiCard` 助手 → 委托共享 `StatCard`
@@ -576,18 +768,22 @@
 > **范围**: CH-1…CH-4；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功；保留 recharts
 
 ### CH-1 图表基础设施
+
 - `ChartContainer` 升级为**唯一图表封装**：`type` 驱动默认高度（迷你 40/饼 240/柱线区 220/雷达组合 260）、导出 `chartDefaults`（margins/轴/网格/提示由令牌构建）、单序列自动隐藏图例
 - 新增 `src/utils/chartUtils.ts`：`safePercent`/`normalizePie`(末项取余合计100)/`dateSort`/`formatCount`/`formatWan`/`autoInterval`/`pieLabelLayout`
 - 修嵌套 `ResponsiveContainer`（`TechnicianKpiDashboardPage` 图表塌陷）；**21 个裸 recharts 文件**迁入封装；`Chart.tsx` 弃用（桑基响应式 + 唯一消费者改走封装）
 
 ### CH-2 重叠修复
+
 - 小容器饼图（QCPage/DepartmentQuality/DepartmentFinance/ReviewWorkloadStats/RealtimeOpsDashboard/KpiDashboard/CriticalStatsDashboard/LogStats/Hl7Manager/Schedule/DevicePage/RetakeRate/DeviceFault/RevenueAnalysis/CostAccounting/OEE）外标签→图例/列表或放大 + `cy`/半径调整
 - 长分类轴（Statistics/DeptDashboard/CloudStorage/NationalReport/InsuranceAudit/HomePage）`interval`+截断；单序列去图例；负 margin→0
 
 ### CH-3 尺寸/比例
+
 - 消除过扁（LogStats 80→140、Worklist 迷你图 30→sparkline 40、DeviceDetail 120→180、TechRotation 150→200）与方饼；`DepartmentFinanceSummary` 父高溢出修复；按图型标准高度
 
 ### CH-4 数据准确性/逻辑
+
 - **Worklist SLA**：已完成用 TAT、未完成才算到 now；7 日超时率=闭环超时/闭环；KPI 迷你图接真实序列（删伪造 3 柱）
 - **Finance 契约**：`financeHandlers` 响应对齐 DTO（修 `/finance/department` 崩溃与 `¥NaN`）；单一数据源 + 演示徽标；`percent*100`；`DepartmentFinanceSummary` 阳性率=阳性/书写；`RevenueAnalysis` 环比 `length-2`/购方余数/成本来源；`CostAccounting` 单检查利润/同单位预算对比
 - **Statistics**：修错误 domain（报告量/QC 线/危急值）；阳性率→危急值率；伪序列→真实聚合或确定性种子 + 演示徽标；饼合计归一；热力图 key+强度
@@ -596,6 +792,7 @@
 - **确定性化**：`KpiEngine`/`OpsAnalyticsService`/`DevicePage`/`EquipmentEfficiency`/`GreenIT`/`QCPage`/`BenchmarkV2` 的 `Math.random/sin` → `seededRandom` 种子（刷新稳定）+ 演示徽标
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.12-7` → `3.0.6.12-8`（无 BOM）
 
 ---
@@ -606,17 +803,20 @@
 > **范围**: 14 页迁移；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功
 
 ### 原生 `<table>` → `DataTable`（共 47 张）
+
 - `QCPage` 9/9、`qc/RadiologyQCDashboardPage` 5/5、`NationalReportPage` 5/5、`DirectorDashboardPage` 5/5、`CancerScreenPage` 4/4
 - `RegionalImagingPage` 9、`ResearchPage` 8、`tech/TechOpsPage` 6（+1 heatmap 保留）、`InsuranceAuditPage` 7、`CostAnalysisPage` 2、`DepartmentFinancePage` 1、`ops/OpsDashboardPage` 1
 - 保留：`OperationsCenterPage`（强制深色大屏视口，安全跳过）、`TechOpsPage.HourHeatmap`（矩阵非列表）、编辑型输入表
 
 ### 硬编码色 → 设计令牌（状态/严重度单一来源）
+
 - 大批量替换：`CostAnalysisPage` 440、`DepartmentFinancePage` 207、`RadiologyQCDashboardPage` 107、`CancerScreenPage` 88、`NationalReportPage` 51、`DirectorDashboardPage` 36、`QCPage` 20 等
 - 文本/表面/边框/主色 → `--text-*`/`--bg-*`/`--border-*`/`--color-primary`；状态/严重度 → `src/theme/statusTokens.ts`；`OpsDashboardPage` 原 GitHub 暗色板整体令牌化（light/dark 均可）
 - 状态药丸统一 `StatusTag`/`SeverityTag`
 - 保留：图表 series/`stroke`/`fill`/渐变、DICOM 视口、颜色选择器色板（非主题）
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.12-6` → `3.0.6.12-7`（无 BOM）
 
 ---
@@ -627,29 +827,35 @@
 > **范围**: UI-1…UI-5；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功；引入 `@tabler/icons-react`
 
 ### UI-1 — 令牌治理 + antd 主题
+
 - 新增 `src/theme/statusTokens.ts`（**医学严重度/状态色单一来源**：危重/紧急/警告/信息/正常 + 状态 tone，light/dark）
 - `design-system.css` 追加权威层：修 `--c-*` 契约、`--sidebar-item-*` 别名、统一折叠宽 64px、企业主色 `#1d4ed8`、dark 灰阶重映射、elevation/密度/focus；字体栈统一 `Inter/Noto Sans SC/system-ui`
 - `Provider.tsx` 接入完整 antd 主题（Button/Card/Table/Form/Input/Select/Tabs/Tag/Badge/Pagination/Tooltip/Menu/Layout/Typography/Segmented）+ `cssVar` + `compactAlgorithm`（高密度）+ 启用 `radiologyTheme` 表格 tokens
 
 ### UI-2 — 图标体系（大气/精炼/医疗化）
+
 - 引入 **`@tabler/icons-react`**（24×24，描边 1.5）；新增 `src/components/common/Icon.tsx`（尺寸 token 14/16/18/20 + 医学图标语义映射）
 - **清除全部 emoji**：674 处 / 120 文件 → **0**（含 `appI18n.ts` 196 处）+ 366 处遗留空格清理；审计页 ✓/✗→图标、危急值彩色圆点→状态点、科室模态图标→医学图标、Kanban→状态图标、成本排名奖牌→图标+序号
 - 图标库统一（消除 6 处 lucide+antd-icons 混用）；替换 7 处手绘 SVG glyph 图标；修正 strokeWidth 异常（24→16 等）
 
 ### UI-3 — 控件/徽标统一
+
 - 新增 `StatusTag`/`SeverityTag`（由 `statusTokens` 驱动）；迁移 47 个手搓药丸 → 统一标签；替换 7 处硬编码 R-score 药丸
 - 手搓开关 → antd `Switch`（4）；原生 checkbox → `Checkbox`（8）；移除重复本地 `Tooltip`
 
 ### UI-4 — 专业表格/数据展示
+
 - `DataTable` v2：中性粘性表头、36–40px 高密度行、zebra、数值列自动右对齐 + `tabular-nums`、统一分页、骨架/空态、**内置导出(CSV)/密度切换**；`ProTable`/`VirtualTable` 共享同一 `data-table.css`
 - 迁移原生 `<table>`（`QualityManagementPage` 5 等）；统一 `StatCard`（替换 `StatisticsPage`/`DepartmentStats`/`CancerScreenPage`/`GreenITPage`/`CriticalValueStatsSection` 克隆）；`ChartContainer` 替换 17 处裸 `ResponsiveContainer`
 - 修复 `StatisticsPage` **原始键显示**（`statsPage.*` 被 react-i18next `t` 遮蔽 → 走 appI18n）
 
 ### UI-5 — 品牌外壳 + 页面模板
+
 - 品牌标识 `BrandMark`（孔径+医学十字+生命波形）替换通用图标；侧边栏**前缀高亮**（详情页回亮父项）+ **悬浮展开** + **移动抽屉**
 - 统一 `Card` primitive + `PageTemplate`（PageContainer>PageHeader>Card）；`LoadingBanner/ErrorBanner/StateView` **主题化**（去硬编码浅色 + 去 `top:52`）；7 个旗舰页套用模板；63 处固定栅格 → `auto-fit`
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.12-5` → `3.0.6.12-6`（无 BOM）；`build` 脚本加 `--max-old-space-size=8192`
 
 ---
@@ -660,27 +866,33 @@
 > **范围**: W1–W4 + 回归修复；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功；click-all 406 路由回归
 
 ### W1 — 控件修复（点了必有响应）
+
 - 5 个占位控件接实现/模拟：眼病新建病历、区域文档调阅、影像锚点动态播放、结构化字段签名、自助凭证生成（后端缺失的端点以 MSW 确定性模拟）
 - 6 个"拉取不渲染"控件修复：科室财务(收入/成本图)、设备页(故障/生命周期)、患者财务(支付/发票)、AI 审核(发现/结论)、报告详情抽屉(历史)、患者页(PMI 焦点)
 - 3 个装饰 tab 修复：区域报告列表
 
 ### W2 — 空表修复
+
 - 播种 `dicom/compress/tasks`(+`/ratios`)、`dicom-dimse/mpps`、`qc/image-ai/stats-v2`(+V1 `stats`/`result/:id`)；补 `emptyText`/no-data 提示
 
 ### W3 — 面包屑翻译（导航栏未翻译真因）
+
 - 补 30 个 `nav.*` 键（ai/asr/cds/contrast/device/education/export/finance/fusion/hie/hl7/ihe/kiosk/mobile/nlp/ops/pathology/regional/report/snomed/sub/system/teach/tech/tele/user/voice/admin/v4/:id）；`AppLayout` 面包屑增加侧边栏分区回退；修复 ~60 页 / 84 处面包屑英文
 
 ### W4 — 后端功能前端化（36 孤儿端点）
+
 - **报告/审计域（W4a）**：审计链+留存+冷归档 Tab、报告分级审核 review-tiers CRUD+解析、互评 tasks+缺陷、报告质控任务 Tab、缺陷库条目详情/编辑/删除、补充报告、RQI 批次/历史/导出、结构化报告预签校验
 - **临床/集成域（W4b）**：预约检查号解析+改期历史、口腔头影地标+种植体目录、IHE XDS 文档调阅、DICOM SR 下载、DIMSE 传输推进、眼科像素直方图、危急值升级链、安全 DR 演练详情+字段加密自检、微信绑定用户、设备质控条目详情、指标快照历史
 - 新增 `w4aOrphansHandlers.ts` / `w4bOrphansHandlers.ts`（确定性 MSW，前置注册）
 
 ### 回归修复（W4c，click-all 406 路由）
+
 - 修复真实运行时错误：`/qc/analytics`(map of undefined)、`/ai-cad`+`/ai/lung-cad`(includes of undefined)、`/dicom/sr-manager`(join of undefined)；`appI18n.t`/`humanizeKey` 对非字符串键加固
 - 死按钮：`/reports/offline` 刷新（可见反馈）
 - 修正 AI CAD mock 优先级（`aiDiagnosisHandlers` 前移，避免被通配 `/ai-diagnosis/:model/results` 遮蔽）
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.12-3` → `3.0.6.12-5`（无 BOM）
 
 ---
@@ -691,25 +903,30 @@
 > **范围**: W1–W4；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0（未改后端）；vite build 成功；click-all 406 路由回归
 
 ### W1 — 死按钮修复（无 onClick）
+
 - 接入真实行为（能接接口接接口，纯演示用本地确定性动作 + toast，无从实现则 `disabled` + 原因提示）：SMART 授权、通道编辑、检查清单详情、挂屏协议删除、AI 报告保存、PACS 导出 DICOM、远程会诊呼叫、口腔导板预览、科研导出下载、报告快捷键帮助（复用 W14 ShortcutHelpModal）
 - 复核旧 E2E 标记的 11 条路由：均已有处理器（陈旧标记）
 
 ### W2 — 空数据表格修复（MSW 未播种）
+
 - 为 ~18 个首次加载返回空的内存 store 加**模块加载确定性播种**：`wechat/{logs,users}`、`payment/refunds`、`notification-channel/logs`、`self-registration/{questionnaire,consent,queue,status}`、`security/hsm/rotations`、`security/dr/{backup-sets,restore-points}`、`device-ops/assets/retirements`、`hl7/oru/messages`、`cds-services/feedback`、`dual-read/sampling/batches`、`appointments/green-channel`、`ai-draft-v2/drafts`
 - 修复硬编码空 `GET /devices/schedule/conflicts` → 3 条种子冲突
 - 派生统计同步非零：`dual-read/sampling/stats`(κ 0.519)、`notification-channel/stats`、`device-ops/assets/stats`
 
 ### W3 — 导航翻译
+
 - 补 `nav.qcScoringCenter`（zh 统一评分台 / en Scoring Center）——此前唯一缺失导航键
 - react-i18next `nav` 命名空间 **444 → 478 键**（回填 30 个仅在 appI18n 的 nav 键 + 4 个规范化 nav 键），zh/en 对齐
 - 规范化 4 个非 `nav.*` labelKey（`nav.reportArchive`/`nav.deviceOpsCenter`/`nav.costDrg`/`nav.mwlManager`）
 
 ### W4 — 全量点击回归
+
 - click-all **406 路由**：`deadButtons` **0**、`pageErrors` **1**、`interactionErrors` **1**；154 条 `BODY_LEN=9~11` 经复测确认为**回归脚本时序伪报**（应用变重，捕获早于渲染；复测 `/qc`/`/exams`/`/patients`/`/reports` 均正常渲染 ≈2657 字符）
 - 修复真实缺陷：`/eye/sub/low-vision`「加载最近处方」→ `Cannot read properties of undefined (reading 'distance')`（MSW 形状不匹配 + 页面未防御）；已改 MSW 返回 `{rightEye,leftEye,deviceRecommendation}` + 页面可选链
 - `/quality-control`「收起」点击超时（重定向到 /qc，遮罩动画瞬态，处理器存在）低危
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.12-2` → `3.0.6.12-3`（无 BOM）
 
 ---
@@ -720,29 +937,36 @@
 > **范围**: W9–W14；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0 / **357 suites 3770 tests**；vite build 成功
 
 ### W9 — 质量深化
+
 - 统一可配置评分 rubric（3 维/15 子项/权重/等级带/evaluate）；国标 2024 **40 指标计算引擎** + dashboard + snapshots；PDCA 落库闭环（actions/findings/metrics）；抽查+**双盲**引擎（随机/低产/分层 + kappa）；**设备质控 phantom**（CT/DR/MRI/MG 日/周/月）；缺陷库关系化 + 互评落库
 - 前端 **统一质控评分台** `/qc/scoring-center`（6 Tab）；增强 RqiIndicatorPage/QCPage
 
 ### W10 — 集成互操作
+
 - **XDS.b**（ITI-18/41/43）、**XCA**（ITI-38/39）、**XDR**（ITI-41）真实注册库/存储库（替换 stub）；**发布→HIS ORU^R01**（MLLP/stub + 回执 + 重发）；**接口监控 + 持久重试队列**（退避/死信）；DICOM 传输队列持久化；**CDS Hooks**（discovery + order-select/sign 卡）
 - 前端 **接口监控台** `/integration/monitor`；增强 IheManagerPage（XDS/XCA/XDR）
 
 ### W11 — 设备/运营
+
 - 设备**工单状态机**（7 态/SLA/回退）；**校准/认证**记录 + 到期；**资产财务生命周期**（折旧/残值/报废审批）；**OEE 由真实停机事件**推导 + 损失分解；**成本核算 + DRG** 分组/毛利；**多院区**持久化 + 联邦聚合；**定时 BI 报表**
 - 前端 **设备运维中心** `/device/ops-center`（5 Tab）+ **成本/DRG** `/ops/cost-drg` + 多院区联邦配置
 
 ### W12 — 患者服务
+
 - **微信服务号/小程序后端**（oauth/bind/push/template/menu）；**支付**（下单/支付/退款/回调/对账，微信/支付宝/医保）；**短信/模板消息/语音**通道 + 模板 + 投递日志 + 重试；**满意度分析**（NPS/科室/模态/趋势/情感）；**自助登记**（识别/报到/问卷/同意/取号）
 - 前端 **患者服务平台** `/patient/service-center`（5 Tab）+ 门户/自助门户增强；恢复空 wechatHandlers
 
 ### W13 — 安全合规
+
 - **CA/RA + OCSP + HSM 抽象**（软件/模拟提供者）+ 密钥轮换；**国密 SM2/SM4**（纯 JS，SM3 已有）；**字段级加密**（AES-256-GCM/SM4 + 掩码/装饰器）；**等保 2.0 实时评估**（6 域 31 控制项，源自真实信号，替换硬编码）；**灾难恢复**（备份/恢复点/RPO-RTO/演练/切换）；审计链端到端校验 + 6 月留存 + 冷归档
 - 前端 **安全与合规中心** `/security/compliance-center`（5 Tab）+ 证书中心/审计页增强
 
 ### W14 — 前端专业度
+
 - 通用 **右键上下文菜单**；**列配置 + 保存视图**（ProTable/DataTable，localStorage）；关键列表**批量操作**（Appointment/Schedule/Device/ReportReview）；**全局快捷键注册表 + 帮助浮层**；**行内编辑 + 撤销**；**深色主题**覆盖（design-system 变量层）；a11y（图标按钮 aria-label/表单 label）；状态色统一
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.12-1` → `3.0.6.12-2`（无 BOM）
 
 ---
@@ -753,6 +977,7 @@
 > **范围**: W1–W8；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0 / **326 suites 3530 tests**；vite build 成功
 
 ### W1 — 真实 DICOM 像素管线（基石）
+
 - 注册 `@cornerstonejs/dicom-image-loader`（wadouri）+ metadata providers；`useCornerstone` 真实 imageIds
 - 真实 DICOM 样例（`backend/dicom-samples` 6 序列/76 实例）经 Vite 中间件（dev）+ 构建复制（dist）服务，避免 42MB 重复入库
 - 测量工具注册（WindowLevel/Pan/Zoom/StackScroll + Length/Angle/Ellipse/Rect/Probe/Arrow/Freehand/Label）；`setWWWC` 修正为 `voiRange`
@@ -760,33 +985,41 @@
 - CSP 增加 `worker-src 'self' blob:`；修复 codec ESM/`dicom-parser` CJS 预打包
 
 ### W2 — 高级后处理真实化
+
 - `useVolumeViewports`：由真实 imageIds 构建 StreamingImageVolume；ORTHOGRAPHIC 轴/矢/冠 + `VOLUME_3D` 视口；传输函数预设（骨/肺/软组织）；MIP（MAXIMUM_INTENSITY_BLEND）+ 层厚滑块（thin-slab）；Crosshairs 联动
 - 工作站新增 1×1 / 2×2 MPR / VR 布局 + 预设 + MIP + 十字准星
 
 ### W3 — AI 定量分析（数坤/医准概念，确定性模拟）
+
 - `quantEngine.ts`（按 study 种子确定性）+ **AI 定量分析中心** `/ai/quant-center`：冠脉 CTA（分段狭窄/斑块/Agatston/CAD-RADS/FFR-CT）、卒中（ASPECTS/侧支/核心-半暗带/LVO/时间窗/ICH）、头颈、肝（Couinaud/脂肪/铁/LI-RADS）、骨龄、肺结节（VDT/Lung-RADS）、乳腺密度、心胸比、脊柱 QCT/Genant、体成分
 
 ### W4 — AI 平台概念
+
 - **AI 模型注册表** `/ai/models`（目录/NMPA/CE/FDA/版本/部署/灰度/回滚/版本对比）+ **AI 工作流中心** `/ai/workflow`（分诊队列/采纳统计/质控/多模态报告助手+RAG 引用+护栏）
 
 ### W5 — 预约/资源模型
+
 - 后端：Room/Technician/Slot/Waitlist/ReminderPlan/RescheduleHistory/NoShow/GreenChannel + 冲突引擎（设备/机房/技师/患者/容量/班次/维保）+ accession 编号策略 + 提醒/爽约 Cron + 急诊预留
 - 前端：`AppointmentForm` 5 步向导、`ResourceGantt`、候补/提醒/爽约面板
 
 ### W6 — 登记/分诊
+
 - 后端：结构化患者字段（证件/EMPI/医保/过敏编码/妊娠/eGFR/隔离/vitals）+ 登记工作站端点（扫码/准备确认/知情同意/缴费）+ ESI/vitals 分诊/复评/队列优先级
 - 前端：**登记工作站** `/registration`、分诊 vitals/ESI/复评、患者表单结构化
 
 ### W7 — 执行/MWL/协议
+
 - 后端：**DICOM MWL C-FIND SCP** + MPPS↔accession 关联 + 扫描协议/序列/曝光参数/图像数校验 + 序列级 QC + RDSR 剂量回写
 - 前端：技师工作站「检查执行」Tab、`ExecutionPanel`、**MWL 管理** `/tech/mwl`
 
 ### W8 — 报告域深化
+
 - **真实服务端签名**：纯 JS **SM3** + SHA-256，真实 **RSA-SHA256** 签名/验签，证书库 + CRL + RFC3161 式 TSA token；签名中心 `/security/certificate-center`
 - **内容版本化修订**（修复损坏的 diff，真实字段级快照 diff）；amend 落库 + re-sign 联动；补充报告为独立关联文档
 - 报告**召回通知临床**（HL7 ORU^R01 status C + 回执）；**分级审核规则引擎**（模态/RADS/严重度/危急值/资质 → 初核/终核/双签/双阅）；字段参考范围校验
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.12-0` → `3.0.6.12-1`（无 BOM）
 - W9–W14（质量/集成/设备运营/患者服务/安全合规/前端 UX）为下一阶段
 
@@ -798,42 +1031,52 @@
 > **范围**: W1–W11；前端 **tsc 0**（基线 200）+ vitest 47 文件/831 测试 0 失败；后端 tsc 0 + jest 319 suites/3452 tests；vite build 成功
 
 ### W1 — 构建阻断 + 类型收敛
+
 - 修 `routeTable.tsx` `../pages/system/` → `../pages/System/`（大小写不一致，Linux/Docker 构建 TS1261）
 - 前端 tsc **200 → 0**（TOP 文件逐一修复；`examStore`/`ReportWorkflowPage` 的 `ListPayload`↔数组归一；清理失效 `@ts-expect-error`；`CriticalStatsDashboard`/`QualityDashboard` 导入/合并声明修复）
 
 ### W2 — 后端补全 + 真实模式对齐
+
 - `app.module.ts` 注册 5 个孤儿模块：`IheModule`、`CriticalV2Module`、`ReportExportCenterV2Module`、`TemplateApprovalModule`、`TemplateLibraryV2Module`（~70 端点真实可用）
 - `POST /ai/generate` 前端接线（失败回退本地生成）
 - 后端裸 `Date.now()` ID 加单调计数器（eye-edu/eye-optometry/critical-v2/research/auto-collection/consultations/critical-alert/sign/dicom-sr/ihe）
 
 ### W3 — 表格补齐
+
 - 复核列表页表格；`CdsManagementPage` 由 CSS-grid 迁 `DataTable`（行展开+操作）；其余列表页已用 `DataTable`/卡片为设计
 
 ### W4 + W5 — 按键 + 空态补齐（23 页）
+
 - 0 按键页（BusinessContinuity/ToothChart/EyeEmr/VisitDetail/TechnicianKpiDashboard）加 Refresh/Export/New/Back
 - 11 页加第二按键；多页 map 列表补 `AppEmpty`（DoseTrack/Template*/ServiceManagement/AdverseReaction/Contrast*/MultiSite 等）
 
 ### W6 — MSW 种子完善（演示不为空）
+
 - 新增 `POST /olap/export/csv`、`GET /eye/emr/:param`
 - 播种空 handler：`/eye/iol/calculations`(5)、`/dicom/compress/stats`(非零+算法分布)、`/quality/scoring/kpi.trend30d`(30点)、`/tech-v2/rotation/history.executions`(6)、`/report-quality-ext/ai-report-drafts`(5，移除空数组覆盖)
 
 ### W7 — 纯 mock 页完善（6 页）
+
 - ContrastQualityCompliance/ReportKpiDashboard 接 service（回退本地）；AiReportWriter/IheConnectathon/PostProcessing 加"演示模拟"徽标 + 确定性种子；FhirServer 走 fhirApi + 回退 + loading/empty/error
 - 新增 `src/utils/seededRandom.ts`（确定性随机）
 
 ### W8 — i18n 命名空间修复
+
 - 注册 `asr` 命名空间 + `locales/{zh-CN,en-US}/asr.json` + 聚合 JSON（13 键 zh/en）
 - 修 `criticalAlert.title` 缺失键
 
 ### W9 — i18n 硬编码全量转换（分批 A–E）
+
 - 新增 `src/i18n/namespaces/w9aPages|w9bPages|w9cPages|w9dPages|w9ePages.ts`（+ w1Types/w2Orphans/w7MockPolish/w8I18nFixes）
 - 覆盖：报告/统计/首页/设备/质控/随访/排班/术语/打印/协同、DICOM 全模块、AI、眼科、口腔、rcm/ops/finance/integration/department/regional、report 组件群（~200 文件）
 - 原则：仅转换 UI 文案；数据/医学名词/逻辑枚举值保留
 
 ### W10 — 时间敏感测试核查
+
 - 时间旅行（+100 年）验证：后端 319/3452、前端 47/831 全绿 → 无真实 time bomb（已确定性）
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.11-111` → `3.0.6.12-0`（无 BOM）
 - 推送 GitCode `origin` + GitHub `github`(SSH)
 
@@ -845,6 +1088,7 @@
 > **范围**: `src/pages/CollaborationPage.tsx` 布局重构；前端 tsc 200，vitest 47 文件/831 测试 0 失败，1280/1024 截图无重叠
 
 ### 问题
+
 - 左栏被压窄 → 报告正文逐字换行、字段按钮（检查所见/诊断/意见）竖排重叠
 - "选区高亮"绝对定位（left:50,top:70）盖住正文
 - 光标浮层溢出编辑区压到评论栏
@@ -852,6 +1096,7 @@
 - 顶部"在线 0 人"空态
 
 ### 修复
+
 - 根容器改 `height:100%`；三栏行 `overflowX:auto + minHeight:0`；左栏 `flex:1 1 480px, minWidth:380`；卡片 `flex:1, minHeight:0`
 - 报告头加 `flexWrap`；字段按钮 `whiteSpace:nowrap, flexShrink:0`（横排不重叠）
 - 编辑区 `flex:1, minHeight:160, overflow:hidden`（裁剪溢出浮层）
@@ -866,15 +1111,18 @@
 > **范围**: i18n 根因修复；前端 tsc 200，vitest 47 文件/831 测试 0 失败，Playwright 4 路由无原始键
 
 ### 根因
+
 - `src/i18n/appI18n.ts` 将 Vite 静态宏 `import.meta.glob` **赋值给变量 `globFn` 后再调用**，运行时为 `undefined` → `src/i18n/namespaces/*.ts` **从未合并** → 所有命名空间键回退 `humanizeKey`，中文界面显示英文碎片（"Title"/"Col Patient"/"Nav"/"Error"）
 
 ### 修复
+
 - `appI18n.ts`: 改为**直接调用** `import.meta.glob('./namespaces/*.ts', { eager: true })`（已确认 dev server 转换后宏展开，含 w6Workflow/wTriage）
 - `TriagePage.tsx`: 由 react-i18next `useTranslation()` 改为 appI18n `t`（原 `t('triage.x')` 默认命名空间无法解析）
 - 新增 `src/i18n/namespaces/wTriage.ts`（30 键 zh/en）
 - `src/i18n/index.ts`: `NAMESPACES` 补注册 `triage`/`insuranceAudit`/`tele`/`v3teach`
 
 ### 验证
+
 - 模块级：`w6Workflow.archive.title`/`w9.states.error`/`triage.loadError`/`nav.*` 全部命中
 - Playwright：4 路由 `body.innerText` 无原始键/无人性化英文
 
@@ -886,17 +1134,21 @@
 > **范围**: C1–C3，前端 tsc **387 → 200**，vitest 47 文件/831 测试 0 失败，vite build 成功
 
 ### C1 — 剩余页 error UI 覆盖（56 页）
+
 - `eye/**`(17) + `dose/*`(10) + `dental/*`(18) + `qc/*`(4) + `report/*`(5) + `reports/*`(2)：统一加 `ErrorBanner`+重试（含 `!res.success` 与 `catch` 双路径），保留既有 loading/empty
 - `src/components/feedback/ErrorBanner.tsx` 新增可选 `onRetry`/`retryLabel` props（无破坏性）
 
 ### C2 — dose 子视图真实化收尾
+
 - 复核 `DRLManagement`/`DoseTrendAnalysis`/`CumulativeDoseTracker`/`DICOMSRParser` 均已接 `rdsrApi`
 - 补 `DICOMSRParser` 上传解析的本地回退（`/rdsr/parse` 失败时本地解析 CTDIvol/DLP/部位/检查日期）+ 提示；`DRLManagement` 补演示数据徽标
 
 ### C3 — TS 错误长尾收敛
+
 - **387 → 200**（-48%），覆盖 ~90 文件；`noUncheckedIndexedAccess` 长尾（TS18048/TS2532）与 TS2322/2345 为主；`@ts-nocheck` 保持 0，未新增 `@ts-ignore`
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.11-108` → `3.0.6.11-109`（无 BOM）
 
 ---
@@ -907,39 +1159,50 @@
 > **范围**: W1–W10 全量，前端 tsc **812 → 387**，vitest 47 文件/831 测试 0 失败，后端 tsc 0、319 suites/3452 tests 0 失败，vite build 成功
 
 ### W1 — 数据表格 / 按键补齐（用户重点）
+
 - 8 个"统计/分析"页加明细表 + 刷新/导出：CostAccounting、RevenueAnalysis、BenchmarkAiDiagnosis、DiagnosisAccuracy、ReportKpiDashboard、DoctorWorkload、NuclearStats、CdsStatistics
 - 9 个 CSS-grid 伪表格迁 `DataTable`（含行操作）：AccountsReceivable/ChargeItem/DepartmentFinance/AlertCenter/GuidelineLibrary/CdsDoseMonitoring/HrOperations/DeviceOps
 - 6 个零按键页补 Refresh/Export：BenchmarkAiDiagnosis、`eye/pacs/{Ffa,OctAngiography,Topography,VisualField}`、TermSynonymGraph
 
 ### W2 — 后端有前端无（14 端点）
+
 - 接线：clinical-pathways/definitions(+steps)、qc-ext/dashboard/:id+image/:id、compliance-docs/report、dictionary 顶层、reports/quality/history/:id、tech-ops/emergency/records/:id、eye/report/reports、ai/score、eye/subspecialty/:sub
 - **清理 `ai` 重复控制器**：移除未被任何 module 注册的 `backend/src/aiplatform/ai.controller.ts`（保留已挂载的 `modules/ai`）
 
 ### W3 — 新增后端端点（36 条失效调用，35 路由）
+
 - dental 影像/CAD 13、eye/pacs 6、ai/fusion-workspace 4、ai-diagnosis 通用 3、dicom-web 2、clinical-pathways advance/exit 2、ortho-specialty 2、devices/stats/today、radpath/records、rdsr/pediatric；每模块配 spec + MSW（`w3BackendParityHandlers.ts`）
 
 ### W4 — ID 冲突修复
+
 - 18 处截断时间戳 `Date.now().slice(-N)` + 24 处裸 `Date.now()` ID → `uniqueId`（含 DICOM UID 保持 `^[0-9.]{1,64}$`）；后端 eye/dental service 加单调计数器（20 处）
 
 ### W5 — `@ts-nocheck` 全部移除并修复（26 文件）
+
 - 12 + 14 两批全部移除，修复 900+ 处类型错误（新增接口/收窄/`??`/`!`），移除后 0 个 `@ts-nocheck` 残留；顺带修复 `FollowUpPage` 删除模板传参、`TypicalCasesPage` 未定义变量等真实 latent bug
 
 ### W6 — i18n
+
 - 注册 4 个缺失命名空间 `rdsr`(32)/`nlp`(14)/`cds`(12)/`snomed`(12) → `NAMESPACES` + 聚合/分命名空间 locale（zh/en 对齐）
 
 ### W7 — 三态补齐
+
 - 7 页三者全缺（loading+empty+error）+ 22 页 loading + 8 页无 try/catch error UI；复用 `w9.states.*`
 
 ### W8 — mock 页真实化
+
 - `dose/{StaffDoseMonitoring,DoseControlCharts,BreastDoseTracking,PediatricProtocolOptimization,DeviceHistoryModal}` + `DoseTrackPage` + `dental/MprViewerPage` + `analytics/BenchmarkPageV2` + `OperationLogPage` 接真实 API（空态回退 + 演示数据徽标）；后端新增 rdsr staff/breast/device-history/overview
 
 ### W9 — TS 错误收敛
+
 - 812 → **387**（-52%），覆盖 40+ 文件；修正 `@types/*` → `@/types/*` 错误别名等根因
 
 ### W10 — 时间炸弹测试修复
+
 - 3 处真实时钟依赖测试（worklist fertile 年龄、image-ai dateTo 2099、CA isExpired）+ 2 处 stale 4 参断言；时间旅行验证 +100 年全绿
 
 ### 版本/部署
+
 - 版本号 16 文件 `3.0.6.11-107` → `3.0.6.11-108`（无 BOM）
 
 ---
@@ -950,38 +1213,49 @@
 > **范围**: 10 波并行（W1–W10），前端 47 文件/831 测试 0 失败，前端 tsc 815（较基线 -2），后端 tsc 0；vite build 成功
 
 ### W1 — P0 BUG 修复
+
 - 新增 `src/utils/uniqueId.ts`（时间戳+单调自增+随机，修复同毫秒 ID 冲突）
 - 修复 5 处 rules-of-hooks 崩溃（Hook 早于提前 return）：`AppLayout.tsx`(登录态切换全站崩溃)、`NotificationCenter.tsx`、`SpecialAssessmentPages.tsx`、`TermLibraryPage.tsx`、`TemplateManagementPage.tsx`
 - 修复 6 项 vitest：`r11.test.tsx` 直接改写 `globalThis.fetch` 泄漏（改为 afterEach 复原）、a11y 重页超时（+30s）、`useBreakpoint` 未 await 防抖、`StatusBadge` 标签断言、`olapHandlers` 基线缺 `device_daily_exams`、i18n 空命名空间（benchmark/dicomCompress/worklistSmart）、`qualityScoringTop5` 改 node 环境
 
 ### W2 — 前后端契约修复
+
 - queue 叫号改 `/:roomId/call` + body（原误传队列 id → 404）；criticals list 归一化 `{items,total}` + `state`→`status`；`reportStore.load`/`criticalStore.load` 兼容分页与数组；报告发布落库 `qualityScore`（后端 transition DTO + service）；clinical-feedback 枚举 `dispute→objection`/`correct→correction`；worklist DTO 字段与后端 `Exam` 对齐
 
 ### W3 — 后端有前端无补齐
+
 - 新增前端 API + MSW：外渗 4、criticals national-diagnoses/rqi-stats、report-rules national-rws 3、quality-indicators extended/evaluate/standards 3、queue overview/room-status/daily-trend/waiting-stats 4、auth refresh、notifications overview/daily-trend、clinical-feedback 4 + contrast-safety 6 等（新增 `w3MissingHandlers.ts` 并前置）
 
 ### W4 — 前端失效调用修复
+
 - `patientExamApi` 改指 `/patients`、`/patients/:id/exams`；`dentalApi.detectCariesOnImage` 改指 `/dental/ai/caries-detection`
 
 ### W5 — MSW 全量补齐
+
 - 新增 `w5MissingHandlers.ts`（163 handlers / 45 簇，覆盖 152 条去重路径），前置注册
 
 ### W6 — 流程断点 B1–B9
+
 - B1 Time-Out 门禁：新增 `TimeoutVerifyModal`，接入 Worklist/ExamDetail/ExamPage/移动端；B2 重拍审批流；B3 危急值流转表 BFS 合法路径；B5 报告 `REVIEWED` 自环防护；B8 新增归档列表页 `/reports/archived`
 
 ### W7 — 状态机一致性
+
 - `examMachine` 对齐后端 10 态（新增 `qcPass`，移除前端专有态）；`reportMachine` ESCALATED 语义修正 + 补齐 11 处迁移；`orderMachine` 顺序修正 + 补 `CHECKED_IN`/`NO_SHOW`；MSW 种子形状（上报中心/甘特/随访/反馈/危急值）对齐后端 DTO
 
 ### W8 — 权限逐项核对（逐项决策）
+
 - 开放后端临床专科角色：eye/dental/fhir 资源、appointments(+DOCTOR/TECHNICIAN/NURSE)、queue/worklist(+NURSE)、ihe(+TECHNICIAN)；收紧前端越权：`/ihe/visit*`、`/eye/ris`、`/dental/{billing,schedule,patient-view}`
 
 ### W9 — 三态补齐 + 控件统一
+
 - 18 页补齐 loading/empty/error（ReportPage/PatientPage/AuditPage/BackupPage/SignAmendPage 等）；Backup/SlaPolicy/Hl7Archive 迁移 DataTable/ActionButton
 
 ### W10 — i18n + mock 页真实化
+
 - `WsiViewerPage` ~79 键、`FindingLibraryPage` 19 键、`InsuranceAuditPage` 2 键（新增 namespaces `w10*.ts`）；`BenchmarkAiDiagnosisPage`/`OrthoSpecialtyPage`/`dose` 两个子视图接真实 API（空态回退 mock）
 
 ### 版本/部署
+
 - 版本号 16 文件统一 `3.0.6.11-106` → `3.0.6.11-107`（无 BOM）：package.json、backend/package.json、index.html、appI18n.ts（app.version）、deploy/{helm,kubernetes,index.ts}、.env*、README、CHANGELOG
 - 验证：前端 tsc 815、vitest 47 文件/831 测试 0 失败、vite build 成功；后端 tsc 0、相关 spec 全过
 
@@ -993,6 +1267,7 @@
 > **范围**: 全量 392 路由交互回归 + 22 关键路由深度验证（后端 308 suites/3402 tests 全过，前端 tsc 817、vite build 成功）
 
 ### 修复内容
+
 1. **白屏/红字（JS 运行时异常）**
    - `FindingLibraryPage` 的 `Cannot access 'BODY_PART_REVERSE' before initialization`（TDZ）：`BODY_PART_REVERSE`/`DISEASE_TYPE_REVERSE` 声明位置上移至 `stats`/`filteredFindings` 使用之前
    - 教学病例库 `c.keyPoints.slice(...).map is not a function`：mock 数据 `keyPoints` 由字符串改为数组
@@ -1015,12 +1290,14 @@
 4. **路由不正确**：确认 392 路由全部可达（含别名 redirect），无 404/跳转异常
 
 ### 验证结果
+
 - **全量交互回归**：click-all **392 路由 0 失败**；**页面 JS 错误 0 / 控制台错误 0 / 交互错误 0 / 原始键 0**（修复前：1 / 1 / 6 / 1）
 - **22 关键路由深度验证**：0 问题（finding-library、regional-imaging、cloud-storage、green-it、equipment-lifecycle、operations-center、schedule、department、dictionary、follow-up、notification、typical-cases、teach/case-library、qc/rqi-2024、qc/rqi-report-center、research/export-center、ops/device-gantt、orchestrator、dicom/volume-studio、qc/image-ai、critical-value、teleconference）
 - 后端：tsc 0 错误、jest **308 suites / 3402 tests 全部通过**（+2 suites +36 tests）
 - 前端：tsc **817**（持平）、vite build 成功
 
 ### 代码量指标
+
 - ① 增加行数：**+6,747 行**（净 +6,240）
 - ② 增加功能：**~8 项**（i18n 分命名空间字典体系 + 人性化兜底 + MSW ~60 端点 + TDZ 修复 + 路由冲突修复 + mock 形状修复）
 - ③ 新增文件数：**26 个**（含 24 个命名空间字典）
@@ -1034,6 +1311,7 @@
 > **范围**: 3 波 7 agents（后端 306 suites/3366 tests 全过，前端 tsc 817、vite build 成功）
 
 ### Wave 1: rqi-2024 国标指标引擎 + 子功能增强
+
 - **新增模块 `rqi-2024`**（孤儿模块 + 确定性 seed 回退）：
   - **7 条国标指标纯函数引擎**（`rqi-2024.indicator-engine.ts`）：
     - `RQI-IIA-01` 放射影像检查图像伪影率（**CT/MRI 分列**，源自 AI 影像三维度伪影评分）
@@ -1052,20 +1330,24 @@
 - 新增 spec：rqi-2024 30 + 外渗/危急值 25 + RWS/指标库 48
 
 ### Wave 2: 国家上报中心（后端）+ 指标页（前端）+ 联动
+
 - **新增模块 `rqi-report-center`**：批次生成（复用 rqi-2024 计算 7 指标）→ DRAFT；状态机 `DRAFT→SUBMITTED→ACCEPTED|REJECTED`（REJECTED→DRAFT 重报，非法流转 400）；导出（CSV 带 BOM / JSON，sha256 contentHash 确定性）；回执（接受-回执号 / 驳回-原因）；历史 + 统计（按时上报率）；端点 10 个 + spec 36 用例
 - **新增页 `RqiIndicatorPage`**（`/qc/rqi-2024`，640 行）：7 指标卡片（当期值/分子分母/目标/达标色/环比）+ 达标总览（ProgressRing）+ 明细下钻（DataTable）+ 月度趋势（目标参考线）+ 目标值配置抽屉 + 40 条扩展指标 Tab + 三态；95 i18n 键
-- **QCPage 新增 Tab「国标指标(2024)」**（`?tab=rqi2024` 深链）+ 新增组件 `RqiIndicatorLink` 
+- **QCPage 新增 Tab「国标指标(2024)」**（`?tab=rqi2024` 深链）+ 新增组件 `RqiIndicatorLink`
 - **5 个子功能联动**：QcImageAiPage→IIA-01、ReportTimelinessPage→RRC-02、CriticalValuePage→RCV-04、ContrastInjectionWorkstationPage→ICME-05、QualityManagementPage(mammo)→RCR-07（展示当期值/目标/达标徽标 + 查看国标指标链接）
 
 ### Wave 3: 国家上报中心页
+
 - **新增页 `RqiReportCenterPage`**（`/qc/rqi-report-center`，1055 行）：批次列表（DataTable + 状态标签）+ 新建批次 Modal（月/季/年）+ 操作（详情 Drawer/提交/接受/驳回/重报/导出 CSV·JSON）+ 上报历史 Tab + 统计卡 6 张（批次/各状态/按时上报率）+ 三态；104 i18n 键
 
 ### 验证结果
+
 - 后端：tsc 0 错误、jest **306 suites / 3366 tests 全部通过**（+7 suites +84 tests）
 - 前端：tsc **817**（持平）、vite build 成功
 - 全量交互回归：click-all + 基线全过（0 失败）
 
 ### 代码量指标
+
 - ① 增加行数：**+10,611 行**（净 +10,129）
 - ② 增加功能：**~18 项**（7 条国标指标引擎 + 国家上报中心 + 对比剂外渗 + 国标 13 类危急值 + 报告书写规范 7 规则 + 40 条指标库接线 + 2 新页 + QCPage Tab + 5 子功能联动）
 - ③ 新增文件数：**32 个**（涉及 69 文件）
@@ -1079,12 +1361,14 @@
 > **范围**: 15 波多 agent 并行实施（后端 299 suites/3282 tests 全过，前端 tsc 817、vite build 成功、click-all 384 路由 0 失败）
 
 ### Wave 1: 后端契约与参数审查
+
 - **7 处前后端 REST 契约对齐**：device-mgmt 根 CRUD→/devices、dictionary 分类域路径、dicom-web study 级、workflow SLA DELETE（补后端）、templates PUT→PATCH、eye pacs 单复数、dental ai-findings PATCH（补后端）
 - **3 个后端状态机门禁**：`APPOINTMENT_TRANSITIONS`/`CRITICAL_TRANSITIONS`/`FOLLOWUP_TRANSITIONS`（非法流转 400，对齐前端 XState）；AppointmentState 补 `REGISTERED` 枚举对齐
 - **参数校验**：6 处未校验 `@Body()` 补 zod + ZodValidationPipe；新建 `common/dto/pagination.dto.ts`（PaginationQuerySchema/ListQuerySchema/resolvePagination）；10 端点补分页、6 端点补筛选
 - **flaky 修复**：lesion-tracking/tech-v2/eye/teach/custom-report 的 `Date.now()` 同毫秒 ID 冲突 → 自增序号；device-schedule/tech-ops 时间敏感 spec 改为固定参考时间
 
 ### Wave 2: 后端有前端无 → 补齐 UI（~40 端点）
+
 - **设备管理看板**：overview/usage-trend/by-room/maintenance-calendar/equipment-lifecycle → DeviceMgmtDashboard 组件
 - **剂量 DRL 报表**：rdsr drl/drls/stats/patients/alerts → RdsrPage 新 Tab（患者累积剂量/超阈值告警）
 - **检查/患者统计**：exams overview/by-modality/daily-trend/timeline/notes + patients overview/age-distribution/summary/visit-history
@@ -1093,6 +1377,7 @@
 - **运维看板**：OEE/Occupancy/Finance/HL7/Criticals overview+trend + AI 病例库 + 待审模板 + 质量复评 + 通知偏好 + 排队优先级
 
 ### Wave 3: 放射业务流程闭环（P0 临床安全）
+
 - **检查前核对 Time-Out**：Patient 增 allergyHistory/pregnancyStatus/isolationFlag + Exam 增 timeoutVerified/By/At/Checklist；核对清单端点 + verify 端点 + `start` 门禁（未核对 400 TIMEOUT_NOT_VERIFIED）+ 前端核对弹窗
 - **对比剂安全**：contrast-safety 模块（过敏试验 CRUD + 注射前核查[同意书/过敏/eGFR<30/妊娠 四项阻断] + 留观计时/记录/离院门禁）
 - **知情同意落库**：patientId/examId 绑定 + 儿童/孕妇类型 + 见证人 + `verify` 端点（供增强检查/注射前校验）
@@ -1103,18 +1388,21 @@
 - **eGFR 校验前置**：<30 阻断 / 30-59 警告 / ≥60 正常
 
 ### Wave 4-5: 冗余页面合并
+
 - **9 组别名 redirect**：ReportWrite/Materials/CoSign/PatientPortal/Audit/UserManagement/DicomSr/DicomViewer/Home
 - **死代码清理**：删除 report-v2 孤儿三件套（764 行）
 - **12 个 sidebar section 去重合并** + 移除 9 个菜单别名
 - **业务级合并**：报告书写收敛（v3-report-hub/report-v2-workbench→write-report）；质控收敛（AIQC/科室质量→QCPage Tab，rules/watermark→/qc/*）；危急值 7→3（4 页内嵌 Tab）；看板收敛（department-dashboard/ops-dashboard/command-center）；SNOMED 三页合一；模板中心；审核枢纽（review-check/dual-read→review-center）
 
 ### Wave 6-12: 全站翻译（i18n）
+
 - **report/v3 组件群 40 个**：FinalCheckList/CosignSchedule/QualityDimensionCard/CriticalValueAlerter/AIDraftPanel(V2)/ReportQcV2Panel/DefectLibrary/CriticalEscalation(V2)/MultiChannelSender/模板库/导出中心 等
 - **~370 个页面 t() 化**：覆盖报告/危急值/质控/设备/口腔/眼科/集成/移动/财务/安全/专科等全谱
 - **appI18n 键**：7037 → 26855 键，zh/en 完全对称（0 不对称、0 重复）
 - **i18n 修复**：导航栏 nav.volumeStudio/techRotation/aiEnhanced 补全；重复键去重（radpath.title/deptDash.*）
 
 ### Wave 13: UI 高质量优化
+
 - **DataTable 推广**：原生 `<table>` → DataTable（斑马纹/固定表头/空态/加载态/排序/分页）
 - **ActionButton 推广**：原生 `<button>` 操作类 → ActionButton（10 类标准动作 + 图标 + variant）
 - **Select 统一**：原生 `<select>` → antd Select
@@ -1122,11 +1410,13 @@
 - **颜色令牌**：硬编码 hex → ThemeTokens（`var(--color-*-500, #fallback)`），142 处
 
 ### 验证结果
+
 - 后端：tsc 0 错误、jest **299 suites / 3282 tests 全部通过**（+14 suites +136 tests）
 - 前端：tsc **817**（较 -103 基线 843 净减 26）、vite build 成功（PWA precache）
 - 全量交互回归：click-all 390 路由（561）+ 基线（23）= 584 passed，0 失败
 
 ### 代码量指标
+
 - ① 增加行数：**+76,653 行**（净 +52,438）
 - ② 增加功能：**~60 项**（契约对齐 7 + 状态机门禁 3 + 端点 UI 补齐 ~40 + 临床闭环 8 + 页面合并 N 组 + UI 组件推广 + i18n 全站）
 - ③ 新增文件数：**40 个**（涉及 497 文件）
@@ -1191,7 +1481,6 @@
 
 ---
 
-
 ## v3.0.6.11-101 (2026-08-16) — 大规模升级（99999 升级点）：影像 V2 全链（HTJ2K/JPEG-LS 真编码+4D 真实帧+DL 降噪+影像对比+病理 WSI+分割深化+MPR/VR/CPR+测量标注+AI 增强）+技师 V2 全链（双检轮转/工作量预测/利用率/急诊插队/跨机房/预约分布/值班大屏）+报告 V2 全链（规则引擎/水印签章/质控 V2/升级链/危急值 V2/模板审批/AI 助理 V2/模板库 V2/导出中心/AI 二次检出/会诊 V2/互评/对比/检索/质控闭环）+99999 升级点（i18n 1798 键/公共组件 81 处/MSW 215 端点）+全量交互回归 373 路由 0 失败
 
 > **目标**: 99999 升级点——R 影像 V2 + Q 技师 V2 + S 报告 V2 完整 + 99999 升级点（放射流程/技师/报告/影像全链深化）
@@ -1253,7 +1542,6 @@
 - **代码量指标**：① 增加行数 ~59,163 行（新增 207 文件 52,706 行 + 修改 922 文件净 +5,573 行）② 增加功能 ~120 项 ③ 增加文件 207 个新文件 ④ 总代码 ~1,483,945 行
 
 ---
-
 
 # CHANGELOG
 
@@ -2324,16 +2612,16 @@
 
 ### Phase 3 对标补齐（8 大功能）
 
-| 功能 | 对标 | 实现 |
-|------|------|------|
-| **AI Orchestrator** | GE/FU/AG | AiModel+AiJob+AiWorkflowIntegration 模型、模型注册/部署/测试/触发匹配/任务队列、前端 3 Tab（模型市场/工作流集成/推理任务）+ 二次检出 SVG 高亮查看器 |
-| **智能 MWL 深度化** | IN/AG | 评分因子明细（6 因子×权重贡献）、优先级分桶统计、医生资质三级路由（规则→资质→负载均衡）、SmartMwlPage 98→356 行 |
-| **运营 BI 仪表板** | SE/AG | /bi 6 端点（KPI/时效/RVU/OEE/危急值 SLA/趋势）、DeptDashboardPage 53→BI 仪表板（5 图表+3 表格+自动刷新） |
-| **剂量管理 DRL** | GE/SE/IN | DoseRecord 模型、真实 Dose SR 解析（CTDIvol/DLP/SSDE）、DRL 阈值配置、患者累计剂量+年度限额、告警闭环 |
-| **DICOM 压缩真实化** | 全厂商 | 纯 Node 真实编解码（RLE+DICOM PS3.5 游程/LOCO-I 预测+Golomb-Rice 熵编码）、实测 2.3-5.6× 压缩比、无损往返一致 |
-| **结构化报告 SR 全链路** | SE/IN | SrDocument 模型、真实 TID 1500 内容树+SNOMED 编码、ORU^R01 回传（OBX 段）、报告页生成 SR 快捷入口 |
-| **VNA 基础版** | AG/SE/GE | VnaObject 模型、非 DICOM 内容归档（vna-storage）、WORM 锁定（删除拒绝）、患者归档时间线 |
-| **Auto-hanging + 多 RADS** | 全厂商 | HangingProtocol 模型+8 默认协议+匹配引擎、PI-RADS/LI-RADS/TI-RADS 真实评分规则（ACR 2017） |
+| 功能                       | 对标     | 实现                                                                                                                                                |
+| -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AI Orchestrator**        | GE/FU/AG | AiModel+AiJob+AiWorkflowIntegration 模型、模型注册/部署/测试/触发匹配/任务队列、前端 3 Tab（模型市场/工作流集成/推理任务）+ 二次检出 SVG 高亮查看器 |
+| **智能 MWL 深度化**        | IN/AG    | 评分因子明细（6 因子×权重贡献）、优先级分桶统计、医生资质三级路由（规则→资质→负载均衡）、SmartMwlPage 98→356 行                                     |
+| **运营 BI 仪表板**         | SE/AG    | /bi 6 端点（KPI/时效/RVU/OEE/危急值 SLA/趋势）、DeptDashboardPage 53→BI 仪表板（5 图表+3 表格+自动刷新）                                            |
+| **剂量管理 DRL**           | GE/SE/IN | DoseRecord 模型、真实 Dose SR 解析（CTDIvol/DLP/SSDE）、DRL 阈值配置、患者累计剂量+年度限额、告警闭环                                               |
+| **DICOM 压缩真实化**       | 全厂商   | 纯 Node 真实编解码（RLE+DICOM PS3.5 游程/LOCO-I 预测+Golomb-Rice 熵编码）、实测 2.3-5.6× 压缩比、无损往返一致                                       |
+| **结构化报告 SR 全链路**   | SE/IN    | SrDocument 模型、真实 TID 1500 内容树+SNOMED 编码、ORU^R01 回传（OBX 段）、报告页生成 SR 快捷入口                                                   |
+| **VNA 基础版**             | AG/SE/GE | VnaObject 模型、非 DICOM 内容归档（vna-storage）、WORM 锁定（删除拒绝）、患者归档时间线                                                             |
+| **Auto-hanging + 多 RADS** | 全厂商   | HangingProtocol 模型+8 默认协议+匹配引擎、PI-RADS/LI-RADS/TI-RADS 真实评分规则（ACR 2017）                                                          |
 
 ### 验证结果
 
@@ -2451,6 +2739,7 @@
 - Playwright: login 5/5、worklist 3/3、v30607 20/20、a11y 4/4、collab 2/2、critical 2/2、user-flow 1/1、dicom 2/2、eye 5/5、report、mobile、page-verify 5/5、click-200-pages 2/2 → **全部通过**
 
 ## v3.0.6.11-50 (2026-08-02) — 严格审查+21文件编码修复+安全P0修复+TOTP改造+14端点对接+Mock清理+窗位完善
+
 - 后端Jest测试: `npx jest --passWithNoTests` → 47 suites / 441 tests 全部通过
 - 前端TypeScript编译: `npx tsc --noEmit` → 记录剩余错误 5808（遗留 noUnusedLocals 严格模式问题，非本次引入）
 - 前端构建: `npx vite build` → 成功，dist 产物 454 entries / PWA 生成
