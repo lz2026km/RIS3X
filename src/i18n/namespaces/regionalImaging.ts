@@ -112,8 +112,6 @@ export default {
     "regionalImaging.loadAuditFailed": "加载审计日志失败",
     "regionalImaging.registryQueryFailed": "文档注册查询失败",
     "regionalImaging.pixQueryFailed": "PIX 查询失败",
-    "regionalImaging.retrievePending":
-      "文档调阅功能待接入（后端暂未提供 XDS.b Retrieve 数据源）",
 
     "regionalImaging.sharing": "区域影像共享",
     "regionalImaging.loading": "加载中...",
@@ -279,8 +277,6 @@ export default {
     "regionalImaging.loadAuditFailed": "Failed to load audit trail",
     "regionalImaging.registryQueryFailed": "Document registry query failed",
     "regionalImaging.pixQueryFailed": "PIX query failed",
-    "regionalImaging.retrievePending":
-      "Document retrieval is not yet available (no XDS.b Retrieve backend)",
 
     "regionalImaging.sharing": "Regional Imaging Sharing",
     "regionalImaging.loading": "Loading...",

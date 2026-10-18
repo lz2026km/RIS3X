@@ -318,8 +318,6 @@ export default {
     "w9e.imageAnchor.frameCine": "多帧动态",
     "w9e.imageAnchor.keyImage": "关键图像",
     "w9e.imageAnchor.cineFrame": "帧 {{frame}}/60",
-    "w9e.imageAnchor.cinePendingTip": "动态序列待接入（序列帧数据暂不可用）",
-    "w9e.imageAnchor.playNotImplemented": "播放动态(暂未实现)",
     "w9e.imageAnchor.tipArrow": "点击图像放置箭头",
     "w9e.imageAnchor.tipCircle": "拖动绘制圆形 ROI",
     "w9e.imageAnchor.tipLine": "拖动测量距离",
@@ -1347,9 +1345,6 @@ export default {
     "w9e.imageAnchor.frameCine": "Cine",
     "w9e.imageAnchor.keyImage": "Key Image",
     "w9e.imageAnchor.cineFrame": "Frame {{frame}}/60",
-    "w9e.imageAnchor.cinePendingTip":
-      "Cine sequence pending integration (frame data unavailable)",
-    "w9e.imageAnchor.playNotImplemented": "Play cine (not yet implemented)",
     "w9e.imageAnchor.tipArrow": "Click the image to place an arrow",
     "w9e.imageAnchor.tipCircle": "Drag to draw a circular ROI",
     "w9e.imageAnchor.tipLine": "Drag to measure distance",

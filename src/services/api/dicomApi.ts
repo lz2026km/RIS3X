@@ -1,6 +1,6 @@
 import { api, API_BASE } from "./client";
 import { getToken } from "../../utils/auth";
-import type { SuvResult } from "./fusionApi";
+import { fusionApi as canonicalFusionApi } from "./fusionApi";
 
 // ══════════════════════════════════════════════════════════════════════════
 // DICOMweb (QIDO-RS / WADO-RS / STOW-RS)
@@ -500,48 +500,9 @@ export {
 // ══════════════════════════════════════════════════════════════════════════
 // Volume 3D Rendering
 // ══════════════════════════════════════════════════════════════════════════
-
-export interface VolumeReconstructResult {
-  jobId: string;
-  volume: { x: number; y: number; z: number };
-}
-
-export interface VolumeStatusResult {
-  status: string;
-  progress: number;
-  volume: { x: number; y: number; z: number } | null;
-}
-
-export interface MprSliceResult {
-  plane: string;
-  sliceIndex: number;
-  totalSlices: number;
-  dimensions: { width: number; height: number };
-  dataUrl: string;
-}
-
-export interface MipResult {
-  direction: string;
-  dimensions: { width: number; height: number };
-  dataUrl: string;
-}
-
-export const volumeApi = {
-  reconstruct: (seriesUID: string) =>
-    api.post<VolumeReconstructResult>("/volume/reconstruct", { seriesUID }),
-
-  status: (jobId: string) =>
-    api.get<VolumeStatusResult>(`/volume/status/${encodeURIComponent(jobId)}`),
-
-  mpr: (
-    jobId: string,
-    plane: "axial" | "sagittal" | "coronal",
-    sliceIndex: number,
-  ) => api.post<MprSliceResult>("/volume/mpr", { jobId, plane, sliceIndex }),
-
-  mip: (jobId: string, direction: "axial" | "sagittal" | "coronal") =>
-    api.post<MipResult>("/volume/mip", { jobId, direction }),
-};
+// [W1-C 去重] 此处原有 volumeApi (reconstruct/status/mpr/mip) 与
+//   services/api/volumeApi.ts 重复封装同一批 /volume/* 端点, 且全站无任何
+//   调用方 (页面统一从 ./volumeApi 导入) — 已移除, 权威实现保留在 volumeApi.ts。
 
 // ══════════════════════════════════════════════════════════════════════════
 // PET-CT / Multi-modal Fusion
@@ -612,8 +573,8 @@ export const fusionApi = {
   }) => api.post<FusionRenderResult>("/fusion/render", params),
 
   // [G005 Wave4A G-06] PET-CT SUV 定量 (fusionApi.getSuv 对齐)
-  getSuv: (studyId: string) =>
-    api.get<SuvResult>(`/fusion/suv/${encodeURIComponent(studyId)}`),
+  // [W1-C 去重] GET /fusion/suv/:studyId 权威实现在 ./fusionApi; 此处委托。
+  getSuv: (studyId: string) => canonicalFusionApi.getSuv(studyId),
 };
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -665,8 +626,8 @@ export const dicomSrApi = {
   generate: (payload: GenerateSrPayload) =>
     api.post<DicomSrDocument>("/dicom-sr/generate", payload),
 
-  findById: (id: string) =>
-    api.get<DicomSrDocument>(`/dicom-sr/${encodeURIComponent(id)}`),
+  // [W1-C 去重] GET /dicom-sr/:id 权威实现为 srReportApi.srDocumentApi.getDocument
+  //   (本方法零调用方), 已移除避免重复封装。
 };
 
 // [G005 Wave4B] G-01 Encapsulated PDF (DICOM PDF 封装, SOP Class 1.2.840.10008.5.1.4.1.1.104.1)

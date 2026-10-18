@@ -138,11 +138,11 @@ export interface QcAiAssessDto {
 }
 
 export interface QcAiAssessResult {
-  studyId: string
-  instanceId?: string
-  modality: string
-  bodyPart: string
-  assessedAt: string
+  studyId: string;
+  instanceId?: string;
+  modality: string;
+  bodyPart: string;
+  assessedAt: string;
   artifact: QcAiDimensionAssessment;
   exposure: QcAiDimensionAssessment;
   positioning: QcAiDimensionAssessment;
@@ -162,49 +162,65 @@ export interface QcAiAssessmentsQuery {
 
 // [G005 Wave1A W9] V1 评分统计 (后端 GET /qc/image-ai/stats 真实形状)
 export interface QcImageAiStatsV1 {
-  totalScores: number
-  avgArtifact: number
-  avgExposure: number
-  avgPositioning: number
-  avgOverall: number
-  byModality: Record<string, number>
-  byDate: Record<string, number>
-  byOperator: Record<string, number>
+  totalScores: number;
+  avgArtifact: number;
+  avgExposure: number;
+  avgPositioning: number;
+  avgOverall: number;
+  byModality: Record<string, number>;
+  byDate: Record<string, number>;
+  byOperator: Record<string, number>;
 }
 
-const V1_NAMES = ['张伟', '李娜', '王芳', '赵敏', '陈杰', '刘洋', '孙浩', '周婷']
+const V1_NAMES = [
+  "张伟",
+  "李娜",
+  "王芳",
+  "赵敏",
+  "陈杰",
+  "刘洋",
+  "孙浩",
+  "周婷",
+];
 
 // V2 评分记录 → V1 展示形状 (ImageQualityControlPage 列契约: studyId/patientName/device/examDate/score/maxScore/issues/status)
 function toV1Result(r: QcImageAiScoreV2Result): QcImageAiResult {
-  let h = 0
-  const seedText = `${r.instanceId}:${r.modality}`
-  for (let i = 0; i < seedText.length; i++) h = (h * 31 + seedText.charCodeAt(i)) >>> 0
-  const dims = [r.artifactScores.motion, r.artifactScores.metal, r.artifactScores.ring,
-    r.positioningScores.setup, r.positioningScores.rotation, r.positioningScores.offset,
-    r.exposure.score]
+  let h = 0;
+  const seedText = `${r.instanceId}:${r.modality}`;
+  for (let i = 0; i < seedText.length; i++)
+    h = (h * 31 + seedText.charCodeAt(i)) >>> 0;
+  const dims = [
+    r.artifactScores.motion,
+    r.artifactScores.metal,
+    r.artifactScores.ring,
+    r.positioningScores.setup,
+    r.positioningScores.rotation,
+    r.positioningScores.offset,
+    r.exposure.score,
+  ];
   const issues: QcImageAiIssue[] = dims
     .filter((v) => v <= 3)
     .map((v, i) => ({
       id: `iss-${r.id}-${i}`,
-      category: i < 3 ? 'artifact' : i < 6 ? 'positioning' : 'exposure',
+      category: i < 3 ? "artifact" : i < 6 ? "positioning" : "exposure",
       description: `维度评分偏低 (${v}/5)`,
-      severity: v <= 2 ? 'high' : 'medium',
-      suggestion: '建议技师复核采集参数',
-    }))
+      severity: v <= 2 ? "high" : "medium",
+      suggestion: "建议技师复核采集参数",
+    }));
   return {
     id: r.id,
     studyId: r.instanceId,
-    patientName: V1_NAMES[h % V1_NAMES.length] ?? '未知患者',
+    patientName: V1_NAMES[h % V1_NAMES.length] ?? "未知患者",
     modality: r.modality,
-    device: 'QC-AI v2',
-    examDate: (r.createdAt ?? '').slice(0, 10),
+    device: "QC-AI v2",
+    examDate: (r.createdAt ?? "").slice(0, 10),
     score: r.overall,
     maxScore: 5,
     issues,
-    aiModel: 'qc-ai-v2.1',
-    status: 'pending',
+    aiModel: "qc-ai-v2.1",
+    status: "pending",
     createdAt: r.createdAt,
-  }
+  };
 }
 
 // [Wave1B P2] V1 评分请求体 (后端 POST /qc/image-ai/score, ScoreSchema 对齐)
@@ -237,30 +253,34 @@ export const qcImageAiApi = {
     page?: number;
     pageSize?: number;
   }) => {
-    const query = new URLSearchParams()
-    if (params?.modality) query.set("modality", params.modality)
+    const query = new URLSearchParams();
+    if (params?.modality) query.set("modality", params.modality);
     return api
-      .get<QcImageAiScoreV2Result[]>(`/qc/image-ai/result-v2?${query.toString()}`)
+      .get<QcImageAiScoreV2Result[]>(
+        `/qc/image-ai/result-v2?${query.toString()}`,
+      )
       .then((res) => {
-        if (!res.success || !Array.isArray(res.data)) return res
-        return { ...res, data: res.data.map((r) => toV1Result(r)) }
-      })
+        if (!res.success || !Array.isArray(res.data)) return res;
+        return { ...res, data: res.data.map((r) => toV1Result(r)) };
+      });
   },
 
   getResult: (id: string) =>
     api
       .get<QcImageAiScoreV2Result>(`/qc/image-ai/result-v2/${id}`)
-      .then((res) => (res.success && res.data ? { ...res, data: toV1Result(res.data) } : res)),
+      .then((res) =>
+        res.success && res.data ? { ...res, data: toV1Result(res.data) } : res,
+      ),
 
   // [G005 Wave1A W9] 语义对齐: analyzeStudy → POST /qc/image-ai/assess (真实端点)
-  analyzeStudy: (studyId: string) =>
-    api.post<QcAiAssessResult>("/qc/image-ai/assess", { studyId }),
+  // [W1-C 去重] 委托到 assess, 避免重复声明同一请求。
+  analyzeStudy: (studyId: string) => qcImageAiApi.assess({ studyId }),
 
   getStats: (params?: { startDate?: string; endDate?: string }) => {
-    const query = new URLSearchParams()
-    if (params?.startDate) query.set("dateFrom", params.startDate)
-    if (params?.endDate) query.set("dateTo", params.endDate)
-    return api.get<QcImageAiStatsV1>(`/qc/image-ai/stats?${query.toString()}`)
+    const query = new URLSearchParams();
+    if (params?.startDate) query.set("dateFrom", params.startDate);
+    if (params?.endDate) query.set("dateTo", params.endDate);
+    return api.get<QcImageAiStatsV1>(`/qc/image-ai/stats?${query.toString()}`);
   },
 
   // [v3.0.6.11-50] V2 端点 (backend/src/modules/qc/image-ai.controller.ts)
@@ -277,25 +297,31 @@ export const qcImageAiApi = {
 
   // [v3.0.6.11-104 Wave 2C] V1 结果按实例查询: GET /qc/image-ai/result/:instanceId
   getResultV1: (instanceId: string) =>
-    api.get<QcImageAiScoreV1Result>(`/qc/image-ai/result/${encodeURIComponent(instanceId)}`),
+    api.get<QcImageAiScoreV1Result>(
+      `/qc/image-ai/result/${encodeURIComponent(instanceId)}`,
+    ),
 
   // [v3.0.6.11-104 Wave 2C] V2 结果列表 (原始 V2 形状): GET /qc/image-ai/result-v2
   listV2Results: (params?: QcImageAiStatsV2Query) => {
-    const query = new URLSearchParams()
-    if (params?.modality) query.set("modality", params.modality)
-    if (params?.dateFrom) query.set("dateFrom", params.dateFrom)
-    if (params?.dateTo) query.set("dateTo", params.dateTo)
-    if (params?.operatorId) query.set("operatorId", params.operatorId)
-    return api.get<QcImageAiScoreV2Result[]>(`/qc/image-ai/result-v2?${query.toString()}`)
+    const query = new URLSearchParams();
+    if (params?.modality) query.set("modality", params.modality);
+    if (params?.dateFrom) query.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) query.set("dateTo", params.dateTo);
+    if (params?.operatorId) query.set("operatorId", params.operatorId);
+    return api.get<QcImageAiScoreV2Result[]>(
+      `/qc/image-ai/result-v2?${query.toString()}`,
+    );
   },
 
   getStatsV2: (params?: QcImageAiStatsV2Query) => {
-    const query = new URLSearchParams()
-    if (params?.modality) query.set("modality", params.modality)
-    if (params?.dateFrom) query.set("dateFrom", params.dateFrom)
-    if (params?.dateTo) query.set("dateTo", params.dateTo)
-    if (params?.operatorId) query.set("operatorId", params.operatorId)
-    return api.get<QcImageAiStatsV2>(`/qc/image-ai/stats-v2?${query.toString()}`)
+    const query = new URLSearchParams();
+    if (params?.modality) query.set("modality", params.modality);
+    if (params?.dateFrom) query.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) query.set("dateTo", params.dateTo);
+    if (params?.operatorId) query.set("operatorId", params.operatorId);
+    return api.get<QcImageAiStatsV2>(
+      `/qc/image-ai/stats-v2?${query.toString()}`,
+    );
   },
 
   // [G005 Wave4A] G-24 AI 自动质控三维度评估 (伪影/曝光/体位 + 总分)
@@ -304,10 +330,13 @@ export const qcImageAiApi = {
 
   // [G005 Wave3A P16] 历史三维度评估列表 (按检查/日期聚合, 内存 + seed)
   listAssessments: (params?: QcAiAssessmentsQuery) => {
-    const query = new URLSearchParams()
-    if (params?.studyId) query.set("studyId", params.studyId)
-    if (params?.page !== undefined) query.set("page", String(params.page))
-    if (params?.pageSize !== undefined) query.set("pageSize", String(params.pageSize))
-    return api.get<QcAiAssessRecord[]>(`/qc/image-ai/assessments?${query.toString()}`)
+    const query = new URLSearchParams();
+    if (params?.studyId) query.set("studyId", params.studyId);
+    if (params?.page !== undefined) query.set("page", String(params.page));
+    if (params?.pageSize !== undefined)
+      query.set("pageSize", String(params.pageSize));
+    return api.get<QcAiAssessRecord[]>(
+      `/qc/image-ai/assessments?${query.toString()}`,
+    );
   },
 };

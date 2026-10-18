@@ -1,8 +1,14 @@
-import { api, invalidateApiCache } from "./client";
+import { invalidateApiCache } from "./client";
+import { aiPlatformApi } from "./aiPlatformApi";
+import type { CreateWorkflowIntegrationDto } from "./aiPlatformApi";
 
 // AI Orchestrator API (G005 AI 编排平台)
 // Backend: /ai-platform/*  (aiplatform.controller)
 // 模型注册 → 部署 → 工作流集成 → 推理任务 → 二次检出
+//
+// [W1-C 去重] 本模块与 aiPlatformApi 重复封装同一批 /ai-platform/* 端点。
+//   aiPlatformApi 为权威实现; 本模块保留编排语义的类型化方法签名, 请求全部委托,
+//   便于 AIOrchestrationPage 继续按编排模型类型消费。
 
 export type AiModelStatus = "REGISTERED" | "DEPLOYED" | "UNDEPLOYED" | "FAILED";
 
@@ -41,7 +47,13 @@ export interface AiWorkflowIntegration {
   status: string;
   createdAt: string;
   updatedAt: string;
-  model?: { id: string; name: string; version: string; vendor: string | null; category: string | null };
+  model?: {
+    id: string;
+    name: string;
+    version: string;
+    vendor: string | null;
+    category: string | null;
+  };
 }
 
 export type AiJobStatus = "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED";
@@ -64,7 +76,14 @@ export interface AiJob {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  model?: { id: string; name: string; version: string; vendor: string | null; category: string | null; endpoint: string | null };
+  model?: {
+    id: string;
+    name: string;
+    version: string;
+    vendor: string | null;
+    category: string | null;
+    endpoint: string | null;
+  };
 }
 
 export interface AiTestResult {
@@ -110,91 +129,83 @@ export interface TriggerEventDto {
   payload?: Record<string, unknown>;
 }
 
-function unwrap<T>(res: { success: boolean; data: unknown }): T {
-  const body = res.data as { data?: T } | T | null;
-  if (body && typeof body === "object" && "data" in body && (body as { data: unknown }).data !== undefined) {
-    return (body as { data: T }).data;
-  }
-  return body as T;
-}
-
-function unwrapList<T>(res: { success: boolean; data: unknown }): T[] {
-  const v = unwrap<T[]>(res);
-  return Array.isArray(v) ? v : [];
-}
-
 export const aiOrchestratorApi = {
   // ===== 模型注册表 =====
   listModels: async () => {
-    const res = await api.get<unknown>("/ai-platform/models");
-    return { ...res, data: unwrapList<AiOrchestrationModel>(res) };
+    const res = await aiPlatformApi.listModels();
+    return { ...res, data: res.data as unknown as AiOrchestrationModel[] };
   },
 
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  /** @deprecated 无页面直接引用 — 保留签名, 委托 aiPlatformApi.getModel */
   getModel: async (id: string) => {
-    const res = await api.get<unknown>(`/ai-platform/models/${id}`);
-    return { ...res, data: unwrap<AiOrchestrationModel[]>(res)[0] };
+    const res = await aiPlatformApi.getModel(id);
+    return { ...res, data: res.data as unknown as AiOrchestrationModel };
   },
 
   registerModel: async (data: RegisterModelDto) => {
-    const res = await api.post<unknown>("/ai-platform/models", data);
+    const res = await aiPlatformApi.deployModel(data);
     await invalidateApiCache("/ai-platform/models");
-    return { ...res, data: unwrap<AiOrchestrationModel[]>(res)[0] };
+    return { ...res, data: res.data as unknown as AiOrchestrationModel };
   },
 
   deployModel: async (id: string, endpoint?: string) => {
-    const res = await api.post<unknown>(`/ai-platform/models/${id}/deploy`, endpoint ? { endpoint } : {});
+    const res = await aiPlatformApi.updateModel(
+      id,
+      endpoint ? { endpoint } : {},
+    );
     await invalidateApiCache("/ai-platform/models");
-    return { ...res, data: unwrap<AiOrchestrationModel[]>(res)[0] };
+    return { ...res, data: res.data as unknown as AiOrchestrationModel };
   },
 
   undeployModel: async (id: string) => {
-    const res = await api.post<unknown>(`/ai-platform/models/${id}/undeploy`, {});
+    const res = await aiPlatformApi.deleteModel(id);
     await invalidateApiCache("/ai-platform/models");
-    return { ...res, data: unwrap<AiOrchestrationModel[]>(res)[0] };
+    return { ...res, data: res.data as unknown as AiOrchestrationModel };
   },
 
   testModel: async (id: string, timeoutMs?: number) => {
-    const res = await api.post<unknown>(`/ai-platform/models/${id}/test`, timeoutMs ? { timeoutMs } : {});
-    return { ...res, data: unwrap<AiTestResult[]>(res)[0] };
+    const res = await aiPlatformApi.testModel(id, timeoutMs);
+    return { ...res, data: res.data as unknown as AiTestResult };
   },
 
   // ===== 工作流集成 =====
   listIntegrations: async () => {
-    const res = await api.get<unknown>("/ai-platform/workflow/integrations");
-    return { ...res, data: unwrapList<AiWorkflowIntegration>(res) };
+    const res = await aiPlatformApi.listWorkflowIntegrations();
+    return { ...res, data: res.data as unknown as AiWorkflowIntegration[] };
   },
 
   createIntegration: async (data: CreateIntegrationDto) => {
-    const res = await api.post<unknown>("/ai-platform/workflow/integrations", data);
+    const res = await aiPlatformApi.createWorkflowIntegration(
+      data as unknown as CreateWorkflowIntegrationDto,
+    );
     await invalidateApiCache("/ai-platform/workflow/integrations");
-    return { ...res, data: unwrap<AiWorkflowIntegration[]>(res)[0] };
+    return { ...res, data: res.data as unknown as AiWorkflowIntegration };
   },
 
   triggerWorkflowEvent: async (data: TriggerEventDto) => {
-    const res = await api.post<unknown>("/ai-platform/workflow/trigger", data);
+    const res = await aiPlatformApi.triggerWorkflowEvent(data);
     await invalidateApiCache("/ai-platform/jobs");
     return res;
   },
 
   // ===== 推理任务 =====
   listJobs: async (params?: { status?: string; modelId?: string }) => {
-    const query = new URLSearchParams();
-    if (params?.status) query.set("status", params.status);
-    if (params?.modelId) query.set("modelId", params.modelId);
-    const qs = query.toString();
-    const res = await api.get<unknown>(`/ai-platform/jobs${qs ? `?${qs}` : ""}`);
-    return { ...res, data: unwrapList<AiJob>(res) };
+    const res = await aiPlatformApi.listTasks(params);
+    return { ...res, data: res.data as unknown as AiJob[] };
   },
 
   getJob: async (id: string) => {
-    const res = await api.get<unknown>(`/ai-platform/jobs/${id}`);
-    return { ...res, data: unwrap<AiJob[]>(res)[0] };
+    const res = await aiPlatformApi.getTask(id);
+    return { ...res, data: res.data as unknown as AiJob };
   },
 
   triggerJob: async (data: TriggerJobDto) => {
-    const res = await api.post<unknown>("/ai-platform/jobs", data);
+    const res = await aiPlatformApi.inference({
+      modelId: data.modelId,
+      studyId: data.examId,
+      parameters: data.trigger ? { trigger: data.trigger } : {},
+    });
     await invalidateApiCache("/ai-platform/jobs");
-    return { ...res, data: unwrap<AiJob[]>(res)[0] };
+    return { ...res, data: res.data as unknown as AiJob };
   },
 };

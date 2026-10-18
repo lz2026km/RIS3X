@@ -1149,7 +1149,10 @@ const DualReadPage: React.FC = () => {
             onChange={(v) =>
               setNewBatch((prev) => ({ ...prev, modality: v ?? undefined }))
             }
-            options={["CT", "MR", "DR", "MG"].map((v) => ({ value: v }))}
+            options={["CT", "MR", "DR", "MG"].map((v) => ({
+              value: v,
+              label: v,
+            }))}
           />
           <Select
             value={newBatch.blind}

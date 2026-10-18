@@ -8,8 +8,6 @@ export default {
 
     // 通用
     "w4ai.badge": "AI 辅助 (模拟)",
-    "w4ai.simulatedNote":
-      "本页面为概念演示：所有指标与队列均由 ID 种子的确定性模拟生成，非真实模型推理，仅供交互与流程演示。",
     "w4ai.refresh": "刷新",
     "w4ai.reset": "重置",
     "w4ai.searchPlaceholder": "搜索模型名称 / 适应症...",
@@ -67,7 +65,6 @@ export default {
     "w4ai.msg.deployOk": "已部署模型 {{name}} {{version}} (模拟)",
     "w4ai.msg.grayOk": "已将 {{name}} 切入灰度发布 (模拟)",
     "w4ai.msg.offlineOk": "已下线模型 {{name}} (模拟)",
-    "w4ai.msg.rollbackOk": "已将 {{name}} 回滚至 {{version}} (模拟)",
     "w4ai.msg.actionBlocked": "当前状态不支持该操作",
     "w4ai.reg.sourceBackend": "后端实时数据",
     "w4ai.reg.sourceCatalog": "本地目录(后端未返回模型)",
@@ -129,9 +126,6 @@ export default {
     "w4ai.triage.hold": "挂起",
     "w4ai.triage.review": "复核",
     "w4ai.triage.adopt": "采纳",
-    "w4ai.triage.holdOk": "已挂起 {{name}} (模拟)",
-    "w4ai.triage.reviewOk": "已进入复核: {{name}} (模拟)",
-    "w4ai.triage.adoptOk": "已采纳 AI 建议: {{name}} (模拟)",
     "w4ai.triage.assigned": "已指派",
 
     "w4ai.triage.col.patient": "患者",
@@ -252,8 +246,6 @@ export default {
 
     // Common
     "w4ai.badge": "AI-assisted (simulated)",
-    "w4ai.simulatedNote":
-      "Concept demo: all metrics and queues are deterministically simulated from ID seeds, not real model inference, for interaction and workflow demonstration only.",
     "w4ai.refresh": "Refresh",
     "w4ai.reset": "Reset",
     "w4ai.searchPlaceholder": "Search model name / indication...",
@@ -311,7 +303,6 @@ export default {
     "w4ai.msg.deployOk": "Deployed {{name}} {{version}} (simulated)",
     "w4ai.msg.grayOk": "{{name}} switched to gray release (simulated)",
     "w4ai.msg.offlineOk": "Took {{name}} offline (simulated)",
-    "w4ai.msg.rollbackOk": "Rolled back {{name}} to {{version}} (simulated)",
     "w4ai.msg.actionBlocked": "Action not supported in current status",
     "w4ai.reg.sourceBackend": "Live backend data",
     "w4ai.reg.sourceCatalog": "Local catalog (backend returned no models)",
@@ -376,9 +367,6 @@ export default {
     "w4ai.triage.hold": "Hold",
     "w4ai.triage.review": "Review",
     "w4ai.triage.adopt": "Adopt",
-    "w4ai.triage.holdOk": "Put {{name}} on hold (simulated)",
-    "w4ai.triage.reviewOk": "Moved {{name}} to review (simulated)",
-    "w4ai.triage.adoptOk": "Adopted AI suggestion for {{name}} (simulated)",
     "w4ai.triage.assigned": "Assigned",
 
     "w4ai.triage.col.patient": "Patient",

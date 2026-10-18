@@ -112,7 +112,11 @@ export interface GenerateStructuredReportDto {
 // [W1-D] 对齐 backend CreateAiOrchestrationSchema
 export interface CreateAiOrchestrationDto {
   workflowName: string;
-  steps: Array<{ order: number; action: string; params: Record<string, unknown> }>;
+  steps: Array<{
+    order: number;
+    action: string;
+    params: Record<string, unknown>;
+  }>;
   trigger?: "ON_STUDY_COMPLETE" | "ON_REPORT_SAVE" | "MANUAL";
 }
 
@@ -134,7 +138,8 @@ export interface TriggerWorkflowEventDto {
 
 // [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (后端 POST /ai-platform/denoise)
 // [G005 v3.0.6.11-101 Wave 1B (G-10)] 扩展: 可配置核 / 3 档预设 / 噪声估计 / 处理历史
-export type DenoiseKernel = "median" | "gaussian" | "bilateral" | "nlmeans" | "dl";
+export type DenoiseKernel =
+  "median" | "gaussian" | "bilateral" | "nlmeans" | "dl";
 export type DenoisePreset = "light" | "standard" | "strong";
 
 export interface AiPlatformDenoiseDto {
@@ -226,7 +231,12 @@ export interface AiScoreResult {
 
 function unwrap<T>(res: { success: boolean; data: unknown }): T {
   const body = res.data as { data?: T } | T | null;
-  if (body && typeof body === "object" && "data" in body && (body as { data: unknown }).data !== undefined) {
+  if (
+    body &&
+    typeof body === "object" &&
+    "data" in body &&
+    (body as { data: unknown }).data !== undefined
+  ) {
     return (body as { data: T }).data;
   }
   return body as T;
@@ -250,7 +260,7 @@ export const aiPlatformApi = {
     return { ...res, data: unwrapList<AiPlatformModel>(res) };
   },
 
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [W1-C 去重] GET /ai-platform/models/:id — aiOrchestratorApi.getModel 委托此实现
   getModel: async (id: string) => {
     const res = await api.get<unknown>(`/ai-platform/models/${id}`);
     return { ...res, data: unwrapOne<AiPlatformModel>(res) };
@@ -274,21 +284,30 @@ export const aiPlatformApi = {
   //   status=inactive/deprecated → POST /models/:id/undeploy
   updateModel: async (id: string, data: Partial<AiPlatformModel>) => {
     if (data.status === "inactive" || data.status === "deprecated") {
-      const res = await api.post<unknown>(`/ai-platform/models/${id}/undeploy`, {});
+      const res = await api.post<unknown>(
+        `/ai-platform/models/${id}/undeploy`,
+        {},
+      );
       return { ...res, data: unwrapOne<AiPlatformModel>(res) };
     }
-    const res = await api.post<unknown>(`/ai-platform/models/${id}/deploy`, data);
+    const res = await api.post<unknown>(
+      `/ai-platform/models/${id}/deploy`,
+      data,
+    );
     return { ...res, data: unwrapOne<AiPlatformModel>(res) };
   },
 
   // [W1-B] 后端无 DELETE /models/:id;映射为下线操作 (undeploy)
   deleteModel: async (id: string) => {
-    const res = await api.post<unknown>(`/ai-platform/models/${id}/undeploy`, {});
+    const res = await api.post<unknown>(
+      `/ai-platform/models/${id}/undeploy`,
+      {},
+    );
     return { ...res, data: unwrapOne<AiPlatformModel>(res) };
   },
 
   // [W1-B] 后端无 /ai-platform/inference;推理 = POST /ai-platform/jobs (CreateAiJobSchema: modelId/examId/trigger)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [W1-C 去重] aiOrchestratorApi.triggerJob 委托此实现
   inference: async (data: AiPlatformInferenceDto) => {
     const res = await api.post<unknown>("/ai-platform/jobs", {
       modelId: data.modelId,
@@ -301,17 +320,19 @@ export const aiPlatformApi = {
     return { ...res, data: unwrapOne<AiPlatformTask>(res) };
   },
 
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [W1-C 去重] GET /ai-platform/jobs — aiOrchestratorApi.listJobs 委托此实现
   listTasks: async (params?: { modelId?: string; status?: string }) => {
     const query = new URLSearchParams();
     if (params?.modelId) query.set("modelId", params.modelId);
     if (params?.status) query.set("status", params.status);
     const qs = query.toString();
-    const res = await api.get<unknown>(`/ai-platform/jobs${qs ? `?${qs}` : ""}`);
+    const res = await api.get<unknown>(
+      `/ai-platform/jobs${qs ? `?${qs}` : ""}`,
+    );
     return { ...res, data: unwrapList<AiPlatformTask>(res) };
   },
 
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [W1-C 去重] GET /ai-platform/jobs/:id — aiOrchestratorApi.getJob 委托此实现
   getTask: async (id: string) => {
     const res = await api.get<unknown>(`/ai-platform/jobs/${id}`);
     return { ...res, data: unwrapOne<AiPlatformTask>(res) };
@@ -331,7 +352,10 @@ export const aiPlatformApi = {
 
   // [G005 v3.0.6.11-91 W1-B P1 第12轮] 模型连通性测试 (后端 POST /ai-platform/models/:id/test)
   testModel: async (id: string, timeoutMs?: number) => {
-    const res = await api.post<unknown>(`/ai-platform/models/${id}/test`, timeoutMs ? { timeoutMs } : {});
+    const res = await api.post<unknown>(
+      `/ai-platform/models/${id}/test`,
+      timeoutMs ? { timeoutMs } : {},
+    );
     return { ...res, data: unwrapOne<AiPlatformTestResult>(res) };
   },
 
@@ -355,7 +379,10 @@ export const aiPlatformApi = {
   },
 
   clearDenoiseHistory: async () => {
-    const res = await api.post<unknown>("/ai-platform/denoise/history/clear", {});
+    const res = await api.post<unknown>(
+      "/ai-platform/denoise/history/clear",
+      {},
+    );
     return { ...res, data: unwrap<{ cleared: boolean; count: number }>(res) };
   },
 
@@ -382,22 +409,25 @@ export const aiPlatformApi = {
   // ==================== [W1-D] AI 平台 7 端点补全 ====================
 
   // [G005 Wave1A P0] 工作流集成列表 (后端 GET /ai-platform/workflow/integrations)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [W1-C 去重] aiOrchestratorApi.listIntegrations 委托此实现
   listWorkflowIntegrations: async () => {
     const res = await api.get<unknown>("/ai-platform/workflow/integrations");
     return { ...res, data: unwrapList<AiPlatformRecord>(res) };
   },
 
   // [G005 Wave1A P0] 新建工作流集成 (后端 POST /ai-platform/workflow/integrations)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [W1-C 去重] aiOrchestratorApi.createIntegration 委托此实现
   createWorkflowIntegration: async (data: CreateWorkflowIntegrationDto) => {
-    const res = await api.post<unknown>("/ai-platform/workflow/integrations", data);
+    const res = await api.post<unknown>(
+      "/ai-platform/workflow/integrations",
+      data,
+    );
     await invalidateApiCache("/ai-platform/workflow/integrations");
     return { ...res, data: unwrap<AiPlatformRecord[]>(res)[0] };
   },
 
   // [G005 Wave1A P0] 触发工作流事件 (后端 POST /ai-platform/workflow/trigger → 匹配触发器建任务)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [W1-C 去重] aiOrchestratorApi.triggerWorkflowEvent 委托此实现
   triggerWorkflowEvent: async (data: TriggerWorkflowEventDto) => {
     const res = await api.post<unknown>("/ai-platform/workflow/trigger", data);
     await invalidateApiCache("/ai-platform/jobs");
@@ -412,7 +442,10 @@ export const aiPlatformApi = {
 
   // 从检查生成结构化报告 (后端: GenerateStructuredReportSchema)
   createStructuredReport: async (data: GenerateStructuredReportDto) => {
-    const res = await api.post<unknown>("/ai-platform/structured-reports", data);
+    const res = await api.post<unknown>(
+      "/ai-platform/structured-reports",
+      data,
+    );
     await invalidateApiCache("/ai-platform/structured-reports");
     return { ...res, data: unwrap<AiPlatformRecord[]>(res)[0] };
   },

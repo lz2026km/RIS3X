@@ -1,449 +1,495 @@
-import { api, invalidateApiCacheByPrefix } from './client'
+import { api, invalidateApiCacheByPrefix } from "./client";
 
 // [v3.0.6.11-104 Wave 2A] query 拼接 (过滤空值)
-const withQuery = (path: string, params?: Record<string, string | number | undefined>): string => {
-  if (!params) return path
+const withQuery = (
+  path: string,
+  params?: Record<string, string | number | undefined>,
+): string => {
+  if (!params) return path;
   const qs = Object.entries(params)
-    .filter(([, v]) => v !== undefined && v !== null && v !== '')
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join('&')
-  return qs ? `${path}?${qs}` : path
-}
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(
+      ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`,
+    )
+    .join("&");
+  return qs ? `${path}?${qs}` : path;
+};
 
-//  Equipment Lifecycle 
+//  Equipment Lifecycle
 // [v3.0.6.11-104 Wave 2A] 后端 equipment-lifecycle 返回 Prisma device 实体 (code/modality/state/...),
 // 兼容历史前端字段 (model/serialNumber/status) 均为可选。
 export interface EquipmentLifecycle {
-  id: string
-  code?: string
-  name: string
-  modality?: string
-  model?: string
-  serialNumber?: string
-  manufacturer?: string
-  location?: string
-  status?: 'ACTIVE' | 'MAINTENANCE' | 'RETIRED'
-  state?: 'IDLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'OFFLINE'
-  todayExams?: number
-  todayUsageMin?: number
-  purchaseDate?: string
-  installationDate?: string
-  warrantyExpiry?: string
-  lastMaintenanceDate?: string
-  nextMaintenanceDate?: string
-  totalCost?: number
-  maintenanceCost?: number
-  createdAt?: string
-  updatedAt?: string
+  id: string;
+  code?: string;
+  name: string;
+  modality?: string;
+  model?: string;
+  serialNumber?: string;
+  manufacturer?: string;
+  location?: string;
+  status?: "ACTIVE" | "MAINTENANCE" | "RETIRED";
+  state?: "IDLE" | "IN_USE" | "MAINTENANCE" | "BROKEN" | "OFFLINE";
+  todayExams?: number;
+  todayUsageMin?: number;
+  purchaseDate?: string;
+  installationDate?: string;
+  warrantyExpiry?: string;
+  lastMaintenanceDate?: string;
+  nextMaintenanceDate?: string;
+  totalCost?: number;
+  maintenanceCost?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UpdateEquipmentLifecycleDto {
-  status: 'ACTIVE' | 'MAINTENANCE' | 'RETIRED'
-  maintenanceDate?: string
-  notes?: string
+  status: "ACTIVE" | "MAINTENANCE" | "RETIRED";
+  maintenanceDate?: string;
+  notes?: string;
 }
 
 // [v3.0.6.11-104 Wave 2A] GET /device-mgmt/overview — 设备总览
 export interface DeviceMgmtOverview {
-  total: number
-  online: number
-  byState: Record<string, number>
-  todayExams: number
-  todayUsageMin: number
-  faultsToday: number
-  faultRate: number
-  maintenanceDue: number
-  byModality: { modality: string; total: number; online: number }[]
+  total: number;
+  online: number;
+  byState: Record<string, number>;
+  todayExams: number;
+  todayUsageMin: number;
+  faultsToday: number;
+  faultRate: number;
+  maintenanceDue: number;
+  byModality: { modality: string; total: number; online: number }[];
 }
 
 // [v3.0.6.11-104 Wave 2A] GET /device-mgmt/usage-trend — 近 N 日使用趋势
-export interface DeviceUsageTrendPoint { date: string; count: number }
+export interface DeviceUsageTrendPoint {
+  date: string;
+  count: number;
+}
 export interface DeviceUsageTrend {
-  items: DeviceUsageTrendPoint[]
-  byModality: { modality: string; counts: DeviceUsageTrendPoint[] }[]
-  total: number
+  items: DeviceUsageTrendPoint[];
+  byModality: { modality: string; counts: DeviceUsageTrendPoint[] }[];
+  total: number;
 }
 
 // [v3.0.6.11-104 Wave 2A] GET /device-mgmt/by-room — 机房设备分布
-export interface DeviceRoomStat { room: string; devices: number; online: number; todayExams: number }
-export interface DeviceByRoom { items: DeviceRoomStat[]; total: number }
+export interface DeviceRoomStat {
+  room: string;
+  devices: number;
+  online: number;
+  todayExams: number;
+}
+export interface DeviceByRoom {
+  items: DeviceRoomStat[];
+  total: number;
+}
 
 // [v3.0.6.11-104 Wave 2A] GET /device-mgmt/maintenance-calendar — 维护计划日历 (按月分组)
 export interface MaintenanceCalendarItem {
-  id: string
-  deviceId?: string
-  deviceName: string
-  maintenanceDate: string
-  type: string
-  status: string
-  estimatedCost: number | null
+  id: string;
+  deviceId?: string;
+  deviceName: string;
+  maintenanceDate: string;
+  type: string;
+  status: string;
+  estimatedCost: number | null;
 }
 export interface MaintenanceCalendarMonth {
-  month: string
-  items: MaintenanceCalendarItem[]
-  count: number
+  month: string;
+  items: MaintenanceCalendarItem[];
+  count: number;
 }
 export interface MaintenanceCalendar {
-  months: MaintenanceCalendarMonth[]
-  pendingCount: number
-  overdueCount: number
-  totalCost: number
-  seeded?: boolean
+  months: MaintenanceCalendarMonth[];
+  pendingCount: number;
+  overdueCount: number;
+  totalCost: number;
+  seeded?: boolean;
 }
 
 // [v3.0.6.11-104 Wave 2A] GET /device-mgmt/equipment-lifecycle/:id — 单个设备生命周期详情
-export type DeviceLifecycleDetail = EquipmentLifecycle
+export type DeviceLifecycleDetail = EquipmentLifecycle;
 
-//  Device (CRUD) 
+//  Device (CRUD)
 export interface DeviceMgmtItem {
-  id: string
-  code: string
-  name: string
-  modality: string
-  manufacturer?: string
-  location?: string
-  state?: 'IDLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'OFFLINE'
+  id: string;
+  code: string;
+  name: string;
+  modality: string;
+  manufacturer?: string;
+  location?: string;
+  state?: "IDLE" | "IN_USE" | "MAINTENANCE" | "BROKEN" | "OFFLINE";
 }
 
 export interface CreateDeviceMgmtDto {
-  code: string
-  name: string
-  modality: string
-  manufacturer?: string
-  location?: string
+  code: string;
+  name: string;
+  modality: string;
+  manufacturer?: string;
+  location?: string;
 }
 
 export interface UpdateDeviceMgmtDto {
-  name?: string
-  modality?: string
-  manufacturer?: string
-  location?: string
-  state?: 'IDLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'OFFLINE'
+  name?: string;
+  modality?: string;
+  manufacturer?: string;
+  location?: string;
+  state?: "IDLE" | "IN_USE" | "MAINTENANCE" | "BROKEN" | "OFFLINE";
 }
 
-//  Device Fault 
+//  Device Fault
 export interface DeviceFault {
-  id: string
-  deviceId: string
-  description: string
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
-  reportedBy: string
-  status: string
-  createdAt: string
+  id: string;
+  deviceId: string;
+  description: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  reportedBy: string;
+  status: string;
+  createdAt: string;
 }
 
 export interface ReportDeviceFaultDto {
-  deviceId: string
-  description: string
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
-  reportedBy: string
+  deviceId: string;
+  description: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  reportedBy: string;
 }
 
-//  Material 
+//  Material
 export interface Material {
-  id: string
-  name: string
-  category: string
-  quantity: number
-  unit: string
-  minStock?: number
-  createdAt: string
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  minStock?: number;
+  createdAt: string;
 }
 
 export interface AddMaterialDto {
-  name: string
-  category: string
-  quantity: number
-  unit: string
-  minStock?: number
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  minStock?: number;
 }
 
-//  Dose Tracking 
+//  Dose Tracking
 export interface DoseRecord {
-  id: string
-  patientId: string
-  deviceId: string
-  doseValue: number
-  doseUnit: string
-  examType: string
-  recordedAt: string
+  id: string;
+  patientId: string;
+  deviceId: string;
+  doseValue: number;
+  doseUnit: string;
+  examType: string;
+  recordedAt: string;
 }
 
 export interface RecordDoseDto {
-  patientId: string
-  deviceId: string
-  doseValue: number
-  doseUnit: string
-  examType: string
-  recordedAt?: string
+  patientId: string;
+  deviceId: string;
+  doseValue: number;
+  doseUnit: string;
+  examType: string;
+  recordedAt?: string;
 }
 
-//  Contrast Agent 
+//  Contrast Agent
 export interface AdverseReaction {
-  id: string
-  patientId: string
-  contrastType: string
-  reaction: string
-  severity: 'MILD' | 'MODERATE' | 'SEVERE'
-  administeredAt: string
-  notes?: string
-  createdAt: string
+  id: string;
+  patientId: string;
+  contrastType: string;
+  reaction: string;
+  severity: "MILD" | "MODERATE" | "SEVERE";
+  administeredAt: string;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface ReportAdverseReactionDto {
-  patientId: string
-  contrastType: string
-  reaction: string
-  severity: 'MILD' | 'MODERATE' | 'SEVERE'
-  administeredAt: string
-  notes?: string
+  patientId: string;
+  contrastType: string;
+  reaction: string;
+  severity: "MILD" | "MODERATE" | "SEVERE";
+  administeredAt: string;
+  notes?: string;
 }
 
 export interface ContrastInventory {
-  id: string
-  name: string
-  quantity: number
-  batchNo?: string
-  expiryDate?: string
-  location?: string
+  id: string;
+  name: string;
+  quantity: number;
+  batchNo?: string;
+  expiryDate?: string;
+  location?: string;
 }
 
 export interface UpdateContrastInventoryDto {
-  quantity: number
-  batchNo?: string
-  expiryDate?: string
-  location?: string
+  quantity: number;
+  batchNo?: string;
+  expiryDate?: string;
+  location?: string;
 }
 
 export interface InjectionWorkstation {
-  id: string
-  name: string
-  status: string
-  lastCalibration?: string
+  id: string;
+  name: string;
+  status: string;
+  lastCalibration?: string;
 }
 
 export interface ContrastQuality {
-  id: string
-  contrastType: string
-  batchNo: string
-  qualityStatus: string
-  expiryDate: string
+  id: string;
+  contrastType: string;
+  batchNo: string;
+  qualityStatus: string;
+  expiryDate: string;
 }
 
 // [W1-B] 注射指令下发 DTO (POST /device-mgmt/contrast/injection)
 export interface SendInjectionCommandDto {
-  examId?: string
-  patientId?: string
-  patientName?: string
-  protocolId: string
-  protocolName?: string
-  contrastType?: string
-  totalVolumeMl?: number
-  flowRateMls?: number
-  operator?: string
-  weightKg?: number
-  eGFR?: number
-  adjustedVolumeMl?: number
+  examId?: string;
+  patientId?: string;
+  patientName?: string;
+  protocolId: string;
+  protocolName?: string;
+  contrastType?: string;
+  totalVolumeMl?: number;
+  flowRateMls?: number;
+  operator?: string;
+  weightKg?: number;
+  eGFR?: number;
+  adjustedVolumeMl?: number;
 }
 
 // [W4-B] 设备保养计划
 export interface MaintenancePlan {
-  id: string
-  deviceId: string
-  deviceName: string
-  maintenanceDate: string
-  intervalDays: number
-  type: string
-  content: string
-  estimatedCost: number | null
-  assignee: string
-  status: 'PENDING' | 'COMPLETED' | 'CANCELLED'
-  nextDate: string | null
-  completedAt: string | null
-  createdAt: string
-  updatedAt: string
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  maintenanceDate: string;
+  intervalDays: number;
+  type: string;
+  content: string;
+  estimatedCost: number | null;
+  assignee: string;
+  status: "PENDING" | "COMPLETED" | "CANCELLED";
+  nextDate: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateMaintenancePlanDto {
-  deviceId: string
-  deviceName?: string
-  maintenanceDate: string
-  intervalDays?: number
-  type?: string
-  content?: string
-  estimatedCost?: number
-  assignee?: string
+  deviceId: string;
+  deviceName?: string;
+  maintenanceDate: string;
+  intervalDays?: number;
+  type?: string;
+  content?: string;
+  estimatedCost?: number;
+  assignee?: string;
 }
 
 export interface UpdateMaintenancePlanDto extends Partial<CreateMaintenancePlanDto> {
-  status?: 'PENDING' | 'COMPLETED' | 'CANCELLED'
+  status?: "PENDING" | "COMPLETED" | "CANCELLED";
 }
 
-//  API Client 
+//  API Client
 export const deviceMgmtApi = {
   //  [v3.0.6.11-104 Wave 2A] 设备管理看板 (设备总览/使用趋势/机房分布/维护日历)
-  getOverview: () =>
-    api.get<DeviceMgmtOverview>('/device-mgmt/overview'),
+  getOverview: () => api.get<DeviceMgmtOverview>("/device-mgmt/overview"),
 
   getUsageTrend: (days = 30) =>
-    api.get<DeviceUsageTrend>(withQuery('/device-mgmt/usage-trend', { days })),
+    api.get<DeviceUsageTrend>(withQuery("/device-mgmt/usage-trend", { days })),
 
-  getByRoom: () =>
-    api.get<DeviceByRoom>('/device-mgmt/by-room'),
+  getByRoom: () => api.get<DeviceByRoom>("/device-mgmt/by-room"),
 
   getMaintenanceCalendar: (month?: string) =>
-    api.get<MaintenanceCalendar>(withQuery('/device-mgmt/maintenance-calendar', { month })),
+    api.get<MaintenanceCalendar>(
+      withQuery("/device-mgmt/maintenance-calendar", { month }),
+    ),
 
-  //  Equipment Lifecycle 
+  //  Equipment Lifecycle
   listEquipmentLifecycle: () =>
-    api.get<{ items: EquipmentLifecycle[]; total: number }>('/device-mgmt/equipment-lifecycle'),
+    api.get<{ items: EquipmentLifecycle[]; total: number }>(
+      "/device-mgmt/equipment-lifecycle",
+    ),
 
   getEquipmentLifecycle: (id: string) =>
     api.get<DeviceLifecycleDetail>(`/device-mgmt/equipment-lifecycle/${id}`),
 
-  updateEquipmentLifecycle: async (id: string, dto: UpdateEquipmentLifecycleDto) => {
-    const res = await api.put<EquipmentLifecycle>(`/device-mgmt/equipment-lifecycle/${id}`, dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/equipment-lifecycle')
-    return res
+  updateEquipmentLifecycle: async (
+    id: string,
+    dto: UpdateEquipmentLifecycleDto,
+  ) => {
+    const res = await api.put<EquipmentLifecycle>(
+      `/device-mgmt/equipment-lifecycle/${id}`,
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/equipment-lifecycle");
+    return res;
   },
 
-  //  Devices (devicemgmt controller) 
-  listDevices: () =>
-    api.get<DeviceMgmtItem[]>('/device-mgmt/devices'),
+  //  Devices (devicemgmt controller)
+  listDevices: () => api.get<DeviceMgmtItem[]>("/device-mgmt/devices"),
 
   getDevice: (id: string) =>
     api.get<DeviceMgmtItem>(`/device-mgmt/devices/${id}`),
 
   updateDevice: async (id: string, dto: UpdateDeviceMgmtDto) => {
-    const res = await api.put<DeviceMgmtItem>(`/device-mgmt/devices/${id}`, dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/devices')
-    return res
+    const res = await api.put<DeviceMgmtItem>(
+      `/device-mgmt/devices/${id}`,
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/devices");
+    return res;
   },
 
-  //  Device Faults 
-  listDeviceFaults: () =>
-    api.get<DeviceFault[]>('/device-mgmt/faults'),
+  //  Device Faults
+  listDeviceFaults: () => api.get<DeviceFault[]>("/device-mgmt/faults"),
 
   reportDeviceFault: async (dto: ReportDeviceFaultDto) => {
-    const res = await api.post<DeviceFault>('/device-mgmt/faults', dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/faults')
-    return res
+    const res = await api.post<DeviceFault>("/device-mgmt/faults", dto);
+    await invalidateApiCacheByPrefix("/device-mgmt/faults");
+    return res;
   },
 
-  //  Materials 
-  listMaterials: () =>
-    api.get<Material[]>('/device-mgmt/materials'),
+  //  Materials
+  listMaterials: () => api.get<Material[]>("/device-mgmt/materials"),
 
   addMaterial: async (dto: AddMaterialDto) => {
-    const res = await api.post<Material>('/device-mgmt/materials', dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/materials')
-    return res
+    const res = await api.post<Material>("/device-mgmt/materials", dto);
+    await invalidateApiCacheByPrefix("/device-mgmt/materials");
+    return res;
   },
 
-  //  Dose Tracking 
-  getDoseTracking: () =>
-    api.get<DoseRecord[]>('/device-mgmt/dose-tracking'),
+  //  Dose Tracking
+  getDoseTracking: () => api.get<DoseRecord[]>("/device-mgmt/dose-tracking"),
 
   recordDose: async (dto: RecordDoseDto) => {
-    const res = await api.post<DoseRecord>('/device-mgmt/dose-tracking', dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/dose-tracking')
-    return res
+    const res = await api.post<DoseRecord>("/device-mgmt/dose-tracking", dto);
+    await invalidateApiCacheByPrefix("/device-mgmt/dose-tracking");
+    return res;
   },
 
-  //  Contrast: Adverse Reactions 
+  //  Contrast: Adverse Reactions
   listAdverseReactions: () =>
-    api.get<AdverseReaction[]>('/device-mgmt/contrast/adverse-reactions'),
+    api.get<AdverseReaction[]>("/device-mgmt/contrast/adverse-reactions"),
 
   reportAdverseReaction: async (dto: ReportAdverseReactionDto) => {
-    const res = await api.post<AdverseReaction>('/device-mgmt/contrast/adverse-reactions', dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/contrast/adverse-reactions')
-    return res
+    const res = await api.post<AdverseReaction>(
+      "/device-mgmt/contrast/adverse-reactions",
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/contrast/adverse-reactions");
+    return res;
   },
 
-  //  Contrast: Injection Workstation 
+  //  Contrast: Injection Workstation
   getInjectionWorkstation: () =>
-    api.get<InjectionWorkstation>('/device-mgmt/contrast/injection'),
+    api.get<InjectionWorkstation>("/device-mgmt/contrast/injection"),
 
   // [W1-B] 注射指令下发 (ContrastInjectionWorkstationPage 开始注射)
   sendInjectionCommand: async (dto: SendInjectionCommandDto) => {
-    const res = await api.post<{ id: string; action: string; resource: string }>('/device-mgmt/contrast/injection', dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/contrast/injection')
-    return res
+    const res = await api.post<{
+      id: string;
+      action: string;
+      resource: string;
+    }>("/device-mgmt/contrast/injection", dto);
+    await invalidateApiCacheByPrefix("/device-mgmt/contrast/injection");
+    return res;
   },
 
-  //  Contrast: Inventory 
+  //  Contrast: Inventory
   getContrastInventory: () =>
-    api.get<ContrastInventory[]>('/device-mgmt/contrast/inventory'),
+    api.get<ContrastInventory[]>("/device-mgmt/contrast/inventory"),
 
-  updateContrastInventory: async (id: string, dto: UpdateContrastInventoryDto) => {
-    const res = await api.put<ContrastInventory>(`/device-mgmt/contrast/inventory/${id}`, dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/contrast/inventory')
-    return res
+  updateContrastInventory: async (
+    id: string,
+    dto: UpdateContrastInventoryDto,
+  ) => {
+    const res = await api.put<ContrastInventory>(
+      `/device-mgmt/contrast/inventory/${id}`,
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/contrast/inventory");
+    return res;
   },
 
-  //  Contrast: Quality 
+  //  Contrast: Quality
   getContrastQuality: () =>
-    api.get<ContrastQuality[]>('/device-mgmt/contrast/quality'),
+    api.get<ContrastQuality[]>("/device-mgmt/contrast/quality"),
 
   // [v3.0.6.11-104 Wave 1A] Device CRUD 路径对齐:
   //   原 /device-mgmt、/device-mgmt/:id、/device-mgmt/:id/stats 后端不存在 (404)。
   //   完整 CRUD (POST/PATCH/DELETE + stats) 由 backend/src/modules/device/device.controller.ts
   //   @Controller('devices') 提供 (devicemgmt.controller 仅在 /device-mgmt/devices* 有 GET/PUT)。
-  list: (params?: { skip?: number; take?: number; modality?: string; state?: string }) => {
-    const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : ''
-    return api.get<DeviceMgmtItem[]>(`/devices${query}`)
+  list: (params?: {
+    skip?: number;
+    take?: number;
+    modality?: string;
+    state?: string;
+  }) => {
+    const query = params
+      ? "?" + new URLSearchParams(params as Record<string, string>).toString()
+      : "";
+    return api.get<DeviceMgmtItem[]>(`/devices${query}`);
   },
 
-  getById: (id: string) =>
-    api.get<DeviceMgmtItem>(`/devices/${id}`),
+  // [W1-C 去重] getById/patch/remove/getStats 与 deviceApi 重复封装
+  //   (GET/PATCH/DELETE /devices/:id、GET /devices/:id/stats), 均无调用方 — 已移除,
+  //   权威实现保留在 services/api/deviceApi.ts。
 
   create: async (dto: CreateDeviceMgmtDto) => {
-    const res = await api.post<DeviceMgmtItem>('/devices', dto)
-    await invalidateApiCacheByPrefix('/devices')
-    return res
+    const res = await api.post<DeviceMgmtItem>("/devices", dto);
+    await invalidateApiCacheByPrefix("/devices");
+    return res;
   },
-
-  patch: async (id: string, dto: UpdateDeviceMgmtDto) => {
-    const res = await api.patch<DeviceMgmtItem>(`/devices/${id}`, dto)
-    await invalidateApiCacheByPrefix('/devices')
-    return res
-  },
-
-  remove: async (id: string) => {
-    const res = await api.delete<null>(`/devices/${id}`)
-    await invalidateApiCacheByPrefix('/devices')
-    return res
-  },
-
-  getStats: (id: string) =>
-    api.get<any>(`/devices/${id}/stats`),
 
   //  [W4-B] 保养计划 CRUD + 到期提醒
   listMaintenancePlans: (params?: { deviceId?: string; status?: string }) => {
-    const query = params ? '?' + new URLSearchParams(
-      Object.entries(params).filter(([, v]) => v !== undefined && v !== '') as [string, string][],
-    ).toString() : ''
-    return api.getList<MaintenancePlan>(`/device-mgmt/maintenance-plans${query}`)
+    const query = params
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).filter(
+            ([, v]) => v !== undefined && v !== "",
+          ) as [string, string][],
+        ).toString()
+      : "";
+    return api.getList<MaintenancePlan>(
+      `/device-mgmt/maintenance-plans${query}`,
+    );
   },
 
   createMaintenancePlan: async (dto: CreateMaintenancePlanDto) => {
-    const res = await api.post<MaintenancePlan>('/device-mgmt/maintenance-plans', dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/maintenance-plans')
-    return res
+    const res = await api.post<MaintenancePlan>(
+      "/device-mgmt/maintenance-plans",
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/maintenance-plans");
+    return res;
   },
 
   updateMaintenancePlan: async (id: string, dto: UpdateMaintenancePlanDto) => {
-    const res = await api.put<MaintenancePlan>(`/device-mgmt/maintenance-plans/${id}`, dto)
-    await invalidateApiCacheByPrefix('/device-mgmt/maintenance-plans')
-    return res
+    const res = await api.put<MaintenancePlan>(
+      `/device-mgmt/maintenance-plans/${id}`,
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/maintenance-plans");
+    return res;
   },
 
   deleteMaintenancePlan: async (id: string) => {
-    const res = await api.delete<{ ok: boolean; id: string }>(`/device-mgmt/maintenance-plans/${id}`)
-    await invalidateApiCacheByPrefix('/device-mgmt/maintenance-plans')
-    return res
+    const res = await api.delete<{ ok: boolean; id: string }>(
+      `/device-mgmt/maintenance-plans/${id}`,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/maintenance-plans");
+    return res;
   },
 
   maintenanceDue: (days: number = 30) =>
-    api.get<{ items: MaintenancePlan[]; total: number; days: number }>(`/device-mgmt/maintenance-due?days=${days}`),
-}
+    api.get<{ items: MaintenancePlan[]; total: number; days: number }>(
+      `/device-mgmt/maintenance-due?days=${days}`,
+    ),
+};

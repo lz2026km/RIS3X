@@ -43,12 +43,15 @@ export interface RadPathStats {
   trend: Array<{ month: string; rate: number }>;
 }
 
+// [W1-C 去重] POST /radpath/create 单一实现 (create/matchReport 共用)
+async function createRadPath(dto: RadPathCreateDto) {
+  const res = await api.post<RadPathRecord>("/radpath/create", dto);
+  await invalidateApiCacheByPrefix("/radpath");
+  return res;
+}
+
 export const radpathApi = {
-  create: async (dto: RadPathCreateDto) => {
-    const res = await api.post<RadPathRecord>("/radpath/create", dto);
-    await invalidateApiCacheByPrefix("/radpath");
-    return res;
-  },
+  create: createRadPath,
 
   findByReport: (reportId: string) =>
     api.get<RadPathRecord>(`/radpath/report/${encodeURIComponent(reportId)}`),
@@ -58,17 +61,14 @@ export const radpathApi = {
 
   getRecords: () => api.get<RadPathRecord[]>("/radpath/records"),
 
-  matchReport: async (reportId: string, pathologyId: string) => {
-    const res = await api.post<RadPathRecord>("/radpath/create", {
+  matchReport: (reportId: string, pathologyId: string) =>
+    createRadPath({
       reportId,
       pathologyId,
       radFinding: "",
       pathResult: "",
       consistency: "pending" as const,
-    });
-    await invalidateApiCacheByPrefix("/radpath");
-    return res;
-  },
+    }),
 
   updateConsistency: async (dto: RadPathUpdateConsistencyDto) => {
     const res = await api.put<RadPathRecord>("/radpath/consistency", dto);
