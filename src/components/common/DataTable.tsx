@@ -9,7 +9,7 @@
  * 兼容 ProTable / VirtualTable 常用调用方式。
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Table, Skeleton, Button, Tooltip } from "antd";
+import { Table, Button, Tooltip, Drawer, Descriptions, Space } from "antd";
 import type {
   TableProps,
   TableColumnsType,
@@ -23,14 +23,21 @@ import "../../styles/data-table.css";
 import { EmptyState } from "./EmptyState";
 // [W14-UX] 列配置/保存视图 + 右键上下文菜单
 import { useContextMenu, type ContextMenuItem } from "./ContextMenu";
-import { useTableColumnConfig, type ColumnLike } from "../data/useTableColumnConfig";
+import {
+  useTableColumnConfig,
+  type ColumnLike,
+} from "../data/useTableColumnConfig";
+import { AppSkeleton } from "../feedback/Toast";
 import { t } from "../../i18n/appI18n";
 
-type AnyColumn<RecordType extends object> = TableColumnType<RecordType> | TableColumnGroupType<RecordType>;
+type AnyColumn<RecordType extends object> =
+  TableColumnType<RecordType> | TableColumnGroupType<RecordType>;
 type HiddenColumn = { hidden?: boolean };
 
-export interface DataTableProps<RecordType extends object>
-  extends Omit<TableProps<RecordType>, "size" | "pagination" | "locale" | "rowClassName"> {
+export interface DataTableProps<RecordType extends object> extends Omit<
+  TableProps<RecordType>,
+  "size" | "pagination" | "locale" | "rowClassName"
+> {
   columns: TableColumnsType<RecordType>;
   dataSource: RecordType[];
   rowKey: TableProps<RecordType>["rowKey"];
@@ -104,6 +111,43 @@ export interface DataTableProps<RecordType extends object>
    * 默认 false —— 未传 columnConfigKey 时按「路由 + 列签名」自动派生存储键。
    */
   disableColumnConfig?: boolean;
+  /**
+   * [v3.0.6.16-6] 自动排序: 为「有 dataIndex + 数据为标量」的列自动挂 sorter,
+   * 免去每个页面手写 sorter。默认 true; 单列可传 `sorter: false` 退出, 整表传
+   * `disableAutoSort` 退出。
+   */
+  autoSort?: boolean;
+  /** [v3.0.6.16-6] 关闭自动排序 */
+  disableAutoSort?: boolean;
+  /**
+   * [v3.0.6.16-6] 行选择 + 批量操作条。
+   * 传 true 即开启勾选列; 选中 >=1 行时表格上方出现批量操作条。
+   */
+  selectable?: boolean;
+  /** [v3.0.6.16-6] 批量操作条内容 (selectedKeys / selectedRows / clear) */
+  bulkActions?: (
+    selectedKeys: React.Key[],
+    selectedRows: RecordType[],
+    clear: () => void,
+  ) => ReactNode;
+  /** [v3.0.6.16-6] 受控选中行 */
+  selectedRowKeys?: React.Key[];
+  /** [v3.0.6.16-6] 选中行变化回调 */
+  onSelectionChange?: (keys: React.Key[], rows: RecordType[]) => void;
+  /**
+   * [v3.0.6.16-6] 行钻取: 点击行打开详情抽屉。
+   *  - `true`: 用内置抽屉展示该行全部字段 (key/value)
+   *  - 函数: 自定义钻取行为 (如跳转/打开业务抽屉)
+   */
+  drillDown?: boolean | ((record: RecordType) => void);
+  /** [v3.0.6.16-6] 内置钻取抽屉标题 */
+  drillDownTitle?: (record: RecordType) => ReactNode;
+  /** [v3.0.6.16-6] 内置钻取抽屉字段 (默认取全部标量字段) */
+  drillDownFields?: Array<{
+    label: string;
+    key: string;
+    render?: (value: unknown, record: RecordType) => ReactNode;
+  }>;
 }
 
 export type TableDensity = "compact" | "comfortable";
@@ -137,16 +181,25 @@ function deriveColumnConfigKey(columns: TableColumnsType<object>): string {
   const path = typeof window !== "undefined" ? window.location.pathname : "";
   const colSig = columns
     .map((c, i) => {
-      const anyCol = c as TableColumnType<object> & { children?: TableColumnsType<object> };
+      const anyCol = c as TableColumnType<object> & {
+        children?: TableColumnsType<object>;
+      };
       if (Array.isArray(anyCol.children)) {
-        return anyCol.children.map((ch, j) => String((ch as { key?: unknown }).key ?? (ch as { dataIndex?: unknown }).dataIndex ?? j)).join("+");
+        return anyCol.children
+          .map((ch, j) =>
+            String(
+              (ch as { key?: unknown }).key ??
+                (ch as { dataIndex?: unknown }).dataIndex ??
+                j,
+            ),
+          )
+          .join("+");
       }
       return String(anyCol.key ?? anyCol.dataIndex ?? i);
     })
     .join("|");
   return `dt:${path}:${hashKey(colSig)}`;
 }
-
 
 /** [v3.0.6.15-5] 归一列宽时的最小列宽 (px) */
 const MIN_COL_WIDTH = 120;
@@ -155,17 +208,26 @@ const MIN_COL_WIDTH = 120;
 const WIDTH_STEP = 20;
 
 function lastDataIndexSegment(dataIndex: unknown): string {
-  if (Array.isArray(dataIndex)) return String(dataIndex[dataIndex.length - 1] ?? "");
+  if (Array.isArray(dataIndex))
+    return String(dataIndex[dataIndex.length - 1] ?? "");
   return dataIndex === undefined || dataIndex === null ? "" : String(dataIndex);
 }
 
-function hasWrapOptOut<RecordType extends object>(col: AnyColumn<RecordType>): boolean {
-  return String((col as TableColumnType<RecordType>).className ?? "").includes("dt-wrap");
+function hasWrapOptOut<RecordType extends object>(
+  col: AnyColumn<RecordType>,
+): boolean {
+  return String((col as TableColumnType<RecordType>).className ?? "").includes(
+    "dt-wrap",
+  );
 }
 
-function isNumericColumn<RecordType extends object>(col: AnyColumn<RecordType>): boolean {
+function isNumericColumn<RecordType extends object>(
+  col: AnyColumn<RecordType>,
+): boolean {
   const keyBase = String((col as TableColumnType<RecordType>).key ?? "");
-  const base = lastDataIndexSegment((col as TableColumnType<RecordType>).dataIndex) || keyBase;
+  const base =
+    lastDataIndexSegment((col as TableColumnType<RecordType>).dataIndex) ||
+    keyBase;
   if (!base) return false;
   return NUMERIC_SUFFIX_RE.test(base);
 }
@@ -179,7 +241,9 @@ function applyNumericAlign<RecordType extends object>(
     const anyCol = col as TableColumnType<RecordType> & {
       children?: TableColumnsType<RecordType>;
     };
-    const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
+    const next: TableColumnType<RecordType> & {
+      children?: TableColumnsType<RecordType>;
+    } = { ...anyCol };
     if (Array.isArray(anyCol.children)) {
       next.children = applyNumericAlign(anyCol.children, enabled);
     }
@@ -187,11 +251,68 @@ function applyNumericAlign<RecordType extends object>(
       const numeric = isNumericColumn(anyCol);
       const alignRight = anyCol.align === "right";
       if (numeric && !anyCol.align) next.align = "right";
-      if ((numeric || alignRight) && !String(anyCol.className ?? "").includes("dt-num")) {
-        next.className = anyCol.className ? `${anyCol.className} dt-num` : "dt-num";
+      if (
+        (numeric || alignRight) &&
+        !String(anyCol.className ?? "").includes("dt-num")
+      ) {
+        next.className = anyCol.className
+          ? `${anyCol.className} dt-num`
+          : "dt-num";
       }
     }
     return next;
+  }) as TableColumnsType<RecordType>;
+}
+
+/**
+ * [v3.0.6.16-6] 自动排序: 为「有 dataIndex + 首行取到标量值」的列自动挂 sorter。
+ *
+ * 目的: 全站 672 张表此前只有极少数手写了 sorter, 客户点列头无法排序 ——
+ * 这在企业级 RIS 里是硬缺失。此处按首行数据推断列类型:
+ *   - number  -> 数值比较
+ *   - string  -> 本地化字符串比较 (zh-CN, 数字感知)
+ *   - 其他/缺失 -> 不挂 sorter
+ * 显式 `sorter: false` 的列、操作列 (无 dataIndex)、分组列的父节点不处理。
+ */
+function applyAutoSort<RecordType extends object>(
+  columns: TableColumnsType<RecordType>,
+  dataSource: RecordType[],
+  enabled: boolean,
+): TableColumnsType<RecordType> {
+  if (!enabled || dataSource.length === 0) return columns;
+  const sample = dataSource[0] as Record<string, unknown>;
+  return columns.map((col) => {
+    const anyCol = col as TableColumnType<RecordType> & {
+      children?: TableColumnsType<RecordType>;
+    };
+    const next: TableColumnType<RecordType> & {
+      children?: TableColumnsType<RecordType>;
+    } = { ...anyCol };
+    if (Array.isArray(anyCol.children)) {
+      next.children = applyAutoSort(anyCol.children, dataSource, enabled);
+      return next as TableColumnsType<RecordType>[number];
+    }
+    if (anyCol.sorter !== undefined && anyCol.sorter !== null)
+      return next as TableColumnsType<RecordType>[number];
+    if (anyCol.sorter === false)
+      return next as TableColumnsType<RecordType>[number];
+    const di = anyCol.dataIndex;
+    if (typeof di !== "string" || di.length === 0)
+      return next as TableColumnsType<RecordType>[number];
+    const probe = sample[di];
+    if (typeof probe === "number") {
+      next.sorter = (a: RecordType, b: RecordType) =>
+        ((a as Record<string, unknown>)[di] as number) -
+        ((b as Record<string, unknown>)[di] as number);
+    } else if (typeof probe === "string") {
+      next.sorter = (a: RecordType, b: RecordType) =>
+        String((a as Record<string, unknown>)[di] ?? "").localeCompare(
+          String((b as Record<string, unknown>)[di] ?? ""),
+          "zh-CN",
+          { numeric: true },
+        );
+    }
+    return next as TableColumnsType<RecordType>[number];
   }) as TableColumnsType<RecordType>;
 }
 
@@ -218,7 +339,9 @@ export function applyDefaultEllipsis<RecordType extends object>(
       children?: TableColumnsType<RecordType>;
     };
     if (Array.isArray(anyCol.children)) {
-      const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
+      const next: TableColumnType<RecordType> & {
+        children?: TableColumnsType<RecordType>;
+      } = { ...anyCol };
       next.children = applyDefaultEllipsis(anyCol.children, enabled);
       return next;
     }
@@ -226,7 +349,9 @@ export function applyDefaultEllipsis<RecordType extends object>(
     if (isActionColumn(anyCol as AnyColumn<object>)) return col;
     if (isNumericColumn(anyCol)) return col;
     if (hasWrapOptOut(anyCol)) return col;
-    const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
+    const next: TableColumnType<RecordType> & {
+      children?: TableColumnsType<RecordType>;
+    } = { ...anyCol };
     next.ellipsis = { showTitle: true };
     return next;
   }) as TableColumnsType<RecordType>;
@@ -256,14 +381,21 @@ export function applyDefaultEllipsis<RecordType extends object>(
  */
 const ACTION_COLUMN_MIN_WIDTH = 160;
 
-function columnWeight<RecordType extends object>(col: AnyColumn<RecordType>): number {
+function columnWeight<RecordType extends object>(
+  col: AnyColumn<RecordType>,
+): number {
   const c = col as TableColumnType<RecordType>;
   if (isActionColumn(c as AnyColumn<object>)) return 2.2;
   if (c.ellipsis !== undefined) return 1.8;
   if (isNumericColumn(c)) return 0.7;
   // 标题很短 + 无 ellipsis 的列, 通常是状态/Tag, 给窄一些
   const titleText = typeof c.title === "string" ? c.title : "";
-  if (titleText.length > 0 && titleText.length <= 6 && c.ellipsis === undefined && !c.render) {
+  if (
+    titleText.length > 0 &&
+    titleText.length <= 6 &&
+    c.ellipsis === undefined &&
+    !c.render
+  ) {
     return 0.85;
   }
   return 1;
@@ -339,7 +471,7 @@ export function normalizeColumnWidths<RecordType extends object>(
         left -= ACTION_COLUMN_MIN_WIDTH;
       }
     }
-    let rest = pending.filter((l) => assigned.get(l.col) === undefined);
+    const rest = pending.filter((l) => assigned.get(l.col) === undefined);
     if (rest.length > 0) {
       let remaining = Math.max(left, MIN_COL_WIDTH * rest.length);
       // 每列先取 MIN
@@ -351,7 +483,10 @@ export function normalizeColumnWidths<RecordType extends object>(
       while (remaining > 0 && totalWeight > 0) {
         let distributed = 0;
         for (const l of rest) {
-          const add = Math.max(1, Math.round((remaining * l.weight) / totalWeight));
+          const add = Math.max(
+            1,
+            Math.round((remaining * l.weight) / totalWeight),
+          );
           const cur = assigned.get(l.col) ?? MIN_COL_WIDTH;
           const next = Math.min(cur + add, cur + STEP);
           if (next > cur) {
@@ -373,9 +508,17 @@ export function normalizeColumnWidths<RecordType extends object>(
     };
     if (Array.isArray(anyCol.children)) {
       // 分组列: 子列共享父级配额, 避免"整表 containerWidth 传入子列"导致撑爆
-      const childBudget = Array.from(assigned.values()).reduce((s, v) => s + v, 0);
-      const n: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
-      n.children = normalizeColumnWidths(anyCol.children, Math.max(childBudget, MIN_COL_WIDTH)).columns;
+      const childBudget = Array.from(assigned.values()).reduce(
+        (s, v) => s + v,
+        0,
+      );
+      const n: TableColumnType<RecordType> & {
+        children?: TableColumnsType<RecordType>;
+      } = { ...anyCol };
+      n.children = normalizeColumnWidths(
+        anyCol.children,
+        Math.max(childBudget, MIN_COL_WIDTH),
+      ).columns;
       return n;
     }
     const w = assigned.get(col);
@@ -388,7 +531,7 @@ export function normalizeColumnWidths<RecordType extends object>(
     if (isActionColumn(anyCol as AnyColumn<object>)) {
       next.className = anyCol.className
         ? `${anyCol.className} dt-actions`
-        : 'dt-actions';
+        : "dt-actions";
     }
     return next;
   }) as TableColumnsType<RecordType>;
@@ -396,20 +539,25 @@ export function normalizeColumnWidths<RecordType extends object>(
   return { columns: nextColumns, totalWidth };
 }
 
-
 function getColumnValue(row: object, dataIndex: unknown): unknown {
   if (dataIndex === undefined || dataIndex === null) return undefined;
-  const path = Array.isArray(dataIndex) ? dataIndex : String(dataIndex).split(".");
+  const path = Array.isArray(dataIndex)
+    ? dataIndex
+    : String(dataIndex).split(".");
   return path.reduce<unknown>(
     (value, key) =>
-      value && typeof value === "object" ? (value as Record<string, unknown>)[key] : undefined,
+      value && typeof value === "object"
+        ? (value as Record<string, unknown>)[key]
+        : undefined,
     row,
   );
 }
 
 function isActionColumn(col: AnyColumn<object>): boolean {
   const c = col as TableColumnType<object>;
-  const key = String(c.key ?? lastDataIndexSegment(c.dataIndex) ?? "").toLowerCase();
+  const key = String(
+    c.key ?? lastDataIndexSegment(c.dataIndex) ?? "",
+  ).toLowerCase();
   return ["action", "actions", "operation", "operations", "操作"].includes(key);
 }
 
@@ -444,9 +592,13 @@ function exportCsv<RecordType extends object>(
   };
   walk(columns);
 
-  const header = flat.map((c) => csvCell(typeof c.title === "string" ? c.title : "")).join(",");
+  const header = flat
+    .map((c) => csvCell(typeof c.title === "string" ? c.title : ""))
+    .join(",");
   const body = dataSource
-    .map((row) => flat.map((c) => csvCell(getColumnValue(row, c.dataIndex))).join(","))
+    .map((row) =>
+      flat.map((c) => csvCell(getColumnValue(row, c.dataIndex))).join(","),
+    )
     .join("\r\n");
   const csv = `\uFEFF${header}\r\n${body}`;
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -487,6 +639,15 @@ export function DataTable<RecordType extends object>({
   layoutWidth = 1200,
   hideToolbar = false,
   disableColumnConfig = false,
+  autoSort = true,
+  disableAutoSort = false,
+  selectable = false,
+  bulkActions,
+  selectedRowKeys: selectedRowKeysProp,
+  onSelectionChange,
+  drillDown,
+  drillDownTitle,
+  drillDownFields,
   tableLayout = "fixed",
   pagination: paginationProp,
   locale,
@@ -500,14 +661,21 @@ export function DataTable<RecordType extends object>({
 }: DataTableProps<RecordType>) {
   const density = densityProp ?? "compact";
 
-  const pagination = useMemoPagination(showPagination, paginationProp, pageSize, paginationSize);
+  const pagination = useMemoPagination(
+    showPagination,
+    paginationProp,
+    pageSize,
+    paginationSize,
+  );
   // [v3.0.6.16-6] 列配置默认启用: 未显式传 columnConfigKey 时按「路由 + 列签名」自动派生,
   // 使全站 672 张表都具备「列显隐 / 列排序 / 保存视图」(此前仅 9 张表可用)。
   const autoColumnConfigKey = useMemo(
     () => deriveColumnConfigKey(columns as unknown as TableColumnsType<object>),
     [columns],
   );
-  const resolvedColumnConfigKey = disableColumnConfig ? null : (columnConfigKey ?? autoColumnConfigKey);
+  const resolvedColumnConfigKey = disableColumnConfig
+    ? null
+    : (columnConfigKey ?? autoColumnConfigKey);
   // [W14-UX] 列配置 + 保存视图
   const columnConfig = useTableColumnConfig<ColumnLike>({
     columns: columns as unknown as ColumnLike[],
@@ -545,13 +713,23 @@ export function DataTable<RecordType extends object>({
     () => normalizeColumnWidths(baseColumns, effectiveLayoutWidth),
     [baseColumns, effectiveLayoutWidth],
   );
+  // [v3.0.6.16-6] 自动排序: 按首行数据推断标量列, 自动挂 sorter (数字按数值, 其余按本地化字符串)
+  const sortedColumns = useMemo(
+    () =>
+      applyAutoSort(
+        normalized.columns,
+        dataSource,
+        autoSort && !disableAutoSort,
+      ),
+    [normalized.columns, dataSource, autoSort, disableAutoSort],
+  );
   const effectiveColumns = useMemo(
     () =>
       applyDefaultEllipsis(
-        applyNumericAlign(normalized.columns, !disableAutoNumericAlign),
+        applyNumericAlign(sortedColumns, !disableAutoNumericAlign),
         cellWrap === "ellipsis",
       ),
-    [normalized.columns, disableAutoNumericAlign, cellWrap],
+    [sortedColumns, disableAutoNumericAlign, cellWrap],
   );
   // [v3.0.6.16-0] T1 修复: **无条件**用归一后的列宽总和覆盖 scroll.x。
   // v3.0.6.15-5 只替换 x === 'max-content', 而全站还有 41 处调用点传了
@@ -561,8 +739,7 @@ export function DataTable<RecordType extends object>({
     const next = { ...scroll } as NonNullable<TableProps<RecordType>["scroll"]>;
     if (normalized.totalWidth > 0) {
       // rowSelection / expandable 会额外插入列, 必须计入否则右侧留缝
-      const extra =
-        (rowSelection ? 48 : 0) + (restProps.expandable ? 48 : 0);
+      const extra = (rowSelection ? 48 : 0) + (restProps.expandable ? 48 : 0);
       next.x = normalized.totalWidth + extra;
     }
     return next;
@@ -571,6 +748,61 @@ export function DataTable<RecordType extends object>({
   // [W14-UX] 右键上下文菜单
   const { open: openContextMenu, menu: contextMenuNode } = useContextMenu(
     contextMenuTestId ?? "data-table-context-menu",
+  );
+
+  // [v3.0.6.16-6] 行选择 (非受控兜底) + 钻取抽屉
+  const [innerSelectedKeys, setInnerSelectedKeys] = useState<React.Key[]>([]);
+  const selectedKeys = selectedRowKeysProp ?? innerSelectedKeys;
+  const [drillRecord, setDrillRecord] = useState<RecordType | null>(null);
+
+  const clearSelection = useCallback(() => {
+    setInnerSelectedKeys([]);
+    onSelectionChange?.([], []);
+  }, [onSelectionChange]);
+
+  const resolvedRowSelection = useMemo<
+    TableProps<RecordType>["rowSelection"]
+  >(() => {
+    if (!selectable) return rowSelection;
+    const base = (rowSelection ?? {}) as NonNullable<
+      TableProps<RecordType>["rowSelection"]
+    >;
+    return {
+      ...base,
+      selectedRowKeys: selectedKeys,
+      onChange: (keys, rows) => {
+        if (selectedRowKeysProp === undefined) setInnerSelectedKeys(keys);
+        onSelectionChange?.(keys, rows);
+        (
+          base.onChange as
+            ((k: React.Key[], r: RecordType[]) => void) | undefined
+        )?.(keys, rows);
+      },
+    };
+  }, [
+    selectable,
+    rowSelection,
+    selectedKeys,
+    selectedRowKeysProp,
+    onSelectionChange,
+  ]);
+
+  const selectedRows = useMemo(() => {
+    if (!selectable || selectedKeys.length === 0) return [] as RecordType[];
+    const keyOf = (r: RecordType, i: number): React.Key => {
+      if (typeof rowKey === "function") return rowKey(r);
+      const k = (r as Record<string, unknown>)[rowKey as string];
+      return (k as React.Key) ?? i;
+    };
+    return dataSource.filter((r, i) => selectedKeys.includes(keyOf(r, i)));
+  }, [selectable, selectedKeys, dataSource, rowKey]);
+
+  const openDrillDown = useCallback(
+    (record: RecordType) => {
+      if (typeof drillDown === "function") drillDown(record);
+      else setDrillRecord(record);
+    },
+    [drillDown],
   );
 
   const hasData = dataSource.length > 0;
@@ -588,16 +820,59 @@ export function DataTable<RecordType extends object>({
   const toolbarStyle: CSSProperties = {
     display: "flex",
     alignItems: "center",
-    gap: 'var(--space-2, 8px)',
+    gap: "var(--space-2, 8px)",
     padding: "8px 12px",
     borderBottom: "1px solid var(--border-color, #e2e8f0)",
     background: "var(--bg-card)",
     flexWrap: "wrap",
   };
 
+  // [v3.0.6.16-6] 批量操作条样式 (与工具栏同构, 用主色底以示"已进入批量态")
+  const bulkBarStyle: CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2, 8px)",
+    padding: "8px 12px",
+    borderBottom: "1px solid var(--color-primary-200, #bfdbfe)",
+    background: "var(--color-primary-50, #eff6ff)",
+    flexWrap: "wrap",
+  };
+
   return (
-    <div ref={wrapRef} className={`data-table data-table--${density} ${className ?? ""}`}>
+    <div
+      ref={wrapRef}
+      className={`data-table data-table--${density} ${className ?? ""}`}
+    >
       {contextMenuNode}
+      {/* [v3.0.6.16-6] 批量操作条: 选中 >=1 行时出现 */}
+      {selectable && selectedKeys.length > 0 && (
+        <div style={bulkBarStyle} data-testid="data-table-bulk-bar">
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--color-primary-700, #1d4ed8)",
+            }}
+          >
+            {t("ui4Tables.bulk.selected").replace(
+              "{n}",
+              String(selectedKeys.length),
+            )}
+          </span>
+          <div style={{ flex: 1 }} />
+          <Space size={8}>
+            {bulkActions?.(selectedKeys, selectedRows, clearSelection)}
+            <Button
+              size="small"
+              type="text"
+              onClick={clearSelection}
+              data-testid="data-table-bulk-clear"
+            >
+              {t("ui4Tables.bulk.clear")}
+            </Button>
+          </Space>
+        </div>
+      )}
       {showToolbar && (
         <div style={toolbarStyle} data-testid="data-table-toolbar">
           {toolbar}
@@ -639,13 +914,20 @@ export function DataTable<RecordType extends object>({
         scroll={{ y: fixedHeader, ...resolvedScroll }}
         tableLayout={tableLayout}
         size={density === "compact" ? "small" : "middle"}
+        rowSelection={resolvedRowSelection}
         loading={
           loading
             ? {
                 spinning: true,
                 indicator: (
-                  <div style={{ padding: 'var(--space-4, 16px)', maxWidth: 720 }}>
-                    <Skeleton active title={false} paragraph={{ rows: 4 }} />
+                  <div
+                    style={{
+                      padding: "var(--space-4, 16px)",
+                      maxWidth: 720,
+                      width: "100%",
+                    }}
+                  >
+                    <AppSkeleton rows={4} columns={4} />
                   </div>
                 ),
                 ...(typeof loading === "object" ? loading : {}),
@@ -658,34 +940,107 @@ export function DataTable<RecordType extends object>({
                 const zebraCls = zebra && index % 2 === 1 ? "dt-zebra" : "";
                 const custom =
                   typeof rowClassNameProp === "function"
-                    ? (rowClassNameProp as (r: RecordType, i: number, s: number) => string)(record, index, -1)
-                    : rowClassNameProp ?? "";
+                    ? (
+                        rowClassNameProp as (
+                          r: RecordType,
+                          i: number,
+                          s: number,
+                        ) => string
+                      )(record, index, -1)
+                    : (rowClassNameProp ?? "");
                 return [zebraCls, custom].filter(Boolean).join(" ");
               }
             : undefined
         }
         onRow={(record, index) => {
           const base = onRowProp?.(record, index) ?? {};
-          if (!contextMenuItems) return base;
-          return {
-            ...base,
-            onContextMenu: (event) => {
+          const next: Record<string, unknown> = { ...base };
+          if (contextMenuItems) {
+            next["onContextMenu"] = (event: React.MouseEvent) => {
               event.preventDefault();
               const items = contextMenuItems(record, index ?? 0);
               if (items.length > 0) openContextMenu(event, items);
-            },
-          };
+            };
+          }
+          // [v3.0.6.16-6] 行钻取: 整行可点 (原有 onClick 优先, 不覆盖调用方行为)
+          if (drillDown && !base.onClick) {
+            next["onClick"] = () => openDrillDown(record);
+            next["style"] = {
+              ...(base.style as CSSProperties | undefined),
+              cursor: "pointer",
+            };
+          }
+          return next as ReturnType<
+            NonNullable<TableProps<RecordType>["onRow"]>
+          >;
         }}
       />
+      {/* [v3.0.6.16-6] 内置钻取抽屉: drillDown={true} 时展示该行全部标量字段 */}
+      {drillDown === true && (
+        <Drawer
+          open={drillRecord !== null}
+          onClose={() => setDrillRecord(null)}
+          width={560}
+          destroyOnClose
+          title={
+            drillRecord
+              ? (drillDownTitle?.(drillRecord) ??
+                t("ui4Tables.drillDown.title"))
+              : t("ui4Tables.drillDown.title")
+          }
+          data-testid="data-table-drill-down"
+        >
+          {drillRecord && (
+            <Descriptions column={1} size="small" bordered>
+              {(
+                drillDownFields ??
+                (inferDrillDownFields(drillRecord) as Array<{
+                  label: string;
+                  key: string;
+                  render?: (value: unknown, record: RecordType) => ReactNode;
+                }>)
+              ).map((f) => (
+                <Descriptions.Item key={f.key} label={f.label}>
+                  {f.render
+                    ? f.render(
+                        (drillRecord as Record<string, unknown>)[f.key],
+                        drillRecord,
+                      )
+                    : formatDrillDownValue(
+                        (drillRecord as Record<string, unknown>)[f.key],
+                      )}
+                </Descriptions.Item>
+              ))}
+            </Descriptions>
+          )}
+        </Drawer>
+      )}
     </div>
   );
+}
+
+/** [v3.0.6.16-6] 未显式提供 drillDownFields 时, 取该行全部标量字段 */ function inferDrillDownFields(
+  record: object,
+): Array<{ label: string; key: string }> {
+  return Object.entries(record)
+    .filter(
+      ([, v]) =>
+        v === null || ["string", "number", "boolean"].includes(typeof v),
+    )
+    .map(([key]) => ({ label: key, key }));
+}
+
+function formatDrillDownValue(value: unknown): ReactNode {
+  if (value === null || value === undefined) return "-";
+  if (typeof value === "boolean") return value ? "是" : "否";
+  return String(value);
 }
 
 function useMemoPagination(
   showPagination: boolean,
   paginationProp: TableProps<object>["pagination"],
   pageSize: number,
-  paginationSize: "small" | "large"
+  paginationSize: "small" | "large",
 ): TablePaginationConfig | false {
   if (!showPagination && paginationProp === undefined) return false;
   const base: TablePaginationConfig = {
